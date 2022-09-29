@@ -19,9 +19,11 @@ package androidx.lifecycle.viewmodel.compose
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -70,6 +72,60 @@ class SavedStateHandleSaverTest {
         }
 
         assertThat(array).isEqualTo(intArrayOf(1))
+    }
+
+    private class CustomStateHolder(
+        initialValue: Int
+    ) {
+        var value by mutableStateOf(initialValue)
+
+        companion object {
+            val Saver: Saver<CustomStateHolder, *> = Saver(
+                save = { it.value },
+                restore = { CustomStateHolder(it) }
+            )
+        }
+    }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun customStateHolder_simpleRestore() {
+        var stateHolder: CustomStateHolder? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                stateHolder = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    saver = CustomStateHolder.Saver
+                ) {
+                    CustomStateHolder(0)
+                }
+            }
+        }
+
+        assertThat(stateHolder?.value).isEqualTo(0)
+
+        activityTestRuleScenario.scenario.onActivity {
+            stateHolder!!.value = 1
+            // we null it to ensure recomposition happened
+            stateHolder = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                stateHolder = viewModel.savedStateHandle.saveable(
+                    key = "key",
+                    saver = CustomStateHolder.Saver
+                ) {
+                    CustomStateHolder(0)
+                }
+            }
+        }
+
+        assertThat(stateHolder?.value).isEqualTo(1)
     }
 
     private data class CustomState(

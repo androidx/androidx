@@ -18,6 +18,7 @@ package com.example.android.leanback;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.paging.PagingDataAdapter;
 import androidx.leanback.widget.HorizontalGridView;
@@ -25,9 +26,7 @@ import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.RowPresenter;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.PagingData;
 
 /**
  * PagedRowPresenter
@@ -45,7 +44,10 @@ public class PagedRowPresenter extends ListRowPresenter {
                 listRowPresenterViewHolder.getListRowPresenter());
     }
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
         mRow = (ListRow) item;
 
@@ -59,16 +61,9 @@ public class PagedRowPresenter extends ListRowPresenter {
                 pagingData -> adapter.submitData(mLifecycleOwner.getLifecycle(), pagingData));
     }
     private static class LiveDataRowPresenterViewHolder extends ListRowPresenter.ViewHolder {
-        private LiveData<PagingData<PhotoItem>> mLiveData;
         LiveDataRowPresenterViewHolder(View rootView, HorizontalGridView gridView,
                 ListRowPresenter p) {
             super(rootView, gridView, p);
-        }
-        public void setLiveData(LiveData<PagingData<PhotoItem>> liveData) {
-            mLiveData = liveData;
-        }
-        public final LiveData<PagingData<PhotoItem>> getLiveData() {
-            return mLiveData;
         }
     }
 }

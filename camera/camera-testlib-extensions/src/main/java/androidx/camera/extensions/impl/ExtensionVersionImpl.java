@@ -18,6 +18,7 @@ package androidx.camera.extensions.impl;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -59,7 +60,9 @@ public class ExtensionVersionImpl {
      * @return the version that vendor supported in this device. The MAJOR.MINOR.PATCH format
      * should be used.
      */
-    public String checkApiVersion(String version) {
+    @SuppressWarnings("unused")
+    @NonNull
+    public String checkApiVersion(@NonNull String version) {
         Log.d(TAG, "Extension device library version " + VERSION);
         return VERSION;
     }

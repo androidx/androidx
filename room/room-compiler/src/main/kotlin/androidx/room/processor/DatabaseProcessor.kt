@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
@@ -318,12 +319,14 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             .filter { it.value.size > 1 } // get the ones with duplicate names
             .forEach {
                 // do not report duplicates from the same entity
-                if (it.value.distinctBy { it.second.typeName }.size > 1) {
+                if (it.value.distinctBy { it.second.typeName.toJavaPoet() }.size > 1) {
                     context.logger.e(
                         element,
                         ProcessorErrors.duplicateIndexInDatabase(
                             it.key,
-                            it.value.map { "${it.second.typeName} > ${it.first}" }
+                            it.value.map {
+                                "${it.second.typeName.toJavaPoet()} > ${it.first}"
+                            }
                         )
                     )
                 }
@@ -335,11 +338,11 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods: List<DaoMethod>,
         entities: List<Entity>
     ) {
-        val entityTypeNames = entities.map { it.typeName }.toSet()
+        val entityTypeNames = entities.map { it.typeName.toJavaPoet() }.toSet()
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key,
+                    val error = ProcessorErrors.duplicateDao(it.key.toJavaPoet(),
                         it.value.map { it.element.jvmName }
                     )
                     it.value.forEach { daoMethod ->
@@ -363,7 +366,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         element,
                         ProcessorErrors.shortcutEntityIsNotInDatabase(
                             database = dbElement.qualifiedName,
-                            dao = dao.typeName.toString(),
+                            dao = dao.typeName.toJavaPoet().toString(),
                             entity = typeName.toString()
                         )
                     )
@@ -371,12 +374,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             }
         }
         daoMethods.forEach { daoMethod ->
-            daoMethod.dao.shortcutMethods.forEach { method ->
+            daoMethod.dao.deleteOrUpdateShortcutMethods.forEach { method ->
                 method.entities.forEach {
                     check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
-            daoMethod.dao.insertionMethods.forEach { method ->
+            daoMethod.dao.insertOrUpsertShortcutMethods.forEach { method ->
                 method.entities.forEach {
                     check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
@@ -390,10 +393,18 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         views: List<DatabaseView>
     ) {
         val entitiesInfo = entities.map {
-            Triple(it.tableName.lowercase(Locale.US), it.typeName.toString(), it.element)
+            Triple(
+                it.tableName.lowercase(Locale.US),
+                it.typeName.toJavaPoet().toString(),
+                it.element
+            )
         }
         val viewsInfo = views.map {
-            Triple(it.viewName.lowercase(Locale.US), it.typeName.toString(), it.element)
+            Triple(
+                it.viewName.lowercase(Locale.US),
+                it.typeName.toJavaPoet().toString(),
+                it.element
+            )
         }
         (entitiesInfo + viewsInfo)
             .groupBy { (name, _, _) -> name }

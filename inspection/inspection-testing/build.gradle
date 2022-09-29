@@ -45,13 +45,6 @@ androidx {
     description = "Experimental AndroidX Inspection Project"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 android {
     defaultConfig {
         // studio pipeline works only starting with Android O

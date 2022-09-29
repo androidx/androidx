@@ -56,7 +56,8 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     public HdrPreviewExtenderImpl() { }
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
@@ -66,6 +67,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         return true;
     }
 
+    @NonNull
     @Override
     public CaptureStageImpl getCaptureStage() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -73,16 +75,20 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         return new SettableCaptureStage(DEFAULT_STAGE_ID);
     }
 
+    @NonNull
     @Override
     public ProcessorType getProcessorType() {
         return ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
+    @Nullable
     @Override
     public ProcessorImpl getProcessor() {
         return mProcessor;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
@@ -92,8 +98,9 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
             new HdrPreviewExtenderPreviewImageProcessorImpl();
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
         mGlHandlerThread = new GlHandlerThread();
         mGlHandlerThread.postToRenderThread(() -> mRenderer = new GLImage2SurfaceRenderer());
     }
@@ -112,16 +119,19 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         return null;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         return null;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         return null;
@@ -144,7 +154,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
             mSurface = surface;
             setWindowSurface();
         }
@@ -167,7 +177,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
             mSize = size;
             setWindowSurface();
             if (mGlHandlerThread != null) {

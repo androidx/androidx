@@ -29,6 +29,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.room.Room.LOG_TAG
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -137,8 +138,7 @@ abstract class RoomDatabase {
      *
      * @return The lock for [close].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun getCloseLock(): Lock {
+    internal fun getCloseLock(): Lock {
         return readWriteLock.readLock()
     }
 
@@ -174,7 +174,7 @@ abstract class RoomDatabase {
     }
 
     /**
-     * Called by [Room] when it is initialized.
+     * Called by Room when it is initialized.
      *
      * @throws IllegalArgumentException if initialization fails.
      *
@@ -212,7 +212,10 @@ abstract class RoomDatabase {
         }
         val autoMigrations = getAutoMigrations(autoMigrationSpecs)
         for (autoMigration in autoMigrations) {
-            val migrationExists = configuration.migrationContainer.contains(autoMigration)
+            val migrationExists = configuration.migrationContainer.contains(
+                autoMigration.startVersion,
+                autoMigration.endVersion
+            )
             if (!migrationExists) {
                 configuration.migrationContainer.addMigrations(autoMigration)
             }
@@ -654,8 +657,7 @@ abstract class RoomDatabase {
         /**
          * Resolves [AUTOMATIC] to either [TRUNCATE] or [WRITE_AHEAD_LOGGING].
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        open fun resolve(context: Context): JournalMode {
+        internal fun resolve(context: Context): JournalMode {
             if (this != AUTOMATIC) {
                 return this
             }
@@ -1381,7 +1383,7 @@ abstract class RoomDatabase {
             val targetMap = migrations.getOrPut(start) { TreeMap<Int, Migration>() }
 
             if (targetMap.contains(end)) {
-                Log.w(Room.LOG_TAG, "Overriding migration ${targetMap[end]} with $migration")
+                Log.w(LOG_TAG, "Overriding migration ${targetMap[end]} with $migration")
             }
             targetMap[end] = migration
         }
@@ -1456,14 +1458,15 @@ abstract class RoomDatabase {
          * Indicates if the given migration is contained within the [MigrationContainer] based
          * on its start-end versions.
          *
-         * @param migration Migration to compare.
-         * @return True if 1 migration has the same start-end versions, false otherwise.
+         * @param startVersion Start version of the migration.
+         * @param endVersion End version of the migration
+         * @return True if it contains a migration with the same start-end version, false otherwise.
          */
-        operator fun contains(migration: Migration): Boolean {
+        fun contains(startVersion: Int, endVersion: Int): Boolean {
             val migrations = getMigrations()
-            if (migrations.containsKey(migration.startVersion)) {
-                val startVersionMatches = migrations[migration.startVersion] ?: emptyMap()
-                return startVersionMatches.containsKey(migration.endVersion)
+            if (migrations.containsKey(startVersion)) {
+                val startVersionMatches = migrations[startVersion] ?: emptyMap()
+                return startVersionMatches.containsKey(endVersion)
             }
             return false
         }

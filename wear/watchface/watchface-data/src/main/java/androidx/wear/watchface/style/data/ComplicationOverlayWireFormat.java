@@ -32,7 +32,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.Map;
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class ComplicationOverlayWireFormat implements VersionedParcelable, Parcelable {
@@ -58,6 +58,9 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     /** Ideally this would be Integer but VersionedParcelable doesn't support that. */
     @ParcelField(4)
     long mAccessibilityTraversalIndex;
+
+    // IMPORTANT: DO NOT EXTEND THIS FILE! IT WILL NOT BE BACKWARDS COMPATIBLE :(
+    // Instead extend ComplicationsOptionWireFormat.
 
     ComplicationOverlayWireFormat() {
     }

@@ -82,6 +82,22 @@ class OutputConfigurationCompatBaseImpl implements
     }
 
     /**
+     * Set stream use case for this OutputConfiguration.
+     */
+    @Override
+    public void setStreamUseCase(long streamUseCase) {
+        //No-op
+    }
+
+    /**
+     * Get the current stream use case for this OutputConfiguration.
+     */
+    @Override
+    public long getStreamUseCase() {
+        return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+    }
+
+    /**
      * Add a surface to this OutputConfiguration.
      *
      * <p>Since surface sharing is not supported in on API &lt;= 25, this will always throw.
@@ -227,7 +243,7 @@ class OutputConfigurationCompatBaseImpl implements
         // only valid up to API 24, and are not guaranteed to work on API levels greater than 23.
         //=========================================================================================
 
-        @SuppressLint("BlockedPrivateApi")
+        @SuppressLint({"BlockedPrivateApi", "BanUncheckedReflection"})
         private static Size getSurfaceSize(@NonNull Surface surface) {
             try {
                 Class<?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);
@@ -244,7 +260,7 @@ class OutputConfigurationCompatBaseImpl implements
             }
         }
 
-        @SuppressLint("BlockedPrivateApi")
+        @SuppressLint({"BlockedPrivateApi", "BanUncheckedReflection"})
         private static int getSurfaceFormat(@NonNull Surface surface) {
             try {
                 Class<?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);
@@ -254,6 +270,7 @@ class OutputConfigurationCompatBaseImpl implements
                     // On API 21, 'detectSurfaceType()' is package private.
                     detectSurfaceType.setAccessible(true);
                 }
+                //noinspection ConstantConditions
                 return (int) detectSurfaceType.invoke(null, surface);
             } catch (ClassNotFoundException
                     | NoSuchMethodException
@@ -266,10 +283,12 @@ class OutputConfigurationCompatBaseImpl implements
 
         }
 
-        @SuppressLint("SoonBlockedPrivateApi")
+        @SuppressWarnings("JavaReflectionMemberAccess")
+        @SuppressLint({"SoonBlockedPrivateApi", "BlockedPrivateApi", "BanUncheckedReflection"})
         private static int getSurfaceGenerationId(@NonNull Surface surface) {
             try {
                 Method getGenerationId = Surface.class.getDeclaredMethod(GET_GENERATION_ID_METHOD);
+                //noinspection ConstantConditions
                 return (int) getGenerationId.invoke(surface);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 Logger.e(TAG, "Unable to retrieve surface generation id.", e);

@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
@@ -29,6 +30,7 @@ import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.Warning
+import javax.tools.Diagnostic
 
 class Context private constructor(
     val processingEnv: XProcessingEnv,
@@ -79,6 +81,22 @@ class Context private constructor(
             } else {
                 QueryRewriter.NoOpRewriter
             }
+        }
+    }
+
+    val codeLanguage: CodeLanguage by lazy {
+        if (BooleanProcessorOptions.GENERATE_KOTLIN.getValue(processingEnv)) {
+            if (processingEnv.backend == XProcessingEnv.Backend.KSP) {
+                CodeLanguage.KOTLIN
+            } else {
+                processingEnv.messager.printMessage(
+                    Diagnostic.Kind.ERROR,
+                    "${BooleanProcessorOptions.GENERATE_KOTLIN.argName} can only be enabled in KSP."
+                )
+                CodeLanguage.JAVA
+            }
+        } else {
+            CodeLanguage.JAVA
         }
     }
 
@@ -217,7 +235,8 @@ class Context private constructor(
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
         INCREMENTAL("room.incremental", defaultValue = true),
         EXPAND_PROJECTION("room.expandProjection", defaultValue = false),
-        USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false);
+        USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false),
+        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value

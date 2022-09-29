@@ -58,6 +58,7 @@ import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
+import androidx.work.multiprocess.parcelable.ParcelableWorkRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -151,7 +152,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
-
+        if (existingPeriodicWorkPolicy == ExistingPeriodicWorkPolicy.UPDATE) {
+            ListenableFuture<byte[]> result = execute((iWorkManagerImpl, callback) -> {
+                byte[] request = ParcelConverters.marshall(new ParcelableWorkRequest(periodicWork));
+                iWorkManagerImpl.updateUniquePeriodicWorkRequest(uniqueWorkName, request, callback);
+            });
+            return map(result, sVoidMapper, mExecutor);
+        }
         WorkContinuation continuation = mWorkManager.createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,

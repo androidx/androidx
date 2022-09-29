@@ -37,10 +37,17 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
         this.mWebMessageCompat = webMessage;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Nullable
     public String getData() {
         return mWebMessageCompat.getData();
+    }
+
+    @SuppressWarnings("MissingOverride")
+    @Nullable
+    public InvocationHandler getMessagePayload() {
+        throw new UnsupportedOperationException("This method is not yet supported");
     }
 
     @Override
@@ -72,6 +79,10 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
      * {@link WebMessageCompat} objects - a class apps recognize.
      */
     @NonNull
+    // Suppress deprecation warning for usage of WebMessageBoundaryInterface's getData() method,
+    // TODO(linyhe@microsoft.com): remove this once changes corresponding to https://crrev.com/c/3607795
+    // are done in webkit.
+    @SuppressWarnings("deprecation")
     public static WebMessageCompat webMessageCompatFromBoundaryInterface(
             @NonNull WebMessageBoundaryInterface boundaryInterface) {
         return new WebMessageCompat(boundaryInterface.getData(),

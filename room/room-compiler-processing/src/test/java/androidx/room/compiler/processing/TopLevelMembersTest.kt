@@ -72,7 +72,7 @@ class TopLevelMembersTest {
                                 declaration = method
                             )
                             assertWithMessage(pkg).that(
-                                element.containing.isTypeElement()
+                                element.enclosingElement.isTypeElement()
                             ).isFalse()
                             assertWithMessage(pkg).that(element.isStatic()).isTrue()
                         }
@@ -86,7 +86,7 @@ class TopLevelMembersTest {
                                 declaration = it
                             )
                             assertWithMessage(pkg).that(
-                                element.containing.isTypeElement()
+                                element.enclosingElement.isTypeElement()
                             ).isFalse()
                             assertWithMessage(pkg).that(element.isStatic()).isTrue()
                         }

@@ -32,12 +32,11 @@ public class AutoPauseAndResumeConfigRequest(
     public val shouldEnable: Boolean,
 ) : ProtoParcelable<RequestsProto.AutoPauseAndResumeConfigRequest>() {
 
-    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest by lazy {
+    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest =
         RequestsProto.AutoPauseAndResumeConfigRequest.newBuilder()
             .setPackageName(packageName)
             .setShouldEnable(shouldEnable)
             .build()
-    }
 
     public companion object {
         @JvmField

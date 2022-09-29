@@ -79,7 +79,7 @@ private fun RemoteViews.translateEmittableLazyList(
                 translateComposition(
                     childContext.forLazyViewItem(position, LazyListItemStartingViewId),
                     listOf(itemEmittable),
-                    translationContext.layoutConfiguration.addLayout(itemEmittable),
+                    translationContext.layoutConfiguration?.addLayout(itemEmittable) ?: -1,
                 )
             )
             // If the user specifies any explicit ids, we assume the list to be stable

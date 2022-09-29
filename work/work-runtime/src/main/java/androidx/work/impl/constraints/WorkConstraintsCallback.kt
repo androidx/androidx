@@ -24,14 +24,14 @@ interface WorkConstraintsCallback {
     /**
      * Called when all constraints are met.
      *
-     * @param workSpecIds A list of [WorkSpec] IDs that may be eligible to run
+     * @param workSpecs A list of [WorkSpec] IDs that may be eligible to run
      */
-    fun onAllConstraintsMet(workSpecIds: List<String>)
+    fun onAllConstraintsMet(workSpecs: List<WorkSpec>)
 
     /**
      * Called when all constraints are not met.
      *
-     * @param workSpecIds A list of [WorkSpec] IDs that are not eligible to run
+     * @param workSpecs A list of [WorkSpec] IDs that are not eligible to run
      */
-    fun onAllConstraintsNotMet(workSpecIds: List<String>)
+    fun onAllConstraintsNotMet(workSpecs: List<WorkSpec>)
 }

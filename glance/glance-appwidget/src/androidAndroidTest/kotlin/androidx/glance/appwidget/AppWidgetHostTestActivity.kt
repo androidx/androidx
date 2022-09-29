@@ -60,9 +60,13 @@ class AppWidgetHostTestActivity : Activity() {
     override fun onDestroy() {
         try {
             mHost?.stopListening()
-            mHost?.deleteHost()
         } catch (ex: Throwable) {
-            Log.w("AppWidgetHostTestActivity", "Error stopping the AppWidget Host", ex)
+            Log.w("AppWidgetHostTestActivity", "Error stopping listening", ex)
+        }
+        try {
+            mHost?.deleteHost()
+        } catch (t: Throwable) {
+            Log.w("AppWidgetHostTestActivity", "Error deleting Host", t)
         }
         mHost = null
         super.onDestroy()

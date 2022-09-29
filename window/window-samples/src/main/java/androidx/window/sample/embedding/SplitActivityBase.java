@@ -69,6 +69,9 @@ public class SplitActivityBase extends AppCompatActivity
 
     private ActivitySplitActivityLayoutBinding mViewBinding;
 
+    /** In the process of updating checkboxes based on split rule. */
+    private boolean mUpdatingConfigs;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,11 +155,15 @@ public class SplitActivityBase extends AppCompatActivity
                 mViewBinding.useStickyPlaceholderCheckBox.setChecked(false);
             }
         }
-        updateRulesFromCheckboxes();
+        if (!mUpdatingConfigs) {
+            updateRulesFromCheckboxes();
+        }
     }
 
     /** Updates the checkboxes states after the split rules are changed by other activity. */
     void updateCheckboxesFromCurrentConfig() {
+        mUpdatingConfigs = true;
+
         SplitPairRule splitMainConfig = getRuleFor(SplitActivityA.class, null);
         mViewBinding.splitMainCheckBox.setChecked(splitMainConfig != null);
 
@@ -179,6 +186,8 @@ public class SplitActivityBase extends AppCompatActivity
 
         ActivityRule configE = getRuleFor(SplitActivityE.class);
         mViewBinding.fullscreenECheckBox.setChecked(configE != null && configE.getAlwaysExpand());
+
+        mUpdatingConfigs = false;
     }
 
     /** Gets the split rule for the given activity pair. */
@@ -198,7 +207,7 @@ public class SplitActivityBase extends AppCompatActivity
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPlaceholderRule) {
                 for (ActivityFilter filter : ((SplitPlaceholderRule) rule).getFilters()) {
-                    if (filter.getComponentName().getClassName().equals(a.getName())) {
+                    if (filter.matchesClassName(a)) {
                         return (SplitPlaceholderRule) rule;
                     }
                 }
@@ -239,14 +248,12 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Whether the given rule is for splitting the given activity with another. */
-    private boolean isRuleFor(Class<? extends Activity> a, ActivityRule config) {
-        return isRuleFor(a != null ? a.getName() : "*", config);
-    }
-
-    /** Whether the given rule is for splitting the given activity with another. */
-    private boolean isRuleFor(String activityName, ActivityRule config) {
+    private boolean isRuleFor(
+            @Nullable Class<? extends Activity> a,
+            @NonNull ActivityRule config
+    ) {
         for (ActivityFilter filter : config.getFilters()) {
-            if (filter.getComponentName().getClassName().contains(activityName)) {
+            if (filter.matchesClassNameOrWildCard(a)) {
                 return true;
             }
         }
@@ -287,7 +294,7 @@ public class SplitActivityBase extends AppCompatActivity
                 0 /* minSmallestWidth */
         )
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
-                .setFinishPrimaryWithSecondary(SplitRule.FINISH_ADJACENT)
+                .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(SPLIT_RATIO)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {

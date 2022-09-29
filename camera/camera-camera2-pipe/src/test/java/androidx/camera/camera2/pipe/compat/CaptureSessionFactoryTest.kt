@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,20 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.RequestProcessor
+import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.config.Camera2CameraGraphModules
-import androidx.camera.camera2.pipe.config.Camera2CameraPipeModules
-import androidx.camera.camera2.pipe.config.CameraGraphModules
+import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.camera2.pipe.config.CameraPipeModules
+import androidx.camera.camera2.pipe.config.SharedCameraGraphModules
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
-import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
@@ -68,10 +72,11 @@ internal class CaptureSessionFactoryTest {
 
     @Test
     fun canCreateSessionFactoryTestComponent() = runTest {
-        val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
-            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
-            .build()
+        val component: Camera2CaptureSessionTestComponent =
+            DaggerCamera2CaptureSessionTestComponent.builder()
+                .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
+                .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
+                .build()
 
         val sessionFactory = component.sessionFactory()
         assertThat(sessionFactory).isNotNull()
@@ -79,10 +84,11 @@ internal class CaptureSessionFactoryTest {
 
     @Test
     fun createCameraCaptureSession() = runTest {
-        val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
-            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
-            .build()
+        val component: Camera2CaptureSessionTestComponent =
+            DaggerCamera2CaptureSessionTestComponent.builder()
+                .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
+                .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
+                .build()
 
         val sessionFactory = component.sessionFactory()
         val streamMap = component.streamMap()
@@ -104,42 +110,47 @@ internal class CaptureSessionFactoryTest {
                 testCamera.cameraId
             ),
             mapOf(stream1.id to surface),
-            virtualSessionState = VirtualSessionState(
+            captureSessionState = CaptureSessionState(
                 FakeGraphProcessor(),
                 sessionFactory,
-                object : Camera2RequestProcessorFactory {
+                object : Camera2CaptureSequenceProcessorFactory {
                     override fun create(
                         session: CameraCaptureSessionWrapper,
                         surfaceMap: Map<StreamId, Surface>
-                    ): RequestProcessor = FakeRequestProcessor()
+                    ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
+                        FakeCaptureSequenceProcessor()
                 },
+                CameraSurfaceManager(),
                 this
             )
         )
 
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
+        surface.release()
     }
 }
 
 @Singleton
 @CameraGraphScope
+@Camera2ControllerScope
 @Component(
     modules = [
         FakeCameraGraphModule::class,
-        FakeCameraPipeModule::class
+        FakeCameraPipeModule::class,
+        Camera2CaptureSessionsModule::class
     ]
 )
-internal interface CameraSessionTestComponent {
+internal interface Camera2CaptureSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): CaptureSessionFactory
-    fun streamMap(): Camera2StreamGraph
+    fun streamMap(): StreamGraphImpl
 }
 
 /**
  * Utility module for testing the Dagger generated graph with a a reasonable default config.
  */
-@Module(includes = [ThreadConfigModule::class, Camera2CameraPipeModules::class])
+@Module(includes = [ThreadConfigModule::class, CameraPipeModules::class])
 class FakeCameraPipeModule(
     private val context: Context,
     private val fakeCamera: RobolectricCameras.FakeCamera
@@ -152,8 +163,12 @@ class FakeCameraPipeModule(
     fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
 }
 
-@Module(includes = [CameraGraphModules::class, Camera2CameraGraphModules::class])
+@Module(includes = [SharedCameraGraphModules::class])
 class FakeCameraGraphModule {
+    @Provides
+    @CameraGraphScope
+    fun provideFakeCameraMetadata(fakeCamera: RobolectricCameras.FakeCamera) = fakeCamera.metadata
+
     @Provides
     @CameraGraphScope
     fun provideFakeGraphConfig(fakeCamera: RobolectricCameras.FakeCamera): CameraGraph.Config {

@@ -112,9 +112,11 @@ class ProfileInstallerTranscodeBenchmark {
     fun copyProfileOrRead() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
-            newTranscoderUntimed {
+            val transcoder = newTranscoderUntimed {
                 it.deviceAllowsProfileInstallerAotWrites()
-            }.read()
+            }
+            // this measures a trace which costs about 15us
+            transcoder.read()
         }
     }
 
@@ -161,6 +163,7 @@ class ProfileInstallerTranscodeBenchmark {
             )
             transcoder.deviceAllowsProfileInstallerAotWrites()
 
+            // this measures a trace which costs about 15us
             transcoder.read()
                 .transcodeIfNeeded()
                 .write()

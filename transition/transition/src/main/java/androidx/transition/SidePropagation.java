@@ -21,6 +21,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -71,8 +73,8 @@ public class SidePropagation extends VisibilityPropagation {
     }
 
     @Override
-    public long getStartDelay(ViewGroup sceneRoot, Transition transition,
-            TransitionValues startValues, TransitionValues endValues) {
+    public long getStartDelay(@NonNull ViewGroup sceneRoot, @NonNull Transition transition,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         if (startValues == null && endValues == null) {
             return 0;
         }

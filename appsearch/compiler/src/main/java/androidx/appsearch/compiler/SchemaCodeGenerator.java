@@ -220,7 +220,12 @@ class SchemaCodeGenerator {
             codeBlock.add("\n.setIndexingType($T)", indexingEnum);
 
         } else if (isPropertyDocument) {
-            // TODO(b/177572431): Apply setIndexNestedProperties here
+            if (params.containsKey("indexNestedProperties")) {
+                boolean indexNestedProperties = Boolean.parseBoolean(
+                        params.get("indexNestedProperties").toString());
+
+                codeBlock.add("\n.setShouldIndexNestedProperties($L)", indexNestedProperties);
+            }
         }
 
         // Done!

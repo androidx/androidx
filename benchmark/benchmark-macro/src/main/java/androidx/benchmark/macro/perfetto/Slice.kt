@@ -16,6 +16,8 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.perfetto.server.QueryResultIterator
+
 internal data class Slice(
     val name: String,
     val ts: Long,
@@ -27,34 +29,13 @@ internal data class Slice(
     fun contains(targetTs: Long): Boolean {
         return targetTs >= ts && targetTs <= (ts + dur)
     }
-
-    companion object {
-
-        fun parseListFromQueryResult(queryResult: String): List<Slice> {
-            val resultLines = queryResult.split("\n").onEach {
-                println("query result line $it")
-            }
-
-            if (resultLines.first() != """"name","ts","dur"""") {
-                throw IllegalStateException("query failed!")
-            }
-
-            // results are in CSV with a header row, and strings wrapped with quotes
-            return resultLines
-                .filter { it.isNotBlank() } // drop blank lines
-                .drop(1) // drop the header row
-                .map {
-                    val columns = it.split(",")
-                    // Trace section names may have a ","
-                    // Parse the duration, and timestamps first. Whatever is remaining must be the
-                    // name.
-                    val size = columns.size
-                    Slice(
-                        name = columns.dropLast(2).joinToString(",").unquote(),
-                        ts = columns[size - 2].toLong(),
-                        dur = columns[size - 1].toLong()
-                    )
-                }
-        }
-    }
 }
+
+/**
+ * Convenient function to immediately retrieve a list of slices.
+ * Note that this method is provided for convenience and exhausts the iterator.
+ */
+internal fun QueryResultIterator.toSlices(): List<Slice> =
+    toList {
+        Slice(name = it["name"] as String, ts = it["ts"] as Long, dur = it["dur"] as Long)
+    }

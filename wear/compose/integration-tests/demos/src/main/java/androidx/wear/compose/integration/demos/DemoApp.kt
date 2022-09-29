@@ -43,6 +43,7 @@ import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
@@ -266,6 +267,7 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
+    autoCentering: AutoCenteringParams = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
@@ -284,6 +286,7 @@ fun ScalingLazyColumnWithRSB(
         flingBehavior = flingBehavior,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
+        autoCentering = autoCentering,
         content = content
     )
     LaunchedEffect(Unit) {

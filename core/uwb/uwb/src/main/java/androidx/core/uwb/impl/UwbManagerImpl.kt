@@ -20,6 +20,9 @@ import android.content.Context
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
+import androidx.core.uwb.UwbComplexChannel
+import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.Nearby
@@ -27,28 +30,51 @@ import kotlinx.coroutines.tasks.await
 import androidx.core.uwb.helper.checkSystemFeature
 import androidx.core.uwb.helper.handleApiException
 
-internal class UwbManagerImpl(val context: Context) : UwbManager {
+internal class UwbManagerImpl(private val context: Context) : UwbManager {
+    @Deprecated("Renamed to controleeSessionScope")
     override suspend fun clientSessionScope(): UwbClientSessionScope {
-        // Check whether UWB hardware is available on the device.
+        return createClientSessionScope(false)
+    }
+
+    override suspend fun controleeSessionScope(): UwbControleeSessionScope {
+        return createClientSessionScope(false) as UwbControleeSessionScope
+    }
+
+    override suspend fun controllerSessionScope(): UwbControllerSessionScope {
+        return createClientSessionScope(true) as UwbControllerSessionScope
+    }
+
+    private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
-        val uwbClient = Nearby.getUwbControleeClient(context)
-        val localAddress: com.google.android.gms.nearby.uwb.UwbAddress
-        val rangingCapabilities: com.google.android.gms.nearby.uwb.RangingCapabilities
+        val uwbClient = if (isController)
+            Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
         try {
-            localAddress = uwbClient.localAddress.await()
-            rangingCapabilities = uwbClient.rangingCapabilities.await()
+            val nearbyLocalAddress = uwbClient.localAddress.await()
+            val nearbyRangingCapabilities = uwbClient.rangingCapabilities.await()
+            val localAddress = UwbAddress(nearbyLocalAddress.address)
+            val rangingCapabilities = RangingCapabilities(
+                nearbyRangingCapabilities.supportsDistance(),
+                nearbyRangingCapabilities.supportsAzimuthalAngle(),
+                nearbyRangingCapabilities.supportsElevationAngle())
+            return if (isController) {
+                val uwbComplexChannel = uwbClient.complexChannel.await()
+                UwbControllerSessionScopeImpl(
+                    uwbClient,
+                    rangingCapabilities,
+                    localAddress,
+                    UwbComplexChannel(uwbComplexChannel.channel, uwbComplexChannel.preambleIndex)
+                )
+            } else {
+                UwbControleeSessionScopeImpl(
+                    uwbClient,
+                    rangingCapabilities,
+                    localAddress
+                )
+            }
         } catch (e: ApiException) {
             handleApiException(e)
             throw RuntimeException("Unexpected error. This indicates that the library is not " +
                 "up-to-date with the service backend.")
         }
-        return UwbClientSessionScopeImpl(
-            uwbClient,
-            RangingCapabilities(
-                rangingCapabilities.supportsDistance(),
-                rangingCapabilities.supportsAzimuthalAngle(),
-                rangingCapabilities.supportsElevationAngle()),
-            UwbAddress(localAddress.address)
-        )
     }
 }

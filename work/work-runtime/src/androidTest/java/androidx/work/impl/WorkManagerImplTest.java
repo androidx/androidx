@@ -31,6 +31,7 @@ import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -792,6 +793,112 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
+    public void testEnqueueUniquePeriodicWork_update()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        long enqueueTime = System.currentTimeMillis();
+        PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
+                InfiniteTestWorker.class,
+                15L,
+                TimeUnit.MINUTES)
+                .setLastEnqueueTime(enqueueTime, TimeUnit.MILLISECONDS)
+                .setInitialState(ENQUEUED)
+                .build();
+        insertNamedWorks(uniqueName, originalWork);
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getStringId()));
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, contains(originalWork.getStringId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        WorkSpec workSpec = workSpecDao.getWorkSpec(originalWork.getStringId());
+        assertThat(workSpec.lastEnqueueTime, is(enqueueTime));
+        assertThat(workSpec.intervalDuration, is(TimeUnit.MINUTES.toMillis(30)));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateCancelled()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
+                InfiniteTestWorker.class,
+                15L,
+                TimeUnit.MINUTES)
+                .setInitialState(CANCELLED)
+                .build();
+        insertNamedWorks(uniqueName, originalWork);
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getStringId()));
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+        assertThat(mWorkManagerImpl.getWorkDatabase().workSpecDao()
+                .getWorkSpec(replacementWork.getStringId()).state, is(ENQUEUED));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateNonExistent()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        mWorkManagerImpl.enqueueUniquePeriodicWork(
+                uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                replacementWork).getResult().get();
+        assertThat(mWorkManagerImpl.getWorkDatabase().workSpecDao()
+                .getWorkSpec(replacementWork.getStringId()).state, is(ENQUEUED));
+    }
+
+    @Test
+    @MediumTest
+    public void testEnqueueUniquePeriodicWork_updateOneTimeWork()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "myname";
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mWorkManagerImpl.enqueueUniqueWork(uniqueName, KEEP, request).getResult().get();
+
+        PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                30L,
+                TimeUnit.MINUTES)
+                .build();
+        try {
+            mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                    ExistingPeriodicWorkPolicy.UPDATE, replacementWork).getResult().get();
+            throw new AssertionError("Update should have failed");
+        } catch (ExecutionException e) {
+            assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
+        }
+    }
+
+    @Test
+    @MediumTest
     public void testBeginUniqueWork_appendsExistingWorkOnAppend()
             throws ExecutionException, InterruptedException {
 
@@ -1099,6 +1206,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
@@ -1106,6 +1214,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -1122,6 +1231,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -1138,6 +1248,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -1173,6 +1284,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), firstTag, secondTag),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
@@ -1180,6 +1292,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), firstTag),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
@@ -1187,6 +1300,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), secondTag),
                 Data.EMPTY,
+                0,
                 0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosByTag(firstTag).get();
@@ -1223,6 +1337,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
@@ -1230,6 +1345,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
@@ -1237,6 +1353,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosForUniqueWork(uniqueName).get();
@@ -1284,6 +1401,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
@@ -1291,6 +1409,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
@@ -1298,6 +1417,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 
@@ -1313,6 +1433,7 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
                 Data.EMPTY,
+                0,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 

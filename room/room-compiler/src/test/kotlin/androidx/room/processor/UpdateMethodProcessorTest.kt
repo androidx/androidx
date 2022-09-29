@@ -31,7 +31,8 @@ import org.junit.runners.JUnit4
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
-class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Update::class) {
+class UpdateMethodProcessorTest :
+    DeleteOrUpdateShortcutMethodProcessorTest<UpdateMethod>(Update::class) {
     override fun invalidReturnTypeError(): String = CANNOT_FIND_UPDATE_RESULT_ADAPTER
 
     override fun noParamsError(): String = UPDATE_MISSING_PARAMS

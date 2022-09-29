@@ -23,47 +23,24 @@ package androidx.datastore.core
 interface StorageConnection<T> : Closeable {
 
     /**
-     * Creates a read transaction to allow storage reads.
+     * Creates a scope for reading to allow storage reads, and will try to obtain a read lock.
      *
-     * @param lockType Controls the kind of locking performed within the transaction.
-     * @param block The block of code that is performed within this transaction.
+     * @param block The block of code that is performed within this scope.  Block will
+     * receive `locked` parameter which is true if the try lock succeeded.
      *
      * @throws IOException when there is an unrecoverable exception in reading.
      */
-    suspend fun <R> readTransaction(
-        lockType: ReadLockType = ReadLockType.NO_LOCK,
-        block: suspend ReadScope<T>.() -> R
+    suspend fun <R> readScope(
+        block: suspend ReadScope<T>.(locked: Boolean) -> R
     ): R
 
     /**
-     * Creates an write transaction that guaranteed to only have one single writer, insuring also
+     * Creates an write scope that guaranteed to only have one single writer, ensuring also
      * that any reads within this scope have the most current data.
      *
      * @throws IOException when there is an unrecoverable exception in writing.
      */
-    suspend fun writeTransaction(block: suspend WriteScope<T>.() -> Unit)
-
-    /** Specifies the locking type for this read transaction. */
-    enum class ReadLockType {
-        /**
-         * Does not attempt to do a read lock in this transaction. All reads will be whatever
-         * value has been saved and fsync'd to disk at the time of the read.
-         */
-        NO_LOCK,
-
-        /**
-         * Tries to get a read lock during the scope of the transaction. If it is successful,
-         * [ReadScope.lockAcquired] will be true.  A successful lock guarantees no writers are
-         * interleaved during the scope of this transaction, otherwise it behaves like NO_LOCK.
-         */
-        TRY_LOCK,
-
-        /**
-         * A lock is acquired before proceeding with the transaction.  This guarantees no writers
-         * are interleaved during the scope of this transaction.
-         */
-        LOCK
-    }
+    suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit)
 }
 
 /**
@@ -75,11 +52,6 @@ interface ReadScope<T> : Closeable {
      * Read the data <T> from the underlying storage.
      */
     suspend fun readData(): T
-
-    /**
-     * True, if a lock was acquired for this transaction.
-     */
-    val lockAcquired: Boolean
 }
 
 /**
@@ -93,5 +65,8 @@ interface WriteScope<T> : ReadScope<T> {
     suspend fun writeData(value: T)
 }
 
-suspend fun <T> StorageConnection<T>.readData(): T = readTransaction { readData() }
-suspend fun <T> StorageConnection<T>.writeData(value: T) = writeTransaction { writeData(value) }
+/* Convenience method for opening a read scope, doing a single read, and closing the scope. */
+suspend fun <T> StorageConnection<T>.readData(): T = readScope { readData() }
+
+/* Convenience method for opening a write scope, doing a single write, and closing the scope. */
+suspend fun <T> StorageConnection<T>.writeData(value: T) = writeScope { writeData(value) }

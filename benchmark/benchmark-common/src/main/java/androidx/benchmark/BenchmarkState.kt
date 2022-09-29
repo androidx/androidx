@@ -51,22 +51,76 @@ import java.util.concurrent.TimeUnit
  *
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
-public class BenchmarkState {
-    internal constructor(simplifiedTimingOnlyMode: Boolean) {
-        this.simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
-        profiler = if (simplifiedTimingOnlyMode) null else Arguments.profiler
+public class BenchmarkState internal constructor(
+    private val warmupCount: Int? = null,
+    private val measurementCount: Int? = null,
+    /**
+     * Set this to true to run a simplified timing loop - no allocation tracking, and no global
+     * state set/reset (such as thread priorities)
+     *
+     * This var is used in one of two cases, either set to true by [ThrottleDetector.measureWorkNs]
+     * when device performance testing for thermal throttling in between benchmarks, or in
+     * correctness tests of this library.
+     *
+     * When set to true, indicates that this BenchmarkState **should not**:
+     * - touch thread priorities
+     * - perform allocation counting (only timing results matter)
+     * - call [ThrottleDetector], since it would infinitely recurse
+     */
+    private val simplifiedTimingOnlyMode: Boolean = false
+) {
+    init {
+        require(warmupCount == null || warmupCount > 0) {
+            "warmupCount ($warmupCount) must null or positive"
+        }
+        require(measurementCount == null || measurementCount >= 1) {
+            "measurementCount ($measurementCount) must be null or positive"
+        }
+    }
+
+    @VisibleForTesting
+    internal val repeatCountTime = when {
+        measurementCount != null -> measurementCount
+        Arguments.dryRunMode -> 1
+        Arguments.profiler?.requiresSingleMeasurementIteration == true -> 1
+        Arguments.startupMode -> 10
+        else -> 50 // Value determined empirically.
+    }
+
+    private val repeatDurationTargetNs = when (Arguments.profiler?.requiresExtraRuntime) {
+        // longer measurements while profiling to ensure we have enough data
+        true -> TimeUnit.MILLISECONDS.toNanos(50)
+        else ->
+            TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds) /
+                repeatCountTime
     }
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor() {
+    constructor() : this(warmupCount = null, simplifiedTimingOnlyMode = false)
+
+    /**
+     * Create a BenchmarkState for custom measurement behavior.
+     *
+     * @param warmupCount Number of non-measured warmup iterations to perform, leave null
+     * to determine automatically
+     * @param repeatCount Number of measurements to perform, leave null for default behavior
+     */
+    @ExperimentalBenchmarkStateApi
+    constructor(
+        @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
+        warmupCount: Int? = null,
+        @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
+        repeatCount: Int? = null
+    ) : this(
+        warmupCount = warmupCount,
+        measurementCount = repeatCount,
         simplifiedTimingOnlyMode = false
-        profiler = Arguments.profiler
-    }
+    )
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
-        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT_TIME),
+        MetricsContainer(arrayOf(TimeCapture()), repeatCountTime),
         MetricsContainer(arrayOf(AllocationCountCapture()), REPEAT_COUNT_ALLOCATION)
     )
 
@@ -74,7 +128,7 @@ public class BenchmarkState {
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var traceUniqueName: String = "benchmark"
+    var traceUniqueName: String = "benchmark"
 
     private var warmupRepeats = 0 // number of warmup repeats that occurred
 
@@ -92,11 +146,12 @@ public class BenchmarkState {
      * This value is overridden by the end of the warmup stage. The default value defines
      * behavior for modes that bypass warmup (dryRun and startup).
      */
-    private var iterationsPerRepeat = 1
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal var iterationsPerRepeat = 1
 
     private var state = NOT_STARTED // Current benchmark state.
 
-    private val warmupManager = WarmupManager()
+    private val warmupManager = WarmupManager(overrideCount = warmupCount)
 
     private var paused = false
     private var thermalThrottleSleepSeconds: Long =
@@ -106,20 +161,6 @@ public class BenchmarkState {
 
     private var repeatCount = 0
 
-    /**
-     * Set this to true to run a simplified timing loop - no allocation tracking, and no global
-     * state set/reset (such as thread priorities)
-     *
-     * This var is used in one of two cases, either set to true by [ThrottleDetector.measureWorkNs]
-     * when device performance testing for thermal throttling in between benchmarks, or in
-     * correctness tests of this library.
-     *
-     * When set to true, indicates that this BenchmarkState **should not**:
-     * - touch thread priorities
-     * - perform allocation counting (only timing results matter)
-     * - call [ThrottleDetector], since it would infinitely recurse
-     */
-    private val simplifiedTimingOnlyMode: Boolean
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
 
     private var metricResults = mutableListOf<MetricResult>()
@@ -127,7 +168,7 @@ public class BenchmarkState {
     /**
      * Profiler reference which is null when [simplifiedTimingOnlyMode] = true
      */
-    private val profiler: Profiler?
+    private val profiler: Profiler? = if (simplifiedTimingOnlyMode) null else Arguments.profiler
     private var profilerResult: Profiler.ResultFile? = null
 
     /** @suppress */
@@ -305,7 +346,7 @@ public class BenchmarkState {
                 endRunningStage()
                 beginRunningStage()
             }
-        } else if (state == RUNNING_TIME_STAGE && repeatCount >= REPEAT_COUNT_TIME ||
+        } else if (state == RUNNING_TIME_STAGE && repeatCount >= repeatCountTime ||
             state == RUNNING_ALLOCATION_STAGE && repeatCount >= REPEAT_COUNT_ALLOCATION
         ) {
             if (endRunningStage()) {
@@ -428,7 +469,9 @@ public class BenchmarkState {
 
         totalRunTimeStartNs = System.nanoTime() // Record this time to find total duration
         state = RUNNING_WARMUP_STAGE // begin benchmarking
-        if (Arguments.dryRunMode || Arguments.startupMode) state = RUNNING_TIME_STAGE
+        if (Arguments.dryRunMode || Arguments.startupMode || warmupCount == 0) {
+            state = RUNNING_TIME_STAGE
+        }
     }
 
     private fun afterBenchmark() {
@@ -450,7 +493,7 @@ public class BenchmarkState {
 
     private fun computeMaxIterations(): Int {
         return OVERRIDE_ITERATIONS
-            ?: (REPEAT_DURATION_TARGET_NS / warmupManager.estimatedIterationTimeNs).toInt()
+            ?: (repeatDurationTargetNs / warmupManager.estimatedIterationTimeNs).toInt()
                 .coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
     }
 
@@ -468,6 +511,10 @@ public class BenchmarkState {
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
         warmupIterations = warmupRepeats
     )
+
+    @ExperimentalBenchmarkStateApi
+    fun getMeasurementTimeNs(): List<Double> =
+        metricResults.first { it.name == "timeNs" }.data
 
     internal fun getReport() = checkState().run { getReport("", "") }
 
@@ -560,15 +607,6 @@ public class BenchmarkState {
         private const val RUNNING_ALLOCATION_STAGE = 2 // The alloc benchmarking stage is running.
         private const val FINISHED = 3 // The benchmark has stopped; all stages are finished.
 
-        // Values determined empirically.
-        @VisibleForTesting
-        internal val REPEAT_COUNT_TIME = when {
-            Arguments.dryRunMode -> 1
-            Arguments.profiler?.requiresSingleMeasurementIteration == true -> 1
-            Arguments.startupMode -> 10
-            else -> 50
-        }
-
         internal const val REPEAT_COUNT_ALLOCATION = 5
 
         private val OVERRIDE_ITERATIONS = when {
@@ -579,13 +617,6 @@ public class BenchmarkState {
             else -> null
         }
 
-        internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profiler?.requiresExtraRuntime) {
-            // longer measurements while profiling to ensure we have enough data
-            true -> TimeUnit.MILLISECONDS.toNanos(50)
-            else ->
-                TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds) /
-                    REPEAT_COUNT_TIME
-        }
         internal const val MAX_TEST_ITERATIONS = 1_000_000
         internal const val MIN_TEST_ITERATIONS = 1
 

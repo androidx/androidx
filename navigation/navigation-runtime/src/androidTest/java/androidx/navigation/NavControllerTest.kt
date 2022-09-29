@@ -743,7 +743,7 @@ class NavControllerTest {
 
         Intents.init()
 
-        with(ActivityScenario.launch<TestActivity>(intent)) {
+        with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
             withActivity {
                 val navController = navController
                 navController.setGraph(R.navigation.nav_simple)
@@ -1408,6 +1408,31 @@ class NavControllerTest {
             assertThat(arguments?.getParcelable<CustomTestParcelable>(TEST_ARG)?.name)
                 .isEqualTo(TEST_ARG_VALUE)
         }
+    }
+    @UiThreadTest
+    @Test
+    fun testChangeArgsFromOnDestinationChangedListener() {
+        val navController = createNavController()
+
+        // Purposefully add both OnDestinationChangedListeners
+        // before calling setGraph so that both are fired at the same time
+        navController.addOnDestinationChangedListener { _, _, arguments ->
+            // Try injecting an extra argument into the arguments
+            arguments?.putString(TEST_ARG, TEST_ARG_VALUE)
+        }
+        var receivedArguments: Bundle? = null
+        navController.addOnDestinationChangedListener { _, _, arguments ->
+            receivedArguments = arguments
+        }
+
+        // Now set the graph, which will cause both listeners to fire
+        navController.setGraph(R.navigation.nav_arguments)
+
+        // The arguments should be immutable, so they shouldn't be changed
+        assertThat(navController.currentBackStackEntry?.arguments).doesNotContainKey(TEST_ARG)
+
+        // And the second listener should receive a new Bundle as well
+        assertThat(receivedArguments).doesNotContainKey(TEST_ARG)
     }
 
     @UiThreadTest

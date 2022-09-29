@@ -32,13 +32,13 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
 
         canvas!!.drawColor(randomColor)
         if (perFrameStateData.isNotEmpty()) {
-            val metricsState = PerformanceMetricsState.getForHierarchy(this).state!!
+            val metricsState = PerformanceMetricsState.getHolderForHierarchy(this).state!!
             val stateData = perFrameStateData[repetitions - 1]
             for (state in stateData.addSFStates) {
-                metricsState.addSingleFrameState(state.first, state.second)
+                metricsState.putSingleFrameState(state.first, state.second)
             }
             for (state in stateData.addStates) {
-                metricsState.addState(state.first, state.second)
+                metricsState.putState(state.first, state.second)
             }
             for (stateName in stateData.removeStates) {
                 metricsState.removeState(stateName)

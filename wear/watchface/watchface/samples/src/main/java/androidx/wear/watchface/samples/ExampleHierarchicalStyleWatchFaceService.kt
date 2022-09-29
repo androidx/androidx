@@ -33,7 +33,6 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
@@ -164,7 +163,6 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         )
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     internal val digitalWatchFaceType by lazy {
         ListOption(
             UserStyleSetting.Option.Id("digital"),
@@ -175,7 +173,6 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         )
     }
 
-    @OptIn(ExperimentalHierarchicalStyle::class)
     internal val analogWatchFaceType by lazy {
         ListOption(
             UserStyleSetting.Option.Id("analog"),

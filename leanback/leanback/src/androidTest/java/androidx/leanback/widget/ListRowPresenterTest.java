@@ -29,6 +29,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -60,6 +62,7 @@ public class ListRowPresenterTest {
             mHeight = height;
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View view = new View(parent.getContext());
@@ -70,11 +73,11 @@ public class ListRowPresenterTest {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
         }
 
         @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
         }
     }
 

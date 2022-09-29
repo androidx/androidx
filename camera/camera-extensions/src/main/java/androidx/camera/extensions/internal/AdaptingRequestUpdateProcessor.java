@@ -37,8 +37,7 @@ import androidx.core.util.Preconditions;
  * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
-        CloseableProcessor {
+public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor, VendorProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final RequestUpdateProcessorImpl mProcessorImpl;
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();

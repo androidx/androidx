@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api(libs.rxjava3)
+    api(libs.kotlinCoroutinesRx3)
+    api(project(":core:uwb:uwb"))
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation('com.google.android.gms:play-services-base:18.0.1')
+    androidTestImplementation('com.google.android.gms:play-services-nearby:18.3.0', {
+        exclude group: "androidx.core"
+    })
+    androidTestImplementation(libs.multidex)
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+
+    namespace "androidx.core.uwb.rxjava3"
+}
+
+androidx {
+    name = "androidx.core.uwb:uwb-rxjava3"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.CORE_UWB
+    inceptionYear = "2022"
+    description = "RxJava3 integration for UWB module"
+}

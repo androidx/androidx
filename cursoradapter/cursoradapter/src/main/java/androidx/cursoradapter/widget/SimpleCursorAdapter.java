@@ -25,6 +25,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -41,14 +43,14 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected int[] mFrom;
+    protected @Nullable int[] mFrom;
     /**
      * A list of View ids representing the views to which the data must be bound.
      * This field should be made private, so it is hidden from the SDK.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected int[] mTo;
+    protected @Nullable int[] mTo;
 
     private int mStringConversionColumn = -1;
     private CursorToStringConverter mCursorToStringConverter;
@@ -65,7 +67,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
      */
     @Deprecated
-    public SimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
+    public SimpleCursorAdapter(@NonNull Context context, int layout, @Nullable Cursor c,
+            @Nullable String[] from, @Nullable int[] to) {
         super(context, layout, c);
         mTo = to;
         mOriginalFrom = from;
@@ -90,8 +93,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @param flags Flags used to determine the behavior of the adapter,
      * as per {@link CursorAdapter#CursorAdapter(Context, Cursor, int)}.
      */
-    public SimpleCursorAdapter(Context context, int layout, Cursor c, String[] from,
-            int[] to, int flags) {
+    public SimpleCursorAdapter(@NonNull Context context, int layout, @Nullable Cursor c,
+            @Nullable String[] from, @Nullable int[] to, int flags) {
         super(context, layout, c, flags);
         mTo = to;
         mOriginalFrom = from;
@@ -122,7 +125,12 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @see #setViewText(TextView, String)
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(@NonNull View view, @NonNull Context context, @NonNull Cursor cursor) {
+        if (mTo == null || mFrom == null || mTo.length != mFrom.length) {
+            throw new IllegalStateException("The `to` and `from` arrays must be non-null and of "
+                    + "equal length for binding to occur");
+        }
+
         final ViewBinder binder = mViewBinder;
         final int count = mTo.length;
         final int[] from = mFrom;
@@ -163,7 +171,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @see #bindView(android.view.View, android.content.Context, android.database.Cursor)
      * @see #setViewBinder(ViewBinder)
      */
-    public ViewBinder getViewBinder() {
+    public @Nullable ViewBinder getViewBinder() {
         return mViewBinder;
     }
 
@@ -176,7 +184,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @see #bindView(android.view.View, android.content.Context, android.database.Cursor)
      * @see #getViewBinder()
      */
-    public void setViewBinder(ViewBinder viewBinder) {
+    public void setViewBinder(@Nullable ViewBinder viewBinder) {
         mViewBinder = viewBinder;
     }
 
@@ -195,7 +203,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @param v ImageView to receive an image
      * @param value the value retrieved from the cursor
      */
-    public void setViewImage(ImageView v, String value) {
+    public void setViewImage(@NonNull ImageView v, @NonNull String value) {
         try {
             v.setImageResource(Integer.parseInt(value));
         } catch (NumberFormatException nfe) {
@@ -214,7 +222,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @param v TextView to receive text
      * @param text the text to be set for the TextView
      */
-    public void setViewText(TextView v, String text) {
+    public void setViewText(@NonNull TextView v, @NonNull String text) {
         v.setText(text);
     }
 
@@ -263,7 +271,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @see #setStringConversionColumn(int)
      * @see android.widget.CursorAdapter#convertToString(android.database.Cursor)
      */
-    public CursorToStringConverter getCursorToStringConverter() {
+    public @Nullable CursorToStringConverter getCursorToStringConverter() {
         return mCursorToStringConverter;
     }
 
@@ -279,7 +287,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @see #setStringConversionColumn(int)
      * @see android.widget.CursorAdapter#convertToString(android.database.Cursor)
      */
-    public void setCursorToStringConverter(CursorToStringConverter cursorToStringConverter) {
+    public void setCursorToStringConverter(
+            @Nullable CursorToStringConverter cursorToStringConverter) {
         mCursorToStringConverter = cursorToStringConverter;
     }
 
@@ -295,10 +304,10 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @return a non-null CharSequence representing the cursor
      */
     @Override
-    public CharSequence convertToString(Cursor cursor) {
+    public @NonNull CharSequence convertToString(@Nullable Cursor cursor) {
         if (mCursorToStringConverter != null) {
             return mCursorToStringConverter.convertToString(cursor);
-        } else if (mStringConversionColumn > -1) {
+        } else if (mStringConversionColumn > -1 && cursor != null) {
             return cursor.getString(mStringConversionColumn);
         }
 
@@ -312,8 +321,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @param c the cursor to find the columns from
      * @param from the Strings naming the columns of interest
      */
-    private void findColumns(Cursor c, String[] from) {
-        if (c != null) {
+    private void findColumns(@Nullable Cursor c, @Nullable String[] from) {
+        if (c != null && from != null) {
             int i;
             int count = from.length;
             if (mFrom == null || mFrom.length != count) {
@@ -328,7 +337,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
     }
 
     @Override
-    public Cursor swapCursor(Cursor newCursor) {
+    public @Nullable Cursor swapCursor(@Nullable Cursor newCursor) {
         // super.swapCursor() will notify observers before we have
         // a valid mapping, make sure we have a mapping before this
         // happens
@@ -347,7 +356,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      *            are given the values of the first N columns in the from
      *            parameter.  Can be null if the cursor is not available yet.
      */
-    public void changeCursorAndColumns(Cursor c, String[] from, int[] to) {
+    public void changeCursorAndColumns(@Nullable Cursor c, @Nullable String[] from,
+            @Nullable int[] to) {
         mOriginalFrom = from;
         mTo = to;
         // super.changeCursor() will notify observers before we have
@@ -384,7 +394,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
          *
          * @return true if the data was bound to the view, false otherwise
          */
-        boolean setViewValue(View view, Cursor cursor, int columnIndex);
+        boolean setViewValue(@NonNull View view, @NonNull Cursor cursor, int columnIndex);
     }
 
     /**
@@ -402,7 +412,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
          *
          * @return a non-null CharSequence representing the cursor
          */
-        CharSequence convertToString(Cursor cursor);
+        @NonNull CharSequence convertToString(@Nullable Cursor cursor);
     }
 
 }

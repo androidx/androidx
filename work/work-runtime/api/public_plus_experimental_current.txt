@@ -7,6 +7,8 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
+    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
@@ -14,10 +16,12 @@ package androidx.work {
   public final class Configuration {
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
+    method public androidx.work.InitializationExceptionHandler? getInitializationExceptionHandler();
     method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public androidx.work.RunnableScheduler getRunnableScheduler();
+    method public androidx.work.SchedulingExceptionHandler? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
@@ -28,11 +32,13 @@ package androidx.work {
     method public androidx.work.Configuration build();
     method public androidx.work.Configuration.Builder setDefaultProcessName(String);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
+    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.work.InitializationExceptionHandler);
     method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
+    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.work.SchedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
@@ -138,11 +144,17 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
+    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
+    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
-    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
+    enum_constant @Deprecated public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
+    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy UPDATE;
   }
 
   public enum ExistingWorkPolicy {
+    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
@@ -159,6 +171,10 @@ package androidx.work {
 
   public interface ForegroundUpdater {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
+  }
+
+  public interface InitializationExceptionHandler {
+    method public void handleException(Throwable);
   }
 
   public abstract class InputMerger {
@@ -199,6 +215,8 @@ package androidx.work {
   }
 
   public enum NetworkType {
+    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
@@ -248,6 +266,8 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
+    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }
@@ -289,6 +309,10 @@ package androidx.work {
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
   }
 
+  public interface SchedulingExceptionHandler {
+    method public void handleException(Throwable);
+  }
+
   public abstract class WorkContinuation {
     ctor public WorkContinuation();
     method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation!>);
@@ -300,6 +324,7 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    method public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.Data getProgress();
@@ -349,6 +374,13 @@ package androidx.work {
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public static boolean isInitialized();
     method public abstract androidx.work.Operation pruneWork();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkManager.UpdateResult!> updateWork(androidx.work.WorkRequest);
+  }
+
+  public enum WorkManager.UpdateResult {
+    enum_constant public static final androidx.work.WorkManager.UpdateResult APPLIED_FOR_NEXT_RUN;
+    enum_constant public static final androidx.work.WorkManager.UpdateResult APPLIED_IMMEDIATELY;
+    enum_constant public static final androidx.work.WorkManager.UpdateResult NOT_APPLIED;
   }
 
   public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
@@ -402,6 +434,7 @@ package androidx.work {
     method @RequiresApi(26) public final B setBackoffCriteria(androidx.work.BackoffPolicy backoffPolicy, java.time.Duration duration);
     method public final B setConstraints(androidx.work.Constraints constraints);
     method public B setExpedited(androidx.work.OutOfQuotaPolicy policy);
+    method public final B setId(java.util.UUID id);
     method public B setInitialDelay(long duration, java.util.concurrent.TimeUnit timeUnit);
     method @RequiresApi(26) public B setInitialDelay(java.time.Duration duration);
     method public final B setInputData(androidx.work.Data inputData);
@@ -423,6 +456,7 @@ package androidx.work {
   }
 
   public final class WorkerParameters {
+    method @IntRange(from=0) public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getInputData();
     method @RequiresApi(28) public android.net.Network? getNetwork();

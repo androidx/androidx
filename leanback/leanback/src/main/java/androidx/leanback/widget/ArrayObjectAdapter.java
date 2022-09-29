@@ -15,6 +15,7 @@ package androidx.leanback.widget;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
@@ -39,19 +40,19 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     final List<Object> mOldItems = new ArrayList<>();
 
     // Un modifiable version of mItems;
-    private List mUnmodifiableItems;
+    private List<?> mUnmodifiableItems;
 
     /**
      * Constructs an adapter with the given {@link PresenterSelector}.
      */
-    public ArrayObjectAdapter(PresenterSelector presenterSelector) {
+    public ArrayObjectAdapter(@NonNull PresenterSelector presenterSelector) {
         super(presenterSelector);
     }
 
     /**
      * Constructs an adapter that uses the given {@link Presenter} for all items.
      */
-    public ArrayObjectAdapter(Presenter presenter) {
+    public ArrayObjectAdapter(@NonNull Presenter presenter) {
         super(presenter);
     }
 
@@ -67,6 +68,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
         return mItems.size();
     }
 
+    @Nullable
     @Override
     public Object get(int index) {
         return mItems.get(index);
@@ -80,7 +82,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @return Index of the first occurrence of the item in the adapter, or -1
      * if not found.
      */
-    public int indexOf(Object item) {
+    public int indexOf(@NonNull Object item) {
         return mItems.indexOf(item);
     }
 
@@ -100,7 +102,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      *
      * @param item The item to add to the end of the adapter.
      */
-    public void add(Object item) {
+    public void add(@NonNull Object item) {
         add(mItems.size(), item);
     }
 
@@ -111,7 +113,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param index The index at which the item should be inserted.
      * @param item  The item to insert into the adapter.
      */
-    public void add(int index, Object item) {
+    public void add(int index, @NonNull Object item) {
         mItems.add(index, item);
         notifyItemRangeInserted(index, 1);
     }
@@ -124,7 +126,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param items A {@link Collection} of items to insert.
      */
     @SuppressWarnings("unchecked")
-    public void addAll(int index, Collection items) {
+    public void addAll(int index, @NonNull Collection<?> items) {
         int itemsCount = items.size();
         if (itemsCount == 0) {
             return;
@@ -139,7 +141,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param item The item to remove from the adapter.
      * @return True if the item was found and thus removed from the adapter.
      */
-    public boolean remove(Object item) {
+    public boolean remove(@NonNull Object item) {
         int index = mItems.indexOf(item);
         if (index >= 0) {
             mItems.remove(index);
@@ -172,7 +174,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param position The index of item to replace.
      * @param item     The new item to be placed at given position.
      */
-    public void replace(int position, Object item) {
+    public void replace(int position, @NonNull Object item) {
         mItems.set(position, item);
         notifyItemRangeChanged(position, 1);
     }
@@ -213,6 +215,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     /**
      * Gets a read-only view of the list of object of this ArrayObjectAdapter.
      */
+    @NonNull
     @SuppressWarnings("unchecked")
     public <E> List<E> unmodifiableList() {
 
@@ -221,7 +224,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
         if (mUnmodifiableItems == null) {
             mUnmodifiableItems = Collections.unmodifiableList(mItems);
         }
-        return mUnmodifiableItems;
+        return (List<E>) mUnmodifiableItems;
     }
 
     @Override
@@ -240,7 +243,10 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      *                 set and new data set. When null, {@link #notifyChanged()} will be fired.
      */
     @SuppressWarnings("unchecked")
-    public void setItems(final List itemList, final DiffCallback callback) {
+    public void setItems(
+            final @NonNull List itemList,
+            final @Nullable DiffCallback callback
+    ) {
         if (callback == null) {
             // shortcut when DiffCallback is not provided
             mItems.clear();

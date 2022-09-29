@@ -14,105 +14,189 @@
  * limitations under the License.
  */
 
+@file:GlanceComposable
+
 package androidx.glance.appwidget.template.demos
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.ImageProvider
+import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.appwidget.template.ListTemplate
 import androidx.glance.currentState
+import androidx.glance.template.ActionBlock
+import androidx.glance.template.HeaderBlock
+import androidx.glance.template.ImageBlock
+import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
 import androidx.glance.template.ListTemplateItem
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
-import androidx.glance.template.TemplateTextButton
-import androidx.glance.unit.ColorProvider
+import androidx.glance.template.TextBlock
+import androidx.glance.template.TextType
 
-class ListDemoWidget : GlanceTemplateAppWidget() {
-    override val sizeMode = SizeMode.Exact
-
+/**
+ * List demo with list items in full details and list item action button using data and list
+ * template from [BaseListDemoWidget].
+ */
+class FullHeaderActionListDemoWidget : BaseListDemoWidget() {
     @Composable
-    override fun TemplateContent() {
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
+
+    override fun itemSelectAction(params: ActionParameters): Action =
+        actionRunCallback<ListTemplateItemAction>(params)
+}
+
+/**
+ * List demo with list items in full details and list header without action button using data and
+ * list template from [BaseListDemoWidget].
+ */
+class FullHeaderListDemoWidget : BaseListDemoWidget() {
+    @Composable
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
+}
+
+/**
+ * List demo with list items in some details without list header and action button using data and
+ * list template from [BaseListDemoWidget].
+ */
+class NoHeaderListDemoWidget : BaseListDemoWidget() {
+    @Composable
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Full)
+}
+
+/**
+ * Brief list demo with list items in minimum details and compact form without list header and
+ * action button using data and list template from [BaseListDemoWidget].
+ */
+class BriefListDemoWidget : BaseListDemoWidget() {
+    @Composable
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Brief)
+}
+
+class FullActionListReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = FullHeaderActionListDemoWidget()
+}
+
+class FullHeaderListReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = FullHeaderListDemoWidget()
+}
+
+class NoHeaderListReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = NoHeaderListDemoWidget()
+}
+
+class BriefListReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = BriefListDemoWidget()
+}
+
+/**
+ * Base List Demo app widget creating demo data by [ListTemplateData] to layout by [ListTemplate].
+ * It is overridable by list style, header action, and item selection action.
+ */
+abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
+    /**
+     * Defines the handling of item select action.
+     *
+     * @param params action parameters for selection index
+     */
+    open fun itemSelectAction(params: ActionParameters): Action =
+        actionRunCallback<DefaultNoopAction>()
+
+    /**
+     * Create list data and render list template by list style.
+     *
+     * @param listStyle styling the list by [ListStyle] based data details
+     * @param initialNumItems initial number of list items to generate in the demo
+     * @param showHeader whether to show list header as a whole
+     */
+    @Composable
+    internal fun ListTemplateContent(
+        listStyle: ListStyle,
+        showHeader: Boolean = false,
+        initialNumItems: Int = MAX_ITEMS,
+    ) {
         val state = currentState<Preferences>()
         val content = mutableListOf<ListTemplateItem>()
-        for (i in 1..(state[CountKey] ?: 1)) {
+        for (i in 1..(state[CountKey] ?: initialNumItems)) {
             var label = "Item $i"
             if (state[ItemClickedKey] == i) {
-                label = "$label (clicked)"
+                label = "$label (selected)"
             }
             content.add(
                 ListTemplateItem(
-                    title = TemplateText(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                        TemplateText.Type.Title
+                    textBlock = TextBlock(
+                        text1 = TemplateText("Title Medium", TextType.Title),
+                        text2 = if (listStyle == ListStyle.Full) TemplateText(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                            TextType.Body
+                        ) else null,
+                        text3 = if (listStyle == ListStyle.Full) TemplateText(
+                            label,
+                            TextType.Label
+                        ) else null,
+                        priority = 1,
                     ),
-                    body = TemplateText(label, TemplateText.Type.Label),
-                    image = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.ic_favorite), "List item $i image"
-                    ),
-                    button = TemplateImageButton(
-                        actionRunCallback<ListTemplateItemAction>(
-                            actionParametersOf(ClickedKey to i)
+                    imageBlock = ImageBlock(
+                        images = listOf(
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.compose),
+                                "$i"
+                            )
                         ),
-                        TemplateImageWithDescription(ImageProvider(R.drawable.compose), "button")
+                        priority = 0, // ahead of textBlock
                     ),
-                    action = actionRunCallback<ListTemplateItemAction>(
-                        actionParametersOf(ClickedKey to i)
+                    actionBlock = ActionBlock(
+                        actionButtons = listOf(
+                            TemplateImageButton(
+                                itemSelectAction(
+                                    actionParametersOf(ClickedKey to i)
+                                ),
+                                TemplateImageWithDescription(
+                                    ImageProvider(R.drawable.ic_favorite),
+                                    "button"
+                                )
+                            ),
+                        ),
                     ),
                 )
             )
         }
-
         ListTemplate(
             ListTemplateData(
-                header = TemplateText("List Demo", TemplateText.Type.Title),
-                headerIcon = TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "Logo"
-                ),
-                title = TemplateText("Title", TemplateText.Type.Title),
-                button = TemplateTextButton(actionRunCallback<ListButtonAction>(), "Add item"),
+                headerBlock = if (showHeader) HeaderBlock(
+                    text = TemplateText("List Demo", TextType.Title),
+                    icon = TemplateImageWithDescription(
+                        ImageProvider(R.drawable.ic_widget),
+                        "Logo"
+                    ),
+                ) else null,
                 listContent = content,
-                backgroundColor = ColorProvider(R.color.default_widget_background)
+                listStyle = listStyle
             )
         )
     }
 }
 
-class ListDemoWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = ListDemoWidget()
-}
-
-class ListButtonAction : ActionCallback {
+class DefaultNoopAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        updateAppWidgetState(context, glanceId) { prefs ->
-            var count = prefs[CountKey] ?: 0
-            if (count >= MAX_ITEMS) {
-                count = 0
-                if (prefs[ItemClickedKey] != 1) {
-                    prefs.minusAssign(ItemClickedKey)
-                }
-            }
-            prefs[CountKey] = ++count
-        }
-        ListDemoWidget().update(context, glanceId)
     }
 }
 
@@ -125,11 +209,11 @@ class ListTemplateItemAction : ActionCallback {
         updateAppWidgetState(context, glanceId) {
             it[ItemClickedKey] = parameters[ClickedKey] ?: -1
         }
-        ListDemoWidget().update(context, glanceId)
+        FullHeaderActionListDemoWidget().update(context, glanceId)
     }
 }
 
-private val CountKey = intPreferencesKey("item_count_key")
-private val ItemClickedKey = intPreferencesKey("item_clicked_key")
-private val ClickedKey = ActionParameters.Key<Int>("item_clicked_key")
-private const val MAX_ITEMS = 10
+val CountKey = intPreferencesKey("item_count_key")
+val ItemClickedKey = intPreferencesKey("item_clicked_key")
+val ClickedKey = ActionParameters.Key<Int>("item_clicked_key")
+const val MAX_ITEMS = 10

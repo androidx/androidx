@@ -97,7 +97,7 @@ public class AppSearchDebugActivity extends FragmentActivity {
         @StorageType int storageType =
                 getIntent().getExtras().getInt(STORAGE_TYPE_INTENT_KEY);
         try {
-            mDebugAppSearchManager = DebugAppSearchManager.create(
+            mDebugAppSearchManager = DebugAppSearchManager.createAsync(
                     getApplicationContext(), mBackgroundExecutor, mDbName, storageType);
         } catch (AppSearchException e) {
             Toast.makeText(getApplicationContext(),

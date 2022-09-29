@@ -16,21 +16,29 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.compat.CameraController
+import android.view.Surface
+import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.StreamId
 
 internal class FakeCameraController : CameraController {
-    var active = false
-    var reconfigured = false
+    var started = false
+    var closed = false
+    var surfaceMap: Map<StreamId, Surface>? = null
 
     override fun start() {
-        active = true
+        started = true
     }
 
     override fun stop() {
-        active = false
+        started = false
     }
 
-    override fun restart() {
-        reconfigured = true
+    override fun close() {
+        closed = true
+        started = false
+    }
+
+    override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
+        this.surfaceMap = surfaceMap
     }
 }

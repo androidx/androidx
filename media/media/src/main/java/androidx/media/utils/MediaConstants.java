@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.service.media.MediaBrowserService;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ConnectionCallback;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -299,6 +300,28 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED =
             "android.media.browse.SEARCH_SUPPORTED";
+
+    /**
+     * Bundle key used to pass a browseable {@link android.media.browse.MediaBrowser.MediaItem}
+     * that represents 'Favorite' content or some other notion of preset/pinned content.
+     *
+     * <p>Use this key to indicate to consumers (e.g. Auto and Automotive) that they can display
+     * and/or subscribe to this item.
+     *
+     * <p>When this item is subscribed to, it is expected that the {@link MediaBrowserService} or
+     * {@link MediaBrowserServiceCompat} loads content that the user has marked for easy or quick
+     * access - e.g. favorite radio stations, pinned playlists, etc.
+     *
+     * <p>TYPE: MediaBrowser.MediaItem - note this should not be a
+     * {@link MediaBrowserCompat.MediaItem}
+     *
+     * @see MediaBrowserCompat#getExtras()
+     * @see MediaBrowserServiceCompat#onGetRoot(String, int, Bundle)
+     * @see MediaBrowserServiceCompat.BrowserRoot#BrowserRoot(String, Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String BROWSER_SERVICE_EXTRAS_KEY_FAVORITES_MEDIA_ITEM =
+            "androidx.media.BrowserRoot.Extras.FAVORITES_MEDIA_ITEM";
 
     /**
      * Bundle key passed from the {@link MediaBrowserServiceCompat} to the hosting {@link

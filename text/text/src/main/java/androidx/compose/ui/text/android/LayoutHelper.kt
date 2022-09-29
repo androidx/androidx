@@ -309,8 +309,17 @@ class LayoutHelper(val layout: Layout) {
                 return layout.getPrimaryHorizontal(runs[index + 1].start)
             }
         } else {
+            // Bidi runs are created between lineStart and lineVisibleEnd
+            // If the requested offset is a white space at the end of the line, it would be
+            // out of bounds for the runs in this Bidi. We are adjusting the requested offset
+            // to the visible end of line.
+            val lineEndAdjustedOffset = if (offset > lineVisibleEnd) {
+                lineEndToVisibleEnd(offset)
+            } else {
+                offset
+            }
             // find the visual position of the last character
-            val index = runs.indexOfFirst { it.end == offset }
+            val index = runs.indexOfFirst { it.end == lineEndAdjustedOffset }
             val run = runs[index]
             // True if the requesting end offset is left edge of the run.
             val isLeftRequested = if (usePrimaryDirection || isParaRtl == run.isRtl) {

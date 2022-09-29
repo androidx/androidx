@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+// TODO(b/200306659): Remove and replace with annotation on package-info.java
+@file:Suppress("DEPRECATION")
+@file:RequiresApi(21)
 
 package androidx.camera.camera2.pipe.config
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestProcessor
-import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.ExternalCameraController
 import androidx.camera.camera2.pipe.graph.GraphListener
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import kotlinx.atomicfu.atomic
 
 @CameraGraphScope
 @Subcomponent(
     modules = [
-        CameraGraphModules::class,
+        SharedCameraGraphModules::class,
         ExternalCameraGraphConfigModule::class
     ]
 )
@@ -58,25 +60,12 @@ internal class ExternalCameraGraphConfigModule(
     @Provides
     fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
+    @CameraGraphScope
     @Provides
     fun provideGraphController(graphListener: GraphListener): CameraController =
-        object : CameraController {
-            var started = atomic(false)
-            override fun start() {
-                if (started.compareAndSet(expect = false, update = true)) {
-                    graphListener.onGraphStarted(requestProcessor)
-                }
-            }
-
-            override fun stop() {
-                if (started.compareAndSet(expect = true, update = false)) {
-                    graphListener.onGraphStopped(requestProcessor)
-                }
-            }
-
-            override fun restart() {
-                stop()
-                start()
-            }
-        }
+        ExternalCameraController(
+            config,
+            graphListener,
+            requestProcessor
+        )
 }

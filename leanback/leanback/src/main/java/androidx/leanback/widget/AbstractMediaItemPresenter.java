@@ -27,6 +27,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
@@ -451,7 +452,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+    protected void onBindRowViewHolder(@NonNull RowPresenter.ViewHolder vh, @NonNull Object item) {
         super.onBindRowViewHolder(vh, item);
 
         final ViewHolder mvh = (ViewHolder) vh;

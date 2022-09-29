@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface StreamGraph {
     public val streams: List<CameraStream>
+    public val streamIds: Set<StreamId>
     public val input: InputStream?
     public val outputs: List<OutputStream>
 

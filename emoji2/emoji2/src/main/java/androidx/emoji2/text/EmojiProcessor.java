@@ -17,13 +17,11 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.KeyListener;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyEvent;
@@ -36,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.graphics.PaintCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -823,68 +820,6 @@ final class EmojiProcessor {
                 waitingLowSurrogate = true;
                 ++currentIndex;
             }
-        }
-    }
-
-    /**
-     * Utility class that checks if the system can render a given glyph.
-     *
-     * @hide
-     */
-    @AnyThread
-    @RestrictTo(LIBRARY)
-    public static class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {
-        /**
-         * Default text size for {@link #mTextPaint}.
-         */
-        private static final int PAINT_TEXT_SIZE = 10;
-
-        /**
-         * Used to create strings required by
-         * {@link PaintCompat#hasGlyph(android.graphics.Paint, String)}.
-         */
-        private static final ThreadLocal<StringBuilder> sStringBuilder = new ThreadLocal<>();
-
-        /**
-         * TextPaint used during {@link PaintCompat#hasGlyph(android.graphics.Paint, String)} check.
-         */
-        private final TextPaint mTextPaint;
-
-        DefaultGlyphChecker() {
-            mTextPaint = new TextPaint();
-            mTextPaint.setTextSize(PAINT_TEXT_SIZE);
-        }
-
-        @Override
-        public boolean hasGlyph(
-                @NonNull CharSequence charSequence,
-                int start,
-                int end,
-                int sdkAdded
-        ) {
-            // For pre M devices, heuristic in PaintCompat can result in false positives. we are
-            // adding another heuristic using the sdkAdded field. if the emoji was added to OS
-            // at a later version we assume that the system probably cannot render it.
-            if (Build.VERSION.SDK_INT < 23 && sdkAdded > Build.VERSION.SDK_INT) {
-                return false;
-            }
-
-            final StringBuilder builder = getStringBuilder();
-            builder.setLength(0);
-
-            while (start < end) {
-                builder.append(charSequence.charAt(start));
-                start++;
-            }
-
-            return PaintCompat.hasGlyph(mTextPaint, builder.toString());
-        }
-
-        private static StringBuilder getStringBuilder() {
-            if (sStringBuilder.get() == null) {
-                sStringBuilder.set(new StringBuilder());
-            }
-            return sStringBuilder.get();
         }
     }
 }

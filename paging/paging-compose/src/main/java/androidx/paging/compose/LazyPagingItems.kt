@@ -19,6 +19,7 @@ package androidx.paging.compose
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -30,15 +31,21 @@ import androidx.compose.runtime.setValue
 import androidx.paging.CombinedLoadStates
 import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
+import androidx.paging.LOGGER
+import androidx.paging.LOG_TAG
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
+import androidx.paging.Logger
 import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.withContext
 
 /**
  * The class responsible for accessing the data from a [Flow] of [PagingData].
@@ -192,6 +199,38 @@ public class LazyPagingItems<T : Any> internal constructor(
             pagingDataDiffer.collectFrom(it)
         }
     }
+
+    private companion object {
+        init {
+            /**
+             * Implements the Logger interface from paging-common and injects it into the LOGGER
+             * global var stored within Pager.
+             *
+             * Checks for null LOGGER because other runtime entry points to paging can also
+             * inject a Logger
+             */
+            LOGGER = LOGGER ?: object : Logger {
+                override fun isLoggable(level: Int): Boolean {
+                    return Log.isLoggable(LOG_TAG, level)
+                }
+
+                override fun log(level: Int, message: String, tr: Throwable?) {
+                    when {
+                        tr != null && level == Log.DEBUG -> Log.d(LOG_TAG, message, tr)
+                        tr != null && level == Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
+                        level == Log.DEBUG -> Log.d(LOG_TAG, message)
+                        level == Log.VERBOSE -> Log.v(LOG_TAG, message)
+                        else -> {
+                            throw IllegalArgumentException(
+                                "debug level $level is requested but Paging only supports " +
+                                    "default logging for level 2 (DEBUG) or level 3 (VERBOSE)"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private val IncompleteLoadState = LoadState.NotLoading(false)
@@ -207,16 +246,35 @@ private val InitialLoadStates = LoadStates(
  * from [LazyListScope] in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
+ *
+ * @param context the [CoroutineContext] to perform the collection of [PagingData]
+ * and [CombinedLoadStates].
  */
 @Composable
-public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(): LazyPagingItems<T> {
+public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
+    context: CoroutineContext = EmptyCoroutineContext
+): LazyPagingItems<T> {
+
     val lazyPagingItems = remember(this) { LazyPagingItems(this) }
 
     LaunchedEffect(lazyPagingItems) {
-        lazyPagingItems.collectPagingData()
+        if (context == EmptyCoroutineContext) {
+            lazyPagingItems.collectPagingData()
+        } else {
+            withContext(context) {
+                lazyPagingItems.collectPagingData()
+            }
+        }
     }
+
     LaunchedEffect(lazyPagingItems) {
-        lazyPagingItems.collectLoadState()
+        if (context == EmptyCoroutineContext) {
+            lazyPagingItems.collectLoadState()
+        } else {
+            withContext(context) {
+                lazyPagingItems.collectLoadState()
+            }
+        }
     }
 
     return lazyPagingItems

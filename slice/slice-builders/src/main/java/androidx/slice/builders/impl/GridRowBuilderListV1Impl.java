@@ -27,7 +27,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.core.SliceHints.HINT_OVERLAY;
 
 import android.app.PendingIntent;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -171,12 +170,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
                         break;
                 }
             }
-        }
-
-        /**
-         */
-        private CellBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
         }
 
         /**

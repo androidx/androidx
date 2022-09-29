@@ -17,18 +17,28 @@
 package androidx.room.integration.testapp.vo;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+
 
 /**
  * The toys of a pet.
  */
 @Entity(
-        indices = @Index(
-                value = "mName",
-                unique = true
-        )
+        indices = {
+                @Index(
+                        value = "mName",
+                        unique = true
+                ),
+                @Index(
+                        value = "mPetId"
+                )
+        },
+        foreignKeys = {@ForeignKey(entity = Pet.class, parentColumns = "mPetId",
+        childColumns = "mPetId", deferred = true)}
 )
+
 public class Toy {
     @PrimaryKey(autoGenerate = true)
     private int mId;

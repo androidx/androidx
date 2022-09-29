@@ -65,62 +65,25 @@ def main():
                         required=False, action='store_true')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
-    if ("kotlin-native-linux" in artifact_name or "kotlin-native-prebuilt-linux" in artifact_name):
-        artifact_name = fix_kotlin_native(artifact_name)
 
-    # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
-    command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactNames=%s' % (
-        artifact_name)
+    command = 'importMaven.sh %s' % (artifact_name)
     # AndroidX Build Id
     androidx_build_id = parse_result.androidx_build_id
     if (androidx_build_id):
-      command = command + ' -PandroidxBuildId=%s' % (androidx_build_id)
+      command = command + ' --androidx-build-id %s' % (androidx_build_id)
     # Metalava Build Id
     metalava_build_id = parse_result.metalava_build_id
     if (metalava_build_id):
-      command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
+      command = command + ' --metalava-build-id %s' % (metalava_build_id)
     if (parse_result.allow_jetbrains_dev):
-      command = command + ' -PallowJetbrainsDev'
-    if (parse_result.fetch_kmp_artifacts):
-      command = command + ' -PkmpBuild=true'
-    print(command)
-    
-    process = subprocess.Popen(command,
-                               shell=True,
-                               stdin=subprocess.PIPE)
-    process.communicate()
-    assert not process.returncode
+      command = command + ' --allow-jetbrains-dev'
 
-    # TODO(b/223642687) automate the updating of signature information
-    COLOR_YELLOW="\u001B[33m"
-    COLOR_CLEAR="\u001B[0m"
-    print("")
-    print(COLOR_YELLOW + "You may also need to update signature information. See gradle/README.md" + COLOR_CLEAR)
-    print("")
-
-    # Generate our own .pom file so Gradle will use this artifact without also checking the internet.
-    # This can be removed once https://youtrack.jetbrains.com/issue/KT-35049 is resolved
-    if ("kotlin-native-linux" in artifact_name):
-      version = artifact_name.split("@")[0].split(":")[2]
-      output_file = open(f"../../../.././prebuilts/androidx/external/no-group/kotlin-native-linux/{version}/kotlin-native-linux-{version}.pom", 'w+')
-      output_file.write(f"""
-<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.jetbrains.kotlin</groupId>
-  <artifactId>kotlin-native-linux</artifactId>
-  <version>{version}</version>
-  <name>kotlin-native-linux</name>
-  <url>https://download.jetbrains.com/kotlin/native/builds</url>
-</project>\n""")
-      output_file.close()
-
-#kotlin-native-linux has weird syntax requirements; needs to be :kotlin-native-linux:VERSION@tar.gz
-def fix_kotlin_native(name_arg):
-  if name_arg[0]!=":": name_arg = ":"+name_arg
-  if not name_arg.endswith("@tar.gz"): name_arg += "@tar.gz"
-  return name_arg
+    my_directory = os.path.dirname(sys.argv[0])
+    sys.exit("""
+        This script is deprecated and will be removed. Please execute:
+        %s/%s
+        See %s/README.md for more details.
+    """ % (my_directory, command, my_directory))
 
 if __name__ == '__main__':
     main()

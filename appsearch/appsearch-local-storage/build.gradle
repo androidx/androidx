@@ -44,12 +44,11 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
                 targets "icing"
             }
         }
-	multiDexEnabled true
+        multiDexEnabled true
     }
     externalNativeBuild {
         cmake {
@@ -72,9 +71,9 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":appsearch:appsearch"))
+    implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.2.0")
-    implementation('androidx.collection:collection:1.0.0')
 
     androidTestImplementation project(':appsearch:appsearch-test-util')
     androidTestImplementation(libs.multidex)

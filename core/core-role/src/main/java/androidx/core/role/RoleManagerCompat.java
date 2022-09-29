@@ -72,7 +72,9 @@ public final class RoleManagerCompat {
     /**
      * The name of the dialer role.
      * <p>
-     * To qualify for this role, an application needs to handle the intent to dial:
+     * To qualify for this role, an application needs to handle the intent to dial, and implement
+     * an {@link android.telecom.InCallService} if the application targets
+     * {@link android.os.Build.VERSION_CODES.TIRAMISU} or higher:
      * <pre class="prettyprint">{@code
      * <activity>
      *     <intent-filter>
@@ -85,6 +87,16 @@ public final class RoleManagerCompat {
      *         <data android:scheme="tel" />
      *     </intent-filter>
      * </activity>
+     * <service android:permission="android.permission.BIND_INCALL_SERVICE">
+     *     <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" />
+     *     <meta-data
+     *         android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
+     *         android:value="false" />
+     *     <intent-filter>
+     *         <action android:name="android.telecom.InCallService" />
+     *     </intent-filter>
+     * </service>
+     *
      * }</pre>
      * The application will be able to handle those intents by default, and gain access to phone,
      * contacts, SMS, microphone and camera.

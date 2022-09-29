@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -534,7 +536,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * @deprecated override {@link #onInflateTitleView(LayoutInflater,ViewGroup,Bundle)} instead.
+     * @deprecated override {@link BrandedSupportFragment#onInflateTitleView(LayoutInflater, ViewGroup, Bundle)} instead.
      */
     @Deprecated
     protected View inflateTitle(LayoutInflater inflater, ViewGroup parent,
@@ -543,8 +545,11 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     @Override
-    public View onInflateTitleView(LayoutInflater inflater, ViewGroup parent,
-                                   Bundle savedInstanceState) {
+    public @NonNull View onInflateTitleView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup parent,
+            @Nullable Bundle savedInstanceState
+    ) {
         return inflateTitle(inflater, parent, savedInstanceState);
     }
 

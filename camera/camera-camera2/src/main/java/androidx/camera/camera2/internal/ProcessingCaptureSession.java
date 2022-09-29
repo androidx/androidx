@@ -95,7 +95,6 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private Camera2RequestProcessor mRequestProcessor;
     @Nullable
     private SessionConfig mProcessorSessionConfig;
-    private boolean mIsRepeatingRequestStarted = false;
 
     private static final long TIMEOUT_GET_SURFACE_IN_MS = 5000L;
     private ProcessorState mProcessorState;
@@ -132,7 +131,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         mExecutor = executor;
         mScheduledExecutorService = scheduledExecutorService;
         mProcessorState = ProcessorState.UNINITIALIZED;
-        mSessionProcessorCaptureCallback = new SessionProcessorCaptureCallback(mExecutor);
+        mSessionProcessorCaptureCallback = new SessionProcessorCaptureCallback();
 
         mInstanceId = sNextInstanceId++;
         Logger.d(TAG, "New ProcessingCaptureSession (id=" + mInstanceId + ")");
@@ -252,7 +251,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     // Close() will invoke appropriate SessionProcessor methods
                                     // to clear up and mark this session as CLOSED.
                                     Logger.e(TAG, "open session failed ", t);
@@ -561,10 +560,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                     CaptureRequestOptions.Builder.from(sessionConfig.getImplementationOptions())
                             .build();
             updateParameters(mSessionOptions, mStillCaptureOptions);
-            if (!mIsRepeatingRequestStarted) {
-                mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
-                mIsRepeatingRequestStarted = true;
-            }
+            mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
         }
     }
 
@@ -578,15 +574,8 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
     private static class SessionProcessorCaptureCallback
             implements SessionProcessor.CaptureCallback {
-        private List<CameraCaptureCallback> mCameraCaptureCallbacks = Collections.emptyList();
-        private final Executor mExecutor;
-        SessionProcessorCaptureCallback(@NonNull Executor executor) {
-            mExecutor = executor;
-        }
 
-        public void setCameraCaptureCallbacks(
-                @NonNull List<CameraCaptureCallback> cameraCaptureCallbacks) {
-            mCameraCaptureCallbacks = cameraCaptureCallbacks;
+        SessionProcessorCaptureCallback() {
         }
 
         @Override
@@ -599,22 +588,10 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         @Override
         public void onCaptureFailed(int captureSequenceId) {
-            mExecutor.execute(() -> {
-                for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                    cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                            CameraCaptureFailure.Reason.ERROR));
-                }
-            });
         }
 
         @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
-            mExecutor.execute(() -> {
-                for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                    cameraCaptureCallback.onCaptureCompleted(
-                            CameraCaptureResult.EmptyCameraCaptureResult.create());
-                }
-            });
         }
 
         @Override

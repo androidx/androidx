@@ -21,16 +21,17 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Timestamps
-import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
+import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import kotlinx.coroutines.runBlocking
 
 /**
  * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used
@@ -64,6 +65,8 @@ class CameraFactoryAdapter(
             .build()
             .getCameraInternal()
 
-    override fun getAvailableCameraIds(): Set<String> = appComponent.getAvailableCameraIds()
+    override fun getAvailableCameraIds(): Set<String> =
+        runBlocking { appComponent.getCameraPipe().cameras().ids().map { it.value }.toSet() }
+
     override fun getCameraManager(): Any? = appComponent
 }

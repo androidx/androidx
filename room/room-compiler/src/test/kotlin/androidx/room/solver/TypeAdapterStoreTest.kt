@@ -56,8 +56,10 @@ import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CustomTypeConverterWrapper
@@ -72,8 +74,9 @@ import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
+import java.util.UUID
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -81,13 +84,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
-import java.util.UUID
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
 class TypeAdapterStoreTest {
     companion object {
-        fun tmp(index: Int) = CodeGenScope._tmpVar(index)
+        fun tmp(index: Int) = CodeGenScope.getTmpVarString(index)
     }
 
     @Test
@@ -259,7 +261,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)} = fooVar ? 1 : 0;
@@ -271,7 +273,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
             assertThat(
-                cursorScope.generate().toString().trim(),
+                cursorScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -334,7 +336,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final boolean ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
@@ -347,7 +349,7 @@ class TypeAdapterStoreTest {
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
             assertThat(
-                cursorScope.generate().toString().trim(),
+                cursorScope.builder().build().toString().trim(),
                 `is`(
                     """
                     final int ${tmp(0)};
@@ -375,7 +377,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                 final java.lang.Long _tmp;
@@ -412,7 +414,7 @@ class TypeAdapterStoreTest {
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
             assertThat(
-                bindScope.generate().toString().trim(),
+                bindScope.builder().build().toString().trim(),
                 `is`(
                     """
                 final java.lang.String ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
@@ -789,6 +791,69 @@ class TypeAdapterStoreTest {
                     .matches(future.type),
                 `is`(true)
             )
+        }
+    }
+
+    @Test
+    fun testFindUpsertSingle() {
+        listOf(
+            Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
+            Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
+                val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(single).isNotNull()
+                assertThat(
+                    RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(single.type)
+                    }).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun testFindUpsertMaybe() {
+        listOf(
+            Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
+            Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
+                val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(
+                    RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(maybe.type)
+                    }).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun testFindUpsertCompletable() {
+        listOf(
+            Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
+            Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
+        ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
+                val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
+                assertThat(
+                    RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
+                        it.matches(completable.type)
+                    }).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun testFindUpsertListenableFuture() {
+        runProcessorTest(sources = listOf(COMMON.LISTENABLE_FUTURE)) {
+                invocation ->
+            val future = invocation.processingEnv
+                .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
+            assertThat(
+                GuavaListenableFutureUpsertMethodBinderProvider(invocation.context).matches(
+                    future.type
+                )).isTrue()
         }
     }
 

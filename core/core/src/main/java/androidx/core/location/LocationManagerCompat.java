@@ -28,6 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -81,6 +82,9 @@ public final class LocationManagerCompat {
     private static final long PRE_N_LOOPER_TIMEOUT_S = 5;
 
     private static Field sContextField;
+    private static Class<?> sGnssRequestBuilderClass;
+    private static Method sGnssRequestBuilderBuildMethod;
+    private static Method sRegisterGnssMeasurementsCallbackMethod;
 
     /**
      * Returns the current enabled/disabled state of location.
@@ -366,10 +370,104 @@ public final class LocationManagerCompat {
     }
 
     // allows lazy instantiation since most processes do not use GNSS APIs
-    private static class GnssLazyLoader {
+    private static class GnssListenersHolder {
         @GuardedBy("sGnssStatusListeners")
         static final SimpleArrayMap<Object, Object> sGnssStatusListeners =
                 new SimpleArrayMap<>();
+    }
+
+    /**
+     * Registers a GNSS measurement callback. See
+     * {@link LocationManager#registerGnssMeasurementsCallback(GnssMeasurementsEvent.Callback, Handler)}.
+     *
+     * <p>The primary purpose for this compatibility method is to help avoid crashes when delivering
+     * GNSS measurements to client on Android R. This bug was fixed in Android R QPR1, but since
+     * it's possible not all Android R devices have upgraded to QPR1, this compatibility method is
+     * provided to ensure GNSS measurements can be delivered successfully on all platforms.
+     */
+    @RequiresApi(VERSION_CODES.N)
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    public static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+            @NonNull GnssMeasurementsEvent.Callback callback, @NonNull Handler handler) {
+        if (VERSION.SDK_INT != VERSION_CODES.R) {
+            return Api24Impl.registerGnssMeasurementsCallback(locationManager, callback, handler);
+        } else {
+            return registerGnssMeasurementsCallbackOnR(locationManager,
+                    ExecutorCompat.create(handler),
+                    callback);
+        }
+    }
+
+    /**
+     * Registers a GNSS measurement callback. See
+     * {@link LocationManager#registerGnssMeasurementsCallback(Executor, GnssMeasurementsEvent.Callback)}.
+     *
+     * <p>The primary purpose for this compatibility method is to help avoid crashes when delivering
+     * GNSS measurements to client on Android R. This bug was fixed in Android R QPR1, but since
+     * it's possible not all Android R devices have upgraded to QPR1, this compatibility method is
+     * provided to ensure GNSS measurements can be delivered successfully on all platforms.
+     */
+    @RequiresApi(VERSION_CODES.R)
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    public static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+            @NonNull Executor executor, @NonNull GnssMeasurementsEvent.Callback callback) {
+        if (VERSION.SDK_INT > VERSION_CODES.R) {
+            return Api31Impl.registerGnssMeasurementsCallback(locationManager, executor, callback);
+        } else {
+            return registerGnssMeasurementsCallbackOnR(locationManager,
+                    executor,
+                    callback);
+        }
+    }
+
+    /**
+     * Unregisters a GNSS measurement callback. See
+     * {@link LocationManager#unregisterGnssMeasurementsCallback(GnssMeasurementsEvent.Callback)}.
+     */
+    @RequiresApi(VERSION_CODES.N)
+    public static void unregisterGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+            @NonNull GnssMeasurementsEvent.Callback callback) {
+        Api24Impl.unregisterGnssMeasurementsCallback(locationManager, callback);
+    }
+
+    // Android R without QPR1 has a bug where the default version of this method will always
+    // cause crashes. Reflect to invoke the SystemApi version instead, which avoids this.
+    @RequiresApi(VERSION_CODES.R)
+    private static boolean registerGnssMeasurementsCallbackOnR(
+            @NonNull LocationManager locationManager, @NonNull Executor executor,
+            @NonNull GnssMeasurementsEvent.Callback callback) {
+        if (VERSION.SDK_INT == VERSION_CODES.R) {
+            try {
+                if (sGnssRequestBuilderClass == null) {
+                    sGnssRequestBuilderClass = Class.forName(
+                            "android.location.GnssRequest$Builder");
+                }
+                if (sGnssRequestBuilderBuildMethod == null) {
+                    sGnssRequestBuilderBuildMethod = sGnssRequestBuilderClass.getDeclaredMethod(
+                            "build");
+                    sGnssRequestBuilderBuildMethod.setAccessible(true);
+                }
+                if (sRegisterGnssMeasurementsCallbackMethod == null) {
+                    sRegisterGnssMeasurementsCallbackMethod =
+                            LocationManager.class.getDeclaredMethod(
+                                    "registerGnssMeasurementsCallback",
+                                    Class.forName("android.location.GnssRequest"), Executor.class,
+                                    GnssMeasurementsEvent.Callback.class);
+                    sRegisterGnssMeasurementsCallbackMethod.setAccessible(true);
+                }
+
+                Object success = sRegisterGnssMeasurementsCallbackMethod.invoke(locationManager,
+                        sGnssRequestBuilderBuildMethod.invoke(
+                                sGnssRequestBuilderClass.getDeclaredConstructor().newInstance()),
+                        executor, callback);
+                return success != null && (boolean) success;
+            } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException
+                    | IllegalAccessException | InstantiationException e) {
+                return false;
+            }
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     /**
@@ -435,9 +533,9 @@ public final class LocationManagerCompat {
                     locationManager, baseHandler, executor, callback);
         } else {
             Preconditions.checkArgument(baseHandler != null);
-            synchronized (GnssLazyLoader.sGnssStatusListeners) {
+            synchronized (GnssListenersHolder.sGnssStatusListeners) {
                 GpsStatusTransport transport =
-                        (GpsStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
+                        (GpsStatusTransport) GnssListenersHolder.sGnssStatusListeners.get(callback);
                 if (transport == null) {
                     transport = new GpsStatusTransport(locationManager, callback);
                 } else {
@@ -462,7 +560,7 @@ public final class LocationManagerCompat {
                     while (true) {
                         try {
                             if (task.get(remainingNanos, NANOSECONDS)) {
-                                GnssLazyLoader.sGnssStatusListeners.put(callback, myTransport);
+                                GnssListenersHolder.sGnssStatusListeners.put(callback, myTransport);
                                 return true;
                             } else {
                                 return false;
@@ -502,16 +600,17 @@ public final class LocationManagerCompat {
     public static void unregisterGnssStatusCallback(@NonNull LocationManager locationManager,
             @NonNull GnssStatusCompat.Callback callback) {
         if (VERSION.SDK_INT >= 24) {
-            synchronized (GnssLazyLoader.sGnssStatusListeners) {
-                Object transport = GnssLazyLoader.sGnssStatusListeners.remove(callback);
+            synchronized (GnssListenersHolder.sGnssStatusListeners) {
+                Object transport = GnssListenersHolder.sGnssStatusListeners.remove(callback);
                 if (transport != null) {
                     Api24Impl.unregisterGnssStatusCallback(locationManager, transport);
                 }
             }
         } else {
-            synchronized (GnssLazyLoader.sGnssStatusListeners) {
+            synchronized (GnssListenersHolder.sGnssStatusListeners) {
                 GpsStatusTransport transport =
-                        (GpsStatusTransport) GnssLazyLoader.sGnssStatusListeners.remove(callback);
+                        (GpsStatusTransport) GnssListenersHolder.sGnssStatusListeners.remove(
+                                callback);
                 if (transport != null) {
                     transport.unregister();
                     locationManager.removeGpsStatusListener(transport);
@@ -988,6 +1087,13 @@ public final class LocationManagerCompat {
                 @NonNull Executor executor, @NonNull LocationListener listener) {
             locationManager.requestLocationUpdates(provider, locationRequest, executor, listener);
         }
+
+        @RequiresPermission(ACCESS_FINE_LOCATION)
+        @DoNotInline
+        static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+                @NonNull Executor executor, @NonNull GnssMeasurementsEvent.Callback callback) {
+            return locationManager.registerGnssMeasurementsCallback(executor, callback);
+        }
     }
 
     @RequiresApi(30)
@@ -1054,14 +1160,15 @@ public final class LocationManagerCompat {
         @DoNotInline
         public static boolean registerGnssStatusCallback(LocationManager locationManager,
                 Handler baseHandler, Executor executor, GnssStatusCompat.Callback callback) {
-            synchronized (GnssLazyLoader.sGnssStatusListeners) {
+            synchronized (GnssListenersHolder.sGnssStatusListeners) {
                 GnssStatusTransport transport =
-                        (GnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
+                        (GnssStatusTransport) GnssListenersHolder.sGnssStatusListeners.get(
+                                callback);
                 if (transport == null) {
                     transport = new GnssStatusTransport(callback);
                 }
                 if (locationManager.registerGnssStatusCallback(executor, transport)) {
-                    GnssLazyLoader.sGnssStatusListeners.put(callback, transport);
+                    GnssListenersHolder.sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
                     return false;
@@ -1185,15 +1292,29 @@ public final class LocationManagerCompat {
             // This class is not instantiable.
         }
 
+        @RequiresPermission(ACCESS_FINE_LOCATION)
+        @DoNotInline
+        static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+                @NonNull GnssMeasurementsEvent.Callback callback, @NonNull Handler handler) {
+            return locationManager.registerGnssMeasurementsCallback(callback, handler);
+        }
+
+        @DoNotInline
+        static void unregisterGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+                @NonNull GnssMeasurementsEvent.Callback callback) {
+            locationManager.unregisterGnssMeasurementsCallback(callback);
+        }
+
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
         @DoNotInline
         static boolean registerGnssStatusCallback(LocationManager locationManager,
                 Handler baseHandler, Executor executor, GnssStatusCompat.Callback callback) {
             Preconditions.checkArgument(baseHandler != null);
 
-            synchronized (GnssLazyLoader.sGnssStatusListeners) {
+            synchronized (GnssListenersHolder.sGnssStatusListeners) {
                 PreRGnssStatusTransport transport =
-                        (PreRGnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
+                        (PreRGnssStatusTransport) GnssListenersHolder.sGnssStatusListeners.get(
+                                callback);
                 if (transport == null) {
                     transport = new PreRGnssStatusTransport(callback);
                 } else {
@@ -1202,7 +1323,7 @@ public final class LocationManagerCompat {
                 transport.register(executor);
 
                 if (locationManager.registerGnssStatusCallback(transport, baseHandler)) {
-                    GnssLazyLoader.sGnssStatusListeners.put(callback, transport);
+                    GnssListenersHolder.sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
                     return false;

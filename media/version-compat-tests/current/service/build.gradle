@@ -19,6 +19,10 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    namespace "android.support.mediacompat.service"
+}
+
 dependencies {
     androidTestImplementation(project(":media:media"))
     androidTestImplementation(project(":media:version-compat-tests:lib"))

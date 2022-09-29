@@ -20,12 +20,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
@@ -37,6 +39,8 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceColors
+import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -377,7 +381,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         )
 }
 
+@OptIn(WatchFaceExperimental::class)
 @Suppress("Deprecation")
+@RequiresApi(27)
 class ExampleAnalogWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
@@ -445,6 +451,12 @@ class ExampleAnalogWatchCanvasRenderer(
                         .value.toFloat()
                 hoursDrawFreq = (userStyle[hoursDrawFreqStyleSetting]!! as LongRangeOption)
                         .value.toInt()
+
+                watchfaceColors = WatchFaceColors(
+                    Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
+                    Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
+                    Color.valueOf(Color.DKGRAY)
+                )
             }
         }
     }

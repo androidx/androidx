@@ -107,7 +107,7 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override var activeUseCases: Set<UseCase> = emptySet(),
+    override var runningUseCases: Set<UseCase> = emptySet(),
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 

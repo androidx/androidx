@@ -36,6 +36,14 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
+import androidx.glance.action.clickable
+import androidx.glance.ImageProvider
+import android.content.Context
+import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.GlanceId
+import androidx.glance.action.ActionParameters
+import androidx.glance.appwidget.action.ActionCallback
+
 class ResizingAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Single
@@ -46,7 +54,10 @@ class ResizingAppWidget : GlanceAppWidget() {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
                     "first",
-                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    modifier = GlanceModifier
+                        .width(50.dp)
+                        .background(Color(0xFFBBBBBB))
+                        .clickable(actionRunCallback<NoopAction>()),
                     style = TextStyle(textAlign = TextAlign.Start)
                 )
                 Text(
@@ -59,13 +70,20 @@ class ResizingAppWidget : GlanceAppWidget() {
                 )
                 Text(
                     "third",
-                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    modifier = GlanceModifier
+                        .width(50.dp)
+                        .background(Color(0xFFBBBBBB))
+                        .clickable(actionRunCallback<NoopAction>()),
                     style = TextStyle(textAlign = TextAlign.End)
                 )
             }
             Text(
                 "middle",
-                modifier = GlanceModifier.defaultWeight().fillMaxWidth(),
+                modifier = GlanceModifier
+                    .defaultWeight()
+                    .fillMaxWidth()
+                    .clickable(actionRunCallback<NoopAction>())
+                    .background(ImageProvider(R.drawable.compose)),
                 style = TextStyle(textAlign = TextAlign.Center)
             )
             Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {
@@ -101,4 +119,14 @@ class ResizingAppWidget : GlanceAppWidget() {
 
 class ResizingAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ResizingAppWidget()
+}
+
+class NoopAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        android.util.Log.e("GlanceAppWidget", "Action called")
+    }
 }

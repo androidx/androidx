@@ -19,6 +19,7 @@ package androidx.transition;
 import android.annotation.SuppressLint;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -37,10 +38,22 @@ class ViewUtilsApi22 extends ViewUtilsApi21 {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                v.setLeftTopRightBottom(left, top, right, bottom);
+                Api29Impl.setLeftTopRightBottom(v, left, top, right, bottom);
             } catch (NoSuchMethodError e) {
                 sTryHiddenSetLeftTopRightBottom = false;
             }
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setLeftTopRightBottom(View view, int left, int top, int right, int bottom) {
+            view.setLeftTopRightBottom(left, top, right, bottom);
         }
     }
 }

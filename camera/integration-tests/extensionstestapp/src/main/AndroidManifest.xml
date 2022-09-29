@@ -27,10 +27,20 @@
         <activity
             android:name=".CameraExtensionsActivity"
             android:exported="true"
-            android:label="Camera Extensions">
+            android:label="CameraX Extensions">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Camera2ExtensionsActivity"
+            android:exported="false"
+            android:label="Camera2 Extensions">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 

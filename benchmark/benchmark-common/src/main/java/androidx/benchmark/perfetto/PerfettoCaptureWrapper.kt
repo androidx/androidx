@@ -40,11 +40,25 @@ class PerfettoCaptureWrapper {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun start(packages: List<String>): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
-            capture?.start(packages)
+    private fun start(
+        appTagPackages: List<String>,
+        userspaceTracingPackage: String?
+    ): Boolean {
+        capture?.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
+                if (userspaceTracingPackage != null &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                ) {
+                    enableAndroidxTracingPerfetto(
+                        targetPackage = userspaceTracingPackage,
+                        provideBinariesIfMissing = true
+                    )
+                }
+                start(appTagPackages)
+            }
         }
+
         return true
     }
 
@@ -67,7 +81,8 @@ class PerfettoCaptureWrapper {
 
     fun record(
         benchmarkName: String,
-        packages: List<String>,
+        appTagPackages: List<String>,
+        userspaceTracingPackage: String?,
         iteration: Int? = null,
         block: () -> Unit
     ): String? {
@@ -84,7 +99,7 @@ class PerfettoCaptureWrapper {
         } else null
         try {
             propOverride?.forceValue()
-            start(packages)
+            start(appTagPackages, userspaceTracingPackage)
             val path: String
             try {
                 block()

@@ -18,7 +18,8 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
 import com.google.devtools.ksp.symbol.KSType
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 
 /**
  * Representation of `void` in KSP.
@@ -33,12 +34,16 @@ internal class KspVoidType(
     val boxed: Boolean,
     jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(env, ksType, jvmTypeResolver) {
-    override fun resolveTypeName(): TypeName {
+    override fun resolveJTypeName(): JTypeName {
         return if (boxed || nullability == XNullability.NULLABLE) {
-            TypeName.VOID.box()
+            JTypeName.VOID.box()
         } else {
-            TypeName.VOID
+            JTypeName.VOID
         }
+    }
+
+    override fun resolveKTypeName(): KTypeName {
+        return com.squareup.kotlinpoet.UNIT
     }
 
     override fun boxed(): KspType {

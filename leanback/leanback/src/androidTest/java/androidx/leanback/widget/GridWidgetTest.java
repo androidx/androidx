@@ -48,6 +48,8 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.PollingCheck;
@@ -760,6 +762,105 @@ public class GridWidgetTest {
         scrollToEnd(mVerifyLayout);
         scrollToBegin(mVerifyLayout);
         verifyBeginAligned();
+    }
+
+    @Test
+    public void testSetFocusOutLayoutManagerVertical() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+
+        final View endView = new View(mGridView.getContext());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams lp = mGridView.getLayoutParams();
+                lp.height = 300;
+                mGridView.setLayoutParams(lp);
+
+                endView.setFocusable(true);
+                endView.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
+                ((ViewGroup) mGridView.getParent()).addView(endView);
+            }
+        });
+
+        waitOneUiCycle();
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
+        gridLayoutManager.setFocusOutAllowed(false, true);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+
+        // Focus should be in the grid view because focus is not allowed out the front.
+        assertTrue(mGridView.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+
+        // Focus should be on endView because we allowed focus out the back.
+        assertTrue(endView.isFocused());
+
+        gridLayoutManager.setFocusOutAllowed(true, false);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+
+        // Focus should be in the grid view because focus is not allowed out the back.
+        assertTrue(mGridView.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+
+        final View button = mActivity.findViewById(R.id.button);
+
+        // Button should be in focus because we allow focus out of the front.
+        assertTrue(button.isFocused());
+    }
+
+    @Test
+    public void testSetFocusOutLayoutManagerHorizontal() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear_front_back_buttons);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
+        gridLayoutManager.setFocusOutAllowed(false, true);
+
+        final View frontButton = mActivity.findViewById(R.id.button_front);
+        final View backButton = mActivity.findViewById(R.id.button_back);
+
+        assertTrue(frontButton.isFocused());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+
+        // Focus should be on the back button as we allow focus out the back.
+        assertTrue(backButton.isFocused());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+
+        // Focus should be on the grid as we don't allow focus out the front.
+        assertTrue(mGridView.hasFocus());
+
+        gridLayoutManager.setFocusOutAllowed(true, false);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+
+        // Focus should be on the front button as we now allow focus out the front.
+        assertTrue(frontButton.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+
+        // Focus should be in the grid view as we no longer allow focus out the back.
+        assertTrue(mGridView.hasFocus());
     }
 
     @Test
@@ -3683,7 +3784,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -3723,7 +3829,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -4506,7 +4617,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedLog = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedLog.add(position);
             }
         });

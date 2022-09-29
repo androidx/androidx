@@ -159,9 +159,9 @@ public class ServiceBackedPassiveMonitoringClient(
             ContextCompat.getMainExecutor(applicationContext)
         )
 
-    private companion object {
-        const val CLIENT = "HealthServicesPassiveMonitoringClient"
-        private val CLIENT_CONFIGURATION =
+    internal companion object {
+        internal const val CLIENT = "HealthServicesPassiveMonitoringClient"
+        internal val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, PASSIVE_API_BIND_ACTION)
     }
 }

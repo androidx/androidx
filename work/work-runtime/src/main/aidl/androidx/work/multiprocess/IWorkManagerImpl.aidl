@@ -26,6 +26,8 @@ import androidx.work.multiprocess.IWorkManagerImplCallback;
 oneway interface IWorkManagerImpl {
     // Enqueues WorkRequests
     void enqueueWorkRequests(in byte[] request, IWorkManagerImplCallback callback);
+    void updateUniquePeriodicWorkRequest(
+        String name, in byte[] request, IWorkManagerImplCallback callback);
     // Enqueues WorkContinuations
     void enqueueContinuation(in byte[] request, IWorkManagerImplCallback callback);
     // Cancel APIs

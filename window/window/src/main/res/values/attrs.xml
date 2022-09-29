@@ -33,6 +33,10 @@
         <enum name="always" value="1" />
         <enum name="adjacent" value="2" />
     </attr>
+    <attr name="finishPrimaryWithPlaceholder" format="enum">
+        <enum name="always" value="1" />
+        <enum name="adjacent" value="2" />
+    </attr>
     <attr name="finishSecondaryWithPrimary" format="enum">
         <enum name="never" value="0" />
         <enum name="always" value="1" />
@@ -70,7 +74,7 @@
         <attr name="stickyPlaceholder" format="boolean" />
         <!-- When all activities are finished in the secondary container, the activity in the
          primary container that created the split should also be finished. Defaults to "always". -->
-        <attr name="finishPrimaryWithSecondary" />
+        <attr name="finishPrimaryWithPlaceholder" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
         <attr name="splitMinSmallestWidth"/>

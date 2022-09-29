@@ -24,7 +24,6 @@ import android.view.WindowMetrics;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +36,6 @@ import java.util.function.Predicate;
  * new activities started from the same process automatically by the embedding implementation on
  * the device.
  */
-@ExperimentalWindowExtensionsApi
 public abstract class SplitRule extends EmbeddingRule {
     @NonNull
     private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;

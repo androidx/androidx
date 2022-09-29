@@ -66,8 +66,10 @@ public abstract class MediaSpec {
     public @interface OutputFormat {
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
-    static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
+    public static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
         switch (outputFormat) {
             case MediaSpec.OUTPUT_FORMAT_WEBM:
                 return AUDIO_ENCODER_MIME_WEBM_DEFAULT;
@@ -80,7 +82,9 @@ public abstract class MediaSpec {
         }
     }
 
-    static int outputFormatToAudioProfile(@OutputFormat int outputFormat) {
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    public static int outputFormatToAudioProfile(@OutputFormat int outputFormat) {
         String audioMime = outputFormatToAudioMime(outputFormat);
         if (Objects.equals(audioMime, MediaFormat.MIMETYPE_AUDIO_AAC)) {
             return AAC_DEFAULT_PROFILE;
@@ -89,8 +93,10 @@ public abstract class MediaSpec {
         return EncoderConfig.CODEC_PROFILE_NONE;
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
-    static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
+    public static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
         switch (outputFormat) {
             case MediaSpec.OUTPUT_FORMAT_WEBM:
                 return VIDEO_ENCODER_MIME_WEBM_DEFAULT;

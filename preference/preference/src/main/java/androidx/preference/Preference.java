@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -2274,10 +2275,13 @@ public class Preference implements Comparable<Preference> {
             CharSequence summary = mPreference.getSummary();
             ClipData clip = ClipData.newPlainText(CLIPBOARD_ID, summary);
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(mPreference.getContext(),
-                    mPreference.getContext().getString(R.string.preference_copied,
-                            summary),
-                    Toast.LENGTH_SHORT).show();
+            // T has a clipboard overlay that automatically shows copied text, so only show a Toast
+            // below T.
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                Toast.makeText(mPreference.getContext(),
+                        mPreference.getContext().getString(R.string.preference_copied, summary),
+                        Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
     }

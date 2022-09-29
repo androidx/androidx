@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.samples.AlertDialogSample
@@ -33,6 +34,8 @@ import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
 import androidx.wear.compose.material.samples.ChipWithIconAndLabel
+import androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
+import androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
@@ -51,6 +54,10 @@ import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.LargeButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedChipWithIconAndLabel
+import androidx.wear.compose.material.samples.OutlinedCompactButtonWithIcon
+import androidx.wear.compose.material.samples.OutlinedCompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -68,7 +75,8 @@ import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImage
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
-import androidx.wear.compose.material.samples.ToggleChipWithIcon
+import androidx.wear.compose.material.samples.ToggleChipWithRadioButton
+import androidx.wear.compose.material.samples.ToggleChipWithSwitch
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -113,6 +121,31 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "ScrollAway",
+            listOf(
+                ComposableDemo("Column") { ScrollAwayColumnDemo() },
+                ComposableDemo("Column (delay)") { ScrollAwayColumnDelayDemo() },
+                ComposableDemo("Lazy Column") { ScrollAwayLazyColumnDemo() },
+                ComposableDemo("Lazy Column offset<0") { ScrollAwayLazyColumnDemo2() },
+                ComposableDemo("Lazy Column offset>0") { ScrollAwayLazyColumnDelayDemo() },
+                ComposableDemo("SLC Cards") {
+                    ScrollAwayScalingLazyColumnCardDemo()
+                },
+                ComposableDemo("SLC Cards offset<0") {
+                    ScrollAwayScalingLazyColumnCardDemo2()
+                },
+                ComposableDemo("SLC Cards offset>0") {
+                    ScrollAwayScalingLazyColumnCardDemoMismatch()
+                },
+                ComposableDemo("SLC Chips") {
+                    ScrollAwayScalingLazyColumnChipDemo()
+                },
+                ComposableDemo("SLC Chips offset<0") {
+                    ScrollAwayScalingLazyColumnChipDemo2()
+                },
+            )
+        ),
+        DemoCategory(
             "Picker",
             if (Build.VERSION.SDK_INT > 25) {
                 listOf(
@@ -148,6 +181,7 @@ val WearMaterialDemos = DemoCategory(
                         )
                     },
                     ComposableDemo("Simple Picker") { SimplePicker() },
+                    ComposableDemo("No gradient") { PickerWithoutGradient() },
                 )
             } else {
                 listOf(
@@ -266,6 +300,9 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Access Location") { DialogAccessLocation() },
                         ComposableDemo("Grant Permission") { DialogGrantPermission() },
                         ComposableDemo("Long Chips") { DialogLongChips() },
+                        ComposableDemo("Dialog Background") {
+                            DialogBackground(Color.Green)
+                        },
                         ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
                     )
                 )
@@ -282,8 +319,14 @@ val WearMaterialDemos = DemoCategory(
                             Centralize { LargeButtonWithIcon() }
                         },
                         ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                        ComposableDemo("Outlined Button With Icon") {
+                            Centralize { OutlinedButtonWithIcon() }
+                        },
                         ComposableDemo("Compact Button With Icon") {
                             Centralize { CompactButtonWithIcon() }
+                        },
+                        ComposableDemo("Outline Compact Button With Icon") {
+                            Centralize { OutlinedCompactButtonWithIcon() }
                         },
                     )
                 ),
@@ -320,6 +363,11 @@ val WearMaterialDemos = DemoCategory(
                                 ChipWithIconAndLabels()
                             }
                         },
+                        ComposableDemo("Outlined Chip With Icon And long Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedChipWithIconAndLabel()
+                            }
+                        },
                         ComposableDemo("Compact Chip With Icon And Label") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIconAndLabel()
@@ -333,6 +381,11 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Compact Chip Icon Only") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 CompactChipWithIcon()
+                            }
+                        },
+                        ComposableDemo("Outlined Compact Chip With Icon and Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                OutlinedCompactChipWithIconAndLabel()
                             }
                         },
                     )
@@ -351,13 +404,45 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
+            "Placeholders",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Content Placeholders") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabelAndPlaceholders()
+                            }
+                        },
+                        ComposableDemo("Overlaid Placeholder") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabelsAndOverlaidPlaceholder()
+                            }
+                        },
+                     )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Chips") { PlaceholderChips() },
+                        ComposableDemo("Cards") { PlaceholderCards() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
             "Toggle Chip",
             listOf(
                 DemoCategory("Samples",
                     listOf(
-                        ComposableDemo("ToggleChip With Icon") {
+                        ComposableDemo("ToggleChip With Switch") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ToggleChipWithIcon()
+                                ToggleChipWithSwitch()
+                            }
+                        },
+                        ComposableDemo("ToggleChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ToggleChipWithRadioButton()
                             }
                         },
                         ComposableDemo("SplitToggleChip With Checkbox") {

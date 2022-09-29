@@ -24,6 +24,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.Timebase
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.LabTestRule
@@ -69,6 +70,9 @@ class EncoderFinderTest(
         @JvmStatic
         private val cameraSelectors =
             arrayOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
+
+        @JvmStatic
+        private val timebase = Timebase.UPTIME
 
         @JvmStatic
         private val quality = arrayOf(
@@ -126,7 +130,12 @@ class EncoderFinderTest(
             VideoSpec.builder().setQualitySelector(QualitySelector.from(quality)).build()
 
         val mediaFormat = VideoEncoderConfigCamcorderProfileResolver(
-            camcorderProfileVideoMime, videoSpec, resolution!!, camcorderProfile
+            camcorderProfileVideoMime,
+            timebase,
+            videoSpec,
+            resolution!!,
+            camcorderProfile,
+            /*expectedFrameRateRange=*/null
         ).get().toMediaFormat()
 
         // Act.

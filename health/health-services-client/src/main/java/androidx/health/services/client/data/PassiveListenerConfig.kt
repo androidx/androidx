@@ -29,27 +29,26 @@ import androidx.health.services.client.proto.DataProto
  * @property dataTypes set of [DataType]s which should be tracked. Requested data will be returned
  * by [PassiveListenerCallback.onNewDataPointsReceived].
  * @property shouldRequestUserActivityState whether to request [UserActivityInfo] updates. Data will
- * be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling app must
- * have [android.Manifest.permission.ACTIVITY_RECOGNITION].
- * @property passiveGoals set of [PassiveGoal]s which should be tracked. Achieved goals will be
+ * be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling app
+ * must have [android.Manifest.permission.ACTIVITY_RECOGNITION].
+ * @property dailyGoals set of daily [PassiveGoal]s which should be tracked. Achieved goals will be
  * returned by [PassiveListenerCallback.onGoalCompleted].
  * @property healthEventTypes set of [HealthEvent.Type] which should be tracked. Detected health
  * events will be returned by [PassiveListenerCallback.onHealthEventReceived].
  */
 @Suppress("ParcelCreator")
-public class PassiveListenerConfig
-public constructor(
-    public val dataTypes: Set<DataType>,
+public class PassiveListenerConfig(
+    public val dataTypes: Set<DataType<out Any, out DataPoint<out Any>>>,
     @get:JvmName("shouldRequestUserActivityState")
     public val shouldRequestUserActivityState: Boolean,
-    public val passiveGoals: Set<PassiveGoal>,
+    public val dailyGoals: Set<PassiveGoal>,
     public val healthEventTypes: Set<HealthEvent.Type>
 ) : ProtoParcelable<DataProto.PassiveListenerConfig>() {
 
     internal constructor(
         proto: DataProto.PassiveListenerConfig
     ) : this(
-        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.includeUserActivityState,
         proto.passiveGoalsList.map { PassiveGoal(it) }.toSet(),
         proto.healthEventTypesList
@@ -59,13 +58,13 @@ public constructor(
 
     /** Builder for [PassiveListenerConfig] instances. */
     public class Builder {
-        private var dataTypes: Set<DataType> = emptySet()
+        private var dataTypes: Set<DataType<*, *>> = emptySet()
         private var requestUserActivityState: Boolean = false
-        private var passiveGoals: Set<PassiveGoal> = emptySet()
+        private var dailyGoals: Set<PassiveGoal> = emptySet()
         private var healthEventTypes: Set<HealthEvent.Type> = emptySet()
 
         /** Sets the requested [DataType]s that should be passively tracked. */
-        public fun setDataTypes(dataTypes: Set<DataType>): Builder {
+        public fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
             this.dataTypes = dataTypes.toSet()
             return this
         }
@@ -84,12 +83,12 @@ public constructor(
         }
 
         /**
-         * Sets the requested [PassiveGoal]s that should be passively tracked.
+         * Sets the requested daily [PassiveGoal]s that should be passively tracked.
          *
-         * @param passiveGoals the [PassiveGoal]s that should be tracked passively
+         * @param dailyGoals the daily [PassiveGoal]s that should be tracked passively
          */
-        public fun setPassiveGoals(passiveGoals: Set<PassiveGoal>): Builder {
-            this.passiveGoals = passiveGoals.toSet()
+        public fun setDailyGoals(dailyGoals: Set<PassiveGoal>): Builder {
+            this.dailyGoals = dailyGoals.toSet()
             return this
         }
 
@@ -108,21 +107,20 @@ public constructor(
             return PassiveListenerConfig(
                 dataTypes,
                 requestUserActivityState,
-                passiveGoals,
+                dailyGoals,
                 healthEventTypes
             )
         }
     }
 
     /** @hide */
-    override val proto: DataProto.PassiveListenerConfig by lazy {
+    override val proto: DataProto.PassiveListenerConfig =
         DataProto.PassiveListenerConfig.newBuilder()
             .addAllDataTypes(dataTypes.map { it.proto })
             .setIncludeUserActivityState(shouldRequestUserActivityState)
-            .addAllPassiveGoals(passiveGoals.map { it.proto })
+            .addAllPassiveGoals(dailyGoals.map { it.proto })
             .addAllHealthEventTypes(healthEventTypes.map { it.toProto() })
             .build()
-    }
 
     public companion object {
         @JvmStatic

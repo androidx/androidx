@@ -751,6 +751,43 @@ class KotlinMetadataElementTest(
         }
     }
 
+    @Test
+    fun methods_localNestingKind() {
+        // Only private functions are relevant to the test since public (or internal) functions
+        // are required to declare their return type explicitly when right-hand side is ambiguous.
+        // b/232742201
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            object Subject {
+                private fun localA() = object : A { }
+                private fun localAB() = object : A, B { }
+                private fun localABC() = object : C(), A, B { }
+                private fun localC() = object : C() { }
+                private fun localAC() = object : C(), A { }
+                private fun localAB_declaredA(): A = object : A, B { }
+                private fun localAB_declaredB(): B = object : A, B { }
+                private fun localABC_declaredC(): C = object : C(), A, B { }
+            }
+            interface A
+            interface B
+            abstract class C
+            """.trimIndent()
+        )
+        simpleRun(listOf(src)) { invocation ->
+            val (subjectElement, subjectMetadata) = getMetadataElement(invocation, "Subject")
+            fun assertKmFunctionFound(functionName: String) {
+                val kmFunction = subjectMetadata.getFunctionMetadata(
+                    subjectElement.getDeclaredMethod(functionName)
+                )
+                assertThat(kmFunction).isNotNull()
+            }
+            subjectElement.getDeclaredMethods().forEach {
+                assertKmFunctionFound(it.simpleName.toString())
+            }
+        }
+    }
+
     private fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(enclosedElements)
 
     private fun TypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().first {

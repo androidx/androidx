@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+import androidx.build.SdkHelperKt
+import androidx.build.SupportConfig
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    implementation(libs.kspApi)
+    implementation(libs.kotlinPoet)
+    implementation project(path: ':privacysandbox:tools:tools')
+    implementation project(path: ':privacysandbox:tools:tools-core')
+
+    testImplementation(project(":privacysandbox:tools:tools-testing"))
+    testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesCore)
+    // Include android jar for compilation of generated sources.
+    testImplementation(fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include: "android.jar"
+    ))
+    // Get AIDL compiler path and pass it to tests for code generation.
+    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
+    test {
+        inputs.files(aidlCompilerPath)
+                .withPropertyName("aidl_compiler_path")
+                .withPathSensitivity(PathSensitivity.NAME_ONLY)
+        doFirst {
+            systemProperty "aidl_compiler_path", aidlCompilerPath
+        }
+    }
+}
+
+androidx {
+    name = "androidx.privacysandbox.tools:tools-apicompiler"
+    type = LibraryType.ANNOTATION_PROCESSOR
+    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
+    inceptionYear = "2022"
+    description = "Compiler for Privacy Sandbox API annotations."
+}

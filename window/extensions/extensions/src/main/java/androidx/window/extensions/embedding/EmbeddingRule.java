@@ -16,13 +16,10 @@
 
 package androidx.window.extensions.embedding;
 
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
-
 /**
  * Base interface for activity embedding rules. Used to group different types of rules together when
  * updating from the core library.
  */
-@ExperimentalWindowExtensionsApi
 public abstract class EmbeddingRule {
     EmbeddingRule() {}
 }

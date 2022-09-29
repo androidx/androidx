@@ -50,6 +50,7 @@ class DefaultStateAppWidget : GlanceAppWidget() {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "-",
+                style = TextStyle(textAlign = TextAlign.Center),
                 onClick = actionRunCallback<ClickAction>(
                     actionParametersOf(ClickValueKey to -1)
                 )
@@ -62,6 +63,7 @@ class DefaultStateAppWidget : GlanceAppWidget() {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "+",
+                style = TextStyle(textAlign = TextAlign.Center),
                 onClick = actionRunCallback<ClickAction>(
                     actionParametersOf(ClickValueKey to 1)
                 )

@@ -30,6 +30,7 @@ import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkerUpdater;
 import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -39,6 +40,7 @@ import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
+import androidx.work.multiprocess.parcelable.ParcelableWorkRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -278,6 +280,31 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                         @NonNull
                         @Override
                         public byte[] toByteArray(@NonNull Void result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
+        } catch (Throwable throwable) {
+            reportFailure(callback, throwable);
+        }
+    }
+
+    @Override
+    public void updateUniquePeriodicWorkRequest(@NonNull String name, @NonNull byte[] request,
+            @NonNull IWorkManagerImplCallback callback) {
+        try {
+            ParcelableWorkRequest parcelableWorkRequest = ParcelConverters.unmarshall(request,
+                    ParcelableWorkRequest.CREATOR);
+            WorkRequest workRequest = parcelableWorkRequest.getWorkRequest();
+            Operation operation = WorkerUpdater.enqueueUniquelyNamedPeriodic(mWorkManager, name,
+                    workRequest);
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
                             return sEMPTY;
                         }
                     };

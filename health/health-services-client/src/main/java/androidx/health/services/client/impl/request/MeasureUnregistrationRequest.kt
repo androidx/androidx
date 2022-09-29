@@ -30,21 +30,20 @@ import androidx.health.services.client.proto.RequestsProto
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureUnregistrationRequest(
     public val packageName: String,
-    public val dataType: DataType,
+    public val dataType: DataType<*, *>,
 ) : ProtoParcelable<RequestsProto.MeasureUnregistrationRequest>() {
 
-    override val proto: RequestsProto.MeasureUnregistrationRequest by lazy {
+    override val proto: RequestsProto.MeasureUnregistrationRequest =
         RequestsProto.MeasureUnregistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setDataType(dataType.proto)
             .build()
-    }
 
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<MeasureUnregistrationRequest> = newCreator { bytes ->
             val proto = RequestsProto.MeasureUnregistrationRequest.parseFrom(bytes)
-            MeasureUnregistrationRequest(proto.packageName, DataType(proto.dataType))
+            MeasureUnregistrationRequest(proto.packageName, DataType.deltaFromProto(proto.dataType))
         }
     }
 }

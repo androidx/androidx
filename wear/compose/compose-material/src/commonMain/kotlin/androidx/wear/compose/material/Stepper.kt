@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
 import androidx.wear.compose.material.RangeDefaults.snapValueToStep
@@ -237,7 +238,13 @@ private fun ColumnScope.FullScreenButton(
         modifier = Modifier
             .fillMaxWidth()
             .weight(StepperDefaults.ButtonWeight)
-            .clickable(interactionSource, null, onClick = onClick, enabled = enabled)
+            .clickable(
+                interactionSource,
+                null,
+                onClick = onClick,
+                enabled = enabled,
+                role = Role.Button
+            )
             .wrapContentWidth()
             .indication(interactionSource, rememberRipple(bounded = false))
             .padding(paddingValues),

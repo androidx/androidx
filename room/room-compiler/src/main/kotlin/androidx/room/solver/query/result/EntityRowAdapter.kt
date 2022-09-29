@@ -16,7 +16,8 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -62,9 +63,9 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
     }
 
     override fun onCursorReady(
-        indices: List<ColumnIndexVar>,
         cursorVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        indices: List<ColumnIndexVar>
     ) {
         // Check if given indices are the default ones, i.e. onCursorReady() was called without
         // an indices argument and these are the default parameter ones, which means a wrapped
@@ -88,7 +89,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             )
             scope.builder().addStatement(
                 "final $T $N = $T.wrapMappedColumns($N, $L, $L)",
-                AndroidTypeNames.CURSOR,
+                CURSOR.toJavaPoet(),
                 cursorDelegateVarName,
                 RoomTypeNames.CURSOR_UTIL,
                 cursorVarName,

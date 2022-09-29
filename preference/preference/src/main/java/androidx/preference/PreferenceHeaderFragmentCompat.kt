@@ -258,6 +258,9 @@ abstract class PreferenceHeaderFragmentCompat :
                     it
                 )
             }
+            fragment?.apply {
+                arguments = header.extras
+            }
             return fragment
         }
         return null

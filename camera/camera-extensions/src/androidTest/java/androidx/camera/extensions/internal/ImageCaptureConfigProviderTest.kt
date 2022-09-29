@@ -128,12 +128,12 @@ class ImageCaptureConfigProviderTest {
             verify(mockVendorExtender, timeout(3000)).supportedCaptureOutputResolutions
 
             val inOrder = Mockito.inOrder(mockImageCaptureExtenderImpl)
+            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).captureStages
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(
                 any(String::class.java),
                 any(CameraCharacteristics::class.java),
                 any(Context::class.java)
             )
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).captureStages
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
                 .onPresetSession()
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())

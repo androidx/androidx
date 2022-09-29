@@ -18,6 +18,8 @@ package androidx.remotecallback;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 /**
  * An objects that can receive remote callbacks.
  * <p>
@@ -104,5 +106,6 @@ public interface CallbackReceiver<T> {
      *     }
      * </pre>
      */
-    T createRemoteCallback(Context context);
+    @NonNull
+    T createRemoteCallback(@NonNull Context context);
 }

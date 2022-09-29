@@ -122,6 +122,12 @@ public abstract class UseCase {
     @Nullable
     private Rect mViewPortCropRect;
 
+    /**
+     * The sensor to image buffer transform matrix.
+     */
+    @NonNull
+    private Matrix mSensorToBufferTransformMatrix = new Matrix();
+
     @GuardedBy("mCameraLock")
     private CameraInternal mCamera;
 
@@ -473,7 +479,8 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public String getName() {
-        return mCurrentConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
+        return Objects.requireNonNull(
+                mCurrentConfig.getTargetName("<UnknownUseCase-" + hashCode() + ">"));
     }
 
     /**
@@ -677,6 +684,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @CallSuper
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         mViewPortCropRect = viewPortCropRect;
     }
@@ -698,7 +706,21 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {}
+    @CallSuper
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
+        mSensorToBufferTransformMatrix = new Matrix(sensorToBufferTransformMatrix);
+    }
+
+    /**
+     * Gets the sensor to image buffer transform matrix.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public Matrix getSensorToBufferTransformMatrix() {
+        return mSensorToBufferTransformMatrix;
+    }
 
     /**
      * Get image format for the use case.
@@ -716,7 +738,7 @@ public abstract class UseCase {
      *
      * <p>The resolution information might change if the use case is unbound and then rebound or
      * the target rotation setting is changed. The application needs to call
-     * {@link #getResolutionInfo()} again to get the latest {@link ResolutionInfo} for the changes.
+     * {@code getResolutionInfo()} again to get the latest {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
      * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner

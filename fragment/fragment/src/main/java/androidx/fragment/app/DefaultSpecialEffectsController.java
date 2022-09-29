@@ -87,6 +87,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         List<TransitionInfo> transitions = new ArrayList<>();
         final List<Operation> awaitingContainerChanges = new ArrayList<>(operations);
 
+        // sync animations together before we start loading them.
+        syncAnimations(operations);
+
         for (final Operation operation : operations) {
             // Create the animation CancellationSignal
             CancellationSignal animCancellationSignal = new CancellationSignal();
@@ -130,6 +133,25 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG,
                     "Completed executing operations from " + firstOut + " to " + lastIn);
+        }
+    }
+
+    /**
+     * Syncs the animations of all other operations with the animations of the last operation.
+     */
+    private void syncAnimations(@NonNull List<Operation> operations) {
+        // get the last operation's fragment
+        Fragment lastOpFragment = operations.get(operations.size() - 1).getFragment();
+        // change the animations of all other fragments to match the last one.
+        for (final Operation operation : operations) {
+            operation.getFragment().mAnimationInfo.mEnterAnim =
+                    lastOpFragment.mAnimationInfo.mEnterAnim;
+            operation.getFragment().mAnimationInfo.mExitAnim =
+                    lastOpFragment.mAnimationInfo.mExitAnim;
+            operation.getFragment().mAnimationInfo.mPopEnterAnim =
+                    lastOpFragment.mAnimationInfo.mPopEnterAnim;
+            operation.getFragment().mAnimationInfo.mPopExitAnim =
+                    lastOpFragment.mAnimationInfo.mPopExitAnim;
         }
     }
 

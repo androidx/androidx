@@ -26,15 +26,9 @@ internal fun collectFieldsIncludingPrivateSupers(
         val existingFieldNames = mutableSetOf<String>()
         suspend fun SequenceScope<XFieldElement>.yieldAllFields(type: XTypeElement) {
             // yield all fields declared directly on this type
-            type.getDeclaredFields().forEach {
-                if (existingFieldNames.add(it.name)) {
-                    if (type == xTypeElement) {
-                        yield(it)
-                    } else {
-                        yield(it.copyTo(xTypeElement))
-                    }
-                }
-            }
+            type.getDeclaredFields()
+                .filter { existingFieldNames.add(it.name) }
+                .forEach { yield(it) }
             // visit all declared fields on super types
             type.superClass?.typeElement?.let { parent ->
                 yieldAllFields(parent)
@@ -78,7 +72,6 @@ internal fun collectAllMethods(
                 type.getDeclaredMethods()
                     .filter { it.isAccessibleFrom(xTypeElement.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
-                    .map { it.copyTo(xTypeElement) }
                     .forEach {
                         methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
                     }

@@ -26,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(libs.protobufLite)
     implementation(libs.kotlinStdlib)
 
@@ -69,11 +68,5 @@ protobuf {
                 }
             }
         }
-    }
-}
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

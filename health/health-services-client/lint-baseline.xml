@@ -1,37 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
-
-    <issue
-        id="BanKeepAnnotation"
-        message="Uses @Keep annotation"
-        errorLine1="@Keep"
-        errorLine2="~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/AggregateDataPoints.kt"/>
-    </issue>
-
-    <issue
-        id="BanKeepAnnotation"
-        message="Uses @Keep annotation"
-        errorLine1="@Keep"
-        errorLine2="~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/DataPoints.kt"/>
-    </issue>
-
-    <issue
-        id="BanKeepAnnotation"
-        message="Uses @Keep annotation"
-        errorLine1="    @Keep"
-        errorLine2="    ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/DataPoints.kt"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="BanParcelableUsage"
         message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal) :"
+        errorLine1="public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal&lt;*>) :"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/request/ExerciseGoalRequest.kt"/>
@@ -43,24 +16,6 @@
         errorLine1="        @Synchronized"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Synchronized"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Synchronized"
-        errorLine2="        ^">
-        <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"/>
     </issue>
 
@@ -71,24 +26,6 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Synchronized"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Synchronized"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"/>
     </issue>
 
     <issue
@@ -98,15 +35,6 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="VisibleForTests"
-        message="This method should only be accessed from tests or within private scope"
-        errorLine1="        get() = ServiceBackedMeasureClient.getClient(applicationContext)"
-        errorLine2="                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedHealthServicesClient.kt"/>
     </issue>
 
     <issue
@@ -174,38 +102,11 @@
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` method `initialize` of class `Companion` requires synthetic accessor"
-        errorLine1="        private val IDS = initialize()"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseType.kt"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `ExerciseUpdateListenerStub` requires synthetic accessor"
-        errorLine1="            return listeners.getOrPut(listener) { ExerciseUpdateListenerStub(listener, executor) }"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
         message="Access to `private` constructor of class `MeasureCallbackStub` requires synthetic accessor"
         errorLine1="                measureCallbackStub = MeasureCallbackStub(callbackKey, measureCallback)"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `PassiveMonitoringCallbackStub` requires synthetic accessor"
-        errorLine1="                PassiveMonitoringCallbackStub(packageName, callback)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"/>
     </issue>
 
     <issue
@@ -773,24 +674,6 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void execute(IBinder binder, SettableFuture&lt;R> resultFuture) throws RemoteException;"
-        errorLine2="                 ~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/ServiceOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void execute(IBinder binder, SettableFuture&lt;R> resultFuture) throws RemoteException;"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/ServiceOperation.java"/>
     </issue>
 
 </issues>

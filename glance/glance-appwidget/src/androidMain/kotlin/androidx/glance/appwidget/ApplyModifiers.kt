@@ -63,6 +63,9 @@ internal fun applyModifiers(
     var cornerRadius: Dimension? = null
     var visibility = Visibility.Visible
     var actionModifier: ActionModifier? = null
+    var enabled: EnabledModifier? = null
+    var clipToOutline: ClipToOutlineModifier? = null
+    var shouldUnsetAction = true
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
@@ -94,6 +97,14 @@ internal fun applyModifiers(
                     )
                 }
             }
+            is AlignmentModifier -> {
+                // This modifier is handled somewhere else.
+            }
+            is ClipToOutlineModifier -> clipToOutline = modifier
+            is EnabledModifier -> enabled = modifier
+            is DoNotUnsetActionModifier -> {
+                shouldUnsetAction = false
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -101,7 +112,9 @@ internal fun applyModifiers(
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
     actionModifier?.let { applyAction(translationContext, rv, it.action, viewDef.mainViewId) }
-        ?: unsetAction(translationContext, rv, viewDef.mainViewId)
+    if (actionModifier == null && shouldUnsetAction) {
+        unsetAction(translationContext, rv, viewDef.mainViewId)
+    }
     cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
@@ -113,6 +126,14 @@ internal fun applyModifiers(
             absolutePadding.right.toPixels(displayMetrics),
             absolutePadding.bottom.toPixels(displayMetrics)
         )
+    }
+    clipToOutline?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            rv.setBoolean(viewDef.mainViewId, "setClipToOutline", true)
+        }
+    }
+    enabled?.let {
+        rv.setBoolean(viewDef.mainViewId, "setEnabled", it.enabled)
     }
     rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
 }
@@ -200,8 +221,9 @@ internal fun applySimpleWidthModifier(
             "Using a width of $width requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (width in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        width in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewWidth(rv, viewId, width)
 }
 
@@ -229,8 +251,9 @@ internal fun applySimpleHeightModifier(
             "Using a height of $height requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (height in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        height in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewHeight(rv, viewId, height)
 }
 
@@ -264,7 +287,7 @@ private fun applyBackgroundModifier(
                     colorProvider.night.toArgb()
                 )
             } else {
-                rv.setViewBackgroundColor(viewId, colorProvider.resolve(context).toArgb())
+                rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())
             }
         }
         else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")

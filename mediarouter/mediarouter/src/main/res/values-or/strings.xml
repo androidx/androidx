@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="7449553026175453403">"ସିଷ୍ଟମ୍‌"</string>
+    <string name="mr_system_route_name" msgid="7449553026175453403">"ସିଷ୍ଟମ"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"ଡିଭାଇସ୍‌"</string>
     <string name="mr_button_content_description" msgid="2939063992730535343">"କାଷ୍ଟ କରନ୍ତୁ"</string>
     <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"କାଷ୍ଟ କରନ୍ତୁ। ବିଚ୍ଛିନ୍ନ କରାଯାଇଛି"</string>

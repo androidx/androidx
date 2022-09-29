@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.PlaybackFragmentGlueHost;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -70,7 +71,7 @@ public class PlaybackTransportControlFragment
     private void createComponents(Context context) {
         mGlue = new PlaybackTransportControlGlueSample(context, new PlayerAdapter()) {
             @Override
-            public void onActionClicked(Action action) {
+            public void onActionClicked(@NonNull Action action) {
                 if (action.getId() == androidx.leanback.R.id.lb_control_picture_in_picture) {
                     if (Build.VERSION.SDK_INT >= 24) {
                         getActivity().enterPictureInPictureMode();

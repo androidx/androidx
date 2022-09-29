@@ -16,18 +16,15 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import android.os.Process;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,11 +37,13 @@ class SearchResultsImpl implements SearchResults {
 
     private final Executor mExecutor;
 
-    // The package name to search over. If null, this will search over all package names.
-    @Nullable
+    /* The package name of the current app which is using the local backend. */
     private final String mPackageName;
 
-    // The database name to search over. If null, this will search over all database names.
+    /** A CallerAccess object describing local-only access of the current app. */
+    private final CallerAccess mSelfCallerAccess;
+
+    /* The database name to search over. If null, this will search over all database names. */
     @Nullable
     private final String mDatabaseName;
 
@@ -69,14 +68,15 @@ class SearchResultsImpl implements SearchResults {
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
-            @Nullable String packageName,
+            @NonNull String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
-        mPackageName = packageName;
+        mPackageName = Preconditions.checkNotNull(packageName);
+        mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
@@ -85,27 +85,17 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
-    public ListenableFuture<List<SearchResult>> getNextPage() {
+    public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
         return FutureUtil.execute(mExecutor, () -> {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
                 mIsFirstLoad = false;
-                if (mPackageName == null) {
-                    throw new AppSearchException(
-                            AppSearchResult.RESULT_INVALID_ARGUMENT,
-                            "Invalid null package name for query");
-                } else if (mDatabaseName == null) {
+                if (mDatabaseName == null) {
                     mVisibilityScope = SearchStats.VISIBILITY_SCOPE_GLOBAL;
                     // Global queries aren't restricted to a single database
                     searchResultPage = mAppSearchImpl.globalQuery(
-                            mQueryExpression,
-                            mSearchSpec,
-                            mPackageName,
-                            /*visibilityStore=*/ null,
-                            Process.myUid(),
-                            /*callerHasSystemAccess=*/ false,
-                            mLogger);
+                            mQueryExpression, mSearchSpec, mSelfCallerAccess, mLogger);
                 } else {
                     mVisibilityScope = SearchStats.VISIBILITY_SCOPE_LOCAL;
                     // Normal local query, pass in specified database.

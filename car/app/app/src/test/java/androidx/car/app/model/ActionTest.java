@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_DEFAULT;
+import static androidx.car.app.model.Action.FLAG_IS_PERSISTENT;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -126,6 +128,22 @@ public class ActionTest {
         Action action = new Action.Builder().setTitle("foo").setOnClickListener(
                 onClickListener).setFlags(FLAG_PRIMARY).build();
         assertThat(action.getFlags() & FLAG_PRIMARY).isEqualTo(FLAG_PRIMARY);
+    }
+
+    @Test
+    public void create_persistentIsTrue() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder().setTitle("foo").setOnClickListener(
+                onClickListener).setFlags(FLAG_IS_PERSISTENT).build();
+        assertThat(action.getFlags() & FLAG_IS_PERSISTENT).isEqualTo(FLAG_IS_PERSISTENT);
+    }
+
+    @Test
+    public void create_defaultIsTrue() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder().setTitle("foo").setOnClickListener(
+                onClickListener).setFlags(FLAG_DEFAULT).build();
+        assertThat(action.getFlags() & FLAG_DEFAULT).isEqualTo(FLAG_DEFAULT);
     }
 
     @Test

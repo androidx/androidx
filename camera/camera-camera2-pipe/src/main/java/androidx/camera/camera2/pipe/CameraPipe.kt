@@ -33,6 +33,8 @@ import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 
 internal val cameraPipeIds = atomic(0)
 
@@ -45,11 +47,11 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
-public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfig()) {
+public class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))
-        .threadConfigModule(ThreadConfigModule(threadConfig))
+        .threadConfigModule(ThreadConfigModule(config.threadConfig))
         .build()
 
     /**
@@ -71,13 +73,21 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
     }
 
     /**
+     * This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe.
+     */
+    public fun cameraSurfaceManager(): CameraSurfaceManager {
+        return component.cameraSurfaceManager()
+    }
+
+    /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and
      * reasonable defaults will be provided if values are not specified.
      */
     public data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
-        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig()
+        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
+        val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig()
     )
 
     /**
@@ -90,13 +100,19 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
      *   split into a separate field since many camera operations are extremely latency sensitive.
      * - [defaultCameraHandler] is used on older API versions to interact with CameraAPIs. This is
      *   split into a separate field since many camera operations are extremely latency sensitive.
+     * - [testOnlyDispatcher] is used for testing to overwrite all internal dispatchers to the
+     *   testOnly version. If specified, default executors and handlers are ignored.
+     * - [testOnlyScope] is used for testing to overwrite the internal global scope with the test
+     *   method scope.
      */
     public data class ThreadConfig(
         val defaultLightweightExecutor: Executor? = null,
         val defaultBackgroundExecutor: Executor? = null,
         val defaultBlockingExecutor: Executor? = null,
         val defaultCameraExecutor: Executor? = null,
-        val defaultCameraHandler: HandlerThread? = null
+        val defaultCameraHandler: HandlerThread? = null,
+        val testOnlyDispatcher: CoroutineDispatcher? = null,
+        val testOnlyScope: CoroutineScope? = null
     )
 
     /**
@@ -113,12 +129,41 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
             emptyMap()
     )
 
+    /**
+     * Configure the default and available [CameraBackend] instances that are available.
+     *
+     * @param internalBackend will override the default camera backend defined by [CameraPipe].
+     *   This may be used to mock and replace all interactions with camera2.
+     * @param defaultBackend defines which camera backend instance should be used by default. If
+     *   this value is specified, it must appear in the list of [cameraBackends]. If no value is
+     *   specified, the [internalBackend] instance will be used. If [internalBackend] is null, the
+     *   default backend will use the pre-defined [CameraPipe] internal backend.
+     * @param cameraBackends defines a map of unique [CameraBackendFactory] that may be used to
+     *   create, query, and operate cameras via [CameraPipe].
+     */
+    class CameraBackendConfig(
+        val internalBackend: CameraBackend? = null,
+        val defaultBackend: CameraBackendId? = null,
+        val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
+    ) {
+        init {
+            check(defaultBackend == null || cameraBackends.containsKey(defaultBackend)) {
+                "$defaultBackend does not exist in cameraBackends! Available backends are:" +
+                    " ${cameraBackends.keys}"
+            }
+        }
+    }
+
     override fun toString(): String = "CameraPipe-$debugId"
 
     /**
      * External may be used if the underlying implementation needs to delegate to another library
      * or system.
      */
+    @Deprecated(
+        "CameraPipe.External is deprecated, use customCameraBackend on " +
+            "GraphConfig instead."
+    )
     class External(threadConfig: ThreadConfig = ThreadConfig()) {
         private val component: ExternalCameraPipeComponent = DaggerExternalCameraPipeComponent
             .builder()
@@ -128,9 +173,12 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
         /**
          * This creates a new [CameraGraph] instance that is configured to use an externally
          * defined [RequestProcessor].
-         *
-         * TODO: Consider changing cameraDevices to be a single device + physical metadata.
          */
+        @Suppress("DEPRECATION")
+        @Deprecated(
+            "CameraPipe.External is deprecated, use customCameraBackend on " +
+                "GraphConfig instead."
+        )
         public fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,

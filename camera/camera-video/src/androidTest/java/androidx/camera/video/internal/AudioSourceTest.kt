@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
+import java.util.concurrent.Callable
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -35,7 +36,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
-import java.util.concurrent.Callable
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

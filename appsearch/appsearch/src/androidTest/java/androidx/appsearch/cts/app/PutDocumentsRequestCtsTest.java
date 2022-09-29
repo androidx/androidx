@@ -74,12 +74,12 @@ public class PutDocumentsRequestCtsTest {
         // A schema with Card must be set in order to be able to add a Card instance to
         // PutDocumentsRequest.
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession session = LocalStorage.createSearchSession(
+        AppSearchSession session = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, /*databaseName=*/ "")
                         .build()
         ).get();
-        session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build())
-            .get();
+        session.setSchemaAsync(
+                new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build()).get();
 
         Set<Card> cards = ImmutableSet.of(new Card("cardNamespace", "cardId", "cardProperty"));
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(cards)

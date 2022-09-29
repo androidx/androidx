@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
 import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
@@ -45,6 +46,7 @@ import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.os.LocaleListCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
@@ -219,20 +221,23 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (mResources != null) {
-            // The real (and thus managed) resources object was already updated
-            // by ResourcesManager, so pull the current metrics from there.
-            final DisplayMetrics newMetrics = super.getResources().getDisplayMetrics();
-            mResources.updateConfiguration(newConfig, newMetrics);
-        }
-
+        // The delegate may modify the real resources object or the config param to implement its
+        // desired configuration overrides. Let it do it's thing and then use the resulting state.
         getDelegate().onConfigurationChanged(newConfig);
+
+        // Manually propagate configuration changes to our unmanaged resources object.
+        if (mResources != null) {
+            final Configuration currConfig = super.getResources().getConfiguration();
+            final DisplayMetrics currMetrics = super.getResources().getDisplayMetrics();
+            mResources.updateConfiguration(currConfig, currMetrics);
+        }
     }
 
     @Override
@@ -661,5 +666,14 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param mode the night mode which has been applied
      */
     protected void onNightModeChanged(@NightMode int mode) {
+    }
+
+    /**
+     * Called when the locales have been changed. See {@link AppCompatDelegate#applyAppLocales()}
+     * for more information.
+     *
+     * @param locales the localeListCompat which has been applied
+     */
+    protected void onLocalesChanged(@NonNull LocaleListCompat locales) {
     }
 }

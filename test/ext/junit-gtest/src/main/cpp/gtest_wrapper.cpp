@@ -119,7 +119,8 @@ namespace {
 
         virtual void OnTestPartResult(const testing::TestPartResult &testPartResult) override {
           if (!testPartResult.passed()) {
-            mCurrentTestError << "\n" << testPartResult.file_name() << ":" << testPartResult.line_number()
+            const char* file_name = testPartResult.file_name() != nullptr ? testPartResult.file_name() : "unknown file";
+            mCurrentTestError << "\n" << file_name << ":" << testPartResult.line_number()
                               << "\n" << testPartResult.message() << "\n";
           }
         }

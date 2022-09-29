@@ -15,7 +15,6 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,10 +31,10 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-rc01")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01")
-    api("androidx.savedstate:savedstate-ktx:1.2.0-rc01")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.0-rc01")
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    api("androidx.savedstate:savedstate-ktx:1.2.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.1.0")
 
@@ -60,29 +59,10 @@ dependencies {
     lintPublish(project(':navigation:navigation-common-lint'))
 }
 
-//used by testImplementation safe-args-generator
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.register("jar${suffix}", Copy).configure {
-        dependsOn("assemble$suffix")
-        from(zipTree("${project.buildDir}/outputs/aar/navigation-common-${name}.aar")) {
-            include("classes.jar")
-        }
-        destinationDir(new File(project.buildDir, "libJar"))
-    }
-}
-
 androidx {
     name = "Android Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Common"
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
 }

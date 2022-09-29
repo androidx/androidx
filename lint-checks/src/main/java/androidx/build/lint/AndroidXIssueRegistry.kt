@@ -65,6 +65,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 IdeaSuppressionDetector.ISSUE,
                 CameraXQuirksClassDetector.ISSUE,
                 NullabilityAnnotationsDetector.ISSUE,
+                IgnoreClassLevelDetector.ISSUE,
             )
         }
     }

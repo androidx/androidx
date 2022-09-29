@@ -16,10 +16,9 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isTypeElement
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
 data class Dao(
@@ -30,6 +29,7 @@ data class Dao(
     val insertionMethods: List<InsertionMethod>,
     val deletionMethods: List<DeletionMethod>,
     val updateMethods: List<UpdateMethod>,
+    val upsertionMethods: List<UpsertionMethod>,
     val transactionMethods: List<TransactionMethod>,
     val delegatingMethods: List<KotlinBoxedPrimitiveMethodDelegate>,
     val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
@@ -39,32 +39,25 @@ data class Dao(
     private var suffix: String? = null
 
     fun setSuffix(newSuffix: String) {
-        if (this.suffix != null) {
-            throw IllegalStateException("cannot set suffix twice")
-        }
-        this.suffix = if (newSuffix == "") "" else "_$newSuffix"
+        check(this.suffix == null) { "cannot set suffix twice" }
+        require(newSuffix.isNotEmpty()) { "suffix can't be empty" }
+        this.suffix = "_$newSuffix"
     }
 
-    val typeName: ClassName by lazy { element.className }
+    val typeName: XClassName by lazy { element.asClassName() }
 
-    val shortcutMethods: List<ShortcutMethod> by lazy {
+    val deleteOrUpdateShortcutMethods: List<DeleteOrUpdateShortcutMethod> by lazy {
         deletionMethods + updateMethods
     }
 
-    private val implClassName by lazy {
-        if (suffix == null) {
-            suffix = ""
-        }
-        val path = arrayListOf<String>()
-        var enclosing = element.enclosingTypeElement
-        while (enclosing?.isTypeElement() == true) {
-            path.add(enclosing!!.name)
-            enclosing = enclosing!!.enclosingTypeElement
-        }
-        path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
+    val insertOrUpsertShortcutMethods: List<InsertOrUpsertShortcutMethod> by lazy {
+        insertionMethods + upsertionMethods
     }
 
-    val implTypeName: ClassName by lazy {
-        ClassName.get(typeName.packageName(), implClassName)
+    val implTypeName: XClassName by lazy {
+        XClassName.get(
+            typeName.packageName,
+            typeName.simpleNames.joinToString("_") + (suffix ?: "") + "_Impl"
+        )
     }
 }

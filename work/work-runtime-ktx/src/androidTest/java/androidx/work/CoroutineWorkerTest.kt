@@ -109,18 +109,7 @@ class CoroutineWorkerTest {
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(
-                UUID.randomUUID(),
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
-                workerFactory,
-                progressUpdater,
-                mForegroundUpdater
-            )
+            WorkerParameters(workerFactory)
         ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
@@ -145,18 +134,7 @@ class CoroutineWorkerTest {
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(
-                UUID.randomUUID(),
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
-                workerFactory,
-                progressUpdater,
-                mForegroundUpdater
-            )
+            WorkerParameters(workerFactory)
         ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
@@ -175,16 +153,9 @@ class CoroutineWorkerTest {
             context,
             ProgressUpdatingWorker::class.java.name,
             WorkerParameters(
-                workRequest.id,
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
                 workerFactory,
+                workRequest.id,
                 progressUpdater,
-                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -219,16 +190,9 @@ class CoroutineWorkerTest {
             context,
             ProgressUpdatingWorker::class.java.name,
             WorkerParameters(
-                workRequest.id,
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
                 workerFactory,
+                workRequest.id,
                 progressUpdater,
-                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -280,4 +244,22 @@ class CoroutineWorkerTest {
         @Deprecated(message = "use withContext(...) inside doWork() instead.")
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
     }
+
+    fun WorkerParameters(
+        workerFactory: WorkerFactory,
+        id: UUID = UUID.randomUUID(),
+        progressUpdater: ProgressUpdater = this.progressUpdater,
+    ) = WorkerParameters(
+        id,
+        Data.EMPTY,
+        emptyList(),
+        WorkerParameters.RuntimeExtras(),
+        1,
+        1,
+        configuration.executor,
+        workManagerImpl.workTaskExecutor,
+        workerFactory,
+        progressUpdater,
+        mForegroundUpdater
+    )
 }

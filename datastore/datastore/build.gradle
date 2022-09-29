@@ -38,6 +38,7 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.2.0")
     api(project(":datastore:datastore-core"))
+    api(project(":datastore:datastore-core-okio"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -60,11 +61,4 @@ androidx {
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

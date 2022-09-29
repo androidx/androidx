@@ -54,9 +54,9 @@
  * <p>
  * <b>WorkManager and its Interactions with the OS</b>
  * <p>
- * WorkManager {@code BroadcastReceiver}s to monitor {@link androidx.work.Constraints} on devices
- * before API 23.  The BroadcastReceivers are disabled on API 23 and up.  In particular, WorkManager
- * listens to the following {@code Intent}s:
+ * WorkManager uses {@code BroadcastReceiver}s to monitor {@link androidx.work.Constraints} on
+ * devices before API 23.  The BroadcastReceivers are disabled on API 23 and up.  In particular,
+ * WorkManager listens to the following {@code Intent}s:
  * <p><ul>
  *     <li>{@code android.intent.action.ACTION_POWER_CONNECTED}</li>
  *     <li>{@code android.intent.action.ACTION_POWER_DISCONNECTED}</li>

@@ -17,6 +17,8 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
+import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
+import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
@@ -49,6 +51,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -192,7 +195,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-        Integer sensorOrientation = getSensorOrientation();
+        int sensorOrientation = getSensorOrientation();
         int relativeRotationDegrees =
                 CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
         // Currently this assumes that a back-facing camera is always opposite to the screen.
@@ -371,6 +374,21 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return mCamera2CamcorderProfileProvider;
     }
 
+    @NonNull
+    @Override
+    public Timebase getTimebase() {
+        Integer timeSource = mCameraCharacteristicsCompat.get(
+                CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE);
+        Preconditions.checkNotNull(timeSource);
+        switch (timeSource) {
+            case SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME:
+                return Timebase.REALTIME;
+            case SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN:
+            default:
+                return Timebase.UPTIME;
+        }
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -459,7 +477,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
      */
     static class RedirectableLiveData<T> extends MediatorLiveData<T> {
         private LiveData<T> mLiveDataSource;
-        private T mInitialValue;
+        private final T mInitialValue;
 
         RedirectableLiveData(T initialValue) {
             mInitialValue = initialValue;

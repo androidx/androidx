@@ -18,6 +18,8 @@ package androidx.room
 
 import android.content.Context
 import android.content.res.AssetManager
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
@@ -119,6 +121,7 @@ class SQLiteCopyOpenHelperTest {
         assertEquals(1, getAndIncrementAccessCount(copyFile))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Ignore("b/166632825 test is flaky")
     @Test
     fun singleCopy_multiProcess() {
@@ -253,6 +256,7 @@ class SQLiteCopyOpenHelperTest {
     }
 
     // Spawns a new Java process to perform a copy using the open helper.
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun spawnCopyProcess(copyFromFile: File): Process {
         val home = checkNotNull(System.getProperty("java.home")) {
             "cannot read java.home from system properties."

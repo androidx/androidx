@@ -16,19 +16,36 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,9 +60,9 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraController;
@@ -62,6 +79,7 @@ import androidx.lifecycle.LiveData;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -86,6 +104,7 @@ public class CameraControllerFragment extends Fragment {
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
+    private ToggleButton mEffectToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mCaptureEnabledToggle;
     private ToggleButton mAnalysisEnabledToggle;
@@ -96,6 +115,7 @@ public class CameraControllerFragment extends Fragment {
     private TextView mFocusResultText;
     private TextView mTorchStateText;
     private TextView mLuminance;
+    private CheckBox mOnDisk;
     private boolean mIsAnalyzerSet = true;
     // Listen to accelerometer rotation change and pass it to tests.
     private RotationProvider mRotationProvider;
@@ -105,6 +125,9 @@ public class CameraControllerFragment extends Fragment {
     // Wrapped analyzer for tests to receive callbacks.
     @Nullable
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
+
+    @VisibleForTesting
+    ToneMappingPreviewEffect mToneMappingPreviewEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -134,7 +157,7 @@ public class CameraControllerFragment extends Fragment {
         mExecutorService = Executors.newSingleThreadExecutor();
         mRotationProvider = new RotationProvider(requireContext());
         boolean canDetectRotation = mRotationProvider.addListener(
-                CameraXExecutors.mainThreadExecutor(), mRotationListener);
+                mainThreadExecutor(), mRotationListener);
         if (!canDetectRotation) {
             Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
         }
@@ -158,6 +181,12 @@ public class CameraControllerFragment extends Fragment {
                 mContainer.removeView(mPreviewView);
             }
         });
+
+        // Set up post-processing effects.
+        mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
+        mEffectToggle = view.findViewById(R.id.effect_toggle);
+        mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
+        onEffectsToggled();
 
         // Set up the button to change the PreviewView's size.
         view.findViewById(R.id.shrink).setOnClickListener(v -> {
@@ -199,26 +228,9 @@ public class CameraControllerFragment extends Fragment {
             updateUiText();
         });
 
+        mOnDisk = view.findViewById(R.id.on_disk);
         // Take picture button.
-        view.findViewById(R.id.capture).setOnClickListener(
-                v -> {
-                    try {
-                        takePicture(new ImageCapture.OnImageSavedCallback() {
-                            @Override
-                            public void onImageSaved(
-                                    @NonNull ImageCapture.OutputFileResults outputFileResults) {
-                                toast("Image saved to: " + outputFileResults.getSavedUri());
-                            }
-
-                            @Override
-                            public void onError(@NonNull ImageCaptureException exception) {
-                                toast("Failed to save picture: " + exception.getMessage());
-                            }
-                        });
-                    } catch (RuntimeException exception) {
-                        toast("Failed to take picture: " + exception.getMessage());
-                    }
-                });
+        view.findViewById(R.id.capture).setOnClickListener(v -> takePicture());
 
         // Set up analysis UI.
         mAnalysisEnabledToggle = view.findViewById(R.id.analysis_enabled);
@@ -341,6 +353,15 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
+        mToneMappingPreviewEffect.release();
+    }
+
+    private void onEffectsToggled() {
+        if (mEffectToggle.isChecked()) {
+            mCameraController.setEffects(singletonList(mToneMappingPreviewEffect));
+        } else {
+            mCameraController.setEffects(emptyList());
+        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -352,10 +373,10 @@ public class CameraControllerFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 toast(t.getMessage());
             }
-        }, CameraXExecutors.mainThreadExecutor());
+        }, mainThreadExecutor());
     }
 
     // Synthetic access
@@ -485,6 +506,88 @@ public class CameraControllerFragment extends Fragment {
         runSafely(() -> mCameraController.setEnabledUseCases(finalUseCaseEnabledFlags));
     }
 
+    /**
+     * Take a picture based on the current configuration.
+     */
+    private void takePicture() {
+        try {
+            if (mOnDisk.isChecked()) {
+                takePicture(new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(
+                            @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        toast("Image saved to: " + outputFileResults.getSavedUri());
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        toast("Failed to save picture: " + exception.getMessage());
+                    }
+                });
+            } else {
+                mCameraController.takePicture(mExecutorService,
+                        new ImageCapture.OnImageCapturedCallback() {
+                            @Override
+                            public void onCaptureSuccess(@NonNull ImageProxy image) {
+                                displayImage(image);
+                            }
+
+                            @Override
+                            public void onError(@NonNull ImageCaptureException exception) {
+                                toast("Failed to capture in-memory picture: "
+                                        + exception.getMessage());
+                            }
+                        });
+            }
+        } catch (RuntimeException exception) {
+            toast("Failed to take picture: " + exception.getMessage());
+        }
+    }
+
+    /**
+     * Displays a {@link ImageProxy} in a pop-up dialog.
+     */
+    private void displayImage(@NonNull ImageProxy image) {
+        int rotationDegrees = image.getImageInfo().getRotationDegrees();
+        Bitmap cropped = getCroppedBitmap(image);
+        image.close();
+
+        mainThreadExecutor().execute(() -> {
+            Dialog dialog = new Dialog(requireContext());
+            dialog.setContentView(R.layout.image_dialog);
+            ImageView imageView = (ImageView) dialog.findViewById(R.id.dialog_image);
+            imageView.setImageBitmap(cropped);
+            imageView.setRotation(rotationDegrees);
+            dialog.findViewById(R.id.dialog_button).setOnClickListener(view -> dialog.dismiss());
+            dialog.show();
+        });
+    }
+
+    /**
+     * Converts the {@link ImageProxy} to {@link Bitmap} with crop rect applied.
+     */
+    private Bitmap getCroppedBitmap(@NonNull ImageProxy image) {
+        ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        Rect cropRect = image.getCropRect();
+        Size newSize = new Size(cropRect.width(), cropRect.height());
+        Bitmap cropped = Bitmap.createBitmap(newSize.getWidth(), newSize.getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        Matrix croppingTransform = getRectToRect(new RectF(cropRect),
+                new RectF(0, 0, cropRect.width(), cropRect.height()), 0);
+
+        Canvas canvas = new Canvas(cropped);
+        canvas.drawBitmap(bitmap, croppingTransform, new Paint());
+        canvas.save();
+
+        bitmap.recycle();
+        return cropped;
+    }
+
     // -----------------
     // For testing
     // -----------------
@@ -533,5 +636,4 @@ public class CameraControllerFragment extends Fragment {
                         contentValues).build();
         mCameraController.takePicture(outputFileOptions, mExecutorService, callback);
     }
-
 }

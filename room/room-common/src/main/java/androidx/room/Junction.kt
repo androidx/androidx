@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
  *             parentColumn = "playlistId",
  *             entity = Song::class,
  *             entityColumn = "songId",
- *             associateBy = @Junction(
+ *             associateBy = Junction(
  *                     value = PlaylistSongXRef::class,
  *                     parentColumn = "pId",
  *                     entityColumn = "sId")
@@ -53,7 +53,7 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
- * In the above example the many-to-many relationship between `Song` and `Playlist` has
+ * In the above example the many-to-many relationship between a `Song` and a `Playlist` has
  * an associative table defined by the entity `PlaylistSongXRef`.
  *
  * @see [Relation]

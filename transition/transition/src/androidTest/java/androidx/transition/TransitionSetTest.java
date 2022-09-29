@@ -33,6 +33,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.filters.SmallTest;
 import androidx.transition.test.R;
 
@@ -145,7 +147,7 @@ public class TransitionSetTest extends BaseTest {
         fade.setPropagation(new TestPropagation());
         fade.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return null;
             }
         });
@@ -159,7 +161,7 @@ public class TransitionSetTest extends BaseTest {
         PathMotion pathMotion = new ArcMotion();
         Transition.EpicenterCallback epicenterCallback = new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return null;
             }
         };
@@ -184,7 +186,7 @@ public class TransitionSetTest extends BaseTest {
         fade.setPropagation(new TestPropagation());
         fade.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return null;
             }
         });
@@ -215,7 +217,7 @@ public class TransitionSetTest extends BaseTest {
         PathMotion pathMotion = new ArcMotion();
         Transition.EpicenterCallback epicenterCallback = new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return null;
             }
         };
@@ -259,15 +261,16 @@ public class TransitionSetTest extends BaseTest {
 
     private static class TestPropagation extends TransitionPropagation {
         @Override
-        public long getStartDelay(ViewGroup sceneRoot, Transition transition,
-                TransitionValues startValues, TransitionValues endValues) {
+        public long getStartDelay(@NonNull ViewGroup sceneRoot, @NonNull Transition transition,
+                @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
             return 0;
         }
 
         @Override
-        public void captureValues(TransitionValues transitionValues) {
+        public void captureValues(@NonNull TransitionValues transitionValues) {
         }
 
+        @Nullable
         @Override
         public String[] getPropagationProperties() {
             return new String[] { };

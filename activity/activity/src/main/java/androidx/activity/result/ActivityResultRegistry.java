@@ -242,7 +242,12 @@ public abstract class ActivityResultRegistry {
                             + "before calling launch().");
                 }
                 mLaunchedKeys.add(key);
-                onLaunch(innerCode, contract, input, options);
+                try {
+                    onLaunch(innerCode, contract, input, options);
+                } catch (Exception e) {
+                    mLaunchedKeys.remove(key);
+                    throw e;
+                }
             }
 
             @Override

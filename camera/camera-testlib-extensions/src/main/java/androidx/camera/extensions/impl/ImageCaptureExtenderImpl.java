@@ -16,15 +16,17 @@
 
 package androidx.camera.extensions.impl;
 
-import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.List;
@@ -35,7 +37,6 @@ import java.util.List;
  * @since 1.0
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@SuppressLint("UnknownNullness")
 public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     /**
      * Indicates whether the extension is supported on the device.
@@ -44,7 +45,8 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      * @return true if the extension is supported, otherwise false
      */
-    boolean isExtensionAvailable(String cameraId, CameraCharacteristics cameraCharacteristics);
+    boolean isExtensionAvailable(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics);
 
     /**
      * Initializes the extender to be used with the specified camera.
@@ -55,14 +57,16 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * @param cameraId The camera2 id string of the camera.
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      */
-    void init(String cameraId, CameraCharacteristics cameraCharacteristics);
+    void init(@NonNull String cameraId, @NonNull CameraCharacteristics cameraCharacteristics);
 
     /**
      * The processing that will be done on a set of captures to create and image with the effect.
      */
+    @Nullable
     CaptureProcessorImpl getCaptureProcessor();
 
     /** The set of captures that are needed to create an image with the effect. */
+    @Nullable
     List<CaptureStageImpl> getCaptureStages();
 
     /**
@@ -77,14 +81,15 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *
      * <p>The returned resolutions should be subset of the supported sizes retrieved from
-     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device. If the
+     * {@link StreamConfigurationMap} for the camera device. If the
      * returned list is not null, it will be used to find the best resolutions combination for
      * the bound use cases.
      *
      * @return the customized supported resolutions, or null to support all sizes retrieved from
-     *         {@link android.hardware.camera2.params.StreamConfigurationMap}.
+     * {@link StreamConfigurationMap}.
      * @since 1.1
      */
+    @Nullable
     List<Pair<Integer, Size[]>> getSupportedResolutions();
 
     /**
@@ -101,7 +106,8 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * null if no capture latency info can be provided.
      * @since 1.2
      */
-    Range<Long> getEstimatedCaptureLatencyRange(Size captureOutputSize);
+    @Nullable
+    Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize);
 
     /**
      * Return a list of orthogonal capture request keys.
@@ -142,6 +148,7 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * are not supported.
      * @since 1.3
      */
+    @NonNull
     List<CaptureRequest.Key> getAvailableCaptureRequestKeys();
 
     /**
@@ -161,5 +168,6 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * supported.
      * @since 1.3
      */
+    @NonNull
     List<CaptureResult.Key> getAvailableCaptureResultKeys();
 }

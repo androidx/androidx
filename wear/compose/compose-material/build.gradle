@@ -27,7 +27,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         api(project(":compose:foundation:foundation"))
@@ -115,14 +114,14 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
     namespace "androidx.wear.compose.material"
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 androidx {

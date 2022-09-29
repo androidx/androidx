@@ -1,158 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="cli" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `Builder`"
-        errorLine1="                new PlatformStorage.SearchContext.Builder("
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `build`"
-        errorLine1="                        /*databaseName=*/&quot;dbName&quot;).build();"
-        errorLine2="                                                   ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
-        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `Builder`"
-        errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `setWorkerExecutor`"
-        errorLine1="                .setWorkerExecutor(executor)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `build`"
-        errorLine1="                .build();"
-        errorLine2="                 ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `getWorkerExecutor`"
-        errorLine1="        assertThat(searchContext.getWorkerExecutor()).isEqualTo(executor);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
-        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `Builder`"
-        errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `build`"
-        errorLine1="                .build();"
-        errorLine2="                 ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `getWorkerExecutor`"
-        errorLine1="        assertThat(searchContext.getWorkerExecutor()).isNotNull();"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `getDatabaseName`"
-        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `Builder`"
-        errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `build`"
-        errorLine1="                        &quot;testDatabaseNameEndWith/&quot;).build());"
-        errorLine2="                                                    ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `Builder`"
-        errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 31 (current min is 14): `build`"
-        errorLine1="                        &quot;/testDatabaseNameStartWith&quot;).build());"
-        errorLine2="                                                      ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                platformResult.getResultCode(), platformResult.getErrorMessage());"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/AppSearchResultToPlatformConverter.java"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="WrongConstant"
@@ -166,226 +13,10 @@
     <issue
         id="WrongConstant"
         message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                    failure.getValue().getResultCode(),"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/AppSearchResultToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                                        result.getResultCode(), result.getErrorMessage()));"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/PlatformStorage.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                                        result.getResultCode(), result.getErrorMessage()));"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/PlatformStorage.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(stringProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: StringPropertyConfig.INDEXING_TYPE_NONE, StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS, StringPropertyConfig.INDEXING_TYPE_PREFIXES"
-        errorLine1="                    .setIndexingType(stringProperty.getIndexingType())"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: StringPropertyConfig.TOKENIZER_TYPE_NONE, StringPropertyConfig.TOKENIZER_TYPE_PLAIN"
-        errorLine1="                    .setTokenizerType(stringProperty.getTokenizerType())"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(jetpackProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(jetpackProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(jetpackProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(jetpackProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(documentProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(stringProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: StringPropertyConfig.INDEXING_TYPE_NONE, StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS, StringPropertyConfig.INDEXING_TYPE_PREFIXES"
-        errorLine1="                    .setIndexingType(stringProperty.getIndexingType())"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: StringPropertyConfig.TOKENIZER_TYPE_NONE, StringPropertyConfig.TOKENIZER_TYPE_PLAIN"
-        errorLine1="                    .setTokenizerType(stringProperty.getTokenizerType())"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(platformProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(platformProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(platformProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(platformProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PropertyConfig.CARDINALITY_REPEATED, PropertyConfig.CARDINALITY_OPTIONAL, PropertyConfig.CARDINALITY_REQUIRED"
-        errorLine1="                    .setCardinality(documentProperty.getCardinality())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                        new AppSearchException(result.getResultCode(), result.getErrorMessage()));"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/SearchResultsImpl.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
-        errorLine1="                        platformResult.getResultCode(), platformResult.getErrorMessage()));"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                            namespaceResult.getResultCode(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/SearchSessionImpl.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: SearchSpec.TERM_MATCH_EXACT_ONLY, SearchSpec.TERM_MATCH_PREFIX"
-        errorLine1="                .setTermMatch(jetpackSearchSpec.getTermMatch())"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: SearchSpec.RANKING_STRATEGY_NONE, SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE, SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP, SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE, SearchSpec.RANKING_STRATEGY_USAGE_COUNT, SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP, SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_COUNT, SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP"
-        errorLine1="                .setRankingStrategy(jetpackSearchSpec.getRankingStrategy())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: SearchSpec.ORDER_DESCENDING, SearchSpec.ORDER_ASCENDING"
-        errorLine1="                .setOrder(jetpackSearchSpec.getOrder())"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: SearchSpec.GROUPING_TYPE_PER_PACKAGE, SearchSpec.GROUPING_TYPE_PER_NAMESPACE"
-        errorLine1="                    jetpackSearchSpec.getResultGroupingTypeFlags(),"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
     </issue>
 
     <issue
@@ -418,8 +49,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPlatformSession.getByDocumentId(packageName, databaseName,"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
+        errorLine1="        mPlatformSession.getByDocumentId(packageName, databaseName,"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
     </issue>
@@ -427,8 +58,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPlatformSession.getSchema("
-        errorLine2="                             ~~~~~~~~~">
+        errorLine1="        mPlatformSession.getSchema("
+        errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
     </issue>
@@ -436,8 +67,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mPlatformSession.registerObserverCallback("
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                mPlatformSession.registerObserverCallback("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
     </issue>
@@ -445,8 +76,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mPlatformSession.unregisterObserverCallback(targetPackageName,"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                mPlatformSession.unregisterObserverCallback(targetPackageName, frameworkCallback);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
     </issue>

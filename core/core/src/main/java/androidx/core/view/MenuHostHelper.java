@@ -32,6 +32,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Helper class for implementing {@link MenuHost}.
+ *
+ * This class should be used to implement the {@link MenuHost} functions. i.e.:
+ *
+ * <pre class="prettyprint">
+ * class ExampleComponent : MenuHost {
+ *
+ *     private val menuHostHelper = MenuHostHelper{ invalidateMenu() }
+ *
+ *     override fun invalidateMenu() { … }
+ *
+ *     override fun addMenuProvider(provider: MenuProvider, owner: LifecycleOwner) {
+ *         menuHostHelper.addMenuProvider(provider, owner)
+ *     }
+ *
+ *     // Override remaining MenuHost methods in similar fashion
+ * }
+ * </pre>
  */
 public class MenuHostHelper {
 

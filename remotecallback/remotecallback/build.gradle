@@ -34,9 +34,6 @@ dependencies {
 }
 
 android {
-    buildTypes.all {
-        consumerProguardFiles("proguard-rules.pro")
-    }
     namespace "androidx.remotecallback"
 }
 

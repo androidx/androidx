@@ -18,7 +18,6 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.InlineSliderColors
@@ -52,7 +52,8 @@ fun InlineSliderDemo() {
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
@@ -107,7 +108,8 @@ fun InlineSliderWithIntegersDemo() {
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
@@ -162,32 +164,37 @@ fun InlineSliderSegmented() {
     var numberOfSegments by remember { mutableStateOf(5f) }
     var progress by remember { mutableStateOf(10f) }
 
-    Column(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp)
+        modifier = Modifier.fillMaxSize(),
+        autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
-        Text("Num of segments ${numberOfSegments.toInt()}")
+        item { Text("Num of segments ${numberOfSegments.toInt()}") }
 
-        DefaultInlineSlider(
-            value = numberOfSegments,
-            valueRange = 0f..30f,
-            onValueChange = { numberOfSegments = it },
-            steps = 29
-        )
+        item {
+            DefaultInlineSlider(
+                value = numberOfSegments,
+                valueRange = 0f..30f,
+                onValueChange = { numberOfSegments = it },
+                steps = 29
+            )
+        }
 
-        Text("Progress: $progress/20")
+        item { Text("Progress: $progress/20") }
 
-        DefaultInlineSlider(
-            value = progress,
-            onValueChange = { progress = it },
-            valueRange = 1f..20f,
-            segmented = numberOfSegments <= 8,
-            steps = numberOfSegments.toInt()
-        )
+        item {
+            DefaultInlineSlider(
+                value = progress,
+                onValueChange = { progress = it },
+                valueRange = 1f..20f,
+                segmented = numberOfSegments <= 8,
+                steps = numberOfSegments.toInt()
+            )
+        }
     }
 }
 

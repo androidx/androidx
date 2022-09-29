@@ -20,6 +20,11 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.DataPointContainer
+import androidx.health.services.client.data.HealthEvent
+import androidx.health.services.client.data.PassiveGoal
+import androidx.health.services.client.data.UserActivityInfo
 import androidx.health.services.client.impl.IPassiveListenerService
 import androidx.health.services.client.impl.event.PassiveListenerEvent
 import androidx.health.services.client.impl.response.HealthEventResponse
@@ -40,7 +45,8 @@ import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.Ev
  * the [PassiveListenerCallback] that they care about. They can then pass in their service to
  * [PassiveMonitoringClient.setPassiveListenerServiceAsync] to receive data updates.
  */
-public abstract class PassiveListenerService : PassiveListenerCallback, Service() {
+@Suppress("UNUSED_PARAMETER")
+public abstract class PassiveListenerService : Service() {
 
     private var wrapper: IPassiveListenerServiceWrapper? = null
 
@@ -48,6 +54,42 @@ public abstract class PassiveListenerService : PassiveListenerCallback, Service(
         wrapper = IPassiveListenerServiceWrapper()
         return wrapper
     }
+
+    /**
+     * Called when new [DataPoint]s are generated.
+     *
+     * @param dataPoints a list of new [DataPoint]s generated
+     */
+    public fun onNewDataPointsReceived(dataPoints: DataPointContainer) {}
+
+    /**
+     * Called when new [UserActivityInfo] is generated.
+     *
+     * @param info a new [UserActivityInfo] representing the current state
+     */
+    public fun onUserActivityInfoReceived(info: UserActivityInfo) {}
+
+    /**
+     * Called when a [PassiveGoal] has been completed.
+     *
+     * @param goal the [PassiveGoal] that has been completed
+     */
+    public fun onGoalCompleted(goal: PassiveGoal) {}
+
+    /**
+     * Called when a [HealthEvent] has been detected.
+     *
+     * @param event the [HealthEvent] that has been detected
+     */
+    public fun onHealthEventReceived(event: HealthEvent) {}
+
+    /**
+     * Called when the client has lost permission for the passive listener request. If this happens,
+     * WHS will automatically unregister the client request and stop the relevant sensors. The
+     * client can use this callback to detect the problem and either prompt the user to re-grant the
+     * permissions or re-register while requesting only that which the app does have permission for.
+     */
+    public fun onPermissionLost() {}
 
     private inner class IPassiveListenerServiceWrapper : IPassiveListenerService.Stub() {
 
@@ -57,7 +99,7 @@ public abstract class PassiveListenerService : PassiveListenerCallback, Service(
             when (proto.eventCase) {
                 PASSIVE_UPDATE_RESPONSE -> {
                     val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
-                    if (!response.passiveMonitoringUpdate.dataPoints.isEmpty()) {
+                    if (!response.passiveMonitoringUpdate.dataPoints.dataPoints.isEmpty()) {
                         this@PassiveListenerService.onNewDataPointsReceived(
                             response.passiveMonitoringUpdate.dataPoints
                         )

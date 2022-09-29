@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":compose:ui:ui"))
     api(project(":compose:runtime:runtime"))
@@ -49,9 +48,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 25
-    }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true

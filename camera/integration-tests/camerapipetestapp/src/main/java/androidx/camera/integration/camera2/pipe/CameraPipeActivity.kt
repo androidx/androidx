@@ -16,10 +16,10 @@
 
 package androidx.camera.integration.camera2.pipe
 
+import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Bundle
 import android.os.Trace
-import android.Manifest
 import android.util.Log
 import android.view.View
 import androidx.camera.camera2.pipe.CameraId
@@ -65,10 +65,12 @@ class CameraPipeActivity : CameraPermissionActivity() {
         super.onStart()
         Log.i("CXCP-App", "Activity onStart")
 
-        checkPermissionsAndRun(setOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
-            )) {
+        checkPermissionsAndRun(
+            setOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+            )
+        ) {
             val camera = currentCamera
             if (camera == null) {
                 startNextCamera()

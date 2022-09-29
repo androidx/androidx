@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.preference.PreferenceCategory is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            holder.itemView.setAccessibilityHeading(true);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceCategory.java"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="KotlinPropertyAccess"
@@ -38,15 +29,6 @@
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getShouldUseGeneratedIds` such that `shouldUseGeneratedIds` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean shouldUseGeneratedIds() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceScreen.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {"
@@ -62,15 +44,6 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreference.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {"
-        errorLine2="                                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -157,15 +130,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static ListPreferenceDialogFragmentCompat newInstance(String key) {"
-        errorLine2="                                                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/ListPreferenceDialogFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setEntries(CharSequence[] entries) {"
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
@@ -242,15 +206,6 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/preference/MultiSelectListPreference.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MultiSelectListPreferenceDialogFragmentCompat newInstance(String key) {"
-        errorLine2="                                                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/MultiSelectListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -382,159 +337,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putString(String key, @Nullable String value) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putStringSet(String key, @Nullable Set&lt;String> values) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putInt(String key, int value) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putLong(String key, long value) {"
-        errorLine2="                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putFloat(String key, float value) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void putBoolean(String key, boolean value) {"
-        errorLine2="                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String getString(String key, @Nullable String defValue) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Set&lt;String> getStringSet(String key, @Nullable Set&lt;String> defValues) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public int getInt(String key, int defValue) {"
-        errorLine2="                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public long getLong(String key, long defValue) {"
-        errorLine2="                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public float getFloat(String key, float defValue) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public boolean getBoolean(String key, boolean defValue) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDataStore.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public DialogPreference getPreference() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PreferenceManager getPreferenceManager() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PreferenceScreen getPreferenceScreen() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setPreferenceScreen(PreferenceScreen preferenceScreen) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public final RecyclerView getListView() {"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static SharedPreferences getDefaultSharedPreferences(@NonNull Context context) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
@@ -584,42 +386,6 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View findViewById(@IdRes int id) {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceViewHolder.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onSetInitialValue(Object defaultValue) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/SeekBarPreference.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onSetInitialValue(Object defaultValue) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/TwoStatePreference.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void syncSummaryView(View view) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/preference/TwoStatePreference.java"/>
     </issue>
 
 </issues>

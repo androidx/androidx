@@ -16,6 +16,8 @@
 
 package androidx.core.app;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -40,15 +42,21 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Helper for accessing features in {@link android.app.Activity}.
@@ -331,6 +339,7 @@ public class ActivityCompat extends ContextCompat {
      * <p>Note that this is <em>not</em> a security feature -- you can not trust the
      * referrer information, applications can spoof it.</p>
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static Uri getReferrer(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {
@@ -486,6 +495,15 @@ public class ActivityCompat extends ContextCompat {
      * RuntimePermissions</a> sample app demonstrates how to use this method to
      * request permissions at run time.
      * </p>
+     * <p>
+     * If {@link Manifest.permission#POST_NOTIFICATIONS} is requested before the device supports
+     * the notification permission, then {@link Manifest.permission#POST_NOTIFICATIONS} will be
+     * removed from {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult}.
+     * For devices that don't support {@link Manifest.permission#POST_NOTIFICATIONS}, apps can
+     * send users to its notification settings to enable notifications. See
+     * {@link android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS} for more information
+     * on launching notification settings.
+     * </p>
      *
      * @param activity The target activity.
      * @param permissions The requested permissions. Must be non-null and not empty.
@@ -497,6 +515,7 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final @IntRange(from = 0) int requestCode) {
         if (sDelegate != null
@@ -505,10 +524,31 @@ public class ActivityCompat extends ContextCompat {
             return;
         }
 
-        for (String permission : permissions) {
-            if (TextUtils.isEmpty(permission)) {
+        Set<Integer> indicesOfPermissionsToRemove = new HashSet<>();
+        for (int i = 0; i < permissions.length; i++) {
+            if (TextUtils.isEmpty(permissions[i])) {
                 throw new IllegalArgumentException("Permission request for permissions "
                         + Arrays.toString(permissions) + " must not contain null or empty values");
+            }
+
+            if (!BuildCompat.isAtLeastT()) {
+                if (TextUtils.equals(permissions[i], Manifest.permission.POST_NOTIFICATIONS)) {
+                    indicesOfPermissionsToRemove.add(i);
+                }
+            }
+        }
+
+        int numPermissionsToRemove = indicesOfPermissionsToRemove.size();
+        final String[] permissionsArray = numPermissionsToRemove > 0
+                ? new String[permissions.length - numPermissionsToRemove] : permissions;
+        if (numPermissionsToRemove > 0) {
+            if (numPermissionsToRemove == permissions.length) {
+                return;
+            }
+            for (int i = 0, modifiedIndex = 0; i < permissions.length; i++) {
+                if (!indicesOfPermissionsToRemove.contains(i)) {
+                    permissionsArray[modifiedIndex++] = permissions[i];
+                }
             }
         }
 
@@ -523,19 +563,19 @@ public class ActivityCompat extends ContextCompat {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int[] grantResults = new int[permissions.length];
+                    final int[] grantResults = new int[permissionsArray.length];
 
                     PackageManager packageManager = activity.getPackageManager();
                     String packageName = activity.getPackageName();
 
-                    final int permissionCount = permissions.length;
+                    final int permissionCount = permissionsArray.length;
                     for (int i = 0; i < permissionCount; i++) {
                         grantResults[i] = packageManager.checkPermission(
-                                permissions[i], packageName);
+                                permissionsArray[i], packageName);
                     }
 
                     ((OnRequestPermissionsResultCallback) activity).onRequestPermissionsResult(
-                            requestCode, permissions, grantResults);
+                            requestCode, permissionsArray, grantResults);
                 }
             });
         }
@@ -551,9 +591,19 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(Context, String)
      * @see #requestPermissions(Activity, String[], int)
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (!BuildCompat.isAtLeastT()
+                && TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, permission)) {
+            // notification permission doesn't exist before T
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= 32) {
+            return Api32Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else if (Build.VERSION.SDK_INT == 31) {
+            return Api31Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.shouldShowRequestPermissionRationale(activity, permission);
         }
         return false;
@@ -751,6 +801,50 @@ public class ActivityCompat extends ContextCompat {
         @DoNotInline
         static boolean isLaunchedFromBubble(@NonNull final Activity activity)  {
             return activity.isLaunchedFromBubble();
+        }
+
+        /**
+         * Fix memory leak on Android 12:
+         * <a href="https://github.com/androidx/androidx/pull/435">
+         *     https://github.com/androidx/androidx/pull/435
+         * </a>
+         */
+        @SuppressLint("BanUncheckedReflection")
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            try {
+                // 1. Background of the problem：Fix shouldShowRequestPermissionRationale causing memory leak in Android 12，
+                //    this problem has been fixed on the Android 12L system, but it is still a historical problem for the Android 12 system
+                // 2. The reason for the problem: The culprit is that the PermissionUsageHelper holds the Context object as a field,
+                //    and calls AppOpsManager.startWatchingStarted in the constructor to start the monitoring,
+                //    so that the PermissionUsageHelper object will be added to the AppOpsManager#mStartedWatchers collection,
+                //    which will lead to active calls in the Activity When finishing, stopWatchingStarted is not used to remove the watch,
+                //    which causes the Activity object to be held in the AppOpsManager#mStartedWatchers collection,
+                //    which indirectly causes the Activity object to not be recycled by the system.
+                // 3. The solution to the problem: The handling of this problem is also very simple and rude, that is,
+                //    to replace the Context parameter passed in the outer layer from the Activity object to the Application object,
+                //    because the Application life cycle is relatively long, but there is only the shouldShowRequestPermissionRationale method in the Activity,
+                //    and What if there is no such method in Application? Looking at the implementation of this method, in fact,
+                //    that method will eventually call the PackageManager.shouldShowRequestPermissionRationale method (hidden API, but not in the blacklist),
+                //    so as long as the PackageManager object can be obtained, and finally use reflection to execute this method , which avoids memory leaks.
+                PackageManager packageManager = activity.getApplication().getPackageManager();
+                Method method = PackageManager.class.getMethod("shouldShowRequestPermissionRationale", String.class);
+                return (boolean) method.invoke(packageManager, permission);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                return activity.shouldShowRequestPermissionRationale(permission);
+            }
+        }
+    }
+
+    @RequiresApi(32)
+    static class Api32Impl  {
+        private Api32Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            return activity.shouldShowRequestPermissionRationale(permission);
         }
     }
 

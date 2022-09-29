@@ -29,12 +29,16 @@ internal fun createPlaceholderIcon(): Icon =
 /**
  * A simple, monochromatic image that can be tinted by the watch face.
  *
+ * A monochromatic image doesn't have to be black and white, it can have a single color associated
+ * with the provider / brand with the expectation that the watch face may recolor it (typically
+ * using a SRC_IN filter).
+ *
  * An ambient alternative is provided that may be shown instead of the regular image while the
  * watch is not active.
  *
- * @param[image] the image itself
- * @param[ambientImage] the image to be shown when the device is in ambient mode to save power or
- * avoid burn in
+ * @property [image] The image itself
+ * @property [ambientImage] The image to be shown when the device is in ambient mode to save power
+ * or avoid burn in
  */
 public class MonochromaticImage internal constructor(
     public val image: Icon,
@@ -43,7 +47,7 @@ public class MonochromaticImage internal constructor(
     /**
      * Builder for [MonochromaticImage].
      *
-     * @param[image] the [Icon] representing the image
+     * @param [image] the [Icon] representing the image
      */
     public class Builder(private var image: Icon) {
         private var ambientImage: Icon? = null
@@ -135,30 +139,29 @@ public enum class SmallImageType {
     /**
      * Type for images that have a transparent background and are expected to be drawn
      * entirely within the space available, such as a launcher image. Watch faces may add padding
-     * when drawing these images, but should never crop these images. Icons may be tinted to fit
-     * the complication style.
+     * when drawing these images, but should never crop these images. Icons must not be recolored.
      */
     ICON,
 
     /**
      * Type for images which are photos that are expected to fill the space available. Images
      * of this style may be cropped to fit the shape of the complication - in particular, the image
-     * may be cropped to a circle. Photos my not be recolored.
+     * may be cropped to a circle. Photos must not be recolored.
      */
     PHOTO
 }
 
 /**
  * An image that is expected to cover a small fraction of a watch face occupied by a single
- * complication.
+ * complication. A SmallImage must not be tinted.
  *
  * An ambient alternative is provided that may be shown instead of the regular image while the
  * watch is not active.
  *
- * @param[image] the image itself
- * @param[type] the style of the image provided, to guide how it should be displayed
- * @param[ambientImage] the image to be shown when the device is in ambient mode to save power or
- * avoid burn in
+ * @property [image] The image itself
+ * @property [type] The style of the image provided, to guide how it should be displayed
+ * @property [ambientImage] The image to be shown when the device is in ambient mode to save power
+ * or avoid burn in
  */
 public class SmallImage internal constructor(
     public val image: Icon,
@@ -166,10 +169,10 @@ public class SmallImage internal constructor(
     public val ambientImage: Icon?
 ) {
     /**
-     * Builder for [MonochromaticImage].
+     * Builder for [SmallImage].
      *
-     * @param[image] the [Icon] representing the image
-     * @param[type] the style of the image provided, to guide how it should be displayed
+     * @param [image] The [Icon] representing the image
+     * @param [type] The style of the image provided, to guide how it should be displayed
      */
     public class Builder(private val image: Icon, private val type: SmallImageType) {
         private var ambientImage: Icon? = null

@@ -91,12 +91,12 @@ internal object PowerQuery {
         }
     }
 
-    public fun getPowerMetrics(
-        absoluteTracePath: String,
+    fun getPowerMetrics(
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         slice: Slice
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
-        val railMetrics: List<ComponentMeasurement> = getRailMetrics(absoluteTracePath, slice)
+        val railMetrics: List<ComponentMeasurement> = getRailMetrics(perfettoTraceProcessor, slice)
         railMetrics.ifEmpty { return emptyMap() }
 
         // sort ComponentMeasurements into CategoryMeasurements
@@ -133,32 +133,20 @@ internal object PowerQuery {
     }
 
     private fun getRailMetrics(
-        absoluteTracePath: String,
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         slice: Slice
     ): List<ComponentMeasurement> {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
-            query = getFullQuery(slice)
-        )
 
-        val resultLines = queryResult.split("\n")
+        val query = getFullQuery(slice)
+        val queryResult = perfettoTraceProcessor.rawQuery(query)
 
-        if (resultLines.first() != """"name","energyUws","powerUs"""") {
-            throw IllegalStateException("query failed!\n${getFullQuery(slice)}")
+        return queryResult.toList {
+            ComponentMeasurement(
+                name = (it["name"] as String).camelCase(),
+                energyUws = it["energyUws"] as Double,
+                powerUw = it["powerUs"] as Double,
+            )
         }
-
-        // results are in CSV with a header row, and strings wrapped with quotes
-        return resultLines
-            .filter { it.isNotBlank() } // drop blank lines
-            .drop(1) // drop the header row
-            .map {
-                val columns = it.split(",")
-                ComponentMeasurement(
-                    name = columns[0].unquote().camelCase(),
-                    energyUws = columns[1].toDouble(),
-                    powerUw = columns[2].toDouble(),
-                )
-            }
     }
 
     /**

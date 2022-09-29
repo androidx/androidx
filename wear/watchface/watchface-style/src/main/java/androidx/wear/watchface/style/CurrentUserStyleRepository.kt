@@ -110,6 +110,7 @@ public class UserStyle private constructor(
      * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
      * [userStyle].
      */
+    @Suppress("Deprecation") // userStyleSettings
     public constructor(
         userStyle: UserStyleData,
         styleSchema: UserStyleSchema
@@ -127,7 +128,7 @@ public class UserStyle private constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(toMap())
 
     /** Returns the style as a [UserStyleData]. */
@@ -370,7 +371,7 @@ public class UserStyleData(
     public val userStyleMap: Map<String, ByteArray>
 ) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         userStyle: UserStyleWireFormat
     ) : this(userStyle.mUserStyle)
@@ -386,7 +387,7 @@ public class UserStyleData(
     ) + "}"
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
 
     override fun equals(other: Any?): Boolean {
@@ -424,15 +425,15 @@ public class UserStyleData(
  * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
  * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
  */
-@OptIn(ExperimentalHierarchicalStyle::class)
 public class UserStyleSchema constructor(
-    // TODO(b/223610314): Deprecate userStyleSettings after rootUserStyleSettings is available
-    public val userStyleSettings: List<UserStyleSetting>
+    userStyleSettings: List<UserStyleSetting>
 ) {
+
+    public val userStyleSettings = userStyleSettings
+        @Deprecated("use rootUserStyleSettings instead")
+        get
+
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalHierarchicalStyle
-    @ExperimentalHierarchicalStyle
     public val rootUserStyleSettings by lazy {
         userStyleSettings.filter { !it.hasParent }
     }
@@ -441,7 +442,12 @@ public class UserStyleSchema constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         @Throws(IOException::class, XmlPullParserException::class)
-        fun inflate(resources: Resources, parser: XmlResourceParser): UserStyleSchema {
+        fun inflate(
+            resources: Resources,
+            parser: XmlResourceParser,
+            complicationScaleX: Float,
+            complicationScaleY: Float
+        ): UserStyleSchema {
             require(parser.name == "UserStyleSchema") {
                 "Expected a UserStyleSchema node"
             }
@@ -459,7 +465,9 @@ public class UserStyleSchema constructor(
                     "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
                         UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
                             resources,
-                            parser
+                            parser,
+                            complicationScaleX,
+                            complicationScaleY
                         )
                     )
 
@@ -528,7 +536,8 @@ public class UserStyleSchema constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
         wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
     ) {
@@ -559,7 +568,8 @@ public class UserStyleSchema constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(
             userStyleSettings.map { userStyleSetting ->
@@ -584,7 +594,8 @@ public class UserStyleSchema constructor(
         )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getDefaultUserStyle() = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in userStyleSettings) {
@@ -593,12 +604,14 @@ public class UserStyleSchema constructor(
         }
     )
 
+    @Suppress("Deprecation") // userStyleSettings
     override fun toString(): String = "[" + userStyleSettings.joinToString() + "]"
 
     /**
      * Returns the [UserStyleSetting] whose [UserStyleSetting.Id] matches [settingId] or `null` if
      * none match.
      */
+    @Suppress("Deprecation") // userStyleSettings
     operator fun get(settingId: UserStyleSetting.Id): UserStyleSetting? {
         // NB more than one match is not allowed, UserStyleSetting id's are required to be unique.
         return userStyleSettings.firstOrNull { it.id == settingId }
@@ -654,6 +667,7 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
         mutableUserStyle.value = newUserStyle
     }
 
+    @Suppress("Deprecation") // userStyleSettings
     internal fun validateUserStyle(userStyle: UserStyle) {
         for ((key, value) in userStyle) {
             val setting = schema.userStyleSettings.firstOrNull { it == key }

@@ -47,48 +47,48 @@ private const val HEIGHT = 60
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-public class FileTransformFactoryDeviceTest {
+class FileTransformFactoryDeviceTest {
 
     private lateinit var factory: FileTransformFactory
     private val contentResolver = getApplicationContext<Context>().contentResolver
 
     @get:Rule
-    public val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+    val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         factory = FileTransformFactory()
     }
 
     @Test
-    public fun setUseRotationDegrees_getterReturnsTrue() {
+    fun setUseRotationDegrees_getterReturnsTrue() {
         factory.isUsingExifOrientation = true
         assertThat(factory.isUsingExifOrientation).isTrue()
     }
 
     @Test
-    public fun extractFromFile() {
+    fun extractFromFile() {
         factory.getOutputTransform(createImageFile()).assertMapping(1f, 1f, WIDTH, HEIGHT)
     }
 
     @Test
-    public fun extractFromFileWithExifInfo() {
+    fun extractFromFileWithExifInfo() {
         factory.isUsingExifOrientation = true
         factory.getOutputTransform(createImageFile(ExifInterface.ORIENTATION_ROTATE_90))
             .assertMapping(1f, 1f, 0, WIDTH)
     }
 
     @Test
-    public fun extractFromInputStream() {
+    fun extractFromInputStream() {
         FileInputStream(createImageFile()).use {
             factory.getOutputTransform(it).assertMapping(1f, 1f, WIDTH, HEIGHT)
         }
     }
 
     @Test
-    public fun extractFromMediaStoreUri() {
+    fun extractFromMediaStoreUri() {
         val uri = createMediaStoreImage()
         factory.getOutputTransform(contentResolver, uri).assertMapping(1f, 1f, WIDTH, HEIGHT)
         contentResolver.delete(uri, null, null)
@@ -135,7 +135,7 @@ public class FileTransformFactoryDeviceTest {
             contentValues
         )
         contentResolver.openOutputStream(uri!!).use {
-            createBitmap().compress(Bitmap.CompressFormat.JPEG, 100, it)
+            createBitmap().compress(Bitmap.CompressFormat.JPEG, 100, it!!)
         }
         return uri
     }

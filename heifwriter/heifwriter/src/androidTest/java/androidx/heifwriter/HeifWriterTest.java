@@ -459,7 +459,11 @@ public class HeifWriterTest {
                 }
                 mWidth = mBitmaps[0].getWidth();
                 mHeight = mBitmaps[0].getHeight();
-                retriever.release();
+                try {
+                    retriever.release();
+                } catch (IOException e) {
+                    // Nothing we can  do about it.
+                }
             }
 
             private void cleanupStaleOutputs() {
@@ -702,7 +706,11 @@ public class HeifWriterTest {
         assertEquals("Wrong primary index", primary,
                 Integer.parseInt(retriever.extractMetadata(
                         MediaMetadataRetriever.METADATA_KEY_IMAGE_PRIMARY)));
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            // Nothing we can  do about it.
+        }
 
         if (useGrid) {
             MediaExtractor extractor = new MediaExtractor();

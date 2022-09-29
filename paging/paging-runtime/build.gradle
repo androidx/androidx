@@ -31,6 +31,11 @@ android {
 }
 
 dependencies {
+    //Atomic Group
+    constraints {
+        implementation(project(":paging:paging-common"))
+    }
+
     api(project(":paging:paging-common"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
@@ -67,11 +72,4 @@ androidx {
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

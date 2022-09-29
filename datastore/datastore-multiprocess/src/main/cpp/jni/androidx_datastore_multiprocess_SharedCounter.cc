@@ -35,10 +35,19 @@ jint ThrowIoException(JNIEnv* env, const char* message) {
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_androidx_datastore_multiprocess_NativeSharedCounter_nativeCreateSharedCounter(
+Java_androidx_datastore_multiprocess_NativeSharedCounter_nativeTruncateFile(
         JNIEnv *env, jclass clazz, jint fd) {
+    if (int errNum = datastore::TruncateFile(fd)) {
+        return ThrowIoException(env, strerror(errNum));
+    }
+    return 0;
+}
+
+JNIEXPORT jlong JNICALL
+Java_androidx_datastore_multiprocess_NativeSharedCounter_nativeCreateSharedCounter(
+        JNIEnv *env, jclass clazz, jint fd, jboolean enable_mlock) {
     void* address = nullptr;
-    if (int errNum = datastore::CreateSharedCounter(fd, &address)) {
+    if (int errNum = datastore::CreateSharedCounter(fd, &address, enable_mlock)) {
         return ThrowIoException(env, strerror(errNum));
     }
     return reinterpret_cast<jlong>(address);

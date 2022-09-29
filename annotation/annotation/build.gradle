@@ -1,16 +1,51 @@
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
-    id("kotlin")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
+androidXMultiplatform {
+    jvm {
+        withJava() // Remove after b/247980072
+    }
+    mac()
+    linux()
+    ios()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        if (KmpPlatformsKt.enableNative(project)) {
+            nonJvmMain {
+                dependsOn commonMain
+            }
+
+            targets.all { target ->
+                if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(nonJvmMain)
+                    }
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
+        }
+    }
 }
 
-jar {
+jvmJar {
     from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done
     // automatically by the Gradle plugin, but the Annotation library is a
@@ -29,12 +64,13 @@ task annotationsZip(type: Zip) {
 
 // add annotations jar task as artifacts
 artifacts {
-    archives jar
+    archives jvmJar
     archives annotationsZip
 }
 
 androidx {
     name = "Android Support Library Annotations"
+    type = LibraryType.KMP_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ANNOTATION
     mavenGroup = LibraryGroups.ANNOTATION

@@ -61,7 +61,7 @@ sealed class Source {
         }
 
         override val relativePath
-            get() = qName.replace(".", "/") + ".java"
+            get() = qName.replace(".", File.separator) + ".java"
     }
 
     class KotlinSource(

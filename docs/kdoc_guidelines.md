@@ -197,7 +197,7 @@ Do this:
  */
 ```
 
-This syntax is correct is Javadoc, but angle brackets aren't used in KDoc
+This syntax is correct in Javadoc, but angle brackets aren't used in KDoc
 ([@param reference guide](https://kotlinlang.org/docs/kotlin-doc.html#param-name)).
 
 ## Javadoc - KDoc differences

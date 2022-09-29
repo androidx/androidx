@@ -9,6 +9,10 @@ dependencies {
     implementation("androidx.buildSrc-tests:buildSrc-tests-max-dep-versions-dep:1.0.0")
 }
 
+android {
+    namespace "androidx.testapp"
+}
+
 androidx {
     name = "Sample Dependent library"
     mavenGroup = LibraryGroups.BUILDSRC_TESTS

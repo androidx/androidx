@@ -25,6 +25,8 @@ import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.testutils.LifecycleOwnerUtils.waitUntilState;
+import static androidx.testutils.PollingCheck.waitFor;
 
 import static org.junit.Assert.assertNull;
 
@@ -44,16 +46,17 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
-import androidx.test.espresso.UiController;
+import androidx.lifecycle.Lifecycle;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for testing custom view extensions in appcompat-v7 that implement the
@@ -65,26 +68,35 @@ import org.junit.runner.RunWith;
 @MediumTest
 public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extends View> {
     @Rule
-    public final ActivityTestRule<A> mActivityTestRule;
+    public final ActivityScenarioRule<A> mActivityTestRule;
 
     protected ViewGroup mContainer;
 
     protected A mActivity;
-    protected UiController mUiController;
     protected Resources mResources;
 
     public AppCompatBaseViewTest(Class<A> clazz) {
-        mActivityTestRule = new ActivityTestRule<>(clazz);
+        mActivityTestRule = new ActivityScenarioRule<>(clazz);
     }
 
     @Before
     public void setUp() {
-        mActivity = mActivityTestRule.getActivity();
+        AtomicReference<A> outerActivity = new AtomicReference<>();
+        mActivityTestRule.getScenario().onActivity(outerActivity::set);
+
+        mActivity = outerActivity.get();
         mContainer = mActivity.findViewById(R.id.container);
         mResources = mActivity.getResources();
 
+        // Wait until the Activity is resumed to prevent flakiness.
+        try {
+            waitUntilState(mActivity, Lifecycle.State.RESUMED);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+
         // Wait until the Activity is interactive to prevent flakiness.
-        PollingCheck.waitFor(() -> mActivity.hasWindowFocus());
+        waitFor(() -> mActivity.hasWindowFocus());
     }
 
     /**
@@ -632,8 +644,6 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
     }
 
     protected void testUntintedBackgroundTintingViewCompatAcrossStateChange(@IdRes int viewId) {
-        final T view = mContainer.findViewById(viewId);
-
         final @ColorInt int oceanDefault = ResourcesCompat.getColor(
                 mResources, R.color.ocean_default, null);
         final @ColorInt int oceanDisabled = ResourcesCompat.getColor(

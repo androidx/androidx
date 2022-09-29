@@ -35,7 +35,7 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.room:room-runtime:2.4.0-rc01")
+    implementation(projectOrArtifact(":room:room-runtime"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

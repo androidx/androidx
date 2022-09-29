@@ -46,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -239,7 +240,8 @@ public abstract class TileService extends Service {
                                                     new TileData(
                                                             tile.toByteArray(),
                                                             TileData.VERSION_PROTOBUF));
-                                        } catch (ExecutionException | InterruptedException ex) {
+                                        } catch (ExecutionException | InterruptedException |
+                                                 CancellationException ex) {
                                             Log.e(TAG, "onTileRequest Future failed", ex);
                                         } catch (RemoteException ex) {
                                             Log.e(
@@ -294,7 +296,8 @@ public abstract class TileService extends Service {
                                                                     .toProto()
                                                                     .toByteArray(),
                                                             ResourcesData.VERSION_PROTOBUF));
-                                        } catch (ExecutionException | InterruptedException ex) {
+                                        } catch (ExecutionException | InterruptedException |
+                                                 CancellationException ex) {
                                             Log.e(TAG, "onResourcesRequest Future failed", ex);
                                         } catch (RemoteException ex) {
                                             Log.e(

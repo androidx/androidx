@@ -23,6 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.CarPropertyValue;
+import android.util.Pair;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +36,13 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -86,5 +96,33 @@ public class PropertyUtilsTest {
                 PropertyUtils.convertPropertyValueToPropertyResponse(mCarPropertyValue)).isEqualTo(
                 CAR_PROPERTY_RESPONSE_BUILDER.setStatus(CarValue.STATUS_UNKNOWN).build());
         verify(mCarPropertyValue, never()).getValue();
+    }
+
+    @Test
+    public void convertPropertyValueToPropertyResponse_GetPropertyIdWithAreaIdForGlobalZone() {
+        List<PropertyIdAreaId> propertyIdAreaIds = new ArrayList<>();
+        propertyIdAreaIds.add(PropertyIdAreaId.builder()
+                .setAreaId(GLOBAL_AREA_ID)
+                .setPropertyId(PROPERTY_ID)
+                .build());
+        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
+                ImmutableMap.<Integer, List<CarZone>>builder().put(PROPERTY_ID,
+                        Collections.singletonList(CarZone.CAR_ZONE_GLOBAL)).buildKeepingLast();
+        assertThat(
+                PropertyUtils.getPropertyIdWithAreaIds(propertyIdsWithCarZones)).isEqualTo(
+                        propertyIdAreaIds);
+    }
+
+    @Test
+    public void successfulGetMinMaxProfileIntegerMap() {
+        Map<Set<CarZone>, Pair<?, ?>> actualMinMaxRange = new HashMap<>();
+        Map<Set<CarZone>, Pair<Integer, Integer>> expectedMinMaxRange = new HashMap<>();
+        CarZone frontLeft = new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build();
+
+        actualMinMaxRange.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
+        expectedMinMaxRange.put(Collections.singleton(frontLeft), new Pair<>(1, 7));
+        assertThat(PropertyUtils.getMinMaxProfileIntegerMap(actualMinMaxRange)).isEqualTo(
+                expectedMinMaxRange);
     }
 }

@@ -236,23 +236,6 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void addList_selectable_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new MapTemplate.Builder()
-                                .setHeader(DEFAULT_HEADER)
-                                .setItemList(TestUtils.createItemListWithDistanceSpan(6, true,
-                                        mDistanceSpan))
-                                .build());
-
-        new MapTemplate.Builder()
-                .setHeader(DEFAULT_HEADER)
-                .setItemList(TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                .build();
-    }
-
-    @Test
     public void addList_moreThanMaxTexts_throws() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
@@ -391,6 +374,33 @@ public class MapTemplateTest {
 
         assertThat(template.getMapController()).isEqualTo(mapController);
         assertThat(template.getItemList()).isEqualTo(itemList);
+        assertThat(template.getPane()).isNull();
+        assertThat(template.getHeader()).isEqualTo(header);
+        assertThat(template.getActionStrip()).isEqualTo(actionStrip);
+    }
+
+    @Test
+    public void createInstanceWithSelectableItemList() {
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+        String title = "title";
+        Header header = new Header.Builder()
+                .setTitle(title)
+                .setStartHeaderAction(Action.BACK)
+                .build();
+        MapController mapController = new MapController.Builder()
+                .setMapActionStrip(mMapActionStrip)
+                .build();
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, true, mDistanceSpan);
+        MapTemplate template = new MapTemplate.Builder()
+                .setMapController(mapController)
+                .setItemList(itemList)
+                .setHeader(header)
+                .setActionStrip(actionStrip)
+                .build();
+
+        assertThat(template.getMapController()).isEqualTo(mapController);
+        assertThat(template.getItemList()).isEqualTo(itemList);
+        assertThat(template.getItemList().getSelectedIndex()).isEqualTo(0);
         assertThat(template.getPane()).isNull();
         assertThat(template.getHeader()).isEqualTo(header);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);

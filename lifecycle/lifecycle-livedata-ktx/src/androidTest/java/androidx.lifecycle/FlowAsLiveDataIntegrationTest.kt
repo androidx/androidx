@@ -17,6 +17,7 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -24,6 +25,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -66,5 +68,17 @@ class FlowAsLiveDataIntegrationTest {
             // make sure this test doesn't leak a running coroutine
             stopChannelFlow.complete(Unit)
         }
+    }
+
+    @UiThreadTest
+    @Test
+    @MediumTest
+    fun asLiveData_preserveStateFlowInitialValue() {
+        val value = "init"
+        val result = MutableStateFlow(value)
+            .asLiveData()
+            .value
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo(value)
     }
 }

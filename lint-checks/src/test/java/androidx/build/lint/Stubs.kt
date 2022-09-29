@@ -253,6 +253,31 @@ annotation class NotNull
 annotation class Nullable
             """
         )
+
+        val IgnoreAnnotation = TestFiles.kotlin(
+            """
+package org.junit
+
+annotation class Ignore
+            """
+        )
+
+        val DoNotInline = TestFiles.java(
+            """
+package androidx.annotation;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(CLASS)
+@Target({METHOD})
+public @interface DoNotInline {
+}
+            """
+        )
         /* ktlint-enable max-line-length */
     }
 }

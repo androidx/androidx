@@ -20,6 +20,8 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 
+import static java.util.Collections.emptyList;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
@@ -41,11 +43,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.ExperimentalAnalyzer;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -80,6 +82,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -137,7 +140,6 @@ public abstract class CameraController {
      *
      * @see ImageAnalysis.Analyzer
      */
-    @ExperimentalAnalyzer
     public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
 
     /**
@@ -306,6 +308,9 @@ public abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     final MutableLiveData<Integer> mTapToFocusState = new MutableLiveData<>(
             TAP_TO_FOCUS_NOT_STARTED);
+
+    @NonNull
+    private List<CameraEffect> mEffects = emptyList();
 
     private final Context mAppContext;
 
@@ -849,7 +854,7 @@ public abstract class CameraController {
      * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
      * set at any time.
      *
-     * <p> If the {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns a non-null
+     * <p> If the {@link ImageAnalysis.Analyzer#getDefaultTargetResolution()} returns a non-null
      * value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, set the value before controller is bound to the lifecycle.
      *
@@ -877,7 +882,7 @@ public abstract class CameraController {
      *
      * <p>This will stop data from streaming to the {@link ImageAnalysis}.
      *
-     * <p> If the current {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns
+     * <p> If the current {@link ImageAnalysis.Analyzer#getDefaultTargetResolution()} returns
      * non-null value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, call this method when the lifecycle is not active.
      *
@@ -893,14 +898,13 @@ public abstract class CameraController {
         restartCameraIfAnalyzerResolutionChanged(oldAnalyzer, null);
     }
 
-    @OptIn(markerClass = ExperimentalAnalyzer.class)
     private void restartCameraIfAnalyzerResolutionChanged(
             @Nullable ImageAnalysis.Analyzer oldAnalyzer,
             @Nullable ImageAnalysis.Analyzer newAnalyzer) {
         Size oldResolution = oldAnalyzer == null ? null :
-                oldAnalyzer.getTargetResolutionOverride();
+                oldAnalyzer.getDefaultTargetResolution();
         Size newResolution = newAnalyzer == null ? null :
-                newAnalyzer.getTargetResolutionOverride();
+                newAnalyzer.getDefaultTargetResolution();
         if (!Objects.equals(oldResolution, newResolution)) {
             // Rebind ImageAnalysis to reconfigure target resolution.
             unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
@@ -1083,7 +1087,7 @@ public abstract class CameraController {
         }
     }
 
-    @OptIn(markerClass = {TransformExperimental.class, ExperimentalAnalyzer.class})
+    @OptIn(markerClass = {TransformExperimental.class})
     @MainThread
     void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
         checkMainThread();
@@ -1092,7 +1096,6 @@ public abstract class CameraController {
         }
         if (outputTransform == null) {
             mAnalysisAnalyzer.updateTransform(null);
-
         } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
                 == COORDINATE_SYSTEM_VIEW_REFERENCED) {
             mAnalysisAnalyzer.updateTransform(outputTransform.getMatrix());
@@ -1410,7 +1413,7 @@ public abstract class CameraController {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         if (t instanceof CameraControl.OperationCanceledException) {
                             Logger.d(TAG, "Tap-to-focus is canceled by new action.");
                             return;
@@ -1657,6 +1660,35 @@ public abstract class CameraController {
         return mCamera.getCameraControl().enableTorch(torchEnabled);
     }
 
+    // ------------------------
+    // Effects and extensions
+    // ------------------------
+
+    /**
+     * Sets post-processing effects.
+     *
+     * @param effects the effects applied to camera output.
+     * @hide
+     * @see UseCaseGroup.Builder#addEffect
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setEffects(@NonNull List<CameraEffect> effects) {
+        if (Objects.equals(mEffects, effects)) {
+            // Same effect. No change needed.
+            return;
+        }
+        if (mCameraProvider != null) {
+            // Unbind to make sure the pipelines will be recreated.
+            mCameraProvider.unbindAll();
+        }
+        mEffects = effects;
+        startCameraAndTrackStates();
+    }
+
+    // ------------------------------
+    // Binding to lifecycle
+    // ------------------------------
+
     /**
      * Binds use cases, gets a new {@link Camera} instance and tracks the state of the camera.
      */
@@ -1734,6 +1766,9 @@ public abstract class CameraController {
         }
 
         builder.setViewPort(mViewPort);
+        for (CameraEffect effect : mEffects) {
+            builder.addEffect(effect);
+        }
         return builder.build();
     }
 

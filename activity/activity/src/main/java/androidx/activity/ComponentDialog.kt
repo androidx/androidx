@@ -18,6 +18,7 @@ package androidx.activity
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -46,9 +47,13 @@ open class ComponentDialog @JvmOverloads constructor(
 
     final override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
+    @Suppress("ClassVerificationFailure") // needed for onBackInvokedDispatcher call
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= 33) {
+            onBackPressedDispatcher.setOnBackInvokedDispatcher(onBackInvokedDispatcher)
+        }
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 

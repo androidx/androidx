@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.W
@@ -24,6 +25,9 @@ import androidx.room.log.RLog
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
+import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.ENTITY
+import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.MAP_INFO
+import androidx.room.processor.ProcessorErrors.AmbiguousColumnLocation.POJO
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.MapInfo
@@ -72,11 +76,11 @@ abstract class MultimapQueryResultAdapter(
                 val ambiguousColumnName = it.usedColumns.first()
                 val (location, objectTypeName) = when (it) {
                     is SingleNamedColumnRowAdapter.SingleNamedColumnRowMapping ->
-                        ProcessorErrors.AmbiguousColumnLocation.MAP_INFO to null
+                        MAP_INFO to null
                     is PojoRowAdapter.PojoMapping ->
-                        ProcessorErrors.AmbiguousColumnLocation.POJO to it.pojo.typeName
+                        POJO to it.pojo.typeName.toJavaPoet()
                     is EntityRowAdapter.EntityMapping ->
-                        ProcessorErrors.AmbiguousColumnLocation.ENTITY to it.entity.typeName
+                        ENTITY to it.entity.typeName.toJavaPoet()
                     else -> error("Unknown mapping type: $it")
                 }
                 context.logger.w(

@@ -25,6 +25,7 @@ import androidx.work.WorkerParameters
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTrackerImpl
+import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -138,14 +139,14 @@ class ConstraintTrackingWorker(
         }
     }
 
-    override fun onAllConstraintsMet(workSpecIds: List<String>) {
+    override fun onAllConstraintsMet(workSpecs: List<WorkSpec>) {
         // WorkConstraintTracker notifies on the main thread. So we don't want to trampoline
         // between the background thread and the main thread in this case.
     }
 
-    override fun onAllConstraintsNotMet(workSpecIds: List<String>) {
+    override fun onAllConstraintsNotMet(workSpecs: List<WorkSpec>) {
         // If at any point, constraints are not met mark it so we can retry the work.
-        Logger.get().debug(TAG, "Constraints changed for $workSpecIds")
+        Logger.get().debug(TAG, "Constraints changed for $workSpecs")
         synchronized(lock) { areConstraintsUnmet = true }
     }
 }

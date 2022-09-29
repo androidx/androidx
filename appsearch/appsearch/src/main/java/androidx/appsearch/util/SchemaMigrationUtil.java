@@ -16,10 +16,12 @@
 
 package androidx.appsearch.util;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -75,8 +77,12 @@ public final class SchemaMigrationUtil {
      * all {@link Migrator} has been triggered.
      */
     public static void checkDeletedAndIncompatibleAfterMigration(
-            @NonNull SetSchemaResponse setSchemaResponse,
+            @NonNull InternalSetSchemaResponse internalSetSchemaResponse,
             @NonNull Set<String> activeMigrators) throws AppSearchException {
+        if (internalSetSchemaResponse.isSuccess()) {
+            return;
+        }
+        SetSchemaResponse setSchemaResponse = internalSetSchemaResponse.getSetSchemaResponse();
         Set<String> unmigratedIncompatibleTypes =
                 new ArraySet<>(setSchemaResponse.getIncompatibleTypes());
         unmigratedIncompatibleTypes.removeAll(activeMigrators);
@@ -86,23 +92,13 @@ public final class SchemaMigrationUtil {
         unmigratedDeletedTypes.removeAll(activeMigrators);
 
         // check if there are any unmigrated incompatible types or deleted types. If there
-        // are, we will getActiveMigratorsthrow an exception. That's the only case we
-        // swallowed in the AppSearchImpl#setSchema().
+        // are, we will throw an exception. That's the only case we swallowed in the
+        // AppSearchImpl#setSchema().
         // Since the force override is false, the schema will not have been set if there are
         // any incompatible or deleted types.
-        checkDeletedAndIncompatible(unmigratedDeletedTypes,
-                unmigratedIncompatibleTypes);
-    }
-
-    /**  Checks the setSchema() call won't delete any types or has incompatible types. */
-    public static void checkDeletedAndIncompatible(@NonNull Set<String> deletedTypes,
-            @NonNull Set<String> incompatibleTypes) throws AppSearchException {
-        if (deletedTypes.size() > 0
-                || incompatibleTypes.size() > 0) {
-            String newMessage = "Schema is incompatible."
-                    + "\n  Deleted types: " + deletedTypes
-                    + "\n  Incompatible types: " + incompatibleTypes;
-            throw new AppSearchException(AppSearchResult.RESULT_INVALID_SCHEMA, newMessage);
+        if (!unmigratedIncompatibleTypes.isEmpty() || !unmigratedDeletedTypes.isEmpty()) {
+            throw new AppSearchException(RESULT_INVALID_SCHEMA,
+                    internalSetSchemaResponse.getErrorMessage());
         }
     }
 }

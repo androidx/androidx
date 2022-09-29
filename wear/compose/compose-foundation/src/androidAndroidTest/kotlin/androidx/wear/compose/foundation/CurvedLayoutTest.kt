@@ -43,6 +43,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertTrue
 
 // When components are laid out, position is specified by integers, so we can't expect
 // much precision.
@@ -508,12 +509,16 @@ private class RadialDimensions(
         }
 
         // All sweep angles are well between 0 and 90
-        assert((FLOAT_TOLERANCE..90f - FLOAT_TOLERANCE).contains(sweep)) { "sweep = $sweep." }
+        assertTrue(
+                (FLOAT_TOLERANCE..90f - FLOAT_TOLERANCE).contains(sweep),
+                "sweep = $sweep"
+        )
 
         // The outerRadius is greater than the innerRadius
-        assert(outerRadius > innerRadius + FLOAT_TOLERANCE) {
-            "innerRadius = $innerRadius, outerRadius = $outerRadius"
-        }
+        assertTrue(
+                outerRadius > innerRadius + FLOAT_TOLERANCE,
+                "innerRadius = $innerRadius, outerRadius = $outerRadius"
+        )
     }
 
     // TODO: When we finalize CurvedLayoutInfo's API, eliminate the RadialDimensions class and

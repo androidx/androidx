@@ -25,6 +25,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":sqlite:sqlite"))
+    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -45,4 +46,7 @@ androidx {
 
 android {
     namespace "androidx.sqlite.db.framework"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }

@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -80,6 +81,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -156,7 +158,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
+        if (Build.VERSION.SDK_INT >= 18) {
+            mHandlerThread.quitSafely();
+        }
     }
 
     @Test
@@ -341,6 +345,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                         Collections.<String>emptyList(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
+                        0,
                         executor,
                         mWorkTaskExecutor,
                         workerFactory,
@@ -361,7 +366,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mForegroundProcessor,
                 mDatabase,
-                mWork.getStringId());
+                mDatabase.workSpecDao().getWorkSpec(mWork.getStringId()),
+                new ArrayList<>()
+        );
     }
 
     static class SpyingWorkerFactory extends WorkerFactory {

@@ -90,6 +90,12 @@ public interface CameraGraph : Closeable {
      * @param defaultListeners A default set of listeners that will be added to every [Request].
      * @param requiredParameters Will override any other configured parameter, and can be used
      *   to enforce that specific keys are always set to specific value for every [CaptureRequest].
+     * @param cameraBackendId If defined, this tells the [CameraGraph] to use a specific
+     *   [CameraBackend] to open and operate the camera. The defined [camera] parameter must be a
+     *   camera that can be opened by this [CameraBackend]. If this value is null it will use the
+     *   default backend that has been configured by [CameraPipe].
+     * @param customCameraBackend If defined, this [customCameraBackend] will be created an used for
+     *   _only_ this [CameraGraph]. This cannot be defined if [cameraBackendId] is defined.
      */
     public data class Config(
         val camera: CameraId,
@@ -104,10 +110,18 @@ public interface CameraGraph : Closeable {
         val defaultListeners: List<Request.Listener> = listOf(),
         val requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
 
+        val cameraBackendId: CameraBackendId? = null,
+        val customCameraBackend: CameraBackendFactory? = null,
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
         // TODO: Internal error handling. May be better at the CameraPipe level.
-    )
+    ) {
+        init {
+            check(cameraBackendId == null || customCameraBackend == null) {
+                "Setting both cameraBackendId and customCameraBackend is not supported."
+            }
+        }
+    }
 
     /**
      * Flags define boolean values that are used to adjust the behavior and interactions with

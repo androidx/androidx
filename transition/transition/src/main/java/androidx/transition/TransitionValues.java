@@ -16,6 +16,7 @@
 
 package androidx.transition;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -59,9 +60,10 @@ public class TransitionValues {
     public final Map<String, Object> values = new HashMap<>();
 
     /**
-     * The View with these values
+     * The View with these values. Should not be null.
      */
     // TODO Make it NonNull and final after removing the deprecated constructor.
+    @SuppressLint("UnknownNullness")
     public View view;
 
     /**
@@ -86,6 +88,7 @@ public class TransitionValues {
         return 31 * view.hashCode() + values.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         String returnValue = "TransitionValues@" + Integer.toHexString(hashCode()) + ":\n";

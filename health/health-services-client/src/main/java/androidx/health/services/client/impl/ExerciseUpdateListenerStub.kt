@@ -18,7 +18,6 @@ package androidx.health.services.client.impl
 
 import android.util.Log
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
@@ -31,15 +30,12 @@ import androidx.health.services.client.proto.EventsProto.ExerciseUpdateListenerE
 import java.util.HashMap
 import java.util.concurrent.Executor
 
-/**
- * A stub implementation for IExerciseUpdateListener.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ExerciseUpdateListenerStub
-private constructor(private val listener: ExerciseUpdateCallback, private val executor: Executor) :
-    IExerciseUpdateListener.Stub() {
+/** A stub implementation for IExerciseUpdateListener. */
+internal class ExerciseUpdateListenerStub internal constructor(
+    private val listener: ExerciseUpdateCallback,
+    private val executor: Executor,
+    private val requestedDataTypesProvider: () -> Set<DataType<*, *>>
+) : IExerciseUpdateListener.Stub() {
 
     public val listenerKey: ListenerKey = ListenerKey(listener)
 
@@ -57,11 +53,22 @@ private constructor(private val listener: ExerciseUpdateCallback, private val ex
                 listener.onLapSummaryReceived(
                     ExerciseLapSummary(proto.lapSummaryResponse.lapSummary)
                 )
-            EventCase.AVAILABILITY_RESPONSE ->
-                listener.onAvailabilityChanged(
-                    DataType(proto.availabilityResponse.dataType),
-                    Availability.fromProto(proto.availabilityResponse.availability)
-                )
+            EventCase.AVAILABILITY_RESPONSE -> {
+                val requestedDataTypes = requestedDataTypesProvider.invoke()
+                if (requestedDataTypes.isEmpty()) {
+                    Log.w(TAG, "Availability received without any requested DataTypes")
+                    return
+                }
+                // The DataType in the Availability Response could be a delta or aggregate; there's
+                // not enough information to distinguish. For example, the developer might have
+                // requested ether or both of HEART_RATE_BPM / HEART_RATE_BPM_STATS. We should
+                // trigger onAvailabilityChanged for all matching data types.
+                val matchingDataTypes = requestedDataTypes.filter {
+                    it.name == proto.availabilityResponse.dataType.name
+                }
+                val availability = Availability.fromProto(proto.availabilityResponse.availability)
+                matchingDataTypes.forEach { listener.onAvailabilityChanged(it, availability) }
+            }
             null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
         }
     }
@@ -71,23 +78,30 @@ private constructor(private val listener: ExerciseUpdateCallback, private val ex
      * object is passed by framework to service side of the IPC.
      */
     public class ExerciseUpdateListenerCache private constructor() {
-        @GuardedBy("this")
+        private val listenerLock = Any()
+
+        @GuardedBy("listenerLock")
         private val listeners: MutableMap<ExerciseUpdateCallback, ExerciseUpdateListenerStub> =
             HashMap()
 
-        @Synchronized
         public fun getOrCreate(
             listener: ExerciseUpdateCallback,
-            executor: Executor
+            executor: Executor,
+            requestedDataTypesProvider: () -> Set<DataType<*, *>>
         ): ExerciseUpdateListenerStub {
-            return listeners.getOrPut(listener) { ExerciseUpdateListenerStub(listener, executor) }
+            synchronized(listenerLock) {
+                return listeners.getOrPut(listener) {
+                    ExerciseUpdateListenerStub(listener, executor, requestedDataTypesProvider)
+                }
+            }
         }
 
-        @Synchronized
         public fun remove(
             exerciseUpdateCallback: ExerciseUpdateCallback
         ): ExerciseUpdateListenerStub? {
-            return listeners.remove(exerciseUpdateCallback)
+            synchronized(listenerLock) {
+                return listeners.remove(exerciseUpdateCallback)
+            }
         }
 
         public companion object {

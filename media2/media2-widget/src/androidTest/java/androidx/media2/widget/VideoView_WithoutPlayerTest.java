@@ -16,6 +16,8 @@
 
 package androidx.media2.widget;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.app.Activity;
 
 import androidx.media2.widget.test.R;
@@ -45,6 +47,9 @@ public class VideoView_WithoutPlayerTest extends MediaWidgetTestBase {
 
     @Before
     public void setup() throws Throwable {
+        // Ignore all tests, b/202710013
+        assumeTrue(false);
+
         mActivity = mActivityRule.getActivity();
         mVideoView = mActivity.findViewById(R.id.videoview);
         checkAttachedToWindow(mVideoView);

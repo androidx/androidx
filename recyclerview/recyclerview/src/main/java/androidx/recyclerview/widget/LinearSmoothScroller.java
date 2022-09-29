@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
 import android.util.DisplayMetrics;
@@ -80,6 +81,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
 
     protected final DecelerateInterpolator mDecelerateInterpolator = new DecelerateInterpolator();
 
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     protected PointF mTargetVector;
 
     private final DisplayMetrics mDisplayMetrics;
@@ -90,6 +92,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
     // point to a real item position, rather point to an estimated location pixels.
     protected int mInterimTargetDx = 0, mInterimTargetDy = 0;
 
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public LinearSmoothScroller(Context context) {
         mDisplayMetrics = context.getResources().getDisplayMetrics();
     }
@@ -106,6 +109,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
         final int dx = calculateDxToMakeVisible(targetView, getHorizontalSnapPreference());
         final int dy = calculateDyToMakeVisible(targetView, getVerticalSnapPreference());
@@ -120,6 +124,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state, Action action) {
         // TODO(b/72745539): Is there ever a time when onSeekTargetStep should be called when
         // getChildCount returns 0?  Should this logic be extracted out of this method such that
@@ -162,6 +167,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * @return The time (in ms) it should take for each pixel. For instance, if returned value is
      * 2 ms, it means scrolling 1000 pixels with LinearInterpolation should take 2 seconds.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
         return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
     }
@@ -239,6 +245,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      *
      * @see #computeScrollVectorForPosition(int)
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     protected void updateActionForInterimTarget(Action action) {
         // find an interim target position
         PointF scrollVector = computeScrollVectorForPosition(getTargetPosition());
@@ -310,6 +317,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * @return The vertical scroll amount necessary to make the view visible with the given
      * snap preference.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int calculateDyToMakeVisible(View view, int snapPreference) {
         final RecyclerView.LayoutManager layoutManager = getLayoutManager();
         if (layoutManager == null || !layoutManager.canScrollVertically()) {
@@ -335,6 +343,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * @return The vertical scroll amount necessary to make the view visible with the given
      * snap preference.
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int calculateDxToMakeVisible(View view, int snapPreference) {
         final RecyclerView.LayoutManager layoutManager = getLayoutManager();
         if (layoutManager == null || !layoutManager.canScrollHorizontally()) {

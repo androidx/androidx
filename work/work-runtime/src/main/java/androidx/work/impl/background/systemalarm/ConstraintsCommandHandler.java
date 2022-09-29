@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemalarm;
 
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -85,7 +87,7 @@ class ConstraintsCommandHandler {
 
         for (WorkSpec workSpec : eligibleWorkSpecs) {
             String workSpecId = workSpec.id;
-            Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
+            Intent intent = CommandHandler.createDelayMetIntent(mContext, generationalId(workSpec));
             Logger.get().debug(TAG, "Creating a delay_met command for workSpec with id (" + workSpecId + ")");
             mDispatcher.getTaskExecutor().getMainThreadExecutor().execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));

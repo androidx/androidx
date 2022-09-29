@@ -20,6 +20,7 @@ package androidx.room.util
 
 import android.database.AbstractWindowedCursor
 import android.database.Cursor
+import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
@@ -30,7 +31,6 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.lang.IllegalStateException
 import java.nio.ByteBuffer
 
 /**
@@ -121,7 +121,7 @@ fun foreignKeyCheck(
     db.query("PRAGMA foreign_key_check(`$tableName`)").useCursor { cursor ->
         if (cursor.count > 0) {
             val errorMsg = processForeignKeyCheckFailure(cursor)
-            throw IllegalStateException(errorMsg)
+            throw SQLiteConstraintException(errorMsg)
         }
     }
 }

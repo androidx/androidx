@@ -48,6 +48,18 @@ import java.util.Date
 class BooksDaoTest : TestDatabaseTest() {
 
     @Test
+    fun addPublisherIdError() {
+        // the following would cause Unique constraint fail and would not return -1
+        // booksDao.addPublishers(TestUtil.PUBLISHER2)
+        val publisherList = buildList<Publisher> {
+            add(TestUtil.PUBLISHER)
+            add(TestUtil.PUBLISHER2)
+        }
+        val result = booksDao.addPublisherReturnArray(publisherList)
+        assertEquals(result[1], 2)
+    }
+
+    @Test
     fun bookById() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)

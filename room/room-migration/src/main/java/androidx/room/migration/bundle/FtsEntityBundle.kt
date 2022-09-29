@@ -60,6 +60,7 @@ public open class FtsEntityBundle(
         emptyList()
     )
 
+    @Transient
     private val SHADOW_TABLE_NAME_SUFFIXES = listOf(
         "_content",
         "_segdir",
@@ -92,6 +93,7 @@ public open class FtsEntityBundle(
      * Gets the list of shadow table names corresponding to the FTS virtual table.
      * @return the list of names.
      */
+    @delegate:Transient
     public open val shadowTableNames: List<String> by lazy {
         val currentTable = this@FtsEntityBundle.tableName
         buildList {

@@ -95,14 +95,14 @@ export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/comm
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/$PREBUILT_JDK/"
 export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+fi
 
 function buildAndroidx() {
   RETURN_CODE=0
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
-  properties="-Pandroidx.summarizeStderr --no-daemon"
-  # Remove -Pandroid.overrideVersionCheck=true once b/233766756 is fixed
-  if "$LOG_PROCESSOR" frameworks/support/gradlew $properties -p frameworks/support $androidxArguments --profile \
-    -Pandroid.overrideVersionCheck=true \
+  if "$LOG_PROCESSOR" frameworks/support/gradlew -p frameworks/support $androidxArguments --profile \
     --dependency-verification=off; then # building against tip of tree of AGP that potentially pulls in new dependencies
     echo build passed
   else

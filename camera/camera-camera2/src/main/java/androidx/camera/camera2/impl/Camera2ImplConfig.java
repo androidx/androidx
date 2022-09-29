@@ -54,6 +54,10 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
             Option.create("camera2.captureRequest.templateType", int.class);
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
+    public static final Config.Option<Long> STREAM_USE_CASE_OPTION =
+            Option.create("camera2.cameraCaptureSession.streamUseCase", long.class);
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraDevice.StateCallback> DEVICE_STATE_CALLBACK_OPTION =
             Option.create("camera2.cameraDevice.stateCallback", CameraDevice.StateCallback.class);
     /** @hide */
@@ -115,6 +119,21 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     @NonNull
     public CaptureRequestOptions getCaptureRequestOptions() {
         return CaptureRequestOptions.Builder.from(getConfig()).build();
+    }
+
+    /**
+     * Returns a CameraDevice template on the given configuration. Requires API 33 or above.
+     *
+     * <p>See {@link android.hardware.camera2.CameraMetadata} for valid stream use cases.
+     * See {@link android.hardware.camera2.params.OutputConfiguration} to see how
+     * camera2 framework uses this.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    public long getStreamUseCase(long valueIfMissing) {
+        return getConfig().retrieveOption(STREAM_USE_CASE_OPTION, valueIfMissing);
     }
 
     /**
@@ -256,7 +275,7 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
         public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
-                        Option<Object> objectOpt = (Option<Object>) option;
+                Option<Object> objectOpt = (Option<Object>) option;
                 mMutableOptionsBundle.insertOption(objectOpt, config.retrieveOption(objectOpt));
             }
             return this;

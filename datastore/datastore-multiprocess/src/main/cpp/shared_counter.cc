@@ -39,16 +39,24 @@ static_assert(std::atomic<uint32_t>::is_always_lock_free == true,
 
 namespace datastore {
 
+int TruncateFile(int fd) {
+    return (ftruncate(fd, NUM_BYTES) == 0) ? 0 : errno;
+}
+
 /*
- * This function returns non-zero errno if fails to create the counter. Caller should use
- * "strerror(errno)" to get error message.
+ * This function returns non-zero errno if fails to create the counter. Caller should have called
+ * "TruncateFile" before calling this method. Caller should use "strerror(errno)" to get error
+ * message.
  */
-int CreateSharedCounter(int fd, void** counter_address) {
-    if (ftruncate(fd, NUM_BYTES) != 0) {
-      return errno;
-    }
-    void* mmap_result = mmap(nullptr, NUM_BYTES, PROT_READ | PROT_WRITE,
-                           MAP_SHARED | MAP_LOCKED, fd, 0);
+int CreateSharedCounter(int fd, void** counter_address, bool enable_mlock) {
+    // Map with MAP_SHARED so the memory region is shared with other processes.
+    // MAP_LOCKED may cause memory starvation (b/233902124) so is configurable.
+    int map_flags = MAP_SHARED;
+    // TODO(b/233902124): the impact of MAP_POPULATE is still unclear, experiment
+    // with it when possible.
+    map_flags |= enable_mlock ? MAP_LOCKED : MAP_POPULATE;
+
+    void* mmap_result = mmap(nullptr, NUM_BYTES, PROT_READ | PROT_WRITE, map_flags, fd, 0);
 
     if (mmap_result == MAP_FAILED) {
         return errno;

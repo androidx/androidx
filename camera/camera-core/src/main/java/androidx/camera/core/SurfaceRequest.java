@@ -21,6 +21,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
+import android.util.Range;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -67,6 +68,9 @@ public final class SurfaceRequest {
     private final Object mLock = new Object();
 
     private final Size mResolution;
+
+    @Nullable
+    private final Range<Integer> mExpectedFrameRate;
     private final boolean mRGBA8888Required;
 
     private final CameraInternal mCamera;
@@ -98,8 +102,7 @@ public final class SurfaceRequest {
     private Executor mTransformationInfoExecutor;
 
     /**
-     * Creates a new surface request with the given resolution, the {@link Camera} and the crop
-     * rect.
+     * Creates a new surface request with the given resolution and {@link Camera}.
      *
      * @hide
      */
@@ -108,10 +111,25 @@ public final class SurfaceRequest {
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
             boolean isRGBA8888Required) {
+        this(resolution, camera, isRGBA8888Required, /*expectedFrameRate=*/null);
+    }
+
+    /**
+     * Creates a new surface request with the given resolution, {@link Camera}, and an optional
+     * expected frame rate.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SurfaceRequest(
+            @NonNull Size resolution,
+            @NonNull CameraInternal camera,
+            boolean isRGBA8888Required,
+            @Nullable Range<Integer> expectedFrameRate) {
         super();
         mResolution = resolution;
         mCamera = camera;
         mRGBA8888Required = isRGBA8888Required;
+        mExpectedFrameRate = expectedFrameRate;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -152,7 +170,7 @@ public final class SurfaceRequest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (t instanceof RequestCancelledException) {
                     // Cancellation occurred. Notify listeners.
                     Preconditions.checkState(requestCancellationFuture.cancel(false));
@@ -203,7 +221,7 @@ public final class SurfaceRequest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 // Translate cancellation into a SurfaceRequestCancelledException. Other
                 // exceptions mean either the request was completed via willNotProvideSurface() or a
                 // programming error occurred. In either case, the user will never see the
@@ -243,7 +261,7 @@ public final class SurfaceRequest {
     /**
      * Returns the resolution of the requested {@link Surface}.
      *
-     * The surface which fulfills this request must have the resolution specified here in
+     * <p>The surface which fulfills this request must have the resolution specified here in
      * order to fulfill the resource requirements of the camera. Fulfillment of the request
      * with a surface of a different resolution may cause the {@code resultListener} passed to
      * {@link #provideSurface(Surface, Executor, Consumer)} to be invoked with a {@link Result}
@@ -255,6 +273,33 @@ public final class SurfaceRequest {
     @NonNull
     public Size getResolution() {
         return mResolution;
+    }
+
+    /**
+     * Returns the expected rate at which frames will be produced into the provided {@link Surface}.
+     *
+     * <p>This information can be used to configure components that can be optimized by knowing
+     * the frame rate. For example, {@link android.media.MediaCodec} can be configured with the
+     * correct bitrate calculated from the frame rate.
+     *
+     * <p>The range may represent a variable frame rate, in which case {@link Range#getUpper()}
+     * and {@link Range#getLower()} will be different values. This is commonly used by
+     * auto-exposure algorithms to ensure a scene is exposed correctly in varying lighting
+     * conditions. The frame rate may also be fixed, in which case {@link Range#getUpper()} will
+     * be equivalent to {@link Range#getLower()}.
+     *
+     * <p>This method may also return {@code null} if no information about the frame rate can be
+     * determined. In this case, no assumptions should be made about what the actual frame rate
+     * will be.
+     *
+     * @return The expected frame rate range or {@code null} if no frame rate information is
+     * available.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    public Range<Integer> getExpectedFrameRate() {
+        return mExpectedFrameRate;
     }
 
     /**
@@ -322,7 +367,7 @@ public final class SurfaceRequest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     Preconditions.checkState(t instanceof RequestCancelledException, "Camera "
                             + "surface session should only fail with request "
                             + "cancellation. Instead failed due to:\n" + t);

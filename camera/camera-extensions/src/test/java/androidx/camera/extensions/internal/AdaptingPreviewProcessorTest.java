@@ -16,8 +16,13 @@
 
 package androidx.camera.extensions.internal;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.media.Image;
 import android.os.Build;
@@ -33,6 +38,7 @@ import androidx.camera.testing.fakes.FakeImageProxy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -64,27 +70,52 @@ public class AdaptingPreviewProcessorTest {
     @Test
     public void processDoesNotCallImplAfterClose() {
         mAdaptingPreviewProcessor.close();
-
         mAdaptingPreviewProcessor.process(mImageProxyBundle);
+        mAdaptingPreviewProcessor.onInit();
 
-        verifyZeroInteractions(mImpl);
+        verifyNoMoreInteractions(mImpl);
     }
 
     @Test
     public void onImageFormatUpdateDoesNotCallImplAfterClose() {
         mAdaptingPreviewProcessor.close();
-
         mAdaptingPreviewProcessor.onOutputSurface(mock(Surface.class), 0);
+        mAdaptingPreviewProcessor.onInit();
 
-        verifyZeroInteractions(mImpl);
+        verifyNoMoreInteractions(mImpl);
     }
 
     @Test
     public void onResolutionUpdateDoesNotCallImplAfterClose() {
         mAdaptingPreviewProcessor.close();
-
         mAdaptingPreviewProcessor.onResolutionUpdate(new Size(640, 480));
+        mAdaptingPreviewProcessor.onInit();
 
-        verifyZeroInteractions(mImpl);
+        verifyNoMoreInteractions(mImpl);
+    }
+
+    @Test
+    public void processCanCallImplBeforeDeInit() {
+        callOnInitAndVerify();
+        mAdaptingPreviewProcessor.process(mImageProxyBundle);
+        verify(mImpl, times(1)).process(any(), any());
+    }
+
+    @Test
+    public void processDoesNotCallImplAfterDeInit() {
+        callOnInitAndVerify();
+        mAdaptingPreviewProcessor.onDeInit();
+        mAdaptingPreviewProcessor.process(mImageProxyBundle);
+
+        verifyNoMoreInteractions(mImpl);
+    }
+
+    private void callOnInitAndVerify() {
+        mAdaptingPreviewProcessor.onInit();
+
+        InOrder inOrderImpl = inOrder(mImpl);
+        inOrderImpl.verify(mImpl).onResolutionUpdate(any());
+        inOrderImpl.verify(mImpl).onOutputSurface(any(), anyInt());
+        inOrderImpl.verify(mImpl).onImageFormatUpdate(anyInt());
     }
 }

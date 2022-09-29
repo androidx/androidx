@@ -136,8 +136,8 @@ class MenuTest {
     }
 
     @Test fun iteratorRemoving() {
-        val item1 = menu.add("")
-        val item2 = menu.add("")
+        val item1 = menu.add(NONE, 9, NONE, "")
+        val item2 = menu.add(NONE, 13, NONE, "")
 
         val iterator = menu.iterator()
 
@@ -162,5 +162,18 @@ class MenuTest {
         menu.children.forEachIndexed { index, child ->
             assertSame(items[index], child)
         }
+    }
+
+    @Test fun removeItemAt() {
+        val item1 = menu.add(NONE, 9, NONE, "")
+        val item2 = menu.add(NONE, 13, NONE, "")
+
+        menu.removeItemAt(0)
+        assertFalse(item1 in menu)
+        assertEquals(1, menu.size())
+
+        menu.removeItemAt(0)
+        assertFalse(item2 in menu)
+        assertEquals(0, menu.size())
     }
 }

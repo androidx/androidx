@@ -259,20 +259,16 @@ internal class JavacProcessingEnv(
     }
 
     fun wrapExecutableElement(element: ExecutableElement): JavacExecutableElement {
-        val enclosingType = element.requireEnclosingType(this)
-
         return when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
                 JavacConstructorElement(
                     env = this,
-                    containing = enclosingType,
                     element = element
                 )
             }
             ElementKind.METHOD -> {
                 JavacMethodElement(
                     env = this,
-                    containing = enclosingType,
                     element = element
                 )
             }
@@ -288,9 +284,7 @@ internal class JavacProcessingEnv(
                     param.element.simpleName == element.simpleName
                 } ?: error("Unable to create variable element for $element")
             }
-            is TypeElement -> {
-                JavacFieldElement(this, wrapTypeElement(enclosingElement), element)
-            }
+            is TypeElement -> JavacFieldElement(this, element)
             else -> error("Unsupported enclosing type $enclosingElement for $element")
         }
     }

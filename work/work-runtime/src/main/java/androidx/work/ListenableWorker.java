@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
  * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
- * {@link ListenableFuture} will be cancelled.
+ * {@code com.google.common.util.concurrent.ListenableFuture} will be cancelled.
  * <p>
  * Exercise caution when <a href="WorkManager.html#worker_class_names">renaming or removing
  * ListenableWorkers</a> from your codebase.
@@ -177,12 +177,14 @@ public abstract class ListenableWorker {
      * A ListenableWorker has a well defined
      * <a href="https://d.android.com/reference/android/app/job/JobScheduler">execution window</a>
      * to to finish its execution and return a {@link Result}.  After this time has expired, the
-     * worker will be signalled to stop and its {@link ListenableFuture} will be cancelled.
+     * worker will be signalled to stop and its
+     * {@code com.google.common.util.concurrent.ListenableFuture} will be cancelled.
      * <p>
      * The future will also be cancelled if this worker is stopped for any reason
      * (see {@link #onStopped()}).
      *
-     * @return A {@code ListenableFuture} with the {@link Result} of the computation.  If you
+     * @return A {@code com.google.common.util.concurrent.ListenableFuture} with the
+     * {@link Result} of the computation.  If you
      * cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
@@ -192,8 +194,8 @@ public abstract class ListenableWorker {
      * Updates {@link ListenableWorker} progress.
      *
      * @param data The progress {@link Data}
-     * @return A {@link ListenableFuture} which resolves after progress is persisted.
-     * Cancelling this future is a no-op.
+     * @return A {@code com.google.common.util.concurrent.ListenableFuture} which resolves
+     * after progress is persisted. Cancelling this future is a no-op.
      */
     @NonNull
     public ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
@@ -220,8 +222,9 @@ public abstract class ListenableWorker {
      * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      *
      * @param foregroundInfo The {@link ForegroundInfo}
-     * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
-     * transitions to running in the context of a foreground {@link android.app.Service}.
+     * @return A {@code com.google.common.util.concurrent.ListenableFuture} which resolves after
+     * the {@link ListenableWorker} transitions to running in the context of a foreground
+     * {@link android.app.Service}.
      */
     @NonNull
     public final ListenableFuture<Void> setForegroundAsync(@NonNull ForegroundInfo foregroundInfo) {
@@ -241,9 +244,9 @@ public abstract class ListenableWorker {
      * <p>
      * Starting in Android S and above, WorkManager manages this WorkRequest using an immediate job.
      *
-     * @return A {@link ListenableFuture} of {@link ForegroundInfo} instance if the WorkRequest
-     * is marked immediate. For more information look at
-     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
+     * @return A {@code com.google.common.util.concurrent.ListenableFuture} of
+     * {@link ForegroundInfo} instance if the WorkRequest is marked immediate. For more
+     * information look at {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
      */
     @NonNull
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
@@ -279,12 +282,12 @@ public abstract class ListenableWorker {
 
     /**
      * This method is invoked when this Worker has been told to stop.  At this point, the
-     * {@link ListenableFuture} returned by the instance of {@link #startWork()} is
-     * also cancelled.  This could happen due to an explicit cancellation signal by the user, or
-     * because the system has decided to preempt the task.  In these cases, the results of the
-     * work will be ignored by WorkManager.  All processing in this method should be lightweight
-     * - there are no contractual guarantees about which thread will invoke this call, so this
-     * should not be a long-running or blocking operation.
+     * {@code com.google.common.util.concurrent.ListenableFuture} returned by the instance of
+     * {@link #startWork()} is also cancelled.  This could happen due to an explicit cancellation
+     * signal by the user, or because the system has decided to preempt the task.  In these
+     * cases, the results of the work will be ignored by WorkManager.  All processing in this
+     * method should be lightweight - there are no contractual guarantees about which thread will
+     * invoke this call, so this should not be a long-running or blocking operation.
      */
     public void onStopped() {
         // Do nothing by default.

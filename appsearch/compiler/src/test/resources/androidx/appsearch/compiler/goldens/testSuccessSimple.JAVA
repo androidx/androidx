@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -50,7 +50,6 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
     Gift document = new Gift(dogConv, idConv, namespaceConv);
-    document.namespace = namespaceConv;
     document.price = priceConv;
     document.cat = catConv;
     return document;

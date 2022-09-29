@@ -964,6 +964,9 @@ public class GridLayoutManager extends LinearLayoutManager {
         /**
          * Returns the final span index of the provided position.
          * <p>
+         * If {@link #getOrientation()} is {@link #VERTICAL}, this is a column value.
+         * If {@link #getOrientation()} is {@link #HORIZONTAL}, this is a row value.
+         * <p>
          * If you have a faster way to calculate span index for your items, you should override
          * this method. Otherwise, you should enable span index cache
          * ({@link #setSpanIndexCacheEnabled(boolean)}) for better performance. When caching is
@@ -1039,6 +1042,9 @@ public class GridLayoutManager extends LinearLayoutManager {
 
         /**
          * Returns the index of the group this position belongs.
+         * <p>
+         * If {@link #getOrientation()} is {@link #VERTICAL}, this is a row value.
+         * If {@link #getOrientation()} is {@link #HORIZONTAL}, this is a column value.
          * <p>
          * For example, if grid has 3 columns and each item occupies 1 span, span group index
          * for item 1 will be 0, item 5 will be 1.

@@ -16,12 +16,17 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import com.google.auto.common.MoreTypes;
+import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +37,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -105,13 +111,10 @@ class IntrospectionHelper {
 
     /**
      * Returns {@code androidx.appsearch.annotation.Document} annotation element from the input
-     * element's annotations.
-     *
-     * @throws ProcessingException if no such annotation is found.
+     * element's annotations. Returns null if no such annotation is found.
      */
-    @NonNull
-    public static AnnotationMirror getDocumentAnnotation(@NonNull Element element)
-            throws ProcessingException {
+    @Nullable
+    public static AnnotationMirror getDocumentAnnotation(@NonNull Element element) {
         Objects.requireNonNull(element);
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             String annotationFq = annotation.getAnnotationType().toString();
@@ -119,8 +122,7 @@ class IntrospectionHelper {
                 return annotation;
             }
         }
-        throw new ProcessingException(
-                "Missing annotation " + IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS, element);
+        return null;
     }
 
     /** Checks whether the property data type is one of the valid types. */
@@ -150,20 +152,18 @@ class IntrospectionHelper {
      */
     public boolean isFieldOfDocumentType(VariableElement property) {
         TypeMirror propertyType = property.asType();
-        try {
-            if (propertyType.getKind() == TypeKind.ARRAY) {
-                getDocumentAnnotation(
-                        mTypeUtils.asElement(((ArrayType) property.asType()).getComponentType()));
-            } else if (mTypeUtils.isAssignable(mTypeUtils.erasure(propertyType), mCollectionType)) {
-                getDocumentAnnotation(mTypeUtils.asElement(
-                        ((DeclaredType) propertyType).getTypeArguments().get(0)));
-            } else {
-                getDocumentAnnotation(mTypeUtils.asElement(propertyType));
-            }
-        } catch (ProcessingException e) {
-            return false;
+        AnnotationMirror documentAnnotation = null;
+
+        if (propertyType.getKind() == TypeKind.ARRAY) {
+            documentAnnotation = getDocumentAnnotation(
+                    mTypeUtils.asElement(((ArrayType) property.asType()).getComponentType()));
+        } else if (mTypeUtils.isAssignable(mTypeUtils.erasure(propertyType), mCollectionType)) {
+            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(
+                    ((DeclaredType) propertyType).getTypeArguments().get(0)));
+        } else {
+            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(propertyType));
         }
-        return true;
+        return documentAnnotation != null;
     }
 
     public Map<String, Object> getAnnotationParams(@NonNull AnnotationMirror annotation) {
@@ -202,6 +202,51 @@ class IntrospectionHelper {
 
     public ClassName getAppSearchExceptionClass() {
         return ClassName.get(APPSEARCH_EXCEPTION_PKG, APPSEARCH_EXCEPTION_SIMPLE_NAME);
+    }
+
+    /**
+     * Get a list of super classes of element annotated with @Document, in order starting with the
+     * class at the top of the hierarchy and descending down the class hierarchy
+     */
+    @NonNull
+    public static Collection<TypeElement> generateClassHierarchy(@NonNull TypeElement element,
+            boolean isAutoValueDocument)
+            throws ProcessingException {
+        Deque<TypeElement> hierarchy = new ArrayDeque<>();
+        if (isAutoValueDocument) {
+            // We don't allow classes annotated with both Document and AutoValue to extend classes.
+            // Because of how AutoValue is set up, there is no way to add a constructor to
+            // populate fields of super classes.
+            // There should just be the generated class and the original annotated class
+            TypeElement superClass = MoreTypes.asTypeElement(
+                    MoreTypes.asTypeElement(element.getSuperclass()).getSuperclass());
+
+            if (!superClass.getQualifiedName().contentEquals(Object.class.getCanonicalName())) {
+                throw new ProcessingException(
+                        "A class annotated with AutoValue and Document cannot have a superclass",
+                        element);
+            }
+            hierarchy.add(element);
+        } else {
+            TypeElement currentClass = element;
+            while (!currentClass.getQualifiedName()
+                    .contentEquals(Object.class.getCanonicalName())) {
+                // If you inherit from an AutoValue class, you have to implement the static methods.
+                // That defeats the purpose of AutoValue
+                if (currentClass.getAnnotation(AutoValue.class) != null) {
+                    throw new ProcessingException(
+                            "A class annotated with Document cannot inherit from a class "
+                                    + "annotated with AutoValue", element);
+                }
+
+                if (getDocumentAnnotation(currentClass) != null) {
+                    hierarchy.addFirst(currentClass);
+                }
+
+                currentClass = MoreTypes.asTypeElement(currentClass.getSuperclass());
+            }
+        }
+        return hierarchy;
     }
 
     enum PropertyClass {

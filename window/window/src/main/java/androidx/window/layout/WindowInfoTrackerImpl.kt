@@ -19,10 +19,9 @@ package androidx.window.layout
 import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
-import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * An implementation of [WindowInfoTracker] that provides the [WindowLayoutInfo] and
@@ -42,19 +41,10 @@ internal class WindowInfoTrackerImpl(
      * @see Activity.onAttachedToWindow
      */
     override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
-        // TODO(b/191386826) migrate to callbackFlow once the API is stable
-        return flow {
-            val channel = Channel<WindowLayoutInfo>(
-                capacity = BUFFER_CAPACITY,
-                onBufferOverflow = DROP_OLDEST
-            )
-            val listener = Consumer<WindowLayoutInfo> { info -> channel.trySend(info) }
+        return callbackFlow {
+            val listener = Consumer { info: WindowLayoutInfo -> trySend(info) }
             windowBackend.registerLayoutChangeCallback(activity, Runnable::run, listener)
-            try {
-                for (item in channel) {
-                    emit(item)
-                }
-            } finally {
+            awaitClose {
                 windowBackend.unregisterLayoutChangeCallback(listener)
             }
         }

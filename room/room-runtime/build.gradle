@@ -49,8 +49,10 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
 
@@ -65,18 +67,6 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
 
-}
-
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-
-    // Create jar<variant> task for testImplementation in room-compiler.
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn(variant.javaCompileProvider.get())
-        from(variant.javaCompileProvider.get().destinationDir)
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
 }
 
 androidx {

@@ -22,13 +22,20 @@ import androidx.benchmark.Shell
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 object PowerRail {
 
-    private const val commandHal2 = "dumpsys android.hardware.power.stats.IPowerStats/default delta"
-    private const val commandHal1 =
-        "lshal debug android.hardware.power.stats@1.0::IPowerStats/default delta"
+    private const val DUMPSYS_POWERSTATS = "dumpsys powerstats"
 
-    private const val hal2Header = "============= PowerStats HAL 2.0 energy meter =============="
-    private const val hal1Header =
-        "============= PowerStats HAL 1.0 rail energy data =============="
+    /**
+     * Looking for something like this:
+     *
+     * ChannelId: 10, ChannelName: S9S_VDD_AOC, ChannelSubsystem: AOC
+     * PowerStatsService dumpsys: available Channels
+     * ChannelId: 0, ChannelName: S10M_VDD_TPU, ChannelSubsystem: TPU
+     * ChannelId: 1, ChannelName: VSYS_PWR_MODEM, ChannelSubsystem: Modem
+     * ChannelId: 2, ChannelName: VSYS_PWR_RFFE, ChannelSubsystem: Cellular
+     * ChannelId: 3, ChannelName: S2M_VDD_CPUCL2, ChannelSubsystem: CPU(BIG)
+     * ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem: CPU(MID)
+     */
+    private val CHANNEL_ID_REGEX = "ChannelId:(.*)".toRegex()
 
     /**
      * Checks if rail metrics are generated on specified device.
@@ -36,21 +43,25 @@ object PowerRail {
      * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are found.
      */
     fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
-        val resultHal2 = Shell.executeCommand(commandHal2)
-        val resultHal1 = Shell.executeCommand(commandHal1)
+        val output = Shell.executeCommand(DUMPSYS_POWERSTATS)
+        return hasMetrics(output, throwOnMissingMetrics)
+    }
 
-        if ((resultHal2.contains(hal2Header)) || (resultHal1.contains(hal1Header))) {
+    internal fun hasMetrics(output: String, throwOnMissingMetrics: Boolean = false): Boolean {
+        val line = output.splitToSequence("\r?\n".toRegex()).find {
+            it.contains(CHANNEL_ID_REGEX)
+        }
+        if (!line.isNullOrBlank()) {
             return true
         }
         if (throwOnMissingMetrics) {
             throw UnsupportedOperationException(
                 """
                 Rail metrics are not available on this device.
-                To check a device for power/energy measurement support, it must output rail metrics
-                for one of the following commands:
+                To check a device for power/energy measurement support, the following command's
+                output must contain rows underneath the "available Channels" section:
 
-                adb shell $commandHal2
-                adb shell $commandHal1
+                adb shell $DUMPSYS_POWERSTATS
 
                 To check at runtime for this, use PowerRail.hasMetrics()
 

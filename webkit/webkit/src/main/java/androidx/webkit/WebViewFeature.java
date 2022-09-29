@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -97,7 +98,9 @@ public class WebViewFeature {
             PROXY_OVERRIDE_REVERSE_BYPASS,
             GET_VARIATIONS_HEADER,
             ALGORITHMIC_DARKENING,
-            REQUESTED_WITH_HEADER_CONTROL,
+            ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            GET_COOKIE_INFO,
+            SET_DATA_DIRECTORY_SUFFIX,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -482,14 +485,31 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
-     * {@link WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
-     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
-     * and {@link ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}.
+     * This feature covers
+     * {@link WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)}and
+     * {@link WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
+     *
+     */
+    public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
+            "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link CookieManagerCompat#getCookieInfo(CookieManager, String)}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String REQUESTED_WITH_HEADER_CONTROL = "REQUESTED_WITH_HEADER_CONTROL";
+    public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SET_DATA_DIRECTORY_SUFFIX = "SET_DATA_DIRECTORY_SUFFIX";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

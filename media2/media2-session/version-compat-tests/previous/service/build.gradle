@@ -32,6 +32,7 @@ android {
     defaultConfig {
         minSdkVersion 16
     }
+    namespace "androidx.media2.test.service"
 }
 
 androidx {

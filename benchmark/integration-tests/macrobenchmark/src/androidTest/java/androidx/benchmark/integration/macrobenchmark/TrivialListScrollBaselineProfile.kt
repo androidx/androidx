@@ -49,6 +49,7 @@ class TrivialListScrollBaselineProfile {
     fun baselineProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
+            iterations = 5,
             profileBlock = {
                 val intent = Intent()
                 intent.action = ACTION
@@ -78,6 +79,7 @@ class TrivialListScrollBaselineProfile {
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
         private const val RESOURCE_ID = "recycler"
+
         // The timeout
         private const val TIMEOUT = 2000L
     }

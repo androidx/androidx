@@ -37,6 +37,7 @@ import androidx.glance.layout.width
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
+import androidx.glance.template.TextType
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
@@ -70,10 +71,16 @@ private fun WearLayout(data: SingleEntityTemplateData) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            data.headerIcon?.let { TemplateHeader(it) }
+            data.headerBlock?.icon?.let { TemplateHeader(it) }
             Spacer(modifier = GlanceModifier.height(4.dp))
-            TextSection(textList(data.text1, data.text2, data.text3))
-            data.image?.let {
+            TextSection(
+                textList(
+                    data.textBlock?.text1,
+                    data.textBlock?.text2,
+                    data.textBlock?.text3
+                )
+            )
+            data.imageBlock?.images?.firstOrNull()?.let {
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Image(
                     it.image,
@@ -117,7 +124,7 @@ private fun TextSection(textList: List<TemplateText>) {
                 item.text,
                 style = TextStyle(
                     color = ColorProvider(Color.White),
-                    fontSize = if (item.type == TemplateText.Type.Title) 24.sp else 16.sp,
+                    fontSize = if (item.type == TextType.Title) 24.sp else 16.sp,
                     textAlign = TextAlign.Center)
             )
         }
@@ -130,9 +137,9 @@ private fun textList(
     body: TemplateText? = null
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
-    title?.let { result.add(TemplateText(it.text, TemplateText.Type.Title)) }
-    subtitle?.let { result.add(TemplateText(it.text, TemplateText.Type.Label)) }
-    body?.let { result.add(TemplateText(it.text, TemplateText.Type.Body)) }
+    title?.let { result.add(TemplateText(it.text, TextType.Title)) }
+    subtitle?.let { result.add(TemplateText(it.text, TextType.Label)) }
+    body?.let { result.add(TemplateText(it.text, TextType.Body)) }
 
     return result
 }

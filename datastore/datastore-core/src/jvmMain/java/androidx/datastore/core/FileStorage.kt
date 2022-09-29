@@ -17,6 +17,7 @@
 package androidx.datastore.core
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -27,9 +28,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal class FileStorage<T>(
-    private val produceFile: () -> File,
-    private val serializer: Serializer<T>
+/**
+ * The Java IO File version of the Storage<T> interface. Is able to read and write T to a given
+ * file location.
+ *
+ * @param serializer The serializer that can write <T> to and from a byte array.
+ * @param produceFile The file producer that returns the file that will be read and written.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FileStorage<T>(
+    private val serializer: Serializer<T>,
+    private val produceFile: () -> File
 ) : Storage<T> {
 
     override fun createConnection(): StorageConnection<T> {
@@ -77,39 +86,24 @@ internal class FileStorageConnection<T>(
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
 
-    override suspend fun <R> readTransaction(
-        lockType: StorageConnection.ReadLockType,
-        block: suspend ReadScope<T>.() -> R
+    override suspend fun <R> readScope(
+        block: suspend ReadScope<T>.(locked: Boolean) -> R
     ): R {
         checkNotClosed()
-        return when (lockType) {
-            StorageConnection.ReadLockType.TRY_LOCK -> {
-                val lock = transactionMutex.tryLock()
-                try {
-                    FileReadScope(file, serializer, lock).use {
-                        block(it)
-                    }
-                } finally {
-                    if (lock) {
-                        transactionMutex.unlock()
-                    }
-                }
+
+        val lock = transactionMutex.tryLock()
+        try {
+            return FileReadScope(file, serializer).use {
+                block(it, lock)
             }
-            StorageConnection.ReadLockType.NO_LOCK ->
-                FileReadScope(file, serializer, false).use {
-                    block(it)
-                }
-            StorageConnection.ReadLockType.LOCK -> {
-                transactionMutex.withLock {
-                    FileReadScope(file, serializer, true).use {
-                        block(it)
-                    }
-                }
+        } finally {
+            if (lock) {
+                transactionMutex.unlock()
             }
         }
     }
 
-    override suspend fun writeTransaction(block: suspend WriteScope<T>.() -> Unit) {
+    override suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit) {
         checkNotClosed()
         file.createParentDirectories()
 
@@ -159,8 +153,7 @@ internal class FileStorageConnection<T>(
 
 internal open class FileReadScope<T>(
     protected val file: File,
-    protected val serializer: Serializer<T>,
-    override val lockAcquired: Boolean
+    protected val serializer: Serializer<T>
 ) : ReadScope<T> {
 
     private val closed = AtomicBoolean(false)
@@ -188,7 +181,7 @@ internal open class FileReadScope<T>(
 }
 
 internal class FileWriteScope<T>(file: File, serializer: Serializer<T>) :
-    FileReadScope<T>(file, serializer, true), WriteScope<T> {
+    FileReadScope<T>(file, serializer), WriteScope<T> {
 
     override suspend fun writeData(value: T) {
         checkNotClosed()

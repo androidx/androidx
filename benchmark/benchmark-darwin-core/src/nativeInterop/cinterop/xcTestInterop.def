@@ -1,0 +1,19 @@
+# A useful reference
+# https://github.com/JetBrains/kotlin/tree/master/kotlin-native/platformLibs/src/platform/ios
+
+language = Objective-C
+package = platform.XCTest
+depends = UIKit
+modules = XCTest
+# Specify the framework we want to link explicitly
+linkerOpts = -framework XCTest
+# Specify locations `-F` is a way to specify the search path.
+# For more information on linker arguments
+# https://www.manpagez.com/man/1/ld/
+linkerOpts.ios_x64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks
+# The IDE might be showing red-squiggles here, but, this is a necessary parameter.
+# Otherwise you will run into linker errors that look something like:
+# ld: framework not found XCTest
+linkerOpts.ios_simulator_arm64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks
+linkerOpts.ios_arm64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/
+compilerOpts= -framework XCTest -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/

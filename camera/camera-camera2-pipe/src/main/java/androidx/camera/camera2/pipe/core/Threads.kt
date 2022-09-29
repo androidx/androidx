@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  * library.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Threads(
+class Threads(
     val globalScope: CoroutineScope,
 
     val blockingExecutor: Executor,

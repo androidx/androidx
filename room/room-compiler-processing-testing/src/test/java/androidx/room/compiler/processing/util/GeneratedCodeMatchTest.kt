@@ -24,6 +24,7 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
+import java.io.File
 import org.junit.Test
 import org.junit.AssumptionViolatedException
 import org.junit.runner.RunWith
@@ -73,7 +74,7 @@ class GeneratedCodeMatchTest internal constructor(
         }
         assertThat(result.exceptionOrNull())
             .hasMessageThat()
-            .contains("Didn't generate SourceFile[foo/bar/Baz.java]")
+            .contains("Didn't generate SourceFile[${combine("foo", "bar", "Baz.java")}]")
     }
 
     @Test
@@ -132,7 +133,7 @@ class GeneratedCodeMatchTest internal constructor(
             }
             invocation.assertCompilationResult {
                 generatedSource(
-                    Source.kotlin("foo/bar/Baz.kt", file.toString())
+                    Source.kotlin(combine("foo", "bar", "Baz.kt"), file.toString())
                 )
             }
         }
@@ -165,7 +166,7 @@ class GeneratedCodeMatchTest internal constructor(
                 }
                 invocation.assertCompilationResult {
                     generatedSource(
-                        Source.kotlin("foo/bar/Baz.kt", expected.toString())
+                        Source.kotlin(combine("foo", "bar", "Baz.kt"), expected.toString())
                     )
                 }
             }
@@ -216,3 +217,6 @@ class GeneratedCodeMatchTest internal constructor(
             )
     }
 }
+
+private fun combine(vararg elements: String): String =
+    elements.joinToString(separator = File.separator)

@@ -40,7 +40,7 @@ public interface CaptureProcessor {
      * @param surface The {@link Surface} that the CaptureProcessor should write data into.
      * @param imageFormat The format of that the surface expects.
      */
-    void onOutputSurface(Surface surface, int imageFormat);
+    void onOutputSurface(@NonNull Surface surface, int imageFormat);
 
     /**
      * Process a {@link ImageProxyBundle} for the set of captures that were
@@ -53,14 +53,14 @@ public interface CaptureProcessor {
      *               that are retrieved from it will become invalid after this method completes, so
      *               no references to them should be kept.
      */
-    void process(ImageProxyBundle bundle);
+    void process(@NonNull ImageProxyBundle bundle);
 
     /**
      * This will be invoked when the input surface resolution is updated.
      *
      * @param size for the surface.
      */
-    void onResolutionUpdate(Size size);
+    void onResolutionUpdate(@NonNull Size size);
 
     /**
      * Triggers to close the capture processor.

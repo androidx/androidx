@@ -132,17 +132,17 @@ public class WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(android.webkit.WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled}.
      */
-    public void setRequestedWithHeaderMode(int requestedWithHeaderMode) {
-        mBoundaryInterface.setRequestedWithHeaderMode(requestedWithHeaderMode);
+    public void setEnterpriseAuthenticationAppLinkPolicyEnabled(boolean enabled) {
+        mBoundaryInterface.setEnterpriseAuthenticationAppLinkPolicyEnabled(enabled);
     }
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(android.webkit.WebSettings)}
+     * {@link androidx.webkit.WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled}.
      */
-    public int getRequestedWithHeaderMode() {
-        return mBoundaryInterface.getRequestedWithHeaderMode();
+    public boolean getEnterpriseAuthenticationAppLinkPolicyEnabled() {
+        return mBoundaryInterface.getEnterpriseAuthenticationAppLinkPolicyEnabled();
     }
 }

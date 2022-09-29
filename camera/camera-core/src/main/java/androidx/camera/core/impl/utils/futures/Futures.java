@@ -128,6 +128,7 @@ public final class Futures {
         checkNotNull(function);
         return transformAsync(input, new AsyncFunction<I, O>() {
 
+            @NonNull
             @Override
             public ListenableFuture<O> apply(I input) {
                 return immediateFuture(function.apply(input));
@@ -221,7 +222,7 @@ public final class Futures {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 completer.setException(t);
             }
         }, executor);
@@ -337,7 +338,12 @@ public final class Futures {
             try {
                 value = getDone(mFuture);
             } catch (ExecutionException e) {
-                mCallback.onFailure(e.getCause());
+                Throwable cause = e.getCause();
+                if (cause == null) {
+                    mCallback.onFailure(e);
+                } else {
+                    mCallback.onFailure(cause);
+                }
                 return;
             } catch (RuntimeException | Error e) {
                 mCallback.onFailure(e);

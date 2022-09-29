@@ -256,7 +256,7 @@ public abstract class DeferrableSurface {
      * <p>This method is idempotent. Subsequent calls after the first invocation will have no
      * effect.
      */
-    public final void close() {
+    public void close() {
         // If this gets set, then the surface will terminate
         CallbackToFutureAdapter.Completer<Void> terminationCompleter = null;
         synchronized (mLock) {

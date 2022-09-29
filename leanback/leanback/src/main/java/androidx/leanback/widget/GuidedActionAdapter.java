@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.DiffUtil;
@@ -69,7 +70,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user focuses on an action.
          */
-        void onGuidedActionFocused(GuidedAction action);
+        void onGuidedActionFocused(@NonNull GuidedAction action);
     }
 
     /**
@@ -80,12 +81,12 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user exits edit mode on an action.
          */
-        void onGuidedActionEditCanceled(GuidedAction action);
+        void onGuidedActionEditCanceled(@NonNull GuidedAction action);
 
         /**
          * Called when the user exits edit mode on an action and process confirm button in IME.
          */
-        long onGuidedActionEditedAndProceed(GuidedAction action);
+        long onGuidedActionEditedAndProceed(@NonNull GuidedAction action);
 
         /**
          * Called when Ime Open

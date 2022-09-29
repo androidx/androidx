@@ -32,7 +32,7 @@ import java.util.TreeMap
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open class RoomSQLiteQuery private constructor(
+class RoomSQLiteQuery private constructor(
     @field:VisibleForTesting val capacity: Int
 ) : SupportSQLiteQuery, SupportSQLiteProgram {
     @Volatile
@@ -58,11 +58,10 @@ open class RoomSQLiteQuery private constructor(
     private val bindingTypes: IntArray
 
     // number of arguments in the query
-    @JvmField
-    @VisibleForTesting
-    var argCount = 0
+    override var argCount = 0
+        private set
 
-    open fun init(query: String, initArgCount: Int) {
+    fun init(query: String, initArgCount: Int) {
         this.query = query
         argCount = initArgCount
     }
@@ -83,29 +82,24 @@ open class RoomSQLiteQuery private constructor(
      * After released, the statement might be returned when [.acquire] is called
      * so you should never re-use it after releasing.
      */
-    open fun release() {
+    fun release() {
         synchronized(queryPool) {
             queryPool[capacity] = this
             prunePoolLocked()
         }
     }
 
-    override fun getSql(): String {
-        return requireNotNull(query)
-    }
+    override val sql: String
+        get() = checkNotNull(this.query)
 
-    override fun getArgCount(): Int {
-        return argCount
-    }
-
-    override fun bindTo(program: SupportSQLiteProgram) {
+    override fun bindTo(statement: SupportSQLiteProgram) {
         for (index in 1..argCount) {
             when (bindingTypes[index]) {
-                NULL -> program.bindNull(index)
-                LONG -> program.bindLong(index, longBindings[index])
-                DOUBLE -> program.bindDouble(index, doubleBindings[index])
-                STRING -> program.bindString(index, stringBindings[index])
-                BLOB -> program.bindBlob(index, blobBindings[index])
+                NULL -> statement.bindNull(index)
+                LONG -> statement.bindLong(index, longBindings[index])
+                DOUBLE -> statement.bindDouble(index, doubleBindings[index])
+                STRING -> statement.bindString(index, requireNotNull(stringBindings[index]))
+                BLOB -> statement.bindBlob(index, requireNotNull(blobBindings[index]))
             }
         }
     }
@@ -143,7 +137,7 @@ open class RoomSQLiteQuery private constructor(
      *
      * @param other The other query, which holds the arguments to be copied.
      */
-    open fun copyArgumentsFrom(other: RoomSQLiteQuery) {
+    fun copyArgumentsFrom(other: RoomSQLiteQuery) {
         val argCount = other.argCount + 1 // +1 for the binding offsets
         System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)
         System.arraycopy(other.longBindings, 0, longBindings, 0, argCount)

@@ -33,10 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
+import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
@@ -56,10 +56,13 @@ import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
+import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
@@ -129,7 +132,7 @@ private fun SelectableActionItem(label: String, index: Int) {
 }
 
 @Composable
-private fun StartActivityActions() {
+private fun ColumnScope.StartActivityActions() {
     Button(
         text = "Intent",
         onClick = actionStartActivity(
@@ -161,12 +164,13 @@ private fun StartActivityActions() {
             actionParametersOf(
                 StartMessageKey to "Start activity by component name"
             )
-        )
+        ),
+        withSpace = false
     )
 }
 
 @Composable
-private fun StartServiceActions() {
+private fun ColumnScope.StartServiceActions() {
     Button(
         text = "Intent",
         onClick = actionStartService(
@@ -185,12 +189,13 @@ private fun StartServiceActions() {
         text = "Component name",
         onClick = actionStartService(
             ComponentName(LocalContext.current, ActionDemoService::class.java)
-        )
+        ),
+        withSpace = false
     )
 }
 
 @Composable
-private fun SendBroadcastActions() {
+private fun ColumnScope.SendBroadcastActions() {
     Button(
         text = "Intent",
         onClick = actionSendBroadcast(
@@ -211,8 +216,21 @@ private fun SendBroadcastActions() {
         text = "Component name",
         onClick = actionSendBroadcast(
             ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
-        )
+        ),
+        withSpace = false
     )
+}
+
+/**
+ * Reimplementation of the [androidx.glance.Button] that adds a spacer after it.
+ */
+@Suppress("unused")
+@Composable
+private fun ColumnScope.Button(text: String, onClick: Action, withSpace: Boolean = true) {
+    androidx.glance.Button(text, onClick)
+    if (withSpace) {
+        Spacer(GlanceModifier.size(4.dp))
+    }
 }
 
 /**

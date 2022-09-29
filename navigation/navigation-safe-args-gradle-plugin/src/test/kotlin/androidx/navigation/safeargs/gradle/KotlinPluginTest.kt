@@ -33,4 +33,37 @@ class KotlinPluginTest : BasePluginTest() {
         assertGenerated("debug/$NEXT_ARGUMENTS.kt")
         assertGenerated("debug/$MAIN_DIRECTIONS.kt")
     }
+
+    @Test
+    fun runGenerateTaskForKotlinWithSuffix() {
+        testData("app-project-kotlin").copyRecursively(projectRoot())
+        projectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id('com.android.application')
+                    id('kotlin-android')
+                    id('androidx.navigation.safeargs.kotlin')
+                }
+            """.trimIndent(),
+            suffix = """
+                android {
+                    namespace 'androidx.navigation.testapp'
+                    buildTypes {
+                        debug {
+                            applicationIdSuffix ".foo"
+                        }
+                    }
+                }
+                dependencies {
+                    implementation "${projectSetup.props.kotlinStblib}"
+                    implementation "${projectSetup.props.navigationRuntime}"
+                }
+            """.trimIndent()
+        )
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
+
+        assertGenerated("debug/$FOO_NEXT_DIRECTIONS.kt")
+        assertGenerated("debug/$FOO_NEXT_ARGUMENTS.kt")
+        assertGenerated("debug/$FOO_MAIN_DIRECTIONS.kt")
+    }
 }

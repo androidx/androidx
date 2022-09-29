@@ -6,7 +6,7 @@ package androidx.slidingpanelayout.widget {
     ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?);
     ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?, int);
     method public void addPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener);
-    method protected boolean canScroll(android.view.View!, boolean, int, int, int);
+    method protected boolean canScroll(android.view.View, boolean, int, int, int);
     method @Deprecated public boolean canSlide();
     method public void close();
     method public boolean closePane();

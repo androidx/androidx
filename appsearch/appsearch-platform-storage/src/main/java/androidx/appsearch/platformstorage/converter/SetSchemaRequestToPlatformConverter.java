@@ -27,10 +27,12 @@ import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SetSchemaRequest}.
@@ -45,6 +47,7 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -68,6 +71,20 @@ public final class SetSchemaRequestToPlatformConverter {
                         new android.app.appsearch.PackageIdentifier(
                                 jetpackPackageIdentifier.getPackageName(),
                                 jetpackPackageIdentifier.getSha256Certificate()));
+            }
+        }
+        if (!jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().isEmpty()) {
+            if (!BuildCompat.isAtLeastT()) {
+                throw new UnsupportedOperationException(
+                        "Set required permissions for schema type visibility are not supported "
+                                + "with this backend/Android API level combination.");
+            }
+            for (Map.Entry<String, Set<Set<Integer>>> entry :
+                    jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
+                for (Set<Integer> permissionGroup : entry.getValue()) {
+                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(
+                            entry.getKey(), permissionGroup);
+                }
             }
         }
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
@@ -141,7 +158,8 @@ public final class SetSchemaRequestToPlatformConverter {
                     migrationFailure.getDocumentId(),
                     migrationFailure.getSchemaType(),
                     AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
-                            migrationFailure.getAppSearchResult())));
+                            migrationFailure.getAppSearchResult(), Function.identity()))
+            );
         }
         return jetpackBuilder.build();
     }

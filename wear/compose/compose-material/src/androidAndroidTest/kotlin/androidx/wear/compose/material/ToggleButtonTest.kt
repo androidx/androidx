@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -284,6 +286,35 @@ class ToggleButtonBehaviourTest {
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
+
+    @Test
+    fun default_toggle_button_shape_is_circle() {
+        rule.isShape(CircleShape) { modifier ->
+            ToggleButton(
+                checked = true,
+                onCheckedChange = {},
+                enabled = true,
+                colors = ToggleButtonDefaults.toggleButtonColors(),
+                modifier = modifier
+            ) {}
+        }
+    }
+
+    @Test
+    fun allows_custom_toggle_button_shape_override() {
+        val shape = CutCornerShape(4.dp)
+
+        rule.isShape(shape) { modifier ->
+            ToggleButton(
+                checked = true,
+                onCheckedChange = {},
+                enabled = true,
+                colors = ToggleButtonDefaults.toggleButtonColors(),
+                shape = shape,
+                modifier = modifier
+            ) {}
+        }
+    }
 
     @Test
     fun displays_text_content() {
@@ -666,5 +697,36 @@ private fun ComposeContentTestRule.isCircular(
             verticalPadding = padding,
             backgroundColor = surface,
             shapeColor = background
+        )
+}
+
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.isShape(
+    expectedShape: Shape,
+    content: @Composable (Modifier) -> Unit
+) {
+    var background = Color.Transparent
+    var buttonColor = Color.Transparent
+    val padding = 0.dp
+
+    setContentWithTheme {
+        background = MaterialTheme.colors.surface
+        buttonColor = MaterialTheme.colors.primary
+        content(
+            Modifier
+                .testTag(TEST_TAG)
+                .padding(padding)
+                .background(background))
+    }
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertShape(
+            density = density,
+            horizontalPadding = 0.dp,
+            verticalPadding = 0.dp,
+            shapeColor = buttonColor,
+            backgroundColor = background,
+            shape = expectedShape
         )
 }

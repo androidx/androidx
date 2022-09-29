@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 
 /**
@@ -25,11 +26,31 @@ import com.squareup.javapoet.ClassName
  * synthetic container class does not exist
  */
 interface XMemberContainer : XElement {
+
+    override val name: String
+        get() = if (this is XTypeElement) this.name else className.simpleName()
+
     /**
      * The JVM ClassName for this container.
-     * For top level members of a Kotlin file, you can use this [className] for code generation.
+     *
+     * For top level members of a Kotlin file, you can use this [ClassName] for code generation.
      */
+    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
+    // @Deprecated(
+    //     message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+    //     replaceWith = ReplaceWith(
+    //         expression = "asClassName().toJavaPoet()",
+    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+    //     )
+    // )
     val className: ClassName
+
+    /**
+     * The JVM ClassName for this container.
+     *
+     * For top level members of a Kotlin file, you can use this [XClassName] for code generation.
+     */
+    fun asClassName(): XClassName
 
     /**
      * The [XType] for the container if this is an [XTypeElement] otherwise `null` if a type

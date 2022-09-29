@@ -16,6 +16,7 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -59,6 +60,8 @@ object RoomTypeNames {
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
         ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERTION_ADAPTER: ClassName =
+        ClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER: ClassName =
         ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: ClassName =
@@ -130,7 +133,7 @@ object LifecyclesTypeNames {
 }
 
 object AndroidTypeNames {
-    val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
+    val CURSOR: XClassName = XClassName.get("android.database", "Cursor")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
     val CANCELLATION_SIGNAL: ClassName = ClassName.get("android.os", "CancellationSignal")
 }

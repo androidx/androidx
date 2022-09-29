@@ -40,7 +40,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class ComplicationStateWireFormat implements VersionedParcelable, Parcelable {
@@ -107,6 +107,10 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @Nullable
     BoundingArcWireFormat mBoundingArc;
 
+    @ParcelField(value = 17, defaultValue = "null")
+    @Nullable
+    Rect mBoundsWithMargins;
+
     // NB 0 is not a valid resource id.
     private static final int NULL_NAME_RESOURCE_ID = 0;
 
@@ -117,6 +121,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @ComplicationExperimental
     public ComplicationStateWireFormat(
             @NonNull Rect bounds,
+            @NonNull Rect boundsWithMargins,
             int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
             @Nullable List<ComponentName> defaultDataSourcesToTry,
@@ -133,6 +138,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             @Nullable Integer screenReaderNameResourceId,
             @Nullable BoundingArcWireFormat boundingArc) {
         mBounds = bounds;
+        mBoundsWithMargins = boundsWithMargins;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -170,6 +176,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             @Nullable Integer nameResourceId,
             @Nullable Integer screenReaderNameResourceId) {
         mBounds = bounds;
+        mBoundsWithMargins = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -205,6 +212,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             boolean fixedComplicationProvider,
             @NonNull Bundle complicationConfigExtras) {
         mBounds = bounds;
+        mBoundsWithMargins = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -220,6 +228,11 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @NonNull
     public Rect getBounds() {
         return mBounds;
+    }
+
+    @Nullable
+    public Rect getBoundsWithMargins() {
+        return mBoundsWithMargins;
     }
 
     public int getBoundsType() {

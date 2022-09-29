@@ -26,14 +26,17 @@ import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -45,7 +48,6 @@ import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -61,6 +63,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.atLeast
@@ -78,15 +81,34 @@ private const val FRAME_RATE = 30
 private const val I_FRAME_INTERVAL = 1
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @Suppress("DEPRECATION")
 @SdkSuppress(minSdkVersion = 21)
-class VideoEncoderTest {
+class VideoEncoderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+
+        private val INPUT_TIMEBASE = Timebase.UPTIME
+    }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -162,6 +184,11 @@ class VideoEncoderTest {
 
         // Ensure all cameras are released for the next test
         CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
+    }
+
+    @Test
+    fun canGetEncoderInfo() {
+        assertThat(videoEncoder.encoderInfo).isNotNull()
     }
 
     @Test
@@ -337,6 +364,7 @@ class VideoEncoderTest {
         assumeTrue(resolution != null)
 
         videoEncoderConfig = VideoEncoderConfig.builder()
+            .setInputTimebase(INPUT_TIMEBASE)
             .setBitrate(BIT_RATE)
             .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
             .setFrameRate(FRAME_RATE)

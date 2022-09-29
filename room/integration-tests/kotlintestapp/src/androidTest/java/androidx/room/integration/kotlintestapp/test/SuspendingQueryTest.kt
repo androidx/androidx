@@ -77,6 +77,53 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
     }
 
+    // Need to add other return type tests
+    @Test
+    fun upsertBookSuspend() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.upsertBookSuspend(TestUtil.BOOK_1)
+
+            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId))
+                .isEqualTo(TestUtil.BOOK_1)
+        }
+    }
+
+    @Test
+    fun upsertSuspendLong() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.upsertBookSuspendReturnId(TestUtil.BOOK_1)
+                .let { result ->
+                    assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId))
+                        .isEqualTo(TestUtil.BOOK_1)
+                    assertThat(result).isEqualTo(1)
+                }
+            booksDao.upsertBookSuspendReturnId(
+                TestUtil.BOOK_1.copy(title = "changed title")
+            ).let { result ->
+                assertThat(result).isEqualTo(-1)
+            }
+        }
+    }
+
+    @Test
+    fun upsertSuspendLongList() {
+        runBlocking {
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            val bookList = buildList<Book> {
+                add(TestUtil.BOOK_1)
+                add(TestUtil.BOOK_2)
+                add(TestUtil.BOOK_3)
+            }
+            booksDao.upsertBooksSuspendReturnIds(bookList)
+                .let { results ->
+                    assertThat(results.size).isEqualTo(3)
+                    assertThat(results).containsExactly(1L, 2L, 3L)
+                }
+        }
+    }
+
     @Test
     fun allBookSuspend() {
         runBlocking {
@@ -796,17 +843,22 @@ class SuspendingQueryTest : TestDatabaseTest() {
                         ): SupportSQLiteOpenHelper {
                             val helperDelegate = factoryDelegate.create(configuration)
                             return object : SupportSQLiteOpenHelper by helperDelegate {
-                                override fun getWritableDatabase(): SupportSQLiteDatabase {
-                                    val databaseDelegate = helperDelegate.writableDatabase
-                                    return object : SupportSQLiteDatabase by databaseDelegate {
-                                        override fun beginTransaction() {
-                                            throw RuntimeException("Error beginning transaction.")
-                                        }
-                                        override fun beginTransactionNonExclusive() {
-                                            throw RuntimeException("Error beginning transaction.")
+                                override val writableDatabase: SupportSQLiteDatabase
+                                    get() {
+                                        val databaseDelegate = helperDelegate.writableDatabase
+                                        return object : SupportSQLiteDatabase by databaseDelegate {
+                                            override fun beginTransaction() {
+                                                throw RuntimeException(
+                                                    "Error beginning transaction."
+                                                )
+                                            }
+                                            override fun beginTransactionNonExclusive() {
+                                                throw RuntimeException(
+                                                    "Error beginning transaction."
+                                                )
+                                            }
                                         }
                                     }
-                                }
                             }
                         }
                     }

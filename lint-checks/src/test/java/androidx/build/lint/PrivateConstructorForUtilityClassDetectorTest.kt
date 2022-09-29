@@ -30,25 +30,49 @@ class PrivateConstructorForUtilityClassDetectorTest : AbstractLintDetectorTest(
 
     @Test
     fun testInnerClassVisibilityJava() {
-        val input = arrayOf(
-            javaSample("androidx.PrivateConstructorForUtilityClassJava"),
+        val input = java(
+            "src/androidx/PrivateConstructorForUtilityClassJava.java",
+            """
+                public class PrivateConstructorForUtilityClassJava {
+
+                    // This class has a default private constructor, which is allowed.
+                    private static class PrivateInnerClass {
+                        static void method() { }
+                    }
+
+                    // This class needs an explicit private constructor.
+                    static class DefaultInnerClass {
+                        static void method() { }
+                    }
+
+                    // This class needs an explicit private constructor.
+                    protected static class ProtectedInnerClass {
+                        static void method() { }
+                    }
+
+                    // This class needs an explicit private constructor.
+                    public static class PublicInnerClass {
+                        static void method() { }
+                    }
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/PrivateConstructorForUtilityClassJava.java:37: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+src/androidx/PrivateConstructorForUtilityClassJava.java:9: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
     static class DefaultInnerClass {
                  ~~~~~~~~~~~~~~~~~
-src/androidx/PrivateConstructorForUtilityClassJava.java:46: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+src/androidx/PrivateConstructorForUtilityClassJava.java:14: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
     protected static class ProtectedInnerClass {
                            ~~~~~~~~~~~~~~~~~~~
-src/androidx/PrivateConstructorForUtilityClassJava.java:55: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
+src/androidx/PrivateConstructorForUtilityClassJava.java:19: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
     public static class PublicInnerClass {
                         ~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 }

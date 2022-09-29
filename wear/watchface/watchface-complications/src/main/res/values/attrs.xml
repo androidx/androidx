@@ -18,7 +18,14 @@
     <!-- ComplicationSlotBounds may not have any child nodes.
     Either top, bottom, left, right or center_x, center_y, width, height should be specified.
     The coordinates should be specified either in floating point form (0..1)
-    or as a reference to dimension resource. -->
+    or as a reference to dimension resource.
+    XmlWatchFace.complicationScaleX and complicationScaleY apply a scale to ComplicationSlotBounds,
+    this is useful if you want to define the coordinates in pseudo device pixels
+    (e.g. for a 400x400 screen).
+
+    A margin can optionally be specified (marginTop, marginBottom, marginLeft, marginRight) in the
+    same floating point coordinate space as the bounds. The margin only affects tap detection.
+    -->
     <declare-styleable name="ComplicationSlotBounds">
         <!-- The type of complication. Required if per-complication type bounds are used. -->
         <attr name="complicationType"/>
@@ -39,5 +46,14 @@
         <attr name="size_x" format="float|reference|dimension" />
         <!-- Complication height. -->
         <attr name="size_y" format="float|reference|dimension" />
+
+        <!-- (Optional) Complication top margin value. -->
+        <attr name="marginTop" format="float|reference|dimension" />
+        <!-- (Optional) Complication bottom margin value. -->
+        <attr name="marginBottom" format="float|reference|dimension" />
+        <!-- (Optional) Complication left margin value. -->
+        <attr name="marginLeft" format="float|reference|dimension" />
+        <!-- (Optional) Complication right margin value. -->
+        <attr name="marginRight" format="float|reference|dimension" />
     </declare-styleable>
 </resources>

@@ -20,6 +20,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -33,28 +34,32 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.integration.extensions.Camera2ExtensionsActivity
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERAX_EXTENSION
+import androidx.camera.integration.extensions.INVALID_EXTENSION_MODE
+import androidx.camera.integration.extensions.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_ERROR_CODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_URI
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_LENS_FACING
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_RESULT
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_TYPE
 import androidx.camera.integration.extensions.R
-import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_ERROR_CODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_URI
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_LENS_FACING
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_REQUEST_CODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_TEST_RESULT
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_TESTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_BIND_TO_LIFECYCLE_FAILED
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_NONE
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_SAVE_IMAGE_FAILED
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_TAKE_PICTURE_FAILED
+import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
-import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_BIND_FAIL
-import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
-import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_NONE
-import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_TAKE_PICTURE_FAILED
 import androidx.camera.integration.extensions.validation.PhotoFragment.Companion.decodeImageToBitmap
-import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.copyTempFileToOutputLocation
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -69,11 +74,18 @@ import kotlin.math.min
 
 private const val TAG = "ImageValidationActivity"
 
+/**
+ * Activity to show the captured images of the specified extension mode and validate the results.
+ *
+ * Testers can trigger to take a pictures again and press the PASSED or FAILED button to report the
+ * validation result.
+ */
 class ImageValidationActivity : AppCompatActivity() {
 
     private var extensionMode = INVALID_EXTENSION_MODE
     private val result = Intent()
     private var lensFacing = INVALID_LENS_FACING
+    private lateinit var testType: String
     private lateinit var cameraId: String
     private lateinit var failButton: ImageButton
     private lateinit var passButton: ImageButton
@@ -92,6 +104,7 @@ class ImageValidationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.image_validation_activity)
 
+        testType = intent?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!
         cameraId = intent?.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
         lensFacing = intent.getIntExtra(INTENT_EXTRA_KEY_LENS_FACING, INVALID_LENS_FACING)
         extensionMode = intent.getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, INVALID_EXTENSION_MODE)
@@ -101,17 +114,22 @@ class ImageValidationActivity : AppCompatActivity() {
         val requestCode = intent.getIntExtra(INTENT_EXTRA_KEY_REQUEST_CODE, -1)
         setResult(requestCode, result)
 
-        supportActionBar?.title = "${resources.getString(R.string.extensions_validator)}"
+        val extensionModeString = TestResults.getExtensionModeStringFromId(testType, extensionMode)
+        supportActionBar?.title = if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
+            resources.getString(R.string.camerax_extensions_validator)
+        } else {
+            resources.getString(R.string.camera2_extensions_validator)
+        }
+
         supportActionBar!!.subtitle =
-            "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}]" +
-                "[${getExtensionModeStringFromId(extensionMode)}]"
+            "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}][$extensionModeString]"
 
         viewPager = findViewById(R.id.photo_view_pager)
         photoImageView = findViewById(R.id.photo_image_view)
 
         setupButtonControls()
         setupGestureControls()
-        startCaptureImageActivity(cameraId, extensionMode)
+        startCaptureImageActivity(testType, cameraId, extensionMode)
     }
 
     @Suppress("DEPRECATION")
@@ -125,9 +143,10 @@ class ImageValidationActivity : AppCompatActivity() {
         val errorCode = data?.getIntExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_NONE)
 
         // Returns with error
-        if (errorCode == ERROR_CODE_BIND_FAIL ||
+        if (errorCode == ERROR_CODE_BIND_TO_LIFECYCLE_FAILED ||
             errorCode == ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT ||
-            errorCode == ERROR_CODE_TAKE_PICTURE_FAILED
+            errorCode == ERROR_CODE_TAKE_PICTURE_FAILED ||
+            errorCode == ERROR_CODE_SAVE_IMAGE_FAILED
         ) {
             result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_FAILED)
             Log.e(TAG, "Failed to take a picture with error code: $errorCode")
@@ -196,13 +215,14 @@ class ImageValidationActivity : AppCompatActivity() {
             put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ExtensionsValidation")
         }
 
-        if (copyTempFileToOutputLocation(
-                contentResolver,
-                imageUris[viewPager.currentItem].first,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-        ) {
+        val outputUri = copyTempFileToOutputLocation(
+            contentResolver,
+            imageUris[viewPager.currentItem].first,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+
+        if (outputUri != null) {
             Toast.makeText(
                 this,
                 "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
@@ -228,12 +248,17 @@ class ImageValidationActivity : AppCompatActivity() {
 
         captureButton = findViewById(R.id.capture_button)
         captureButton.setOnClickListener {
-            startCaptureImageActivity(cameraId, extensionMode)
+            startCaptureImageActivity(testType, cameraId, extensionMode)
         }
     }
 
-    private fun startCaptureImageActivity(cameraId: String, mode: Int) {
-        val intent = Intent(this, ImageCaptureActivity::class.java)
+    private fun startCaptureImageActivity(testType: String, cameraId: String, mode: Int) {
+        val intent =
+            if (Build.VERSION.SDK_INT >= 31 && testType == TEST_TYPE_CAMERA2_EXTENSION) Intent(
+                this,
+                Camera2ExtensionsActivity::class.java
+            ) else Intent(this, ImageCaptureActivity::class.java)
+
         intent.putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
         intent.putExtra(INTENT_EXTRA_KEY_LENS_FACING, lensFacing)
         intent.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, mode)

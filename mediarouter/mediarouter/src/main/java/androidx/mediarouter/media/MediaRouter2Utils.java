@@ -32,6 +32,7 @@ import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.ArraySet;
 
 import androidx.annotation.NonNull;
@@ -67,6 +68,10 @@ class MediaRouter2Utils {
     @Nullable
     public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
         if (descriptor == null) {
+            return null;
+        } else if (TextUtils.isEmpty(descriptor.getId())
+                || TextUtils.isEmpty(descriptor.getName())) {
+            // Skip descriptors with invalid name or id. See b/178554913.
             return null;
         }
 

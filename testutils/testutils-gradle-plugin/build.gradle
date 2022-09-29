@@ -23,9 +23,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(libs.testExtJunit)
-    implementation(libs.testCore)
-    implementation(libs.testRules)
+    implementation(libs.junit)
 }
 
 androidx {

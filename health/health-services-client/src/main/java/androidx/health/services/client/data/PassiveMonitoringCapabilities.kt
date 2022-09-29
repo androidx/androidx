@@ -32,10 +32,10 @@ public class PassiveMonitoringCapabilities(
      *
      * Some data types are only available during exercise (e.g. location) or for measurements.
      */
-    public val supportedDataTypesPassiveMonitoring: Set<DataType>,
+    public val supportedDataTypesPassiveMonitoring: Set<DataType<*, *>>,
 
     /** Set of supported [DataType]s for goal callbacks on this device. */
-    public val supportedDataTypesPassiveGoals: Set<DataType>,
+    public val supportedDataTypesPassiveGoals: Set<DataType<*, *>>,
 
     /** Set of supported [HealthEvent.Type]s on this device. */
     public val supportedHealthEventTypes: Set<HealthEvent.Type>,
@@ -46,14 +46,14 @@ public class PassiveMonitoringCapabilities(
     internal constructor(
         proto: DataProto.PassiveMonitoringCapabilities
     ) : this(
-        proto.supportedDataTypesPassiveMonitoringList.map { DataType(it) }.toSet(),
-        proto.supportedDataTypesPassiveGoalsList.map { DataType(it) }.toSet(),
+        proto.supportedDataTypesPassiveMonitoringList.map { DataType.deltaFromProto(it) }.toSet(),
+        proto.supportedDataTypesPassiveGoalsList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.supportedHealthEventTypesList.mapNotNull { HealthEvent.Type.fromProto(it) }.toSet(),
         proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet()
     )
 
     /** @hide */
-    override val proto: PassiveMonitoringCapabilitiesProto by lazy {
+    override val proto: PassiveMonitoringCapabilitiesProto =
         PassiveMonitoringCapabilitiesProto.newBuilder()
             .addAllSupportedDataTypesPassiveMonitoring(
                 supportedDataTypesPassiveMonitoring.map { it.proto }
@@ -62,7 +62,6 @@ public class PassiveMonitoringCapabilities(
             .addAllSupportedHealthEventTypes(supportedHealthEventTypes.map { it.toProto() })
             .addAllSupportedUserActivityStates(supportedUserActivityStates.map { it.toProto() })
             .build()
-    }
 
     override fun toString(): String =
         "PassiveMonitoringCapabilities(" +

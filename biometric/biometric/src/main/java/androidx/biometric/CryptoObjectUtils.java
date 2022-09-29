@@ -103,6 +103,15 @@ class CryptoObjectUtils {
             }
         }
 
+        // Presentation session is only supported on API 33 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            final android.security.identity.PresentationSession presentationSession =
+                    Api33Impl.getPresentationSession(cryptoObject);
+            if (presentationSession != null) {
+                return new BiometricPrompt.CryptoObject(presentationSession);
+            }
+        }
+
         return null;
     }
 
@@ -143,6 +152,15 @@ class CryptoObjectUtils {
                     cryptoObject.getIdentityCredential();
             if (identityCredential != null) {
                 return Api30Impl.create(identityCredential);
+            }
+        }
+
+        // Presentation session is only supported on API 33 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            final android.security.identity.PresentationSession presentationSession =
+                    cryptoObject.getPresentationSession();
+            if (presentationSession != null) {
+                return Api33Impl.create(presentationSession);
             }
         }
 
@@ -226,6 +244,12 @@ class CryptoObjectUtils {
             return null;
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && cryptoObject.getPresentationSession() != null) {
+            Log.e(TAG, "Presentation session is not supported by FingerprintManager.");
+            return null;
+        }
+
         return null;
     }
 
@@ -274,7 +298,45 @@ class CryptoObjectUtils {
     }
 
     /**
-     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     * Nested class to avoid verification errors for methods introduced in Android 13.0 (API 33).
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class Api33Impl {
+        // Prevent instantiation.
+        private Api33Impl() {}
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given
+         * presentation session.
+         *
+         * @param presentationSession The presentation session object to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        @SuppressWarnings("deprecation")
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
+                @NonNull android.security.identity.PresentationSession presentationSession) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(presentationSession);
+        }
+
+        /**
+         * Gets the presentation session associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped presentation session object, or {@code null}.
+         */
+        @SuppressWarnings("deprecation")
+        @Nullable
+        static android.security.identity.PresentationSession getPresentationSession(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getPresentationSession();
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 11.0 (API 30).
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {

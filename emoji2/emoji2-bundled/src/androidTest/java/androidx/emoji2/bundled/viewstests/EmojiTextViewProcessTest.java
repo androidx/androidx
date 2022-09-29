@@ -120,7 +120,7 @@ public class EmojiTextViewProcessTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 28)
     public void precomputedText_notModifiedWhenNoEmoji_beforePlatformPrecomputedText() {
         final TestActivity activity = mActivityRule.getActivity();
         final TextView textView = activity.findViewById(R.id.emojiTextView);

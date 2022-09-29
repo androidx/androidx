@@ -36,7 +36,7 @@ import androidx.wear.watchface.complications.data.ComplicationExperimental;
 import java.util.List;
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class ComplicationSlotMetadataWireFormat implements VersionedParcelable, Parcelable {
@@ -96,6 +96,12 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @Nullable
     BoundingArcWireFormat mBoundingArc;
 
+    // This needs to be a list because VersionedParcelable appears not to be backwards compatible
+    // when introducing new arrays.
+    @ParcelField(value = 15, defaultValue = "null")
+    @Nullable
+    List<RectF> mComplicationMargins;
+
     /** Used by VersionedParcelable. */
     ComplicationSlotMetadataWireFormat() {
     }
@@ -105,6 +111,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
             int id,
             @NonNull int[] complicationBoundsType,
             @NonNull RectF[] complicationBounds,
+            @NonNull List<RectF> complicationMargins,
             int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
             @Nullable List<ComponentName> defaultDataSourcesToTry,
@@ -119,6 +126,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         mId = id;
         mComplicationBoundsType = complicationBoundsType;
         mComplicationBounds = complicationBounds;
+        mComplicationMargins = complicationMargins;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
@@ -204,6 +212,11 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @NonNull
     public RectF[] getComplicationBounds() {
         return mComplicationBounds;
+    }
+
+    @Nullable
+    public List<RectF> getComplicationMargins() {
+        return mComplicationMargins;
     }
 
     public int getBoundsType() {

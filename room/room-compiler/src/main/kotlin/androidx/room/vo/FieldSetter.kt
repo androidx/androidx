@@ -16,18 +16,17 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.L
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.CodeBlock
 
 data class FieldSetter(val jvmName: String, val type: XType, val callType: CallType) {
-    fun writeSet(ownerVar: String, inVar: String, builder: CodeBlock.Builder) {
+    fun writeSet(ownerVar: String, inVar: String, builder: XCodeBlock.Builder) {
         val stmt = when (callType) {
-            CallType.FIELD -> "$L.$L = $L"
-            CallType.METHOD -> "$L.$L($L)"
+            CallType.FIELD -> "%L.%L = %L"
+            CallType.METHOD -> "%L.%L(%L)"
             CallType.CONSTRUCTOR -> null
         }
-        stmt?.let {
+        if (stmt != null) {
             builder.addStatement(stmt, ownerVar, jvmName, inVar)
         }
     }

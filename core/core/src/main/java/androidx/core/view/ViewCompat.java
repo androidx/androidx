@@ -4355,7 +4355,7 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *     <li>API &lt; 19: Always returns {@code false}</li>
+     *     <li>API &lt; 28: Always returns {@code false}</li>
      * </ul>
      *
      * @return {@code true} if the view is a heading, {@code false} otherwise.
@@ -4374,7 +4374,7 @@ public class ViewCompat {
      * <p>
      * Compatibility:
      * <ul>
-     *     <li>API &lt; 19: No-op
+     *     <li>API &lt; 28: No-op
      * </ul>
      */
     @UiThread

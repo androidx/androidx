@@ -24,6 +24,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
@@ -31,7 +32,6 @@ import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
-import kotlinx.coroutines.guava.asListenableFuture
 import java.util.ArrayList
 
 /**

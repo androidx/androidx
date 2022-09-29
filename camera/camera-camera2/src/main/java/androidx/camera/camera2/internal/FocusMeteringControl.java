@@ -27,11 +27,13 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.workaround.MeteringRegionCorrection;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -77,8 +79,9 @@ import java.util.concurrent.TimeUnit;
  * them to all repeating requests and single requests.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 class FocusMeteringControl {
-    private static final String TAG = "FocusMeteringControl";
+    static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
     private final Camera2CameraControlImpl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
@@ -96,6 +99,7 @@ class FocusMeteringControl {
     @NonNull
     Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
     private ScheduledFuture<?> mAutoCancelHandle;
+    private ScheduledFuture<?> mAutoFocusTimeoutHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFocusTimeoutCounter = 0;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -164,9 +168,7 @@ class FocusMeteringControl {
         }
 
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
-        Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
-                cropSensorRegion.height());
-        return cropRegionAspectRatio;
+        return new Rational(cropSensorRegion.width(), cropSensorRegion.height());
     }
 
     @ExecutedBy("mExecutor")
@@ -263,11 +265,19 @@ class FocusMeteringControl {
         return Math.min(Math.max(val, min), max);
     }
 
+    @NonNull
     ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
+        return startFocusAndMetering(action, AUTO_FOCUS_TIMEOUT_DURATION);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action, long timeoutDurationMs) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             mExecutor.execute(
-                    () -> startFocusAndMeteringInternal(completer, action));
+                    () -> startFocusAndMeteringInternal(completer, action, timeoutDurationMs));
             return "startFocusAndMetering";
         });
     }
@@ -310,7 +320,7 @@ class FocusMeteringControl {
 
     @ExecutedBy("mExecutor")
     void startFocusAndMeteringInternal(@NonNull Completer<FocusMeteringResult> completer,
-            @NonNull FocusMeteringAction action) {
+            @NonNull FocusMeteringAction action, long timeoutDurationMs) {
         if (!mIsActive) {
             completer.setException(
                     new CameraControl.OperationCanceledException("Camera is not active."));
@@ -348,7 +358,8 @@ class FocusMeteringControl {
                 rectanglesAf.toArray(EMPTY_RECTANGLES),
                 rectanglesAe.toArray(EMPTY_RECTANGLES),
                 rectanglesAwb.toArray(EMPTY_RECTANGLES),
-                action
+                action,
+                timeoutDurationMs
         );
     }
 
@@ -488,12 +499,19 @@ class FocusMeteringControl {
         mCameraControl.submitCaptureRequestsInternal(Collections.singletonList(builder.build()));
     }
 
-
     @ExecutedBy("mExecutor")
     private void disableAutoCancel() {
         if (mAutoCancelHandle != null) {
             mAutoCancelHandle.cancel(/*mayInterruptIfRunning=*/true);
             mAutoCancelHandle = null;
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    private void clearAutoFocusTimeoutHandle() {
+        if (mAutoFocusTimeoutHandle != null) {
+            mAutoFocusTimeoutHandle.cancel(/*mayInterruptIfRunning=*/true);
+            mAutoFocusTimeoutHandle = null;
         }
     }
 
@@ -515,7 +533,8 @@ class FocusMeteringControl {
     }
 
     @ExecutedBy("mExecutor")
-    private void completeActionFuture(boolean isFocusSuccessful) {
+    void completeActionFuture(boolean isFocusSuccessful) {
+        clearAutoFocusTimeoutHandle();
         if (mRunningActionCompleter != null) {
             mRunningActionCompleter.set(FocusMeteringResult.create(isFocusSuccessful));
             mRunningActionCompleter = null;
@@ -555,10 +574,12 @@ class FocusMeteringControl {
             @NonNull MeteringRectangle[] afRects,
             @NonNull MeteringRectangle[] aeRects,
             @NonNull MeteringRectangle[] awbRects,
-            FocusMeteringAction focusMeteringAction) {
+            FocusMeteringAction focusMeteringAction,
+            long timeoutDurationMs) {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         mAfRects = afRects;
         mAeRects = aeRects;
@@ -619,8 +640,23 @@ class FocusMeteringControl {
 
         mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
 
+        final long timeoutId = ++mFocusTimeoutCounter;
+
+        // Sets auto focus timeout runnable first so that action will be completed with
+        // mIsFocusSuccessful is false when auto cancel is enabled with the same default 5000ms
+        // duration.
+        final Runnable autoFocusTimeoutRunnable = () -> mExecutor.execute(() -> {
+            if (timeoutId == mFocusTimeoutCounter) {
+                mIsFocusSuccessful = false;
+                completeActionFuture(mIsFocusSuccessful);
+            }
+        });
+
+        mAutoFocusTimeoutHandle = mScheduler.schedule(autoFocusTimeoutRunnable,
+                timeoutDurationMs,
+                TimeUnit.MILLISECONDS);
+
         if (focusMeteringAction.isAutoCancelEnabled()) {
-            final long timeoutId = ++mFocusTimeoutCounter;
             final Runnable autoCancelRunnable = () -> mExecutor.execute(() -> {
                 if (timeoutId == mFocusTimeoutCounter) {
                     cancelFocusAndMeteringWithoutAsyncResult();
@@ -658,6 +694,7 @@ class FocusMeteringControl {
         failActionFuture("Cancelled by cancelFocusAndMetering()");
         mRunningCancelCompleter = completer;
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         if (shouldTriggerAF()) {
             cancelAfAeTrigger(true, false);
@@ -702,9 +739,6 @@ class FocusMeteringControl {
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
                         defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
-        if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
-            return false;
-        }
-        return true;
+        return !rectanglesAf.isEmpty() || !rectanglesAe.isEmpty() || !rectanglesAwb.isEmpty();
     }
 }

@@ -324,7 +324,7 @@ public class BundlerTest {
             assertThat(
                     new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
                     new CarIcon.Builder(image).build());
-            Drawable drawable = readImage.toIcon(mContext).loadDrawable(mContext);
+            Drawable drawable = readImage.loadDrawable(mContext);
             assertThat(drawable).isNotNull();
         } finally {
             bitmap.recycle();

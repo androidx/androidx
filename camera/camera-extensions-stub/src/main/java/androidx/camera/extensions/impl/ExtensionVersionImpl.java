@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.impl;
 
+import androidx.annotation.NonNull;
+
 /**
  * Stub implementation for the extension version check.
  *
@@ -50,7 +52,9 @@ public class ExtensionVersionImpl {
      * @return the version that vendor supported in this device. The MAJOR.MINOR.PATCH format
      * should be used.
      */
-    public String checkApiVersion(String version) {
+    @SuppressWarnings("unused")
+    @NonNull
+    public String checkApiVersion(@NonNull String version) {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 

@@ -54,6 +54,23 @@ import java.util.concurrent.Executor;
  * feature is supported by the current framework and/or WebView APK.
  */
 public class WebViewFeatureInternal {
+
+    /**
+     * WebView APK feature that is used in cases where the standard feature detection
+     * mechanism of querying for the flag in the WebView APK is not used.
+     *
+     * The non-standard feature detection mechanism can be provided by overriding the
+     * {@link ApiFeature#isSupportedByWebView()} method of the framework dependant subclass. If
+     * it is not overridden, {@link ApiFeature#isSupportedByWebView()} would return {@code false}.
+     *
+     * The value should not coincide with any other actual feature names in the WebView APK. The
+     * extra '_'s prefixing the value is added to reduce the chance of collision.
+     *
+     * One of the main reason for using a non-standard feature detection is to check whether a
+     * feature is present in the WebView APK without loading WebView into the calling process.
+     */
+    private static final String NONSTANDARD_FEATURE_DETECTION = "__NONSTANDARD_FEATURE_DETECTION";
+
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
@@ -367,6 +384,21 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     */
+    public static final ApiFeature.P SET_DATA_DIRECTORY_SUFFIX =
+            new ApiFeature.P(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+                    NONSTANDARD_FEATURE_DETECTION) {
+                @Override
+                public boolean isSupportedByWebView() {
+                    // TODO(crbug.com/1355297): Change it to version check once the support is
+                    //  added to WebView.
+                    return false;
+                }
+            };
+
+    /**
+     * This feature covers
      * {@link WebViewCompat#getWebViewRenderProcessClient()},
      * {@link WebViewCompat#setWebViewRenderProcessClient(WebViewRenderProcessClient)},
      * {@link WebViewRenderProcessClient#onRenderProcessUnresponsive(WebView, WebViewRenderProcess)},
@@ -406,7 +438,7 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setForceDark(WebSettings, int)} and
      * {@link androidx.webkit.WebSettingsCompat#getForceDark(WebSettings)}.
      */
-    public static final ApiFeature.NoFramework FORCE_DARK = new ApiFeature.NoFramework(
+    public static final ApiFeature.Q FORCE_DARK = new ApiFeature.Q(
             WebViewFeature.FORCE_DARK, Features.FORCE_DARK);
 
     /**
@@ -464,15 +496,19 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderMode(WebSettings, int)},
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderMode(WebSettings)},
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)},
-     * and {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderMode()}
+     * {@link androidx.webkit.WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)} and
+     * {@link androidx.webkit.WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
      */
-    public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_CONTROL =
-            new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
-                    Features.REQUESTED_WITH_HEADER_CONTROL);
+    public static final ApiFeature.NoFramework ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
+            new ApiFeature.NoFramework(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+                    Features.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.CookieManager#getCookieInfo(CookieManager, String)}.
+     */
+    public static final ApiFeature.NoFramework GET_COOKIE_INFO =
+            new ApiFeature.NoFramework(WebViewFeature.GET_COOKIE_INFO, Features.GET_COOKIE_INFO);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

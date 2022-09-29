@@ -32,6 +32,7 @@ dependencies {
     // Classes and types that are only needed at runtime
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
 
     testImplementation(libs.testCore)

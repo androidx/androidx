@@ -34,6 +34,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.media.MediaDrm;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -1016,7 +1017,11 @@ public class MediaPlayerDrmTest {
             try {
                 IntentFilter intentFilter =
                         new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-                mContext.registerReceiver(receiver, intentFilter);
+                if (Build.VERSION.SDK_INT < 33) {
+                    mContext.registerReceiver(receiver, intentFilter);
+                } else {
+                    mContext.registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED);
+                }
 
                 Request request = new Request(uri);
                 request.setDestinationUri(file);

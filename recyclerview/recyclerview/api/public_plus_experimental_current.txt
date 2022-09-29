@@ -17,7 +17,7 @@ package androidx.recyclerview.widget {
   public static final class AsyncDifferConfig.Builder<T> {
     ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public androidx.recyclerview.widget.AsyncDifferConfig<T!> build();
-    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T!> setBackgroundThreadExecutor(java.util.concurrent.Executor!);
+    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T!> setBackgroundThreadExecutor(java.util.concurrent.Executor?);
   }
 
   public class AsyncListDiffer<T> {
@@ -1043,7 +1043,7 @@ package androidx.recyclerview.widget {
   }
 
   public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter!);
+    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>!);
     method public void onChanged(int, int);
     method public void onInserted(int, int);
     method public void onMoved(int, int);

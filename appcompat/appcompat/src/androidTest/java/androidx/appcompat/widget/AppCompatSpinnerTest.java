@@ -48,7 +48,6 @@ import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralSwipeAction;
 import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -150,12 +149,11 @@ public class AppCompatSpinnerTest
 
         // Set a different popup background
         spinner.setPopupBackgroundDrawable(ContextCompat.getDrawable(
-                mActivityTestRule.getActivity(), R.drawable.test_background_green));
+                mActivity, R.drawable.test_background_green));
         verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_green);
     }
 
     @Test
-    @FlakyTest
     public void testThemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
                 mContainer.findViewById(R.id.view_ocean_themed_popup);
@@ -167,7 +165,7 @@ public class AppCompatSpinnerTest
 
         // Set a different popup background
         spinner.setPopupBackgroundDrawable(ContextCompat.getDrawable(
-                mActivityTestRule.getActivity(), R.drawable.test_background_blue));
+                mActivity, R.drawable.test_background_blue));
         verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_blue);
     }
 
@@ -188,7 +186,6 @@ public class AppCompatSpinnerTest
     }
 
     @Test
-    @FlakyTest
     public void testSlowScroll() {
         final AppCompatSpinner spinner = mContainer
                 .findViewById(R.id.spinner_dropdown_popup_with_scroll);
@@ -210,7 +207,6 @@ public class AppCompatSpinnerTest
     }
 
     @Test
-    @FlakyTest
     public void testHorizontalOffset() {
         checkOffsetIsCorrect(mInstrumentation, mContainer, 500, false, false);
     }

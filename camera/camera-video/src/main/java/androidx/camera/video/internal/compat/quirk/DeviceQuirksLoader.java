@@ -74,6 +74,21 @@ public class DeviceQuirksLoader {
         if (VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load()) {
             quirks.add(new VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk());
         }
+        if (NegativeLatLongSavesIncorrectlyQuirk.load()) {
+            quirks.add(new NegativeLatLongSavesIncorrectlyQuirk());
+        }
+        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
+        }
+        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new PreviewDelayWhenVideoCaptureIsBoundQuirk());
+        }
+        if (AudioTimestampFramePositionIncorrectQuirk.load()) {
+            quirks.add(new AudioTimestampFramePositionIncorrectQuirk());
+        }
+        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
+            quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
+        }
 
         return quirks;
     }

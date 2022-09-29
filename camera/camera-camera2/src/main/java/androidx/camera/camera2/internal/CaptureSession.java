@@ -221,7 +221,7 @@ final class CaptureSession implements CaptureSessionInterface {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             synchronized (mSessionLock) {
                                 // Stop the Opener if we get any failure during opening.
                                 mSynchronizedCaptureSessionOpener.stop();
@@ -291,7 +291,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     mCameraEventCallbacks = camera2Config
                             .getCameraEventCallback(CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
-                            mCameraEventCallbacks.createComboCallback().onPresetSession();
+                            mCameraEventCallbacks.createComboCallback().onInitSession();
 
                     // Generate the CaptureRequest builder from repeating request since Android
                     // recommend use the same template type as the initial capture request. The
@@ -314,6 +314,12 @@ final class CaptureSession implements CaptureSessionInterface {
                                         outputConfig,
                                         mConfiguredSurfaceMap,
                                         physicalCameraIdForAllStreams);
+                        if (sessionConfig.getImplementationOptions().containsOption(
+                                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+                            outputConfiguration.setStreamUseCase(
+                                    sessionConfig.getImplementationOptions().retrieveOption(
+                                            Camera2ImplConfig.STREAM_USE_CASE_OPTION));
+                        }
                         outputConfigList.add(outputConfiguration);
                     }
 
@@ -484,6 +490,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     }
                     // Fall through
                 case OPENING:
+                    mCameraEventCallbacks.createComboCallback().onDeInitSession();
                     mState = State.RELEASING;
                     Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
                             + "Opener shouldn't null in state:" + mState);
