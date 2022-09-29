@@ -321,6 +321,15 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
+     * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
+     */
+    public static final ApiFeature.NoFramework WEB_MESSAGE_GET_MESSAGE_PAYLOAD =
+            new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+                    Features.WEB_MESSAGE_GET_MESSAGE_PAYLOAD);
+
+    /**
+     * This feature covers
      * {@link WebMessagePortCompat#setWebMessageCallback(
      *WebMessagePortCompat.WebMessageCallbackCompat)}, and
      * {@link WebMessagePortCompat#setWebMessageCallback(Handler,
