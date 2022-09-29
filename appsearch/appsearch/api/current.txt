@@ -165,6 +165,7 @@ package androidx.appsearch.app {
     field public static final int INDEXING_TYPE_PREFIXES = 2; // 0x2
     field public static final int TOKENIZER_TYPE_NONE = 0; // 0x0
     field public static final int TOKENIZER_TYPE_PLAIN = 1; // 0x1
+    field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.TOKENIZER_TYPE_RFC822) public static final int TOKENIZER_TYPE_RFC822 = 3; // 0x3
   }
 
   public static final class AppSearchSchema.StringPropertyConfig.Builder {
@@ -205,6 +206,7 @@ package androidx.appsearch.app {
     field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK = "GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
+    field public static final String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
   }
 
   public class GenericDocument {

@@ -44,6 +44,11 @@ final class FeaturesImpl implements Features {
         if (Features.ADD_PERMISSIONS_AND_GET_VISIBILITY.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
+        // TODO: Update to reflect support in Android U+ once this feature is synced over into
+        //  service-appsearch
+        if (Features.TOKENIZER_TYPE_RFC822.equals(feature)) {
+            return false;
+        }
         return false;
     }
 }

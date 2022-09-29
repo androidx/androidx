@@ -197,6 +197,9 @@ class SchemaCodeGenerator {
             } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN
                 tokenizerEnum = mHelper.getAppSearchClass(
                         "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_PLAIN");
+            } else if (tokenizerType == 3) { // TOKENIZER_TYPE_RFC822
+                tokenizerEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_RFC822");
             } else {
                 throw new ProcessingException("Unknown tokenizer type " + tokenizerType, property);
             }
