@@ -6,6 +6,10 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    namespace "androidx.buildSrc.tests.lib"
+}
+
 androidx {
     name = "Sample Library"
     publish = Publish.SNAPSHOT_AND_RELEASE

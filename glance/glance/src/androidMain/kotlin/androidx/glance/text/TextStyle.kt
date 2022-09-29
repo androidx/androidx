@@ -32,6 +32,22 @@ class TextStyle(
     val textAlign: TextAlign? = null,
     val textDecoration: TextDecoration? = null,
 ) {
+    fun copy(
+        color: ColorProvider? = this.color,
+        fontSize: TextUnit? = this.fontSize,
+        fontWeight: FontWeight? = this.fontWeight,
+        fontStyle: FontStyle? = this.fontStyle,
+        textAlign: TextAlign? = this.textAlign,
+        textDecoration: TextDecoration? = this.textDecoration
+    ) = TextStyle(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        textAlign = textAlign,
+        textDecoration = textDecoration
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TextStyle) return false

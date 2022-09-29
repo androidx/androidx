@@ -31,19 +31,18 @@ public class MeasureCapabilities(
      * Some data types are not available for measurement; this is typically used to measure health
      * data (e.g. HR).
      */
-    public val supportedDataTypesMeasure: Set<DataType>,
+    public val supportedDataTypesMeasure: Set<DeltaDataType<*, *>>,
 ) : ProtoParcelable<DataProto.MeasureCapabilities>() {
 
     internal constructor(
         proto: DataProto.MeasureCapabilities
-    ) : this(proto.supportedDataTypesList.map { DataType(it) }.toSet())
+    ) : this(proto.supportedDataTypesList.map { DataType.deltaFromProto(it) }.toSet())
 
     /** @hide */
-    override val proto: DataProto.MeasureCapabilities by lazy {
+    override val proto: DataProto.MeasureCapabilities =
         DataProto.MeasureCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypesMeasure.map { it.proto })
             .build()
-    }
 
     override fun toString(): String =
         "MeasureCapabilities(supportedDataTypesMeasure=$supportedDataTypesMeasure)"

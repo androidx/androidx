@@ -15,17 +15,5 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault">
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
-    </style>
-    <style name="Glance.AppWidget.Theme.ListChildren" parent="">
-        <!--
-            AbsListView sets the drawable state of its child views when an item is pressed. This
-            has the effect of activating ripples for child views even when the child has no click
-            handler set. In order to prevent this, we must explicitly set focusable in order to
-            avoid having the drawable state set. See AbsListView.keyPressed() and
-            AbsListView.onTouchUp().
-        -->
-        <item name="android:focusable">true</item>
-    </style>
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault" />
 </resources>

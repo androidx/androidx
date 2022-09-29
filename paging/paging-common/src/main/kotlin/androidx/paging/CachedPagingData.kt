@@ -52,7 +52,8 @@ private class MulticastedPagingData<T : Any>(
         }.onCompletion {
             tracker?.onComplete(PAGE_EVENT_FLOW)
         },
-        receiver = parent.receiver
+        uiReceiver = parent.uiReceiver,
+        hintReceiver = parent.hintReceiver
     )
 
     suspend fun close() = accumulated.close()

@@ -38,7 +38,7 @@ class CompoundButtonTranslatorTest {
             fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
             .isSameColorAs("#EEEEEE")
     }
 
@@ -49,7 +49,7 @@ class CompoundButtonTranslatorTest {
             fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
             .isSameColorAs("#EEEEEE")
     }
 
@@ -60,7 +60,7 @@ class CompoundButtonTranslatorTest {
             fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(lightContext, isChecked = true))
+        assertThat(colorProvider.getColor(lightContext, isChecked = true))
             .isSameColorAs("#FF0000")
     }
 
@@ -71,7 +71,7 @@ class CompoundButtonTranslatorTest {
             fallback = R.color.my_color
         )
 
-        assertThat(colorProvider.resolve(darkContext, isChecked = true))
+        assertThat(colorProvider.getColor(darkContext, isChecked = true))
             .isSameColorAs("#FFFF00")
     }
 }

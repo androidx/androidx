@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
@@ -121,7 +122,9 @@ class WorkManagerGcmDispatcherTest {
         `when`(taskParams.tag).thenReturn(request.workSpec.id)
         val result = mDispatcher.onRunTask(taskParams)
         assert(result == GcmNetworkManager.RESULT_SUCCESS)
-        verify(mWorkTimer, times(1)).startTimer(eq(request.workSpec.id), anyLong(), any())
-        verify(mWorkTimer, atLeastOnce()).stopTimer(eq(request.workSpec.id))
+        verify(mWorkTimer, times(1)).startTimer(eq(
+            WorkGenerationalId(request.workSpec.id, 0)
+        ), anyLong(), any())
+        verify(mWorkTimer, atLeastOnce()).stopTimer(eq(WorkGenerationalId(request.workSpec.id, 0)))
     }
 }

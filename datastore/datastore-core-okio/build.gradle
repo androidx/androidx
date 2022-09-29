@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-import androidx.build.Multiplatform
-import androidx.build.Publish
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
-def enableNative = Multiplatform.isKotlinNativeEnabled(project)
+def enableNative = KmpPlatformsKt.enableNative(project)
 
-kotlin {
+androidXMultiplatform {
     jvm {
         withJava()
     }
-    if (enableNative) {
-        macosX64()
-        linuxX64()
-        macosArm64()
-    }
+    mac()
+    linux()
+    ios()
+
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
         commonMain {
             dependencies {
                 api(project(":datastore:datastore-core"))
@@ -54,9 +56,12 @@ kotlin {
         }
         commonTest {
             dependencies {
+                api(project(":internal-testutils-kmp"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
         jvmTest {
@@ -64,8 +69,11 @@ kotlin {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
+
         if (enableNative) {
             nativeMain {
                 dependencies {
@@ -73,37 +81,27 @@ kotlin {
                 }
             }
         }
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-        }
-    }
 
-    targets.forEach {target ->
-        if (target.platformType == KotlinPlatformType.native) {
-            target.compilations["main"].defaultSourceSet {
-                dependsOn(sourceSets["nativeMain"])
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
             }
         }
-    }
-    targets.withType(KotlinNativeTarget).configureEach {
-        binaries.all {
-            binaryOptions["memoryModel"] = "experimental"
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
         }
     }
 }
 
 androidx {
     name = "Android DataStore Core Okio"
-    publish = Publish.NONE
+    type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
-    publishPlatforms = ["jvm"]
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinNativeCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

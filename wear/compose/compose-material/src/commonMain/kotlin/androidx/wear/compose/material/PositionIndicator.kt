@@ -28,7 +28,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -42,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -52,14 +55,24 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -352,13 +365,13 @@ public fun PositionIndicator(
     val layoutDirection = LocalLayoutDirection.current
     val leftyMode = isLeftyModeEnabled()
     val actuallyVisible = remember { mutableStateOf(false) }
-    var containerHeight by remember { mutableStateOf(1f) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
     val displayState by remember(state) {
         derivedStateOf {
             DisplayState(
                 state.positionFraction,
-                state.sizeFraction(containerHeight)
+                state.sizeFraction(containerSize.height.toFloat())
             )
         }
     }
@@ -390,7 +403,9 @@ public fun PositionIndicator(
         }
     }
 
-    val visibility by remember(state) { derivedStateOf { state.visibility(containerHeight) } }
+    val visibility by remember(state) { derivedStateOf {
+        state.visibility(containerSize.height.toFloat())
+    } }
     when (visibility) {
         PositionIndicatorVisibility.Show -> actuallyVisible.value = true
         PositionIndicatorVisibility.Hide -> actuallyVisible.value = false
@@ -402,81 +417,110 @@ public fun PositionIndicator(
         }
     }
 
+    val indicatorOnTheRight = when (position) {
+        PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
+        PositionIndicatorAlignment.Left -> false
+        PositionIndicatorAlignment.Right -> true
+        PositionIndicatorAlignment.OppositeRsb -> leftyMode
+        else -> true
+    }
+
+    val boundsSize: Density.() -> IntSize = {
+        IntSize(
+            ((if (isScreenRound) {
+                // r is the distance from the center of the container to the arc we draw the
+                // position indicator on (the center of the arc, which is indicatorWidth wide).
+                val r = containerSize.width / 2 - paddingHorizontal.toPx() -
+                    indicatorWidth.toPx() / 2
+                // The sqrt is the size of the projection on the x axis of line between center of
+                // the container and the point where we start the arc.
+                // The coerceAtLeast is needed while initializing since containerSize.width is 0
+                r - sqrt((sqr(r) - sqr(indicatorHeight.toPx() / 2)).coerceAtLeast(0f))
+            } else 0f) +
+                paddingHorizontal.toPx() + indicatorWidth.toPx()
+            ).roundToInt(),
+            (indicatorHeight.toPx() + indicatorWidth.toPx()).roundToInt()
+        )
+    }
+    val boundsOffset: Density.() -> IntOffset = {
+        // Note that indicators are on right or left, centered vertically.
+        val indicatorSize = boundsSize()
+        IntOffset(
+            if (indicatorOnTheRight) containerSize.width - indicatorSize.width else 0,
+            (containerSize.height - indicatorSize.height) / 2
+        )
+    }
+
     AnimatedVisibility(
         visible = actuallyVisible.value,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .onGloballyPositioned {
-                    containerHeight = it.size.height.toFloat()
-                }
-                .drawWithContent {
-                    val indicatorOnTheRight = when (position) {
-                        PositionIndicatorAlignment.Left -> false
-                        PositionIndicatorAlignment.Right -> true
-                        PositionIndicatorAlignment.OppositeRsb -> leftyMode
-                        PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
-                        else -> true
+        BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
+                containerSize = it
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithContent {
+                        // We need to invert reverseDirection when the screen is round and we are on
+                        // the left.
+                        val actualReverseDirection =
+                            if (isScreenRound && !indicatorOnTheRight) {
+                                !reverseDirection
+                            } else {
+                                reverseDirection
+                            }
+
+                        val indicatorPosition = if (actualReverseDirection) {
+                            1 - animatedDisplayState.value.position
+                        } else {
+                            animatedDisplayState.value.position
+                        }
+
+                        val indicatorWidthPx = indicatorWidth.toPx()
+
+                        // We want position = 0 be the indicator aligned at the top of its area and
+                        // position = 1 be aligned at the bottom of the area.
+                        val indicatorStart =
+                            indicatorPosition * (1 - animatedDisplayState.value.size)
+
+                        val diameter = max(containerSize.width, containerSize.height)
+
+                        val paddingHorizontalPx = paddingHorizontal.toPx()
+                        if (isScreenRound) {
+                            val usableHalf = diameter / 2f - paddingHorizontalPx
+                            val sweepDegrees =
+                                (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
+
+                            drawCurvedIndicator(
+                                color,
+                                background,
+                                paddingHorizontalPx,
+                                indicatorOnTheRight,
+                                sweepDegrees,
+                                indicatorWidthPx,
+                                indicatorStart,
+                                animatedDisplayState.value.size,
+                                highlightAlpha.value
+                            )
+                        } else {
+                            drawStraightIndicator(
+                                color,
+                                background,
+                                paddingHorizontalPx,
+                                indicatorOnTheRight,
+                                indicatorWidthPx,
+                                indicatorHeightPx = indicatorHeight.toPx(),
+                                indicatorStart,
+                                animatedDisplayState.value.size,
+                                highlightAlpha.value
+                            )
+                        }
                     }
-
-                    // We need to invert reverseDirection when the screen is round and we are on
-                    // the left.
-                    val actualReverseDirection = if (isScreenRound && !indicatorOnTheRight) {
-                        !reverseDirection
-                    } else {
-                        reverseDirection
-                    }
-
-                    val indicatorPosition = if (actualReverseDirection) {
-                        1 - animatedDisplayState.value.position
-                    } else {
-                        animatedDisplayState.value.position
-                    }
-
-                    val indicatorWidthPx = indicatorWidth.toPx()
-
-                    // We want position = 0 be the indicator aligned at the top of its area and
-                    // position = 1 be aligned at the bottom of the area.
-                    val indicatorStart = indicatorPosition * (1 - animatedDisplayState.value.size)
-
-                    val diameter = max(size.width, size.height)
-
-                    // Note that indicators are on right or left, centered vertically.
-                    val paddingHorizontalPx = paddingHorizontal.toPx()
-                    if (isScreenRound) {
-                        val usableHalf = diameter / 2f - paddingHorizontalPx
-                        val sweepDegrees =
-                            (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
-
-                        drawCurvedIndicator(
-                            color,
-                            background,
-                            paddingHorizontalPx,
-                            indicatorOnTheRight,
-                            sweepDegrees,
-                            indicatorWidthPx,
-                            indicatorStart,
-                            animatedDisplayState.value.size,
-                            highlightAlpha.value
-                        )
-                    } else {
-                        drawStraightIndicator(
-                            color,
-                            background,
-                            paddingHorizontalPx,
-                            indicatorOnTheRight,
-                            indicatorWidthPx,
-                            indicatorHeightPx = indicatorHeight.toPx(),
-                            indicatorStart,
-                            animatedDisplayState.value.size,
-                            highlightAlpha.value
-                        )
-                    }
-                }
-        )
+            )
+        }
     }
 }
 
@@ -871,3 +915,53 @@ private fun ContentDrawScope.drawStraightIndicator(
 }
 
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()
+
+// Make the content believe it's using the full dimensions of the parent, but limit it
+// to the given bounds. This is used to limit the space used on screen for "full-screen" components
+// like PositionIndicator, so it doesn't interfere with a11y on the whole screen.
+@Composable
+private fun BoundsLimiter(
+    offset: Density.() -> IntOffset,
+    size: Density.() -> IntSize,
+    modifier: Modifier = Modifier,
+    onSizeChanged: (IntSize) -> Unit = { },
+    content: @Composable BoxScope.() -> Unit
+) = Box(
+    modifier = Modifier
+        .fillMaxSize()
+        .onSizeChanged(onSizeChanged)
+        .absoluteOffset(offset),
+    // We handle layout direction the main PositionIndicator function, according to the position
+    // parameter.
+    contentAlignment = AbsoluteAlignment.TopLeft
+) {
+    // This Box has the position and size we need, so any modifiers passed in should be applied
+    // here. We set the size using a custom modifier (that passes the constraints transparently to
+    // the content), and add a negative offset to make the content believe is drawing at the top
+    // left (position 0, 0).
+    Box(
+        modifier
+            .transparentSizeModifier(size)
+            .absoluteOffset { -offset() }, content = content,
+        contentAlignment = AbsoluteAlignment.TopLeft)
+}
+
+// Sets the size of this element, but lets the child measure using the constraints
+// of the element containing this.
+private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then(
+    @Suppress("ModifierInspectorInfo")
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            val actualSize = size()
+            return layout(actualSize.width, actualSize.height) {
+                placeable.place(0, 0)
+            }
+        }
+    }
+)
+
+private fun sqr(x: Float) = x * x

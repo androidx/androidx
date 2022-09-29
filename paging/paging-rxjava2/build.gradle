@@ -58,10 +58,3 @@ androidx {
 android {
     namespace "androidx.paging.rxjava2"
 }
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}

@@ -20,4 +20,4 @@ import androidx.datastore.core.CorruptionHandler
 /**
  * Default corruption handler which does nothing but rethrow the exception.
  */
-internal expect class NoOpCorruptionHandler<T> : CorruptionHandler<T>
+internal expect class NoOpCorruptionHandler<T> constructor() : CorruptionHandler<T>

@@ -35,48 +35,51 @@ import org.junit.runners.Parameterized
 class ImageCaptureUnlockedOrientationTest(
     private val lensFacing: Int,
     private val captureMode: Int,
+    private val cameraXConfig: String,
     private val rotation: RotationUnlocked,
     private val testName: String
-) : ImageCaptureBaseTest<UnlockedOrientationActivity>() {
+) : ImageCaptureBaseTest<UnlockedOrientationActivity>(cameraXConfig) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "{3}")
+        @Parameterized.Parameters(name = "cameraXConfig={2}, {4}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacing.forEach { lens ->
+            lensFacingList.forEach { lens ->
                 captureModes.forEach { mode ->
-                    val lensName = if (lens == CameraSelector.LENS_FACING_BACK) {
-                        "Back lens"
-                    } else {
-                        "Front lens"
-                    }
+                    cameraXConfigList.forEach { cameraXConfig ->
+                        val lensName = if (lens == CameraSelector.LENS_FACING_BACK) {
+                            "Back lens"
+                        } else {
+                            "Front lens"
+                        }
 
-                    val captureModeName = when (mode) {
-                        IMAGE_CAPTURE_MODE_IN_MEMORY -> "In memory"
-                        IMAGE_CAPTURE_MODE_FILE -> "File"
-                        IMAGE_CAPTURE_MODE_OUTPUT_STREAM -> "Output stream"
-                        IMAGE_CAPTURE_MODE_MEDIA_STORE -> "Media store"
-                        else -> "Invalid capture mode"
-                    }
+                        val captureModeName = when (mode) {
+                            IMAGE_CAPTURE_MODE_IN_MEMORY -> "In memory"
+                            IMAGE_CAPTURE_MODE_FILE -> "File"
+                            IMAGE_CAPTURE_MODE_OUTPUT_STREAM -> "Output stream"
+                            IMAGE_CAPTURE_MODE_MEDIA_STORE -> "Media store"
+                            else -> "Invalid capture mode"
+                        }
 
-                    add(
-                        arrayOf(
-                            lens, mode, RotationUnlocked.Natural,
-                            "$lensName - $captureModeName - Natural"
+                        add(
+                            arrayOf(
+                                lens, mode, cameraXConfig, RotationUnlocked.Natural,
+                                "$lensName - $captureModeName - Natural"
+                            )
                         )
-                    )
-                    add(
-                        arrayOf(
-                            lens, mode, RotationUnlocked.Left,
-                            "$lensName - $captureModeName - Left"
+                        add(
+                            arrayOf(
+                                lens, mode, cameraXConfig, RotationUnlocked.Left,
+                                "$lensName - $captureModeName - Left"
+                            )
                         )
-                    )
-                    add(
-                        arrayOf(
-                            lens, mode, RotationUnlocked.Right,
-                            "$lensName - $captureModeName - Right"
+                        add(
+                            arrayOf(
+                                lens, mode, cameraXConfig, RotationUnlocked.Right,
+                                "$lensName - $captureModeName - Right"
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -94,7 +97,7 @@ class ImageCaptureUnlockedOrientationTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<UnlockedOrientationActivity>(lensFacing, captureMode) {
+        verifyRotation<UnlockedOrientationActivity>(lensFacing, captureMode, cameraXConfig) {
             if (rotation.shouldRotate) {
                 rotateDeviceAndWait()
             }

@@ -220,6 +220,7 @@ public class TransitionInflaterTest extends BaseTest {
             super(context, attrs);
         }
 
+        @NonNull
         @Override
         public Path getPath(float startX, float startY, float endX, float endY) {
             return null;

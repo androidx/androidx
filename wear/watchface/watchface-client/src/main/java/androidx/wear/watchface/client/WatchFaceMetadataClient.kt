@@ -393,13 +393,17 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                     { it.id },
                     {
                         val perSlotBounds = HashMap<ComplicationType, RectF>()
+                        val perSlotMargins = HashMap<ComplicationType, RectF>()
                         for (i in it.complicationBoundsType.indices) {
-                            perSlotBounds[
-                                ComplicationType.fromWireType(it.complicationBoundsType[i])
-                            ] = it.complicationBounds[i]
+                            val type = ComplicationType.fromWireType(it.complicationBoundsType[i])
+                            perSlotBounds[type] = it.complicationBounds[i] ?: RectF()
+                            perSlotMargins[type] = it.complicationMargins?.get(i) ?: RectF()
                         }
                         ComplicationSlotMetadata(
-                            ComplicationSlotBounds.createFromPartialMap(perSlotBounds),
+                            ComplicationSlotBounds.createFromPartialMap(
+                                perSlotBounds,
+                                perSlotMargins
+                            ),
                             it.boundsType,
                             it.supportedTypes.map { ComplicationType.fromWireType(it) },
                             DefaultComplicationDataSourcePolicy(

@@ -18,7 +18,7 @@ package androidx.wear.ongoing {
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivity!>);
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context);
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, int);
-    method public void update(android.content.Context, androidx.wear.ongoing.Status);
+    method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void update(android.content.Context, androidx.wear.ongoing.Status);
   }
 
   public static final class OngoingActivity.Builder {

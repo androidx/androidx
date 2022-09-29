@@ -27,7 +27,7 @@ import androidx.health.services.client.data.ExerciseGoal
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal) :
+public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal<*>) :
     Parcelable {
     override fun describeContents(): Int = 0
 

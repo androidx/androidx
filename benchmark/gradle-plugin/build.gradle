@@ -39,7 +39,7 @@ dependencies {
 
 SdkResourceGenerator.generateForHostTest(project)
 
-def buildOnServer = tasks.register("buildOnServer", SingleFileCopy.class) {
+def copyLockClocks = tasks.register("copyLockClocks", SingleFileCopy.class) {
     def source = project.file("src/main/resources/scripts/lockClocks.sh")
     if (!source.exists()) {
         throw new GradleException(source.toString() + " does not exist")
@@ -47,6 +47,7 @@ def buildOnServer = tasks.register("buildOnServer", SingleFileCopy.class) {
     it.sourceFile = source
     it.destinationFile = new File(BuildServerConfigurationKt.getDistributionDirectory(rootProject), "lockClocks.sh")
 }
+BuildOnServerKt.addToBuildOnServer(project, copyLockClocks)
 
 gradlePlugin {
     plugins {

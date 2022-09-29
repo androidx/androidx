@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="NewApi"
@@ -53,24 +53,6 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDatabase` of class `SampleDatabaseService` requires synthetic accessor"
-        errorLine1="            mDatabase.getCustomerDao().insert(customer);"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDatabase` of class `SampleDatabaseService` requires synthetic accessor"
-        errorLine1="            final LiveData&lt;List&lt;Customer>> customers = mDatabase.getCustomerDao().all();"
-        errorLine2="                                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue

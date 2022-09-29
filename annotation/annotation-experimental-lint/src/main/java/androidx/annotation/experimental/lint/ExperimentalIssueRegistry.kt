@@ -24,7 +24,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class ExperimentalIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 13
-    override val issues get() = ExperimentalDetector.ISSUES + AnnotationRetentionDetector.ISSUE
+    override val issues get() = ExperimentalDetector.ISSUES + AnnotationRetentionDetector.ISSUES
     override val vendor = Vendor(
         feedbackUrl = "https://issuetracker.google.com/issues/new?component=459778",
         identifier = "androidx.annotation.experimental",

@@ -1,8 +1,8 @@
 # Module root
 
-CameraX MLKit Vision
+CameraX ML Kit Vision
 
 # Package androidx.camera.mlkit.vision
 
-A library providing a seamless integration between CameraX and Google's MLKit library.
+A library providing a seamless integration between CameraX and Google's ML Kit library.
 

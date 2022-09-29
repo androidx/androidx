@@ -19,8 +19,8 @@ package androidx.work.impl.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
 
 /**
  * A {@link Runnable} that requests {@link androidx.work.impl.Processor} to stop the work
@@ -32,15 +32,15 @@ public class StopWorkRunnable implements Runnable {
     private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final WorkRunId mWorkSpecId;
+    private final StartStopToken mToken;
     private final boolean mStopInForeground;
 
     public StopWorkRunnable(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull WorkRunId workSpecId,
+            @NonNull StartStopToken startStopToken,
             boolean stopInForeground) {
         mWorkManagerImpl = workManagerImpl;
-        mWorkSpecId = workSpecId;
+        mToken = startStopToken;
         mStopInForeground = stopInForeground;
     }
     @Override
@@ -49,19 +49,19 @@ public class StopWorkRunnable implements Runnable {
         if (mStopInForeground) {
             isStopped = mWorkManagerImpl
                     .getProcessor()
-                    .stopForegroundWork(mWorkSpecId.getWorkSpecId());
+                    .stopForegroundWork(mToken);
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
             isStopped = mWorkManagerImpl
                     .getProcessor()
-                    .stopWork(mWorkSpecId);
+                    .stopWork(mToken);
         }
 
         Logger.get().debug(
                 TAG,
-                "StopWorkRunnable for " + mWorkSpecId.getWorkSpecId() + "; Processor.stopWork = "
-                        + isStopped);
+                "StopWorkRunnable for " + mToken.getId().getWorkSpecId() + "; Processor"
+                + ".stopWork" + " = " + isStopped);
 
     }
 }

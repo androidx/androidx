@@ -662,6 +662,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
+    @SuppressWarnings("deprecation")
     public void testFixedAllFileChecksumsSingleThread() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
@@ -961,6 +962,7 @@ public class ChecksumsTest {
                 trustedInstallers);
     }
 
+    @SuppressWarnings("deprecation")
     private Checksum[] getFileChecksums(@NonNull String packageName,
             @Checksum.Type int required, @NonNull List<Certificate> trustedInstallers)
             throws Exception {
@@ -1194,6 +1196,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         static Certificate getInstallerCertificate(Context context) throws Exception {
             PackageManager pm = context.getPackageManager();
             PackageInfo installerPackageInfo = pm.getPackageInfo(INSTALLER_PACKAGE_NAME,

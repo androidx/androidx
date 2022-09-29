@@ -21,12 +21,6 @@ import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import org.junit.After
-import org.junit.Assert
-import org.junit.Assume.assumeTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -34,6 +28,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.junit.After
+import org.junit.Assert
+import org.junit.Assume.assumeTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)

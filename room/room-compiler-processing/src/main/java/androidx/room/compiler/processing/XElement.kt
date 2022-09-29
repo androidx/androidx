@@ -34,6 +34,10 @@ import kotlin.contracts.contract
  * @see XTypeElement
  */
 interface XElement : XAnnotated {
+
+    /** The simple name of the element. */
+    val name: String
+
     /**
      * Returns the string representation of the Element's kind.
      */

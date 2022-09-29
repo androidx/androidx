@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.ImageReaderProxy;
 
 import java.util.concurrent.Executor;
@@ -50,14 +51,20 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
 
     @Nullable
     private final Surface mSurface;
+    private OnImageCloseListener mForwardingImageCloseListener;
 
     // Called after images are closed to check if the ImageReaderProxy should be closed
-    private final ForwardingImageProxy.OnImageCloseListener mImageCloseListener = (image) -> {
+    private final OnImageCloseListener mImageCloseListener = (image) -> {
+        OnImageCloseListener forwardingListener;
         synchronized (mLock) {
             mOutstandingImages--;
             if (mIsClosed && mOutstandingImages == 0) {
                 close();
             }
+            forwardingListener = mForwardingImageCloseListener;
+        }
+        if (forwardingListener != null) {
+            forwardingListener.onImageClose(image);
         }
     };
 
@@ -129,6 +136,25 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
             if (mOutstandingImages == 0) {
                 close();
             }
+        }
+    }
+
+    /**
+     * Returns the number of empty slots in the queue.
+     */
+    public int getCapacity() {
+        synchronized (mLock) {
+            return mImageReaderProxy.getMaxImages() - mOutstandingImages;
+        }
+    }
+
+    /**
+     * Sets a listener for close calls on this image.
+     * @param listener to set
+     */
+    public void setOnImageCloseListener(@NonNull OnImageCloseListener listener) {
+        synchronized (mLock) {
+            mForwardingImageCloseListener = listener;
         }
     }
 

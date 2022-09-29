@@ -56,7 +56,7 @@ class SeparatorsWithRemoteMediatorTest {
         assertFailsWith<IllegalArgumentException>(
             "Prepend after endOfPaginationReached already true is invalid"
         ) {
-            PagingData(pageEventFlow, dummyReceiver)
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
                     generator = LETTER_SEPARATOR_GENERATOR
@@ -88,7 +88,7 @@ class SeparatorsWithRemoteMediatorTest {
         assertFailsWith<IllegalArgumentException>(
             "Append after endOfPaginationReached already true is invalid"
         ) {
-            PagingData(pageEventFlow, dummyReceiver)
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
                     generator = LETTER_SEPARATOR_GENERATOR
@@ -120,7 +120,8 @@ class SeparatorsWithRemoteMediatorTest {
 
         // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
         // or append that arrives after remote prepend or append marking endOfPagination.
-        PagingData(pageEventFlow, dummyReceiver).insertSeparators { _, _ -> -1 }.flow.toList()
+        PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+            .insertSeparators { _, _ -> -1 }.flow.toList()
     }
 
     @Test
@@ -146,7 +147,8 @@ class SeparatorsWithRemoteMediatorTest {
 
         // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
         // or append that arrives after remote prepend or append marking endOfPagination.
-        PagingData(pageEventFlow, dummyReceiver).insertSeparators { _, _ -> -1 }.flow.toList()
+        PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+            .insertSeparators { _, _ -> -1 }.flow.toList()
     }
 
     @Test
@@ -185,7 +187,7 @@ class SeparatorsWithRemoteMediatorTest {
             )
         )
 
-        val actual = PagingData(pageEventFlow, dummyReceiver)
+        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
             .insertSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -231,7 +233,7 @@ class SeparatorsWithRemoteMediatorTest {
             )
         )
 
-        val actual = PagingData(pageEventFlow, dummyReceiver)
+        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
             .insertSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -277,7 +279,7 @@ class SeparatorsWithRemoteMediatorTest {
             )
         )
 
-        val actual = PagingData(pageEventFlow, dummyReceiver)
+        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
             .insertSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -323,7 +325,7 @@ class SeparatorsWithRemoteMediatorTest {
             )
         )
 
-        val actual = PagingData(pageEventFlow, dummyReceiver)
+        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
             .insertSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR

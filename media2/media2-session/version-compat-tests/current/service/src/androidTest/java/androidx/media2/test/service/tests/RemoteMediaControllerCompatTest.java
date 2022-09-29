@@ -19,8 +19,10 @@ package androidx.media2.test.service.tests;
 import static androidx.media2.test.common.CommonConstants.DEFAULT_TEST_NAME;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.media2.test.service.RemoteMediaControllerCompat;
@@ -45,6 +47,9 @@ public class RemoteMediaControllerCompatTest extends MediaSessionTestBase {
 
     @Before
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         mContext = ApplicationProvider.getApplicationContext();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -59,8 +64,12 @@ public class RemoteMediaControllerCompatTest extends MediaSessionTestBase {
 
     @After
     public void cleanUp() {
-        mSessionCompat.release();
-        mRemoteControllerCompat.cleanUp();
+        if (mSessionCompat != null) {
+            mSessionCompat.release();
+        }
+        if (mRemoteControllerCompat != null) {
+            mRemoteControllerCompat.cleanUp();
+        }
     }
 
     @Test

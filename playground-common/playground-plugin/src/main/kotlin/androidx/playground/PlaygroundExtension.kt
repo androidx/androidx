@@ -91,6 +91,14 @@ open class PlaygroundExtension @Inject constructor(
             it.mavenCentral()
             it.gradlePluginPortal().content {
                 it.includeModule(
+                    "org.jetbrains.kotlinx",
+                    "kotlinx-benchmark-plugin"
+                )
+                it.includeModule(
+                    "org.jetbrains.kotlinx.benchmark",
+                    "org.jetbrains.kotlinx.benchmark.gradle.plugin"
+                )
+                it.includeModule(
                     "org.jetbrains.kotlin.plugin.serialization",
                     "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
                 )
@@ -156,8 +164,6 @@ open class PlaygroundExtension @Inject constructor(
         if (name == ":compose:lint:common-test") return true
         if (name == ":test:screenshot:screenshot") return true
         if (name == ":test:screenshot:screenshot-proto") return true
-        if (name == ":lifecycle:lifecycle-common") return true
-        if (name == ":lifecycle:lifecycle-common-java8") return true
         return false
     }
 }

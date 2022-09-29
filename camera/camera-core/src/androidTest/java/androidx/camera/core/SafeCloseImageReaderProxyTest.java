@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.util.Pair;
 
@@ -113,7 +113,7 @@ public class SafeCloseImageReaderProxyTest {
                 mTag)), 1);
 
         // Assert
-        verifyZeroInteractions(onImageAvailableListener);
+        verifyNoMoreInteractions(onImageAvailableListener);
     }
 
     @Test
@@ -138,6 +138,23 @@ public class SafeCloseImageReaderProxyTest {
                 mTag)), 1);
 
         // Assert
-        verifyZeroInteractions(onImageAvailableListener);
+        verifyNoMoreInteractions(onImageAvailableListener);
+    }
+
+    @Test
+    public void closeTheImageInQueue_onImageCloseListenerGetsInvoked() throws InterruptedException {
+        // Arrange
+        ForwardingImageProxy.OnImageCloseListener onImageCloseListener = mock(
+                ForwardingImageProxy.OnImageCloseListener.class);
+        mSafeCloseImageReaderProxy.setOnImageCloseListener(onImageCloseListener);
+
+        // Act: send and close image.
+        mFakeImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
+                mTag)), 1);
+        ImageProxy imageProxy = mSafeCloseImageReaderProxy.acquireLatestImage();
+        imageProxy.close();
+
+        // Assert: the callback gets invoked
+        verify(onImageCloseListener).onImageClose(any(ImageProxy.class));
     }
 }

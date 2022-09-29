@@ -106,7 +106,7 @@ class ImageProcessingLatencyTest(
         measureImageProcessing(CameraSelector.LENS_FACING_FRONT)
     }
 
-    private fun measureImageProcessing(lensFacing: Int) {
+    private fun measureImageProcessing(lensFacing: Int): Unit = runBlocking {
         // The log is used to profile the ImageProcessing performance. The log parser identifies
         // the log pattern "Image processing performance profiling" in the device output log.
         Logger.d(
@@ -128,12 +128,13 @@ class ImageProcessingLatencyTest(
                 }
             }
 
-        camera =
-            CameraUtil.createCameraAndAttachUseCase(
-                context,
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 imageAnalyzer
             )
+        }
 
         assertTrue(countDownLatch.await(60, TimeUnit.SECONDS))
     }

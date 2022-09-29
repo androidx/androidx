@@ -42,7 +42,7 @@ class SplitActivityTrampoline : SplitActivityBase() {
             placeholderIntent,
             minWidth = minSplitWidth(),
             minSmallestWidth = 0)
-            .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
+            .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSplitRatio(SPLIT_RATIO)
             .build()
         SplitController.getInstance().registerRule(placeholderRule)

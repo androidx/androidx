@@ -220,7 +220,7 @@ public class RenderParameters @JvmOverloads constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: RenderParametersWireFormat) : this(
         DrawMode.values()[wireFormat.drawMode],
         HashSet<WatchFaceLayer>().apply {
@@ -267,7 +267,7 @@ public class RenderParameters @JvmOverloads constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): RenderParametersWireFormat {
         val idAndTapEventWireFormats = lastComplicationTapDownEvents.map {
             IdAndTapEventWireFormat(

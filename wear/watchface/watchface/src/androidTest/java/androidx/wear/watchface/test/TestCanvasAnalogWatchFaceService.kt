@@ -28,6 +28,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.time.ZoneId
+import java.util.concurrent.CountDownLatch
 
 /** A simple canvas test analog watch face for integration tests. */
 internal class TestCanvasAnalogWatchFaceService(
@@ -37,7 +38,8 @@ internal class TestCanvasAnalogWatchFaceService(
     var mockZoneId: ZoneId,
     var surfaceHolderOverride: SurfaceHolder,
     var preRInitFlow: Boolean,
-    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
+    val onInvalidateCountDownLatch: CountDownLatch?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -73,11 +75,7 @@ internal class TestCanvasAnalogWatchFaceService(
             watchState,
             complicationSlotsManager,
             currentUserStyleRepository
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun getSystemTimeZoneId() = mockZoneId
-        })
+        )
     }
 
     override fun getMutableWatchState() = mutableWatchState
@@ -89,7 +87,7 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun expectPreRInitFlow() = preRInitFlow
+    override fun isPreAndroidR() = preRInitFlow
 
     override fun readDirectBootPrefs(
         context: Context,
@@ -112,4 +110,14 @@ internal class TestCanvasAnalogWatchFaceService(
         fileName: String,
         byteArray: ByteArray
     ) {}
+
+    override fun onInvalidate() {
+        onInvalidateCountDownLatch?.countDown()
+    }
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+        override fun getSystemTimeZoneId() = mockZoneId
+    }
 }

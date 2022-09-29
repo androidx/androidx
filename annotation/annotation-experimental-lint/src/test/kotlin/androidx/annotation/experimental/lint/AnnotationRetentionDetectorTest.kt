@@ -35,7 +35,7 @@ class AnnotationRetentionDetectorTest {
                 RequiresOptInDetectorTest.ANDROIDX_OPT_IN_KT,
                 *testFiles
             )
-            .issues(AnnotationRetentionDetector.ISSUE)
+            .issues(*AnnotationRetentionDetector.ISSUES.toTypedArray())
             .run()
     }
 
@@ -72,6 +72,28 @@ public @interface ExperimentalJavaAnnotationWrongRetention {}
 src/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt:21: Error: Experimental annotation has default (RUNTIME) retention, should use BINARY [ExperimentalAnnotationRetention]
 annotation class ExperimentalKotlinAnnotationWrongRetention
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    /**
+     * Test for lint check that discourages the use of Java-style opt-in on Kotlin-sourced
+     * annotations.
+     */
+    @Test
+    fun wrongRequiresOptInAnnotation() {
+        val input = arrayOf(
+            ktSample("sample.kotlin.ExperimentalKotlinAnnotationWrongAnnotation"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/kotlin/ExperimentalKotlinAnnotationWrongAnnotation.kt:22: Error: Experimental annotation should use kotlin.RequiresOptIn [WrongRequiresOptIn]
+annotation class ExperimentalKotlinAnnotationWrongAnnotation
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */

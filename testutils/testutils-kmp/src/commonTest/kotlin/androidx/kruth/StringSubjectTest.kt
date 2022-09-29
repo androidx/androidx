@@ -49,8 +49,117 @@ class StringSubjectTest {
     }
 
     @Test
+    fun hasLength() {
+        assertThat("kurt").hasLength(4)
+    }
+
+    @Test
+    fun hasLengthZero() {
+        assertThat("").hasLength(0)
+    }
+
+    @Test
+    fun hasLengthFails() {
+        assertFailsWith<AssertionError> {
+            assertThat("kurt").hasLength(5)
+        }
+    }
+
+    @Test
+    fun hasLengthNegative() {
+        assertFailsWith<AssertionError> {
+            assertThat("kurt").hasLength(-1)
+        }
+    }
+
+    @Test
+    fun stringIsEmpty() {
+        assertThat("").isEmpty()
+    }
+
+    @Test
+    fun stringIsEmptyFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").isEmpty()
+        }
+    }
+
+    @Test
+    fun stringIsEmptyFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isEmpty()
+        }
+    }
+
+    @Test
+    fun stringIsNotEmpty() {
+        assertThat("abc").isNotEmpty()
+    }
+
+    @Test
+    fun stringIsNotEmptyFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("").isNotEmpty()
+        }
+    }
+
+    @Test
+    fun stringIsNotEmptyFailNull() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isNotEmpty()
+        }
+    }
+
+    @Test
+    fun stringDoesNotContain() {
+        assertThat("abc").doesNotContain("d")
+    }
+
+    @Test
+    fun stringDoesNotContainCharSequence() {
+        val testString = "d"
+        val charSeq: CharSequence = testString.subSequence(0, testString.length)
+        assertThat("abc").doesNotContain(charSeq)
+    }
+
+    @Test
+    fun stringDoesNotContainFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").doesNotContain("b")
+        }
+    }
+
+    @Test
+    fun stringStartsWith() {
+        assertThat("abc").startsWith("ab")
+    }
+
+    @Test
+    fun stringStartsWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").startsWith("bc")
+        }
+    }
+
+    @Test
+    fun stringEndsWith() {
+        assertThat("abc").endsWith("bc")
+    }
+
+    @Test
+    fun stringEndsWithFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("abc").endsWith("ab")
+        }
+    }
+
+    @Test
     fun emptyStringTests() {
         assertThat("").contains("")
+        assertThat("").startsWith("")
+        assertThat("").endsWith("")
         assertThat("a").contains("")
+        assertThat("a").startsWith("")
+        assertThat("a").endsWith("")
     }
 }

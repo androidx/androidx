@@ -16,26 +16,31 @@
 
 package androidx.glance.template
 
-import androidx.glance.unit.ColorProvider
-
 /**
  * The semantic data required to build Gallery Template layouts
  *
- * @param header header of the template
- * @param title title of the template
- * @param headline headline of the template
- * @param image image of the template
- * @param logo logo of the template
- * @param backgroundColor The background color to apply to the template
+ * @param header The header of the template.
+ * @param mainTextBlock The head block for title, body, and other texts of the main gallery object.
+ * @param mainImageBlock The head block for an image of the main gallery object.
+ * @param mainActionBlock The head block for a list of action buttons for the main gallery object.
+ * @param galleryImageBlock The gallery block for a list of gallery images.
  */
 class GalleryTemplateData(
-    val header: String,
-    val title: String,
-    val headline: String,
-    val image: TemplateImageWithDescription,
-    val logo: TemplateImageWithDescription,
-    val backgroundColor: ColorProvider,
+    val header: HeaderBlock? = null,
+    val mainTextBlock: TextBlock,
+    val mainImageBlock: ImageBlock,
+    val mainActionBlock: ActionBlock? = null,
+    val galleryImageBlock: ImageBlock,
 ) {
+    override fun hashCode(): Int {
+        var result = mainTextBlock.hashCode()
+        result = 31 * result + (header?.hashCode() ?: 0)
+        result = 31 * result + mainImageBlock.hashCode()
+        result = 31 * result + (mainActionBlock?.hashCode() ?: 0)
+        result = 31 * result + galleryImageBlock.hashCode()
+        return result
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -43,22 +48,11 @@ class GalleryTemplateData(
         other as GalleryTemplateData
 
         if (header != other.header) return false
-        if (title != other.title) return false
-        if (headline != other.headline) return false
-        if (image != other.image) return false
-        if (logo != other.logo) return false
-        if (backgroundColor != other.backgroundColor) return false
+        if (mainTextBlock != other.mainTextBlock) return false
+        if (mainImageBlock != other.mainImageBlock) return false
+        if (mainActionBlock != other.mainActionBlock) return false
+        if (galleryImageBlock != other.galleryImageBlock) return false
 
         return true
-    }
-
-    override fun hashCode(): Int {
-        var result = header.hashCode()
-        result = 31 * result + title.hashCode()
-        result = 31 * result + headline.hashCode()
-        result = 31 * result + image.hashCode()
-        result = 31 * result + logo.hashCode()
-        result = 31 * result + backgroundColor.hashCode()
-        return result
     }
 }

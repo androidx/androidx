@@ -38,11 +38,11 @@ import kotlin.test.assertTrue
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class BenchmarkStateTest {
+class BenchmarkStateTest {
     private fun us2ns(ms: Long): Long = TimeUnit.MICROSECONDS.toNanos(ms)
 
     @get:Rule
-    public val writePermissionRule: GrantPermissionRule =
+    val writePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
     /**
@@ -61,7 +61,7 @@ public class BenchmarkStateTest {
 
     @Test
     @FlakyTest(bugId = 187711141)
-    public fun validateMetrics() {
+    fun validateMetrics() {
         val state = BenchmarkState()
         while (state.keepRunning()) {
             runAndSpin(durationUs = 300) {
@@ -91,7 +91,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
-    public fun keepRunningMissingResume() {
+    fun keepRunningMissingResume() {
         val state = BenchmarkState()
 
         assertEquals(true, state.keepRunning())
@@ -100,7 +100,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
-    public fun pauseCalledTwice() {
+    fun pauseCalledTwice() {
         val state = BenchmarkState()
 
         assertEquals(true, state.keepRunning())
@@ -110,7 +110,7 @@ public class BenchmarkStateTest {
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
-    public fun priorityJitThread() {
+    fun priorityJitThread() {
         assertEquals(
             "JIT priority should not yet be modified",
             ThreadPriority.JIT_INITIAL_PRIORITY,
@@ -131,7 +131,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
-    public fun priorityBenchThread() {
+    fun priorityBenchThread() {
         val initialPriority = ThreadPriority.get()
         assertNotEquals(
             "Priority should not be max",
@@ -161,7 +161,7 @@ public class BenchmarkStateTest {
         }
 
         val report = state.getReport()
-        val expectedRepeatCount = BenchmarkState.REPEAT_COUNT_TIME +
+        val expectedRepeatCount = state.repeatCountTime +
             if (!checkingForThermalThrottling) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
         val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
         assertEquals(expectedCount, total)
@@ -174,16 +174,16 @@ public class BenchmarkStateTest {
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
         // verify we're not running in a special mode that affects repeat count (dry run, profiling)
-        assertEquals(50, BenchmarkState.REPEAT_COUNT_TIME)
+        assertEquals(50, state.repeatCountTime)
     }
 
     @Test
-    public fun iterationCheck_simple() {
+    fun iterationCheck_simple() {
         iterationCheck(checkingForThermalThrottling = true)
     }
 
     @Test
-    public fun iterationCheck_withAllocations() {
+    fun iterationCheck_withAllocations() {
         // In any of these conditions, it's known that throttling won't happen, so it's safe
         // to check for allocation count, by setting checkingForThermalThrottling = false
         assumeTrue(
@@ -196,7 +196,7 @@ public class BenchmarkStateTest {
 
     @Test
     @Suppress("DEPRECATION")
-    public fun bundle() {
+    fun bundle() {
         val bundle = BenchmarkState().apply {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
@@ -230,7 +230,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
-    public fun notStarted() {
+    fun notStarted() {
         val initialPriority = ThreadPriority.get()
         try {
             BenchmarkState().getReport().getMetricResult("timeNs").median
@@ -242,7 +242,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
-    public fun notFinished() {
+    fun notFinished() {
         val initialPriority = ThreadPriority.get()
         try {
             BenchmarkState().run {
@@ -260,7 +260,7 @@ public class BenchmarkStateTest {
     @Suppress("DEPRECATION")
     @OptIn(ExperimentalExternalReport::class)
     @Test
-    public fun reportResult() {
+    fun reportResult() {
         BenchmarkState.reportData(
             className = "className",
             testName = "testName",
@@ -292,7 +292,7 @@ public class BenchmarkStateTest {
             profilerOverride = StackSamplingLegacy
 
             val benchmarkState = if (simplifiedTimingOnlyMode != null) {
-                BenchmarkState(simplifiedTimingOnlyMode)
+                BenchmarkState(simplifiedTimingOnlyMode = simplifiedTimingOnlyMode)
             } else {
                 BenchmarkState()
             }
@@ -330,7 +330,68 @@ public class BenchmarkStateTest {
         }
     }
 
-    @Test public fun profiler_default() = validateProfilerUsage(null)
-    @Test public fun profiler_false() = validateProfilerUsage(false)
-    @Test public fun profiler_true() = validateProfilerUsage(true)
+    @Test fun profiler_default() = validateProfilerUsage(null)
+    @Test fun profiler_false() = validateProfilerUsage(false)
+    @Test fun profiler_true() = validateProfilerUsage(true)
+
+    @OptIn(ExperimentalBenchmarkStateApi::class)
+    @Test
+    fun experimentalConstructor() {
+        // min values that don't fail
+        BenchmarkState(
+            warmupCount = null,
+            measurementCount = 1
+        )
+
+        // test failures
+        assertFailsWith<IllegalArgumentException> {
+            BenchmarkState(warmupCount = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BenchmarkState(measurementCount = 0)
+        }
+    }
+
+    @OptIn(ExperimentalBenchmarkStateApi::class)
+    private fun validateIters(
+        warmupCount: Int?,
+        measurementCount: Int
+    ) {
+        val state = BenchmarkState(
+            warmupCount = warmupCount,
+            measurementCount = measurementCount
+        )
+        var count = 0
+        while (state.keepRunning()) {
+            count++
+        }
+        if (warmupCount != null) {
+            assertEquals(
+                warmupCount + // warmup
+                    measurementCount * state.iterationsPerRepeat + // timing
+                    BenchmarkState.REPEAT_COUNT_ALLOCATION * state.iterationsPerRepeat, // allocs
+                count
+            )
+        }
+        assertEquals(
+            measurementCount,
+            state.getMeasurementTimeNs().size
+        )
+    }
+
+    @Test
+    fun experimentalIters() {
+        validateIters(
+            warmupCount = 1,
+            measurementCount = 1
+        )
+        validateIters(
+            warmupCount = 3,
+            measurementCount = 5
+        )
+        validateIters(
+            warmupCount = 10000,
+            measurementCount = 1
+        )
+    }
 }

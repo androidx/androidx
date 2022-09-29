@@ -16,10 +16,12 @@
 
 package androidx.camera.core;
 
+import static androidx.core.util.Preconditions.checkArgument;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Preconditions;
+import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
@@ -35,16 +37,18 @@ import java.util.List;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class UseCaseGroup {
-
     @Nullable
     private final ViewPort mViewPort;
-
     @NonNull
     private final List<UseCase> mUseCases;
+    @NonNull
+    private final List<CameraEffect> mEffects;
 
-    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases) {
+    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases,
+            @NonNull List<CameraEffect> effects) {
         mViewPort = viewPort;
         mUseCases = useCases;
+        mEffects = effects;
     }
 
     /**
@@ -64,16 +68,27 @@ public final class UseCaseGroup {
     }
 
     /**
+     * Gets the {@link CameraEffect}s.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public List<CameraEffect> getEffects() {
+        return mEffects;
+    }
+
+    /**
      * A builder for generating {@link UseCaseGroup}.
      */
     public static final class Builder {
-
         private ViewPort mViewPort;
-
         private final List<UseCase> mUseCases;
+        private final List<CameraEffect> mEffects;
 
         public Builder() {
             mUseCases = new ArrayList<>();
+            mEffects = new ArrayList<>();
         }
 
         /**
@@ -82,6 +97,21 @@ public final class UseCaseGroup {
         @NonNull
         public Builder setViewPort(@NonNull ViewPort viewPort) {
             mViewPort = viewPort;
+            return this;
+        }
+
+        /**
+         * Adds a {@link CameraEffect} to the collection
+         *
+         * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of
+         * the {@link UseCase}s.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder addEffect(@NonNull CameraEffect cameraEffect) {
+            mEffects.add(cameraEffect);
             return this;
         }
 
@@ -99,9 +129,8 @@ public final class UseCaseGroup {
          */
         @NonNull
         public UseCaseGroup build() {
-            Preconditions.checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
-            return new UseCaseGroup(mViewPort, mUseCases);
+            checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
+            return new UseCaseGroup(mViewPort, mUseCases, mEffects);
         }
     }
-
 }

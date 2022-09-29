@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
  * If a class implements this interface and in the same time uses {@link OnLifecycleEvent}, then
  * annotations will be ignored.
  */
+@SuppressWarnings("LambdaLast")
 public interface LifecycleEventObserver extends LifecycleObserver {
     /**
      * Called when a state transition event happens.

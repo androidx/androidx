@@ -223,6 +223,7 @@ internal class SidecarWindowBackend @VisibleForTesting constructor(
         /**
          * Checks if the Sidecar version provided on this device is supported by the current
          * version of the library.
+         * @param sidecarVersion the [Version] of Sidecar that is provided on the device.
          */
         @VisibleForTesting
         fun isSidecarVersionSupported(sidecarVersion: Version?): Boolean {

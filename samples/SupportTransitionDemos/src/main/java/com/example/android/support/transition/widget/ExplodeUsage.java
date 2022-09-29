@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.transition.Explode;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
@@ -51,7 +52,7 @@ public class ExplodeUsage extends TransitionUsageBase {
         super.onCreate(savedInstanceState);
         mExplode.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return mRect;
             }
         });

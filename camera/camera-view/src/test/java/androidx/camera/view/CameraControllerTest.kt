@@ -127,7 +127,7 @@ public class CameraControllerTest {
                 // no-op
             }
 
-            override fun getTargetResolutionOverride(): Size? {
+            override fun getDefaultTargetResolution(): Size? {
                 return size
             }
         }

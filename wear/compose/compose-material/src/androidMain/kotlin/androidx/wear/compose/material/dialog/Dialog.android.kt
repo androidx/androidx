@@ -16,12 +16,15 @@
 
 package androidx.wear.compose.material.dialog
 
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -35,8 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.wear.compose.material.CASUAL
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.QUICK
+import androidx.wear.compose.material.RAPID
+import androidx.wear.compose.material.STANDARD_IN
+import androidx.wear.compose.material.STANDARD_OUT
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.SwipeToDismissBox
@@ -103,7 +111,19 @@ public fun Dialog(
             val scale by animateDialogScale(scaleTransition, scaleTransitionState)
 
             Scaffold(
-                vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+                vignette = {
+                    AnimatedVisibility(
+                        visible = scaleTransitionState.targetState == ScaleStage.Display,
+                        enter = fadeIn(animationSpec =
+                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
+                        ),
+                        exit = fadeOut(animationSpec =
+                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
+                        ),
+                    ) {
+                        Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                    }
+                },
                 positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
                 modifier = modifier,
             ) {
@@ -242,9 +262,3 @@ private enum class AlphaStage {
 private enum class ScaleStage {
     Intro, Display, Outro;
 }
-
-private const val RAPID = 150
-private const val QUICK = 250
-private const val CASUAL = 400
-private val STANDARD_IN = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-private val STANDARD_OUT = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)

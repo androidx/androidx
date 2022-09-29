@@ -1,6 +1,16 @@
 # Bug component: 460472
-davedandeneau@google.com
+davedandeneau@google.com #{LAST_RESORT_SUGGESTION}
 calcoholado@google.com
 
-# back up
-babakbo@google.com
+# API owners
+per-file app/api/*=file:/car/app/API_OWNERS
+per-file app-automotive/api/*=file:/car/app/API_OWNERS
+per-file app-projected/api/*=file:/car/app/API_OWNERS
+per-file app-testing/api/*=file:/car/app/API_OWNERS
+
+# Feature owners
+per-file app/**=kodlee@google.com
+per-file app-automotive/**=kodlee@google.com
+per-file app-projected/**=kodlee@google.com
+per-file app-testing/**=kodlee@google.com
+per-file app-samples/**=jech@google.com

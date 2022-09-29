@@ -21,6 +21,7 @@ import static androidx.wear.tiles.material.RunnerUtils.SCREEN_WIDTH;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -65,6 +66,7 @@ public class GoldenTestActivity extends Activity {
 
         Context appContext = getApplicationContext();
         FrameLayout root = new FrameLayout(appContext);
+        root.setBackgroundColor(Color.BLACK);
         root.setLayoutParams(new LayoutParams(SCREEN_WIDTH, SCREEN_HEIGHT));
 
         Layout layout = new Layout.Builder().setRoot(rootLayoutElement).build();

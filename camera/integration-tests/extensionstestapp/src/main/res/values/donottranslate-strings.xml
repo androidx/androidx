@@ -16,6 +16,8 @@
 
 <resources>
     <string name="extensions_app">Extensions App</string>
-    <string name="extensions_validator">Extensions Validator</string>
+    <string name="extensions_validator">Camera Extensions Validator</string>
+    <string name="camerax_extensions_validator">CameraX Extensions Validator</string>
+    <string name="camera2_extensions_validator">Camera2 Extensions Validator</string>
     <string name="error_msg_no_camera_support_extension">No camera supports any extension modes!</string>
 </resources>

@@ -27,6 +27,7 @@ import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -86,8 +87,8 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
     public void testVerticalWithItemDecors() throws Throwable {
         mItemDecoration = new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 outRect.set(0, 5, 0, 10);
             }
         };
@@ -107,8 +108,8 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
     public void testHorizontalWithItemDecors() throws Throwable {
         mItemDecoration = new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 outRect.set(5, 0, 10, 0);
             }
         };

@@ -15,16 +15,31 @@
  */
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED;
+import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
+import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
+import static androidx.camera.core.ImageCapture.ERROR_INVALID_CAMERA;
+import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
+import static androidx.camera.integration.extensions.CameraDirection.BACKWARD;
+import static androidx.camera.integration.extensions.CameraDirection.FORWARD;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_DIRECTION;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -32,13 +47,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ViewStub;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -48,10 +68,12 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil;
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
+import androidx.camera.integration.extensions.utils.FpsRecorder;
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -59,6 +81,7 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.common.base.Preconditions;
@@ -70,35 +93,13 @@ import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
-
-    /**
-     * The camera with the specified camera id will be opened if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
-    /**
-     * The specified extension mode will be tried to be enabled if the intent used to launch the
-     * activity includes the information.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_EXTENSION_MODE = "extension_mode";
-    /**
-     * The captured image will be deleted automatically if the intent used to launch the activity
-     * includes the setting as true.
-     */
-    @VisibleForTesting
-    static final String INTENT_EXTRA_DELETE_CAPTURED_IMAGE = "delete_captured_image";
-
-    // Possible values for this intent key: "BACKWARD" or "FORWARD".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String BACKWARD = "BACKWARD";
-    private static final String FORWARD = "FORWARD";
 
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
@@ -118,15 +119,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private int mCurrentExtensionMode = ExtensionMode.BOKEH;
 
     // Espresso testing variables
-    @VisibleForTesting
-    CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
+    private final CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
             "Initialization");
 
-    @VisibleForTesting
-    CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
+    private final CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource(
+            "TakePicture");
 
-    @VisibleForTesting
-    CountingIdlingResource mPreviewViewIdlingResource = new CountingIdlingResource("PreviewView");
+    private final CountingIdlingResource mPreviewViewStreamingStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Streaming");
+
+    private final CountingIdlingResource mPreviewViewIdleStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Idle");
 
     private PreviewView mPreviewView;
 
@@ -138,6 +141,21 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     boolean mDeleteCapturedImage = false;
 
+    // < Sensor timestamp,  current timestamp >
+    Map<Long, Long> mFrameTimestampMap = new HashMap<>();
+    TextView mFrameInfo;
+
+    String mCurrentCameraId = null;
+
+    /**
+     * Saves the error message of the last take picture action if any error occurs. This will be
+     * null which means no error occurs.
+     */
+    @Nullable
+    private String mLastTakePictureErrorMessage = null;
+
+    private PreviewView.StreamState mCurrentStreamState = null;
+
     void setupButtons() {
         Button btnToggleMode = findViewById(R.id.PhotoToggle);
         Button btnSwitchCamera = findViewById(R.id.Switch);
@@ -147,9 +165,37 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void switchCameras() {
         mCameraProvider.unbindAll();
-        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
-                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        if (mCurrentCameraId != null) {
+            String nextCameraId = CameraSelectorUtil.findNextSupportedCameraId(
+                    this, mExtensionsManager, mCurrentCameraId, mCurrentExtensionMode);
+            if (nextCameraId == null) {
+                Log.e(TAG, "Cannot find next camera id that supports the extensions mode");
+                return;
+            }
+            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(mCurrentCameraId);
+        } else {
+            mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                    ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        }
+        if (!bindUseCasesWithCurrentExtensionMode()) {
+            bindUseCasesWithNextExtensionMode();
+        }
+    }
+
+    @VisibleForTesting
+    boolean switchToExtensionMode(@ExtensionMode.Mode int extensionMode) {
+        if (mCamera == null || mExtensionsManager == null) {
+            return false;
+        }
+
+        if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector, extensionMode)) {
+            return false;
+        }
+
+        mCurrentExtensionMode = extensionMode;
         bindUseCasesWithCurrentExtensionMode();
+
+        return true;
     }
 
     void bindUseCasesWithNextExtensionMode() {
@@ -158,30 +204,64 @@ public class CameraExtensionsActivity extends AppCompatActivity
         } while (!bindUseCasesWithCurrentExtensionMode());
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     boolean bindUseCasesWithCurrentExtensionMode() {
         if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector,
                 mCurrentExtensionMode)) {
             return false;
         }
 
-        mPreviewViewIdlingResource.increment();
+        resetPreviewViewStreamingStateIdlingResource();
+        resetPreviewViewIdleStateIdlingResource();
 
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
         mImageCapture = imageCaptureBuilder.build();
 
+        mFrameTimestampMap.clear();
         Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
 
+        new Camera2Interop.Extender<>(previewBuilder)
+                .setSessionCaptureCallback(new CameraCaptureSession.CaptureCallback() {
+                    @Override
+                    public void onCaptureStarted(@NonNull CameraCaptureSession session,
+                            @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                        mFrameTimestampMap.put(timestamp, SystemClock.elapsedRealtimeNanos());
+                    }
+                });
         mPreview = previewBuilder.build();
+        mCurrentStreamState = null;
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
         // Observes the stream state for the unit tests to know the preview status.
         mPreviewView.getPreviewStreamState().removeObservers(this);
-        mPreviewView.getPreviewStreamState().observe(this, streamState -> {
+        mPreviewView.getPreviewStreamState().observeForever(streamState -> {
+            mCurrentStreamState = streamState;
             if (streamState == PreviewView.StreamState.STREAMING
-                    && !mPreviewViewIdlingResource.isIdleNow()) {
-                mPreviewViewIdlingResource.decrement();
+                    && !mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+                mPreviewViewStreamingStateIdlingResource.decrement();
+            } else if (streamState == PreviewView.StreamState.IDLE
+                    && !mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+                mPreviewViewIdleStateIdlingResource.decrement();
             }
+        });
+
+        FpsRecorder fpsRecorder = new FpsRecorder(10 /* sample count */);
+        // Calls internal API PreviewView#setFrameUpdateListener to calculate the frame latency.
+        // Remove this if you copy this sample app to your project.
+        mPreviewView.setFrameUpdateListener(CameraXExecutors.directExecutor(), (timestamp) -> {
+            Long frameCapturedTime = mFrameTimestampMap.remove(timestamp);
+            if (frameCapturedTime == null) {
+                Log.e(TAG, "Cannot find frame with timestamp: " + timestamp);
+                return;
+            }
+
+            long latency = (SystemClock.elapsedRealtimeNanos() - frameCapturedTime) / 1000000L;
+            double fps = fpsRecorder.recordTimestamp(SystemClock.elapsedRealtimeNanos());
+            String fpsText = String.format("%1$s",
+                    (Double.isNaN(fps) || Double.isInfinite(fps)) ? "---" :
+                            String.format(Locale.US, "%.0f", fps));
+            mFrameInfo.setText("Latency:" + latency + " ms\n" + "FPS: " + fpsText);
         });
 
         CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
@@ -204,10 +284,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 "ExtensionsPictures");
 
         captureButton.setOnClickListener((view) -> {
-            mTakePictureIdlingResource.increment();
+            resetTakePictureIdlingResource();
 
-            String fileName = formatter.format(Calendar.getInstance().getTime())
-                    + extensionModeString + ".jpg";
+            String fileName = "[" + formatter.format(Calendar.getInstance().getTime())
+                    + "][CameraX]" + extensionModeString + ".jpg";
             File saveFile = new File(dir, fileName);
             ImageCapture.OutputFileOptions outputFileOptions;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -235,6 +315,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         public void onImageSaved(
                                 @NonNull ImageCapture.OutputFileResults outputFileResults) {
                             Log.d(TAG, "Saved image to " + saveFile);
+
+                            mLastTakePictureErrorMessage = null;
 
                             if (!mTakePictureIdlingResource.isIdleNow()) {
                                 mTakePictureIdlingResource.decrement();
@@ -265,9 +347,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                     sendBroadcast(intent);
                                 }
 
-                                Toast.makeText(getApplicationContext(),
-                                        "Saved image to " + saveFile,
-                                        Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CameraExtensionsActivity.this,
+                                        "Saved image to " + fileName,
+                                        Toast.LENGTH_LONG).show();
                             }
                         }
 
@@ -275,6 +357,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         public void onError(@NonNull ImageCaptureException exception) {
                             Log.e(TAG, "Failed to save image - " + exception.getMessage(),
                                     exception.getCause());
+
+                            mLastTakePictureErrorMessage = getImageCaptureErrorMessage(exception);
+                            if (!mTakePictureIdlingResource.isIdleNow()) {
+                                mTakePictureIdlingResource.decrement();
+                            }
                         }
                     });
         });
@@ -290,13 +377,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mInitializationIdlingResource.increment();
 
-        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_ID);
-        if (cameraId != null) {
-            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
+        mCurrentCameraId = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID);
+        if (mCurrentCameraId != null) {
+            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(mCurrentCameraId);
         }
 
         // Get params from adb extra string for the e2e test cases.
-        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_DIRECTION);
+        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_KEY_CAMERA_DIRECTION);
         if (cameraDirection != null) {
             if (cameraDirection.equals(BACKWARD)) {
                 mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -307,16 +394,20 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         "The camera " + cameraDirection + " is unavailable.");
             }
         }
-        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_EXTENSION_MODE,
+        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE,
                 mCurrentExtensionMode);
 
-        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_DELETE_CAPTURED_IMAGE,
+        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE,
                 mDeleteCapturedImage);
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
-        mPreviewView = findViewById(R.id.previewView);
+        ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
+        viewFinderStub.setLayoutResource(R.layout.full_previewview);
+        mPreviewView = (PreviewView) viewFinderStub.inflate();
+        mFrameInfo = findViewById(R.id.frameInfo);
+        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         setupPinchToZoomAndTapToFocus(mPreviewView);
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
             @Override
@@ -358,19 +449,36 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(@Nullable Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
+        if (menu != null) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.main_menu, menu);
+
+            // Remove Camera2Extensions implementation entry if the device API level is less than 32
+            if (Build.VERSION.SDK_INT < 31) {
+                menu.removeItem(R.id.menu_camera2_extensions);
+            }
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_validation_tool) {
-            Intent intent = new Intent(this, CameraValidationResultActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            return true;
+        Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        switch (item.getItemId()) {
+            case R.id.menu_camera2_extensions:
+                if (Build.VERSION.SDK_INT >= 31) {
+                    mCameraProvider.unbindAll();
+                    intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
+                    startActivity(intent);
+                    finish();
+                }
+                return true;
+            case R.id.menu_validation_tool:
+                intent.setClassName(this, CameraValidationResultActivity.class.getName());
+                startActivity(intent);
+                finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -390,6 +498,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new FutureCallback<ExtensionsManager>() {
                     @Override
                     public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
+                        // There might be timing issue that the activity has been destroyed when
+                        // the onSuccess callback is received. Skips the afterward flow when the
+                        // situation happens.
+                        if (CameraExtensionsActivity.this.getLifecycle().getCurrentState()
+                                == Lifecycle.State.DESTROYED) {
+                            return;
+                        }
                         mExtensionsManager = extensionsManager;
                         if (!bindUseCasesWithCurrentExtensionMode()) {
                             bindUseCasesWithNextExtensionMode();
@@ -575,8 +690,107 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     @VisibleForTesting
+    boolean isExtensionModeSupported(@NonNull CameraSelector cameraSelector,
+            @ExtensionMode.Mode int mode) {
+        return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
+    }
+
+    @VisibleForTesting
     @ExtensionMode.Mode
-    int getCurrentExtensionMode() {
+    public int getCurrentExtensionMode() {
         return mCurrentExtensionMode;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getInitializationIdlingResource() {
+        return mInitializationIdlingResource;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getPreviewViewStreamingStateIdlingResource() {
+        return mPreviewViewStreamingStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getPreviewViewIdleStateIdlingResource() {
+        return mPreviewViewIdleStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getTakePictureIdlingResource() {
+        return mTakePictureIdlingResource;
+    }
+
+    @VisibleForTesting
+    public void resetPreviewViewStreamingStateIdlingResource() {
+        if (mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+            mPreviewViewStreamingStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    public void resetPreviewViewIdleStateIdlingResource() {
+        if (mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+            mPreviewViewIdleStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    void resetTakePictureIdlingResource() {
+        if (mTakePictureIdlingResource.isIdleNow()) {
+            mTakePictureIdlingResource.increment();
+        }
+    }
+
+    /**
+     * Returns the error message of the last take picture action if any error occurs. Returns
+     * null if no error occurs.
+     */
+    @VisibleForTesting
+    @Nullable
+    public String getLastTakePictureErrorMessage() {
+        return mLastTakePictureErrorMessage;
+    }
+
+    /**
+     * Returns current stream state value.
+     */
+    @VisibleForTesting
+    @Nullable
+    public PreviewView.StreamState getCurrentStreamState() {
+        return mCurrentStreamState;
+    }
+
+    private String getImageCaptureErrorMessage(@NonNull ImageCaptureException exception) {
+        String errorCodeString;
+        int errorCode = exception.getImageCaptureError();
+
+        switch (errorCode) {
+            case ERROR_UNKNOWN:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_UNKNOWN";
+                break;
+            case ERROR_FILE_IO:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_FILE_IO";
+                break;
+            case ERROR_CAPTURE_FAILED:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_CAPTURE_FAILED";
+                break;
+            case ERROR_CAMERA_CLOSED:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_CAMERA_CLOSED";
+                break;
+            case ERROR_INVALID_CAMERA:
+                errorCodeString = "ImageCaptureErrorCode: ERROR_INVALID_CAMERA";
+                break;
+            default:
+                errorCodeString = "ImageCaptureErrorCode: " + errorCode;
+                break;
+        }
+
+        return errorCodeString + ", Message: " + exception.getMessage() + ", Cause: "
+                + exception.getCause();
     }
 }

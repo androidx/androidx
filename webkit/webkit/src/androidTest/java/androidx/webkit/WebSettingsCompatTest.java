@@ -28,13 +28,9 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -130,41 +126,21 @@ public class WebSettingsCompatTest {
         // bad navigation and then checks).
     }
 
-
     @Test
-    public void testDisableXRequestedWithHeader() throws Throwable {
+    public void testEnterpriseAuthenticationAppLinkPolicyEnabled() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
 
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
 
-        WebSettingsCompat.setRequestedWithHeaderMode(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_NO_HEADER,
-                WebSettingsCompat.getRequestedWithHeaderMode(mWebViewOnUiThread.getSettings()));
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), false);
+        assertFalse(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
 
-        try (MockWebServer mockWebServer = new MockWebServer()) {
-            String requestUrl = mockWebServer.url("/").toString();
-            mWebViewOnUiThread.loadUrl(requestUrl);
-            RecordedRequest recordedRequest = mockWebServer.takeRequest();
-            String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertNull("No X-Requested-With header should have been sent.", headerValue);
-        }
-    }
-
-    @Test
-    public void testSetAppPackageNameXRequestedWithHeader() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_CONTROL);
-
-        WebSettingsCompat.setRequestedWithHeaderMode(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME);
-        Assert.assertEquals(WebSettingsCompat.REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME,
-                WebSettingsCompat.getRequestedWithHeaderMode(mWebViewOnUiThread.getSettings()));
-
-        try (MockWebServer mockWebServer = new MockWebServer()) {
-            String requestUrl = mockWebServer.url("/").toString();
-            mWebViewOnUiThread.loadUrl(requestUrl);
-            RecordedRequest recordedRequest = mockWebServer.takeRequest();
-            String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertEquals("androidx.webkit.test", headerValue);
-        }
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), true);
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
     }
 }

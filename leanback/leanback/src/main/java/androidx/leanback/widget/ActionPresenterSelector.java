@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 class ActionPresenterSelector extends PresenterSelector {
@@ -30,7 +32,7 @@ class ActionPresenterSelector extends PresenterSelector {
             mOneLineActionPresenter, mTwoLineActionPresenter};
 
     @Override
-    public Presenter getPresenter(Object item) {
+    public Presenter getPresenter(@Nullable Object item) {
         Action action = (Action) item;
         if (TextUtils.isEmpty(action.getLabel2())) {
             return mOneLineActionPresenter;
@@ -58,7 +60,10 @@ class ActionPresenterSelector extends PresenterSelector {
 
     abstract static class ActionPresenter extends Presenter {
         @Override
-        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(
+                @NonNull Presenter.ViewHolder viewHolder,
+                @Nullable Object item
+        ) {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mAction = action;
@@ -82,7 +87,7 @@ class ActionPresenterSelector extends PresenterSelector {
         }
 
         @Override
-        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
             vh.view.setPadding(0, 0, 0, 0);
@@ -91,6 +96,7 @@ class ActionPresenterSelector extends PresenterSelector {
     }
 
     static class OneLineActionPresenter extends ActionPresenter {
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
@@ -99,7 +105,10 @@ class ActionPresenterSelector extends PresenterSelector {
         }
 
         @Override
-        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(
+                @NonNull Presenter.ViewHolder viewHolder,
+                @Nullable Object item
+        ) {
             super.onBindViewHolder(viewHolder, item);
             ActionViewHolder vh = ((ActionViewHolder) viewHolder);
             Action action = (Action) item;
@@ -108,6 +117,7 @@ class ActionPresenterSelector extends PresenterSelector {
     }
 
     static class TwoLineActionPresenter extends ActionPresenter {
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
@@ -116,7 +126,10 @@ class ActionPresenterSelector extends PresenterSelector {
         }
 
         @Override
-        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(
+                @NonNull Presenter.ViewHolder viewHolder,
+                @Nullable Object item
+        ) {
             super.onBindViewHolder(viewHolder, item);
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;

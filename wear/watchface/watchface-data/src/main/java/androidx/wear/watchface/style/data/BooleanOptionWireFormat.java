@@ -25,7 +25,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class BooleanOptionWireFormat extends OptionWireFormat {
 

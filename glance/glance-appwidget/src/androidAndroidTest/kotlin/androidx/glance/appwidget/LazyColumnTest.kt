@@ -336,8 +336,9 @@ class LazyColumnTest {
         waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
-            assertIs<TextView>(rowItem0)
-            assertIs<Button>(rowItem1)
+            // All items with actions are wrapped in FrameLayout
+            assertIs<FrameLayout>(rowItem0)
+            assertIs<FrameLayout>(rowItem1)
             assertThat(rowItem0.hasOnClickListeners()).isTrue()
             assertThat(rowItem1.hasOnClickListeners()).isTrue()
         }

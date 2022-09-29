@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
+import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -25,9 +26,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.SurfaceConfig;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Quirk that requires specific resolutions as the workaround.
@@ -50,13 +51,17 @@ import java.util.Locale;
 @RequiresApi(21)
 public class ExtraCroppingQuirk implements Quirk {
 
-    private static final List<String> SAMSUNG_DISTORTION_MODELS = Arrays.asList(
-            "SM-T580", // Samsung Galaxy Tab A (2016)
-            "SM-J710MN", // Samsung Galaxy J7 (2016)
-            "SM-A320FL", // Samsung Galaxy A3 (2017)
-            "SM-G570M", // Samsung Galaxy J5 Prime
-            "SM-G610F", // Samsung Galaxy J7 Prime
-            "SM-G610M"); // Samsung Galaxy J7 Prime
+    private static final Map<String, Range<Integer>> SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP =
+            new HashMap<>();
+
+    static {
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-T580", null);
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-J710MN", new Range<>(21, 26));
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-A320FL", null);
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-G570M", null);
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-G610F", null);
+        SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.put("SM-G610M", new Range<>(21, 26));
+    }
 
     static boolean load() {
         return isSamsungDistortion();
@@ -93,8 +98,18 @@ public class ExtraCroppingQuirk implements Quirk {
      * Checks for device model with Samsung output distortion bug (b/190203334).
      */
     private static boolean isSamsungDistortion() {
-        return "samsung".equalsIgnoreCase(Build.BRAND)
-                && SAMSUNG_DISTORTION_MODELS.contains(Build.MODEL.toUpperCase(Locale.US));
+        boolean isDeviceModelContained = "samsung".equalsIgnoreCase(Build.BRAND)
+                && SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.containsKey(
+                Build.MODEL.toUpperCase(Locale.US));
+
+        if (!isDeviceModelContained) {
+            return false;
+        }
+
+        Range<Integer> apiLevelRange =
+                SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.get(Build.MODEL.toUpperCase(Locale.US));
+
+        return apiLevelRange == null ? true : apiLevelRange.contains(Build.VERSION.SDK_INT);
     }
 
 }

@@ -20,6 +20,7 @@ import android.net.Uri
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.stringArgument
+import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -996,6 +997,60 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkFragmentMatch() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id=43#testFrag"),
+            mapOf("id" to intArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the query")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(43)
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
+    fun deepLinkFragmentMatchWithOptionalQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}#{frag}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users#testFrag"),
+            mapOf("id" to nullableStringArgument(), "frag" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the fragment")
+            .that(matchArgs?.getString("frag"))
+            .isEqualTo("testFrag")
+    }
+
+    @Test
     @Throws(UnsupportedEncodingException::class)
     fun deepLinkArgumentMatchEncoded() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{name}/posts"
@@ -1299,5 +1354,35 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the arg")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo("name")
+    }
+
+    @Test
+    fun deepLinkRepeatedQueryParamsMappedToArray() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?myarg=name1&myarg=name2"),
+            mapOf("myarg" to stringArrayArgument(null))
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null")
+            .that(matchArgsStringArray)
+            .isNotNull()
+        assertWithMessage("Args should contain first arg")
+            .that(matchArgsStringArray).asList()
+            .contains("name1")
+        assertWithMessage("Args should contain second arg")
+            .that(matchArgsStringArray).asList()
+            .contains("name2")
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun deepLinkNoRepeatedQueryParamsInPattern() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}&myarg={myarg}"
+        NavDeepLink(deepLinkArgument)
     }
 }

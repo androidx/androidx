@@ -19,7 +19,9 @@ package androidx.window.layout
 import android.app.Activity
 import android.graphics.Rect
 import android.os.Build
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.view.WindowInsetsCompat
 
 @RequiresApi(Build.VERSION_CODES.N)
 internal object ActivityCompatHelperApi24 {
@@ -36,5 +38,18 @@ internal object ActivityCompatHelperApi30 {
 
     fun maximumWindowBounds(activity: Activity): Rect {
         return activity.windowManager.maximumWindowMetrics.bounds
+    }
+
+    /**
+     * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
+     * @DoNotInline required for implementation-specific class method to prevent it from being
+     * inlined.
+     *
+     * @see WindowMetrics.getWindowInsets
+     */
+    @DoNotInline
+    fun currentWindowInsets(activity: Activity): WindowInsetsCompat {
+        val platformInsets = activity.windowManager.currentWindowMetrics.windowInsets
+        return WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
     }
 }

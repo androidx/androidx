@@ -21,7 +21,8 @@ import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 
 /**
  * The typeName for type arguments requires the type parameter, hence we have a special type
@@ -48,8 +49,12 @@ internal class KspTypeArgumentType(
         )
     }
 
-    override fun resolveTypeName(): TypeName {
-        return typeArg.typeName(env.resolver)
+    override fun resolveJTypeName(): JTypeName {
+        return typeArg.asJTypeName(env.resolver)
+    }
+
+    override fun resolveKTypeName(): KTypeName {
+        return typeArg.asKTypeName(env.resolver)
     }
 
     override fun boxed(): KspTypeArgumentType {

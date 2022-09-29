@@ -209,6 +209,22 @@ public final class WearableButtons {
      *       standard upright position.
      * </ul>
      *
+     * <p>Additionally, a location zone will be provided for the button, which will be one of the
+     * {@code LOCATION_*} constants. This defines the general area of the button on the device, and
+     * can be passed to {@link #getButtonLabel} to provide a human-understandable name for the
+     * location. There are two sets of locations for a device, depending on whether it is a circular
+     * or rectilinear device.
+     *
+     * <p>The "compass" locations (e.g. {@link #LOCATION_ENE}) are used on a circular device. The
+     * locations for each are shown in the following image:
+     *
+     * <img src="https://developer.android.com/images/reference/androidx/wear/wear-input/buttons_round.png" alt="Image detailing the locations of compass locations on a Wear device. North is at the top, followed by north-north-east, north-east, east-north-east, east, and so on.">
+     *
+     * <p>The other locations (e.g. {@link #LOCATION_BOTTOM_CENTER}) are used on a rectilinear
+     * device. The locations for each are shown in the following image:
+     *
+     * <img src="https://developer.android.com/images/reference/androidx/wear/wear-input/buttons_square.png" alt="Image detailing the locations of other buttons on a Wear device. The first word details the side of the device the button is on, then the second word details where on that side the button is (e.g. 'TOP LEFT' means on the top edge, at the left hand side, and 'RIGHT BOTTOM' means on the right edge, at the bottom).">
+     *
      * <p>Common keycodes to use are {@link android.view.KeyEvent#KEYCODE_STEM_PRIMARY}, {@link
      * android.view.KeyEvent#KEYCODE_STEM_1}, {@link android.view.KeyEvent#KEYCODE_STEM_2}, and
      * {@link android.view.KeyEvent#KEYCODE_STEM_3}.
@@ -722,6 +738,8 @@ public final class WearableButtons {
          * The location zone of the button as defined in the {@link #getButtonInfo(Context, int)}
          * method. The intended use is to help developers attach a friendly String to the button
          * location. This value is LOCATION_UNKNOWN if the information is not available.
+         *
+         *
          */
         @ButtonLocation private final int mLocationZone;
 

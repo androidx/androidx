@@ -21,8 +21,11 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
- * Contains information about an individual change detected by an {@link AppSearchObserverCallback}.
+ * Contains information about an individual change detected by an {@link ObserverCallback}.
  *
  * <p>This class reports information about document changes, i.e. when documents were added, updated
  * or removed.
@@ -30,8 +33,11 @@ import androidx.core.util.Preconditions;
  * <p>Changes are grouped by package, database, schema type and namespace. Each unique
  * combination of these items will generate a unique {@link DocumentChangeInfo}.
  *
+ * <p>Notifications are only sent for documents whose schema type matches an observer's schema
+ * filters (as determined by {@link ObserverSpec#getFilterSchemas}).
+ *
  * <p>Note that document changes that happen during schema migration from calling
- * {@link androidx.appsearch.app.AppSearchSession#setSchema} are not reported via this class.
+ * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync} are not reported via this class.
  * Such changes are reported through {@link SchemaChangeInfo}.
  */
 public final class DocumentChangeInfo {
@@ -39,8 +45,7 @@ public final class DocumentChangeInfo {
     private final String mDatabase;
     private final String mNamespace;
     private final String mSchemaName;
-
-    // TODO(b/193494000): Add the set of changed document IDs to this class
+    private final Set<String> mChangedDocumentIds;
 
     /**
      * Constructs a new {@link DocumentChangeInfo}.
@@ -49,16 +54,21 @@ public final class DocumentChangeInfo {
      * @param database The database in which the documents that changed reside.
      * @param namespace    The namespace in which the documents that changed reside.
      * @param schemaName   The name of the schema type that contains the changed documents.
+     * @param changedDocumentIds The set of document IDs that have been changed as part of this
+     *                   notification.
      */
     public DocumentChangeInfo(
             @NonNull String packageName,
             @NonNull String database,
             @NonNull String namespace,
-            @NonNull String schemaName) {
+            @NonNull String schemaName,
+            @NonNull Set<String> changedDocumentIds) {
         mPackageName = Preconditions.checkNotNull(packageName);
         mDatabase = Preconditions.checkNotNull(database);
         mNamespace = Preconditions.checkNotNull(namespace);
         mSchemaName = Preconditions.checkNotNull(schemaName);
+        mChangedDocumentIds = Collections.unmodifiableSet(
+                Preconditions.checkNotNull(changedDocumentIds));
     }
 
     /** Returns the package name of the app which owns the documents that changed. */
@@ -85,20 +95,38 @@ public final class DocumentChangeInfo {
         return mSchemaName;
     }
 
+    /**
+     * Returns the set of document IDs that have been changed as part of this notification.
+     *
+     * <p>This will never be empty.
+     */
+    @NonNull
+    public Set<String> getChangedDocumentIds() {
+        return mChangedDocumentIds;
+    }
+
     @Override
     public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DocumentChangeInfo)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof DocumentChangeInfo)) {
+            return false;
+        }
+
         DocumentChangeInfo that = (DocumentChangeInfo) o;
         return mPackageName.equals(that.mPackageName)
                 && mDatabase.equals(that.mDatabase)
                 && mNamespace.equals(that.mNamespace)
-                && mSchemaName.equals(that.mSchemaName);
+                && mSchemaName.equals(that.mSchemaName)
+                && mChangedDocumentIds.equals(that.mChangedDocumentIds);
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(mPackageName, mDatabase, mNamespace, mSchemaName);
+        return ObjectsCompat.hash(
+                mPackageName, mDatabase, mNamespace, mSchemaName, mChangedDocumentIds);
     }
 
     @NonNull
@@ -109,6 +137,7 @@ public final class DocumentChangeInfo {
                 + ", database='" + mDatabase + '\''
                 + ", namespace='" + mNamespace + '\''
                 + ", schemaName='" + mSchemaName + '\''
+                + ", changedDocumentIds='" + mChangedDocumentIds + '\''
                 + '}';
     }
 }

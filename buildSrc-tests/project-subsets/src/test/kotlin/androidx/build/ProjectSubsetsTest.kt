@@ -35,6 +35,11 @@ public class ProjectSubsetsTest {
     }
 
     @Test
+    fun testSubsetCamera() {
+        validateSubset("camera")
+    }
+
+    @Test
     fun testSubsetCompose() {
         validateSubset("compose")
     }

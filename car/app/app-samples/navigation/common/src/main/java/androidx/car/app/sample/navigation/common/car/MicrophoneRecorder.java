@@ -17,7 +17,6 @@
 package androidx.car.app.sample.navigation.common.car;
 
 import static android.Manifest.permission.RECORD_AUDIO;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioFormat.CHANNEL_OUT_MONO;
@@ -49,7 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /** Manages recording the microphone and accessing the stored data from the microphone. */
@@ -67,11 +66,10 @@ public class MicrophoneRecorder {
      */
     public void record() {
         if (mCarContext.checkSelfPermission(RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED || mCarContext.checkSelfPermission(
-                WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
             CarToast.makeText(mCarContext, "Grant mic permission on phone",
                     CarToast.LENGTH_LONG).show();
-            List<String> permissions = Arrays.asList(RECORD_AUDIO, WRITE_EXTERNAL_STORAGE);
+            List<String> permissions = Collections.singletonList(RECORD_AUDIO);
             mCarContext.requestPermissions(permissions, (grantedPermissions,
                     rejectedPermissions) -> {
                 if (grantedPermissions.contains(RECORD_AUDIO)) {
@@ -89,8 +87,9 @@ public class MicrophoneRecorder {
         recordingThread.start();
     }
 
+    @SuppressLint("ClassVerificationFailure") // runtime check for < API 26
     @RequiresPermission(RECORD_AUDIO)
-    private void play() {
+    private void play(AudioFocusRequest audioFocusRequest) {
         if (SDK_INT < VERSION_CODES.O) {
             return;
         }
@@ -131,6 +130,9 @@ public class MicrophoneRecorder {
             throw new IllegalStateException(e);
         }
         audioTrack.stop();
+        // Abandon the FocusRequest so that user's media can be resumed
+        mCarContext.getSystemService(AudioManager.class).abandonAudioFocusRequest(
+                audioFocusRequest);
     }
 
     @SuppressLint("ClassVerificationFailure") // runtime check for < API 26
@@ -194,7 +196,7 @@ public class MicrophoneRecorder {
             throw new IllegalStateException(e);
         }
         record.stopRecording();
-        play();
+        play(audioFocusRequest);
     }
 
     private void addHeader(OutputStream outputStream, int totalAudioLen) throws IOException {

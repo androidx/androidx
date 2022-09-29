@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -645,7 +646,6 @@ class WearCompositionTranslatorTest {
     fun canTranslateButton() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
-                color = ColorProvider(Color.Magenta),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
@@ -655,6 +655,10 @@ class WearCompositionTranslatorTest {
                 "Hello World",
                 onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
+                colors = ButtonColors(
+                    backgroundColor = ColorProvider(Color.Black),
+                    contentColor = ColorProvider(Color.Magenta)
+                ),
                 style = style
             )
         }.layout

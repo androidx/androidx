@@ -20,13 +20,13 @@ package androidx.camera.camera2.pipe.integration.config
 
 import android.content.Context
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 /** Dependency bindings for adapting a [CameraFactory] instance to [CameraPipe] */
@@ -42,8 +42,8 @@ abstract class CameraAppModule {
         }
 
         @Provides
-        fun provideAvailableCameraIds(cameraPipe: CameraPipe): Set<String> {
-            return runBlocking { cameraPipe.cameras().ids().map { it.value }.toSet() }
+        fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
+            return cameraPipe.cameras()
         }
     }
 }
@@ -71,7 +71,8 @@ class CameraAppConfig(
 )
 interface CameraAppComponent {
     fun cameraBuilder(): CameraComponent.Builder
-    fun getAvailableCameraIds(): Set<String>
+    fun getCameraPipe(): CameraPipe
+    fun getCameraDevices(): CameraDevices
 
     @Component.Builder
     interface Builder {

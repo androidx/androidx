@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import android.content.Context;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LiveData;
@@ -85,6 +86,7 @@ public final class CarConnection {
      *
      * @throws NullPointerException if {@code context} is {@code null}
      */
+    @MainThread
     public CarConnection(@NonNull Context context) {
         requireNonNull(context);
         mConnectionTypeLiveData = isAutomotiveOS(context)

@@ -19,6 +19,7 @@ package androidx.camera.core.impl.utils;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.os.HandlerCompat;
 
@@ -34,6 +35,7 @@ public final class MainThreadAsyncHandler {
      * Returns a main thread handler which marks all messages/runnables posted as async.
      * @see HandlerCompat#createAsync(Looper)
      */
+    @NonNull
     public static Handler getInstance() {
         if (sHandler != null) {
             return sHandler;

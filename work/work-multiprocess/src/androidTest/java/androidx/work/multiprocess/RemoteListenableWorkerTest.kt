@@ -188,7 +188,8 @@ public class RemoteListenableWorkerTest {
             mTaskExecutor,
             mForegroundProcessor,
             mDatabase,
-            request.stringId
+            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
     }
 
@@ -205,6 +206,7 @@ public class RemoteListenableWorkerTest {
             inputData,
             emptyList(),
             WorkerParameters.RuntimeExtras(),
+            0,
             0,
             mConfiguration.executor,
             mTaskExecutor,

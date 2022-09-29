@@ -28,6 +28,8 @@ import androidx.camera.core.SurfaceRequest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Executor;
+
 /**
  * Wraps the underlying handling of the {@link android.view.Surface} used for preview, which is
  * done using either a {@link android.view.TextureView} (see {@link TextureViewImplementation})
@@ -123,6 +125,9 @@ abstract class PreviewViewImplementation {
 
     @Nullable
     abstract Bitmap getPreviewBitmap();
+
+    void setFrameUpdateListener(
+            @NonNull Executor executor, @NonNull PreviewView.OnFrameUpdateListener listener) {}
 
     /**
      * Listener to be notified when the provided Surface is no longer in use or the request is

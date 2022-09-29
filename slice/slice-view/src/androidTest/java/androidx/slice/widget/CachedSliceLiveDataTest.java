@@ -78,9 +78,8 @@ public class CachedSliceLiveDataTest {
 
     private final SliceItem.ActionHandler mActionHandler = mock(SliceItem.ActionHandler.class);
     private Slice mBaseSlice = new Slice.Builder(URI)
-                .addAction(mActionHandler,
-                        new Slice.Builder(Uri.parse("content://test/something/other")).build(),
-                        null)
+                .addAction(new Slice.Builder(Uri.parse("content://test/something/other")).build(),
+                        null, mActionHandler)
                 .build();
     private SliceLiveData.CachedSliceLiveData mLiveData;
     private ArgumentCaptor<Slice> mSlice;
@@ -210,11 +209,10 @@ public class CachedSliceLiveDataTest {
     @Test
     public void testWaitsForLoad() throws PendingIntent.CanceledException, InterruptedException {
         Slice loadingSlice = new Slice.Builder(URI)
-                .addAction(mActionHandler,
-                        new Slice.Builder(Uri.parse("content://test/something/other"))
+                .addAction(new Slice.Builder(Uri.parse("content://test/something/other"))
                                 .addHints(android.app.slice.Slice.HINT_PARTIAL)
                                 .build(),
-                        null)
+                        null, mActionHandler)
                 .build();
         when(mManager.bindSlice(URI)).thenReturn(loadingSlice);
 

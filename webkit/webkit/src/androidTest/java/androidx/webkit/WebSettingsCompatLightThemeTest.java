@@ -40,7 +40,7 @@ public class WebSettingsCompatLightThemeTest extends
     public WebSettingsCompatLightThemeTest() {
         // targetSdkVersion to T, it is min version the algorithmic darkening works.
         // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewLightThemeTestActivity.class, VERSION_CODES.CUR_DEVELOPMENT);
+        super(WebViewLightThemeTestActivity.class, 33);
     }
 
     /**
@@ -61,7 +61,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_rendersLight() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -85,7 +85,7 @@ public class WebSettingsCompatLightThemeTest extends
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");

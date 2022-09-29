@@ -16,8 +16,8 @@
 
 package androidx.room.solver.prepared.binder
 
-import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 import com.squareup.javapoet.CodeBlock
@@ -59,7 +59,7 @@ class CallablePreparedQueryResultBinder private constructor(
                 dbField,
                 binderScope
             )
-            addCode(binderScope.generate())
+            addCode(binderScope.builder().build())
         }.build()
 
         scope.builder().apply {

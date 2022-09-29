@@ -1,0 +1,54 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+
+    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinSampleBenchmarks")
+
+    ios {
+        binaries.framework {
+            baseName = "AndroidXDarwinSampleBenchmarks"
+            // https://youtrack.jetbrains.com/issue/KT-48552
+            embedBitcode = BitcodeEmbeddingMode.DISABLE
+            export(project(":benchmark:benchmark-darwin"))
+            xcf.add(it)
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+        iosArm64Main {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":benchmark:benchmark-darwin"))
+            }
+        }
+        iosSimulatorArm64Main {
+            dependsOn(iosArm64Main)
+        }
+        iosX64Main {
+            dependsOn(iosArm64Main)
+        }
+    }
+}
+
+androidx {
+    name = "AndroidX Benchmarks - Darwin Samples"
+    mavenGroup = LibraryGroups.BENCHMARK
+    inceptionYear = "2022"
+    description = "AndroidX Benchmarks - Darwin Samples"
+}

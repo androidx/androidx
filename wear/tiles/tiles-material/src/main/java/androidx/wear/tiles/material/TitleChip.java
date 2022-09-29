@@ -68,6 +68,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <pre>{@code
  * TitleChip myChip = TitleChip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @see  androidx.wear.tiles.material.layouts.PrimaryLayout.Builder#setContent if this TitleChip is
+ * used inside of {@link androidx.wear.tiles.material.layouts.PrimaryLayout}.
  */
 public class TitleChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
@@ -165,9 +168,9 @@ public class TitleChip implements LayoutElement {
                             .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
-                            .setPrimaryTextContent(mText)
-                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_TITLE2)
-                            .setIsPrimaryTextScalable(false);
+                            .setPrimaryLabelContent(mText)
+                            .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {
                 chipBuilder.setWidth(mWidth);
@@ -198,7 +201,7 @@ public class TitleChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryTextContent());
+        return checkNotNull(mElement.getPrimaryLabelContent());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */

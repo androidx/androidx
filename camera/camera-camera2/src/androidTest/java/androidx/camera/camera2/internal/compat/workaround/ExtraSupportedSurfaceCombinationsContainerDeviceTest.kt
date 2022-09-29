@@ -272,7 +272,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         surfaceCombinationYuvPrivYuv.addSurfaceConfig(
             SurfaceConfig.create(
                 SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS
+                SurfaceConfig.ConfigSize.VGA
             )
         )
         surfaceCombinationYuvPrivYuv.addSurfaceConfig(
@@ -307,7 +307,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         surfaceCombinationYuvYuvYuv.addSurfaceConfig(
             SurfaceConfig.create(
                 SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS
+                SurfaceConfig.ConfigSize.VGA
             )
         )
         surfaceCombinationYuvYuvYuv.addSurfaceConfig(
@@ -350,19 +350,19 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         }
     }
 
-    private class FakePreviewCaptureProcessor() : CaptureProcessor {
-        override fun onOutputSurface(surface: Surface?, imageFormat: Int) {
+    private class FakePreviewCaptureProcessor : CaptureProcessor {
+        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
             // No-op
         }
 
-        override fun process(bundle: ImageProxyBundle?) {
-            bundle!!.captureIds.forEach {
+        override fun process(bundle: ImageProxyBundle) {
+            bundle.captureIds.forEach {
                 val image = bundle.getImageProxy(it).get()
                 image.close()
             }
         }
 
-        override fun onResolutionUpdate(size: Size?) {
+        override fun onResolutionUpdate(size: Size) {
             // No-op
         }
     }

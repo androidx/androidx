@@ -36,6 +36,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
@@ -49,4 +50,7 @@ androidx {
 
 android {
     namespace "androidx.slice.benchmark"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

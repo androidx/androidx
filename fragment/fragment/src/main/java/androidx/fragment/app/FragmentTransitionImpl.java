@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
@@ -46,18 +47,18 @@ public abstract class FragmentTransitionImpl {
     /**
      * Returns {@code true} if this implementation can handle the specified {@link transition}.
      */
-    public abstract boolean canHandle(Object transition);
+    public abstract boolean canHandle(@NonNull Object transition);
 
     /**
      * Returns a clone of a transition or null if it is null
      */
-    public abstract Object cloneTransition(Object transition);
+    public abstract Object cloneTransition(@Nullable Object transition);
 
     /**
      * Wraps a transition in a TransitionSet and returns the set. If transition is null, null is
      * returned.
      */
-    public abstract Object wrapTransitionInSet(Object transition);
+    public abstract Object wrapTransitionInSet(@Nullable Object transition);
 
     /**
      * Finds all children of the shared elements and sets the wrapping TransitionSet
@@ -65,13 +66,13 @@ public abstract class FragmentTransitionImpl {
      * specific shared elements. This allows developers to target child views of the
      * shared elements specifically, but this doesn't happen by default.
      */
-    public abstract void setSharedElementTargets(Object transitionObj,
-            View nonExistentView, ArrayList<View> sharedViews);
+    public abstract void setSharedElementTargets(@NonNull Object transitionObj,
+            @NonNull View nonExistentView, @NonNull ArrayList<View> sharedViews);
 
     /**
      * Sets a transition epicenter to the rectangle of a given View.
      */
-    public abstract void setEpicenter(Object transitionObj, View view);
+    public abstract void setEpicenter(@NonNull Object transitionObj, @NonNull View view);
 
     /**
      * Replacement for view.getBoundsOnScreen because that is not public. This returns a rect
@@ -114,22 +115,22 @@ public abstract class FragmentTransitionImpl {
      * Otherwise, if you happened to have targeted the exact views for the transition,
      * the replaceTargets call will remove them unexpectedly.
      */
-    public abstract void addTargets(Object transitionObj, ArrayList<View> views);
+    public abstract void addTargets(@NonNull Object transitionObj, @NonNull ArrayList<View> views);
 
     /**
      * Creates a TransitionSet that plays all passed transitions together. Any null
      * transitions passed will not be added to the set. If all are null, then an empty
      * TransitionSet will be returned.
      */
-    public abstract Object mergeTransitionsTogether(Object transition1, Object transition2,
-            Object transition3);
+    public abstract Object mergeTransitionsTogether(@NonNull Object transition1,
+            @NonNull Object transition2, @Nullable Object transition3);
 
     /**
      * After the transition completes, the fragment's view is set to GONE and the exiting
      * views are set to VISIBLE.
      */
-    public abstract void scheduleHideFragmentView(Object exitTransitionObj, View fragmentView,
-            ArrayList<View> exitingViews);
+    public abstract void scheduleHideFragmentView(@NonNull Object exitTransitionObj,
+            @NonNull View fragmentView, @NonNull ArrayList<View> exitingViews);
 
     /**
      * Combines enter, exit, and shared element transition so that they play in the proper
@@ -140,13 +141,14 @@ public abstract class FragmentTransitionImpl {
      * @return A TransitionSet with all of enter, exit, and shared element transitions in
      * it (modulo null values), ordered such that they play in the proper sequence.
      */
-    public abstract Object mergeTransitionsInSequence(Object exitTransitionObj,
-            Object enterTransitionObj, Object sharedElementTransitionObj);
+    public abstract Object mergeTransitionsInSequence(@Nullable Object exitTransitionObj,
+            @Nullable Object enterTransitionObj, @Nullable Object sharedElementTransitionObj);
 
     /**
      * Calls {@code TransitionManager#beginDelayedTransition(ViewGroup, Transition)}.
      */
-    public abstract void beginDelayedTransition(ViewGroup sceneRoot, Object transition);
+    public abstract void beginDelayedTransition(@NonNull ViewGroup sceneRoot,
+            @Nullable Object transition);
 
     /**
      * Prepares for setting the shared element names by gathering the names of the incoming
@@ -210,10 +212,10 @@ public abstract class FragmentTransitionImpl {
      * After the transition has started, remove all targets that we added to the transitions
      * so that the transitions are left in a clean state.
      */
-    public abstract void scheduleRemoveTargets(Object overallTransitionObj,
-            Object enterTransition, ArrayList<View> enteringViews,
-            Object exitTransition, ArrayList<View> exitingViews,
-            Object sharedElementTransition, ArrayList<View> sharedElementsIn);
+    public abstract void scheduleRemoveTargets(@NonNull Object overallTransitionObj,
+            @Nullable Object enterTransition, @Nullable ArrayList<View> enteringViews,
+            @Nullable Object exitTransition, @Nullable ArrayList<View> exitingViews,
+            @Nullable Object sharedElementTransition, @Nullable ArrayList<View> sharedElementsIn);
 
 
     /**
@@ -236,8 +238,9 @@ public abstract class FragmentTransitionImpl {
      * Swap the targets for the shared element transition from those Views in sharedElementsOut
      * to those in sharedElementsIn
      */
-    public abstract void swapSharedElementTargets(Object sharedElementTransitionObj,
-            ArrayList<View> sharedElementsOut, ArrayList<View> sharedElementsIn);
+    public abstract void swapSharedElementTargets(@Nullable Object sharedElementTransitionObj,
+            @Nullable ArrayList<View> sharedElementsOut,
+            @Nullable ArrayList<View> sharedElementsIn);
 
     /**
      * This method removes the views from transitions that target ONLY those views and
@@ -245,24 +248,25 @@ public abstract class FragmentTransitionImpl {
      * The views list should match those added in addTargets and should contain
      * one view that is not in the view hierarchy (state.nonExistentView).
      */
-    public abstract void replaceTargets(Object transitionObj, ArrayList<View> oldTargets,
-            ArrayList<View> newTargets);
+    public abstract void replaceTargets(@NonNull Object transitionObj,
+            @SuppressLint("UnknownNullness") ArrayList<View> oldTargets,
+            @SuppressLint("UnknownNullness") ArrayList<View> newTargets);
 
     /**
      * Adds a View target to a transition. If transitionObj is null, nothing is done.
      */
-    public abstract void addTarget(Object transitionObj, View view);
+    public abstract void addTarget(@NonNull Object transitionObj, @NonNull View view);
 
     /**
      * Remove a View target to a transition. If transitionObj is null, nothing is done.
      */
-    public abstract void removeTarget(Object transitionObj, View view);
+    public abstract void removeTarget(@NonNull Object transitionObj, @NonNull View view);
 
     /**
      * Sets the epicenter of a transition to a rect object. The object can be modified until
      * the transition runs.
      */
-    public abstract void setEpicenter(Object transitionObj, Rect epicenter);
+    public abstract void setEpicenter(@NonNull Object transitionObj, @NonNull Rect epicenter);
 
     /**
      * Uses a breadth-first scheme to add startView and all of its children to views.

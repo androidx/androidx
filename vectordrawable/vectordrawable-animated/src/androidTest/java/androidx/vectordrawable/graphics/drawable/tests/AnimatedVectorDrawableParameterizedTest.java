@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -101,12 +102,12 @@ public class AnimatedVectorDrawableParameterizedTest {
 
         avd.registerAnimationCallback(new AnimationCallback() {
             @Override
-            public void onAnimationStart(Drawable drawable) {
+            public void onAnimationStart(@NonNull Drawable drawable) {
                 // Nothing to do.
             }
 
             @Override
-            public void onAnimationEnd(Drawable drawable) {
+            public void onAnimationEnd(@NonNull Drawable drawable) {
                 bitmap.eraseColor(0);
                 drawable.draw(c);
                 int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);

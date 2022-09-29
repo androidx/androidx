@@ -15,7 +15,8 @@
  */
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -50,7 +51,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
             val cursorVar = scope.getTmpVar("_cursor")
             addStatement(
                 "final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
+                CURSOR.toJavaPoet(),
                 cursorVar,
                 RoomTypeNames.DB_UTIL,
                 dbField,

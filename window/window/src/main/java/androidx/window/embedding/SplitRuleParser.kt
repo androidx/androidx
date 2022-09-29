@@ -177,7 +177,7 @@ internal class SplitRuleParser {
     ): SplitPlaceholderRule {
         val placeholderActivityIntentName: String?
         val stickyPlaceholder: Boolean
-        val finishPrimaryWithSecondary: Int
+        val finishPrimaryWithPlaceholder: Int
         val ratio: Float
         val minWidth: Int
         val minSmallestWidth: Int
@@ -193,8 +193,8 @@ internal class SplitRuleParser {
             )
             stickyPlaceholder = getBoolean(R.styleable.SplitPlaceholderRule_stickyPlaceholder,
                 false)
-            finishPrimaryWithSecondary =
-                getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithSecondary, FINISH_ALWAYS)
+            finishPrimaryWithPlaceholder =
+                getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder, FINISH_ALWAYS)
             ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
             minWidth = getDimension(
                 R.styleable.SplitPlaceholderRule_splitMinWidth,
@@ -209,6 +209,12 @@ internal class SplitRuleParser {
                 LayoutDirection.LOCALE
             )
         }
+        if (finishPrimaryWithPlaceholder == FINISH_NEVER) {
+                throw IllegalArgumentException(
+                    "FINISH_NEVER is not a valid configuration for Placeholder activities. " +
+                        "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the " +
+                        "current API")
+        }
         val packageName = context.applicationContext.packageName
         val placeholderActivityClassName = buildClassName(
             packageName,
@@ -220,7 +226,7 @@ internal class SplitRuleParser {
             emptySet(),
             Intent().setComponent(placeholderActivityClassName),
             stickyPlaceholder,
-            finishPrimaryWithSecondary,
+            finishPrimaryWithPlaceholder,
             minWidth,
             minSmallestWidth,
             ratio,

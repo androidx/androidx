@@ -71,7 +71,7 @@ open class Subject<T>(val actual: T?) {
 private fun Any?.standardIsEqualTo(expected: Any?) {
     assertTrue(
         compareForEquality(expected),
-        "expected: ${toStringForAssert()} but was: ${expected.toStringForAssert()}",
+        "expected: ${expected.toStringForAssert()} but was: ${toStringForAssert()}",
     )
 }
 

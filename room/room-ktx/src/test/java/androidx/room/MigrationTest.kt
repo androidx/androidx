@@ -53,7 +53,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun compileStatement(sql: String?): SupportSQLiteStatement {
+    override fun compileStatement(sql: String): SupportSQLiteStatement {
         throw UnsupportedOperationException()
     }
 
@@ -65,12 +65,12 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener?) {
+    override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener) {
         throw UnsupportedOperationException()
     }
 
     override fun beginTransactionWithListenerNonExclusive(
-        transactionListener: SQLiteTransactionListener?
+        transactionListener: SQLiteTransactionListener
     ) {
         throw UnsupportedOperationException()
     }
@@ -87,104 +87,90 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun isDbLockedByCurrentThread(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isDbLockedByCurrentThread: Boolean
+        get() { throw UnsupportedOperationException() }
 
     override fun yieldIfContendedSafely(): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun yieldIfContendedSafely(sleepAfterYieldDelay: Long): Boolean {
+    override fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun getVersion(): Int {
-        throw UnsupportedOperationException()
-    }
+    override var version: Int
+        get() { throw UnsupportedOperationException() }
+        set(_) { throw UnsupportedOperationException() }
 
-    override fun setVersion(version: Int) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getMaximumSize(): Long {
-        throw UnsupportedOperationException()
-    }
-
+    override val maximumSize: Long
+        get() { throw UnsupportedOperationException() }
     override fun setMaximumSize(numBytes: Long): Long {
         throw UnsupportedOperationException()
     }
 
-    override fun getPageSize(): Long {
+    override var pageSize: Long
+        get() { throw UnsupportedOperationException() }
+        set(_) { throw UnsupportedOperationException() }
+
+    override fun query(query: String): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun setPageSize(numBytes: Long) {
+    override fun query(query: String, bindArgs: Array<Any?>): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: String?): Cursor {
-        throw UnsupportedOperationException()
-    }
-
-    override fun query(query: String?, bindArgs: Array<out Any>?): Cursor {
-        throw UnsupportedOperationException()
-    }
-
-    override fun query(query: SupportSQLiteQuery?): Cursor {
+    override fun query(query: SupportSQLiteQuery): Cursor {
         throw UnsupportedOperationException()
     }
 
     override fun query(
-        query: SupportSQLiteQuery?,
+        query: SupportSQLiteQuery,
         cancellationSignal: CancellationSignal?
     ): Cursor {
         throw UnsupportedOperationException()
     }
 
-    override fun insert(table: String?, conflictAlgorithm: Int, values: ContentValues?): Long {
+    override fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(table: String?, whereClause: String?, whereArgs: Array<out Any>?): Int {
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
         throw UnsupportedOperationException()
     }
 
     override fun update(
-        table: String?,
+        table: String,
         conflictAlgorithm: Int,
-        values: ContentValues?,
+        values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<out Any>?
+        whereArgs: Array<Any?>?
     ): Int {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String?) {
+    override fun execSQL(sql: String) {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String?, bindArgs: Array<out Any>?) {
+    override fun execSQL(sql: String, bindArgs: Array<Any?>) {
         throw UnsupportedOperationException()
     }
 
-    override fun isReadOnly(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isReadOnly: Boolean
+        get() { throw UnsupportedOperationException() }
 
-    override fun isOpen(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isOpen: Boolean
+        get() { throw UnsupportedOperationException() }
 
     override fun needUpgrade(newVersion: Int): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun getPath(): String {
-        throw UnsupportedOperationException()
-    }
+    override val path: String
+        get() { throw UnsupportedOperationException() }
 
-    override fun setLocale(locale: Locale?) {
+    override fun setLocale(locale: Locale) {
         throw UnsupportedOperationException()
     }
 
@@ -192,7 +178,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun setForeignKeyConstraintsEnabled(enable: Boolean) {
+    override fun setForeignKeyConstraintsEnabled(enabled: Boolean) {
         throw UnsupportedOperationException()
     }
 
@@ -204,15 +190,12 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun isWriteAheadLoggingEnabled(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isWriteAheadLoggingEnabled: Boolean
+        get() { throw UnsupportedOperationException() }
 
-    override fun getAttachedDbs(): MutableList<Pair<String, String>> {
-        throw UnsupportedOperationException()
-    }
+    override val attachedDbs: MutableList<Pair<String, String>>
+        get() { throw UnsupportedOperationException() }
 
-    override fun isDatabaseIntegrityOk(): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override val isDatabaseIntegrityOk: Boolean
+        get() { throw UnsupportedOperationException() }
 }

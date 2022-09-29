@@ -1185,6 +1185,7 @@ public class MediaSessionCompat {
          * @param mediaButtonEvent The media button event intent.
          * @return True if the event was handled, false otherwise.
          */
+        @SuppressWarnings("deprecation")
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
             if (android.os.Build.VERSION.SDK_INT >= 27) {
                 // Double tap of play/pause as skipping to next is already handled by framework,
@@ -1757,11 +1758,6 @@ public class MediaSessionCompat {
                 Callback.this.onSetRating(RatingCompat.fromRating(ratingFwk));
                 clearCurrentControllerInfo(sessionImpl);
             }
-
-            public void onSetRating(Rating ratingFwk, Bundle extras) {
-                // This method will not be called.
-            }
-
             @Override
             @SuppressWarnings("deprecation")
             public void onCustomAction(String action, Bundle extras) {

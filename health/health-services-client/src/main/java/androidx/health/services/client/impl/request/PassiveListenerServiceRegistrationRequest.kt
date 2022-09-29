@@ -34,13 +34,12 @@ internal class PassiveListenerServiceRegistrationRequest(
     public val passiveListenerConfig: PassiveListenerConfig,
 ) : ProtoParcelable<RequestsProto.PassiveListenerServiceRegistrationRequest>() {
 
-    override val proto: RequestsProto.PassiveListenerServiceRegistrationRequest by lazy {
+    override val proto: RequestsProto.PassiveListenerServiceRegistrationRequest =
         RequestsProto.PassiveListenerServiceRegistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setListenerServiceClass(passiveListenerServiceClassName)
             .setConfig(passiveListenerConfig.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

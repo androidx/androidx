@@ -26,6 +26,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.javapoet)
     api(libs.kotlinPoet)
+    api(libs.kotlinPoetJavaPoet)
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
@@ -48,9 +49,9 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
                 "-Xjvm-default=all",
-                "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
-                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
+                "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
         ]
     }
 }

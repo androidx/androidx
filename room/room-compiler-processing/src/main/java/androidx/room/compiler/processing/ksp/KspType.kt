@@ -16,16 +16,21 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -49,21 +54,33 @@ internal abstract class KspType(
     }
 
     final override val typeName: TypeName by lazy {
-        jvmWildcardType?.typeName ?: resolveTypeName()
+        xTypeName.java
     }
 
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            jvmWildcardType?.asTypeName()?.java ?: resolveJTypeName(),
+            jvmWildcardType?.asTypeName()?.kotlin ?: resolveKTypeName(),
+            nullability
+        )
+    }
+
+    override fun asTypeName() = xTypeName
+
     /**
-     * A Kotlin type might have a sligtly different type in JVM due to wildcards.
+     * A Kotlin type might have a slightly different type in JVM due to wildcards.
      * This fields holds onto that value which will be used when creating JVM types.
      */
     private val jvmWildcardType by lazy {
         jvmTypeResolver?.resolveJvmType(env)
     }
 
-    val jvmWildcardTypeOrSelf
+    internal val jvmWildcardTypeOrSelf
         get() = jvmWildcardType ?: this
 
-    protected abstract fun resolveTypeName(): TypeName
+    protected abstract fun resolveJTypeName(): JTypeName
+
+    protected abstract fun resolveKTypeName(): KTypeName
 
     override val nullability by lazy {
         when (ksType.nullability) {
@@ -84,18 +101,32 @@ internal abstract class KspType(
     }
 
     override val typeElement by lazy {
-        // for primitive types, we could technically return null from here as they are not backed
-        // by a type element in javac but in Kotlin we have types for them, hence returning them
-        // is better.
+        // Array types don't have an associated type element (only the componentType does), so
+        // return null.
+        if (isArray()) {
+            return@lazy null
+        }
+
+        // If this is a primitive, return null for consistency since primitives normally imply
+        // that there isn't an associated type element.
+        if (this is KspPrimitiveType) {
+            return@lazy null
+        }
+
         val declaration = ksType.declaration as? KSClassDeclaration
         declaration?.let {
             env.wrapClassDeclaration(it)
         }
     }
 
+    @OptIn(KspExperimental::class)
     override val typeArguments: List<XType> by lazy {
-        ksType.arguments.mapIndexed { index, arg ->
-            env.wrap(ksType.declaration.typeParameters[index], arg)
+        if (env.resolver.isJavaRawType(ksType)) {
+            emptyList()
+        } else {
+            ksType.arguments.mapIndexed { index, arg ->
+                env.wrap(ksType.declaration.typeParameters[index], arg)
+            }
         }
     }
 
@@ -145,7 +176,7 @@ internal abstract class KspType(
         if (nullability == XNullability.UNKNOWN || other.nullability == XNullability.UNKNOWN) {
             // if one the nullabilities is unknown, it is coming from java source code or .class.
             // for those cases, use java platform type equality (via typename)
-            return typeName == other.typeName
+            return asTypeName().java == other.asTypeName().java
         }
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.

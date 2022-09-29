@@ -17,10 +17,9 @@
 package androidx.paging
 
 /**
- * Fetcher-side callbacks for presenter-side events communicated through [PagingData].
+ * Fetcher-side callbacks for presenter-side refresh/retry events communicated through [PagingData].
  */
 internal interface UiReceiver {
-    fun accessHint(viewportHint: ViewportHint)
     fun retry()
     fun refresh()
 }

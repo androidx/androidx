@@ -21,35 +21,26 @@ package androidx.glance.template
  * a header, text section with up to three text items, main image, and single action button.
  *
  * @param displayHeader True if the glanceable header should be displayed
- * @param headerIcon Header logo icon, image corner radius is ignored in default layouts
- * @param header Main header text
- * @param text1 Text section first text item
- * @param text2 Text section second text item
- * @param text3 Text section third text item
- * @param button Action button
- * @param image Main image content
+ * @param headerBlock The header block of the entity by [HeaderBlock].
+ * @param textBlock The text block for up to three types of texts for the entity.
+ * @param imageBlock The image block for the entity main image by [ImageBlock].
+ * @param actionBlock The entity single action button by [ActionBlock].
  */
 
 class SingleEntityTemplateData(
     val displayHeader: Boolean = true,
-    val headerIcon: TemplateImageWithDescription? = null,
-    val header: TemplateText? = null,
-    val text1: TemplateText? = null,
-    val text2: TemplateText? = null,
-    val text3: TemplateText? = null,
-    val button: TemplateButton? = null,
-    val image: TemplateImageWithDescription? = null
+    val headerBlock: HeaderBlock? = null,
+    val textBlock: TextBlock? = null,
+    val imageBlock: ImageBlock? = null,
+    val actionBlock: ActionBlock? = null,
 ) {
 
     override fun hashCode(): Int {
         var result = displayHeader.hashCode()
-        result = 31 * result + (headerIcon?.hashCode() ?: 0)
-        result = 31 * result + (header?.hashCode() ?: 0)
-        result = 31 * result + (text1?.hashCode() ?: 0)
-        result = 31 * result + (text2?.hashCode() ?: 0)
-        result = 31 * result + (text3?.hashCode() ?: 0)
-        result = 31 * result + (button?.hashCode() ?: 0)
-        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (headerBlock?.hashCode() ?: 0)
+        result = 31 * result + (textBlock?.hashCode() ?: 0)
+        result = 31 * result + (imageBlock?.hashCode() ?: 0)
+        result = 31 * result + (actionBlock?.hashCode() ?: 0)
         return result
     }
 
@@ -60,13 +51,10 @@ class SingleEntityTemplateData(
         other as SingleEntityTemplateData
 
         if (displayHeader != other.displayHeader) return false
-        if (headerIcon != other.headerIcon) return false
-        if (header != other.header) return false
-        if (text1 != other.text1) return false
-        if (text2 != other.text2) return false
-        if (text3 != other.text3) return false
-        if (button != other.button) return false
-        if (image != other.image) return false
+        if (headerBlock != other.headerBlock) return false
+        if (textBlock != other.textBlock) return false
+        if (imageBlock != other.imageBlock) return false
+        if (actionBlock != other.actionBlock) return false
 
         return true
     }

@@ -16,6 +16,9 @@
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
@@ -43,11 +46,11 @@ import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
-import androidx.room.writer.ClassWriter
+import androidx.room.writer.TypeWriter
 import com.squareup.javapoet.ClassName
+import java.io.File
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import java.io.File
 
 object COMMON {
     val ARTIST by lazy {
@@ -314,17 +317,24 @@ object COMMON {
 }
 
 fun testCodeGenScope(): CodeGenScope {
-    return CodeGenScope(mock(ClassWriter::class.java))
+    return CodeGenScope(
+        object : TypeWriter(CodeLanguage.JAVA) {
+            override fun createTypeSpecBuilder(): XTypeSpec.Builder {
+                return XTypeSpec.classBuilder(codeLanguage, XClassName.get("test", "Foo"))
+            }
+        }
+    )
 }
 
 fun loadJavaCode(fileName: String, qName: String): Source {
-    val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
+    val contents = File("src/test/test-data/$fileName").readText(Charsets.UTF_8)
     return Source.java(qName, contents)
 }
 
 fun loadTestSource(fileName: String, qName: String): Source {
-    val contents = File("src/test/data/$fileName")
-    return Source.load(contents, qName, fileName)
+    val contents = File("src/test/test-data/$fileName")
+    val relativePath = qName.replace('.', File.separatorChar) + "." + contents.extension
+    return Source.load(contents, qName, relativePath)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {

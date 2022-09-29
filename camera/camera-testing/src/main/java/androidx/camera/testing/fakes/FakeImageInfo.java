@@ -35,6 +35,7 @@ public final class FakeImageInfo implements ImageInfo {
 
     private long mTimestamp;
     private int mRotationDegrees;
+    private float mFocalLength;
 
     /** set tag to a TagBundle */
     public void setTag(@NonNull String key, @NonNull Integer tag) {
@@ -52,6 +53,10 @@ public final class FakeImageInfo implements ImageInfo {
 
     public void setRotationDegrees(int rotationDegrees) {
         mRotationDegrees = rotationDegrees;
+    }
+
+    public void setFocalLength(float focalLength) {
+        mFocalLength = focalLength;
     }
 
     public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
@@ -83,5 +88,6 @@ public final class FakeImageInfo implements ImageInfo {
     @Override
     public void populateExifData(@NonNull ExifData.Builder exifBuilder) {
         exifBuilder.setOrientationDegrees(mRotationDegrees);
+        exifBuilder.setFocalLength(mFocalLength);
     }
 }

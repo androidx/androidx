@@ -1,4 +1,32 @@
 // Baseline format: 1.0
+AddedFinal: androidx.room.Room:
+    Class androidx.room.Room added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindBlob(int, byte[]):
+    Method androidx.room.RoomSQLiteQuery.bindBlob has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindDouble(int, double):
+    Method androidx.room.RoomSQLiteQuery.bindDouble has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindLong(int, long):
+    Method androidx.room.RoomSQLiteQuery.bindLong has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindNull(int):
+    Method androidx.room.RoomSQLiteQuery.bindNull has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindString(int, String):
+    Method androidx.room.RoomSQLiteQuery.bindString has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#bindTo(androidx.sqlite.db.SupportSQLiteProgram):
+    Method androidx.room.RoomSQLiteQuery.bindTo has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#clearBindings():
+    Method androidx.room.RoomSQLiteQuery.clearBindings has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#close():
+    Method androidx.room.RoomSQLiteQuery.close has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#copyArgumentsFrom(androidx.room.RoomSQLiteQuery):
+    Method androidx.room.RoomSQLiteQuery.copyArgumentsFrom has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#getArgCount():
+    Method androidx.room.RoomSQLiteQuery.getArgCount has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#getSql():
+    Method androidx.room.RoomSQLiteQuery.getSql has added 'final' qualifier
+AddedFinal: androidx.room.RoomSQLiteQuery#release():
+    Method androidx.room.RoomSQLiteQuery.release has added 'final' qualifier
+
+
 ChangedType: androidx.room.DatabaseConfiguration#autoMigrationSpecs:
     Field androidx.room.DatabaseConfiguration.autoMigrationSpecs has changed type from java.util.List<androidx.room.migration.AutoMigrationSpec!> to java.util.List<androidx.room.migration.AutoMigrationSpec>
 ChangedType: androidx.room.DatabaseConfiguration#callbacks:
@@ -117,6 +145,8 @@ RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfigurati
     Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback,java.util.List<java.lang.Object>)
 RemovedDeprecatedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<java.lang.Object>, java.util.List<androidx.room.migration.AutoMigrationSpec>):
     Removed deprecated constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,java.util.concurrent.Executor,boolean,boolean,boolean,java.util.Set<java.lang.Integer>,String,java.io.File,java.util.concurrent.Callable<java.io.InputStream>,androidx.room.RoomDatabase.PrepackagedDatabaseCallback,java.util.List<java.lang.Object>,java.util.List<androidx.room.migration.AutoMigrationSpec>)
+RemovedDeprecatedMethod: androidx.room.Room#Room():
+    Removed deprecated constructor androidx.room.Room()
 
 
 RemovedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, android.content.Intent, boolean, boolean, java.util.Set<java.lang.Integer>, String, java.io.File, java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback, java.util.List<java.lang.Object>, java.util.List<androidx.room.migration.AutoMigrationSpec>):

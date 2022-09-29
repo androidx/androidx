@@ -30,12 +30,16 @@ import static androidx.lifecycle.Lifecycle.State.STARTED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import androidx.annotation.NonNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -235,14 +239,33 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(observer);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongSecondParam() {
+    @Test
+    public void testLifecycleOwnerSubclassFirstParam() {
         LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_START)
-            private void started(LifecycleOwner owner, Lifecycle l) {
+            @OnLifecycleEvent(ON_ANY)
+            private void started(DerivedLifecycleOwner dOwner, Lifecycle.Event e) {
             }
         };
         new ReflectiveGenericLifecycleObserver(observer);
+    }
+
+    @Test
+    public void testLifecycleEventSecondParam() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_ANY)
+            private void started(LifecycleOwner owner, Lifecycle l) {
+            }
+        };
+        IllegalArgumentException expectedException = assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    new ReflectiveGenericLifecycleObserver(observer);
+                }
+        );
+        assertEquals(
+                "invalid parameter type. second arg must be an event",
+                expectedException.getMessage()
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -253,6 +276,26 @@ public class ReflectiveGenericLifecycleObserverTest {
             }
         };
         new ReflectiveGenericLifecycleObserver(observer);
+    }
+
+    @Test
+    public void testOwnerMethodWithSecondParam_eventMustBeOnAny() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_START)
+            private void started(LifecycleOwner owner, Lifecycle.Event e) {
+            }
+        };
+
+        IllegalArgumentException expectedException = assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    new ReflectiveGenericLifecycleObserver(observer);
+                }
+        );
+        assertEquals(
+                "Second arg is supported only for ON_ANY value",
+                expectedException.getMessage()
+        );
     }
 
     static class BaseClass1 implements LifecycleObserver {
@@ -364,6 +407,14 @@ public class ReflectiveGenericLifecycleObserverTest {
     static class DerivedClass5 implements InterfaceStart, InterfaceStop {
         @Override
         public void foo(LifecycleOwner owner) {
+        }
+    }
+
+    static class DerivedLifecycleOwner implements LifecycleOwner {
+        @NonNull
+        @Override
+        public Lifecycle getLifecycle() {
+            return null;
         }
     }
 

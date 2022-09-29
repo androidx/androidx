@@ -55,14 +55,16 @@ public class UserActivityInfo(
     )
 
     /** @hide */
-    override val proto: UserActivityInfoProto by lazy {
+    override val proto: UserActivityInfoProto = getUserActivityInfoProto()
+
+    private fun getUserActivityInfoProto(): UserActivityInfoProto {
         val builder =
             UserActivityInfoProto.newBuilder()
                 .setState(userActivityState.toProto())
                 .setStateChangeTimeEpochMs(stateChangeTime.toEpochMilli())
 
         exerciseInfo?.let { builder.exerciseInfo = it.proto }
-        builder.build()
+        return builder.build()
     }
 
     override fun toString(): String =

@@ -27,7 +27,7 @@ class UwbDevice(val address: UwbAddress) {
         /**
          * Creates a new UwbDevice for a given address.
          *
-         * @throws an [IllegalArgumentException] if address is invalid.
+         * @throws [IllegalArgumentException] if address is invalid.
          */
         @JvmStatic
         fun createForAddress(address: String): UwbDevice {

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.location.GnssMeasurementsEvent;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
@@ -35,6 +36,8 @@ import android.text.TextUtils;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -144,5 +147,23 @@ public class LocationManagerCompatTest {
     public void testGetGnssYearOfHardware() {
         // can't do much to test this except check it doesn't crash
         assertTrue(LocationManagerCompat.getGnssYearOfHardware(mLocationManager) >= 0);
+    }
+
+    @FlakyTest(bugId = 241572276)
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testRegisterGnssMeasurementsCallback_handler() {
+        // can't do much to test this except check it doesn't crash
+        assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
+                new GnssMeasurementsEvent.Callback() {}, new Handler(Looper.getMainLooper())));
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    public void testRegisterGnssMeasurementsCallback_executor() {
+        // can't do much to test this except check it doesn't crash
+        assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
+                Runnable::run,
+                new GnssMeasurementsEvent.Callback() {}));
     }
 }

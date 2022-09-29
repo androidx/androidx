@@ -141,7 +141,7 @@ class ProcessingImageReader implements ImageReaderProxy {
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
+                public void onFailure(@NonNull Throwable throwable) {
 
                 }
             };

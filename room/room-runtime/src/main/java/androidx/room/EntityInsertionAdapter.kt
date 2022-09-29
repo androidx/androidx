@@ -151,13 +151,14 @@ abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteS
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun insertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long?> {
+    fun insertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long> {
         val stmt: SupportSQLiteStatement = acquire()
+        val iterator = entities.iterator()
         return try {
-            val result = arrayOfNulls<Long>(entities.size)
-            entities.forEachIndexed { index, entity ->
+            val result = Array(entities.size) {
+                val entity = iterator.next()
                 bind(stmt, entity)
-                result[index] = stmt.executeInsert()
+                stmt.executeInsert()
             }
             result
         } finally {
@@ -171,13 +172,14 @@ abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteS
      * @param entities Entities to insert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun insertAndReturnIdsArrayBox(entities: Array<T>): Array<Long?> {
+    fun insertAndReturnIdsArrayBox(entities: Array<T>): Array<Long> {
         val stmt: SupportSQLiteStatement = acquire()
+        val iterator = entities.iterator()
         return try {
-            val result = arrayOfNulls<Long>(entities.size)
-            entities.forEachIndexed { index, entity ->
+            val result = Array(entities.size) {
+                val entity = iterator.next()
                 bind(stmt, entity)
-                result[index] = stmt.executeInsert()
+                stmt.executeInsert()
             }
             result
         } finally {

@@ -17,6 +17,7 @@
 package androidx.health.services.client
 
 import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.HealthEvent
 import androidx.health.services.client.data.PassiveGoal
 import androidx.health.services.client.data.UserActivityInfo
@@ -25,21 +26,21 @@ import androidx.health.services.client.data.UserActivityInfo
 public interface PassiveListenerCallback {
 
     /** Called when this callback has been successfully registered with Health Services. */
-    public fun onRegistered()
+    public fun onRegistered() {}
 
     /**
      * Called when Health Services reports a failure with the registration of this callback.
      *
      * @param throwable a [Throwable] sent by Health Services with information about the failure
      */
-    public fun onRegistrationFailed(throwable: Throwable)
+    public fun onRegistrationFailed(throwable: Throwable) {}
 
     /**
      * Called when new [DataPoint]s are generated.
      *
      * @param dataPoints a list of new [DataPoint]s generated
      */
-    public fun onNewDataPointsReceived(dataPoints: List<DataPoint>) {}
+    public fun onNewDataPointsReceived(dataPoints: DataPointContainer) {}
 
     /**
      * Called when new [UserActivityInfo] is generated.

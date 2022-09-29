@@ -19,7 +19,6 @@ package androidx.window.extensions.embedding;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,6 @@ import java.util.function.Consumer;
  * <p>This interface should be implemented by OEM and deployed to the target devices.
  * @see androidx.window.extensions.WindowExtensions
  */
-@ExperimentalWindowExtensionsApi
 public interface ActivityEmbeddingComponent {
 
     /**
@@ -42,9 +40,12 @@ public interface ActivityEmbeddingComponent {
 
     /**
      * Sets the callback that notifies WM Jetpack about changes in split states from the Extensions
-     * Sidecar implementation. The callback is registered for the lifetime of the process.
+     * Sidecar implementation. The listener should be registered for the lifetime of the process.
+     * There are no threading guarantees where the events are dispatched from. All messages are
+     * re-posted to the executors provided by developers.
      */
     @SuppressWarnings("ExecutorRegistration") // Jetpack will post it on the app-provided executor.
+    // TODO (b/241973352): Change setSplitInfoCallback to setSplitInfoListener
     void setSplitInfoCallback(@NonNull Consumer<List<SplitInfo>> consumer);
 
     /**

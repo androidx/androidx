@@ -33,7 +33,6 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalBaselineProfilesApi::class)
-@Ignore
 class GithubBrowserBaselineProfile {
 
     /**
@@ -60,6 +59,7 @@ class GithubBrowserBaselineProfile {
     }
 
     @Test
+    @Ignore
     fun githubBrowserProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,

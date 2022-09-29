@@ -26,12 +26,12 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.runTestingComposition
 import androidx.glance.text.TextStyle
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ButtonTest {
@@ -98,7 +98,7 @@ class ButtonTest {
 
         assertThat(asText.text).isEqualTo("button")
         assertThat(asText.modifier).isEqualTo(child.modifier)
-        assertThat(asText.style).isEqualTo(TextStyle(fontSize = 12.sp))
+        assertThat(asText.style?.fontSize).isEqualTo(12.sp)
         assertThat(asText.maxLines).isEqualTo(3)
     }
 }

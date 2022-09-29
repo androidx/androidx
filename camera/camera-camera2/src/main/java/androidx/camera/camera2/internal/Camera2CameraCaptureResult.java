@@ -33,6 +33,8 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 
+import java.nio.BufferUnderflowException;
+
 /** The camera2 implementation for the capture result of a single image capture. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
@@ -228,9 +230,16 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
         }
 
         // Set orientation
-        Integer jpegOrientation = mCaptureResult.get(CaptureResult.JPEG_ORIENTATION);
-        if (jpegOrientation != null) {
-            exifData.setOrientationDegrees(jpegOrientation);
+        try {
+            Integer jpegOrientation = mCaptureResult.get(CaptureResult.JPEG_ORIENTATION);
+            if (jpegOrientation != null) {
+                exifData.setOrientationDegrees(jpegOrientation);
+            }
+        } catch (BufferUnderflowException exception) {
+            // On certain devices, e.g. Pixel 3 XL API 31, getting JPEG orientation on YUV stream
+            // throws BufferUnderflowException. The value will be overridden in post-processing
+            // anyway, so it's safe to ignore.
+            Logger.w(TAG, "Failed to get JPEG orientation.");
         }
 
         // Set exposure time

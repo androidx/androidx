@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
@@ -48,13 +49,13 @@ class EntityDeletionAdapterWriter private constructor(
             }
             return EntityDeletionAdapterWriter(
                 tableName = entity.tableName,
-                pojoTypeName = entity.pojo.typeName,
+                pojoTypeName = entity.pojo.typeName.toJavaPoet(),
                 fields = fieldsToUse
             )
         }
     }
 
-    fun createAnonymous(classWriter: ClassWriter, dbParam: String): TypeSpec {
+    fun createAnonymous(typeWriter: TypeWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(
@@ -75,7 +76,7 @@ class EntityDeletionAdapterWriter private constructor(
             )
             addMethod(
                 MethodSpec.methodBuilder("bind").apply {
-                    val bindScope = CodeGenScope(classWriter)
+                    val bindScope = CodeGenScope(typeWriter)
                     addAnnotation(Override::class.java)
                     val stmtParam = "stmt"
                     addParameter(

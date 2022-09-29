@@ -52,6 +52,7 @@ import androidx.core.view.OnReceiveContentListener;
 import androidx.draganddrop.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
@@ -64,6 +65,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Tests for {@link androidx.draganddrop.DropHelper}. */
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class DropHelperTest {
 

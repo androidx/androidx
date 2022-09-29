@@ -163,6 +163,11 @@
         <!-- Optional, specifies whether in this ComplicationSlotsOption the specified complication
         slot's accessibilityTraversalIndex should be modified. -->
         <attr name="accessibilityTraversalIndex" />
+        <!-- Optional, a resource reference that specifies the name of the complication slot -->
+        <attr name="name" format="reference"/>
+        <!-- Optional, a resource reference that specifies the screen readerr name of the
+        complication slot -->
+        <attr name="screenReaderName" format="reference"/>
     </declare-styleable>
 
     <!-- A ComplicationSlotsOption node should contain 1 or more child ComplicationSlotOverlay nodes

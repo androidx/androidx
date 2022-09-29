@@ -87,10 +87,7 @@ public class ShortcutAdapter {
      * <p>See {@link ShortcutInfoCompat.Builder#setExcludedFromSurfaces(int)}.
      *
      * <p>Given document object will be stored in the form of {@link Bundle} in
-     * {@link ShortcutInfoCompat} and will remain visible to any library that implements
-     * {@link androidx.core.content.pm.ShortcutInfoChangeListener}. Upon receiving a shortcut
-     * through its listener, libraries may persist the document in a separate storage, which
-     * potentially allows the document to be surfaced in assistant and other proactive surfaces.
+     * {@link ShortcutInfoCompat}.
      *
      * <p>The document that was stored in {@link ShortcutInfoCompat} is discarded when the
      * shortcut is converted into {@link android.content.pm.ShortcutInfo}, meaning that the

@@ -21,7 +21,11 @@
         app:bottom="0.1"
         app:left="0.2"
         app:right="0.3"
-        app:top="0.4" />
+        app:top="0.4"
+        app:marginLeft="0.1"
+        app:marginTop="0.2"
+        app:marginRight="0.3"
+        app:marginBottom="0.4" />
     <ComplicationSlotBounds
         app:complicationType="LONG_TEXT"
         app:bottom="192dp"

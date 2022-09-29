@@ -71,7 +71,7 @@ internal fun RemoteViews.translateEmittableCheckBox(
         setViewEnabled(iconId, element.checked)
         setImageViewColorFilter(
             iconId,
-            element.colors.checkBox.resolve(translationContext.context, element.checked)
+            element.colors.checkBox.getColor(translationContext.context, element.checked)
         )
     }
 

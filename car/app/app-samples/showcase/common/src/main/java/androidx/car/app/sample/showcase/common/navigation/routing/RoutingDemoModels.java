@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.navigation.routing;
 
+import static androidx.car.app.model.Action.FLAG_DEFAULT;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 import static androidx.car.app.navigation.model.LaneDirection.SHAPE_NORMAL_RIGHT;
 import static androidx.car.app.navigation.model.LaneDirection.SHAPE_STRAIGHT;
@@ -63,7 +64,7 @@ public abstract class RoutingDemoModels {
                 CarText.create(carContext.getString(R.string.navigation_alert_title));
         CarText subtitle =
                 CarText.create(carContext.getString(R.string.navigation_alert_subtitle));
-        CarIcon icon = CarIcon.APP_ICON;
+        CarIcon icon = CarIcon.ALERT;
 
         CarText yesTitle = CarText.create(carContext.getString(R.string.yes_action_title));
         Action yesAction = new Action.Builder().setTitle(yesTitle).setOnClickListener(
@@ -81,7 +82,7 @@ public abstract class RoutingDemoModels {
                                 carContext.getString(
                                         R.string.no_action_toast_msg),
                                 CarToast.LENGTH_SHORT)
-                        .show()).build();
+                        .show()).setFlags(FLAG_DEFAULT).build();
 
         return new Alert.Builder(/* alertId: */ 0, title, /* durationMillis: */ 10000)
                 .setSubtitle(subtitle)

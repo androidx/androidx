@@ -16,15 +16,15 @@
 
 package androidx.core.uwb.impl
 
-import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
 import androidx.core.uwb.RangingResult.RangingResultPosition
-import androidx.core.uwb.UwbDevice
+import androidx.core.uwb.common.TestCommons.Companion.COMPLEX_CHANNEL
+import androidx.core.uwb.common.TestCommons.Companion.LOCAL_ADDRESS
+import androidx.core.uwb.common.TestCommons.Companion.RANGING_CAPABILITIES
+import androidx.core.uwb.common.TestCommons.Companion.RANGING_PARAMETERS
+import androidx.core.uwb.common.TestCommons.Companion.UWB_DEVICE
 import androidx.core.uwb.mock.TestUwbClient
-import com.google.android.gms.nearby.uwb.RangingCapabilities
-import com.google.android.gms.nearby.uwb.UwbAddress
-import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,33 +41,23 @@ import org.junit.Assert
 import org.junit.Test
 
 class UwbClientSessionScopeImplTest {
-    private val complexChannel = UwbComplexChannel.Builder()
-        .setPreambleIndex(0)
-        .setChannel(0)
-        .build()
-    private val localAddress = UwbAddress(ByteArray(0))
-    private val rangingCapabilities = RangingCapabilities(true, false, false)
-    private val uwbClient = TestUwbClient(complexChannel, localAddress, rangingCapabilities, true)
-    private val uwbClientSessionScopeImpl = UwbClientSessionScopeImpl(
+    private val uwbClient = TestUwbClient(
+        COMPLEX_CHANNEL, LOCAL_ADDRESS, RANGING_CAPABILITIES,
+        isAvailable = true,
+        isController = false
+    )
+    private val uwbClientSession = UwbClientSessionScopeImpl(
         uwbClient,
         androidx.core.uwb.RangingCapabilities(
-            rangingCapabilities.supportsDistance(),
-            rangingCapabilities.supportsAzimuthalAngle(),
-            rangingCapabilities.supportsElevationAngle()),
-        androidx.core.uwb.UwbAddress(localAddress.address))
-    private val uwbDevice = UwbDevice.createForAddress(ByteArray(0))
-    private val rangingParameters = RangingParameters(
-        RangingParameters.UWB_CONFIG_ID_1,
-        0,
-        null,
-        null,
-        listOf(uwbDevice),
-        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+            RANGING_CAPABILITIES.supportsDistance(),
+            RANGING_CAPABILITIES.supportsAzimuthalAngle(),
+            RANGING_CAPABILITIES.supportsElevationAngle()
+        ),
+        androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address)
     )
-
     @Test
     public fun testInitSession_singleConsumer() {
-        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
         var rangingResult: RangingResult? = null
         val job = sessionFlow
             .cancellable()
@@ -99,7 +89,7 @@ class UwbClientSessionScopeImplTest {
     public fun testInitSession_multipleSharedConsumers() {
         var passed1 = false
         var passed2 = false
-        val sharedFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sharedFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
             .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed(),
                 replay = 1)
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
@@ -149,7 +139,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_singleConsumer_disconnectPeerDevice() {
-        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
         var peerDisconnected = false
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow
@@ -166,7 +156,7 @@ class UwbClientSessionScopeImplTest {
             // wait for coroutines for flow to start.
             delay(500)
             uwbClient.disconnectPeer(com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
-                uwbDevice.address.address))
+                UWB_DEVICE.address.address))
 
             // wait for rangingResults to get filled.
             delay(500)
@@ -186,7 +176,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_multipleSharedConsumers_disconnectPeerDevice() {
-        val sharedFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sharedFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
             .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed())
 
         var peerDisconnected = false
@@ -214,7 +204,7 @@ class UwbClientSessionScopeImplTest {
             // wait for coroutines for flow to start.
             delay(500)
             uwbClient.disconnectPeer(com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
-                uwbDevice.address.address))
+                UWB_DEVICE.address.address))
 
             // wait for rangingResults to get filled.
             delay(500)
@@ -243,8 +233,8 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_multipleSessions_throwsUwbApiException() {
-        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
-        val sessionFlow2 = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
+        val sessionFlow2 = uwbClientSession.prepareSession(RANGING_PARAMETERS)
 
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow.collect()
@@ -267,7 +257,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_reusingSession_throwsUwbApiException() {
-        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
 
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow.collect()

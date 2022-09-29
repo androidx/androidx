@@ -23,6 +23,7 @@ import static androidx.media2.test.common.CommonConstants.DEFAULT_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.Instrumentation;
 import android.app.KeyguardManager;
@@ -68,6 +69,9 @@ public class MediaController_SurfaceTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
 
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
@@ -82,8 +86,9 @@ public class MediaController_SurfaceTest extends MediaSessionTestBase {
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-
-        mRemoteSession.cleanUp();
+        if (mRemoteSession != null) {
+            mRemoteSession.cleanUp();
+        }
     }
 
     @Test

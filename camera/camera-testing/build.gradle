@@ -26,16 +26,16 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.4.0")
     implementation(libs.testRules)
     implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.2.0")
-    implementation(libs.espressoCore)
     implementation(libs.guavaListenableFuture)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.test.espresso:espresso-core:3.3.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.junit)
     implementation(libs.kotlinStdlib)
@@ -46,7 +46,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 android {
@@ -73,13 +73,6 @@ android {
         }
     }
     namespace "androidx.camera.testing"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }
 
 androidx {

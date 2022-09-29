@@ -9,8 +9,6 @@ ListenerInterface: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePan
     Listeners should be an interface, or otherwise renamed Callback: SimplePanelSlideListener
 
 
-MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#canScroll(android.view.View, boolean, int, int, int) parameter #0:
-    Missing nullability on parameter `v` in method `canScroll`
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `checkLayoutParams`
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#draw(android.graphics.Canvas) parameter #0:
@@ -33,8 +31,6 @@ MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onInterc
     Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onRestoreInstanceState(android.os.Parcelable) parameter #0:
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#requestChildFocus(android.view.View, android.view.View) parameter #0:

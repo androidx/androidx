@@ -22,6 +22,8 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.text.TextUtils;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -53,10 +55,15 @@ public class CompatPinnedList {
     // Its probably safe to assume the device can't boot twice within 2 secs.
     private static final long BOOT_THRESHOLD = 2000;
 
+    private final Object mPrefsLock = new Object();
+
+    @NonNull
     private final Context mContext;
+
+    @NonNull
     private final String mPrefsName;
 
-    public CompatPinnedList(Context context, String prefsName) {
+    public CompatPinnedList(@NonNull Context context, @NonNull String prefsName) {
         mContext = context;
         mPrefsName = prefsName;
     }
@@ -77,6 +84,7 @@ public class CompatPinnedList {
     /**
      * Get pinned specs
      */
+    @NonNull
     public List<Uri> getPinnedSlices() {
         List<Uri> pinned = new ArrayList<>();
         for (String key : getPrefs().getAll().keySet()) {
@@ -91,38 +99,44 @@ public class CompatPinnedList {
     }
 
     private Set<String> getPins(Uri uri) {
-        return getPrefs().getStringSet(PIN_PREFIX + uri.toString(), new ArraySet<String>());
+        return getPrefs().getStringSet(PIN_PREFIX + uri.toString(), new ArraySet<>());
     }
 
     /**
      * Get the list of specs for a pinned Uri.
      */
-    public synchronized ArraySet<SliceSpec> getSpecs(Uri uri) {
-        ArraySet<SliceSpec> specs = new ArraySet<>();
-        SharedPreferences prefs = getPrefs();
-        String specNamesStr = prefs.getString(SPEC_NAME_PREFIX + uri.toString(), null);
-        String specRevsStr = prefs.getString(SPEC_REV_PREFIX + uri.toString(), null);
-        if (TextUtils.isEmpty(specNamesStr) || TextUtils.isEmpty(specRevsStr)) {
-            return new ArraySet<>();
+    @NonNull
+    public ArraySet<SliceSpec> getSpecs(@NonNull Uri uri) {
+        synchronized (mPrefsLock) {
+            ArraySet<SliceSpec> specs = new ArraySet<>();
+            SharedPreferences prefs = getPrefs();
+            String specNamesStr = prefs.getString(SPEC_NAME_PREFIX + uri, null);
+            String specRevsStr = prefs.getString(SPEC_REV_PREFIX + uri, null);
+            if (TextUtils.isEmpty(specNamesStr) || TextUtils.isEmpty(specRevsStr)) {
+                return new ArraySet<>();
+            }
+            String[] specNames = specNamesStr.split(",", -1);
+            String[] specRevs = specRevsStr.split(",", -1);
+            if (specNames.length != specRevs.length) {
+                return new ArraySet<>();
+            }
+            for (int i = 0; i < specNames.length; i++) {
+                specs.add(new SliceSpec(specNames[i], Integer.parseInt(specRevs[i])));
+            }
+            return specs;
         }
-        String[] specNames = specNamesStr.split(",", -1);
-        String[] specRevs = specRevsStr.split(",", -1);
-        if (specNames.length != specRevs.length) {
-            return new ArraySet<>();
-        }
-        for (int i = 0; i < specNames.length; i++) {
-            specs.add(new SliceSpec(specNames[i], Integer.parseInt(specRevs[i])));
-        }
-        return specs;
     }
 
-    private void setPins(Uri uri, Set<String> pins) {
+    @GuardedBy("mPrefsLock")
+    private void setPinsLocked(@NonNull Uri uri, @NonNull Set<String> pins) {
         getPrefs().edit()
-                .putStringSet(PIN_PREFIX + uri.toString(), pins)
+                .putStringSet(PIN_PREFIX + uri, pins)
                 .apply();
     }
 
-    private void setSpecs(Uri uri, ArraySet<SliceSpec> specs) {
+    @SuppressWarnings("ConstantConditions") // implied non-null type use
+    @GuardedBy("mPrefsLock")
+    private void setSpecsLocked(@NonNull Uri uri, @NonNull ArraySet<SliceSpec> specs) {
         String[] specNames = new String[specs.size()];
         String[] specRevs = new String[specs.size()];
         for (int i = 0; i < specs.size(); i++) {
@@ -130,8 +144,8 @@ public class CompatPinnedList {
             specRevs[i] = String.valueOf(specs.valueAt(i).getRevision());
         }
         getPrefs().edit()
-                .putString(SPEC_NAME_PREFIX + uri.toString(), TextUtils.join(",", specNames))
-                .putString(SPEC_REV_PREFIX + uri.toString(), TextUtils.join(",", specRevs))
+                .putString(SPEC_NAME_PREFIX + uri, TextUtils.join(",", specNames))
+                .putString(SPEC_REV_PREFIX + uri, TextUtils.join(",", specRevs))
                 .apply();
     }
 
@@ -144,34 +158,39 @@ public class CompatPinnedList {
      * Adds a pin for a specific uri/pkg pair and returns true if the
      * uri was not previously pinned.
      */
-    public synchronized boolean addPin(Uri uri, String pkg, Set<SliceSpec> specs) {
-        Set<String> pins = getPins(uri);
-        boolean wasNotPinned = pins.isEmpty();
-        pins.add(pkg);
-        setPins(uri, pins);
-        if (wasNotPinned) {
-            setSpecs(uri, new ArraySet<>(specs));
-        } else {
-            setSpecs(uri, mergeSpecs(getSpecs(uri), specs));
+    public boolean addPin(@NonNull Uri uri, @NonNull String pkg, @NonNull Set<SliceSpec> specs) {
+        synchronized (mPrefsLock) {
+            Set<String> pins = getPins(uri);
+            boolean wasNotPinned = pins.isEmpty();
+            pins.add(pkg);
+            setPinsLocked(uri, pins);
+            if (wasNotPinned) {
+                setSpecsLocked(uri, new ArraySet<>(specs));
+            } else {
+                setSpecsLocked(uri, mergeSpecs(getSpecs(uri), specs));
+            }
+            return wasNotPinned;
         }
-        return wasNotPinned;
     }
 
     /**
      * Removes a pin for a specific uri/pkg pair and returns true if the
      * uri is no longer pinned (but was).
      */
-    public synchronized boolean removePin(Uri uri, String pkg) {
-        Set<String> pins = getPins(uri);
-        if (pins.isEmpty() || !pins.contains(pkg)) {
-            return false;
+    public boolean removePin(@NonNull Uri uri, @NonNull String pkg) {
+        synchronized (mPrefsLock) {
+            Set<String> pins = getPins(uri);
+            if (pins.isEmpty() || !pins.contains(pkg)) {
+                return false;
+            }
+            pins.remove(pkg);
+            setPinsLocked(uri, pins);
+            setSpecsLocked(uri, new ArraySet<>());
+            return pins.size() == 0;
         }
-        pins.remove(pkg);
-        setPins(uri, pins);
-        setSpecs(uri, new ArraySet<SliceSpec>());
-        return pins.size() == 0;
     }
 
+    @SuppressWarnings("ConstantConditions") // implied non-null type use
     private static ArraySet<SliceSpec> mergeSpecs(ArraySet<SliceSpec> specs,
             Set<SliceSpec> supportedSpecs) {
         for (int i = 0; i < specs.size(); i++) {

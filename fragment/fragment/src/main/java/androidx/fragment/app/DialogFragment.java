@@ -35,6 +35,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.activity.ComponentDialog;
+import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
@@ -640,6 +641,7 @@ public class DialogFragment extends Fragment
     public void onCancel(@NonNull DialogInterface dialog) {
     }
 
+    @CallSuper
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
         if (!mViewDestroyed) {

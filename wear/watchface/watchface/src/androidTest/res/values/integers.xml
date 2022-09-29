@@ -18,4 +18,5 @@
     <integer name="complication_slot_10">10</integer>
     <integer name="complication_slot_20">20</integer>
     <integer name="complication_slot_30">30</integer>
+    <integer name="complication_slot_40">40</integer>
 </resources>

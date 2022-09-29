@@ -19,39 +19,59 @@ package androidx.camera.integration.avsync
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.util.Preconditions
+
+private const val KEY_BEEP_FREQUENCY = "beep_frequency"
+private const val KEY_BEEP_ENABLED = "beep_enabled"
+private const val DEFAULT_BEEP_FREQUENCY = 1500
+private const val DEFAULT_BEEP_ENABLED = true
+private const val MIN_SCREEN_BRIGHTNESS = 0F
+private const val MAX_SCREEN_BRIGHTNESS = 1F
+private const val DEFAULT_SCREEN_BRIGHTNESS = 0.5F
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setScreenBrightness()
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("CameraX")
-                }
+            App(getBeepFrequency(), getBeepEnabled())
+        }
+    }
+
+    private fun getBeepFrequency(): Int {
+        val frequency = intent.getStringExtra(KEY_BEEP_FREQUENCY)
+
+        if (frequency != null) {
+            try {
+                return Integer.parseInt(frequency)
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
             }
         }
+
+        return DEFAULT_BEEP_FREQUENCY
+    }
+
+    private fun getBeepEnabled(): Boolean {
+        return intent.getBooleanExtra(KEY_BEEP_ENABLED, DEFAULT_BEEP_ENABLED)
+    }
+
+    private fun setScreenBrightness(brightness: Float = DEFAULT_SCREEN_BRIGHTNESS) {
+        Preconditions.checkArgument(brightness in MIN_SCREEN_BRIGHTNESS..MAX_SCREEN_BRIGHTNESS)
+
+        val layoutParam = window.attributes
+        layoutParam.screenBrightness = brightness
+        window.attributes = layoutParam
     }
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
+fun App(beepFrequency: Int, beepEnabled: Boolean) {
     MaterialTheme {
-        Greeting("CameraX")
+        SignalGeneratorScreen(beepFrequency, beepEnabled)
     }
 }

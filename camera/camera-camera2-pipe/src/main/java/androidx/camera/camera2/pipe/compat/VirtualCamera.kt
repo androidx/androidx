@@ -31,12 +31,15 @@ import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Token
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -97,6 +100,7 @@ internal enum class ClosedReason {
  */
 internal interface VirtualCamera {
     val state: Flow<CameraState>
+    val value: CameraState
     fun disconnect()
 }
 
@@ -111,12 +115,26 @@ internal class VirtualCameraState(
     @GuardedBy("lock")
     private var closed = false
 
-    private val _state = MutableStateFlow<CameraState>(CameraStateUnopened)
-    override val state: StateFlow<CameraState>
-        get() = _state
+    // This is intended so that it will only ever replay the most recent event to new subscribers,
+    // but to never drop events for existing subscribers.
+    private val _stateFlow = MutableSharedFlow<CameraState>(replay = 1, extraBufferCapacity = 3)
+    private val _states = _stateFlow.distinctUntilChanged()
+
+    @GuardedBy("lock")
+    private var _lastState: CameraState = CameraStateUnopened
+    override val state: Flow<CameraState>
+        get() = _states
+
+    override val value: CameraState
+        get() = synchronized(lock) { _lastState }
 
     private var job: Job? = null
-    private var token: Token? = null
+    private var wakelockToken: Token? = null
+
+    init {
+        // Emit the initial unopened state.
+        check(_stateFlow.tryEmit(_lastState))
+    }
 
     internal suspend fun connect(state: Flow<CameraState>, wakelockToken: Token?) = coroutineScope {
         synchronized(lock) {
@@ -125,10 +143,16 @@ internal class VirtualCameraState(
                 return@coroutineScope
             }
 
-            job = launch {
-                state.collect { _state.value = it }
+            job = launch(EmptyCoroutineContext) {
+                state.collect {
+                    synchronized(lock) {
+                        if (!closed) {
+                            emitState(it)
+                        }
+                    }
+                }
             }
-            token = wakelockToken
+            this@VirtualCameraState.wakelockToken = wakelockToken
         }
     }
 
@@ -142,19 +166,28 @@ internal class VirtualCameraState(
             Log.info { "Disconnecting $this" }
 
             job?.cancel()
-            token?.release()
+            wakelockToken?.release()
 
             // Emulate a CameraClosing -> CameraClosed sequence.
-            if (_state.value !is CameraStateClosed) {
-                if (_state.value !is CameraStateClosing) {
-                    _state.value = CameraStateClosing
+            if (value !is CameraStateClosed) {
+                if (_lastState !is CameraStateClosing) {
+                    emitState(CameraStateClosing)
                 }
-                @SuppressWarnings("SyntheticAccessor")
-                _state.value = CameraStateClosed(
-                    cameraId,
-                    cameraClosedReason = ClosedReason.APP_DISCONNECTED
+                emitState(
+                    CameraStateClosed(
+                        cameraId,
+                        cameraClosedReason = ClosedReason.APP_DISCONNECTED
+                    )
                 )
             }
+        }
+    }
+
+    @GuardedBy("lock")
+    private fun emitState(state: CameraState) {
+        _lastState = state
+        check(_stateFlow.tryEmit(state)) {
+            "Failed to emit $state in ${this@VirtualCameraState}"
         }
     }
 

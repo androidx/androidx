@@ -41,14 +41,40 @@ class PowerRailTest {
 
     @Test
     fun hasMetrics_false() {
-        assumeTrue(Build.VERSION.SDK_INT < 29)
+        // The test is using a mocked output of `dumpsys powerstats`
+        val output = """
+                kernel_uid_readers_throttle_time=1000
+                external_stats_collection_rate_limit_ms=600000
+                battery_level_collection_delay_ms=300000
+                procstate_change_collection_delay_ms=60000
+                max_history_files=32
+                max_history_buffer_kb=128
+                battery_charged_delay_ms=900000
+
+            On battery measured charge stats (microcoulombs)
+                Not supported on this device.
+        """.trimIndent()
 
         assertFailsWith<UnsupportedOperationException> {
-            PowerRail.hasMetrics(throwOnMissingMetrics = true)
+            PowerRail.hasMetrics(output, throwOnMissingMetrics = true)
         }
 
-        assertFalse(
-            PowerRail.hasMetrics(throwOnMissingMetrics = false)
-        )
+        assertFalse(PowerRail.hasMetrics(output, throwOnMissingMetrics = false))
+    }
+
+    @Test
+    fun hasMetrics() {
+        // The test is using a mocked output of `dumpsys powerstats`
+        val output = """
+            ChannelId: 10, ChannelName: S9S_VDD_AOC, ChannelSubsystem: AOC
+            PowerStatsService dumpsys: available Channels
+            ChannelId: 0, ChannelName: S10M_VDD_TPU, ChannelSubsystem: TPU
+            ChannelId: 1, ChannelName: VSYS_PWR_MODEM, ChannelSubsystem: Modem
+            ChannelId: 2, ChannelName: VSYS_PWR_RFFE, ChannelSubsystem: Cellular
+            ChannelId: 3, ChannelName: S2M_VDD_CPUCL2, ChannelSubsystem: CPU(BIG)
+            ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem: CPU(MID)
+        """.trimIndent()
+
+        assertTrue(PowerRail.hasMetrics(output, throwOnMissingMetrics = false))
     }
 }

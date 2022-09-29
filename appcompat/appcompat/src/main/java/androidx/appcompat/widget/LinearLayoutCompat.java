@@ -1771,7 +1771,13 @@ public class LinearLayoutCompat extends ViewGroup {
 
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
+        if (p instanceof LayoutParams) {
+            return new LayoutParams((LayoutParams) p);
+        } else if (p instanceof MarginLayoutParams) {
+            return new LayoutParams((MarginLayoutParams) p);
+        } else {
+            return new LayoutParams(p);
+        }
     }
 
 

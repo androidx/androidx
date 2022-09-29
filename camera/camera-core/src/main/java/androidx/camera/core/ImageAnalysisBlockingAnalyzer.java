@@ -53,7 +53,7 @@ final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer 
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 imageProxy.close();
             }
         }, CameraXExecutors.directExecutor());

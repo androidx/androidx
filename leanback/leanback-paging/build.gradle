@@ -51,13 +51,6 @@ android {
     namespace "androidx.leanback.paging"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "AndroidX Leanback Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE

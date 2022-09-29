@@ -18,16 +18,14 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmProperty
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import javax.lang.model.element.VariableElement
 
 internal class JavacFieldElement(
     env: JavacProcessingEnv,
-    containing: JavacTypeElement,
     element: VariableElement
-) : JavacVariableElement(env, containing, element),
+) : JavacVariableElement(env, element),
     XFieldElement,
     XHasModifiers by JavacHasModifiers(element) {
 
@@ -44,15 +42,4 @@ internal class JavacFieldElement(
 
     override val closestMemberContainer: JavacTypeElement
         get() = enclosingElement
-
-    override fun copyTo(newContainer: XTypeElement): JavacFieldElement {
-        check(newContainer is JavacTypeElement) {
-            "Unexpected container (${newContainer::class}), expected JavacTypeElement"
-        }
-        return JavacFieldElement(
-            env = env,
-            containing = newContainer,
-            element = element
-        )
-    }
 }

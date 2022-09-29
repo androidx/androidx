@@ -32,6 +32,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
@@ -83,17 +84,17 @@ public final class ProcessingImageReaderTest {
     private static final long TIMESTAMP_3 = 4000L;
     private static final CaptureProcessor NOOP_PROCESSOR = new CaptureProcessor() {
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
 
         }
 
         @Override
-        public void process(ImageProxyBundle bundle) {
+        public void process(@NonNull ImageProxyBundle bundle) {
 
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
 
         }
     };
@@ -360,11 +361,11 @@ public final class ProcessingImageReaderTest {
         }
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
         }
 
         @Override
-        public void process(ImageProxyBundle bundle) {
+        public void process(@NonNull ImageProxyBundle bundle) {
             mProcessingStartLatch.countDown();
             try {
                 mProcessingLatch.await();
@@ -394,7 +395,7 @@ public final class ProcessingImageReaderTest {
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
         }
 
         void finishProcessing() {

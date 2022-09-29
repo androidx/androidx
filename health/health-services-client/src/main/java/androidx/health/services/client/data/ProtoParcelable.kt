@@ -35,7 +35,7 @@ public abstract class ProtoParcelable<T : MessageLite> : Parcelable {
     public abstract val proto: T
 
     /** Serialized representation of this object. */
-    protected val bytes: ByteArray by lazy { proto.toByteArray() }
+    protected val bytes: ByteArray get() { return proto.toByteArray() }
 
     public override fun describeContents(): Int = 0
 

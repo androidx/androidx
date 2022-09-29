@@ -67,6 +67,26 @@ public class ActionsConstraintsTest {
     }
 
     @Test
+    public void create_allowedAlsoDisallowed() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_BACK)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
+    public void create_allowedAndDisallowedSet() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionsConstraints.Builder()
+                        .addAllowedActionType(Action.TYPE_PAN)
+                        .addDisallowedActionType(Action.TYPE_BACK)
+                        .build());
+    }
+
+    @Test
     public void createConstraints() {
         ActionsConstraints constraints =
                 new ActionsConstraints.Builder()
@@ -88,6 +108,7 @@ public class ActionsConstraintsTest {
                         .setMaxCustomTitles(1)
                         .addRequiredActionType(Action.TYPE_CUSTOM)
                         .addDisallowedActionType(Action.TYPE_BACK)
+                        .setOnClickListenerAllowed(true)
                         .build();
 
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
@@ -139,6 +160,34 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithTitle)
                                 .build()
                                 .getActions()));
+
+        ActionsConstraints constraintsNoOnClick =
+                new ActionsConstraints.Builder().setOnClickListenerAllowed(false).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsNoOnClick.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(actionWithIcon)
+                                .build()
+                                .getActions()));
+
+        // Positive case: OnClickListener disallowed only for custom action types and passes for
+        // standard action types like the back action.
+        constraintsNoOnClick.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.BACK).build().getActions());
+
+        ActionsConstraints constraintsAllowPan =
+                new ActionsConstraints.Builder().addAllowedActionType(Action.TYPE_PAN).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> constraintsAllowPan.validateOrThrow(
+                        new ActionStrip.Builder()
+                                .addAction(Action.BACK)
+                                .build()
+                                .getActions()));
+        //Positive case: Only allows pan action types
+        constraintsAllowPan.validateOrThrow(
+                new ActionStrip.Builder().addAction(Action.PAN).build().getActions());
     }
 
     @Test
@@ -149,6 +198,7 @@ public class ActionsConstraintsTest {
                         .setMaxActions(4)
                         .setMaxCustomTitles(4)
                         .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
+                        .setOnClickListenerAllowed(true)
                         .build();
 
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),

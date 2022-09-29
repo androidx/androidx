@@ -512,6 +512,26 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion
+                                .enqueueUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.update_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.updateUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
         findViewById(R.id.enqueue_remote_worker_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -548,6 +568,17 @@ public class MainActivity extends AppCompatActivity {
                 throw new RuntimeException("Crashed app");
             }
         });
+
+        findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        StressTest.queueLotsOfWorkers(
+                                WorkManager.getInstance(MainActivity.this)
+                        );
+                    }
+                });
+
 
         Button hundredJobExceptionButton = findViewById(R.id.create_hundred_job_exception);
         // 100 Job limits are only enforced on API 24+.

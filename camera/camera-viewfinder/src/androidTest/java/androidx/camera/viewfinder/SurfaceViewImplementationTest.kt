@@ -78,7 +78,9 @@ class SurfaceViewImplementationTest {
 
     @After
     fun tearDown() {
-        mSurfaceRequest.viewfinderSurface.close()
+        if (::mSurfaceRequest.isInitialized) {
+            mSurfaceRequest.viewfinderSurface.close()
+        }
     }
 
     @Test

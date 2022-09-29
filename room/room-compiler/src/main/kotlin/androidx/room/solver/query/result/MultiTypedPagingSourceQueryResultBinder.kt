@@ -16,7 +16,8 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -75,7 +76,7 @@ class MultiTypedPagingSourceQueryResultBinder(
             addAnnotation(Override::class.java)
             addModifiers(Modifier.PROTECTED)
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
-            val cursorParam = ParameterSpec.builder(AndroidTypeNames.CURSOR, "cursor")
+            val cursorParam = ParameterSpec.builder(CURSOR.toJavaPoet(), "cursor")
                 .build()
             addParameter(cursorParam)
             val resultVar = scope.getTmpVar("_result")

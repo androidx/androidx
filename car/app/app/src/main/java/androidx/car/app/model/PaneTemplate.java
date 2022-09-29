@@ -160,8 +160,8 @@ public final class PaneTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
-         * string.
+         * <p>Only {@link DistanceSpan}s, {@link DurationSpan}s and {@link CarIconSpan} are
+         * supported in the input string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
@@ -170,7 +170,7 @@ public final class PaneTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mTitle);
             return this;
         }
 
@@ -237,7 +237,6 @@ public final class PaneTemplate implements Template {
          * set on the template, the header is hidden.
          *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
-         *
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull

@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.impl.event.MeasureCallbackEvent
 import androidx.health.services.client.impl.ipc.internal.ListenerKey
@@ -56,11 +57,11 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         when (proto.eventCase) {
             EventCase.DATA_POINT_RESPONSE -> {
                 val dataPointsResponse = DataPointsResponse(proto.dataPointResponse)
-                callback.onDataReceived(dataPointsResponse.dataPoints)
+                callback.onDataReceived(DataPointContainer(dataPointsResponse.dataPoints))
             }
             EventCase.AVAILABILITY_RESPONSE ->
                 callback.onAvailabilityChanged(
-                    DataType(proto.availabilityResponse.dataType),
+                    DataType.deltaFromProto(proto.availabilityResponse.dataType),
                     Availability.fromProto(proto.availabilityResponse.availability)
                 )
             null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
@@ -77,7 +78,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
 
         @Synchronized
         public fun getOrCreate(
-            dataType: DataType,
+            dataType: DataType<*, *>,
             executor: Executor,
             measureCallback: MeasureCallback
         ): MeasureCallbackStub {
@@ -100,7 +101,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
 
         @Synchronized
         public fun remove(
-            dataType: DataType,
+            dataType: DataType<*, *>,
             measureCallback: MeasureCallback
         ): MeasureCallbackStub? {
             val callbackKey = MeasureCallbackKey(dataType, measureCallback)
@@ -113,7 +114,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
     }
 
     private data class MeasureCallbackKey(
-        private val dataType: DataType,
+        private val dataType: DataType<*, *>,
         private val measureCallback: MeasureCallback
     )
 

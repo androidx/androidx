@@ -25,6 +25,7 @@ import static androidx.car.app.utils.LogTags.TAG;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.HandlerThread;
@@ -237,7 +238,8 @@ public class AppManager implements Manager {
     @SuppressLint("MissingPermission")
     void startLocationUpdates() {
         stopLocationUpdates();
-        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        LocationManager locationManager =
+                (LocationManager) mCarContext.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER,
                 LOCATION_UPDATE_MIN_INTERVAL_MILLIS,
                 LOCATION_UPDATE_MIN_DISTANCE_METER,
@@ -249,7 +251,8 @@ public class AppManager implements Manager {
      * Stops requesting location updates from the app.
      */
     void stopLocationUpdates() {
-        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        LocationManager locationManager =
+                (LocationManager) mCarContext.getSystemService(Context.LOCATION_SERVICE);
         locationManager.removeUpdates(mLocationListener);
     }
 
@@ -289,10 +292,15 @@ public class AppManager implements Manager {
 
             @Override
             public void startLocationUpdates(IOnDoneCallback callback) {
-                if (carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_DENIED && carContext.checkSelfPermission(
-                        ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_DENIED) {
+                PackageManager packageManager = carContext.getPackageManager();
+                boolean accessFineDenied =
+                        packageManager.checkPermission(ACCESS_FINE_LOCATION,
+                        carContext.getPackageName()) == PackageManager.PERMISSION_DENIED;
+                boolean accessCoarseDenied =
+                        packageManager.checkPermission(ACCESS_COARSE_LOCATION,
+                        carContext.getPackageName()) == PackageManager.PERMISSION_DENIED;
+
+                if (accessFineDenied && accessCoarseDenied) {
                     RemoteUtils.sendFailureResponseToHost(callback, "startLocationUpdates",
                             new SecurityException("Location permission(s) not granted."));
                 }

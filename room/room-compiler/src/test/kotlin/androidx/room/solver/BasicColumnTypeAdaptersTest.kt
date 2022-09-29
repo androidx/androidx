@@ -57,7 +57,7 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     TypeName.BYTE,
                     "st.bindLong(6, inp);",
-                    "out = (byte) crs.getShort(9);"
+                    "out = (byte) (crs.getShort(9));"
                 ),
                 arrayOf(
                     TypeName.SHORT,
@@ -72,7 +72,7 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     TypeName.CHAR,
                     "st.bindLong(6, inp);",
-                    "out = (char) crs.getInt(9);"
+                    "out = (char) (crs.getInt(9));"
                 ),
                 arrayOf(
                     TypeName.FLOAT,
@@ -124,7 +124,7 @@ class BasicColumnTypeAdaptersTest(
                 bindCode
             }
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.generate().toString().trim(), `is`(expected))
+            assertThat(scope.builder().build().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
         }
     }
@@ -155,7 +155,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     expected
                 )
@@ -180,7 +180,7 @@ class BasicColumnTypeAdaptersTest(
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     if (inp == null) {
@@ -241,7 +241,7 @@ class BasicColumnTypeAdaptersTest(
                 cursorCode
             }
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.generate().toString().trim(), `is`(expected))
+            assertThat(scope.builder().build().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
         }
     }
@@ -272,7 +272,7 @@ class BasicColumnTypeAdaptersTest(
                 """.trimIndent()
             }
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     expected
                 )
@@ -292,7 +292,7 @@ class BasicColumnTypeAdaptersTest(
             ).findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     if (crs.isNull(9)) {

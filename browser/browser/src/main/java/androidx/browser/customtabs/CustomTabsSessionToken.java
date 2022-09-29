@@ -86,6 +86,7 @@ public class CustomTabsSessionToken {
      *               {@link CustomTabsIntent#EXTRA_SESSION}.
      * @return The token that was generated.
      */
+    @SuppressWarnings("deprecation")
     public static @Nullable CustomTabsSessionToken getSessionTokenFromIntent(
             @NonNull Intent intent) {
         Bundle b = intent.getExtras();

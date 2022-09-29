@@ -26,6 +26,10 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    namespace "androidx.annotation.experimental.lint.integrationtests"
+}
+
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(project(":annotation:annotation-experimental"))
@@ -34,8 +38,6 @@ dependencies {
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ "-opt-in=kotlin.Experimental" ]
-
         // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
         if (!isIdeBuild()) {
             freeCompilerArgs += [ "-opt-in=sample.optin.ExperimentalKotlinAnnotation" ]

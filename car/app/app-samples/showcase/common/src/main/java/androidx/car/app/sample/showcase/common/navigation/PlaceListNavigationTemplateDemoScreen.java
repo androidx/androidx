@@ -18,10 +18,14 @@ package androidx.car.app.sample.showcase.common.navigation;
 
 import static androidx.car.app.CarToast.LENGTH_SHORT;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
@@ -35,7 +39,13 @@ import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */
 public final class PlaceListNavigationTemplateDemoScreen extends Screen {
+    private static final int NUMBER_OF_REFRESHES = 10;
+    private static final long SECOND_DELAY = 1000L;
     private final SamplePlaces mPlaces;
+
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private boolean mIsAppRefresh = false;
 
     private boolean mIsFavorite = false;
 
@@ -47,6 +57,16 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
+        boolean isAppDrivenRefreshEnabled = this.getCarContext().getCarService(
+                ConstraintManager.class).isAppDrivenRefreshEnabled();
+
+        if (isAppDrivenRefreshEnabled && !mIsAppRefresh) {
+            mIsAppRefresh = true;
+            for (int i = 1; i <= NUMBER_OF_REFRESHES; i++) {
+                mHandler.postDelayed(this::invalidate, i * SECOND_DELAY);
+            }
+        }
+
         Header header = new Header.Builder()
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
@@ -59,6 +79,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                                                         : R.drawable.ic_favorite_white_24dp))
                                         .build())
                         .setOnClickListener(() -> {
+                            mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
                                             getCarContext(),
                                             mIsFavorite
@@ -68,12 +89,11 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                                                             R.string.not_favorite_toast_msg),
                                             LENGTH_SHORT)
                                     .show();
-                            mIsFavorite = !mIsFavorite;
                             invalidate();
                         })
                         .build())
                 .addEndHeaderAction(new Action.Builder()
-                        .setOnClickListener(() -> finish())
+                        .setOnClickListener(this::finish)
                         .setIcon(
                                 new CarIcon.Builder(
                                         IconCompat.createWithResource(
@@ -85,7 +105,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                 .build();
 
         return new PlaceListNavigationTemplate.Builder()
-                .setItemList(mPlaces.getPlaceList())
+                .setItemList(mPlaces.getPlaceList(/* randomOrder =*/isAppDrivenRefreshEnabled))
                 .setHeader(header)
                 .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
                 .setActionStrip(

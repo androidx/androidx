@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.10.1")
-    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.6.5")
+    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.10.2")
+    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.7.2")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }

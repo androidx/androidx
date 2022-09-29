@@ -98,7 +98,7 @@ class InternalsTest {
     @Before
     fun init() {
         db = Room.inMemoryDatabaseBuilder(
-            InstrumentationRegistry.getInstrumentation().context,
+            InstrumentationRegistry.getInstrumentation().targetContext,
             InternalDb::class.java
         ).build()
     }

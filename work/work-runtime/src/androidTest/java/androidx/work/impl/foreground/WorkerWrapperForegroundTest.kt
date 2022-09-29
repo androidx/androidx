@@ -122,7 +122,8 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            request.stringId
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
@@ -144,14 +145,14 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            request.stringId
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
         val latch = CountDownLatch(1)
-        future.addListener(
-            Runnable {
+        future.addListener({
                 assertThat(future.isDone, `is`(true))
                 latch.countDown()
             },

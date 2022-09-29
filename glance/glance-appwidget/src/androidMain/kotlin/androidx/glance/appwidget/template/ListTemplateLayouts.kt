@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
+@file:GlanceComposable
+
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.glance.Button
+import androidx.glance.GlanceComposable
 import androidx.glance.GlanceModifier
-import androidx.glance.Image
-import androidx.glance.action.clickable
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.background
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.width
+import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
+import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 
 /**
  * Composable layout for a list template app widget. The template is optimized to display a list of
@@ -51,8 +48,8 @@ import androidx.glance.unit.ColorProvider
 fun ListTemplate(data: ListTemplateData) {
     when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
-        TemplateMode.Vertical -> WidgetLayoutVertical(data)
-        TemplateMode.Horizontal -> WidgetLayoutHorizontal(data)
+        TemplateMode.Vertical -> WidgetLayoutExpanded(data)
+        TemplateMode.Horizontal -> WidgetLayoutExpanded(data) // same as Vertical for the List view
     }
 }
 
@@ -60,58 +57,17 @@ fun ListTemplate(data: ListTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: ListTemplateData) {
-    Column(modifier = createTopLevelModifier(data.backgroundColor)) {
-        data.header?.let { header ->
-            AppWidgetTemplateHeader(data.headerIcon, header)
-            Spacer(modifier = GlanceModifier.height(16.dp))
+    Column(modifier = createTopLevelModifier()) {
+        if (data.listStyle == ListStyle.Full) {
+            HeaderBlockTemplate(data.headerBlock)
+            Spacer(modifier = GlanceModifier.height(4.dp))
         }
-        data.title?.let { title ->
-            Text(title.text, style = TextStyle(fontSize = 20.sp))
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.button?.let { button ->
-            Button(text = button.text, onClick = button.action)
-        }
-    }
-}
-
-@Composable
-private fun WidgetLayoutVertical(data: ListTemplateData) {
-    Column(modifier = createTopLevelModifier(data.backgroundColor)) {
-        data.header?.let { header ->
-            AppWidgetTemplateHeader(data.headerIcon, header)
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.title?.let { title ->
-            Text(title.text, style = TextStyle(fontSize = 20.sp))
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.button?.let { button ->
-            Button(text = button.text, onClick = button.action)
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        LazyColumn {
-            itemsIndexed(data.listContent) { _, item ->
-                // TODO: Extract and allow override
-                var itemModifier =
-                    GlanceModifier.fillMaxWidth().padding(bottom = 16.dp)
-                item.action?.let { action -> itemModifier = itemModifier.clickable(action) }
-                Row(modifier = itemModifier) {
-                    item.image?.let { image ->
-                        Image(provider = image.image,
-                              contentDescription = image.description,
-                              modifier = GlanceModifier.width(64.dp))
-                    }
-                    Spacer(modifier = GlanceModifier.width(16.dp))
-                    Column(modifier = GlanceModifier.defaultWeight()) {
-                        Text(item.title.text, style = TextStyle(fontSize = 18.sp), maxLines = 2)
-                        Spacer(modifier = GlanceModifier.height(8.dp))
-                        item.body?.let { body -> Text(body.text) }
-                    }
-                    item.button?.let { button ->
-                      Spacer(modifier = GlanceModifier.width(16.dp))
-                      AppWidgetTemplateButton(button)
-                    }
+        data.listContent.firstOrNull()?.let { item ->
+            val itemModifier = GlanceModifier.fillMaxSize().padding(vertical = 8.dp)
+            Row(modifier = itemModifier) {
+                Column(modifier = GlanceModifier.defaultWeight()) {
+                    Spacer(modifier = GlanceModifier.height(4.dp))
+                    TextBlockTemplate(item.textBlock)
                 }
             }
         }
@@ -119,25 +75,35 @@ private fun WidgetLayoutVertical(data: ListTemplateData) {
 }
 
 @Composable
-private fun WidgetLayoutHorizontal(data: ListTemplateData) {
-    Column(modifier = createTopLevelModifier(data.backgroundColor)) {
-        data.header?.let { header ->
-            AppWidgetTemplateHeader(data.headerIcon, header)
+private fun WidgetLayoutExpanded(data: ListTemplateData) {
+    Column(modifier = createTopLevelModifier()) {
+        if (data.listStyle == ListStyle.Full) {
+            HeaderBlockTemplate(data.headerBlock)
+            // TODO(b/247613894): Do not add this spacing if header block is empty
             Spacer(modifier = GlanceModifier.height(16.dp))
         }
-        data.title?.let { title ->
-            Text(title.text, style = TextStyle(fontSize = 20.sp))
-            Spacer(modifier = GlanceModifier.height(16.dp))
-        }
-        data.button?.let { button ->
-            Button(text = button.text, onClick = button.action)
+        LazyColumn {
+            itemsIndexed(data.listContent) { _, item ->
+                val itemSpacer = if (data.listStyle == ListStyle.Full) 8.dp else 0.dp
+                val itemModifier = GlanceModifier.fillMaxSize().padding(vertical = itemSpacer)
+                Row(
+                    modifier = itemModifier,
+                    verticalAlignment = Alignment.Vertical.CenterVertically,
+                ) {
+                    TextAndImageBlockTemplate(
+                        item.textBlock,
+                        item.imageBlock,
+                        GlanceModifier.defaultWeight()
+                    )
+                    ActionBlockTemplate(item.actionBlock)
+                }
+            }
         }
     }
 }
 
-private fun createTopLevelModifier(backgroundColor: ColorProvider?): GlanceModifier {
-    var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
-    backgroundColor?.let { color -> modifier = modifier.background(color) }
-
-    return modifier
+@Composable
+private fun createTopLevelModifier(): GlanceModifier {
+    return GlanceModifier.fillMaxSize().padding(16.dp)
+        .background(LocalTemplateColors.current.primaryContainer)
 }

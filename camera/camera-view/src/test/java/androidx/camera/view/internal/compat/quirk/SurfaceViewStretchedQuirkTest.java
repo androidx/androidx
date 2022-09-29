@@ -32,7 +32,7 @@ import org.robolectric.util.ReflectionHelpers;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 32) // maxSdk due to b/247175194
 public class SurfaceViewStretchedQuirkTest {
 
     @Test
@@ -48,6 +48,11 @@ public class SurfaceViewStretchedQuirkTest {
     @Test
     public void quirkExistsOnOppoFindN() {
         quirkExistsOnDevice("Oppo", "OP4E75L1");
+    }
+
+    @Test
+    public void quirkExistsOnLenovoTabP12Pro() {
+        quirkExistsOnDevice("Lenovo", "Q706F");
     }
 
     public void quirkExistsOnDevice(String manufacturer, String device) {

@@ -19,8 +19,10 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
+import androidx.window.core.ActivityComponentInfo
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.areComponentsMatching
+import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
 
@@ -55,6 +57,10 @@ class SplitPairFilter(
      */
     val secondaryActivityIntentAction: String?
 ) {
+
+    private val secondaryActivityInfo: ActivityComponentInfo
+        get() = ActivityComponentInfo(secondaryActivityName)
+
     fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
         // Check if the activity component names match
         var match = areComponentsMatching(primaryActivity.componentName, primaryActivityName) &&
@@ -85,7 +91,7 @@ class SplitPairFilter(
         ) {
             false
         } else if (
-            !areComponentsMatching(secondaryActivityIntent.component, secondaryActivityName)
+            !isIntentMatching(secondaryActivityIntent, secondaryActivityInfo)
         ) {
             false
         } else {

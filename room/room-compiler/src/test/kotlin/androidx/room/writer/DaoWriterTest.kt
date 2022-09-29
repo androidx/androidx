@@ -17,6 +17,7 @@
 package androidx.room.writer
 
 import COMMON
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -25,11 +26,11 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
 import createVerifierFromEntitiesAndViews
+import java.util.Locale
 import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class DaoWriterTest {
@@ -124,6 +125,25 @@ class DaoWriterTest {
         }
     }
 
+    @Test
+    fun upsertDao() {
+        singleDao(
+            loadTestSource(
+                fileName = "daoWriter/input/UpsertDao.java",
+                qName = "foo.bar.UpsertDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/UpsertDao.java",
+                        qName = "foo.bar.UpsertDao_Impl"
+                    )
+                )
+            }
+        }
+    }
+
     private fun singleDao(
         vararg inputs: Source,
         handler: (XTestInvocation) -> Unit
@@ -159,7 +179,7 @@ class DaoWriterTest {
                     dbVerifier = dbVerifier
                 )
                 val parsedDao = parser.process()
-                DaoWriter(parsedDao, db, invocation.processingEnv)
+                DaoWriter(parsedDao, db, CodeLanguage.JAVA)
                     .write(invocation.processingEnv)
             }
             // we could call handler inside the if block but if something happens and we cannot

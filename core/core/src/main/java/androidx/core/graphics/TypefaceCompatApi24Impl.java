@@ -180,4 +180,21 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
         }
         return createFromFamiliesWithDefault(family);
     }
+
+    @NonNull
+    @Override
+    Typeface createWeightStyle(@NonNull Context context,
+            @NonNull Typeface base, int weight, boolean italic) {
+        Typeface out = null;
+        try {
+            out = WeightTypefaceApi21.createWeightStyle(base, weight, italic);
+        } catch (RuntimeException fallbackFailed) {
+            // nothing
+        }
+
+        if (out == null) {
+            out = super.createWeightStyle(context, base, weight, italic);
+        }
+        return out;
+    }
 }

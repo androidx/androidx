@@ -38,8 +38,9 @@ import org.junit.runners.Parameterized
 class ImageCaptureOrientationConfigChangesTest(
     private val lensFacing: Int,
     private val rotation: Int,
-    private val captureMode: Int
-) : ImageCaptureBaseTest<OrientationConfigChangesOverriddenActivity>() {
+    private val captureMode: Int,
+    private val cameraXConfig: String
+) : ImageCaptureBaseTest<OrientationConfigChangesOverriddenActivity>(cameraXConfig) {
 
     companion object {
         private val rotations = arrayOf(
@@ -50,12 +51,16 @@ class ImageCaptureOrientationConfigChangesTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotation={1}, captureMode={2}")
+        @Parameterized.Parameters(
+            name = "lensFacing={0}, rotation={1}, captureMode={2}, cameraXConfig={3}"
+        )
         fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacing.forEach { lens ->
+            lensFacingList.forEach { lens ->
                 rotations.forEach { rotation ->
                     captureModes.forEach { mode ->
-                        add(arrayOf(lens, rotation, mode))
+                        cameraXConfigList.forEach { cameraXConfig ->
+                            add(arrayOf(lens, rotation, mode, cameraXConfig))
+                        }
                     }
                 }
             }
@@ -83,7 +88,8 @@ class ImageCaptureOrientationConfigChangesTest(
     fun verifyRotation() {
         verifyRotation<OrientationConfigChangesOverriddenActivity>(
             lensFacing,
-            captureMode
+            captureMode,
+            cameraXConfig
         ) {
             if (rotate(rotation)) {
 

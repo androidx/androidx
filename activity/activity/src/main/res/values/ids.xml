@@ -16,4 +16,5 @@
 
 <resources>
     <id name="view_tree_on_back_pressed_dispatcher_owner" />
+    <item type="id" name="report_drawn"/>
 </resources>

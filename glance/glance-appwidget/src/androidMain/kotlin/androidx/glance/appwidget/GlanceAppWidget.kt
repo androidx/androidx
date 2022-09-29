@@ -50,6 +50,9 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -171,23 +174,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int
     ): DpSize {
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return DpSize.Zero
-        val minWidth = min(
-            info.minWidth,
-            if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
-                info.minResizeWidth
-            } else {
-                Int.MAX_VALUE
-            }
-        )
-        val minHeight = min(
-            info.minHeight,
-            if (info.resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
-                info.minResizeHeight
-            } else {
-                Int.MAX_VALUE
-            }
-        )
-        return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
+        return info.getMinSize(displayMetrics)
     }
 
     // Trigger the composition of the View to create the RemoteViews.
@@ -199,11 +186,15 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle
     ): RemoteViews {
-        val layoutConfig = LayoutConfiguration.load(context, appWidgetId)
+        val layoutConfig = if (Build.VERSION.SDK_INT >= 33) {
+            null
+        } else {
+            LayoutConfiguration.load(context, appWidgetId)
+        }
         return try {
             compose(context, appWidgetManager, appWidgetId, state, options, layoutConfig)
         } finally {
-            layoutConfig.save()
+            layoutConfig?.save()
         }
     }
 
@@ -214,7 +205,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        layoutConfig: LayoutConfiguration,
+        layoutConfig: LayoutConfiguration?,
     ): RemoteViews =
         when (val localSizeMode = this.sizeMode) {
             is SizeMode.Single -> {
@@ -289,7 +280,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        layoutConfig: LayoutConfiguration,
+        layoutConfig: LayoutConfiguration?,
     ) = coroutineScope {
         val views =
             options.extractOrientationSizes()
@@ -331,7 +322,7 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         sizes: Set<DpSize>,
-        layoutConfig: LayoutConfiguration,
+        layoutConfig: LayoutConfiguration?,
     ) = coroutineScope {
         // Find the best view, emulating what Android S+ would do.
         val orderedSizes = sizes.sortedBySize()
@@ -370,7 +361,7 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         size: DpSize,
-        layoutConfig: LayoutConfiguration,
+        layoutConfig: LayoutConfiguration?,
     ): RemoteViews = withContext(BroadcastFrameClock()) {
         // The maximum depth must be reduced if the compositions are combined
         val root = RemoteViewsRoot(maxDepth = MaxComposeTreeDepth)
@@ -378,15 +369,8 @@ abstract class GlanceAppWidget(
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(applier, recomposer)
         val glanceId = AppWidgetId(appWidgetId)
-        composition.setContent {
-            CompositionLocalProvider(
-                LocalContext provides context,
-                LocalGlanceId provides glanceId,
-                LocalAppWidgetOptions provides options,
-                LocalState provides state,
-                LocalSize provides size,
-            ) { Content() }
-        }
+        composition.setContent(context, glanceId, options, state, size)
+
         launch { recomposer.runRecomposeAndApplyChanges() }
         recomposer.close()
         recomposer.join()
@@ -398,9 +382,27 @@ abstract class GlanceAppWidget(
             appWidgetId,
             root,
             layoutConfig,
-            layoutConfig.addLayout(root),
+            layoutConfig?.addLayout(root) ?: 0,
             size
         )
+    }
+
+    private fun Composition.setContent(
+        context: Context,
+        glanceId: AppWidgetId,
+        options: Bundle,
+        state: Any?,
+        size: DpSize
+    ) {
+        setContent {
+            CompositionLocalProvider(
+                LocalContext provides context,
+                LocalGlanceId provides glanceId,
+                LocalAppWidgetOptions provides options,
+                LocalState provides state,
+                LocalSize provides size,
+            ) { Content() }
+        }
     }
 
     private companion object {
@@ -421,7 +423,7 @@ abstract class GlanceAppWidget(
             state: Any?,
             options: Bundle,
             allSizes: Collection<DpSize>,
-            layoutConfig: LayoutConfiguration
+            layoutConfig: LayoutConfiguration?
         ): RemoteViews = coroutineScope {
             val allViews =
                 allSizes.map { size ->
@@ -458,6 +460,33 @@ abstract class GlanceAppWidget(
             val rv = RemoteViews(context.packageName, errorUiLayout)
             appWidgetManager.updateAppWidget(appWidgetId, rv)
         }
+    }
+
+    /**
+     * Creates a snapshot of the GlanceAppWidget content without running recomposition.
+     * Useful to only generate once the composed RemoteViews instance.
+     *
+     * @see GlanceAppWidget.composeForSize
+     * @see GlanceAppWidgetManager.requestPinGlanceAppWidget
+     */
+    internal fun snapshot(
+        context: Context,
+        appWidgetId: Int,
+        state: Any?,
+        options: Bundle,
+        size: DpSize,
+    ): RemoteViews {
+        // The maximum depth must be reduced if the compositions are combined
+        val root = RemoteViewsRoot(maxDepth = MaxComposeTreeDepth)
+        val applier = Applier(root)
+        val scope = CoroutineScope(Job() + Dispatchers.Main)
+        val recomposer = Recomposer(scope.coroutineContext)
+        val composition = Composition(applier, recomposer)
+        val glanceId = AppWidgetId(appWidgetId)
+
+        composition.setContent(context, glanceId, options, state, size)
+        normalizeCompositionTree(root)
+        return translateComposition(context, appWidgetId, root, null, 0, size)
     }
 }
 
@@ -533,6 +562,29 @@ internal fun findBestSize(widgetSize: DpSize, layoutSizes: Collection<DpSize>): 
             null
         }
     }.minByOrNull { it.second }?.first
+
+/**
+ * @return the minimum size as configured by the App Widget provider.
+ */
+internal fun AppWidgetProviderInfo.getMinSize(displayMetrics: DisplayMetrics): DpSize {
+    val minWidth = min(
+        minWidth,
+        if (resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
+            minResizeWidth
+        } else {
+            Int.MAX_VALUE
+        }
+    )
+    val minHeight = min(
+        minHeight,
+        if (resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0) {
+            minResizeHeight
+        } else {
+            Int.MAX_VALUE
+        }
+    )
+    return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
+}
 
 private fun Collection<DpSize>.sortedBySize() =
     sortedWith(compareBy({ it.width.value * it.height.value }, { it.width.value }))

@@ -20,8 +20,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.view.WindowMetrics
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
@@ -30,6 +28,9 @@ import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.PredicateAdapter
+import androidx.window.extensions.WindowExtensionsProvider
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -151,8 +152,23 @@ internal class EmbeddingAdapter(
             .setSplitRatio(rule.splitRatio)
             .setLayoutDirection(rule.layoutDirection)
             .setSticky(rule.isSticky)
-            .setFinishPrimaryWithSecondary(rule.finishPrimaryWithSecondary)
+            .safeSetFinishPrimaryWithPlaceholder(rule.finishPrimaryWithPlaceholder)
         return builder.build()
+    }
+
+    @Suppress("DEPRECATION")
+    // setFinishPrimaryWithSecondary is to be deprecated but we want to make a safe fallback
+    // behavior here for compatibility reason.
+    // Suppressing deprecation warning to prevent breaking build.
+    private fun SplitPlaceholderRuleBuilder.safeSetFinishPrimaryWithPlaceholder(
+        behavior: @SplitPlaceholderRule.SplitPlaceholderFinishBehavior Int
+    ): SplitPlaceholderRuleBuilder {
+       var extensionApiLevel: Int = WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
+        return if (extensionApiLevel >= 2) {
+            setFinishPrimaryWithPlaceholder(behavior)
+        } else {
+            setFinishPrimaryWithSecondary(behavior)
+        }
     }
 
     private fun translateActivityRule(

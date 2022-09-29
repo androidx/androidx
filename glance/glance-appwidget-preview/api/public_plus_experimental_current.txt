@@ -4,12 +4,5 @@ package androidx.glance.appwidget.preview {
   public final class GlanceAppWidgetViewAdapterKt {
   }
 
-  @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PreviewGlance {
-  }
-
-  @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface PreviewGlance.Container {
-    method public abstract androidx.glance.appwidget.preview.PreviewGlance[] value();
-  }
-
 }
 

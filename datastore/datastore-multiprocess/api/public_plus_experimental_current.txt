@@ -1,1 +1,15 @@
 // Signature format: 4.0
+package androidx.datastore.multiprocess {
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING, message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExperimentalMultiProcessDataStore {
+  }
+
+  public final class MultiProcessDataStoreFactory {
+    method @androidx.datastore.multiprocess.ExperimentalMultiProcessDataStore public static <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method @androidx.datastore.multiprocess.ExperimentalMultiProcessDataStore public static <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method @androidx.datastore.multiprocess.ExperimentalMultiProcessDataStore public static <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method @androidx.datastore.multiprocess.ExperimentalMultiProcessDataStore public static <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+  }
+
+}
+

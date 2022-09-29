@@ -69,8 +69,27 @@ if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 fi
 
+# Make sure that our native dependencies are new enough for KMP/konan
+# If our existing native libraries are newer, then we don't downgrade them because
+# something else (like Bash) might be requiring the newer version.
+function areNativeLibsNewEnoughForKonan() {
+  host=`uname`
+  if [[ "$host" == Darwin* ]]; then
+    # we don't have any Macs having native dependencies too old to build KMP/konan
+    true
+  else
+    # on Linux we check whether we have a sufficiently new GLIBCXX
+    gcc --print-file-name=libstdc++.so.6 | xargs readelf -a -W | grep GLIBCXX_3.4.21 >/dev/null
+  fi
+}
+if ! areNativeLibsNewEnoughForKonan; then
+  KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
+  $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS"
+  export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+fi
+
 # run the build
-if run ./gradlew --ci saveSystemStats "$@"; then
+if run ./gradlew --ci "$@"; then
   echo build passed
 else
   if [ "$DIAGNOSE" == "true" ]; then
@@ -80,7 +99,7 @@ else
     # We probably won't have enough time to fully diagnose the problem given this timeout, but
     # we might be able to determine whether this problem is reproducible enough for a developer to
     # more easily investigate further
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
   fi
   if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
     # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it

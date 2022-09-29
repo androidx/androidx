@@ -30,7 +30,7 @@ interface ColorProvider {
     /**
      * Returns the color the provider would use in the given [context].
      */
-    fun resolve(context: Context): Color
+    fun getColor(context: Context): Color
 }
 
 /** Returns a [ColorProvider] that always resolves to the [Color]. */
@@ -46,13 +46,13 @@ fun ColorProvider(@ColorRes resId: Int): ColorProvider {
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class FixedColorProvider(val color: Color) : ColorProvider {
-    override fun resolve(context: Context) = color
+    override fun getColor(context: Context) = color
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider {
-    override fun resolve(context: Context): Color {
+    override fun getColor(context: Context): Color {
         val androidColor = if (Build.VERSION.SDK_INT >= 23) {
             ColorProviderApi23Impl.getColor(context, resId)
         } else {

@@ -26,7 +26,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         api(project(":compose:foundation:foundation"))
@@ -36,6 +35,7 @@ dependencies {
 
         implementation(libs.kotlinStdlib)
         implementation(project(":compose:foundation:foundation-layout"))
+        implementation(project(":compose:ui:ui-util"))
         implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
         testImplementation(libs.testRules)
@@ -46,6 +46,7 @@ dependencies {
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
         androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.kotlinTest)
 
         samples(project(":wear:compose:compose-foundation-samples"))
     }
@@ -71,6 +72,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
                 implementation(libs.kotlinStdlib)
                 implementation(project(":compose:foundation:foundation-layout"))
+                implementation(project(":compose:ui:ui-util"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
@@ -96,9 +98,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 android {
     defaultConfig {
         minSdkVersion 25
-    }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true

@@ -39,6 +39,10 @@ public interface Encoder {
     @NonNull
     EncoderInput getInput();
 
+    /** Returns the EncoderInfo which provides encoder's information and capabilities. */
+    @NonNull
+    EncoderInfo getEncoderInfo();
+
     /**
      * Starts the encoder.
      *
@@ -74,7 +78,7 @@ public interface Encoder {
     /**
      * Pauses the encoder.
      *
-     * <p>{@link #pause} only work between {@link #start} and {@link #stop}.
+     * <p>{@code pause} only work between {@link #start} and {@link #stop}.
      * Once the encoder is paused, it will drop the input data until {@link #start} is invoked
      * again.
      */

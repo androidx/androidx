@@ -48,12 +48,18 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
-            when (node.qualifiedName) {
+            val annotated = node.uastParent as? UAnnotated ?: return
+            val isKotlin = isKotlin(annotated.sourcePsi)
+            val qualifiedName = node.qualifiedName
+
+            if (isKotlin && qualifiedName == JAVA_REQUIRES_OPT_IN_ANNOTATION) {
+                reportKotlinUsage(annotated)
+            }
+
+            when (qualifiedName) {
                 KOTLIN_EXPERIMENTAL_ANNOTATION, KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
                 JAVA_EXPERIMENTAL_ANNOTATION, JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
-                    (node.uastParent as? UAnnotated)?.let { annotated ->
-                        validateAnnotationRetention(annotated)
-                    }
+                    validateAnnotationRetention(annotated)
                 }
             }
         }
@@ -88,7 +94,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
             }?.extractAttribute(context, "value") ?: defaultRetention
 
             if (expectedRetention != actualRetention) {
-                report(
+                reportRetention(
                     annotated,
                     formatRetention(expectedRetention, defaultRetention),
                     formatRetention(actualRetention, defaultRetention),
@@ -108,16 +114,39 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
          * Reports an issue with the [annotated] element where the [expected] retention does not
          * match the [actual] retention.
          */
-        private fun report(annotated: UAnnotated, expected: String, actual: String) {
+        private fun reportRetention(annotated: UAnnotated, expected: String, actual: String) {
             context.report(
-                ISSUE, annotated, context.getNameLocation(annotated),
+                ISSUE_RETENTION, annotated, context.getNameLocation(annotated),
                 "Experimental annotation has $actual retention, should use $expected"
+            )
+        }
+
+        /**
+         * Reports an issue with the [annotated] element where the experimental meta-annotation
+         * should be changed to `kotlin.RequiresOptIn`.
+         */
+        private fun reportKotlinUsage(annotated: UAnnotated) {
+            context.report(
+                ISSUE_KOTLIN_USAGE, annotated, context.getNameLocation(annotated),
+                "Experimental annotation should use kotlin.RequiresOptIn"
             )
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
+        val ISSUE_KOTLIN_USAGE = Issue.create(
+            "WrongRequiresOptIn",
+            "Experimental annotations defined in Kotlin must use kotlin.RequiresOptIn",
+            """
+            Experimental features defined in Kotlin source code must be annotated with the Kotlin
+            `@RequiresOptIn` annotation. Using `androidx.annotation.RequiresOptIn` will prevent the
+            Kotlin compiler from enforcing its opt-in policies.
+            """,
+            Category.CORRECTNESS, 4, Severity.ERROR,
+            Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+        )
+
+        val ISSUE_RETENTION = Issue.create(
             "ExperimentalAnnotationRetention",
             "Experimental annotation with incorrect retention",
             "Experimental annotations defined in Java source should use default " +
@@ -125,6 +154,11 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 "retention.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+        )
+
+        val ISSUES = listOf(
+            ISSUE_RETENTION,
+            ISSUE_KOTLIN_USAGE
         )
     }
 }

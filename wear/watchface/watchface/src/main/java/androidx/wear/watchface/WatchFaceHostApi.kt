@@ -33,6 +33,9 @@ import kotlinx.coroutines.CoroutineScope
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface WatchFaceHostApi {
+    /** The [WatchFaceService.SystemTimeProvider]. */
+    public val systemTimeProvider: WatchFaceService.SystemTimeProvider
+
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
 
@@ -130,4 +133,18 @@ public interface WatchFaceHostApi {
     /** Schedules a call to serialize [ComplicationSlotsManager]'s [ComplicationData]. */
     @UiThread
     public fun scheduleWriteComplicationDataCache()
+
+    /**
+     * Sent by the system at the top of the minute. This may trigger rendering if SysUI hasn't sent
+     * called setWatchUiState.
+     */
+    @UiThread
+    public fun onActionTimeTick() {}
+
+    /** The engine must notify the system that the watch face's colors have changed. */
+    @OptIn(WatchFaceExperimental::class)
+    public fun onWatchFaceColorsChanged(watchFaceColors: WatchFaceColors?) {}
+
+    /** Requests the system to capture an updated preview image. */
+    public fun sendPreviewImageNeedsUpdateRequest() {}
 }

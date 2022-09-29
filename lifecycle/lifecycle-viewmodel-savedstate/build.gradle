@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +32,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.core:core-ktx:1.2.0")
-    api("androidx.savedstate:savedstate:1.2.0-rc01")
+    api("androidx.savedstate:savedstate:1.2.0")
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api(libs.kotlinStdlib)
@@ -50,18 +48,14 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-}
 
-//used by testImplementation safe-args-generator
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.register("jar${suffix}", Copy).configure {
-        dependsOn ("assemble$suffix")
-        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
-            include "classes.jar"
-        }
-        destinationDir new File(project.buildDir, "libJar")
+    constraints {
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
+        implementation(project(":lifecycle:lifecycle-viewmodel"))
+        // this syntax is a temporary workout to allow project dependency on cross-project-set
+        // i.e. COMPOSE + MAIN project sets
+        // update syntax when b/239979823 is fixed
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:{androidx.LibraryVersions.LIFECYCLE}")
     }
 }
 

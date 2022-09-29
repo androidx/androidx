@@ -18,6 +18,8 @@ package androidx.wear.watchface.complications.rendering;
 
 import static android.support.wearable.complications.ComplicationData.TYPE_ICON;
 import static android.support.wearable.complications.ComplicationData.TYPE_LONG_TEXT;
+import static android.support.wearable.complications.ComplicationData.TYPE_RANGED_VALUE;
+import static android.support.wearable.complications.ComplicationData.TYPE_SHORT_TEXT;
 import static android.support.wearable.complications.ComplicationData.TYPE_SMALL_IMAGE;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -126,7 +128,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         assertThat(mComplicationRenderer.getComplicationData().getType())
-                .isEqualTo(ComplicationData.TYPE_SHORT_TEXT);
+                .isEqualTo(TYPE_SHORT_TEXT);
         assertThat(mComplicationRenderer
                 .getComplicationData()
                 .getShortText()
@@ -339,7 +341,7 @@ public class ComplicationRendererTest {
     public void nothingIsDrawnForInactiveData() {
         // GIVEN a complication renderer with data that has passed its end time
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("hello"))
                         .setEndDateTimeMillis(REFERENCE_TIME.toEpochMilli() - 100)
                         .build(),
@@ -356,7 +358,7 @@ public class ComplicationRendererTest {
     public void somethingIsDrawnForActiveData() {
         // GIVEN a complication renderer with data that has passed its end time
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("hello"))
                         .setStartDateTimeMillis(REFERENCE_TIME.toEpochMilli() - 5000)
                         .setEndDateTimeMillis(REFERENCE_TIME.toEpochMilli() + 2000)
@@ -463,7 +465,7 @@ public class ComplicationRendererTest {
             setUp();
 
             mComplicationRenderer.setComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                    new ComplicationData.Builder(TYPE_RANGED_VALUE)
                             .setRangedValue(data.value)
                             .setRangedMinValue(data.min)
                             .setRangedMaxValue(data.max)
@@ -499,7 +501,7 @@ public class ComplicationRendererTest {
         int max = 100;
         int value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
                         .setRangedMinValue(min)
                         .setRangedMaxValue(max)
@@ -533,7 +535,7 @@ public class ComplicationRendererTest {
         int max = 100;
         int value = (max - min) / 2;
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setRangedValue(value)
                         .setRangedMinValue(min)
                         .setRangedMaxValue(max)
@@ -564,7 +566,7 @@ public class ComplicationRendererTest {
     public void bordersBackgroundAndHighlightAreDrawn() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .build(),
                 true);
@@ -625,7 +627,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
                         .setPlaceholder(new ComplicationData.Builder(
-                                ComplicationData.TYPE_SHORT_TEXT)
+                                TYPE_SHORT_TEXT)
                                 .setShortText(PLACEHOLDER_COMPLICATION_TEXT)
                                 .build())
                         .build(),
@@ -660,7 +662,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
                         .setPlaceholder(new ComplicationData.Builder(
-                                ComplicationData.TYPE_SHORT_TEXT)
+                                TYPE_SHORT_TEXT)
                                 .setShortText(ComplicationText.plainText("Hi"))
                                 .setShortTitle(PLACEHOLDER_COMPLICATION_TEXT)
                                 .build())
@@ -678,7 +680,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
                         .setPlaceholder(new ComplicationData.Builder(
-                                ComplicationData.TYPE_SHORT_TEXT)
+                                TYPE_SHORT_TEXT)
                                 .setShortText(ComplicationText.plainText("Hi"))
                                 .setIcon(Icon.createWithBitmap(
                                         Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)))
@@ -697,7 +699,7 @@ public class ComplicationRendererTest {
     public void highlightIsNotDrawnInAmbientMode() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .build(),
                 true);
@@ -718,7 +720,7 @@ public class ComplicationRendererTest {
     public void antiAliasIsDisabledWhenInLowBitAmbientMode() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .build(),
                 true);
@@ -739,7 +741,7 @@ public class ComplicationRendererTest {
     public void antiAliasIsEnabledWhenNotInLowBitAmbientMode() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .build(),
                 true);
@@ -762,7 +764,7 @@ public class ComplicationRendererTest {
     public void notTintedWhenTapActionNotLostDueToSerialization() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .setTapActionLostDueToSerialization(false)
                         .build(),
@@ -781,7 +783,7 @@ public class ComplicationRendererTest {
     public void darkTintWhenTapActionLostDueToSerialization() {
         // GIVEN a complication renderer with short text data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
                         .setTapActionLostDueToSerialization(true)
                         .build(),
@@ -887,6 +889,43 @@ public class ComplicationRendererTest {
     }
 
     @Test
+    public void shortTextWithSmallImage() {
+        mComplicationRenderer.setBounds(new Rect(0, 0, 300, 100));
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("Foo"))
+                        .setSmallImage(mMockSmallImage)
+                        .build(),
+                true);
+
+        Drawable smallImage = loadIconFromMock(mMockSmallImage);
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+        Drawable activeDrawable = mComplicationRenderer.getRoundedSmallImage().getDrawable();
+
+        assertThat(activeDrawable).isEqualTo(smallImage);
+    }
+
+    @Test
+    public void rangedValueWithSmallImage() {
+        mComplicationRenderer.setBounds(new Rect(0, 0, 300, 100));
+        mComplicationRenderer.setComplicationData(
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
+                        .setShortText(ComplicationText.plainText("Foo"))
+                        .setSmallImage(mMockSmallImage)
+                        .setRangedValue(25f)
+                        .setRangedMinValue(0f)
+                        .setRangedMaxValue(100f)
+                        .build(),
+                true);
+
+        Drawable smallImage = loadIconFromMock(mMockSmallImage);
+        mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+        Drawable activeDrawable = mComplicationRenderer.getRoundedSmallImage().getDrawable();
+
+        assertThat(activeDrawable).isEqualTo(smallImage);
+    }
+
+    @Test
     public void burnInProtectionSmallImageIsUsedInBurnInProtectionMode() {
         mComplicationRenderer.setBounds(new Rect(0, 0, 300, 100));
         mComplicationRenderer.setComplicationData(
@@ -962,7 +1001,7 @@ public class ComplicationRendererTest {
     @Test
     public void setRangedValueProgressHiddenForShortText() {
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setShortText(ComplicationText.plainText("foo"))
                         .setShortTitle(ComplicationText.plainText("bar"))
                         .setRangedMinValue(1)
@@ -975,7 +1014,7 @@ public class ComplicationRendererTest {
         ComplicationRenderer anotherRenderer =
                 createRendererWithBounds(mComplicationRenderer.getBounds());
         anotherRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                new ComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("foo"))
                         .setShortTitle(ComplicationText.plainText("bar"))
                         .build(),
@@ -987,7 +1026,7 @@ public class ComplicationRendererTest {
     @Test
     public void setRangedValueProgressHiddenForIconOnly() {
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                new ComplicationData.Builder(TYPE_RANGED_VALUE)
                         .setIcon(mMockIcon)
                         .setRangedMinValue(1)
                         .setRangedValue(5)
@@ -1136,10 +1175,13 @@ public class ComplicationRendererTest {
 
     @Test
     public void placeholderRangedValue() {
+        androidx.wear.watchface.complications.data.ComplicationText placeholderText =
+                androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER;
         mComplicationRenderer.setComplicationData(
                 new NoDataComplicationData(
                         new RangedValueComplicationData.Builder(
                                 RangedValueComplicationData.PLACEHOLDER, 0f, 100f, EMPTY_TEXT)
+                                .setTitle(placeholderText)
                                 .build())
                         .asWireComplicationData(),
                 true);
@@ -1189,6 +1231,39 @@ public class ComplicationRendererTest {
                         .asWireComplicationData(),
                 true);
         assertThat(mComplicationRenderer.mIsPlaceholderText).isTrue();
+    }
+
+    @Test
+    public void placeholderIcon_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new MonochromaticImageComplicationData.Builder(
+                                MonochromaticImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
+    }
+
+    @Test
+    public void placeholderSmallImage_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new SmallImageComplicationData.Builder(
+                                SmallImage.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
+    }
+
+    @Test
+    public void placeholderPhotoImage_notLoadedAsync() {
+        mComplicationRenderer.setComplicationData(
+                new NoDataComplicationData(
+                        new PhotoImageComplicationData.Builder(
+                                PhotoImageComplicationData.PLACEHOLDER, EMPTY_TEXT).build())
+                        .asWireComplicationData(),
+                true);
+        assertThat(mComplicationRenderer.loadDrawableIconAndImagesAsync()).isFalse();
     }
 
     private Drawable loadIconFromMock(Icon icon) {

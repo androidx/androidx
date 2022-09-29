@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
  * Common IOException mapped to a custom exception class in native code.
  */
 public actual open class IOException actual constructor(message: String?, cause: Throwable?) :
-    Exception() {
+    Exception(message, cause) {
     actual constructor(message: String?) : this(message, null)
 }
 
@@ -36,7 +36,7 @@ internal actual class AtomicInt actual constructor(initialValue: Int) {
       return delegate.getAndIncrement()
     }
     actual fun decrementAndGet(): Int {
-      return delegate.getAndDecrement()
+      return delegate.decrementAndGet()
     }
     actual fun get(): Int = property
 

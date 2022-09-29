@@ -16,13 +16,13 @@
 
 package androidx.room.solver.transaction.binder
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.Function1TypeSpecBuilder
 import androidx.room.ext.KotlinTypeNames.CONTINUATION
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames.ROOM_DB_KT
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
@@ -58,7 +58,7 @@ class CoroutineTransactionMethodBinder(
             scope = adapterScope
         )
         val functionImpl: Any = if (useLambdaSyntax) {
-            CodeBlock.of("($L) -> $L", innerContinuationParamName, adapterScope.generate())
+            CodeBlock.of("($L) -> $L", innerContinuationParamName, adapterScope.builder().build())
         } else {
             Function1TypeSpecBuilder(
                 parameterTypeName = ParameterizedTypeName.get(
@@ -67,7 +67,7 @@ class CoroutineTransactionMethodBinder(
                 parameterName = innerContinuationParamName,
                 returnTypeName = ClassName.OBJECT
             ) {
-                addStatement(adapterScope.generate())
+                addStatement(adapterScope.builder().build())
             }.build()
         }
 

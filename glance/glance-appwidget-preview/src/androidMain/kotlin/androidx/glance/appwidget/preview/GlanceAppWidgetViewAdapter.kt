@@ -16,9 +16,9 @@
 
 package androidx.glance.appwidget.preview
 
+import android.appwidget.AppWidgetHostView
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.FrameLayout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
@@ -35,17 +35,17 @@ private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
  * View adapter that renders a glance `@Composable`. The `@Composable` is found by reading the
  * `tools:composableName` attribute that contains the FQN of the function.
  */
-internal class GlanceAppWidgetViewAdapter : FrameLayout {
+internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet) : super(context) {
         init(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    ) {
+    constructor(
+        context: Context,
+        attrs: AttributeSet,
+        @Suppress("UNUSED_PARAMETER") defStyleAttr: Int
+    ) : super(context) {
         init(attrs)
     }
 

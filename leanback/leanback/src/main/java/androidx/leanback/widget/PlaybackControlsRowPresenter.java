@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.TypedValue;
@@ -26,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
@@ -203,7 +206,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
      *
      * @param descriptionPresenter Presenter for displaying item details.
      */
-    public PlaybackControlsRowPresenter(Presenter descriptionPresenter) {
+    public PlaybackControlsRowPresenter(@Nullable Presenter descriptionPresenter) {
         setHeaderPresenter(null);
         setSelectEffectEnabled(false);
 
@@ -227,13 +230,14 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     /**
      * Sets the listener for {@link Action} click events.
      */
-    public void setOnActionClickedListener(OnActionClickedListener listener) {
+    public void setOnActionClickedListener(@Nullable OnActionClickedListener listener) {
         mOnActionClickedListener = listener;
     }
 
     /**
      * Returns the listener for {@link Action} click events.
      */
+    @Nullable
     public OnActionClickedListener getOnActionClickedListener() {
         return mOnActionClickedListener;
     }
@@ -285,6 +289,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     /**
      * Returns true if secondary actions are hidden.
      */
+    @SuppressLint("KotlinPropertyAccess")
     public boolean areSecondaryActionsHidden() {
         return mSecondaryActionsHidden;
     }
@@ -294,7 +299,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
      * This allows the row to hug the bottom of the display when no
      * other rows are present.
      */
-    public void showBottomSpace(ViewHolder vh, boolean show) {
+    public void showBottomSpace(@NonNull ViewHolder vh, boolean show) {
         vh.mBottomSpacer.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
@@ -302,7 +307,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
      * Displays the primary actions.  This will override the user having selected "more actions"
      * to display the secondary actions; see {@link #setSecondaryActionsHidden(boolean)}.
      */
-    public void showPrimaryActions(ViewHolder vh) {
+    public void showPrimaryActions(@NonNull ViewHolder vh) {
         mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
         if (vh.view.hasFocus()) {
             mPlaybackControlsPresenter.resetFocus(vh.mControlsVh);
@@ -310,7 +315,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    public void onReappear(RowPresenter.ViewHolder rowViewHolder) {
+    public void onReappear(@NonNull RowPresenter.ViewHolder rowViewHolder) {
         showPrimaryActions((ViewHolder) rowViewHolder);
     }
 
@@ -331,8 +336,9 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         return context.getResources().getColor(R.color.lb_playback_progress_color_no_theme);
     }
 
+    @NonNull
     @Override
-    protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
+    protected RowPresenter.ViewHolder createRowViewHolder(@NonNull ViewGroup parent) {
         View v = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.lb_playback_controls_row, parent, false);
         ViewHolder vh = new ViewHolder(v, mDescriptionPresenter);
@@ -373,7 +379,10 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
 
         ViewHolder vh = (ViewHolder) holder;
@@ -449,7 +458,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+    protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         PlaybackControlsRow row = (PlaybackControlsRow) vh.getRow();
 
@@ -464,7 +473,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onRowViewSelected(RowPresenter.ViewHolder vh, boolean selected) {
+    protected void onRowViewSelected(@NonNull RowPresenter.ViewHolder vh, boolean selected) {
         super.onRowViewSelected(vh, selected);
         if (selected) {
             ((ViewHolder) vh).dispatchItemSelection();
@@ -472,7 +481,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewAttachedToWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewAttachedToWindow(vh);
         if (mDescriptionPresenter != null) {
             mDescriptionPresenter.onViewAttachedToWindow(
@@ -481,7 +490,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     }
 
     @Override
-    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewDetachedFromWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewDetachedFromWindow(vh);
         if (mDescriptionPresenter != null) {
             mDescriptionPresenter.onViewDetachedFromWindow(

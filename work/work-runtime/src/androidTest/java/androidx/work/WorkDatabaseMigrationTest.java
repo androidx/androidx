@@ -25,6 +25,7 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_11;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_15;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_16;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
@@ -61,6 +62,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.impl.Migration_11_12;
 import androidx.work.impl.Migration_12_13;
+import androidx.work.impl.Migration_15_16;
 import androidx.work.impl.Migration_1_2;
 import androidx.work.impl.Migration_3_4;
 import androidx.work.impl.Migration_4_5;
@@ -122,6 +124,11 @@ public class WorkDatabaseMigrationTest {
     private static final String TRIGGER_MAX_CONTENT_DELAY = "trigger_max_content_delay";
     private static final String REQUIRED_NETWORK_TYPE = "required_network_type";
     private static final String CONTENT_URI_TRIGGERS = "content_uri_triggers";
+
+    private static final String PERIOD_COUNT = "period_count";
+
+    private static final String LAST_ENQUEUE_TIME = "last_enqueue_time";
+
     private Context mContext;
     private File mDatabasePath;
 
@@ -558,8 +565,41 @@ public class WorkDatabaseMigrationTest {
         assertThat(enqueueTimes.get(secondPeriodId), is(1000L));
 
         assertThat(periodCounts.get(oneTimeId), is(0));
-        assertThat(periodCounts.get(firstPeriodId),  is(0));
+        assertThat(periodCounts.get(firstPeriodId), is(0));
         assertThat(periodCounts.get(secondPeriodId), is(1));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion15_16() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_15);
+        database.execSQL("PRAGMA foreign_keys = FALSE");
+        String id = UUID.randomUUID().toString();
+        ContentValues values = contentValuesPre16(id);
+        database.insert("workspec", CONFLICT_FAIL, values);
+        ContentValues existingSystemIdInfo = new ContentValues();
+        existingSystemIdInfo.put("system_id", 1);
+        existingSystemIdInfo.put("work_spec_id", id);
+        database.insert("SystemIdInfo", CONFLICT_FAIL, existingSystemIdInfo);
+        ContentValues nonExistingSystemIdInfo = new ContentValues();
+        nonExistingSystemIdInfo.put("system_id", 2);
+        nonExistingSystemIdInfo.put("work_spec_id", "aaaaabbbb");
+        database.insert("SystemIdInfo", CONFLICT_FAIL, nonExistingSystemIdInfo);
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_16, true,
+                Migration_15_16.INSTANCE);
+        checkColumnExists(database, "workspec", "generation");
+        Cursor systemIdInfos = database.query("SELECT system_id, work_spec_id FROM SystemIdInfo");
+        assertThat(systemIdInfos.getCount(), is(1));
+        assertThat(systemIdInfos.moveToFirst(), is(true));
+
+        assertThat(systemIdInfos.getString(systemIdInfos.getColumnIndex("work_spec_id")),
+                is(id));
+        Cursor cursor = database.query("PRAGMA foreign_key_check(`SystemIdInfo`)");
+        if (cursor.getCount() > 0) {
+            throw new AssertionError("failed check");
+        }
         database.close();
     }
 
@@ -600,6 +640,18 @@ public class WorkDatabaseMigrationTest {
         contentValues.put(COLUMN_OUT_OF_QUOTA_POLICY, 0);
         contentValues.put(TRIGGER_CONTENT_UPDATE_DELAY, -1);
         contentValues.put(TRIGGER_MAX_CONTENT_DELAY, -1);
+        return contentValues;
+    }
+
+    private ContentValues contentValuesPre16(String workSpecId) {
+        ContentValues contentValues = contentValuesPre15(workSpecId);
+        contentValues.put(REQUIRED_NETWORK_TYPE, 0);
+        contentValues.put(COLUMN_RUN_IN_FOREGROUND, false);
+        contentValues.put(COLUMN_OUT_OF_QUOTA_POLICY, 0);
+        contentValues.put(TRIGGER_CONTENT_UPDATE_DELAY, -1);
+        contentValues.put(TRIGGER_MAX_CONTENT_DELAY, -1);
+        contentValues.remove("period_start_time");
+        contentValues.put(LAST_ENQUEUE_TIME, 0L);
         return contentValues;
     }
 

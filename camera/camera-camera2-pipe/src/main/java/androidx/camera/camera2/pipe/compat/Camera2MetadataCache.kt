@@ -81,6 +81,10 @@ internal class Camera2MetadataCache @Inject constructor(
         }
     }
 
+    fun readCameraMetadata(cameraId: CameraId): CameraMetadata {
+        return createCameraMetadata(cameraId, isMetadataRedacted())
+    }
+
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
         val start = Timestamps.now()
 

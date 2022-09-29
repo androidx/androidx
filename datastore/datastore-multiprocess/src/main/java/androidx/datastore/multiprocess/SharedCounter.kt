@@ -25,7 +25,8 @@ import java.io.IOException
  * Put the JNI methods in a separate class to make them internal to the package.
  */
 internal class NativeSharedCounter {
-    external fun nativeCreateSharedCounter(fd: Int): Long
+    external fun nativeTruncateFile(fd: Int): Int
+    external fun nativeCreateSharedCounter(fd: Int, enableMlock: Boolean): Long
     external fun nativeGetCounterValue(address: Long): Int
     external fun nativeIncrementAndGetCounterValue(address: Long): Int
 }
@@ -57,22 +58,28 @@ internal class SharedCounter private constructor(
         fun loadLib() = System.loadLibrary("datastore_shared_counter")
 
         @SuppressLint("SyntheticAccessor")
-        private fun createCounterFromFd(pfd: ParcelFileDescriptor): SharedCounter {
+        private fun createCounterFromFd(
+            pfd: ParcelFileDescriptor,
+            enableMlock: Boolean
+        ): SharedCounter {
             val nativeFd = pfd.getFd()
-            val address = nativeSharedCounter.nativeCreateSharedCounter(nativeFd)
+            if (nativeSharedCounter.nativeTruncateFile(nativeFd) != 0) {
+                throw IOException("Failed to truncate counter file")
+            }
+            val address = nativeSharedCounter.nativeCreateSharedCounter(nativeFd, enableMlock)
             if (address < 0) {
-                throw IOException("Failed to mmap or truncate counter file")
+                throw IOException("Failed to mmap counter file")
             }
             return SharedCounter(address)
         }
 
-        internal fun create(produceFile: () -> File): SharedCounter {
+        internal fun create(enableMlock: Boolean = true, produceFile: () -> File): SharedCounter {
             val file = produceFile()
             return ParcelFileDescriptor.open(
                 file,
                 ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
             ).use {
-                createCounterFromFd(it)
+                createCounterFromFd(it, enableMlock)
             }
         }
     }

@@ -81,6 +81,22 @@ class AndroidViewModelFactoryTest {
         val vm = factory.create(VM::class.java)
         assertThat(vm).isNotNull()
     }
+
+    @Test
+    fun testAppConstructorCreateIsCalled() {
+        val factory = VMFactory(queryApplication())
+        val vm = factory.create(VM::class.java, CreationExtras.Empty)
+        assertThat(vm).isNotNull()
+        assertThat(factory.calledCreateWithNoExtras).isTrue()
+    }
+}
+
+class VMFactory(application: Application) : AndroidViewModelFactory(application) {
+    var calledCreateWithNoExtras = false
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        calledCreateWithNoExtras = true
+        return super.create(modelClass)
+    }
 }
 
 class VM(application: Application) : AndroidViewModel(application)

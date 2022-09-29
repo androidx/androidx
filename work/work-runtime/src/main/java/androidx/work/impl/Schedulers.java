@@ -59,7 +59,7 @@ public class Schedulers {
     public static void schedule(
             @NonNull Configuration configuration,
             @NonNull WorkDatabase workDatabase,
-            List<Scheduler> schedulers) {
+            @Nullable List<Scheduler> schedulers) {
         if (schedulers == null || schedulers.size() == 0) {
             return;
         }

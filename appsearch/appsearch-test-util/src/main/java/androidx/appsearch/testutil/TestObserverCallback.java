@@ -19,15 +19,15 @@ package androidx.appsearch.testutil;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.SchemaChangeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An implementation of {@link androidx.appsearch.observer.AppSearchObserverCallback} for testing
+ * An implementation of {@link androidx.appsearch.observer.ObserverCallback} for testing
  * that caches its notifications in memory.
  *
  * <p>You should wait for all notifications to be delivered using {@link #waitForNotificationCount}
@@ -36,7 +36,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TestObserverCallback implements AppSearchObserverCallback {
+public class TestObserverCallback implements ObserverCallback {
     private final Object mLock = new Object();
 
     private final List<SchemaChangeInfo> mSchemaChanges = new ArrayList<>();
@@ -81,7 +81,11 @@ public class TestObserverCallback implements AppSearchObserverCallback {
                                     + expectedCount
                                     + " notifications but there are"
                                     + " already "
-                                    + actualCount);
+                                    + actualCount
+                                    + ".\n  Schema changes: "
+                                    + mSchemaChanges
+                                    + "\n  Document changes: "
+                                    + mDocumentChanges);
                 } else if (actualCount == expectedCount) {
                     return;
                 } else {
@@ -109,6 +113,16 @@ public class TestObserverCallback implements AppSearchObserverCallback {
     @NonNull
     public Iterable<DocumentChangeInfo> getDocumentChanges() {
         return mDocumentChanges;
+    }
+
+    /** Removes all notifications captured by this callback and resets the count to 0. */
+    public void clear() {
+        synchronized (mLock) {
+            mSchemaChanges.clear();
+            mDocumentChanges.clear();
+            mNotificationCountLocked = 0;
+            mLock.notifyAll();
+        }
     }
 
     private void incrementNotificationCountLocked() {

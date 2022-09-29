@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
@@ -39,7 +40,11 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
@@ -84,9 +89,16 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.processing.Node;
+import androidx.camera.core.processing.SettableSurface;
+import androidx.camera.core.processing.SurfaceEdge;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -175,13 +187,17 @@ public final class Preview extends UseCase {
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
-    // Flag indicates that there is a SurfaceRequest created by Preview but hasn't sent to the
-    // caller.
-    private boolean mHasUnsentSurfaceRequest = false;
+
     // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
     // createPipeline().
     @Nullable
     private Size mSurfaceSize;
+
+    @Nullable
+    private SurfaceProcessorInternal mSurfaceProcessor;
+
+    @Nullable
+    private SurfaceProcessorNode mNode;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -194,27 +210,31 @@ public final class Preview extends UseCase {
         super(config);
     }
 
+    @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
+        // Build pipeline with node if processor is set. Eventually we will move all the code to
+        // createPipelineWithNode.
+        if (mSurfaceProcessor != null) {
+            return createPipelineWithNode(cameraId, config, resolution);
+        }
+
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
 
         // Close previous session's deferrable surface before creating new one
-        if (mSessionDeferrableSurface != null) {
-            mSessionDeferrableSurface.close();
-        }
+        clearPipeline();
 
         boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
                 isRGBA8888SurfaceRequired);
         mCurrentSurfaceRequest = surfaceRequest;
 
-        if (sendSurfaceRequestIfReady()) {
-            sendTransformationInfoIfReady();
-        } else {
-            mHasUnsentSurfaceRequest = true;
+        if (mSurfaceProvider != null) {
+            // Only send surface request if the provider is set.
+            sendSurfaceRequest();
         }
 
         if (captureProcessor != null) {
@@ -264,7 +284,118 @@ public final class Preview extends UseCase {
             }
             mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         }
-        sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+
+        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
+        return sessionConfigBuilder;
+    }
+
+    /**
+     * Creates the post-processing pipeline with the {@link Node} pattern.
+     *
+     * <p> After we migrate everything to {@link Node}, this will become the canonical way to
+     * build pipeline .
+     */
+    @NonNull
+    @MainThread
+    private SessionConfig.Builder createPipelineWithNode(
+            @NonNull String cameraId,
+            @NonNull PreviewConfig config,
+            @NonNull Size resolution) {
+        // Check arguments
+        Threads.checkMainThread();
+        Preconditions.checkNotNull(mSurfaceProcessor);
+        CameraInternal camera = getCamera();
+        Preconditions.checkNotNull(camera);
+
+        clearPipeline();
+
+        // Create nodes and edges.
+        mNode = new SurfaceProcessorNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceProcessor);
+        SettableSurface cameraSurface = new SettableSurface(
+                CameraEffect.PREVIEW,
+                resolution,
+                ImageFormat.PRIVATE,
+                new Matrix(),
+                /*hasEmbeddedTransform=*/true,
+                requireNonNull(getCropRect(resolution)),
+                getRelativeRotation(camera),
+                /*mirroring=*/false);
+        SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
+        SurfaceEdge outputEdge = mNode.transform(inputEdge);
+        SettableSurface appSurface = outputEdge.getSurfaces().get(0);
+
+        // Send the app Surface to the app.
+        mSessionDeferrableSurface = cameraSurface;
+        mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
+        if (mSurfaceProvider != null) {
+            // Only send surface request if the provider is set.
+            sendSurfaceRequest();
+        }
+
+        // Send the camera Surface to the camera2.
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
+        return sessionConfigBuilder;
+    }
+
+    /**
+     * Sets a {@link SurfaceProcessorInternal}.
+     *
+     * <p>Internal API invoked by {@link CameraUseCaseAdapter}. {@link #createPipeline} uses the
+     * value to setup post-processing pipeline.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setProcessor(@Nullable SurfaceProcessorInternal surfaceProcessor) {
+        mSurfaceProcessor = surfaceProcessor;
+    }
+
+    /**
+     * Gets the {@link SurfaceProcessorInternal} for testing.
+     *
+     * @hide
+     */
+    @Nullable
+    @VisibleForTesting
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public SurfaceProcessorInternal getProcessor() {
+        return mSurfaceProcessor;
+    }
+
+    /**
+     * Creates previously allocated {@link DeferrableSurface} include those allocated by nodes.
+     */
+    private void clearPipeline() {
+        DeferrableSurface cameraSurface = mSessionDeferrableSurface;
+        if (cameraSurface != null) {
+            cameraSurface.close();
+            mSessionDeferrableSurface = null;
+        }
+        SurfaceProcessorNode node = mNode;
+        if (node != null) {
+            node.release();
+            mNode = null;
+        }
+        mCurrentSurfaceRequest = null;
+    }
+
+    private void addCameraSurfaceAndErrorListener(
+            @NonNull SessionConfig.Builder sessionConfigBuilder,
+            @NonNull String cameraId,
+            @NonNull PreviewConfig config,
+            @NonNull Size resolution) {
+        // TODO(b/245309800): Add the Surface if post-processing pipeline is used. Post-processing
+        //  pipeline always provide a Surface.
+
+        // Not to add deferrable surface if the surface provider is not set, as that means the
+        // surface will never be provided. For simplicity, the same rule also applies to
+        // SurfaceProcessorNode and CaptureProcessor cases, since no surface provider also means no
+        // output target for these two cases.
+        if (mSurfaceProvider != null) {
+            sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+        }
+
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
@@ -278,8 +409,6 @@ public final class Preview extends UseCase {
                 notifyReset();
             }
         });
-
-        return sessionConfigBuilder;
     }
 
     /**
@@ -316,7 +445,11 @@ public final class Preview extends UseCase {
         SurfaceProvider surfaceProvider = mSurfaceProvider;
         Rect cropRect = getCropRect(mSurfaceSize);
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
+        if (cameraInternal != null && surfaceProvider != null && cropRect != null
+                && surfaceRequest != null) {
+            // TODO: when SurfaceProcessorNode exists, use SettableSurface.setRotationDegrees(int)
+            //  instead. However, this requires PreviewView to rely on relative rotation but not
+            //  target rotation.
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
                     getRelativeRotation(cameraInternal), getAppTargetRotation()));
         }
@@ -364,35 +497,24 @@ public final class Preview extends UseCase {
             mSurfaceProviderExecutor = executor;
             notifyActive();
 
-            if (mHasUnsentSurfaceRequest) {
-                if (sendSurfaceRequestIfReady()) {
-                    sendTransformationInfoIfReady();
-                    mHasUnsentSurfaceRequest = false;
-                }
-            } else {
-                // No pending SurfaceRequest. It could be a previous request has already been
-                // sent, which means the caller wants to replace the Surface. Or, it could be the
-                // pipeline has not started. Or the use case may have been detached from the camera.
-                // Either way, try updating session config and let createPipeline() sends a
-                // new SurfaceRequest.
-                if (getAttachedSurfaceResolution() != null) {
-                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
-                            getAttachedSurfaceResolution());
-                    notifyReset();
-                }
+            // It could be a previous request has already been sent, which means the caller wants
+            // to replace the Surface. Or, it could be the pipeline has not started. Or the use
+            // case may have been detached from the camera. Either way, try updating session
+            // config and let createPipeline() sends a new SurfaceRequest.
+            if (getAttachedSurfaceResolution() != null) {
+                updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
+                        getAttachedSurfaceResolution());
+                notifyReset();
             }
         }
     }
 
-    private boolean sendSurfaceRequestIfReady() {
-        final SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        final SurfaceProvider surfaceProvider = mSurfaceProvider;
-        if (surfaceProvider != null && surfaceRequest != null) {
-            mSurfaceProviderExecutor.execute(
-                    () -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-            return true;
-        }
-        return false;
+    private void sendSurfaceRequest() {
+        final SurfaceProvider surfaceProvider = Preconditions.checkNotNull(mSurfaceProvider);
+        final SurfaceRequest surfaceRequest = Preconditions.checkNotNull(mCurrentSurfaceRequest);
+
+        mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
+        sendTransformationInfoIfReady();
     }
 
     /**
@@ -447,8 +569,8 @@ public final class Preview extends UseCase {
      * {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
     @Override
@@ -524,11 +646,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
-        if (mSessionDeferrableSurface != null) {
-            mSessionDeferrableSurface.close();
-        }
-
-        mCurrentSurfaceRequest = null;
+        clearPipeline();
     }
 
     /**
@@ -1036,6 +1154,7 @@ public final class Preview extends UseCase {
 
         /**
          * Sets if the surface requires RGBA8888 format.
+         *
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)

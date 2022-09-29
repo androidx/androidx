@@ -23,11 +23,11 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import androidx.compose.ui.text.android.style.LineHeightSpan
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -123,6 +123,28 @@ class TextLayoutIntrinsicWidthTest {
     @Test
     fun intrinsicWidth_with_noLetterSpacing_and_noLineHeight_createsOneLine() {
         assertLineCount(defaultText)
+    }
+
+    @Test
+    fun intrinsicWidth_sameInLtrAndRtl() {
+        val text = SpannableString("asdf")
+
+        val intrinsicsLtr = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_LTR)
+        val intrinsicsRtl = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_RTL)
+
+        assertThat(intrinsicsLtr.maxIntrinsicWidth).isEqualTo(intrinsicsRtl.maxIntrinsicWidth)
+    }
+
+    @Test
+    fun intrinsicWidth_sameInLtrAndRtl_withLetterSpacing() {
+        val text = SpannableString("asdf").apply {
+            setSpan(LetterSpacingSpanPx(letterSpacingPx))
+        }
+
+        val intrinsicsLtr = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_LTR)
+        val intrinsicsRtl = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_RTL)
+
+        assertThat(intrinsicsLtr.maxIntrinsicWidth).isEqualTo(intrinsicsRtl.maxIntrinsicWidth)
     }
 
     private fun assertLineCount(text: CharSequence, paint: TextPaint = defaultPaint) {

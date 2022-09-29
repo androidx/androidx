@@ -40,6 +40,7 @@ public final class WorkInfo {
     private @NonNull Data mProgress;
     private int mRunAttemptCount;
 
+    private final int mGeneration;
     /**
      * @hide
      */
@@ -50,13 +51,15 @@ public final class WorkInfo {
             @NonNull Data outputData,
             @NonNull List<String> tags,
             @NonNull Data progress,
-            int runAttemptCount) {
+            int runAttemptCount,
+            int generation) {
         mId = id;
         mState = state;
         mOutputData = outputData;
         mTags = new HashSet<>(tags);
         mProgress = progress;
         mRunAttemptCount = runAttemptCount;
+        mGeneration = generation;
     }
 
     /**
@@ -114,6 +117,24 @@ public final class WorkInfo {
     @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
+    }
+
+    /**
+     * Gets the latest generation of this Worker.
+     * <p>
+     * A work has multiple generations, if it was updated via
+     * {@link WorkManager#updateWork(WorkRequest)} or
+     * {@link WorkManager#enqueueUniquePeriodicWork(String,
+     * ExistingPeriodicWorkPolicy, PeriodicWorkRequest)} using
+     * {@link ExistingPeriodicWorkPolicy#UPDATE}.
+     * <p>
+     * If this worker is currently running, it can possibly be of an older generation rather than
+     * returned by this function if an update has happened during an execution of this worker.
+     *
+     * @return a generation of this work.
+     */
+    public int getGeneration() {
+        return mGeneration;
     }
 
     @Override

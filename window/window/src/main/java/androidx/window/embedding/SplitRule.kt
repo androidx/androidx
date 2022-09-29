@@ -85,7 +85,7 @@ open class SplitRule internal constructor(
      *
      * @see SplitPairRule.finishPrimaryWithSecondary
      * @see SplitPairRule.finishSecondaryWithPrimary
-     * @see SplitPlaceholderRule.finishPrimaryWithSecondary
+     * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
      */
     companion object {
         /**

@@ -93,27 +93,62 @@ class TestVersionUpdates(unittest.TestCase):
         higher_version = get_higher_version("1.4.0", "1.4.2")
         self.assertEqual("1.4.2", higher_version)
 
-    def test_should_update_version_in_library_versions_kt(self):
-        self.assertTrue(should_update_version_in_library_versions_toml(
+    def test_should_update_group_version_in_library_versions_toml(self):
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
             "1.1.0-alpha01", "1.1.0-alpha02", "androidx.core"))
-        self.assertTrue(should_update_version_in_library_versions_toml(
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
             "1.1.0-alpha01", "1.3.0-alpha01", "androidx.appcompat"))
-        self.assertFalse(should_update_version_in_library_versions_toml(
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
             "1.1.0-alpha01", "1.0.0-alpha01", "androidx.work"))
 
-        self.assertTrue(should_update_version_in_library_versions_toml(
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.1.0-alpha02", "androidx.wear"))
-        self.assertTrue(should_update_version_in_library_versions_toml(
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.3.0-alpha01", "androidx.viewpager"))
-        self.assertFalse(should_update_version_in_library_versions_toml(
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.0.0-alpha01", "androidx.compose.foundation"))
 
-        self.assertFalse(should_update_version_in_library_versions_toml(
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.tracing"))
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.tracing"))
+        self.assertTrue(should_update_group_version_in_library_versions_toml(
+            "1.2.0", "1.3.0-alpha01", "androidx.tracing"))
+
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.1.0-alpha02", "androidx.car"))
-        self.assertFalse(should_update_version_in_library_versions_toml(
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.3.0-alpha01", "androidx.car"))
-        self.assertFalse(should_update_version_in_library_versions_toml(
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
             "1.0.0-beta04", "1.0.0-alpha01", "androidx.car"))
+
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.compose.compiler"))
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.compose.compiler"))
+        self.assertFalse(should_update_group_version_in_library_versions_toml(
+            "1.2.0", "1.3.0-alpha01", "androidx.compose.compiler"))
+
+    def test_should_update_artifact_version_in_library_versions_toml(self):
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.1.0-alpha02", "core"))
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.3.0-alpha01", "appcompat"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.0.0-alpha01", "work-runtime"))
+
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "tracing-perfetto"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "tracing-perfetto"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.0.0-alpha01", "tracing-perfetto"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-binary"))
+        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+            "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-common"))
 
 
 class TestFileParsing(unittest.TestCase):

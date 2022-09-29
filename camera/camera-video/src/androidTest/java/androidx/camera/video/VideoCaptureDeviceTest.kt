@@ -21,19 +21,21 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
 import androidx.camera.video.VideoOutput.SourceState
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.fail
@@ -74,16 +76,34 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class VideoCaptureDeviceTest {
+class VideoCaptureDeviceTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -95,7 +115,7 @@ class VideoCaptureDeviceTest {
     fun setUp() {
         CameraXUtil.initialize(
             context,
-            Camera2Config.defaultConfig()
+            cameraConfig
         ).get()
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
@@ -191,7 +211,7 @@ class VideoCaptureDeviceTest {
         // Arrange.
         val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
         qualityList.forEach loop@{ quality ->
-            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
+            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)!!
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
                     it.setQualitySelector(QualitySelector.from(quality))
@@ -208,47 +228,8 @@ class VideoCaptureDeviceTest {
             }
 
             // Assert.
-            val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
             assertWithMessage("Set quality value by $quality")
-                .that(surfaceRequest.resolution).isEqualTo(targetResolution)
-
-            // Cleanup.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(listOf(videoCapture))
-                }
-            }
-        }
-    }
-
-    @Test
-    fun addUseCases_setQualityWithRotation_getCorrectResolution() = runBlocking {
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
-        // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
-        assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
-
-        val targetResolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
-
-        arrayOf(
-            Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
-        ).forEach { rotation ->
-            // Arrange.
-            val videoOutput = TestVideoOutput(
-                mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.from(Quality.LOWEST))
-                }.build()
-            )
-            val videoCapture = VideoCapture.withOutput(videoOutput)
-
-            // Act.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
-            }
-
-            // Assert.
-            val surfaceRequest = videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)
-            assertWithMessage("Set rotation value by $rotation")
-                .that(surfaceRequest.resolution).isEqualTo(targetResolution)
+                .that(videoCapture.attachedSurfaceResolution).isEqualTo(targetResolution)
 
             // Cleanup.
             withContext(Dispatchers.Main) {
@@ -409,8 +390,6 @@ class VideoCaptureDeviceTest {
         }
 
         fun setStreamInfo(streamInfo: StreamInfo) = streamInfoObservable.setState(streamInfo)
-
-        fun setMediaSpec(mediaSpec: MediaSpec) = mediaSpecObservable.setState(mediaSpec)
     }
 
     private suspend fun SurfaceRequest.provideUpdatingSurface(): StateFlow<Int> {

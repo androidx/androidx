@@ -145,6 +145,9 @@ public class FlingTests {
             @Override
             public void run() {
                 animHighFriction.setStartVelocity(5000).setStartValue(0).start();
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                // ValueAnimator#getDurationScale is called in start().
+                animHighFriction.getAnimationHandler().mDurationScale = 1.0f;
                 animLowFriction.setStartVelocity(5000).setStartValue(0).start();
             }
         });
@@ -197,6 +200,8 @@ public class FlingTests {
             @Override
             public void run() {
                 animHighThreshold.setStartVelocity(2000).setStartValue(0).start();
+                // Set the duration scale to 1 to avoid prematurely ending the animation.
+                animHighThreshold.getAnimationHandler().mDurationScale = 1.0f;
                 animLowThreshold.setStartVelocity(2000).setStartValue(0).start();
             }
         });

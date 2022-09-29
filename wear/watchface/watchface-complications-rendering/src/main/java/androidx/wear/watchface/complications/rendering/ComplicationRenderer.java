@@ -878,7 +878,8 @@ class ComplicationRenderer {
      * Returns true if the data contains images. If there are, the images will be loaded
      * asynchronously and the drawable will be invalidated when loading is complete.
      */
-    private boolean loadDrawableIconAndImagesAsync() {
+    @VisibleForTesting
+    boolean loadDrawableIconAndImagesAsync() {
         Handler handler = new Handler(Looper.getMainLooper());
         Icon icon = null;
         Icon smallImage = null;
@@ -904,7 +905,7 @@ class ComplicationRenderer {
         }
 
         boolean hasImage = false;
-        if (icon != null) {
+        if (icon != null && !ImageKt.isPlaceholder(icon)) {
             hasImage = true;
             icon.loadDrawableAsync(
                     mContext,
@@ -923,7 +924,7 @@ class ComplicationRenderer {
                     handler);
         }
 
-        if (burnInProtectionIcon != null) {
+        if (burnInProtectionIcon != null && !ImageKt.isPlaceholder(burnInProtectionIcon)) {
             hasImage = true;
             burnInProtectionIcon.loadDrawableAsync(
                     mContext,
@@ -942,7 +943,7 @@ class ComplicationRenderer {
                     handler);
         }
 
-        if (smallImage != null) {
+        if (smallImage != null && !ImageKt.isPlaceholder(smallImage)) {
             hasImage = true;
             smallImage.loadDrawableAsync(
                     mContext,
@@ -960,7 +961,8 @@ class ComplicationRenderer {
                     handler);
         }
 
-        if (burnInProtectionSmallImage != null) {
+        if (burnInProtectionSmallImage != null
+                && !ImageKt.isPlaceholder(burnInProtectionSmallImage)) {
             hasImage = true;
             burnInProtectionSmallImage.loadDrawableAsync(
                     mContext,
@@ -978,7 +980,7 @@ class ComplicationRenderer {
                     handler);
         }
 
-        if (largeImage != null) {
+        if (largeImage != null && !ImageKt.isPlaceholder(largeImage)) {
             hasImage = true;
             largeImage.loadDrawableAsync(
                     mContext,

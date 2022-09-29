@@ -141,6 +141,19 @@ public final class NavigationScreen extends Screen {
 
         // Set the action strip.
         ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+        if (mIsNavigating) {
+            actionStripBuilder.addAction(
+                    new Action.Builder()
+                            .setIcon(
+                                    new CarIcon.Builder(
+                                            IconCompat.createWithResource(
+                                                    getCarContext(),
+                                                    R.drawable.ic_add_stop))
+                                            .build())
+                            .setOnClickListener(this::openFavorites)
+                            .build());
+        }
+
         actionStripBuilder.addAction(mSettingsAction);
         actionStripBuilder.addAction(
                 new Action.Builder()
@@ -298,15 +311,16 @@ public final class NavigationScreen extends Screen {
                 .pushForResult(
                         new FavoritesScreen(getCarContext(), mSettingsAction, mSurfaceRenderer),
                         (obj) -> {
-                            if (obj != null) {
-                                // Need to copy over each element to satisfy Java type safety.
-                                List<?> results = (List<?>) obj;
-                                List<Instruction> instructions = new ArrayList<Instruction>();
-                                for (Object result : results) {
-                                    instructions.add((Instruction) result);
-                                }
-                                mListener.executeScript(instructions);
+                            if (obj == null || mIsNavigating) {
+                                return;
                             }
+                            // Need to copy over each element to satisfy Java type safety.
+                            List<?> results = (List<?>) obj;
+                            List<Instruction> instructions = new ArrayList<Instruction>();
+                            for (Object result : results) {
+                                instructions.add((Instruction) result);
+                            }
+                            mListener.executeScript(instructions);
                         });
     }
 

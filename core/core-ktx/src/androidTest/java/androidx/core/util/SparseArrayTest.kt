@@ -17,6 +17,7 @@
 package androidx.core.util
 
 import android.util.SparseArray
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +37,7 @@ class SparseArrayTest {
         assertEquals(1, array.size)
     }
 
-    @Ignore("SparseArray.contains exists in R, need to work out what to do")
+    @SdkSuppress(minSdkVersion = 30)
     @Test fun containsOperator() {
         val array = SparseArray<String>()
         assertFalse(1 in array)
@@ -44,7 +45,7 @@ class SparseArrayTest {
         assertTrue(1 in array)
     }
 
-    @Ignore("SparseArray.contains exists in R, need to work out what to do")
+    @SdkSuppress(minSdkVersion = 30)
     @Test fun containsOperatorWithItem() {
         val array = SparseArray<String>()
 

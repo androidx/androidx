@@ -18,14 +18,17 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.widget.Presenter;
 
 public class StringPresenter extends Presenter {
     private static final boolean DEBUG = false;
     private static final String TAG = "StringPresenter";
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
         if (DEBUG) Log.d(TAG, "onCreateViewHolder");
         TextView tv = new TextView(parent.getContext());
         tv.setFocusable(true);
@@ -37,13 +40,13 @@ public class StringPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
         if (DEBUG) Log.d(TAG, "onBindViewHolder for " + item.toString());
         ((TextView) viewHolder.view).setText(item.toString());
     }
 
     @Override
-    public void onUnbindViewHolder(ViewHolder viewHolder) {
+    public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
         if (DEBUG) Log.d(TAG, "onUnbindViewHolder");
     }
 }

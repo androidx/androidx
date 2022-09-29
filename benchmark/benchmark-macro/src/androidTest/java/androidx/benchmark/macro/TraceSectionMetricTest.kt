@@ -17,6 +17,7 @@
 package androidx.benchmark.macro
 
 import android.annotation.SuppressLint
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.filters.MediumTest
 import kotlin.test.assertEquals
@@ -96,10 +97,13 @@ class TraceSectionMetricTest {
             val metric = TraceSectionMetric(sectionName)
             val expectedKey = sectionName + "Ms"
             metric.configure(packageName = packageName)
-            val iterationResult = metric.getMetrics(
-                captureInfo = captureInfo,
-                tracePath = tracePath
-            )
+
+            val iterationResult = PerfettoTraceProcessor.runServer(tracePath) {
+                metric.getMetrics(
+                    captureInfo = captureInfo,
+                    perfettoTraceProcessor = this
+                )
+            }
 
             assertEquals(setOf(expectedKey), iterationResult.singleMetrics.keys)
             assertEquals(expectedMs, iterationResult.singleMetrics[expectedKey]!!, 0.001)

@@ -131,7 +131,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
@@ -143,7 +143,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination1 = new SurfaceCombination();
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination1.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
@@ -152,7 +152,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
         // (YUV, ANALYSIS) + (YUV, PREVIEW) + (YUV, MAXIMUM)
         SurfaceCombination surfaceCombination2 = new SurfaceCombination();
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
-                SurfaceConfig.ConfigSize.ANALYSIS));
+                SurfaceConfig.ConfigSize.VGA));
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination2.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,

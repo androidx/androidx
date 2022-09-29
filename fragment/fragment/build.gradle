@@ -19,6 +19,7 @@ android {
 
     defaultConfig {
         multiDexEnabled true
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
     namespace "androidx.fragment"
 }
@@ -29,11 +30,11 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.5.0-rc01")
-    api("androidx.lifecycle:lifecycle-livedata-core:2.5.0-rc01")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.5.0-rc01")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.0-rc01")
-    api("androidx.savedstate:savedstate:1.2.0-rc01")
+    api("androidx.activity:activity:1.5.1")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
+    api("androidx.savedstate:savedstate:1.2.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
 
@@ -42,6 +43,8 @@ dependencies {
         exclude group: "androidx.activity", module: "activity"
     })
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.leakcanary)
+    androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

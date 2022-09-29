@@ -325,6 +325,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         mTintFilter = updateTintFilter(mTintFilter, state.mTint, state.mTintMode);
     }
 
+    @NonNull
     @Override
     public Drawable mutate() {
         if (mDelegateDrawable != null) {
@@ -343,6 +344,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         return mVectorState.mVPathRenderer.mVGTargetsMap.get(name);
     }
 
+    @NonNull
     @Override
     public ConstantState getConstantState() {
         if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 24) {
@@ -354,7 +356,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.draw(canvas);
             return;
@@ -448,7 +450,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void setColorFilter(ColorFilter colorFilter) {
+    public void setColorFilter(@Nullable ColorFilter colorFilter) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.setColorFilter(colorFilter);
             return;
@@ -458,6 +460,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         invalidateSelf();
     }
 
+    @Nullable
     @Override
     public ColorFilter getColorFilter() {
         if (mDelegateDrawable != null) {
@@ -470,6 +473,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Ensures the tint filter is consistent with the current tint color and
      * mode.
      */
+    @SuppressWarnings("unused")
     PorterDuffColorFilter updateTintFilter(PorterDuffColorFilter tintFilter, ColorStateList tint,
                                            PorterDuff.Mode tintMode) {
         if (tint == null || tintMode == null) {
@@ -492,7 +496,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void setTintList(ColorStateList tint) {
+    public void setTintList(@Nullable ColorStateList tint) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintList(mDelegateDrawable, tint);
             return;
@@ -507,7 +511,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void setTintMode(Mode tintMode) {
+    public void setTintMode(@Nullable Mode tintMode) {
         if (mDelegateDrawable != null) {
             DrawableCompat.setTintMode(mDelegateDrawable, tintMode);
             return;
@@ -611,6 +615,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      *
      * @hide
      */
+    @SuppressWarnings("unused")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public float getPixelSize() {
         if (mVectorState == null || mVectorState.mVPathRenderer == null
@@ -657,6 +662,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
+            //noinspection StatementWithEmptyBody
             while ((type = parser.next()) != XmlPullParser.START_TAG
                     && type != XmlPullParser.END_DOCUMENT) {
                 // Empty loop
@@ -679,8 +685,10 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * document, tries to create a Drawable from that tag. Returns {@code null}
      * if the tag is not a valid drawable.
      */
-    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,
-            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {
+    @NonNull
+    public static VectorDrawableCompat createFromXmlInner(@NonNull Resources r,
+            @NonNull XmlPullParser parser, @NonNull AttributeSet attrs, @Nullable Theme theme)
+            throws XmlPullParserException, IOException {
         final VectorDrawableCompat drawable = new VectorDrawableCompat();
         drawable.inflate(r, parser, attrs, theme);
         return drawable;
@@ -694,8 +702,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)
-            throws XmlPullParserException, IOException {
+    public void inflate(@NonNull Resources res, @NonNull XmlPullParser parser,
+            @NonNull AttributeSet attrs) throws XmlPullParserException, IOException {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.inflate(res, parser, attrs);
             return;
@@ -705,7 +713,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
+    public void inflate(@NonNull Resources res, @NonNull XmlPullParser parser,
+            @NonNull AttributeSet attrs, @Nullable Theme theme)
             throws XmlPullParserException, IOException {
         if (mDelegateDrawable != null) {
             DrawableCompat.inflate(mDelegateDrawable, res, parser, attrs, theme);
@@ -713,8 +722,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         final VectorDrawableCompatState state = mVectorState;
-        final VPathRenderer pathRenderer = new VPathRenderer();
-        state.mVPathRenderer = pathRenderer;
+        state.mVPathRenderer = new VPathRenderer();
 
         final TypedArray a = TypedArrayUtils.obtainAttributes(res, theme, attrs,
                 AndroidResources.STYLEABLE_VECTOR_DRAWABLE_TYPE_ARRAY);
@@ -733,6 +741,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Parses a {@link android.graphics.PorterDuff.Mode} from a tintMode
      * attribute's enum value.
      */
+    @SuppressWarnings("SameParameterValue")
     private static PorterDuff.Mode parseTintModeCompat(int value, Mode defaultMode) {
         switch (value) {
             case 3:
@@ -834,33 +843,35 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             if (eventType == XmlPullParser.START_TAG) {
                 final String tagName = parser.getName();
                 final VGroup currentGroup = groupStack.peek();
-                if (SHAPE_PATH.equals(tagName)) {
-                    final VFullPath path = new VFullPath();
-                    path.inflate(res, attrs, theme, parser);
-                    currentGroup.mChildren.add(path);
-                    if (path.getPathName() != null) {
-                        pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
+                if (currentGroup != null) {
+                    if (SHAPE_PATH.equals(tagName)) {
+                        final VFullPath path = new VFullPath();
+                        path.inflate(res, attrs, theme, parser);
+                        currentGroup.mChildren.add(path);
+                        if (path.getPathName() != null) {
+                            pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
+                        }
+                        noPathTag = false;
+                        state.mChangingConfigurations |= path.mChangingConfigurations;
+                    } else if (SHAPE_CLIP_PATH.equals(tagName)) {
+                        final VClipPath path = new VClipPath();
+                        path.inflate(res, attrs, theme, parser);
+                        currentGroup.mChildren.add(path);
+                        if (path.getPathName() != null) {
+                            pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
+                        }
+                        state.mChangingConfigurations |= path.mChangingConfigurations;
+                    } else if (SHAPE_GROUP.equals(tagName)) {
+                        VGroup newChildGroup = new VGroup();
+                        newChildGroup.inflate(res, attrs, theme, parser);
+                        currentGroup.mChildren.add(newChildGroup);
+                        groupStack.push(newChildGroup);
+                        if (newChildGroup.getGroupName() != null) {
+                            pathRenderer.mVGTargetsMap.put(newChildGroup.getGroupName(),
+                                    newChildGroup);
+                        }
+                        state.mChangingConfigurations |= newChildGroup.mChangingConfigurations;
                     }
-                    noPathTag = false;
-                    state.mChangingConfigurations |= path.mChangingConfigurations;
-                } else if (SHAPE_CLIP_PATH.equals(tagName)) {
-                    final VClipPath path = new VClipPath();
-                    path.inflate(res, attrs, theme, parser);
-                    currentGroup.mChildren.add(path);
-                    if (path.getPathName() != null) {
-                        pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
-                    }
-                    state.mChangingConfigurations |= path.mChangingConfigurations;
-                } else if (SHAPE_GROUP.equals(tagName)) {
-                    VGroup newChildGroup = new VGroup();
-                    newChildGroup.inflate(res, attrs, theme, parser);
-                    currentGroup.mChildren.add(newChildGroup);
-                    groupStack.push(newChildGroup);
-                    if (newChildGroup.getGroupName() != null) {
-                        pathRenderer.mVGTargetsMap.put(newChildGroup.getGroupName(),
-                                newChildGroup);
-                    }
-                    state.mChangingConfigurations |= newChildGroup.mChangingConfigurations;
                 }
             } else if (eventType == XmlPullParser.END_TAG) {
                 final String tagName = parser.getName();
@@ -882,9 +893,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     private void printGroupTree(VGroup currentGroup, int level) {
-        String indent = "";
+        StringBuilder indent = new StringBuilder();
         for (int i = 0; i < level; i++) {
-            indent += "    ";
+            indent.append("    ");
         }
         // Print the current node
         Log.v(LOGTAG, indent + "current group is :" + currentGroup.getGroupName()
@@ -901,6 +912,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     void setAllowCaching(boolean allowCaching) {
         mAllowCaching = allowCaching;
     }
@@ -941,7 +953,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void scheduleSelf(Runnable what, long when) {
+    public void scheduleSelf(@NonNull Runnable what, long when) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.scheduleSelf(what, when);
             return;
@@ -958,7 +970,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     @Override
-    public void unscheduleSelf(Runnable what) {
+    public void unscheduleSelf(@NonNull Runnable what) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.unscheduleSelf(what);
             return;
@@ -1019,7 +1031,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         Mode mTintMode = DEFAULT_TINT_MODE;
         boolean mAutoMirrored;
 
+        // Cached fields, don't copy on mutate.
         Bitmap mCachedBitmap;
+        @SuppressWarnings("unused")
         int[] mCachedThemeAttrs;
         ColorStateList mCachedTint;
         Mode mCachedTintMode;
@@ -1033,6 +1047,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         Paint mTempPaint;
 
         // Deep copy for mutate() or implicitly mutate.
+        @SuppressWarnings("CopyConstructorMissesField") // Intentional, see field comments.
         VectorDrawableCompatState(VectorDrawableCompatState copy) {
             if (copy != null) {
                 mChangingConfigurations = copy.mChangingConfigurations;
@@ -1093,22 +1108,16 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         public boolean canReuseBitmap(int width, int height) {
-            if (width == mCachedBitmap.getWidth()
-                    && height == mCachedBitmap.getHeight()) {
-                return true;
-            }
-            return false;
+            return width == mCachedBitmap.getWidth()
+                    && height == mCachedBitmap.getHeight();
         }
 
         public boolean canReuseCache() {
-            if (!mCacheDirty
+            return !mCacheDirty
                     && mCachedTint == mTint
                     && mCachedTintMode == mTintMode
                     && mCachedAutoMirrored == mAutoMirrored
-                    && mCachedRootAlpha == mVPathRenderer.getRootAlpha()) {
-                return true;
-            }
-            return false;
+                    && mCachedRootAlpha == mVPathRenderer.getRootAlpha();
         }
 
         public void updateCacheStates() {
@@ -1189,7 +1198,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         String mRootName = null;
         Boolean mIsStateful = null;
 
-        final ArrayMap<String, Object> mVGTargetsMap = new ArrayMap<String, Object>();
+        final ArrayMap<String, Object> mVGTargetsMap = new ArrayMap<>();
 
         VPathRenderer() {
             mRootGroup = new VGroup();
@@ -1216,6 +1225,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             return getRootAlpha() / 255.0f;
         }
 
+        @SuppressWarnings("CopyConstructorMissesField")
         VPathRenderer(VPathRenderer copy) {
             mRootGroup = new VGroup(copy.mRootGroup, mVGTargetsMap);
             mPath = new Path(copy.mPath);
@@ -1328,6 +1338,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                     final Paint fillPaint = mFillPaint;
                     if (fill.isGradient()) {
                         final Shader shader = fill.getShader();
+                        // isGradient() implies non-null shader
+                        //noinspection ConstantConditions
                         shader.setLocalMatrix(mFinalPathMatrix);
                         fillPaint.setShader(shader);
                         fillPaint.setAlpha(Math.round(fullPath.mFillAlpha * 255f));
@@ -1361,6 +1373,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                     strokePaint.setStrokeMiter(fullPath.mStrokeMiterlimit);
                     if (strokeColor.isGradient()) {
                         final Shader shader = strokeColor.getShader();
+                        // isGradient() implies non-null shader
+                        //noinspection ConstantConditions
                         shader.setLocalMatrix(mFinalPathMatrix);
                         strokePaint.setShader(shader);
                         strokePaint.setAlpha(Math.round(fullPath.mStrokeAlpha * 255f));
@@ -1698,9 +1712,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         public void printVPath(int level) {
-            String indent = "";
+            StringBuilder indent = new StringBuilder();
             for (int i = 0; i < level; i++) {
-                indent += "    ";
+                indent.append("    ");
             }
             Log.v(LOGTAG, indent + "current path is :" + mPathName
                     + " pathData is " + nodesToString(mNodes));
@@ -1708,17 +1722,18 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         public String nodesToString(PathParser.PathDataNode[] nodes) {
-            String result = " ";
-            for (int i = 0; i < nodes.length; i++) {
-                result += nodes[i].mType + ":";
-                float[] params = nodes[i].mParams;
-                for (int j = 0; j < params.length; j++) {
-                    result += params[j] + ",";
+            StringBuilder result = new StringBuilder(" ");
+            for (PathParser.PathDataNode node : nodes) {
+                result.append(node.mType).append(":");
+                float[] params = node.mParams;
+                for (float param : params) {
+                    result.append(param).append(",");
                 }
             }
-            return result;
+            return result.toString();
         }
 
+        @SuppressWarnings("CopyConstructorMissesField")
         VPath(VPath copy) {
             mPathName = copy.mPathName;
             mChangingConfigurations = copy.mChangingConfigurations;
@@ -1736,10 +1751,12 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             return mPathName;
         }
 
+        @SuppressWarnings("unused")
         public boolean canApplyTheme() {
             return false;
         }
 
+        @SuppressWarnings("unused")
         public void applyTheme(Theme t) {
         }
 
@@ -1972,10 +1989,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         @Override
         public void applyTheme(Theme t) {
-            if (mThemeAttrs == null) {
-                return;
-            }
-
             /*
              * TODO TINT THEME Not supported yet final TypedArray a =
              * t.resolveAttributes(mThemeAttrs, styleable_VectorDrawablePath);

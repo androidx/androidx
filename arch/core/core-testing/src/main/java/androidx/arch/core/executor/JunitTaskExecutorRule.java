@@ -16,6 +16,7 @@
 
 package androidx.arch.core.executor;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import org.junit.rules.TestRule;
@@ -32,6 +33,7 @@ import java.util.List;
  *
  * @hide
  */
+@SuppressWarnings("unused")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class JunitTaskExecutorRule implements TestRule {
     private final TaskExecutorWithFakeMainThread mTaskExecutor;
@@ -55,6 +57,7 @@ public class JunitTaskExecutorRule implements TestRule {
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
+    @NonNull
     public TaskExecutor getTaskExecutor() {
         return mTaskExecutor;
     }
@@ -68,11 +71,12 @@ public class JunitTaskExecutorRule implements TestRule {
         mTaskExecutor.drainTasks(seconds);
     }
 
+    @NonNull
     @Override
-    public Statement apply(final Statement base, Description description) {
+    public Statement apply(final @NonNull Statement base, @NonNull Description description) {
         return new Statement() {
             @Override
-            public void evaluate() throws Throwable {
+            public void evaluate() {
                 beforeStart();
                 try {
                     base.evaluate();

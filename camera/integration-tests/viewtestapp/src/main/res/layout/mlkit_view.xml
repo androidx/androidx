@@ -42,5 +42,10 @@
             android:textOff="@string/toggle_camera_front"
             android:textOn="@string/toggle_camera_back"
             android:checked="true"/>
+        <Button
+            android:id="@+id/restart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_restart"/>
     </LinearLayout>
 </LinearLayout>

@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -48,6 +49,8 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Objects
 
@@ -162,13 +165,36 @@ public interface ComplicationTapFilter {
      * @param screenBounds A [Rect] describing the bounds of the display.
      * @param x The screen space X coordinate in pixels.
      * @param y The screen space Y coordinate in pixels.
+     * @param includeMargins Whether or not the margins should be included
      */
+    @Suppress("DEPRECATION")
+    public fun hitTest(
+        complicationSlot: ComplicationSlot,
+        screenBounds: Rect,
+        @Px x: Int,
+        @Px y: Int,
+        includeMargins: Boolean
+    ): Boolean = hitTest(complicationSlot, screenBounds, x, y)
+
+    /**
+     * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
+     * the provided [complicationSlot] scaled to [screenBounds].
+     *
+     * @param complicationSlot The [ComplicationSlot] to perform a hit test for.
+     * @param screenBounds A [Rect] describing the bounds of the display.
+     * @param x The screen space X coordinate in pixels.
+     * @param y The screen space Y coordinate in pixels.
+     */
+    @Deprecated(
+        "hitTest without specifying includeMargins is deprecated",
+        replaceWith = ReplaceWith("hitTest(ComplicationSlot, Rect, Int, Int, Boolean)")
+    )
     public fun hitTest(
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int
-    ): Boolean
+    ): Boolean = hitTest(complicationSlot, screenBounds, x, y, false)
 }
 
 /** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.ROUND_RECT] complicationSlots. */
@@ -177,8 +203,9 @@ public class RoundRectComplicationTapFilter : ComplicationTapFilter {
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
-        @Px y: Int
-    ): Boolean = complicationSlot.computeBounds(screenBounds).contains(x, y)
+        @Px y: Int,
+        includeMargins: Boolean
+    ): Boolean = complicationSlot.computeBounds(screenBounds, includeMargins).contains(x, y)
 }
 
 /** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.BACKGROUND] complicationSlots. */
@@ -187,7 +214,8 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
-        @Px y: Int
+        @Px y: Int,
+        includeMargins: Boolean
     ): Boolean = false
 }
 
@@ -226,7 +254,7 @@ public annotation class ComplicationSlotBoundsType {
  * min(boundingRect.width, boundingRect.height).
  */
 @ComplicationExperimental
-public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var thickness: Float) {
+public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val thickness: Float) {
     /**
      * Detects whether the supplied point falls within the edge complication's arc.
      *
@@ -300,12 +328,20 @@ public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var t
  * ComplicationSlots is fixed (see [ComplicationSlotsManager]) but ComplicationSlots can be
  * enabled or disabled via [UserStyleSetting.ComplicationSlotsUserStyleSetting].
  *
- * @param id The Watch Face's ID for the complication slot.
+ * Taps on the watch are tested first against each ComplicationSlot's
+ * [ComplicationSlotBounds.perComplicationTypeBounds] for the relevant [ComplicationType]. Its
+ * assumed that [ComplicationSlotBounds.perComplicationTypeBounds] don't overlap. If no intersection
+ * was found then taps are checked against [ComplicationSlotBounds.perComplicationTypeBounds]
+ * expanded by [ComplicationSlotBounds.perComplicationTypeMargins]. Expanded bounds can overlap
+ * so the [ComplicationSlot] with the lowest id that intersects the coordinates, if any, is
+ * selected.
+ *
+ * @property id The Watch Face's ID for the complication slot.
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
  * content description labels.
- * @param boundsType The [ComplicationSlotBoundsType] of the complication slot.
+ * @property boundsType The [ComplicationSlotBoundsType] of the complication slot.
  * @param bounds The complication slot's [ComplicationSlotBounds].
- * @param canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
+ * @property canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
  * [CanvasComplication] for rendering the complication. The factory allows us to decouple
  * ComplicationSlot from potentially expensive asset loading.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
@@ -314,7 +350,7 @@ public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var t
  * initial complication data source when the watch face is first installed.
  * @param defaultDataSourceType The default [ComplicationType] for the default complication data
  * source.
- * @param initiallyEnabled At creation a complication slot is either enabled or disabled. This
+ * @property initiallyEnabled At creation a complication slot is either enabled or disabled. This
  * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
  * [ComplicationSlotOverlay.enabled]).
  * Editors need to know the initial state of a complication slot to predict the effects of making a
@@ -322,19 +358,11 @@ public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var t
  * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
  * source chooser activity. This features is intended for OEM watch faces where they have elements
  * that behave like a complication but are in fact entirely watch face specific.
- * @param fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
+ * @property fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
  * complications.
- * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
+ * @property tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
- * @param nameResourceId The ID of string resource (or `null` if absent) to identify the
- * complication slot on screen in an editor. These strings should be short (perhaps 10 characters
- * max) E.g. complication slots named 'left' and 'right' might be shown by the editor in a list from
- * which the user selects a complication slot for editing.
- * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) for use by a
- * watch face editor to identify the complication slot in a screen reader. While similar to
- * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
- * 'left complication' rather than just 'left'.
  */
 public class ComplicationSlot
 @ComplicationExperimental internal constructor(
@@ -352,10 +380,8 @@ public class ComplicationSlot
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
     public val tapFilter: ComplicationTapFilter,
-    @get:Suppress("AutoBoxing")
-    public val nameResourceId: Int?,
-    @get:Suppress("AutoBoxing")
-    public val screenReaderNameResourceId: Int?,
+    nameResourceId: Int?,
+    screenReaderNameResourceId: Int?,
     // TODO(b/230364881): This should really be public but some metalava bug is preventing
     // @ComplicationExperimental from working on the getter so it's currently hidden.
     /** @hide */
@@ -396,6 +422,52 @@ public class ComplicationSlot
         )
     }
 
+    private var lastComplicationUpdate = Instant.EPOCH
+
+    private class ComplicationDataHistoryEntry(
+        val complicationData: ComplicationData,
+        val time: Instant
+    )
+
+    /**
+     * There doesn't seem to be a convenient ring buffer in the standard library so implement our
+     * own one.
+     */
+    private class RingBuffer(val size: Int) : Iterable<ComplicationDataHistoryEntry> {
+        private val entries = arrayOfNulls<ComplicationDataHistoryEntry>(size)
+        private var readIndex = 0
+        private var writeIndex = 0
+
+        fun push(entry: ComplicationDataHistoryEntry) {
+            writeIndex = (writeIndex + 1) % size
+            if (writeIndex == readIndex) {
+                readIndex = (readIndex + 1) % size
+            }
+            entries[writeIndex] = entry
+        }
+
+        override fun iterator() = object : Iterator<ComplicationDataHistoryEntry> {
+            var iteratorReadIndex = readIndex
+
+            override fun hasNext() = iteratorReadIndex != writeIndex
+
+            override fun next(): ComplicationDataHistoryEntry {
+                iteratorReadIndex = (iteratorReadIndex + 1) % size
+                return entries[iteratorReadIndex]!!
+            }
+        }
+    }
+
+    /**
+     * In userdebug builds maintain a history of the last [MAX_COMPLICATION_HISTORY_ENTRIES]-1
+     * complications, which is logged in dumpsys to help debug complication issues.
+     */
+    private val complicationHistory = if (Build.TYPE.equals("userdebug")) {
+        RingBuffer(MAX_COMPLICATION_HISTORY_ENTRIES)
+    } else {
+        null
+    }
+
     init {
         require(id >= 0) { "id must be >= 0" }
         require(accessibilityTraversalIndex >= 0) {
@@ -404,6 +476,9 @@ public class ComplicationSlot
     }
 
     public companion object {
+        /** The maximum number of entries in [complicationHistory] plus one. */
+        private const val MAX_COMPLICATION_HISTORY_ENTRIES = 50
+
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
 
         /**
@@ -551,7 +626,8 @@ public class ComplicationSlot
                     complicationSlot: ComplicationSlot,
                     screenBounds: Rect,
                     x: Int,
-                    y: Int
+                    y: Int,
+                    @Suppress("UNUSED_PARAMETER") includeMargins: Boolean
                 ) = boundingArc.hitTest(
                     complicationSlot.computeBounds(screenBounds),
                     x.toFloat(),
@@ -845,6 +921,48 @@ public class ComplicationSlot
             accessibilityTraversalIndexDirty = true
         }
 
+    internal var nameResourceIdDirty = true
+
+    /**
+     * The optional ID of string resource (or `null` if absent) to identify the complication slot on
+     * screen in an editor. These strings should be short (perhaps 10 characters max) E.g.
+     * complication slots named 'left' and 'right' might be shown by the editor in a list from which
+     * the user selects a complication slot for editing.
+     */
+    public var nameResourceId: Int? = nameResourceId
+        @Suppress("AutoBoxing")
+        @UiThread
+        get
+        @UiThread
+        internal set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            nameResourceIdDirty = true
+        }
+
+    internal var screenReaderNameResourceIdDirty = true
+
+    /**
+     * The optional ID of a string resource (or `null` if absent) for use by a
+     * watch face editor to identify the complication slot in a screen reader. While similar to
+     * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+     * 'left complication' rather than just 'left'.
+     */
+    public var screenReaderNameResourceId: Int? = screenReaderNameResourceId
+        @Suppress("AutoBoxing")
+        @UiThread
+        get
+        @UiThread
+        internal set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            screenReaderNameResourceIdDirty = true
+        }
+
     internal var dataDirty = true
 
     /**
@@ -870,6 +988,8 @@ public class ComplicationSlot
         loadDrawablesAsynchronous: Boolean,
         instant: Instant
     ) {
+        lastComplicationUpdate = instant
+        complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         timelineComplicationData = complicationData
         timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
             it
@@ -906,8 +1026,8 @@ public class ComplicationSlot
         }
 
         if (forceUpdate || complicationData.value != best) {
-            (complicationData as MutableStateFlow).value = best
             renderer.loadData(best, loadDrawablesAsynchronous)
+            (complicationData as MutableStateFlow).value = best
         }
     }
 
@@ -1014,11 +1134,29 @@ public class ComplicationSlot
      * @param screen A [Rect] describing the dimensions of the screen.
      * @param complicationType The [ComplicationType] to use when looking up the slot's
      * [ComplicationSlotBounds.perComplicationTypeBounds].
+     * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
      * @hide
      */
+    @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun computeBounds(screen: Rect, complicationType: ComplicationType): Rect {
-        val unitSquareBounds = complicationSlotBounds.perComplicationTypeBounds[complicationType]!!
+    public fun computeBounds(
+        screen: Rect,
+        complicationType: ComplicationType,
+        applyMargins: Boolean = false
+    ): Rect {
+        val unitSquareBounds =
+            RectF(complicationSlotBounds.perComplicationTypeBounds[complicationType]!!)
+        if (applyMargins) {
+            val unitSquareMargins =
+                complicationSlotBounds.perComplicationTypeMargins[complicationType]!!
+            // Apply the margins
+            unitSquareBounds.set(
+                unitSquareBounds.left - unitSquareMargins.left,
+                unitSquareBounds.top - unitSquareMargins.top,
+                unitSquareBounds.right + unitSquareMargins.right,
+                unitSquareBounds.bottom + unitSquareMargins.bottom
+            )
+        }
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
@@ -1034,9 +1172,13 @@ public class ComplicationSlot
      * complication type to pixels based on the [screen]'s dimensions.
      *
      * @param screen A [Rect] describing the dimensions of the screen.
+     * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
      */
-    public fun computeBounds(screen: Rect): Rect =
-        computeBounds(screen, complicationData.value.type)
+    @JvmOverloads
+    public fun computeBounds(
+        screen: Rect,
+        applyMargins: Boolean = false
+    ): Rect = computeBounds(screen, complicationData.value.type, applyMargins)
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
@@ -1066,13 +1208,21 @@ public class ComplicationSlot
         writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("timelineComplicationData=$timelineComplicationData")
+        writer.println("timelineEntries=" + timelineEntries?.joinToString())
         writer.println("data=${renderer.getData()}")
-        val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
-            "${it.key} -> ${it.value}"
-        }
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
-        writer.println("bounds=[$bounds]")
+        writer.println("complicationSlotBounds=$complicationSlotBounds")
+        writer.println("lastComplicationUpdate=$lastComplicationUpdate")
+        writer.println("data history")
+        complicationHistory?.let {
+            writer.increaseIndent()
+            for (entry in it) {
+                val localDateTime = LocalDateTime.ofInstant(entry.time, ZoneId.systemDefault())
+                writer.println("${entry.complicationData} @ $localDateTime")
+            }
+            writer.decreaseIndent()
+        }
         writer.decreaseIndent()
     }
 

@@ -47,7 +47,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     private static final int SHOW_REQUEST_TIMEOUT = 1000;
 
     @NonNull
-    public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {
+    public static EditTextPreferenceDialogFragmentCompat newInstance(@NonNull String key) {
         final EditTextPreferenceDialogFragmentCompat
                 fragment = new EditTextPreferenceDialogFragmentCompat();
         final Bundle b = new Bundle(1);

@@ -27,31 +27,34 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
-import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
+import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableImage
 import androidx.glance.appwidget.translators.translateEmittableLazyColumn
 import androidx.glance.appwidget.translators.translateEmittableLazyListItem
-import androidx.glance.appwidget.translators.translateEmittableSwitch
-import androidx.glance.appwidget.translators.translateEmittableText
-import androidx.glance.appwidget.translators.translateEmittableLinearProgressIndicator
-import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGrid
 import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGridListItem
+import androidx.glance.appwidget.translators.translateEmittableLinearProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableRadioButton
+import androidx.glance.appwidget.translators.translateEmittableSwitch
+import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.padding
 import androidx.glance.text.EmittableText
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -60,7 +63,7 @@ internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
     element: RemoteViewsRoot,
-    layoutConfiguration: LayoutConfiguration,
+    layoutConfiguration: LayoutConfiguration?,
     rootViewIndex: Int,
     layoutSize: DpSize,
 ) =
@@ -104,7 +107,7 @@ internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
     val isRtl: Boolean,
-    val layoutConfiguration: LayoutConfiguration,
+    val layoutConfiguration: LayoutConfiguration?,
     val itemPosition: Int,
     val isLazyCollectionDescendant: Boolean = false,
     val lastViewId: AtomicInteger = AtomicInteger(0),
@@ -228,6 +231,9 @@ private fun RemoteViews.translateEmittableBox(
         element.modifier,
         viewDef
     )
+    element.children.forEach {
+        it.modifier = it.modifier.then(AlignmentModifier(element.contentAlignment))
+    }
     setChildren(
         translationContext,
         viewDef,
@@ -256,7 +262,7 @@ private fun RemoteViews.translateEmittableRow(
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.horizontalAlignment.toGravity()
+        Alignment(element.horizontalAlignment, element.verticalAlignment).toGravity()
     )
     applyModifiers(
         translationContext.canUseSelectableGroup(),
@@ -293,7 +299,7 @@ private fun RemoteViews.translateEmittableColumn(
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.verticalAlignment.toGravity()
+        Alignment(element.horizontalAlignment, element.verticalAlignment).toGravity()
     )
     applyModifiers(
         translationContext.canUseSelectableGroup(),
@@ -346,17 +352,20 @@ private fun RemoteViews.translateEmittableButton(
     translationContext: TranslationContext,
     element: EmittableButton
 ) {
-    val viewDef = insertView(translationContext, LayoutType.Button, element.modifier)
-    setText(
-        translationContext,
-        viewDef.mainViewId,
-        element.text,
-        element.style,
-        maxLines = element.maxLines,
-        verticalTextGravity = Gravity.CENTER_VERTICAL,
-    )
-    setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    // Separate the button into a wrapper and the text, this allows us to set the color of the text
+    // background, while maintaining the ripple for the click indicator.
+    // TODO: add Image button
+    val content = EmittableText().apply {
+        text = element.text
+        style = element.style
+        maxLines = element.maxLines
+        modifier =
+            GlanceModifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .doNotUnsetAction()
+    }
+    translateEmittableText(translationContext, content)
 }
 
 private fun RemoteViews.translateEmittableSpacer(
@@ -386,7 +395,7 @@ internal fun RemoteViews.setChildren(
 /**
  * Add stable view if on Android S+, otherwise simply add the view.
  */
-private fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
+internal fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         RemoteViewsTranslatorApi31Impl.addChildView(this, viewId, childView, stableId)
         return

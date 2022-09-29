@@ -29,10 +29,14 @@ HSPLandroidx/wear/compose/material/DefaultToggleChipColors;->**(**)**
 HSPLandroidx/wear/compose/material/DisplayState;->**(**)**
 SPLandroidx/wear/compose/material/EmptyScalingLazyListLayoutInfo;->**(**)**
 HSPLandroidx/wear/compose/material/FortyFiveDegreeLinearGradient;->**(**)**
+Landroidx/wear/compose/material/FractionPositionIndicatorState;
+Landroidx/wear/compose/material/FractionalThreshold;
 HSPLandroidx/wear/compose/material/IconKt**->**(**)**
 SPLandroidx/wear/compose/material/ImageResources;->**(**)**
+Landroidx/wear/compose/material/ImageWithScrimPainter;
 Landroidx/wear/compose/material/InlineSliderColors;
 HSPLandroidx/wear/compose/material/InlineSliderDefaults;->**(**)**
+Landroidx/wear/compose/material/LazyColumnStateAdapter;
 HSPLandroidx/wear/compose/material/ListHeaderKt**->**(**)**
 HSPLandroidx/wear/compose/material/MaterialRippleTheme;->**(**)**
 SPLandroidx/wear/compose/material/MaterialTextSelectionColorsKt**->**(**)**

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+KotlinDefaultParameterOrder: androidx.slice.builders.ListBuilderKt#tapSliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #2:
+    Parameter `imageMode` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.slice.builders.ListBuilderKt#toggleSliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean) parameter #1:
+    Parameter `icon` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)

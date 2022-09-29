@@ -639,6 +639,15 @@ public final class SessionConfig {
         private boolean mTemplateSet = false;
 
         /**
+         * Add an implementation option to the ValidatingBuilder's CaptureConfigBuilder. If it
+         * already has an option with the same key, write it over.
+         */
+        public <T> void addImplementationOption(@NonNull Config.Option<T> option,
+                @NonNull T value) {
+            mCaptureConfigBuilder.addImplementationOption(option, value);
+        }
+
+        /**
          * Add the SessionConfig to the set of SessionConfig that have been aggregated by the
          * ValidatingBuilder
          */

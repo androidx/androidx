@@ -23,8 +23,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.ComponentName;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -60,6 +62,9 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
     @Override
     @Before
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         TestServiceRegistry.getInstance().cleanUp();
         TestServiceRegistry.getInstance().setHandler(sHandler);

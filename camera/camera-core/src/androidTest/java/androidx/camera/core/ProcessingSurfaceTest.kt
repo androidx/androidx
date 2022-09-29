@@ -35,18 +35,18 @@ import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.IllegalStateException
-import java.util.ArrayList
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -56,34 +56,7 @@ class ProcessingSurfaceTest {
     private var backgroundHandler: Handler? = null
     private val captureStage: CaptureStage = CaptureStage.DefaultCaptureStage()
     private val processingSurfaces: MutableList<ProcessingSurface> = ArrayList()
-
-    /*
-     * Capture processor that simply writes out an empty image to exercise the pipeline
-     */
-    @RequiresApi(23)
-    private val captureProcessor: CaptureProcessor = object : CaptureProcessor {
-        var mImageWriter: ImageWriter? = null
-        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            mImageWriter = ImageWriter.newInstance(surface, 2)
-        }
-
-        override fun process(bundle: ImageProxyBundle) {
-            try {
-                val imageProxyListenableFuture = bundle.getImageProxy(
-                    captureStage.id
-                )
-                val imageProxy = imageProxyListenableFuture[100, TimeUnit.MILLISECONDS]
-                val image = mImageWriter!!.dequeueInputImage()
-                image.timestamp = imageProxy.imageInfo.timestamp
-                mImageWriter!!.queueInputImage(image)
-            } catch (e: ExecutionException) {
-            } catch (e: TimeoutException) {
-            } catch (e: InterruptedException) {
-            }
-        }
-
-        override fun onResolutionUpdate(size: Size) {}
-    }
+    private val captureProcessor: FakeCaptureProcessor = FakeCaptureProcessor(captureStage.id)
 
     @Before
     fun setup() {
@@ -102,17 +75,15 @@ class ProcessingSurfaceTest {
     }
 
     @Test
-    @Throws(ExecutionException::class, InterruptedException::class)
     fun validInputSurface() {
         val processingSurface = createProcessingSurface(
             newImmediateSurfaceDeferrableSurface()
         )
         val surface = processingSurface.surface.get()
-        Truth.assertThat(surface).isNotNull()
+        assertThat(surface).isNotNull()
     }
 
     @Test
-    @Throws(ExecutionException::class, InterruptedException::class)
     fun writeToInputSurface_userOutputSurfaceReceivesFrame() {
         // Arrange.
         val frameReceivedSemaphore = Semaphore(0)
@@ -137,7 +108,7 @@ class ProcessingSurfaceTest {
         triggerImage(processingSurface, 1)
 
         // Assert: verify that the frame has been received or time-out after 3 second.
-        Truth.assertThat(frameReceivedSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
+        assertThat(frameReceivedSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
     }
 
     // Exception should be thrown here
@@ -156,8 +127,7 @@ class ProcessingSurfaceTest {
         } catch (e: InterruptedException) {
             cause = e.cause
         }
-        Truth.assertThat(cause)
-            .isInstanceOf(DeferrableSurface.SurfaceClosedException::class.java)
+        assertThat(cause).isInstanceOf(DeferrableSurface.SurfaceClosedException::class.java)
     }
 
     // Exception should be thrown here
@@ -168,6 +138,43 @@ class ProcessingSurfaceTest {
 
         // Exception should be thrown here
         processingSurface.cameraCaptureCallback
+    }
+
+    @Test
+    fun completeTerminationFutureAfterProcessIsFinished() {
+        // Arrange.
+        val processingSurface = createProcessingSurface(newImmediateSurfaceDeferrableSurface())
+
+        // Sets up the processor blocker to block the CaptureProcessor#process() function execution.
+        captureProcessor.setupProcessorBlocker()
+
+        // Monitors whether the ProcessingSurface termination future has been completed.
+        val terminationCountDownLatch = CountDownLatch(1)
+        processingSurface.terminationFuture.addListener({
+            terminationCountDownLatch.countDown()
+        }, Executors.newSingleThreadExecutor())
+
+        // Act: Sends one frame to processingSurface.
+        triggerImage(processingSurface, 1)
+
+        // Waits for that the CaptureProcessor#process() function is called. Otherwise, the
+        // following ProcessingSurface#close() function call may directly close the
+        // ProcessingSurface.
+        assertThat(captureProcessor.awaitProcessingState(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+        // Act: triggers the ProcessingSurface close flow.
+        processingSurface.close()
+
+        // Assert: verify that the termination future won't be completed before
+        // CaptureProcessor#process() execution is finished.
+        assertThat(terminationCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+
+        // Act: releases the processor blocker to finish the CaptureProcessor#process() execution.
+        captureProcessor.releaseProcessorBlocker()
+
+        // Assert: verify that the termination future is completed after CaptureProcessor#process()
+        // execution is finished.
+        assertThat(terminationCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     @RequiresApi(23)
@@ -210,11 +217,68 @@ class ProcessingSurfaceTest {
             RESOLUTION.width, RESOLUTION.height,
             ImageFormat.YUV_420_888, 2
         )
-        return ImmediateSurface(imageReaderProxy.surface!!)
+
+        val deferrableSurface = ImmediateSurface(imageReaderProxy.surface!!)
+
+        deferrableSurface.terminationFuture.addListener(
+            { imageReaderProxy.close() },
+            CameraXExecutors.directExecutor()
+        )
+
+        return deferrableSurface
     }
 
     companion object {
         private val RESOLUTION: Size by lazy { Size(640, 480) }
         private const val FORMAT = ImageFormat.YUV_420_888
+    }
+
+    /**
+     * Capture processor that can write out an empty image to exercise the pipeline.
+     *
+     * <p>The fake capture processor can be controlled to be blocked in the processing state and
+     * then release the blocker to complete it.
+     */
+    @RequiresApi(23)
+    private class FakeCaptureProcessor(private val captureStageId: Int) : CaptureProcessor {
+        private val processingCountDownLatch = CountDownLatch(1)
+        private var processorBlockerCountDownLatch: CountDownLatch? = null
+
+        var imageWriter: ImageWriter? = null
+        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
+            imageWriter = ImageWriter.newInstance(surface, 2)
+        }
+
+        override fun process(bundle: ImageProxyBundle) {
+            processingCountDownLatch.countDown()
+            try {
+                val imageProxyListenableFuture = bundle.getImageProxy(captureStageId)
+                val imageProxy = imageProxyListenableFuture[100, TimeUnit.MILLISECONDS]
+                val image = imageWriter!!.dequeueInputImage()
+                image.timestamp = imageProxy.imageInfo.timestamp
+                imageWriter!!.queueInputImage(image)
+
+                processorBlockerCountDownLatch?.await()
+            } catch (_: ExecutionException) {
+            } catch (_: TimeoutException) {
+            } catch (_: InterruptedException) {
+            }
+        }
+
+        override fun onResolutionUpdate(size: Size) {}
+
+        fun awaitProcessingState(timeout: Long, timeUnit: TimeUnit): Boolean {
+            return processingCountDownLatch.await(timeout, timeUnit)
+        }
+
+        fun setupProcessorBlocker() {
+            if (processorBlockerCountDownLatch == null) {
+                processorBlockerCountDownLatch = CountDownLatch(1)
+            }
+        }
+
+        fun releaseProcessorBlocker() {
+            processorBlockerCountDownLatch?.countDown()
+        }
     }
 }

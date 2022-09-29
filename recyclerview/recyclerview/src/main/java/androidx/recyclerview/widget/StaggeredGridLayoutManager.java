@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1290,6 +1291,26 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
+    public void onInitializeAccessibilityNodeInfoForItem(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull View host,
+            @NonNull AccessibilityNodeInfoCompat info) {
+        ViewGroup.LayoutParams lp = host.getLayoutParams();
+        if (!(lp instanceof LayoutParams)) {
+            super.onInitializeAccessibilityNodeInfoForItem(host, info);
+            return;
+        }
+        LayoutParams sglp = (LayoutParams) lp;
+        if (mOrientation == HORIZONTAL) {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
+                    -1, -1, false, false));
+        } else { // VERTICAL
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    -1, -1,
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1, false, false));
+        }
+    }
+    @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
@@ -1319,6 +1340,24 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
                 findFirstVisibleItemClosestToStart(true);
         return first == null ? RecyclerView.NO_POSITION : getPosition(first);
+    }
+
+    @Override
+    public int getRowCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state) {
+        if (mOrientation == HORIZONTAL) {
+            return mSpanCount;
+        }
+        return super.getRowCountForAccessibility(recycler, state);
+    }
+
+    @Override
+    public int getColumnCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state) {
+        if (mOrientation == VERTICAL) {
+            return mSpanCount;
+        }
+        return super.getColumnCountForAccessibility(recycler, state);
     }
 
     /**

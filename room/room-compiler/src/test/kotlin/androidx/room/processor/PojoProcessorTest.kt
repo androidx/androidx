@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -44,8 +45,8 @@ import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import java.io.File
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -212,7 +213,7 @@ class PojoProcessorTest {
             assertThat(parent.prefix, `is`(""))
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
-                parent.pojo.typeName,
+                parent.pojo.typeName.toJavaPoet(),
                 `is`(ClassName.get("foo.bar.MyPojo", "Point") as TypeName)
             )
         }
@@ -315,7 +316,7 @@ class PojoProcessorTest {
             )
             val pointField = pojo.embeddedFields.first { it.field.name == "genericField" }
             assertThat(
-                pointField.pojo.typeName,
+                pointField.pojo.typeName.toJavaPoet(),
                 `is`(ClassName.get("foo.bar", "Point") as TypeName)
             )
         }
@@ -330,16 +331,8 @@ class PojoProcessorTest {
                 int embeddedPrimitive;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // there are no primitives in KSP so this won't work. Instead, it will fail
-                // because we cannot find a constructor for `int`
-                invocation.assertCompilationResult {
-                    hasErrorContaining(MISSING_POJO_CONSTRUCTOR)
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -481,22 +474,8 @@ class PojoProcessorTest {
                 public long user;
                 """
         ) { _, invocation ->
-            if (invocation.isKsp) {
-                // in KSP, there are no primitives so `long` (kotlin.Long) will still look like a
-                // class but then we'll fail because it doesn't hvae a `uid` column
-                invocation.assertCompilationResult {
-                    hasErrorContaining(
-                        relationCannotFindEntityField(
-                            entityName = "java.lang.Long",
-                            columnName = "uid",
-                            availableColumns = emptyList()
-                        )
-                    )
-                }
-            } else {
-                invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
-                }
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
             }
         }
     }
@@ -708,7 +687,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("uid")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
         }
     }
 
@@ -726,7 +705,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("name")))
-            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
         }
     }
 

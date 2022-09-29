@@ -21,6 +21,7 @@
      to come from a domain that you own or have control over. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"

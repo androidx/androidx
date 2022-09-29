@@ -18,14 +18,12 @@ package androidx.wear.tiles.material;
 
 import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.LARGE_BUTTON_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
+import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE;
+import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_COLORS;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.assertThrows;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -64,19 +62,12 @@ public class ButtonTest {
             new Text.Builder(CONTEXT, "ABC").setColor(argb(0)).build();
 
     @Test
-    public void testButtonEmpty() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Button.Builder(CONTEXT, CLICKABLE).build());
-    }
-
-    @Test
     public void testButtonCustomAddedContentNoContentDesc() {
         Button button = new Button.Builder(CONTEXT, CLICKABLE).setCustomContent(CONTENT).build();
 
         assertButton(
                 button,
-                DEFAULT_BUTTON_SIZE,
+                DEFAULT_SIZE,
                 new ButtonColors(Colors.PRIMARY, 0),
                 null,
                 Button.METADATA_TAG_CUSTOM_CONTENT,
@@ -88,7 +79,7 @@ public class ButtonTest {
 
     @Test
     public void testButtonCustom() {
-        DpProp mSize = LARGE_BUTTON_SIZE;
+        DpProp mSize = LARGE_SIZE;
         ButtonColors mButtonColors = new ButtonColors(0x11223344, 0);
 
         Button button =
@@ -122,8 +113,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_BUTTON_SIZE,
-                PRIMARY_BUTTON_COLORS,
+                DEFAULT_SIZE,
+                PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -137,14 +128,14 @@ public class ButtonTest {
         Button button =
                 new Button.Builder(CONTEXT, CLICKABLE)
                         .setIconContent(RESOURCE_ID)
-                        .setSize(LARGE_BUTTON_SIZE)
+                        .setSize(LARGE_SIZE)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
         assertButton(
                 button,
-                LARGE_BUTTON_SIZE,
-                PRIMARY_BUTTON_COLORS,
+                LARGE_SIZE,
+                PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -165,8 +156,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_BUTTON_SIZE,
-                PRIMARY_BUTTON_COLORS,
+                DEFAULT_SIZE,
+                PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -185,8 +176,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_BUTTON_SIZE,
-                PRIMARY_BUTTON_COLORS,
+                DEFAULT_SIZE,
+                PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_TEXT,
                 TEXT,
@@ -201,13 +192,13 @@ public class ButtonTest {
                 new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent(TEXT)
                         .setContentDescription(CONTENT_DESCRIPTION)
-                        .setSize(EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(EXTRA_LARGE_SIZE)
                         .build();
 
         assertButton(
                 button,
-                EXTRA_LARGE_BUTTON_SIZE,
-                PRIMARY_BUTTON_COLORS,
+                EXTRA_LARGE_SIZE,
+                PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_TEXT,
                 TEXT,

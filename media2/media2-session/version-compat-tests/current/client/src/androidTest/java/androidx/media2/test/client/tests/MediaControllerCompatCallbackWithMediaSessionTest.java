@@ -19,6 +19,7 @@ package androidx.media2.test.client.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.media.AudioManager;
 import android.os.Build;
@@ -80,6 +81,9 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mSession = new RemoteMediaSession(TAG, mContext, null);
         mControllerCompat = new MediaControllerCompat(mContext, mSession.getCompatToken());
@@ -89,7 +93,9 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mSession.close();
+        if (mSession != null) {
+            mSession.close();
+        }
     }
 
     @Ignore("b/202942942")

@@ -13,12 +13,13 @@
  */
 package com.example.android.leanback;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
 
     @Override
-    protected void onBindDescription(ViewHolder vh, Object item) {
+    protected void onBindDescription(@NonNull ViewHolder vh, @NonNull Object item) {
         vh.getTitle().setText(item.toString());
         vh.getSubtitle().setText("2013 - 2014   Drama   TV-14");
         vh.getBody().setText("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do "

@@ -358,7 +358,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
             @ForceDark int forceDarkMode) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
             ApiHelperForQ.setForceDark(settings, forceDarkMode);
         } else if (feature.isSupportedByWebView()) {
@@ -387,7 +387,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
             return ApiHelperForQ.getForceDark(settings);
         } else if (feature.isSupportedByWebView()) {
@@ -630,95 +630,61 @@ public class WebSettingsCompat {
     }
 
     /**
-     * In this mode the WebView will not add an X-Requested-With header on HTTP
-     * requests automatically.
+     * Sets whether EnterpriseAuthenticationAppLinkPolicy if set by admin is allowed to have any
+     * effect on WebView.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy in WebView allows admins to specify authentication
+     * urls. When WebView is redirected to authentication url, and an app on the device has
+     * registered as the default handler for the url, that app is launched.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy is enabled by default.
      *
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int REQUESTED_WITH_HEADER_MODE_NO_HEADER =
-            WebSettingsBoundaryInterface.RequestedWithHeaderMode.NO_HEADER;
-    /**
-     * In this mode the WebView automatically add an X-Requested-With header to outgoing
-     * requests, if the application or the loaded webpage has not already set a header value.
-     * The value of this automatically added header will be the package name of the app.
-     *
-     * This is the default mode.
-     *
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME =
-            WebSettingsBoundaryInterface.RequestedWithHeaderMode.APP_PACKAGE_NAME;
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(value = {
-            REQUESTED_WITH_HEADER_MODE_NO_HEADER,
-            REQUESTED_WITH_HEADER_MODE_APP_PACKAGE_NAME
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface RequestedWithHeaderMode {}
-
-    /**
-     * Sets how the WebView will set the X-Requested-With header on requests.
-     *
-     * If you are calling this method, you may also want to call
-     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)} with the same
-     * parameter value to configure ServiceWorker requests.
-     *
-     * The default behavior may vary depending on the WebView implementation.
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
      *
      * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
      *
-     * @param requestedWithHeaderMode The {@code REQUESTED_WITH_HEADER_MODE to use}
-     * @see ServiceWorkerWebSettingsCompat#setRequestedWithHeaderMode(int)
-     * @see #getRequestedWithHeaderMode(WebSettings)
-     * @hide
+     * @param enabled Whether EnterpriseAuthenticationAppLinkPolicy should be enabled.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setRequestedWithHeaderMode(@NonNull WebSettings settings,
-            @RequestedWithHeaderMode int requestedWithHeaderMode) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+    public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings,
+            boolean enabled) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
         if (feature.isSupportedByWebView()) {
-            getAdapter(settings).setRequestedWithHeaderMode(requestedWithHeaderMode);
+            getAdapter(settings).setEnterpriseAuthenticationAppLinkPolicyEnabled(enabled);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
     /**
-     * Gets how the WebView will set the X-Requested-With header on HTTP requests.
+     * Gets whether EnterpriseAuthenticationAppLinkPolicy is allowed to have any effect on WebView.
+     *
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
      *
      * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#REQUESTED_WITH_HEADER_CONTROL}.
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
      *
-     * @return the currently configured {@code REQUESTED_WITH_HEADER_MODE}
-     * @see #setRequestedWithHeaderMode(WebSettings, int)
-     * @hide
+     * @return {@code true} if EnterpriseAuthenticationAppLinkPolicy is enabled and {@code false}
+     * otherwise.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_CONTROL,
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RequestedWithHeaderMode
-    public static int getRequestedWithHeaderMode(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+    public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
         if (feature.isSupportedByWebView()) {
-            return getAdapter(settings).getRequestedWithHeaderMode();
+            return getAdapter(settings).getEnterpriseAuthenticationAppLinkPolicyEnabled();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

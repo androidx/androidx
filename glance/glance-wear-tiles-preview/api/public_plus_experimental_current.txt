@@ -1,0 +1,8 @@
+// Signature format: 4.0
+package androidx.glance.wear.tiles.preview {
+
+  public final class GlanceTileServiceViewAdapterKt {
+  }
+
+}
+

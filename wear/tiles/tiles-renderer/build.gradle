@@ -16,6 +16,7 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -84,13 +85,6 @@ android {
     namespace "androidx.wear.tiles.renderer"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
@@ -111,6 +105,7 @@ protobuf {
 androidx {
     name = "Android Wear Tiles Renderer"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +

@@ -66,9 +66,3 @@ androidx {
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Runtime"
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
-}

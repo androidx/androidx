@@ -38,6 +38,15 @@ interface XAnnotationValue {
      */
     val value: Any?
 
+    /**
+     * Returns the type of this annotation value as declared in the annotation class.
+     *
+     * For Java sources, this will be the return type of the method that declares this annotation
+     * value. For Kotlin sources, this will be the constructor parameter type that declares this
+     * annotation value.
+     */
+    val valueType: XType
+
     /** Returns true if the value is an [XType] */
     fun hasTypeValue(): Boolean
 
@@ -169,6 +178,18 @@ interface XAnnotationValue {
 
     /** Returns the value as a list of [Byte]. */
     fun asByteList(): List<Byte> = asAnnotationValueList().map { it.asByte() }
+
+    /** Returns true if the value is an [Char] */
+    fun hasCharValue(): Boolean
+
+    /** Returns the value as a [Char]. */
+    fun asChar(): Char = value as Char
+
+    /** Returns true if the value is a list of [Char] */
+    fun hasCharListValue(): Boolean
+
+    /** Returns the value as a list of [Char]. */
+    fun asCharList(): List<Char> = asAnnotationValueList().map { it.asChar() }
 
     /** Returns true if the value is a list. */
     fun hasListValue(): Boolean

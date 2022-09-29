@@ -55,6 +55,7 @@ import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import androidx.annotation.NonNull;
 import androidx.media2.session.MediaLibraryService;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Ignore;
@@ -657,6 +658,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     }
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
+    @FlakyTest(bugId = 236961183)
     @Test
     public void customAction() throws InterruptedException {
         final Bundle testArgs = new Bundle();
@@ -677,6 +679,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     }
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
+    @FlakyTest(bugId = 236961183)
     @Test
     public void customAction_rejected() throws InterruptedException {
         // This action will not be allowed by the library session.

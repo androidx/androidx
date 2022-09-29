@@ -18,9 +18,9 @@ package androidx.room.solver.query
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
@@ -59,7 +59,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users";
@@ -81,7 +81,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
@@ -109,7 +109,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
@@ -135,7 +135,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
@@ -193,7 +193,7 @@ class QueryWriterTest {
         ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
         }
     }
 
@@ -207,7 +207,7 @@ class QueryWriterTest {
         ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
         }
     }
 
@@ -221,7 +221,7 @@ class QueryWriterTest {
         ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
         }
     }
 
@@ -236,7 +236,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
@@ -262,7 +262,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
@@ -303,7 +303,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
-                scope.generate().toString().trim(),
+                scope.builder().build().toString().trim(),
                 `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();

@@ -66,7 +66,8 @@ public class ParcelableWorkInfo implements Parcelable {
         Data progress = parcelableProgressData.getData();
         // runAttemptCount
         int runAttemptCount = parcel.readInt();
-        mWorkInfo = new WorkInfo(id, state, output, tags, progress, runAttemptCount);
+        int generation = parcel.readInt();
+        mWorkInfo = new WorkInfo(id, state, output, tags, progress, runAttemptCount, generation);
     }
 
     @NonNull
@@ -110,5 +111,6 @@ public class ParcelableWorkInfo implements Parcelable {
         parcelableProgress.writeToParcel(parcel, flags);
         // runAttemptCount
         parcel.writeInt(mWorkInfo.getRunAttemptCount());
+        parcel.writeInt(mWorkInfo.getGeneration());
     }
 }

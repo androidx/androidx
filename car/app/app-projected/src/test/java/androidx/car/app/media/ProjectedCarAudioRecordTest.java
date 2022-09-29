@@ -27,6 +27,7 @@ import androidx.car.app.testing.TestCarContext;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -48,6 +49,7 @@ public class ProjectedCarAudioRecordTest {
         mCarContext.getFakeHost().setMicrophoneInputData(new ByteArrayInputStream(mArr));
     }
 
+    @Ignore // b/234034123
     @Test
     public void readNotStarted_throws() {
         byte[] arr = new byte[AUDIO_CONTENT_BUFFER_SIZE];
@@ -55,6 +57,7 @@ public class ProjectedCarAudioRecordTest {
                 AUDIO_CONTENT_BUFFER_SIZE));
     }
 
+    @Ignore // b/234034123
     @Test
     public void readAfterStop_throws() {
         mCarAudioRecord.startRecording();
@@ -65,6 +68,7 @@ public class ProjectedCarAudioRecordTest {
                 AUDIO_CONTENT_BUFFER_SIZE));
     }
 
+    @Ignore // b/234034123
     @Test
     public void read() {
         mCarAudioRecord.startRecording();
@@ -75,6 +79,7 @@ public class ProjectedCarAudioRecordTest {
         mCarAudioRecord.stopRecording();
     }
 
+    @Ignore // b/234034123
     @Test
     public void readAfterAllRead_returns_negative_1() {
         mCarAudioRecord.startRecording();
@@ -87,6 +92,7 @@ public class ProjectedCarAudioRecordTest {
         mCarAudioRecord.stopRecording();
     }
 
+    @Ignore // b/234034123
     @Test
     public void stopRecording_tellsHostToStop() {
         mCarAudioRecord.startRecording();
@@ -98,6 +104,7 @@ public class ProjectedCarAudioRecordTest {
         assertThat(mCarContext.getFakeHost().hasToldHostToStopRecording()).isTrue();
     }
 
+    @Ignore // b/234034123
     @Test
     public void hostTellsToStop_noLongerReadsBytes() {
         mCarAudioRecord.startRecording();

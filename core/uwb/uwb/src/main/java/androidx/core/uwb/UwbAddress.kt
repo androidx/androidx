@@ -25,7 +25,7 @@ import com.google.common.io.BaseEncoding
  */
 class UwbAddress(val address: ByteArray) {
 
-    /** @throws an [IllegalArgumentException] if address is invalid. */
+    /** @throws [IllegalArgumentException] if address is invalid. */
     constructor(address: String) : this(BASE_16_SEPARATOR.decode(address))
 
     companion object {
