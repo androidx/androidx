@@ -41,7 +41,6 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.applyAction
-import androidx.glance.appwidget.action.unsetAction
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -65,7 +64,6 @@ internal fun applyModifiers(
     var actionModifier: ActionModifier? = null
     var enabled: EnabledModifier? = null
     var clipToOutline: ClipToOutlineModifier? = null
-    var shouldUnsetAction = true
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
@@ -102,9 +100,6 @@ internal fun applyModifiers(
             }
             is ClipToOutlineModifier -> clipToOutline = modifier
             is EnabledModifier -> enabled = modifier
-            is DoNotUnsetActionModifier -> {
-                shouldUnsetAction = false
-            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -112,9 +107,6 @@ internal fun applyModifiers(
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
     actionModifier?.let { applyAction(translationContext, rv, it.action, viewDef.mainViewId) }
-    if (actionModifier == null && shouldUnsetAction) {
-        unsetAction(translationContext, rv, viewDef.mainViewId)
-    }
     cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
