@@ -960,11 +960,11 @@ class GLRendererTest {
                     assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
 
                     assertTrue(syncFenceCompat.await(3000))
-                    signalTime = syncFenceCompat.getSignalTime()
+                    signalTime = syncFenceCompat.getSignalTimeNanos()
 
                     renderLatch.countDown()
-                    assertTrue(syncFenceCompat.getSignalTime() < System.nanoTime())
-                    assertTrue(syncFenceCompat.getSignalTime() > startTime)
+                    assertTrue(syncFenceCompat.getSignalTimeNanos() < System.nanoTime())
+                    assertTrue(syncFenceCompat.getSignalTimeNanos() > startTime)
                 }
             }
 
