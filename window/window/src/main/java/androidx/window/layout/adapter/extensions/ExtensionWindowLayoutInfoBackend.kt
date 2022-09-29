@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
@@ -25,7 +25,9 @@ import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.layout.WindowLayoutComponent
-import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter.translate
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.WindowBackend
+import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock

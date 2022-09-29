@@ -24,15 +24,16 @@ import androidx.window.TestActivity
 import androidx.window.TestConsumer
 import androidx.window.WindowTestUtils
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
+import androidx.window.layout.adapter.WindowBackend
+import java.util.concurrent.Executor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.Job
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.Executor
 
 @OptIn(ExperimentalCoroutinesApi::class)
 public class WindowInfoTrackerImplTest {

@@ -15,7 +15,7 @@
  */
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.annotation.SuppressLint
 import androidx.annotation.VisibleForTesting
@@ -23,9 +23,13 @@ import androidx.window.core.Bounds
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
 import androidx.window.core.VerificationMode.QUIET
+import androidx.window.layout.DisplayFeature
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
-import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarDisplayFeature.TYPE_FOLD

@@ -16,12 +16,14 @@
 // Sidecar is deprecated but consuming code must be maintained for compatibility reasons
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.graphics.Rect
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
+import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo

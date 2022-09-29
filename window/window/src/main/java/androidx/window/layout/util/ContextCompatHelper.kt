@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,16 @@
 
 package androidx.window.layout.util
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.view.WindowManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
-import androidx.core.view.WindowInsetsCompat
-
-@RequiresApi(Build.VERSION_CODES.N)
-internal object ContextCompatHelperApi24 {
-    fun isInMultiWindowMode(activity: Activity): Boolean {
-        return activity.isInMultiWindowMode
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.R)
-internal object ContextCompatHelperApi30 {
+internal object ContextCompatHelper {
+
     fun currentWindowBounds(@UiContext context: Context): Rect {
         val wm = context.getSystemService(WindowManager::class.java)
         return wm.currentWindowMetrics.bounds
@@ -43,18 +34,5 @@ internal object ContextCompatHelperApi30 {
     fun maximumWindowBounds(@UiContext context: Context): Rect {
         val wm = context.getSystemService(WindowManager::class.java)
         return wm.maximumWindowMetrics.bounds
-    }
-
-    /**
-     * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
-     * @DoNotInline required for implementation-specific class method to prevent it from being
-     * inlined.
-     *
-     * @see androidx.window.layout.WindowMetrics.getWindowInsets
-     */
-    @DoNotInline
-    fun currentWindowInsets(activity: Activity): WindowInsetsCompat {
-        val platformInsets = activity.windowManager.currentWindowMetrics.windowInsets
-        return WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
     }
 }

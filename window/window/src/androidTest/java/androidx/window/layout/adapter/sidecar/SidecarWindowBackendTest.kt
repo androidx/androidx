@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
 import android.content.Context
@@ -24,8 +24,11 @@ import androidx.test.filters.LargeTest
 import androidx.window.TestConsumer
 import androidx.window.WindowTestBase
 import androidx.window.core.Bounds
+import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
+import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowLayoutInfo
 import com.google.common.util.concurrent.MoreExecutors
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout;
+package androidx.window.layout.adapter.sidecar;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -36,11 +36,18 @@ import java.util.WeakHashMap;
  * duplicates. This class uses [SidecarAdapter] to compute equality since the methods
  * [Object.equals] and [Object.hashCode] may not have been overridden.
  *
+ * This is a Java class because in Kotlin we would not be able to ignore [null] values.
+ *
+ * Sidecar is currently deprecated and we do not plan on developing it further. Sidecar is still
+ * supported for basic [FoldingFeature]. The deprecation lint warning is suppressed since it is
+ * picking up the Sidecar deprecations.
+ *
  * NOTE: If you change the name of this class, you must update the proguard file.
  * @hide
  */
+@SuppressWarnings("deprecation") // Sidecar is deprecated but we still support it.
 @RestrictTo(LIBRARY_GROUP)
-class DistinctElementSidecarCallback implements SidecarCallback {
+public class DistinctElementSidecarCallback implements SidecarCallback {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
@@ -58,7 +65,7 @@ class DistinctElementSidecarCallback implements SidecarCallback {
     }
 
     @VisibleForTesting
-    DistinctElementSidecarCallback(@NonNull SidecarCallback callback) {
+    public DistinctElementSidecarCallback(@NonNull SidecarCallback callback) {
         mAdapter = new SidecarAdapter();
         mCallback = callback;
     }

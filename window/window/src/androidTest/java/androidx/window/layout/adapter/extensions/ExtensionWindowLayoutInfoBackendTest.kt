@@ -14,25 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
+import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import java.util.function.Consumer as JavaConsumer
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.graphics.Rect
 import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
+import androidx.window.WindowTestUtils
+import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
+import androidx.window.WindowTestUtils.Companion.assumeBeforeVendorApiLevel
 import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.WindowLayoutComponent
-import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter.translate
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.WindowMetricsCalculatorCompat
+import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -41,16 +53,6 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
-import java.util.function.Consumer as JavaConsumer
-import android.content.Context
-import androidx.annotation.RequiresApi
-import androidx.annotation.UiContext
-import androidx.window.WindowTestUtils
-import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
-import androidx.window.WindowTestUtils.Companion.assumeBeforeVendorApiLevel
-import com.nhaarman.mockitokotlin2.times
 
 class ExtensionWindowLayoutInfoBackendTest {
 

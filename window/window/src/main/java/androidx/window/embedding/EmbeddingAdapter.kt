@@ -51,7 +51,7 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
-import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter
+import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 /**
  * An interface to ensure the same tests are run for translating from value objects in
