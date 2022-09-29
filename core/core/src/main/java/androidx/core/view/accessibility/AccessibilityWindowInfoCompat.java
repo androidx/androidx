@@ -393,13 +393,10 @@ public class AccessibilityWindowInfoCompat {
      * <strong>Note:</strong> You must not touch the object after calling this function.
      * </p>
      *
-     * @throws IllegalStateException If the info is already recycled.
+     * @deprecated Accessibility Object recycling is no longer necessary or functional.
      */
-    public void recycle() {
-        if (SDK_INT >= 21) {
-            Api21Impl.recycle((AccessibilityWindowInfo) mInfo);
-        }
-    }
+    @Deprecated
+    public void recycle() { }
 
     /**
      * @return The unwrapped {@link android.view.accessibility.AccessibilityWindowInfo}.
@@ -543,11 +540,6 @@ public class AccessibilityWindowInfoCompat {
         @DoNotInline
         static AccessibilityWindowInfo obtain(AccessibilityWindowInfo info) {
             return AccessibilityWindowInfo.obtain(info);
-        }
-
-        @DoNotInline
-        static void recycle(AccessibilityWindowInfo info) {
-            info.recycle();
         }
     }
 
