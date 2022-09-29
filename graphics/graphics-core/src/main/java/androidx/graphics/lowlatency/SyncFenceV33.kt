@@ -47,9 +47,9 @@ internal class SyncFenceV33 internal constructor(syncFence: SyncFence) : SyncFen
     }
 
     /**
-     * See [SyncFenceImpl.getSignalTime]
+     * See [SyncFenceImpl.getSignalTimeNanos]
      */
-    override fun getSignalTime(): Long {
+    override fun getSignalTimeNanos(): Long {
         return mSyncFence.signalTime
     }
 

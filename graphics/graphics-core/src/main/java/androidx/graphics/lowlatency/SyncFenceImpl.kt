@@ -40,11 +40,11 @@ internal interface SyncFenceImpl {
 
     /**
      * Returns the time that the fence signaled in the [CLOCK_MONOTONIC] time domain.
-     * This returns [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid.
-     * If the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
+     * This returns an instant, [SyncFence.SIGNAL_TIME_INVALID] if the SyncFence is invalid, and
+     * if the fence hasn't yet signaled, then [SyncFence.SIGNAL_TIME_PENDING] is returned.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSignalTime(): Long
+    fun getSignalTimeNanos(): Long
 
     /**
      * Checks if the SyncFence object is valid.
