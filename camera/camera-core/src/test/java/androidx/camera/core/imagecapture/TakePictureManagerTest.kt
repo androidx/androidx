@@ -299,4 +299,31 @@ class TakePictureManagerTest {
         // Assert.
         assertThat(request.imageReceived).isEqualTo(image)
     }
+
+    @Test
+    fun takePictureManager_unableToProcessNextWhenOverMaxImages() {
+        // Arrange.
+        imagePipeline.queueCapacity = 0
+
+        // Act: send the request.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request)
+
+        // Assert: the request is blocked.
+        assertThat(takePictureManager.mNewRequests.size).isEqualTo(1)
+        assertThat(imageCaptureControl.actions).isEmpty()
+
+        // Act: increase the capacity and invoke image closed.
+        imagePipeline.queueCapacity = 1
+        takePictureManager.onImageClose(FakeImageProxy(FakeImageInfo()))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the request is sent.
+        assertThat(takePictureManager.mNewRequests.size).isEqualTo(0)
+        assertThat(imageCaptureControl.actions).containsExactly(
+            FakeImageCaptureControl.Action.LOCK_FLASH,
+            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            FakeImageCaptureControl.Action.UNLOCK_FLASH,
+        ).inOrder()
+    }
 }

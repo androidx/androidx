@@ -20,18 +20,26 @@ import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.ViewModelStore
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ProviderCallbackTest {
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val activityTestRule = androidx.test.rule.ActivityTestRule(
+        FragmentTestActivity::class.java
+    )
 
     @Test
     fun onConfigurationChanged() {
@@ -112,6 +120,31 @@ class ProviderCallbackTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun onConfigurationChangedNestedFragmentsCustomController() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+        val parent = StrictViewFragment(R.layout.fragment_container_view)
+        val child = CallbackFragment()
+
+        fm.beginTransaction()
+            .replace(R.id.content, parent)
+            .commitNow()
+
+        parent.childFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, child)
+            .commitNow()
+
+        val newConfig = Configuration(activityTestRule.activity.resources.configuration)
+        fc.dispatchConfigurationChanged(newConfig)
+
+        assertThat(child.configChangedCount).isEqualTo(1)
+    }
+
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onMultiWindowModeChanged() {
@@ -187,6 +220,30 @@ class ProviderCallbackTest {
             assertThat(child.multiWindowChangedCount).isEqualTo(0)
             assertThat(replacementChild.multiWindowChangedCount).isEqualTo(1)
         }
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun onMultiWindowModeChangedNestedFragmentsCustomController() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+        val parent = StrictViewFragment(R.layout.fragment_container_view)
+        val child = CallbackFragment()
+
+        fm.beginTransaction()
+            .replace(R.id.content, parent)
+            .commitNow()
+
+        parent.childFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, child)
+            .commitNow()
+
+        fc.dispatchMultiWindowModeChanged(true)
+
+        assertThat(child.multiWindowChangedCount).isEqualTo(1)
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -268,6 +325,30 @@ class ProviderCallbackTest {
     }
 
     @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun onPictureInPictureModeChangedNestedFragmentsCustomController() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+        val parent = StrictViewFragment(R.layout.fragment_container_view)
+        val child = CallbackFragment()
+
+        fm.beginTransaction()
+            .replace(R.id.content, parent)
+            .commitNow()
+
+        parent.childFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, child)
+            .commitNow()
+
+        fc.dispatchPictureInPictureModeChanged(true)
+
+        assertThat(child.pictureModeChangedCount).isEqualTo(1)
+    }
+
+    @Suppress("DEPRECATION")
     @Test
     fun onLowMemory() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
@@ -337,6 +418,30 @@ class ProviderCallbackTest {
             assertThat(child.onLowMemoryCount).isEqualTo(0)
             assertThat(replacementChild.onLowMemoryCount).isEqualTo(1)
         }
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun onLowMemoryNestedFragmentsCustomController() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+        val parent = StrictViewFragment(R.layout.fragment_container_view)
+        val child = CallbackFragment()
+
+        fm.beginTransaction()
+            .replace(R.id.content, parent)
+            .commitNow()
+
+        parent.childFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, child)
+            .commitNow()
+
+        fc.dispatchLowMemory()
+
+        assertThat(child.onLowMemoryCount).isEqualTo(1)
     }
 }
 

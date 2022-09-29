@@ -20,6 +20,7 @@ package androidx.room.processor
 
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.vo.InsertionMethod
@@ -63,7 +64,7 @@ class InsertionMethodProcessor(
                     entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
                         primaryKeyNames = entity.primaryKey.fields.columnNames
                     )
                 )
@@ -78,7 +79,7 @@ class InsertionMethodProcessor(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
                         missingColumnNames = missingRequiredFields.map { it.columnName }
                     )
                 )

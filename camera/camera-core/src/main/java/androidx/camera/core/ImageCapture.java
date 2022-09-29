@@ -279,6 +279,8 @@ public final class ImageCapture extends UseCase {
     @FlashMode
     private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
 
+    boolean mUseProcessingPipeline = false;
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
@@ -1885,7 +1887,41 @@ public final class ImageCapture extends UseCase {
     @MainThread
     private boolean isNodeEnabled() {
         checkMainThread();
-        return false;
+        ImageCaptureConfig config = (ImageCaptureConfig) getCurrentConfig();
+        if (config.getImageReaderProxyProvider() != null) {
+            // Use old pipeline for custom ImageReader.
+            return false;
+        }
+        if (isSessionProcessorEnabledInCurrentCamera()) {
+            // Use old pipeline for advanced Extensions.
+            return false;
+        }
+        if (mCaptureProcessor != null) {
+            // Use old pipeline for basic Extensions.
+            return false;
+        }
+        if (getCaptureStageSize(config) > 1) {
+            // Use old pipeline for multiple stages capture.
+            return false;
+        }
+        if (requireNonNull(config.retrieveOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG))
+                != ImageFormat.JPEG) {
+            // Use old pipeline for non-JPEG output format.
+            return false;
+        }
+        return mUseProcessingPipeline;
+    }
+
+    private int getCaptureStageSize(@NonNull ImageCaptureConfig config) {
+        CaptureBundle captureBundle = config.getCaptureBundle(null);
+        if (captureBundle == null) {
+            return 1;
+        }
+        List<CaptureStage> captureStages = captureBundle.getCaptureStages();
+        if (captureStages == null) {
+            return 1;
+        }
+        return captureStages.size();
     }
 
     /**
@@ -2015,6 +2051,11 @@ public final class ImageCapture extends UseCase {
         return Futures.transform(getCameraControl().submitStillCaptureRequests(
                         captureConfigs, mCaptureMode, mFlashType),
                 input -> null, CameraXExecutors.directExecutor());
+    }
+
+    @VisibleForTesting
+    boolean isProcessingPipelineEnabled() {
+        return mImagePipeline != null && mTakePictureManager != null;
     }
 
     // ===== New architecture end =====

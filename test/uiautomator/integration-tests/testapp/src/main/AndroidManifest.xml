@@ -18,7 +18,9 @@
 
     <uses-sdk android:minSdkVersion="18" />
 
-    <application android:label="UiAutomator UnitTest App">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <application android:label="UiAutomator Test App">
         <activity android:name=".MainActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -119,6 +121,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".LongClickTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".NotificationTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>

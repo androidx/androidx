@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
@@ -48,7 +49,7 @@ class EntityDeletionAdapterWriter private constructor(
             }
             return EntityDeletionAdapterWriter(
                 tableName = entity.tableName,
-                pojoTypeName = entity.pojo.typeName,
+                pojoTypeName = entity.pojo.typeName.toJavaPoet(),
                 fields = fieldsToUse
             )
         }

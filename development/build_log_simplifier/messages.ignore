@@ -504,3 +504,4 @@ w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/pa
 Warning: Lint will treat :annotation:annotation as an external dependency and not analyze it\.
 Did you make a typo\? Are you trying to refer to something not visible to users\?
 \* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
+WARN: Sources for .+ is empty

@@ -19,6 +19,9 @@ package androidx.wear.compose.foundation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
@@ -29,7 +32,9 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
     color = Color.Black,
     fontSize = 14.sp,
     background = Color.Transparent,
-    fontWeight = FontWeight.Normal
+    fontWeight = FontWeight.Normal,
+    fontStyle = FontStyle.Normal,
+    fontSynthesis = FontSynthesis.All
 )
 
 /**
@@ -41,15 +46,21 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
  * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+ * @param fontFamily The font family to be used when rendering the text.
  * @param fontWeight The thickness of the glyphs, in a range of [1, 1000]. see [FontWeight]
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g. italic).
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
+ * or style cannot be found in the provided font family.
  */
 class CurvedTextStyle(
     val background: Color = Color.Unspecified,
     val color: Color = Color.Unspecified,
     val fontSize: TextUnit = TextUnit.Unspecified,
-    val fontWeight: FontWeight? = null
+    val fontFamily: FontFamily? = null,
+    val fontWeight: FontWeight? = null,
+    val fontStyle: FontStyle? = null,
+    val fontSynthesis: FontSynthesis? = null
 ) {
-
     /**
      * Styling configuration for a curved text.
      *
@@ -61,7 +72,7 @@ class CurvedTextStyle(
      * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
      */
     @Deprecated("This overload is provided for backwards compatibility with Compose for " +
-        "Wear OS 1.0. A newer overload is available with an additional fontWeight parameter.",
+        "Wear OS 1.0. A newer overload is available with additional font parameters.",
         level = DeprecationLevel.HIDDEN)
     constructor(
         background: Color = Color.Unspecified,
@@ -73,13 +84,17 @@ class CurvedTextStyle(
      * Create a curved text style from the given text style.
      *
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
-     * [TextStyle.fontSize], [TextStyle.background] and [TextStyle.fontWeight]
+     * [TextStyle.fontSize], [TextStyle.background], [TextStyle.fontFamily],
+     * [TextStyle.fontWeight], [TextStyle.fontStyle] and [TextStyle.fontSynthesis].
      */
     constructor(style: TextStyle) : this(
         style.background,
         style.color,
         style.fontSize,
-        style.fontWeight
+        style.fontFamily,
+        style.fontWeight,
+        style.fontStyle,
+        style.fontSynthesis
     )
 
     /**
@@ -99,7 +114,10 @@ class CurvedTextStyle(
             color = other.color.takeOrElse { this.color },
             fontSize = if (!other.fontSize.isUnspecified) other.fontSize else this.fontSize,
             background = other.background.takeOrElse { this.background },
-            fontWeight = other.fontWeight ?: this.fontWeight
+            fontFamily = other.fontFamily ?: this.fontFamily,
+            fontWeight = other.fontWeight ?: this.fontWeight,
+            fontStyle = other.fontStyle ?: this.fontStyle,
+            fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
         )
     }
 
@@ -109,7 +127,7 @@ class CurvedTextStyle(
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
     @Deprecated("This overload is provided for backwards compatibility with Compose for " +
-        "Wear OS 1.0. A newer overload is available with an additional fontWeight parameter.")
+        "Wear OS 1.0. A newer overload is available with additional font parameters.")
     fun copy(
         background: Color = this.background,
         color: Color = this.color,
@@ -119,7 +137,10 @@ class CurvedTextStyle(
             background = background,
             color = color,
             fontSize = fontSize,
-            fontWeight = this.fontWeight
+            fontFamily = this.fontFamily,
+            fontWeight = this.fontWeight,
+            fontStyle = this.fontStyle,
+            fontSynthesis = this.fontSynthesis
         )
     }
 
@@ -127,13 +148,19 @@ class CurvedTextStyle(
         background: Color = this.background,
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
-        fontWeight: FontWeight? = this.fontWeight
+        fontFamily: FontFamily? = this.fontFamily,
+        fontWeight: FontWeight? = this.fontWeight,
+        fontStyle: FontStyle? = this.fontStyle,
+        fontSynthesis: FontSynthesis? = this.fontSynthesis
     ): CurvedTextStyle {
         return CurvedTextStyle(
             background = background,
             color = color,
             fontSize = fontSize,
-            fontWeight = fontWeight
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis
         )
     }
 
@@ -144,14 +171,20 @@ class CurvedTextStyle(
             color == other.color &&
             fontSize == other.fontSize &&
             background == other.background &&
-            fontWeight == other.fontWeight
+            fontFamily == other.fontFamily &&
+            fontWeight == other.fontWeight &&
+            fontStyle == other.fontStyle &&
+            fontSynthesis == other.fontSynthesis
     }
 
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + fontSize.hashCode()
         result = 31 * result + background.hashCode()
+        result = 31 * result + fontFamily.hashCode()
         result = 31 * result + fontWeight.hashCode()
+        result = 31 * result + fontStyle.hashCode()
+        result = 31 * result + fontSynthesis.hashCode()
         return result
     }
 
@@ -160,7 +193,10 @@ class CurvedTextStyle(
             "background=$background" +
             "color=$color, " +
             "fontSize=$fontSize, " +
+            "fontFamily=$fontFamily, " +
             "fontWeight=$fontWeight, " +
+            "fontStyle=$fontStyle, " +
+            "fontSynthesis=$fontSynthesis, " +
             ")"
     }
 }

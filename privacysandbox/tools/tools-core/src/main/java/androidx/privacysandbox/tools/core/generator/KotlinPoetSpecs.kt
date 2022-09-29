@@ -34,7 +34,7 @@ public fun Parameter.poetSpec(): ParameterSpec {
 }
 
 /** [TypeName] equivalent to this parameter. */
-public fun Type.poetSpec(): TypeName {
+public fun Type.poetSpec(): ClassName {
     val splits = name.split('.')
     return ClassName(splits.dropLast(1).joinToString("."), splits.last())
 }
@@ -83,4 +83,18 @@ public fun FunSpec.Builder.build(block: FunSpec.Builder.() -> Unit): FunSpec {
 public fun FileSpec.Builder.build(block: FileSpec.Builder.() -> Unit): FileSpec {
     block()
     return build()
+}
+
+public fun FunSpec.Builder.addCode(block: CodeBlock.Builder.() -> Unit) {
+    addCode(CodeBlock.builder().build { block() })
+}
+
+/** Auto-closing control flow construct and its code. */
+public fun CodeBlock.Builder.addControlFlow(
+    controlFlow: String,
+    block: CodeBlock.Builder.() -> Unit
+) {
+    beginControlFlow(controlFlow)
+    block()
+    endControlFlow()
 }

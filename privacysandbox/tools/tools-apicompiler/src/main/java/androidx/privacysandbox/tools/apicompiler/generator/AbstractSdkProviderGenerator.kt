@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
+import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
@@ -65,30 +66,30 @@ class AbstractSdkProviderGenerator(
     }
 
     private fun generateOnLoadSdkFunction(): FunSpec {
-        return FunSpec.builder("onLoadSdk")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("params", BUNDLE_CLASS)
-            .returns(SANDBOXED_SDK_CLASS)
-            .addStatement(
+        return FunSpec.builder("onLoadSdk").build {
+            addModifiers(KModifier.OVERRIDE)
+            addParameter("params", BUNDLE_CLASS)
+            returns(SANDBOXED_SDK_CLASS)
+            addStatement(
                 "val sdk = ${getCreateServiceFunctionName(api.getOnlyService())}(context!!)"
             )
-            .addStatement(
+            addStatement(
                 "return ${SANDBOXED_SDK_CLASS.simpleName}" +
                     "(${api.getOnlyService().stubDelegateName()}(sdk))"
             )
-            .build()
+        }
     }
 
     private fun generateGetViewFunction(): FunSpec {
-        return FunSpec.builder("getView")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("windowContext", CONTEXT_CLASS)
-            .addParameter("params", BUNDLE_CLASS)
-            .addParameter("width", Int::class)
-            .addParameter("height", Int::class)
-            .returns(VIEW_CLASS)
-            .addStatement("TODO(\"Implement\")")
-            .build()
+        return FunSpec.builder("getView").build {
+            addModifiers(KModifier.OVERRIDE)
+            addParameter("windowContext", CONTEXT_CLASS)
+            addParameter("params", BUNDLE_CLASS)
+            addParameter("width", Int::class)
+            addParameter("height", Int::class)
+            returns(VIEW_CLASS)
+            addStatement("TODO(\"Implement\")")
+        }
     }
 
     private fun generateCreateServiceFunction(service: AnnotatedInterface): FunSpec {

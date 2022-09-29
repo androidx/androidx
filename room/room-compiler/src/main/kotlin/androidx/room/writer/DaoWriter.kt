@@ -89,7 +89,7 @@ class DaoWriter(
 
         private fun shortcutEntityFieldNamePart(shortcutEntity: ShortcutEntity): String {
             return if (shortcutEntity.isPartialEntity) {
-                typeNameToFieldName(shortcutEntity.pojo.typeName) + "As" +
+                typeNameToFieldName(shortcutEntity.pojo.typeName.toJavaPoet()) + "As" +
                     typeNameToFieldName(shortcutEntity.entityTypeName)
             } else {
                 typeNameToFieldName(shortcutEntity.entityTypeName)
@@ -635,11 +635,12 @@ class DaoWriter(
     ) : SharedFieldSpec(
         baseName = "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
         type = ParameterizedTypeName.get(
-            RoomTypeNames.INSERTION_ADAPTER, shortcutEntity.pojo.typeName
+            RoomTypeNames.INSERTION_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
         )
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
+            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-" +
+                "${shortcutEntity.entityTypeName}$onConflictText"
         }
 
         override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
@@ -654,7 +655,7 @@ class DaoWriter(
     ) : SharedFieldSpec(
         baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
         type = ParameterizedTypeName.get(
-            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, shortcutEntity.pojo.typeName
+            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
         )
     ) {
         override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
@@ -662,7 +663,7 @@ class DaoWriter(
         }
 
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
+            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-${shortcutEntity.entityTypeName}" +
                 "$methodPrefix$onConflictText"
         }
     }
@@ -672,11 +673,11 @@ class DaoWriter(
     ) : SharedFieldSpec(
         baseName = "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
         type = ParameterizedTypeName.get(
-            RoomTypeNames.UPSERTION_ADAPTER, shortcutEntity.pojo.typeName
+            RoomTypeNames.UPSERTION_ADAPTER, shortcutEntity.pojo.typeName.toJavaPoet()
         )
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
+            return "${shortcutEntity.pojo.typeName.toJavaPoet()}-${shortcutEntity.entityTypeName}"
         }
 
         override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {

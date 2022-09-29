@@ -493,7 +493,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     _tmpName = _cursor.getString(_cursorIndexOfName);
                 }
                 final Info _tmpInfo;
-                if (! (_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
+                if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
                     _tmpInfo = new Info();
                     _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
                     if (_cursor.isNull(_cursorIndexOfCode)) {
@@ -501,7 +501,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     } else {
                         _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
                     }
-                }  else  {
+                } else {
                     _tmpInfo = null;
                 }
                 _item = new Child1(_tmpId,_tmpName,_tmpInfo);
@@ -537,7 +537,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     _tmpName = _cursor.getString(_cursorIndexOfName);
                 }
                 final Info _tmpInfo;
-                if (! (_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
+                if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
                     _tmpInfo = new Info();
                     _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
                     if (_cursor.isNull(_cursorIndexOfCode)) {
@@ -545,7 +545,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     } else {
                         _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
                     }
-                }  else  {
+                } else {
                     _tmpInfo = null;
                 }
                 _item = new Child2(_tmpId,_tmpName,_tmpInfo);
@@ -584,7 +584,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                             _tmpName = _cursor.getString(_cursorIndexOfName);
                         }
                         final Info _tmpInfo;
-                        if (! (_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
+                        if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
                             _tmpInfo = new Info();
                             _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
                             if (_cursor.isNull(_cursorIndexOfCode)) {
@@ -592,7 +592,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                             } else {
                                 _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
                             }
-                        }  else  {
+                        } else {
                             _tmpInfo = null;
                         }
                         _item = new Child1(_tmpId,_tmpName,_tmpInfo);

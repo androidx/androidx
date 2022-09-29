@@ -77,6 +77,7 @@ expect object PreferenceDataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
+    @JvmOverloads
     public fun createWithPath(
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),

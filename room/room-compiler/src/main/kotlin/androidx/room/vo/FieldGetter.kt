@@ -16,20 +16,22 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.CodeBlock
 
 data class FieldGetter(val jvmName: String, val type: XType, val callType: CallType) {
-    fun writeGet(ownerVar: String, outVar: String, builder: CodeBlock.Builder) {
+    fun writeGet(ownerVar: String, outVar: String, builder: XCodeBlock.Builder) {
         val stmt = when (callType) {
-            CallType.FIELD -> "final $T $L = $L.$L"
-            CallType.METHOD -> "final $T $L = $L.$L()"
+            CallType.FIELD -> "%L.%L"
+            CallType.METHOD -> "%L.%L()"
             CallType.CONSTRUCTOR -> null
         }
-        stmt?.let {
-            builder.addStatement(stmt, type.typeName, outVar, ownerVar, jvmName)
+        if (stmt != null) {
+            builder.addLocalVariable(
+                name = outVar,
+                typeName = type.asTypeName(),
+                assignExpr = XCodeBlock.of(builder.language, stmt, ownerVar, jvmName)
+            )
         }
     }
 }

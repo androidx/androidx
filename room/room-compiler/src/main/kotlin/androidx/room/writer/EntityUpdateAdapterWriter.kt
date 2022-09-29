@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
@@ -56,7 +57,7 @@ class EntityUpdateAdapterWriter private constructor(
             superclass(
                 ParameterizedTypeName.get(
                     RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
-                    pojo.typeName
+                    pojo.typeName.toJavaPoet()
                 )
             )
             addMethod(
@@ -97,7 +98,9 @@ class EntityUpdateAdapterWriter private constructor(
                         ).build()
                     )
                     val valueParam = "value"
-                    addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
+                    addParameter(
+                        ParameterSpec.builder(pojo.typeName.toJavaPoet(), valueParam).build()
+                    )
                     val mappedField = FieldWithIndex.byOrder(pojo.fields)
                     FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,

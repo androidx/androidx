@@ -43,6 +43,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
@@ -51,6 +52,11 @@ import javax.xml.xpath.XPathFactory;
 /** Integration tests for {@link androidx.test.uiautomator.UiDevice}. */
 @LargeTest
 public class UiDeviceTest extends BaseTest {
+
+    private static final long TIMEOUT_MS = 5_000;
+
+    // Defined in 'AndroidManifest.xml'.
+    private static final String APP_NAME = "UiAutomator Test App";
 
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
@@ -99,7 +105,7 @@ public class UiDeviceTest extends BaseTest {
         Point buttonCenter = button.getVisibleCenter();
 
         assertTrue(mDevice.performActionAndWait(() -> mDevice.click(buttonCenter.x, buttonCenter.y),
-                Until.newWindow(), 10_000));
+                Until.newWindow(), TIMEOUT_MS));
     }
 
     @Test
@@ -232,18 +238,45 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("keycode Z pressed with meta shift left on", textView.getText());
     }
 
-    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testPressRecentApps() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
 
-    public void testPressRecentApps() {}
+        // No app name when the app is running.
+        assertFalse(mDevice.wait(Until.hasObject(By.text(APP_NAME)), TIMEOUT_MS));
 
-    public void testOpenNotification() {}
+        mDevice.pressRecentApps();
 
-    public void testOpenQuickSettings() {}
+        Pattern iconResIdPattern = Pattern.compile(".*launcher.*icon");
+        // For API 28 and above, click on the app icon to make the name visible.
+        if (mDevice.wait(Until.hasObject(By.res(iconResIdPattern)), TIMEOUT_MS)) {
+            UiObject2 icon = mDevice.findObject(By.res(iconResIdPattern));
+            icon.click();
+        }
 
-    public void testGetDisplayWidth() {}
+        // App name appears when on Recent screen.
+        assertTrue(mDevice.wait(Until.hasObject(By.text(APP_NAME)), TIMEOUT_MS));
+    }
 
-    public void testGetDisplayHeight() {}
-     */
+    @Test
+    public void testOpenNotification() {
+        launchTestActivity(NotificationTestActivity.class);
+
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "notification_button"));
+        button.click();
+
+        mDevice.openNotification();
+
+        assertTrue(mDevice.wait(Until.hasObject(By.text("Test Notification")), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testOpenQuickSettings() {
+        mDevice.openQuickSettings();
+
+        assertTrue(mDevice.wait(Until.hasObject(By.res(Pattern.compile(".*quick_settings_panel"))),
+                TIMEOUT_MS));
+    }
 
     @Test
     public void testClick() {

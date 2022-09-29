@@ -47,6 +47,7 @@ public abstract class BaseTest {
     public void setUp() throws Exception {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         mDevice.wakeUp();
+        mDevice.pressHome();
     }
 
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {

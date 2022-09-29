@@ -922,7 +922,7 @@ public abstract class AppCompatDelegate {
             return;
         } else if (BuildCompat.isAtLeastT()) {
             // TODO: After BuildCompat.isAtLeast() is deprecated, the above condition needs to be
-            //  replaced by (Build.VERSION.SDK_INT == 33).
+            //  replaced by (Build.VERSION.SDK_INT >= 33).
             if (!sIsFrameworkSyncChecked) {
                 // syncs locales from androidX to framework, it only happens once after the
                 // device is updated to T (API version 33).

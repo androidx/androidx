@@ -16,11 +16,11 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.EntityProcessor
-import com.squareup.javapoet.TypeName
 
 /**
  * A class is turned into a Pojo if it is used in a query response.
@@ -33,7 +33,7 @@ open class Pojo(
     val relations: List<Relation>,
     val constructor: Constructor? = null
 ) : HasFields {
-    val typeName: TypeName by lazy { type.typeName }
+    val typeName: XTypeName by lazy { type.asTypeName() }
 
     override val fields = Fields(fields)
 

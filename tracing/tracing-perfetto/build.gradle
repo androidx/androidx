@@ -26,6 +26,14 @@ plugins {
 android {
     sourceSets {
         test.resources {
+            // Allows for testing that tracing-perfetto-binary in the prebuilts folder matches
+            // checksums in `PerfettoNative.Metadata`.
+            // Note that due to `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` flag in
+            // `tracing:tracing-perfetto-binary`, `tracing:tracing-perfetto-binary` returns
+            // prebuilts AAR instead of being built from source code. See documentation for
+            // `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` for more information.
+            // TODO(239041710): create a test that verifies that `tracing:tracing-perfetto-binary`
+            // matches its source code.
             srcDirs += SupportConfigKt
                     .getPrebuiltsRoot(project).toPath()
                     .resolve(

@@ -16,11 +16,12 @@
 
 package androidx.room.processor
 
-import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.SqlParser
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.isNotNone
+import androidx.room.parser.SQLTypeAffinity
+import androidx.room.parser.SqlParser
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
@@ -514,7 +515,7 @@ class TableEntityProcessor internal constructor(
                         Warning.INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED,
                         embedded.field.element,
                         ProcessorErrors.droppedEmbeddedIndex(
-                            entityName = embedded.pojo.typeName.toString(),
+                            entityName = embedded.pojo.typeName.toJavaPoet().toString(),
                             fieldPath = embedded.field.getPath(),
                             grandParent = element.qualifiedName
                         )

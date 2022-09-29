@@ -16,7 +16,8 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -88,7 +89,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             )
             scope.builder().addStatement(
                 "final $T $N = $T.wrapMappedColumns($N, $L, $L)",
-                AndroidTypeNames.CURSOR,
+                CURSOR.toJavaPoet(),
                 cursorDelegateVarName,
                 RoomTypeNames.CURSOR_UTIL,
                 cursorVarName,

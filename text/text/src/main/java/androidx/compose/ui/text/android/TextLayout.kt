@@ -558,11 +558,6 @@ class TextLayout constructor(
     }
 
     /**
-     * @return true if the given line is ellipsized, else false.
-     */
-    fun isEllipsisApplied(lineIndex: Int): Boolean = layout.getEllipsisCount(lineIndex) > 0
-
-    /**
      * Fills the bounding boxes for characters within the [startOffset] (inclusive) and [endOffset]
      * (exclusive). The array is filled starting from [arrayStart] (inclusive). The coordinates are
      * in local text layout coordinates.

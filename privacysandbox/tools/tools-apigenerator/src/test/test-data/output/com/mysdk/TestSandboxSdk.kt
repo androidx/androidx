@@ -1,6 +1,12 @@
 package com.mysdk
 
 public interface TestSandboxSdk {
+  public suspend fun doSomethingAsync(
+    first: Int,
+    second: String,
+    third: Long,
+  ): Boolean
+
   public fun echoBoolean(input: Boolean): Boolean
 
   public fun echoChar(input: Char): Char
@@ -16,6 +22,8 @@ public interface TestSandboxSdk {
   public fun echoString(input: String): String
 
   public fun receiveAndReturnNothing(): Unit
+
+  public suspend fun receiveAndReturnNothingAsync(): Unit
 
   public fun receiveMultipleArguments(
     first: Int,

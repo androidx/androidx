@@ -19,7 +19,8 @@ public class MySdkStubDelegate internal constructor(
       try {
         val result = delegate.doStuff(x, y)
         transactionCallback.onSuccess(result)
-      } catch (t: Throwable) {
+      }
+      catch (t: Throwable) {
         transactionCallback.onFailure(404, t.message)
       }
     }
