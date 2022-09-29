@@ -28,6 +28,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Consumer;
 import androidx.work.impl.DefaultRunnableScheduler;
 import androidx.work.impl.Scheduler;
 
@@ -66,9 +67,9 @@ public final class Configuration {
     @SuppressWarnings("WeakerAccess")
     final @NonNull RunnableScheduler mRunnableScheduler;
     @SuppressWarnings("WeakerAccess")
-    final @Nullable InitializationExceptionHandler mExceptionHandler;
+    final @Nullable Consumer<Throwable> mExceptionHandler;
     @SuppressWarnings("WeakerAccess")
-    final @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
+    final @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
     @SuppressWarnings("WeakerAccess")
     final @Nullable String mDefaultProcessName;
     @SuppressWarnings("WeakerAccess")
@@ -250,11 +251,11 @@ public final class Configuration {
     }
 
     /**
-     * @return the {@link InitializationExceptionHandler} that can be used to intercept
+     * @return the {@link Consumer<Throwable>} that is used to intercept
      * exceptions caused when trying to initialize {@link WorkManager}.
      */
     @Nullable
-    public InitializationExceptionHandler getInitializationExceptionHandler() {
+    public Consumer<Throwable> getInitializationExceptionHandler() {
         return mExceptionHandler;
     }
 
@@ -263,7 +264,7 @@ public final class Configuration {
      * caused when trying to schedule {@link WorkRequest}s.
      */
     @Nullable
-    public SchedulingExceptionHandler getSchedulingExceptionHandler() {
+    public Consumer<Throwable> getSchedulingExceptionHandler() {
         return mSchedulingExceptionHandler;
     }
 
@@ -298,8 +299,8 @@ public final class Configuration {
         InputMergerFactory mInputMergerFactory;
         Executor mTaskExecutor;
         RunnableScheduler mRunnableScheduler;
-        @Nullable InitializationExceptionHandler mExceptionHandler;
-        @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
+        @Nullable Consumer<Throwable> mExceptionHandler;
+        @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
         @Nullable String mDefaultProcessName;
 
         int mLoggingLevel;
@@ -486,28 +487,55 @@ public final class Configuration {
 
         /**
          * Specifies the {@link InitializationExceptionHandler} that can be used to intercept
-         * exceptions caused when trying to initialize  {@link WorkManager}.
+         * exceptions caused when trying to initialize {@link WorkManager}.
          *
          * @param exceptionHandler The {@link InitializationExceptionHandler} instance.
+         * @return This {@link Builder} instance
+         *
+         * @hide kept around for migration period
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder setInitializationExceptionHandler(
+                @NonNull InitializationExceptionHandler exceptionHandler) {
+            mExceptionHandler = exceptionHandler::handleException;
+            return this;
+        }
+
+        /**
+         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
+         * exceptions caused when trying to initialize {@link WorkManager}, that usually happens
+         * when WorkManager cannot access its internal datastore.
+         * <p>
+         * This exception handler will be invoked on a thread bound to
+         * {@link Configuration#getTaskExecutor()}.
+         *
+         * @param exceptionHandler an instance to handle exceptions
          * @return This {@link Builder} instance
          */
         @NonNull
         public Builder setInitializationExceptionHandler(
-                @NonNull InitializationExceptionHandler exceptionHandler) {
+                @NonNull Consumer<Throwable> exceptionHandler) {
             mExceptionHandler = exceptionHandler;
             return this;
         }
 
         /**
-         * Specifies the {@link SchedulingExceptionHandler} that can be used to intercept
+         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
          * exceptions caused when trying to schedule {@link WorkRequest}s.
          *
-         * @param schedulingExceptionHandler The {@link SchedulingExceptionHandler} instance
+         * It allows the application to handle a {@link Throwable} throwable typically
+         * caused when trying to schedule {@link WorkRequest}s.
+         * <p>
+         * This exception handler will be invoked on a thread bound to
+         * {@link Configuration#getTaskExecutor()}.
+         *
+         * @param schedulingExceptionHandler an instance to handle exceptions
          * @return This {@link Builder} instance
          */
         @NonNull
         public Builder setSchedulingExceptionHandler(
-                @NonNull SchedulingExceptionHandler schedulingExceptionHandler) {
+                @NonNull Consumer<Throwable> schedulingExceptionHandler) {
             mSchedulingExceptionHandler = schedulingExceptionHandler;
             return this;
         }
