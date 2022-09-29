@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
 import android.graphics.Rect
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -34,6 +34,8 @@ import org.junit.Rule
 import org.junit.Test
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.layout.HardwareFoldingFeature
+import androidx.window.layout.WindowLayoutInfo
 
 class ExtensionsWindowLayoutInfoAdapterTest {
 

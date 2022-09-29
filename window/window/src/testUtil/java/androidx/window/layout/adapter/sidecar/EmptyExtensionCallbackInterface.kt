@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 
 /**
  * An empty implementation of [ExtensionCallbackInterface] with no-op methods.

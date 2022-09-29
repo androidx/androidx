@@ -16,7 +16,7 @@
 // Sidecar is deprecated but we still need to support it.
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -32,8 +32,9 @@ import androidx.core.content.OnConfigurationChangedProvider
 import androidx.core.util.Consumer
 import androidx.window.core.Version
 import androidx.window.core.Version.Companion.parse
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.adapter.sidecar.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
@@ -47,7 +48,7 @@ import kotlin.concurrent.withLock
 
 /** Extension interface compatibility wrapper for v0.1 sidecar.  */
 internal class SidecarCompat @VisibleForTesting constructor(
-    @VisibleForTesting
+    @get:VisibleForTesting
     val sidecar: SidecarInterface?,
     private val sidecarAdapter: SidecarAdapter
 ) : ExtensionInterfaceCompat {

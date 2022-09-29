@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.util
 
 import android.graphics.Point
 import android.os.Build
