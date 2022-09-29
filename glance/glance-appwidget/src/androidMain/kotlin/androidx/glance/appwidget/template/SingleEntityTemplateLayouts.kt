@@ -59,6 +59,7 @@ fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
     Column(modifier = createTopLevelModifier(data, true)) {
         HeaderBlockTemplate(data.headerBlock)
+        // TODO(b/247613894): Does this need a minimum spacing?
         Spacer(modifier = GlanceModifier.defaultWeight())
         data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
     }
@@ -70,17 +71,27 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
     Column(modifier = createTopLevelModifier(data)) {
         data.headerBlock?.let {
             HeaderBlockTemplate(data.headerBlock)
-            Spacer(modifier = GlanceModifier.height(16.dp))
+            // If other blocks exist, add space
+            // TODO(b/247613894): These checks are a bit fragile, we'll have to add checks if any
+            //  blocks are added to the template in the future. Is there a better way to do this?
+            if (data.imageBlock != null || data.textBlock != null || data.actionBlock != null) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
         }
 
         data.imageBlock?.let {
             SingleImageBlockTemplate(it, GlanceModifier.fillMaxWidth().defaultWeight())
-            Spacer(modifier = GlanceModifier.height(16.dp))
+            if (data.textBlock != null || data.actionBlock != null) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+            }
         }
         Row(modifier = GlanceModifier.fillMaxWidth()) {
             data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
-            Spacer(modifier = GlanceModifier.defaultWeight())
-            data.actionBlock?.let { ActionBlockTemplate(it) }
+            data.actionBlock?.let {
+                Spacer(modifier = GlanceModifier.width(16.dp))
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                ActionBlockTemplate(it)
+            }
         }
     }
 }

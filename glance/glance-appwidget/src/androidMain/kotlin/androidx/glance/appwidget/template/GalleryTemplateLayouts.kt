@@ -158,14 +158,12 @@ private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).
 
 @Composable
 private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {
-    // TODO(b/247613894): Weird that we add space after header block but not after text block. For
-    //  consistency should we handle all the spacing here rather than in the sub-template functions?
     Column(modifier = modifier) {
         HeaderBlockTemplate(data.header)
-        // TODO(b/247613894): Should this space always be added? The blocks below may be empty,
-        //  which would lead to extra spacing at the bottom
+        // TODO(b/247613894): Spacing should be conditional
         Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
         TextBlockTemplate(data.mainTextBlock)
+        Spacer(modifier = GlanceModifier.height(16.dp))
         ActionBlockTemplate(data.mainActionBlock)
     }
 }
