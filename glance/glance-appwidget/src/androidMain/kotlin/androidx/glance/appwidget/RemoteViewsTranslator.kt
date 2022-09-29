@@ -118,8 +118,6 @@ internal data class TranslationContext(
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
     val actionTargetId: Int? = null,
-    val isAdapterView: Boolean = false,
-    val isCompoundButton: Boolean = false,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -140,10 +138,6 @@ internal data class TranslationContext(
     fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
 
     fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
-
-    fun forAdapterView() = copy(isAdapterView = true)
-
-    fun forCompoundButton() = copy(isCompoundButton = true)
 }
 
 internal fun RemoteViews.translateChild(
@@ -363,7 +357,6 @@ private fun RemoteViews.translateEmittableButton(
             GlanceModifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .doNotUnsetAction()
     }
     translateEmittableText(translationContext, content)
 }

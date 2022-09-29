@@ -186,15 +186,11 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle
     ): RemoteViews {
-        val layoutConfig = if (Build.VERSION.SDK_INT >= 33) {
-            null
-        } else {
-            LayoutConfiguration.load(context, appWidgetId)
-        }
+        val layoutConfig = LayoutConfiguration.load(context, appWidgetId)
         return try {
             compose(context, appWidgetManager, appWidgetId, state, options, layoutConfig)
         } finally {
-            layoutConfig?.save()
+            layoutConfig.save()
         }
     }
 
@@ -205,7 +201,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        layoutConfig: LayoutConfiguration?,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews =
         when (val localSizeMode = this.sizeMode) {
             is SizeMode.Single -> {
@@ -280,7 +276,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        layoutConfig: LayoutConfiguration?,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         val views =
             options.extractOrientationSizes()
@@ -322,7 +318,7 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         sizes: Set<DpSize>,
-        layoutConfig: LayoutConfiguration?,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         // Find the best view, emulating what Android S+ would do.
         val orderedSizes = sizes.sortedBySize()
@@ -361,7 +357,7 @@ abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         size: DpSize,
-        layoutConfig: LayoutConfiguration?,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews = withContext(BroadcastFrameClock()) {
         // The maximum depth must be reduced if the compositions are combined
         val root = RemoteViewsRoot(maxDepth = MaxComposeTreeDepth)
@@ -382,7 +378,7 @@ abstract class GlanceAppWidget(
             appWidgetId,
             root,
             layoutConfig,
-            layoutConfig?.addLayout(root) ?: 0,
+            layoutConfig.addLayout(root),
             size
         )
     }
@@ -423,7 +419,7 @@ abstract class GlanceAppWidget(
             state: Any?,
             options: Bundle,
             allSizes: Collection<DpSize>,
-            layoutConfig: LayoutConfiguration?
+            layoutConfig: LayoutConfiguration
         ): RemoteViews = coroutineScope {
             val allViews =
                 allSizes.map { size ->

@@ -84,7 +84,7 @@ internal fun RemoteViews.translateEmittableCheckBox(
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     applyModifiers(
-        translationContext.forCompoundButton().forActionTargetId(actionTargetId),
+        translationContext.forActionTargetId(actionTargetId),
         this,
         element.modifier,
         viewDef
