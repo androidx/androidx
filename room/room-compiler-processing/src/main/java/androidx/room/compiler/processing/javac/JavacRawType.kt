@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.safeTypeName
 
@@ -35,7 +36,7 @@ internal class JavacRawType(
         XTypeName(
             erased.safeTypeName(),
             XTypeName.UNAVAILABLE_KTYPE_NAME,
-            original.nullability
+            original.maybeNullability ?: XNullability.UNKNOWN
         )
     }
 
