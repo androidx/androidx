@@ -132,4 +132,59 @@ No warnings.
 
         check(input).expectClean()
     }
+
+    @Test
+    fun `Checked reflection using @DeprecatedSinceApi method`() {
+        val input = arrayOf(kotlin("""
+            package androidx.foo
+
+            import android.os.Build
+            import androidx.annotation.DeprecatedSinceApi
+
+            @DeprecatedSinceApi(29)
+            fun forceEnablePlatformTracing() {
+                val method = android.os.Trace::class.java.getMethod(
+                    "setAppTracingAllowed",
+                    Boolean::class.javaPrimitiveType
+                )
+                method.invoke(null, true)
+            }
+        """.trimIndent()),
+            Stubs.DeprecatedSinceApi
+        )
+
+        check(*input).expectClean()
+    }
+
+    @Test
+    fun `Checked reflection using @DeprecatedSinceApi class`() {
+        val input = arrayOf(java("""
+            package androidx.foo;
+
+            import android.os.Build;
+            import androidx.annotation.DeprecatedSinceApi;
+
+            public class OuterClass {
+                public static void doCheckedReflection() {
+                    if (Build.VERSION.SDK_INT < 29) {
+                        PreApi29Impl.forceEnablePlatformTracing();
+                    }
+                }
+
+                @DeprecatedSinceApi(29)
+                static class PreApi29Impl {
+                    public static void forceEnablePlatformTracing() {
+                        android.os.Trace.class.getMethod(
+                            "setAppTracingAllowed",
+                            Boolean.class
+                        ).invoke(null, true);
+                    }
+                }
+            }
+        """.trimIndent()),
+            Stubs.DeprecatedSinceApi
+        )
+
+        check(*input).expectClean()
+    }
 }

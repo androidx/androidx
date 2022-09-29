@@ -28,8 +28,12 @@ import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.VersionChecks
+import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.getContainingUClass
+import org.jetbrains.uast.getContainingUMethod
 
 class BanUncheckedReflection : Detector(), SourceCodeScanner {
 
@@ -59,7 +63,9 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
             ) &&
             !VersionChecks.isWithinVersionCheckConditional(context, node, 1, true) &&
             !VersionChecks.isPrecededByVersionCheckExit(context, node, HIGHEST_KNOWN_API) &&
-            !VersionChecks.isPrecededByVersionCheckExit(context, node, 1)
+            !VersionChecks.isPrecededByVersionCheckExit(context, node, 1) &&
+            !isWithinDeprecatedSinceApiMethod(node) &&
+            !isWithinDeprecatedSinceApiClass(node)
         ) {
             val incident = Incident(context)
                 .issue(ISSUE)
@@ -68,6 +74,34 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
                 .scope(node)
             context.report(incident)
         }
+    }
+
+    /**
+     * Checks if the expression is within a method annotated with @DeprecatedSinceApi.
+     */
+    private fun isWithinDeprecatedSinceApiMethod(node: UExpression): Boolean {
+        val containingMethod = node.getContainingUMethod() ?: return false
+        return annotationsContainDeprecatedSinceApi(containingMethod.annotations)
+    }
+
+    /**
+     * Checks if the expression is within a class annotated with @DeprecatedSinceApi.
+     */
+    private fun isWithinDeprecatedSinceApiClass(node: UExpression): Boolean {
+        val containingClass = node.getContainingUClass() ?: return false
+        return annotationsContainDeprecatedSinceApi(containingClass.annotations)
+    }
+
+    /**
+     * Checks if any of the annotations are @DeprecatedSinceApi.
+     */
+    private fun annotationsContainDeprecatedSinceApi(annotations: Array<PsiAnnotation>): Boolean {
+        for (annotation in annotations) {
+            if (annotation.hasQualifiedName(DEPRECATED_SINCE_API_ANNOTATION)) {
+                return true
+            }
+        }
+        return false
     }
 
     companion object {
@@ -84,5 +118,6 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
 
         const val METHOD_REFLECTION_CLASS = "java.lang.reflect.Method"
         const val METHOD_INVOKE_NAME = "invoke"
+        const val DEPRECATED_SINCE_API_ANNOTATION = "androidx.annotation.DeprecatedSinceApi"
     }
 }
