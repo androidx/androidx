@@ -60,7 +60,7 @@ class SurfaceControlCompat internal constructor(
                 BUFFER_TRANSFORM_MIRROR_VERTICAL, BUFFER_TRANSFORM_ROTATE_180,
                 BUFFER_TRANSFORM_ROTATE_90, BUFFER_TRANSFORM_ROTATE_270]
         )
-        private annotation class BufferTransform
+        internal annotation class BufferTransform
 
         /**
          * The identity transformation. Maps a coordinate (x, y) onto itself.
