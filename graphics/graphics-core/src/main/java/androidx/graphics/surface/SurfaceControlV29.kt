@@ -36,6 +36,8 @@ internal class SurfaceControlV29 internal constructor(
     internal val surfaceControl: SurfaceControlWrapper
 ) : SurfaceControlImpl {
 
+    private var currActiveBufferReleaseCallback: (() -> Unit)? = null
+
     /**
      * See [SurfaceControlWrapper.isValid]
      */
@@ -81,25 +83,37 @@ internal class SurfaceControlV29 internal constructor(
      */
     class Transaction : SurfaceControlImpl.Transaction {
         private val transaction = SurfaceControlWrapper.Transaction()
-        private val bufferCallbacks = ArrayList<(() -> Unit)>()
+        private val uncommittedBufferCallbackMap = HashMap<SurfaceControlImpl, (() -> Unit)?>()
 
         /**
          * See [SurfaceControlWrapper.Transaction.commit]
          */
         override fun commit() {
-            if (bufferCallbacks.size > 0) {
+            // store prev committed callbacks so we only need 1 onComplete callback
+            val callbackInvokeList = mutableListOf<(() -> Unit)>()
+
+            for (surfaceControl in uncommittedBufferCallbackMap.keys) {
+                (surfaceControl as? SurfaceControlV29)?.apply {
+                    // add active buffers callback to list if we have a new buffer about to overwrite
+                    currActiveBufferReleaseCallback?.let { callbackInvokeList.add(it) }
+
+                    // add as new active buffer callback
+                    currActiveBufferReleaseCallback = uncommittedBufferCallbackMap[surfaceControl]
+                }
+            }
+
+            if (callbackInvokeList.size > 0) {
                 val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
                     override fun onTransactionCompleted() {
-                        for (callback in bufferCallbacks) {
-                            callback.invoke()
-                        }
-
-                        bufferCallbacks.clear()
+                        callbackInvokeList.forEach { it.invoke() }
+                        callbackInvokeList.clear()
                     }
                 }
 
                 this.addTransactionCompletedListener(callbackListener)
             }
+
+            uncommittedBufferCallbackMap.clear()
             transaction.commit()
         }
 
@@ -137,9 +151,8 @@ internal class SurfaceControlV29 internal constructor(
             fence: SyncFenceImpl?,
             releaseCallback: (() -> Unit)?
         ): SurfaceControlImpl.Transaction {
-            if (releaseCallback != null) {
-                bufferCallbacks.add { releaseCallback() }
-            }
+            // we have a previous mapping in the same transaction, invoke callback
+            uncommittedBufferCallbackMap.put(surfaceControl, releaseCallback)?.invoke()
 
             // Ensure if we have a null value, we default to the default value for SyncFence
             // argument to prevent null pointer dereference
@@ -306,8 +319,10 @@ internal class SurfaceControlV29 internal constructor(
             if (this is SyncFenceV19) {
                 mSyncFence
             } else {
-                throw IllegalArgumentException("Expected SyncFenceCompat implementation " +
-                    "for API level 19")
+                throw IllegalArgumentException(
+                    "Expected SyncFenceCompat implementation " +
+                        "for API level 19"
+                )
             }
     }
 }
