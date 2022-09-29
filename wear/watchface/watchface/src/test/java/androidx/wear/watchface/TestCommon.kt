@@ -253,6 +253,7 @@ public open class TestRenderer(
 ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
     public var lastRenderWasForScreenshot: Boolean? = null
+    public val renderParametersScreenshotFlags = mutableListOf<Boolean>()
 
     override fun render(
         canvas: Canvas,
@@ -264,6 +265,11 @@ public open class TestRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+    }
+
+    public override fun onRenderParametersChanged(renderParameters: RenderParameters) {
+        renderParametersScreenshotFlags.add(renderParameters.isForScreenshot)
+        super.onRenderParametersChanged(renderParameters)
     }
 }
 
