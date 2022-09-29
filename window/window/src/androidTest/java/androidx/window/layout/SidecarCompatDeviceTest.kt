@@ -25,7 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
-import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
+import androidx.window.core.VerificationMode.QUIET
 import androidx.window.core.Version
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.HardwareFoldingFeature.Type

@@ -8,7 +8,7 @@ import android.view.Display
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
-import androidx.window.embedding.EmbeddingCompat
+import androidx.window.core.ExtensionsUtil
 import org.junit.Assume.assumeTrue
 
 open class WindowTestUtils {
@@ -28,13 +28,13 @@ open class WindowTestUtils {
 
         @OptIn(androidx.window.core.ExperimentalWindowApi::class)
         fun assumeAtLeastVendorApiLevel(min: Int) {
-            val apiLevel = EmbeddingCompat.getExtensionApiLevel() ?: 0
+            val apiLevel = ExtensionsUtil.safeVendorApiLevel
             assumeTrue(apiLevel >= min)
         }
 
         @OptIn(androidx.window.core.ExperimentalWindowApi::class)
         fun assumeBeforeVendorApiLevel(max: Int) {
-            val apiLevel = EmbeddingCompat.getExtensionApiLevel() ?: 0
+            val apiLevel = ExtensionsUtil.safeVendorApiLevel
             assumeTrue(apiLevel < max)
             assumeTrue(apiLevel > 0)
         }

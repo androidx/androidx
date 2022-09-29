@@ -23,6 +23,7 @@ import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
 
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.extensions.WindowExtensions
@@ -83,7 +84,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithApiLevel1() {
-        if (EmbeddingCompat.getExtensionApiLevel() != WindowExtensions.VENDOR_API_LEVEL_1) {
+        if (ExtensionsUtil.safeVendorApiLevel != WindowExtensions.VENDOR_API_LEVEL_1) {
             return
         }
 
@@ -109,7 +110,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithApiLevel2() {
-        if (EmbeddingCompat.getExtensionApiLevel() != WindowExtensions.VENDOR_API_LEVEL_2) {
+        if (ExtensionsUtil.safeVendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
             return
         }
 
