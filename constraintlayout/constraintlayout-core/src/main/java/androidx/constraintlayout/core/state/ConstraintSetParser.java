@@ -1727,7 +1727,8 @@ public class ConstraintSetParser {
             switch (constraintName) {
                 case "pathArc":
                     String val = obj.getString(constraintName);
-                    int ord = indexOf(val, "none", "startVertical", "startHorizontal", "flip");
+                    int ord = indexOf(val, "none", "startVertical", "startHorizontal", "flip",
+                            "below", "above");
                     if (ord == -1) {
                         System.err.println(obj.getLine() + " pathArc = '" + val + "'");
                         break;

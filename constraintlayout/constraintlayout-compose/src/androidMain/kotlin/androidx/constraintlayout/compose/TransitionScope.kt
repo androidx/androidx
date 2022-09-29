@@ -401,6 +401,8 @@ class Arc internal constructor(val name: String) {
         val StartVertical = Arc("startVertical")
         val StartHorizontal = Arc("startHorizontal")
         val Flip = Arc("flip")
+        val Below = Arc("below")
+        val Above = Arc("above")
     }
 }
 

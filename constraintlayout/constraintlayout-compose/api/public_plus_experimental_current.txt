@@ -8,10 +8,14 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class Arc.Companion {
+    method public androidx.constraintlayout.compose.Arc getAbove();
+    method public androidx.constraintlayout.compose.Arc getBelow();
     method public androidx.constraintlayout.compose.Arc getFlip();
     method public androidx.constraintlayout.compose.Arc getNone();
     method public androidx.constraintlayout.compose.Arc getStartHorizontal();
     method public androidx.constraintlayout.compose.Arc getStartVertical();
+    property public final androidx.constraintlayout.compose.Arc Above;
+    property public final androidx.constraintlayout.compose.Arc Below;
     property public final androidx.constraintlayout.compose.Arc Flip;
     property public final androidx.constraintlayout.compose.Arc None;
     property public final androidx.constraintlayout.compose.Arc StartHorizontal;
