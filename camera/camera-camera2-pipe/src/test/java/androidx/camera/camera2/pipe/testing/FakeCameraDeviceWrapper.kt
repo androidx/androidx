@@ -104,6 +104,10 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         createFakeCaptureSession(stateCallback)
     }
 
+    override fun onDeviceClosed() {
+        currentStateCallback?.onSessionFinalized()
+    }
+
     fun createFakeCaptureSession(
         stateCallback: CameraCaptureSessionWrapper.StateCallback? = null
     ): FakeCaptureSessionWrapper {
