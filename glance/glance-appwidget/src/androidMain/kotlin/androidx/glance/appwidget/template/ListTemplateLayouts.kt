@@ -32,6 +32,7 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
 import androidx.glance.template.LocalTemplateColors
@@ -95,6 +96,7 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
                         item.imageBlock,
                         GlanceModifier.defaultWeight()
                     )
+                    Spacer(modifier = GlanceModifier.width(16.dp))
                     ActionBlockTemplate(item.actionBlock)
                 }
             }
