@@ -5096,10 +5096,19 @@ public class WatchFaceServiceTest {
             )
         )
 
+        val screenshotParams = RenderParameters(
+            DrawMode.AMBIENT,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            null
+        )
+
         renderer.takeScreenshot(
             ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")),
-            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+            screenshotParams
         )
+
+        assertEquals(listOf(true, false), renderer.renderParametersScreenshotFlags)
+
         assertThat(renderer.lastRenderWasForScreenshot).isTrue()
 
         renderer.renderInternal(ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")))
