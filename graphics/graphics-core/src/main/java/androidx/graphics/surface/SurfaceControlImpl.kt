@@ -295,7 +295,7 @@ internal interface SurfaceControlImpl {
          */
         fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
         ): Transaction
 
         /**
