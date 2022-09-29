@@ -3253,7 +3253,7 @@ package androidx.core.view.accessibility {
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
     method public boolean performAction(int);
     method public boolean performAction(int, android.os.Bundle!);
-    method public void recycle();
+    method @Deprecated public void recycle();
     method public boolean refresh();
     method public boolean removeAction(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat!);
     method public boolean removeChild(android.view.View!);
@@ -3594,7 +3594,7 @@ package androidx.core.view.accessibility {
     method public boolean isInPictureInPictureMode();
     method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain();
     method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat?);
-    method public void recycle();
+    method @Deprecated public void recycle();
     method public android.view.accessibility.AccessibilityWindowInfo? unwrap();
     field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
     field public static final int TYPE_APPLICATION = 1; // 0x1
