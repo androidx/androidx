@@ -617,11 +617,14 @@ public sealed class Renderer @WorkerThread constructor(
                 Bitmap.Config.ARGB_8888
             )
             val prevRenderParameters = this.renderParameters
+            val originalIsForScreenshot = renderParameters.isForScreenshot
+
+            renderParameters.isForScreenshot = true
             this.renderParameters = renderParameters
-            this.renderParameters.isForScreenshot = true
             renderAndComposite(Canvas(bitmap), zonedDateTime)
-            this.renderParameters.isForScreenshot = false
             this.renderParameters = prevRenderParameters
+            renderParameters.isForScreenshot = originalIsForScreenshot
+
             return bitmap
         }
 
