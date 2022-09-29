@@ -29,9 +29,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.TestWindow
 import androidx.window.WindowTestBase
+import androidx.window.core.Bounds
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.TestFoldingFeatureUtil.invalidFoldBounds
 import androidx.window.layout.TestFoldingFeatureUtil.validFoldBound
 import androidx.window.sidecar.SidecarDeviceState
@@ -48,6 +50,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -356,6 +359,52 @@ public class SidecarCompatTest : WindowTestBase(), CompatTestInterface {
         verify(listener).onWindowLayoutChanged(
             activity, expectedLayoutInfo
         )
+    }
+
+    @Test
+    override fun testOnWindowLayoutInfoChanged_emitWhenResubscribe() {
+        val layoutInfo = SidecarWindowLayoutInfo()
+        val expectedLayoutInfo = WindowLayoutInfo(listOf())
+        val listener = mock<ExtensionCallbackInterface>()
+        sidecarCompat.setExtensionCallback(listener)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
+            .thenReturn(layoutInfo)
+        sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
+        sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
+        sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
+        verify(listener, times(2)).onWindowLayoutChanged(
+            activity, expectedLayoutInfo
+        )
+    }
+
+    @Test
+    override fun testOnWindowLayoutInfoChanged_emitNewValueWhenResubscribe() {
+        val layoutInfo = SidecarWindowLayoutInfo()
+        val expectedLayoutInfo = WindowLayoutInfo(listOf())
+        val expectedLayoutInfo2 = WindowLayoutInfo(listOf(HardwareFoldingFeature(
+            Bounds(validFoldBound(WINDOW_BOUNDS)),
+            FOLD,
+            HALF_OPENED
+        )))
+        val listener = mock<ExtensionCallbackInterface>()
+        sidecarCompat.setExtensionCallback(listener)
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
+            .thenReturn(layoutInfo)
+        sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
+        verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo)
+        // remove listener
+        sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
+        // change the value for new subscriber
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
+            .thenReturn(newWindowLayoutInfo(listOf(
+                newDisplayFeature(
+                    validFoldBound(WINDOW_BOUNDS),
+                    SidecarDisplayFeature.TYPE_FOLD
+                )
+            )))
+        // resubscribe
+        sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
+        verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo2)
     }
 
     @Test

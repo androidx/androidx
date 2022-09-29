@@ -75,6 +75,11 @@ class CameraPipeConfigTestRule(
                         log("finished: ${description.displayName}")
                     }
                 } else {
+                    if (Log.isLoggable(CAMERA2_TEST_DISABLE, Log.DEBUG)) {
+                        throw AssumptionViolatedException(
+                            "Ignore Camera2 tests since CAMERA2_TEST_DISABLE flag is turned on."
+                        )
+                    }
                     base.evaluate()
                 }
             }
@@ -101,6 +106,7 @@ class CameraPipeConfigTestRule(
         }
 
     companion object {
+        private const val CAMERA2_TEST_DISABLE = "CAMERA2_TEST_DISABLE"
         private const val CAMERA_PIPE_TEST_FLAG = "CAMERA_PIPE_TESTING"
         private const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
         private const val LOG_TAG = "CameraPipeTest"

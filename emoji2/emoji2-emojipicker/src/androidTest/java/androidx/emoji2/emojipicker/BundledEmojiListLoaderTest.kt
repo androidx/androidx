@@ -18,6 +18,7 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -35,6 +36,7 @@ class BundledEmojiListLoaderTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     fun testGetEmojiVariantsLookup_loaded() {
         BundledEmojiListLoader.load(context, emojiCompatMetadata)
         // 👃 has variants (👃,👃,👃🏻,👃🏼,👃🏽,👃🏾,👃🏿)

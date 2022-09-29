@@ -57,7 +57,7 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     TypeName.BYTE,
                     "st.bindLong(6, inp);",
-                    "out = (byte) crs.getShort(9);"
+                    "out = (byte) (crs.getShort(9));"
                 ),
                 arrayOf(
                     TypeName.SHORT,
@@ -72,7 +72,7 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     TypeName.CHAR,
                     "st.bindLong(6, inp);",
-                    "out = (char) crs.getInt(9);"
+                    "out = (char) (crs.getInt(9));"
                 ),
                 arrayOf(
                     TypeName.FLOAT,

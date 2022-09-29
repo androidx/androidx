@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.Card
@@ -47,31 +48,35 @@ import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.scrollAway
 
 @Composable
-fun ScrollAwayColumnDemo() { ColumnCardDemo(0) }
+fun ScrollAwayColumnDemo() { ColumnCardDemo(0.dp) }
 
 @Composable
-fun ScrollAwayColumnDelayDemo() { ColumnCardDemo(offset = 36) }
+fun ScrollAwayColumnDelayDemo() { ColumnCardDemo(offset = 20.dp) }
 
 @Composable
 fun ScrollAwayLazyColumnDemo() {
-    LazyColumnCardDemo(offset = 0, itemIndex = 0, initialVisibleItemIndex = 0)
+    LazyColumnCardDemo(offset = 0.dp, itemIndex = 0, initialVisibleItemIndex = 0)
 }
 
 @Composable
 fun ScrollAwayLazyColumnDemo2() {
-    LazyColumnCardDemo(offset = -350, itemIndex = 2, initialVisibleItemIndex = 2)
+    LazyColumnCardDemo(
+        offset = -195.dp,
+        itemIndex = 2,
+        initialVisibleItemIndex = 2
+    )
 }
 
 @Composable
 fun ScrollAwayLazyColumnDelayDemo() {
-    LazyColumnCardDemo(offset = 36, itemIndex = 0, initialVisibleItemIndex = 0)
+    LazyColumnCardDemo(offset = 20.dp, itemIndex = 0, initialVisibleItemIndex = 0)
 }
 
 @Composable
 fun ScrollAwayScalingLazyColumnCardDemo() {
     ScalingLazyColumnCardDemo(
         itemIndex = 1,
-        offset = 0,
+        offset = 0.dp,
         initialCenterItemIndex = 1,
     )
 }
@@ -80,7 +85,7 @@ fun ScrollAwayScalingLazyColumnCardDemo() {
 fun ScrollAwayScalingLazyColumnCardDemo2() {
     ScalingLazyColumnCardDemo(
         itemIndex = 2,
-        offset = -180,
+        offset = -95.dp,
         initialCenterItemIndex = 2,
     )
 }
@@ -89,7 +94,7 @@ fun ScrollAwayScalingLazyColumnCardDemo2() {
 fun ScrollAwayScalingLazyColumnCardDemoMismatch() {
     ScalingLazyColumnCardDemo(
         itemIndex = 0,
-        offset = 120,
+        offset = 75.dp,
         initialCenterItemIndex = 1,
     )
 }
@@ -98,7 +103,7 @@ fun ScrollAwayScalingLazyColumnCardDemoMismatch() {
 fun ScrollAwayScalingLazyColumnChipDemo() {
     ScalingLazyColumnChipDemo(
         itemIndex = 1,
-        offset = 20,
+        offset = 10.dp,
         initialCenterItemIndex = 1,
     )
 }
@@ -107,13 +112,13 @@ fun ScrollAwayScalingLazyColumnChipDemo() {
 fun ScrollAwayScalingLazyColumnChipDemo2() {
     ScalingLazyColumnChipDemo(
         itemIndex = 2,
-        offset = -100,
+        offset = -50.dp,
         initialCenterItemIndex = 2,
     )
 }
 
 @Composable
-private fun ColumnCardDemo(offset: Int) {
+private fun ColumnCardDemo(offset: Dp) {
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -143,7 +148,7 @@ private fun ColumnCardDemo(offset: Int) {
 }
 
 @Composable
-private fun LazyColumnCardDemo(offset: Int, itemIndex: Int, initialVisibleItemIndex: Int) {
+private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemIndex: Int) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = initialVisibleItemIndex)
 
     Scaffold(
@@ -172,7 +177,7 @@ private fun LazyColumnCardDemo(offset: Int, itemIndex: Int, initialVisibleItemIn
 
 @Composable
 private fun ScalingLazyColumnCardDemo(
-    offset: Int,
+    offset: Dp,
     itemIndex: Int,
     initialCenterItemIndex: Int,
 ) {
@@ -214,7 +219,7 @@ private fun ScalingLazyColumnCardDemo(
 
 @Composable
 private fun ScalingLazyColumnChipDemo(
-    offset: Int,
+    offset: Dp,
     itemIndex: Int,
     initialCenterItemIndex: Int,
 ) {

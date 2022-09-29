@@ -39,35 +39,68 @@ internal class KotlinCodeBlock(
         }
 
         override fun add(format: String, vararg args: Any?) = apply {
-            // No need to process 'format' since we use '%' as placeholders.
+            val processedFormat = processFormatString(format)
             val processedArgs = processArgs(args)
-            actual.add(format, *processedArgs)
+            actual.add(processedFormat, *processedArgs)
         }
 
         override fun addStatement(format: String, vararg args: Any?) = apply {
-            // No need to process 'format' since we use '%' as placeholders.
+            val processedFormat = processFormatString(format)
             val processedArgs = processArgs(args)
-            actual.addStatement(format, *processedArgs)
+            actual.addStatement(processedFormat, *processedArgs)
         }
 
         override fun addLocalVariable(
             name: String,
-            type: XTypeName,
+            typeName: XTypeName,
             isMutable: Boolean,
-            assignExpr: XCodeBlock
+            assignExpr: XCodeBlock?
         ) = apply {
-            require(assignExpr is KotlinCodeBlock)
             val varOrVal = if (isMutable) "var" else "val"
-            actual.addStatement(
-                "$varOrVal %L: %T = %L",
-                type.kotlin,
-                name,
-                assignExpr.actual
-            )
+            if (assignExpr != null) {
+                require(assignExpr is KotlinCodeBlock)
+                actual.addStatement(
+                    "$varOrVal %L: %T = %L",
+                    name,
+                    typeName.kotlin,
+                    assignExpr.actual
+                )
+            } else {
+                actual.addStatement(
+                    "$varOrVal %L: %T",
+                    name,
+                    typeName.kotlin,
+                )
+            }
+        }
+
+        override fun beginControlFlow(controlFlow: String, vararg args: Any?) = apply {
+            val processedControlFlow = processFormatString(controlFlow)
+            val processedArgs = processArgs(args)
+            actual.beginControlFlow(processedControlFlow, *processedArgs)
+        }
+
+        override fun nextControlFlow(controlFlow: String, vararg args: Any?) = apply {
+            val processedControlFlow = processFormatString(controlFlow)
+            val processedArgs = processArgs(args)
+            actual.nextControlFlow(processedControlFlow, *processedArgs)
+        }
+
+        override fun endControlFlow() = apply {
+            actual.endControlFlow()
         }
 
         override fun build(): XCodeBlock {
             return KotlinCodeBlock(actual.build())
+        }
+
+        // No need to really process 'format' since we use '%' as placeholders, but check for
+        // JavaPoet placeholders to hunt down bad migrations to XPoet.
+        private fun processFormatString(format: String): String {
+            JAVA_POET_PLACEHOLDER_REGEX.find(format)?.let {
+                error("Bad JavaPoet placeholder in XPoet at range ${it.range} of input: '$format'")
+            }
+            return format
         }
 
         // Unwraps room.compiler.codegen types to their KotlinPoet actual
@@ -87,5 +120,10 @@ internal class KotlinCodeBlock(
                 }
             }
         }
+    }
+
+    companion object {
+        private val JAVA_POET_PLACEHOLDER_REGEX =
+            "(\\\$L)|(\\\$T)|(\\\$N)|(\\\$S)|(\\\$W)".toRegex()
     }
 }

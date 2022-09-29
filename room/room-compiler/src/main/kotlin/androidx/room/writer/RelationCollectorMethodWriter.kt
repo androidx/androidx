@@ -16,7 +16,8 @@
 
 package androidx.room.writer
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
@@ -52,7 +53,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
         val relation = collector.relation
         return "RelationCollectorMethodWriter" +
             "-${collector.mapTypeName}" +
-            "-${relation.entity.typeName}" +
+            "-${relation.entity.typeName.toJavaPoet()}" +
             "-${relation.entityField.columnName}" +
             "-${relation.pojoTypeName}" +
             "-${relation.createLoadAllSql()}"
@@ -191,7 +192,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
             }
             addStatement(
                 "final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
+                CURSOR.toJavaPoet(),
                 cursorVar,
                 RoomTypeNames.DB_UTIL,
                 DaoWriter.dbField,

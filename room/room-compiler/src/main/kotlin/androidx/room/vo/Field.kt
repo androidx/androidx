@@ -16,6 +16,8 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -50,9 +52,10 @@ data class Field(
     lateinit var setter: FieldSetter
     // binds the field into a statement
     var statementBinder: StatementValueBinder? = null
+
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
-    val typeName: TypeName by lazy { type.typeName }
+    val typeName: XTypeName by lazy { type.asTypeName() }
 
     override fun getIdKey(): String {
         return buildString {
@@ -99,7 +102,10 @@ data class Field(
                 result.add(name.substring(1).decapitalize(Locale.US))
             }
 
-            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+            if (
+                typeName.toJavaPoet() == TypeName.BOOLEAN ||
+                typeName.toJavaPoet() == TypeName.BOOLEAN.box()
+            ) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
                     result.add(name.substring(2).decapitalize(Locale.US))
                 }
@@ -113,7 +119,10 @@ data class Field(
 
     val getterNameWithVariations by lazy {
         nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
-            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+            if (
+                typeName.toJavaPoet() == TypeName.BOOLEAN ||
+                typeName.toJavaPoet() == TypeName.BOOLEAN.box()
+            ) {
                 nameWithVariations.flatMap {
                     listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
                 }

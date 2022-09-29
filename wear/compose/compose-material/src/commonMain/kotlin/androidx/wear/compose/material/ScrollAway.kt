@@ -18,24 +18,17 @@ package androidx.wear.compose.material
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -51,19 +44,8 @@ import androidx.compose.ui.util.lerp
  */
 public fun Modifier.scrollAway(
     scrollState: ScrollState,
-    offset: Int = 0,
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "scrollAway"
-        properties["scrollState"] = scrollState
-        properties["offset"] = offset
-    }
-) {
-    val y = with(LocalDensity.current) {
-        (scrollState.value - offset).toDp()
-    }
-    scrollAway(y)
-}
+    offset: Dp = 0.dp,
+): Modifier = scrollAway { scrollState.value - offset.toPx() }
 
 /**
  * Scroll an item vertically in/out of view based on a [LazyListState].
@@ -78,25 +60,11 @@ public fun Modifier.scrollAway(
 public fun Modifier.scrollAway(
     scrollState: LazyListState,
     itemIndex: Int = 0,
-    offset: Int = 0,
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "scrollAway"
-        properties["scrollState"] = scrollState
-        properties["itemIndex"] = itemIndex
-        properties["offset"] = offset
-    }
-) {
-    val targetItem by remember {
-        derivedStateOf {
-            scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
-        }
-    }
-    if (targetItem != null) {
-        val y = with(LocalDensity.current) {
-            (-targetItem!!.offset - offset).toDp()
-        }
-        scrollAway(y)
+    offset: Dp = 0.dp,
+): Modifier {
+    val targetItem = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+    return if (targetItem != null) {
+        scrollAway { -targetItem.offset - offset.toPx() }
     } else {
         ignore()
     }
@@ -115,45 +83,39 @@ public fun Modifier.scrollAway(
 public fun Modifier.scrollAway(
     scrollState: ScalingLazyListState,
     itemIndex: Int = 1,
-    offset: Int = 0,
-): Modifier =
-    composed(
-        inspectorInfo = debugInspectorInfo {
-            name = "scrollAway"
-            properties["scrollState"] = scrollState
-            properties["itemIndex"] = itemIndex
-            properties["offset"] = offset
-        }
-    ) {
-        val targetItem by remember {
-            derivedStateOf {
-                scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+    offset: Dp = 0.dp,
+): Modifier {
+    val targetItem = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+    return if (targetItem != null) {
+        scrollAway { -targetItem.offset - offset.toPx() }
+    } else {
+        ignore()
+    }
+}
+
+private fun Modifier.scrollAway(yPxFn: Density.() -> Float): Modifier = this.then(
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                val yPx = yPxFn()
+                val progress: Float = (yPx / maxScrollOut.toPx()).coerceIn(0f, 1f)
+                val motionFraction: Float = lerp(minMotionOut, maxMotionOut, progress)
+                val offsetY = -(maxOffset.toPx() * progress).toInt()
+
+                placeable.placeWithLayer(0, offsetY) {
+                    alpha = motionFraction
+                    scaleX = motionFraction
+                    scaleY = motionFraction
+                    transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.0f)
+                }
             }
-        }
-        if (targetItem != null) {
-            val y = with(LocalDensity.current) {
-                (-targetItem!!.offset - offset).toDp()
-            }
-            scrollAway(y)
-        } else {
-            ignore()
         }
     }
-
-private fun Modifier.scrollAway(y: Dp): Modifier {
-    val progress: Float = (y / maxScrollOut).coerceIn(0f, 1f)
-    val motionFraction: Float = lerp(minMotionOut, maxMotionOut, progress)
-    val offset = -(maxOffset * progress)
-
-    return this
-        .offset(y = offset)
-        .graphicsLayer {
-            alpha = motionFraction
-            scaleX = motionFraction
-            scaleY = motionFraction
-            transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.0f)
-        }
-}
+)
 
 // Trivial modifier that neither measures nor places the content.
 private fun Modifier.ignore(): Modifier = this.then(

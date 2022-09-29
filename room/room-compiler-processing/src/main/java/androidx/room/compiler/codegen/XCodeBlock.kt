@@ -31,10 +31,14 @@ interface XCodeBlock : TargetLanguage {
 
         fun addLocalVariable(
             name: String,
-            type: XTypeName,
+            typeName: XTypeName,
             isMutable: Boolean = false,
-            assignExpr: XCodeBlock
+            assignExpr: XCodeBlock? = null
         ): Builder
+
+        fun beginControlFlow(controlFlow: String, vararg args: Any?): Builder
+        fun nextControlFlow(controlFlow: String, vararg args: Any?): Builder
+        fun endControlFlow(): Builder
 
         fun build(): XCodeBlock
 
@@ -67,6 +71,46 @@ interface XCodeBlock : TargetLanguage {
 
         fun of(language: CodeLanguage, format: String, vararg args: Any?): XCodeBlock {
             return builder(language).add(format, *args).build()
+        }
+
+        /**
+         * Convenience code block of a new instantiation expression.
+         *
+         * Shouldn't contain parenthesis.
+         */
+        fun ofNewInstance(
+            language: CodeLanguage,
+            typeName: XTypeName,
+            argsFormat: String = "",
+            vararg args: Any?
+        ): XCodeBlock {
+            return builder(language).apply {
+                val newKeyword = when (language) {
+                    CodeLanguage.JAVA -> "new "
+                    CodeLanguage.KOTLIN -> ""
+                }
+                add("$newKeyword%T($argsFormat)", typeName, *args)
+            }.build()
+        }
+
+        /**
+         * Convenience code block of an unsafe cast expression.
+         */
+        fun ofCast(
+            language: CodeLanguage,
+            typeName: XTypeName,
+            expressionBlock: XCodeBlock
+        ): XCodeBlock {
+            return builder(language).apply {
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        add("(%T) (%L)", typeName, expressionBlock)
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        add("(%L) as %T", expressionBlock, typeName)
+                    }
+                }
+            }.build()
         }
     }
 }

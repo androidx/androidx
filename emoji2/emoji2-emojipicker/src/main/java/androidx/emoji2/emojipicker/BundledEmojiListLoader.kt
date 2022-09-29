@@ -18,6 +18,7 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import androidx.core.content.res.use
+import androidx.emoji2.emojipicker.utils.UnicodeRenderableManager
 
 /**
  * A data loader that loads the following objects either from file based caches or from resources.
@@ -85,12 +86,12 @@ internal object BundledEmojiListLoader {
      * To eliminate 'Tofu' (the fallback glyph when an emoji is not renderable), check the
      * renderability of emojis and keep only when they are renderable on the current device.
      */
-    @Suppress("UNUSED_PARAMETER")
-    // TODO(chelseahao): implementation.
     private fun filterRenderableEmojis(
         emojiList: List<String>,
         emojiCompatMetadata: EmojiPickerView.EmojiCompatMetadata,
-    ): List<String> = emojiList
+    ) = emojiList.filter {
+        UnicodeRenderableManager.isEmojiRenderable(it, emojiCompatMetadata)
+    }.toList()
 
     internal data class EmojiData(val primary: String, val variants: List<String>)
 

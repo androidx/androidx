@@ -28,7 +28,8 @@ import com.google.common.annotations.VisibleForTesting
 class CodeGenScope(
     val writer: TypeWriter
 ) {
-    val builder by lazy { XCodeBlock.builder(writer.codeLanguage) }
+    val language = writer.codeLanguage
+    val builder by lazy { XCodeBlock.builder(language) }
     private val tmpVarIndices = mutableMapOf<String, Int>()
 
     companion object {

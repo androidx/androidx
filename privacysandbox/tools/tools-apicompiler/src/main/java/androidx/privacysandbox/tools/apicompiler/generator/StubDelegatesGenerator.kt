@@ -16,6 +16,9 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
+import androidx.privacysandbox.tools.core.generator.addCode
+import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -91,22 +94,25 @@ class StubDelegatesGenerator(
     private fun toSuspendFunSpec(method: Method): FunSpec {
         val resultStatement =
             "delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
-        return FunSpec.builder(method.name)
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameters(getParameters(method))
-            .addStatement("val job = GlobalScope.launch(Dispatchers.Main) {")
-            .addStatement("  try {")
-            .addStatement("    val result = $resultStatement")
-            .addStatement("    transactionCallback.onSuccess(result)")
-            .addStatement("  } catch (t: Throwable) {")
-            .addStatement("    transactionCallback.onFailure(404, t.message)")
-            .addStatement("  }")
-            .addStatement("}")
-            .addStatement(
-                "val cancellationSignal = TransportCancellationCallback() { job.cancel() }"
-            )
-            .addStatement("transactionCallback.onCancellable(cancellationSignal)")
-            .build()
+        return FunSpec.builder(method.name).build {
+            addModifiers(KModifier.OVERRIDE)
+            addParameters(getParameters(method))
+            addCode {
+                addControlFlow("val job = GlobalScope.launch(Dispatchers.Main)") {
+                    addControlFlow("try") {
+                        addStatement("val result = $resultStatement")
+                        addStatement("transactionCallback.onSuccess(result)")
+                    }
+                    addControlFlow("catch (t: Throwable)") {
+                        addStatement("transactionCallback.onFailure(404, t.message)")
+                    }
+                }
+                addStatement(
+                    "val cancellationSignal = TransportCancellationCallback() { job.cancel() }"
+                )
+                addStatement("transactionCallback.onCancellable(cancellationSignal)")
+            }
+        }
     }
 
     private fun toNonSuspendFunSpec(method: Method): FunSpec {
@@ -157,15 +163,17 @@ class StubDelegatesGenerator(
                         "hasCancelled",
                         ATOMIC_BOOLEAN_CLASS,
                         KModifier.PRIVATE
-                    ).initializer("${ATOMIC_BOOLEAN_CLASS.simpleName}(false)").build()
+                    ).initializer("%T(false)", ATOMIC_BOOLEAN_CLASS).build()
                 )
                 .addFunction(
-                    FunSpec.builder("cancel")
-                        .addModifiers(KModifier.OVERRIDE)
-                        .addStatement("if (hasCancelled.compareAndSet(false, true)) {")
-                        .addStatement("  onCancel()")
-                        .addStatement("}")
-                        .build()
+                    FunSpec.builder("cancel").build {
+                        addModifiers(KModifier.OVERRIDE)
+                        addCode {
+                            addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
+                                addStatement("onCancel()")
+                            }
+                        }
+                    }
                 )
 
         val fileSpec = FileSpec.builder(packageName, className)

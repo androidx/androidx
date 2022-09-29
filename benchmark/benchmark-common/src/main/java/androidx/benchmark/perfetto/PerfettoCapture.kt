@@ -149,7 +149,11 @@ public class PerfettoCapture(
             RESULT_CODE_ERROR_BINARY_MISSING ->
                 "Perfetto SDK binary dependencies missing. " +
                     "Required version: ${response.requiredVersion}. " +
-                    "Error: ${response.message}."
+                    "Error: ${response.message}.\n" +
+                    "To fix, declare the following dependency in your" +
+                    " *benchmark* project (i.e. not the app under benchmark): " +
+                    "\nandroidTestImplementation(" +
+                    "\"androidx.tracing:tracing-perfetto-binary:${response.requiredVersion}\")"
             RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH ->
                 "Perfetto SDK binary mismatch. " +
                     "Required version: ${response.requiredVersion}. " +

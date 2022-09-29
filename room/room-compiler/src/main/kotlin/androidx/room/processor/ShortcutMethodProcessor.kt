@@ -15,11 +15,12 @@
  */
 package androidx.room.processor
 
-import androidx.room.ext.isEntityElement
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.isEntityElement
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
@@ -138,7 +139,7 @@ class ShortcutMethodProcessor(
                                 context.logger.e(
                                     it.element,
                                     ProcessorErrors.cannotFindAsEntityField(
-                                        targetEntity.typeName.toString()
+                                        targetEntity.typeName.toJavaPoet().toString()
                                     )
 
                                 )
@@ -156,7 +157,7 @@ class ShortcutMethodProcessor(
                             context.logger.e(
                                 executableElement,
                                 ProcessorErrors.noColumnsInPartialEntity(
-                                    partialEntityName = pojo.typeName.toString()
+                                    partialEntityName = pojo.typeName.toJavaPoet().toString()
                                 )
                             )
                         }

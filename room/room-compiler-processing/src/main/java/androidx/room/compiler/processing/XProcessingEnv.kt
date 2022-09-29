@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -110,6 +111,16 @@ interface XProcessingEnv {
     // helpers for smooth migration, these could be extension methods
     fun requireType(typeName: TypeName) = checkNotNull(findType(typeName)) {
         "cannot find required type $typeName"
+    }
+
+    fun requireType(typeName: XTypeName): XType {
+        if (typeName.isPrimitive) {
+            return requireType(typeName.java)
+        }
+        return when (backend) {
+            Backend.JAVAC -> requireType(typeName.java)
+            Backend.KSP -> requireType(typeName.kotlin.toString())
+        }
     }
 
     fun requireType(klass: KClass<*>) = requireType(klass.java.canonicalName!!)

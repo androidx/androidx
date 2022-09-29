@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -250,10 +251,10 @@ private class InternalQueryProcessor(
             val pojoMappings = mappings.filterIsInstance<PojoRowAdapter.PojoMapping>()
             val pojoUnusedFields = pojoMappings
                 .filter { it.unusedFields.isNotEmpty() }
-                .associate { it.pojo.typeName to it.unusedFields }
+                .associate { it.pojo.typeName.toJavaPoet() to it.unusedFields }
             if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
                 val warningMsg = ProcessorErrors.cursorPojoMismatch(
-                    pojoTypeNames = pojoMappings.map { it.pojo.typeName },
+                    pojoTypeNames = pojoMappings.map { it.pojo.typeName.toJavaPoet() },
                     unusedColumns = unusedColumns,
                     allColumns = columnNames,
                     pojoUnusedFields = pojoUnusedFields,

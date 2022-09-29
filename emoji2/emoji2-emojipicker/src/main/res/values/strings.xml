@@ -18,4 +18,20 @@
 <resources>
     <!-- Emoji keyboard's smileys and emotions sub category. -->
     <string name="emoji_category_emotions">SMILEYS AND EMOTIONS</string>
+    <!-- Emoji keyboard's people sub category. -->
+    <string name="emoji_category_people">PEOPLE</string>
+    <!-- Emoji keyboard's animals and nature sub category. -->
+    <string name="emoji_category_animals_nature">ANIMALS AND NATURE</string>
+    <!-- Emoji keyboard's food and drink sub category. -->
+    <string name="emoji_category_food_drink">FOOD AND DRINK</string>
+    <!-- Emoji keyboard's travel and places sub category. -->
+    <string name="emoji_category_travel_places">TRAVEL AND PLACES</string>
+    <!-- Emoji keyboard's activity sub category. -->
+    <string name="emoji_category_activity">ACTIVITIES AND EVENTS</string>
+    <!-- Emoji keyboard's objects sub category. -->
+    <string name="emoji_category_objects">OBJECTS</string>
+    <!-- Emoji keyboard's symbols sub category. [CHAR_LIMIT=40] -->
+    <string name="emoji_category_symbols">SYMBOLS</string>
+    <!-- Emoji keyboard's flags sub category. Flags sub category contains emojis that represent country and regional flags. -->
+    <string name="emoji_category_flags">FLAGS</string>
 </resources>

@@ -26,6 +26,9 @@ import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.SafeCloseImageReaderProxy
+import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MAX_QUALITY
 import androidx.camera.core.imagecapture.ImagePipeline.JPEG_QUALITY_MIN_LATENCY
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
@@ -46,6 +49,7 @@ import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
+import androidx.camera.testing.fakes.FakeImageReaderProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -250,5 +254,26 @@ class ImagePipelineTest {
 
         // Assert: the image is received by TakePictureCallback.
         assertThat(CALLBACK.inMemoryResult!!.planes).isEqualTo(image.planes)
+    }
+
+    @Test
+    fun acquireImageProxy_capacityIsUpdated() {
+        // Arrange.
+        val images = ArrayDeque<ImageProxy>()
+        val imageReaderProxy = FakeImageReaderProxy(MAX_IMAGES)
+        imagePipeline.captureNode.mSafeCloseImageReaderProxy =
+            SafeCloseImageReaderProxy(imageReaderProxy)
+
+        // Act.
+        // Exhaust outstanding image quota.
+        for (i in 0 until MAX_IMAGES) {
+            val imageInfo = FakeImageInfo()
+            imageReaderProxy.triggerImageAvailable(imageInfo.tagBundle, 0)
+            imagePipeline.captureNode.mSafeCloseImageReaderProxy.acquireNextImage()
+                ?.let { images.add(it) }
+        }
+
+        // Assert: the capacity of queue is 0.
+        assertThat(imagePipeline.capacity).isEqualTo(0)
     }
 }

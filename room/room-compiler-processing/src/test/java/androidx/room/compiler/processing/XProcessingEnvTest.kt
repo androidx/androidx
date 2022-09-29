@@ -17,6 +17,8 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
@@ -279,6 +281,35 @@ class XProcessingEnvTest {
                 assertThat(it.processingEnv.jvmVersion).isEqualTo(8)
             } else {
                 assertThat(it.processingEnv.jvmVersion).isEqualTo(11)
+            }
+        }
+    }
+
+    @Test
+    fun requireTypeWithXTypeName() {
+        runProcessorTest { invocation ->
+            invocation.processingEnv.requireType(String::class.asClassName()).let {
+                val name = it.typeElement!!.qualifiedName
+                if (invocation.isKsp) {
+                    assertThat(name).isEqualTo("kotlin.String")
+                } else {
+                    assertThat(name).isEqualTo("java.lang.String")
+                }
+            }
+            invocation.processingEnv.requireType(Int::class.asClassName()).let {
+                val name = it.typeElement!!.qualifiedName
+                if (invocation.isKsp) {
+                    assertThat(name).isEqualTo("kotlin.Int")
+                } else {
+                    assertThat(name).isEqualTo("java.lang.Integer")
+                }
+            }
+            invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT).let {
+                assertThat(it.typeElement).isNull() // No element is an indicator of primitive type
+                assertThat(it.asTypeName().java.toString()).isEqualTo("int")
+                if (invocation.isKsp) {
+                    assertThat(it.asTypeName().kotlin.toString()).isEqualTo("kotlin.Int")
+                }
             }
         }
     }

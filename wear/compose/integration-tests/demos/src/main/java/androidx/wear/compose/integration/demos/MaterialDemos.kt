@@ -34,6 +34,8 @@ import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
 import androidx.wear.compose.material.samples.ChipWithIconAndLabel
+import androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
+import androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
@@ -397,6 +399,33 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Rtl chips") { RtlChips() },
                         ComposableDemo("Custom chips") { CustomChips() },
                         ComposableDemo("Image background chips") { ImageBackgroundChips() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Placeholders",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Content Placeholders") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabelAndPlaceholders()
+                            }
+                        },
+                        ComposableDemo("Overlaid Placeholder") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabelsAndOverlaidPlaceholder()
+                            }
+                        },
+                     )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Chips") { PlaceholderChips() },
+                        ComposableDemo("Cards") { PlaceholderCards() },
                     )
                 )
             )

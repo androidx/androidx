@@ -16,11 +16,14 @@
 
 package androidx.wear.compose.material
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -36,6 +39,7 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -225,6 +229,47 @@ class ToggleControlTest {
             .assertIsOff()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun checkbox_checked_colors_are_customisable() {
+        val boxColor = Color.Green
+        val checkmarkColor = Color.Blue
+        rule.setContentWithTheme {
+            Checkbox(
+                checked = true,
+                colors = CheckboxDefaults.colors(
+                    checkedBoxColor = boxColor,
+                    checkedCheckmarkColor = checkmarkColor
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val checkboxImage = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        checkboxImage.assertContainsColor(boxColor, minPercent = 1f)
+        checkboxImage.assertContainsColor(checkmarkColor, minPercent = 1f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun checkbox_unchecked_colors_are_customisable() {
+        // NB checkmark is erased during animation, so we don't test uncheckedCheckmarkColor
+        // as it is just used as a target color for the animation.
+        val boxColor = Color.Green
+        rule.setContentWithTheme {
+            Checkbox(
+                checked = false,
+                colors = CheckboxDefaults.colors(
+                    uncheckedBoxColor = boxColor,
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val checkboxImage = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        checkboxImage.assertContainsColor(boxColor, minPercent = 1f)
+    }
+
     @Test
     fun switch_supports_testtag() {
         rule.setContentWithTheme {
@@ -398,6 +443,48 @@ class ToggleControlTest {
             .assertIsOn()
             .performClick()
             .assertIsOff()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun switch_checked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val trackColor = Color.Blue
+        rule.setContentWithTheme {
+            Switch(
+                checked = true,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = thumbColor,
+                    checkedTrackColor = trackColor
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor, minPercent = 1f)
+        image.assertContainsColor(trackColor, minPercent = 1f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun switch_unchecked_colors_are_customisable() {
+        val thumbColor = Color.Green
+        val trackColor = Color.Blue
+        rule.setContentWithTheme {
+            Switch(
+                checked = false,
+                colors = SwitchDefaults.colors(
+                    uncheckedThumbColor = thumbColor,
+                    uncheckedTrackColor = trackColor
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(thumbColor, minPercent = 1f)
+        image.assertContainsColor(trackColor, minPercent = 1f)
     }
 
     @Test
@@ -574,5 +661,46 @@ class ToggleControlTest {
             .assertIsSelected()
             .performClick()
             .assertIsNotSelected()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun radiobutton_selected_colors_are_customisable() {
+        val ringColor = Color.Green
+        val dotColor = Color.Blue
+        rule.setContentWithTheme {
+            RadioButton(
+                selected = true,
+                colors = RadioButtonDefaults.colors(
+                    selectedRingColor = ringColor,
+                    selectedDotColor = dotColor
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(ringColor, minPercent = 1f)
+        image.assertContainsColor(dotColor, minPercent = 1f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun radiobutton_unselected_colors_are_customisable() {
+        // NB Dot is erased during animation, so we don't test uncheckedDotColor
+        // as it is just used as a target color for the animation.
+        val ringColor = Color.Green
+        rule.setContentWithTheme {
+            RadioButton(
+                selected = false,
+                colors = RadioButtonDefaults.colors(
+                    unselectedRingColor = ringColor,
+                ),
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        val image = rule.onNodeWithTag(TEST_TAG).captureToImage()
+        image.assertContainsColor(ringColor, minPercent = 1f)
     }
 }

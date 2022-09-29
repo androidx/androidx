@@ -86,9 +86,9 @@ public class TableInfoTest {
                 containsString("TableInfo{name='foo', columns={id=Column{name='id'"
                         + ", type='INTEGER', "
                         + "affinity='3', notNull=false, primaryKeyPosition=1, "
-                        + "defaultValue='null'}, name=Column{name='name', type='TEXT', "
+                        + "defaultValue='undefined'}, name=Column{name='name', type='TEXT', "
                         + "affinity='2', notNull=false, primaryKeyPosition=0, "
-                        + "defaultValue='null'}}, foreignKeys=[]")
+                        + "defaultValue='undefined'}}, foreignKeys=[]")
         );
     }
 
@@ -163,6 +163,30 @@ public class TableInfoTest {
                 Collections.<TableInfo.ForeignKey>emptySet());
         assertThat(expectedInfo, is(not(dbInfo)));
         assertThat(dbInfo, is(not(expectedInfo)));
+    }
+
+    @Test
+    public void defaultValue_missing_should_print_undefined() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT)");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo.Column columnInfo = dbInfo.columns.get("name");
+        assertThat(columnInfo.toString()).isEqualTo(
+                "Column{name='name', type='TEXT', affinity='2', notNull=false, "
+                        + "primaryKeyPosition=0, defaultValue='undefined'}"
+        );
+    }
+
+    @Test
+    public void defaultValue_null_should_print_null() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT DEFAULT null)");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo.Column columnInfo = dbInfo.columns.get("name");
+        assertThat(columnInfo.toString()).isEqualTo(
+                "Column{name='name', type='TEXT', affinity='2', notNull=false, "
+                        + "primaryKeyPosition=0, defaultValue='null'}"
+        );
     }
 
     @SuppressWarnings("deprecation")
