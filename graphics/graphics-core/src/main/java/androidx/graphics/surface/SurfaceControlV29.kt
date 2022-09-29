@@ -266,7 +266,7 @@ internal class SurfaceControlV29 internal constructor(
         @RequiresApi(Build.VERSION_CODES.S)
         override fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
         ): Transaction {
             transaction.setBufferTransform(surfaceControl.asWrapperSurfaceControl(), transformation)
             return this
