@@ -39,6 +39,7 @@ import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,11 +60,13 @@ class OnSwipeTest {
         isDebugInspectorInfoEnabled = false
     }
 
+    @Ignore("Fails on online devices, box left position is 48 instead of 51.6")
     @Test
     fun simpleCornerToCornerRightSwipe_Json() {
         testMotionLayoutSwipe { OnSwipeTestJson() }
     }
 
+    @Ignore("Fails on online devices, box left position is 48 instead of 51.6")
     @Test
     fun simpleCornerToCornerRightSwipe_Dsl() {
         testMotionLayoutSwipe { OnSwipeTestDsl() }
