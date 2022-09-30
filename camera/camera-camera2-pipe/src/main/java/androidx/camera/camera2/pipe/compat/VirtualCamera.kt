@@ -352,7 +352,6 @@ internal class AndroidCameraState(
     }
 
     internal fun closeWith(throwable: Throwable) {
-
         closeWith(
             null,
             @Suppress("SyntheticAccessor")
@@ -363,7 +362,17 @@ internal class AndroidCameraState(
         )
     }
 
-    private fun closeWith(cameraDevice: CameraDevice?, closeRequest: ClosingInfo) {
+    private fun closeWith(
+        cameraDevice: CameraDevice?,
+        closeRequest: ClosingInfo
+    ) {
+        val currentState = _state.value
+        val cameraDeviceWrapper = if (currentState is CameraStateOpen) {
+            currentState.cameraDevice
+        } else {
+            null
+        }
+
         val closeInfo = synchronized(lock) {
             if (pendingClose == null) {
                 pendingClose = closeRequest
@@ -375,6 +384,7 @@ internal class AndroidCameraState(
         }
         if (closeInfo != null) {
             _state.value = CameraStateClosing
+            cameraDeviceWrapper.closeWithTrace()
             cameraDevice.closeWithTrace()
             _state.value = computeClosedState(closeInfo)
         }

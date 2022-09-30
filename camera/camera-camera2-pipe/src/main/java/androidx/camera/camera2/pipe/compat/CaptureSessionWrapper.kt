@@ -161,6 +161,16 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper<CameraCaptureSess
 
         /** @see CameraCaptureSession.StateCallback.onReady */
         fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper)
+
+        /**
+         * Artificial event indicating the session is no longer in use and may be called
+         * several times. [onClosed] and [onConfigureFailed] will call this method directly. This
+         * method should also be called whenever the underlying camera devices is closed, and
+         * whenever a subsequent capture session is configured on the same camera device.
+         *
+         * See b/249258992 for more details.
+         */
+        fun onSessionFinalized()
     }
 }
 
@@ -178,16 +188,24 @@ internal interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptu
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
-    private val stateCallback: CameraCaptureSessionWrapper.StateCallback
+    private val stateCallback: CameraCaptureSessionWrapper.StateCallback,
+    lastStateCallback: CameraCaptureSessionWrapper.StateCallback?
 ) : CameraCaptureSession.StateCallback() {
+    private val _lastStateCallback = atomic(lastStateCallback)
     private val captureSession = atomic<CameraCaptureSessionWrapper?>(null)
 
     override fun onConfigured(session: CameraCaptureSession) {
         stateCallback.onConfigured(getWrapped(session))
+
+        // b/249258992 - This is a workaround to ensure previous CameraCaptureSession.StateCallback
+        //   instances receive some kind of "finalization" signal if onClosed is not fired by the
+        //   framework after a subsequent session has been configured.
+        finalizeLastSession()
     }
 
     override fun onConfigureFailed(session: CameraCaptureSession) {
         stateCallback.onConfigureFailed(getWrapped(session))
+        finalizeSession()
     }
 
     override fun onReady(session: CameraCaptureSession) {
@@ -200,6 +218,7 @@ internal class AndroidCaptureSessionStateCallback(
 
     override fun onClosed(session: CameraCaptureSession) {
         stateCallback.onClosed(getWrapped(session))
+        finalizeSession()
     }
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
@@ -230,6 +249,18 @@ internal class AndroidCaptureSessionStateCallback(
             AndroidCameraConstrainedHighSpeedCaptureSession(device, session)
         } else {
             AndroidCameraCaptureSession(device, session)
+        }
+    }
+
+    private fun finalizeSession() {
+        finalizeLastSession()
+        stateCallback.onSessionFinalized()
+    }
+    private fun finalizeLastSession() {
+        // Clear out the reference to the previous session, if one was set.
+        val previousSession = _lastStateCallback.getAndSet(null)
+        previousSession?.let {
+            previousSession.onSessionFinalized()
         }
     }
 }
