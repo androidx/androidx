@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.ImageFormat
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
@@ -26,9 +27,9 @@ import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil
 import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -51,7 +52,11 @@ class ProcessingNodeDeviceTest {
         val yuvIn = ProcessingNode.In.of(ImageFormat.YUV_420_888)
         ProcessingNode(mainThreadExecutor()).also { it.transform(yuvIn) }
         val takePictureCallback = FakeTakePictureCallback()
-        val imageIn = createYuvFakeImageProxy(FakeImageInfo(), WIDTH, HEIGHT)
+        val imageIn = createYuvFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            WIDTH,
+            HEIGHT
+        )
         val processingRequest = ProcessingRequest(
             { listOf() },
             /*outputFileOptions=*/ null,
@@ -81,7 +86,11 @@ class ProcessingNodeDeviceTest {
         val yuvIn = ProcessingNode.In.of(ImageFormat.YUV_420_888)
         ProcessingNode(mainThreadExecutor()).also { it.transform(yuvIn) }
         val takePictureCallback = FakeTakePictureCallback()
-        val imageIn = createYuvFakeImageProxy(FakeImageInfo(), WIDTH, HEIGHT)
+        val imageIn = createYuvFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            WIDTH,
+            HEIGHT
+        )
         val processingRequest = ProcessingRequest(
             { listOf() },
             OUTPUT_FILE_OPTIONS,

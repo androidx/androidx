@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat.JPEG
 import android.graphics.Matrix
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
@@ -60,8 +61,10 @@ class JpegBytes2ImageDeviceTest {
             SIZE,
             CROP_RECT,
             ROTATION_DEGREES,
-            matrix
+            matrix,
+            CAMERA_CAPTURE_RESULT
         )
+
         // Act.
         val output = operation.apply(input)
 
@@ -74,5 +77,6 @@ class JpegBytes2ImageDeviceTest {
         assertThat(output.cropRect).isEqualTo(CROP_RECT)
         assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)
         assertThat(output.sensorToBufferTransform).isEqualTo(matrix)
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
     }
 }
