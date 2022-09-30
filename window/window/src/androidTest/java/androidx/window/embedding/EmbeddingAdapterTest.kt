@@ -30,6 +30,7 @@ import androidx.window.extensions.WindowExtensions
 import org.junit.Assert.assertEquals
 
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 /** Tests for [EmbeddingAdapter] */
@@ -44,6 +45,7 @@ class EmbeddingAdapterTest {
         }!!
     }
 
+    @Ignore // b/250009392
     @Test
     fun testTranslateSplitInfoWithDefaultAttrs() {
         val oemSplitInfo = OEMSplitInfo(
@@ -62,6 +64,7 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
+    @Ignore // b/250009392
     @Test
     fun testTranslateSplitInfoWithExpandingContainers() {
         val oemSplitInfo = OEMSplitInfo(
@@ -82,6 +85,7 @@ class EmbeddingAdapterTest {
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
 
+    @Ignore // b/250009392
     @Test
     fun testTranslateSplitInfoWithApiLevel1() {
         if (ExtensionsUtil.safeVendorApiLevel != WindowExtensions.VENDOR_API_LEVEL_1) {
