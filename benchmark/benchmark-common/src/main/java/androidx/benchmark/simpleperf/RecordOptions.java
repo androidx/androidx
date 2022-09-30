@@ -51,9 +51,11 @@ import java.util.List;
  *
  * @hide
  */
+@SuppressWarnings("StringConcatenationInLoop")
 @RequiresApi(28)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RecordOptions {
+
     /**
      * Set output filename. Default is perf-<month>-<day>-<hour>-<minute>-<second>.data.
      * The file will be generated under simpleperf_data/.
@@ -108,7 +110,6 @@ public class RecordOptions {
     public RecordOptions setSampleCurrentThread() {
         return setSampleThreads(Collections.singletonList(Os.gettid()));
     }
-
     /**
      * Record dwarf based call graph. It is needed to get Java callstacks.
      */
@@ -122,6 +123,7 @@ public class RecordOptions {
     /**
      * Record frame pointer based call graph. It is suitable to get C++ callstacks on 64bit devices.
      */
+    @SuppressWarnings("unused")
     @NonNull
     public RecordOptions recordFramePointerCallGraph() {
         mFpCallGraph = true;
@@ -202,7 +204,7 @@ public class RecordOptions {
     private double mDurationInSeconds = 0.0;
 
     @NonNull
-    private ArrayList<Integer> mThreads = new ArrayList<>();
+    private final ArrayList<Integer> mThreads = new ArrayList<>();
 
     private boolean mDwarfCallGraph = false;
 

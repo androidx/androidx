@@ -234,24 +234,10 @@ internal object StackSamplingSimpleperf : Profiler() {
                 RecordOptions()
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
+                    .setEvent("cpu-clock") // Required on API 33 to enable traceOffCpu
                     .traceOffCpu() // track time sleeping
                     .setSampleCurrentThread() // sample stacks from this thread only
                     .setOutputFilename("simpleperf.data")
-                    .apply {
-                        // some emulators don't support cpu-cycles, the default event, so instead we
-                        // use cpu-clock, which is a software perf event using kernel hrtimer to
-                        // generate interrupts
-                        val hwEventsOutput = Shell.executeCommand("simpleperf list hw").trim()
-                        check(hwEventsOutput.startsWith("List of hardware events:"))
-                        val events = hwEventsOutput
-                            .split("\n")
-                            .drop(1)
-                            .map { line -> line.trim() }
-                        if (!events.any { hwEvent -> hwEvent.trim() == "cpu-cycles" }) {
-                            Log.d(TAG, "cpu-cycles not found - using cpu-clock (events = $events)")
-                            setEvent("cpu-clock")
-                        }
-                    }
             )
         }
         return ResultFile(
