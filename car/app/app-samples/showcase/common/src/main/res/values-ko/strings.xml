@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"이 텍스트는 초록색임"</string>
     <string name="example_3_text" msgid="977269832109695627">"이 텍스트는 파란색임"</string>
     <string name="example_4_text" msgid="2043547015979437373">"이 텍스트는 노란색임"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"이 텍스트는 기본 색상을 사용함"</string>
     <string name="example_6_text" msgid="7991523168517599600">"이 텍스트는 보조 색상을 사용함"</string>
     <string name="color_demo" msgid="1822427636476178993">"색상 데모"</string>
     <string name="list_limit" msgid="3023536401535417286">"목록 제한"</string>
@@ -332,18 +331,12 @@
     <string name="location_3_description" msgid="3982142774088944850">"색상이 지정된 텍스트 마커"</string>
     <string name="location_4_description" msgid="6560365445044381911">"이미지 비트맵"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"텍스트 라벨"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"주차 및 주행 데모"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"차량 대시보드 디스플레이"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"최신 기능"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"로딩 사용 설정됨"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"로딩 사용 중지됨"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"로딩 화면"</string>
     <!-- no translation found for vector_toggle_details (1301305340033556819) -->
     <skip />
 </resources>

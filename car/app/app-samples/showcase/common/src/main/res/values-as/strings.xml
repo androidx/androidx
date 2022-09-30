@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"এই পাঠটোত সেউজীয়া ৰং আছে"</string>
     <string name="example_3_text" msgid="977269832109695627">"এই পাঠটোত নীলা ৰং আছে"</string>
     <string name="example_4_text" msgid="2043547015979437373">"এই পাঠটোত হালধীয়া ৰং আছে"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"এই পাঠটোৱে প্ৰাথমিক ৰং ব্যৱহাৰ কৰে"</string>
     <string name="example_6_text" msgid="7991523168517599600">"এই পাঠটোৱে গৌণ ৰং ব্যৱহাৰ কৰে"</string>
     <string name="color_demo" msgid="1822427636476178993">"ৰঙৰ ডেম’"</string>
     <string name="list_limit" msgid="3023536401535417286">"সূচীৰ সীমা"</string>
@@ -114,10 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"এইটোৱে এপ্‌টো সমাপ্ত কৰিব আৰু আপুনি উভতি আহিলে ই এখন অনুমতিৰ স্ক্ৰীন প্ৰি-ছীড কৰিব"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"এপৰ ডেম’ সমাপ্ত কৰক"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"পৰৱৰ্তী সময়ত চলোৱা ডেম’ত অনুমতিৰ স্ক্ৰীনখন প্ৰি-ছীড কৰক"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"এপৰ ডেম’ত প্ৰি-ছীড কৰাৰ অনুমতি"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"পৰৱৰ্তী সময়ত চলোৱা ডেম’ত অনুমতিৰ স্ক্ৰীনখন প্ৰি-ছীড কৰক"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ডেম’ ল’ড কৰি থকা হৈছে"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ল’ড হোৱা সম্পূৰ্ণ হৈছে!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ৰুট কৰিবলৈ পপ কৰক"</string>
@@ -318,45 +315,28 @@
     <skip />
     <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
     <skip />
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
-    <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
-    <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"কণ্ঠধ্বনিৰে এক্সেছ কৰাৰ ডেম’ৰ স্ক্ৰীন"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ব্যৱহাৰকাৰীৰ ভাব-বিনিময়"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"অনুমতিৰ অনুৰোধৰ ডেম’"</string>
+    <string name="perm_group" msgid="3834918337351876270">"অনুমতিৰ গোট"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Showcase এপক দিয়া অনুমতিৰ গোট"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"সঠিক অৱস্থানৰ এক্সেছ"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"সঠিক অৱস্থানৰ এক্সেছৰ বাবে অনুমতি"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"আনুমানিক অৱস্থানৰ এক্সেছ"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"আনুমানিক অৱস্থানৰ এক্সেছৰ বাবে অনুমতি"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"অডিঅ’ ৰেকৰ্ড কৰাৰ এক্সেছ"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"অডিঅ’ ৰেকৰ্ড কৰাৰ এক্সেছৰ বাবে অনুমতি"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ৰং কৰা উৎসৰ ভেক্টৰ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"প্ৰতিচ্ছবিৰ উৎসৰ বিটমেপ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ৰং কৰা পাঠৰ চিহ্ন"</string>
     <string name="location_4_description" msgid="6560365445044381911">"প্ৰতিচ্ছবিৰ বিটমেপ"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"পাঠৰ লেবেল"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"পাৰ্কিং বনাম গাড়ী চলোৱাৰ ডেম’"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"গাড়ীত ক্লাষ্টাৰ প্ৰদৰ্শিত হয়!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"শেহতীয়া সুবিধা"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"ল’ড কৰি থকাটো সক্ষম কৰা হৈছে"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"ল’ড কৰি থকাটো অক্ষম কৰা হৈছে"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"স্ক্ৰীন ল’ড কৰি থকা হৈছে"</string>
     <!-- no translation found for vector_toggle_details (1301305340033556819) -->
     <skip />
 </resources>

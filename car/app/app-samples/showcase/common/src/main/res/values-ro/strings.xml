@@ -22,12 +22,12 @@
     <string name="exit_action_title" msgid="9086586388884500731">"Ieși"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"Actualizează"</string>
     <string name="close_action_title" msgid="2661907510124308560">"Închide"</string>
-    <string name="grant_access_action_title" msgid="4033140828804350723">"Acordați accesul"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"Acordă accesul"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"Activează locația"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"Anulează"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Oprește"</string>
     <string name="more_action_title" msgid="1039516575011403837">"Mai mult"</string>
-    <string name="call_action_title" msgid="6218977436905001611">"Apelați"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Sună"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Principal"</string>
     <string name="options_action_title" msgid="1168121856107932984">"Opțiuni"</string>
     <string name="search_action_title" msgid="3483459674263446335">"Caută"</string>
@@ -36,8 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"Activat"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Dezactivat"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Setări"</string>
-    <string name="accept_action_title" msgid="4899660585470647578">"Acceptați"</string>
-    <string name="reject_action_title" msgid="6730366705938402668">"Respingeți"</string>
+    <string name="accept_action_title" msgid="4899660585470647578">"Accept"</string>
+    <string name="reject_action_title" msgid="6730366705938402668">"Închide"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Întrerupe"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"Navetă"</string>
@@ -67,7 +67,7 @@
     <string name="parked_toast_msg" msgid="2532422265890824446">"Acțiune de parcare"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"S-a dat clic pe Mai mult"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"A fost apăsat butonul Navetă"</string>
-    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Acordați permisiunea pentru locație ca să vedeți locația actuală"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Acordă permisiunea pentru locație ca să vezi locația actuală"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Conectarea cu Google începe aici"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Opțiunea selectată s-a schimbat în index"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"A fost apăsat butonul Da!"</string>
@@ -78,7 +78,7 @@
     <string name="other_row_title_prefix" msgid="4702355788835253197">"Titlul rândului"</string>
     <string name="other_row_text" msgid="7510279447493169945">"Textul de pe rând"</string>
     <string name="navigate" msgid="2713090390373996139">"Navighează"</string>
-    <string name="dial" msgid="3145707439707628311">"Apelați"</string>
+    <string name="dial" msgid="3145707439707628311">"Sună"</string>
     <string name="address" msgid="9010635942573581302">"Adresă"</string>
     <string name="phone" msgid="2504766809811627577">"Telefon"</string>
     <string name="fail_start_nav" msgid="6921321606009212189">"Eroare la începerea navigării"</string>
@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Textul este verde"</string>
     <string name="example_3_text" msgid="977269832109695627">"Textul este albastru"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Textul este galben"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Acest text folosește culoarea primară"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Textul folosește culoarea secundară"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demonstrație cu culori"</string>
     <string name="list_limit" msgid="3023536401535417286">"Limita listei"</string>
@@ -111,23 +110,23 @@
     <string name="route_list_limit" msgid="505793441615134116">"Limita listei de trasee"</string>
     <string name="content_limits" msgid="5726880972110281095">"Limite privind conținutul"</string>
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Demonstrație cu limite privind conținutul"</string>
-    <string name="finish_app_msg" msgid="8354334557053141891">"Astfel, aplicația se va încheia și, când reveniți, va pregăti un ecran pentru permisiuni"</string>
-    <string name="finish_app_title" msgid="9013328479438745074">"Finalizați demonstrația aplicației"</string>
-    <string name="finish_app_demo_title" msgid="8223819062053448384">"Pregătiți ecranul pentru permisiuni la următoarea rulare a demonstrației"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"Astfel, aplicația se va închide și, când revii, va pregăti un ecran pentru permisiuni"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"Finalizează demonstrația aplicației"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Pregătește ecranul pentru permisiuni la următoarea rulare a demonstrației"</string>
     <string name="preseed_permission_app_title" msgid="182847662545676962">"Pregătește demonstrația privind aplicația de permisiune"</string>
     <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Pregătește ecranul pentru permisiuni la următoarea rulare a demonstrației"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Se încarcă demonstrația"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Încărcarea s-a finalizat!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Accesează ecranul rădăcină"</string>
     <string name="pop_to_marker" msgid="5007078308762725207">"Accesează marcatorul pentru demonstrații diverse"</string>
-    <string name="push_stack" msgid="2433062141810168976">"Împingeți mai departe în stivă"</string>
+    <string name="push_stack" msgid="2433062141810168976">"Trimite mai departe în stivă"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"Accesează"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"Accesează demonstrația"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Pachetul nu a fost găsit."</string>
-    <string name="permissions_granted_msg" msgid="2348556088141992714">"Toate permisiunile au fost acordate. Revocați permisiunile din Setări."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"Toate permisiunile au fost acordate. Revocă permisiunile din Setări."</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Aplicația are nevoie de acces la următoarele permisiuni:\n"</string>
-    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Acordați permisiunea pe ecranul telefonului"</string>
-    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Activați permisiunile pentru locație pe dispozitiv"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Acordă permisiunea pe ecranul telefonului"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Activează permisiunile pentru locație pe dispozitiv"</string>
     <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Activează locația pe ecranul telefonului"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"Permisiuni necesare"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"Demonstrație pentru solicitarea permisiunii"</string>
@@ -136,8 +135,8 @@
     <string name="result_demo_title" msgid="3900525190662148290">"Demonstrație pentru rezultat"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"Aplicația nu a fost pornită pentru rezultat"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"S-a solicitat rezultatul în această aplicație din %s. Selectează rezultatul pentru a-l trimite înapoi apelantului"</string>
-    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Ați sosit!"</string>
-    <string name="travel_est_trip_text" msgid="5134365408383171144">"Luați-o pe Alice din drum"</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Ai sosit!"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"Ia-o pe Maria cu mașina"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"Trimite o notificare"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"Activează notificările"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"Oprește notificările"</string>
@@ -160,9 +159,9 @@
     <string name="start_notification_title" msgid="2208831088632818681">"Activează notificarea"</string>
     <string name="stop_notification_title" msgid="3709643750540881176">"Oprește notificarea"</string>
     <string name="nav_notification_demo_title" msgid="4448683262984308442">"Demonstrație cu notificări privind navigarea"</string>
-    <string name="go_straight" msgid="2301747728609198718">"Mergeți drept înainte"</string>
-    <string name="turn_right" msgid="4710562732720109969">"Virați la dreapta"</string>
-    <string name="take_520" msgid="3804796387195842741">"Mergeți pe 520"</string>
+    <string name="go_straight" msgid="2301747728609198718">"Mergi drept înainte"</string>
+    <string name="turn_right" msgid="4710562732720109969">"Fă la dreapta"</string>
+    <string name="take_520" msgid="3804796387195842741">"Mergi pe 520"</string>
     <string name="gas_station" msgid="1203313937444666161">"Benzinărie"</string>
     <string name="short_route" msgid="4831864276538141265">"Traseu scurt"</string>
     <string name="less_busy" msgid="310625272281710983">"Mai puțin aglomerat"</string>
@@ -211,7 +210,7 @@
     <string name="gyroscope" msgid="3428075828014504651">"Giroscop"</string>
     <string name="compass" msgid="7037367764762441245">"Busolă"</string>
     <string name="car_hardware_location" msgid="5826128477363068617">"Locația hardware-ului pentru mașină"</string>
-    <string name="non_actionable" msgid="8999757911111188784">"Nu puteți lua măsuri"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"Nu poți lua măsuri"</string>
     <string name="second_item" msgid="5245792503030812493">"Al doilea element"</string>
     <string name="third_item" msgid="334088179008716411">"Al treilea element"</string>
     <string name="fourth_item" msgid="1153409687260543158">"Al patrulea element"</string>
@@ -231,14 +230,13 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Gazdă incompatibilă"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demonstrație cu șablon pentru mesaj"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Introdu mesajul aici.\nMai mult text pe al doilea rând."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrație cu șablon pentru mesaj scurt"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
-    <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiți locații"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiește locații"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstrație cu șablon pentru căutare"</string>
     <string name="search_hint" msgid="978495498991026792">"Caută aici"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Consultați Termenii și condițiile noastre"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Consultă termenii și condițiile"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Conectare cu Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Folosește PIN-ul"</string>
     <string name="qr_code" msgid="5487041647280777397">"Cod QR"</string>
@@ -253,10 +251,10 @@
     <string name="password_hint" msgid="2869107073860012864">"parolă"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nume de utilizator"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Introdu acest cod PIN pe telefon"</string>
-    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanați codul QR pentru a vă conecta"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanează codul QR pentru a te conecta"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Conectează-te cu Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Folosește acest buton pentru a finaliza conectarea cu Google"</string>
-    <string name="sign_in_complete_text" msgid="8423984266325680606">"V-ați conectat!"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"Te-ai conectat!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Conectare finalizată"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstrație cu șablon pentru conectare"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nu se pot afișa imagini pentru o gazdă necunoscută"</string>
@@ -268,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Resursă care se poate desena în vectori colorată"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Resursă care se poate desena în vectori, cu atributul temei unei aplicații pentru culoare"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG trimis ca resursă"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"PNG trimis ca bitmap"</string>
     <string name="just_row_title" msgid="965700021568970725">"Doar un titlu"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Titlu cu pictograma aplicației"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Titlu cu imaginea codului resursei"</string>
@@ -281,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demonstrație pentru rânduri"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Demonstrații pentru text și pictograme"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demonstrație pentru rânduri cu text și pictograme"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demonstrație cu liste de butoane radio"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demonstrație cu liste care se pot selecta"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Opțiunea 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Opțiunea 2"</string>
@@ -293,15 +289,14 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Text suplimentar"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Exemplu de listă care poate fi selectată"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstrație pentru restricția privind activitățile"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"A fost atinsă limita pentru activități\nDacă alegeți să continuați, aplicația se va opri forțat"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"A fost atinsă limita pentru activități\nDacă alegi să continui, aplicația se va opri forțat"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Pasul activității: %1$d din %2$d"</string>
-    <string name="task_step_of_text" msgid="4646729781462227219">"Dați clic pentru a merge înainte"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
-    <string name="toggle_test_title" msgid="924485265152862631">"Activați / dezactivați testul"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"Dă clic pentru a merge înainte"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demonstrație cu buton de comutare"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"Activează / dezactivează testul"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Modificările cu menținere de stare sunt permise"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Activează testul de comutare"</string>
-    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Bifați opțiunea pentru a activa testul de comutare"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Bifează opțiunea pentru a activa testul de comutare"</string>
     <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Test de comutare"</string>
     <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Modificările cu menținere de stare sunt permise"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Test pentru imagini"</string>
@@ -312,10 +307,8 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Testul de comutare este dezactivat"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrații diverse cu șabloane"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrații pentru Showcase"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrații cu aspecte de șablon"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Demonstrații cu șablon pentru grilă"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Ecran demonstrativ pentru accesul vocal"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interacțiunile utilizatorilor"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Solicită demonstrații privind permisiunile"</string>
@@ -332,18 +325,11 @@
     <string name="location_3_description" msgid="3982142774088944850">"Marcator de text colorat"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Bitmap pentru imagine"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Eticheta textului"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Demonstrație de parcare vs. condus"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Cluster Displays în mașini!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Cele mai recente funcții"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Încărcare activată"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Încărcare dezactivată"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Ecran de încărcare"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Comută pentru a adăuga / elimina culori"</string>
 </resources>
