@@ -28,6 +28,32 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import java.io.Closeable
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.StateFlow
+
+abstract class GraphState internal constructor() {
+    /**
+     * When the [CameraGraph] is starting. This means we're in the process of opening a (virtual)
+     * camera and creating a capture session.
+     */
+    object GraphStateStarting : GraphState()
+
+    /**
+     * When the [CameraGraph] is started. This means a capture session has been successfully created
+     * for the [CameraGraph].
+     */
+    object GraphStateStarted : GraphState()
+
+    /**
+     * When the [CameraGraph] is stopping. This means we're in the process of stopping the graph.
+     */
+    object GraphStateStopping : GraphState()
+
+    /**
+     * When the [CameraGraph] hasn't been started, or stopped. This does not guarantee the closure
+     * of the capture session or the camera device itself.
+     */
+    object GraphStateStopped : GraphState()
+}
 
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
@@ -35,6 +61,12 @@ import kotlinx.coroutines.Deferred
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraGraph : Closeable {
     public val streams: StreamGraph
+
+    /**
+     * Returns the state flow of [GraphState], which emits the current state of the
+     * [CameraGraph], including when a [CameraGraph] is stopped, starting or started.
+     */
+    public val graphState: StateFlow<GraphState>
 
     /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
