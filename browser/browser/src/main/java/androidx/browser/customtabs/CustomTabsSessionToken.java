@@ -74,6 +74,9 @@ public class CustomTabsSessionToken {
                 Uri requestedOrigin, boolean result, Bundle extras) {}
 
         @Override
+        public void onActivityResized(int size, Bundle extras) {}
+
+        @Override
         public IBinder asBinder() {
             return this;
         }
@@ -186,6 +189,15 @@ public class CustomTabsSessionToken {
                 }
             }
 
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onActivityResized(int size, @NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onActivityResized(size, extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
         };
     }
 
