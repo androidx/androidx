@@ -125,7 +125,6 @@ open class PlaygroundExtension @Inject constructor(
 
         includeProject(":lint-checks", "lint-checks")
         includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests")
-        includeProject(":fakeannotations", "fakeannotations")
         includeProject(":internal-testutils-common", "testutils/testutils-common")
         includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin")
 
