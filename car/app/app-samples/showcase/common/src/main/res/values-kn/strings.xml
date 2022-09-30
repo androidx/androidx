@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"ಈ ಪಠ್ಯವು ಹಸಿರು ಬಣ್ಣದಲ್ಲಿದೆ"</string>
     <string name="example_3_text" msgid="977269832109695627">"ಈ ಪಠ್ಯವು ನೀಲಿ ಬಣ್ಣದಲ್ಲಿದೆ"</string>
     <string name="example_4_text" msgid="2043547015979437373">"ಈ ಪಠ್ಯವು ಹಳದಿ ಬಣ್ಣದಲ್ಲಿದೆ"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"ಈ ಪಠ್ಯವು ಪ್ರಾಥಮಿಕ ಬಣ್ಣವನ್ನು ಬಳಸುತ್ತದೆ"</string>
     <string name="example_6_text" msgid="7991523168517599600">"ಈ ಪಠ್ಯವು ದ್ವಿತೀಯ ಬಣ್ಣವನ್ನು ಬಳಸುತ್ತದೆ"</string>
     <string name="color_demo" msgid="1822427636476178993">"ಬಣ್ಣದ ಡೆಮೋ"</string>
     <string name="list_limit" msgid="3023536401535417286">"ಪಟ್ಟಿಯ ಮಿತಿ"</string>
@@ -114,10 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"ಇದರೊಂದಿಗೆ, ಆ್ಯಪ್ ಅನ್ನು ಮುಚ್ಚಲಾಗುತ್ತದೆ. ಆ್ಯಪ್ ಅನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿದ ನಂತರ, ಅನುಮತಿಗಳ ವಿನಂತಿಯ ಸ್ಕ್ರೀನ್ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತದೆ"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"ಆ್ಯಪ್ ಡೆಮೋವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"ಮುಂದಿನ ಬಾರಿ ನೀವು ಡೆಮೋವನ್ನು ರನ್ ಮಾಡುವಾಗ, ಅನುಮತಿಗಳನ್ನು ವಿನಂತಿಸುವ ಸ್ಕ್ರೀನ್ ಅನ್ನು ಮೊದಲೇ ಲೋಡ್ ಮಾಡಿ"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"ಮುಂಚಿತವಾಗಿ ಅನುಮತಿ ವಿನಂತಿಸುವ ಆ್ಯಪ್ ಡೆಮೋ"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"ಮುಂದಿನ ಬಾರಿ ನೀವು ಡೆಮೋವನ್ನು ರನ್ ಮಾಡುವಾಗ, ಅನುಮತಿಗಳನ್ನು ವಿನಂತಿಸುವ ಸ್ಕ್ರೀನ್ ಅನ್ನು ಮೊದಲೇ ಲೋಡ್ ಮಾಡಿ"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ಡೆಮೋವನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ಲೋಡಿಂಗ್ ಪೂರ್ಣಗೊಂಡಿದೆ!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ಮೂಲಕ್ಕೆ ಹೋಗಿ"</string>
@@ -233,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"ಹೊಂದಾಣಿಕೆಯಾಗದ ಹೋಸ್ಟ್"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ಸಂದೇಶವನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಲಾಗುತ್ತದೆ.\nಹೆಚ್ಚಿನ ಪಠ್ಯವನ್ನು ಎರಡನೇ ಸಾಲಿನಲ್ಲಿ ಸೇರಿಸಬಹುದು."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ಕಿರು ಸಂದೇಶ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ಪೇನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ಸ್ಥಳ ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"</string>
@@ -270,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"ಟಿಂಟ್‌ನೊಂದಿಗೆ ಚಿತ್ರಿಸಬಹುದಾದ ಒಂದು ವೆಕ್ಟರ್"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"ವೆಕ್ಟರ್‌ನ ಬಣ್ಣಕ್ಕಾಗಿ ಆ್ಯಪ್‌ನ ಥೀಮ್ ಗುಣಲಕ್ಷಣದೊಂದಿಗೆ ಚಿತ್ರಿಸಬಹುದಾದ ಒಂದು ವೆಕ್ಟರ್"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG, ಸಂಪನ್ಮೂಲವಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"PNG, ಬಿಟ್‌ಮ್ಯಾಪ್ ಆಗಿ ಕಳುಹಿಸಲಾಗಿದೆ"</string>
     <string name="just_row_title" msgid="965700021568970725">"ಶೀರ್ಷಿಕೆ ಮಾತ್ರ"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"ಆ್ಯಪ್ ಐಕಾನ್‌ನೊಂದಿಗೆ ಶೀರ್ಷಿಕೆ"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"ಸಂಪನ್ಮೂಲ ID ಚಿತ್ರದೊಂದಿಗೆ ಶೀರ್ಷಿಕೆ"</string>
@@ -283,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"ಸಾಲುಗಳ ಡೆಮೋ"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"ಪಠ್ಯ ಮತ್ತು ಐಕಾನ್‌ಗಳ ಡೆಮೋ"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"ಪಠ್ಯ ಮತ್ತು ಐಕಾನ್‌ಗಳ ಡೆಮೋಗಳನ್ನು ಹೊಂದಿರುವ ಸಾಲುಗಳು"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"ರೇಡಿಯೋ ಬಟನ್ ಪಟ್ಟಿಗಳ ಡೆಮೋ"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"ಆಯ್ಕೆಮಾಡಬಹುದಾದ ಪಟ್ಟಿಗಳ ಡೆಮೋ"</string>
     <string name="option_1_title" msgid="7221252541651471199">"ಆಯ್ಕೆ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"ಆಯ್ಕೆ 2"</string>
@@ -298,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ಕಾರ್ಯದ ಮಿತಿಯನ್ನು ತಲುಪಿದ್ದೀರಿ\nಮುಂದುವರಿಸಿದರೆ ಆ್ಯಪ್ ಅನ್ನು ಬಲವಂತವಾಗಿ ನಿಲ್ಲಿಸಲಾಗುತ್ತದೆ"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"ಕಾರ್ಯದ ಹಂತ %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ಮುಂದೆ ಹೋಗಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"ಟಾಗಲ್ ಬಟನ್ ಡೆಮೋ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ಟಾಗಲ್ ಟೆಸ್ಟ್"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ಪುನಃ ಸ್ಥಾಪಿಸಬಹುದಾದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
@@ -314,49 +307,29 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ಡೆಮೋಗಳು"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
-    <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
-    <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"ಟೆಂಪ್ಲೇಟ್ ಲೇಔಟ್ ಡೆಮೋಗಳು"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"ಗ್ರಿಡ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋಗಳು"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"ಧ್ವನಿ ಆ್ಯಕ್ಸೆಸ್ ಡೆಮೋ ಸ್ಕ್ರೀನ್"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ಬಳಕೆದಾರರ ಸಂವಹನಗಳು"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"ಅನುಮತಿಗಳ ಡೆಮೋಗಳನ್ನು ವಿನಂತಿಸಿ"</string>
+    <string name="perm_group" msgid="3834918337351876270">"ಅನುಮತಿ ಗುಂಪು"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"ಶೋಕೇಸ್ ಆ್ಯಪ್‌ನ ಅನುಮತಿ ಗುಂಪು"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"ನಿಖರವಾದ ಸ್ಥಳಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"ನಿಖರವಾದ ಸ್ಥಳವನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡುವ ಅನುಮತಿ"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"ಅಂದಾಜು ಸ್ಥಳಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"ಅಂದಾಜು ಸ್ಥಳವನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡುವ ಅನುಮತಿ"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"ಆಡಿಯೋ ರೆಕಾರ್ಡ್ ಮಾಡಲು ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"ಆಡಿಯೋ ರೆಕಾರ್ಡ್ ಮಾಡಲು ಆ್ಯಕ್ಸೆಸ್‌ಗಾಗಿ ಅನುಮತಿ"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ಟಿಂಟ್ ಮಾಡಲಾದ ಸಂಪನ್ಮೂಲ ವೆಕ್ಟರ್"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ಚಿತ್ರ ಸಂಪನ್ಮೂಲ ಬಿಟ್‌ಮ್ಯಾಪ್"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ಬಣ್ಣದ ಪಠ್ಯ ಮಾರ್ಕರ್"</string>
     <string name="location_4_description" msgid="6560365445044381911">"ಚಿತ್ರದ ಬಿಟ್‌ಮ್ಯಾಪ್"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"ಪಠ್ಯದ ಲೇಬಲ್"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"ಪಾರ್ಕಿಂಗ್ Vs ಡ್ರೈವಿಂಗ್ ಡೆಮೋ"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"ಕಾರ್‌ಗಳಲ್ಲಿನ ಕ್ಲಸ್ಟರ್ ಡಿಸ್‌ಪ್ಲೇಗಳು!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"ಇತ್ತೀಚಿನ ಫೀಚರ್‌ಗಳು"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"ಲೋಡ್ ಮಾಡುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"ಲೋಡ್ ಮಾಡುವಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"ಸ್ಕ್ರೀನ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"ಬಣ್ಣವನ್ನು ಸೇರಿಸಲು/ತೆಗೆಯಲು ಟಾಗಲ್ ಮಾಡಿ"</string>
 </resources>

@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Bu matnda yashil rang bor"</string>
     <string name="example_3_text" msgid="977269832109695627">"Bu matnda moviy rang bor"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Bu matnda sariq rang bor"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Bu matn asosiy rangdan foydalanadi"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Bu matn ikkilamchi rangdan foydalanadi"</string>
     <string name="color_demo" msgid="1822427636476178993">"Rang namoyishi"</string>
     <string name="list_limit" msgid="3023536401535417286">"Roʻyxat cheklovi"</string>
@@ -332,18 +331,12 @@
     <string name="location_3_description" msgid="3982142774088944850">"Rasmli matn belgilagichi"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Rasm bitmapi"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Matn yorligʻi"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Toʻxtatish va haydashni taqqoslash demo rejimi"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Avtomobillarda klasterli displeylar!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Oxirgi funksiyalar"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Yuklash yoqildi"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Yuklash oʻchirildi"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Ekran yuklanmoqda"</string>
     <!-- no translation found for vector_toggle_details (1301305340033556819) -->
     <skip />
 </resources>

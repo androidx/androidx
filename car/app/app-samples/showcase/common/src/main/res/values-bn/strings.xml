@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"এই টেক্সট সবুজ রঙে লেখা হয়েছে"</string>
     <string name="example_3_text" msgid="977269832109695627">"এই টেক্সট নীল রঙে লেখা হয়েছে"</string>
     <string name="example_4_text" msgid="2043547015979437373">"এই টেক্সট হলুদ রঙে লেখা হয়েছে"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"এই টেক্সট প্রাথমিক রঙ ব্যবহার করে"</string>
     <string name="example_6_text" msgid="7991523168517599600">"এই টেক্সটে গৌণ কালার ব্যবহৃত হয়েছে"</string>
     <string name="color_demo" msgid="1822427636476178993">"কালার দেখানো ডেমো"</string>
     <string name="list_limit" msgid="3023536401535417286">"তালিকার সীমা"</string>
@@ -114,10 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"এর ফলে অ্যাপ বন্ধ হয়ে যাবে এবং এটি আবার চালু করা হলে অনুমতি অনুরোধ করার স্ক্রিন দেখানো হবে"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"অ্যাপের ডেমো বন্ধ করুন"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"পরের বার ডেমো চালু করার আগে অনুমতি অনুরোধ যোগ করুন"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"প্রি-সিড অনুমতি সংক্রান্ত অ্যাপ ডেমো"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"পরবর্তী ডেমো চালানোর সময় অনুমতি সংক্রান্ত স্ক্রিন প্রি-সিড করা"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ডেমো লোড করা হচ্ছে"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"লোড করা সম্পূর্ণ হয়েছে!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"রুট করার জন্য স্ট্যাক থেকে সরান"</string>
@@ -233,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"হোস্ট কাজ করছে না"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"মেসেজ টেমপ্লেটের ডেমো"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"মেসেজে এখানে লেখা হবে।\nবেশি টেক্সট হলে, দ্বিতীয় লাইনে লিখুন।"</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ছোট মেসেজ টেমপ্লেট সংক্রান্ত ডেমো"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"প্যানেল টেমপ্লেটের ডেমো"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"জায়গার তালিকার টেমপ্লেটের ডেমো"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"জায়গা ব্রাউজ করুন"</string>
@@ -270,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"আঁকা যায় এমন রঙিন ভেক্টর"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"অ্যাপের থিমের অ্যাট্রিবিউটের রঙে আঁকা যায় এমন ভেক্টর"</string>
     <string name="png_res_title" msgid="7437083018336747544">"রিসোর্স হিসেবে পাঠানো PNG ছবি"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"একটি PNG ফাইল, bitmap হিসেবে পাঠানো হয়েছে"</string>
     <string name="just_row_title" msgid="965700021568970725">"শুধুমাত্র একটি টাইটেল"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"অ্যাপ আইকন সহ টাইটেল"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"রিসোর্স আইডি ছবি সহ টাইটেল"</string>
@@ -283,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"সারির ডেমো"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"টেক্সট ও আইকনের ডেমো"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"টেক্সট ও আইকন সহ সারির ডেমো"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"রেডিও বাটন তালিকা সংক্রান্ত ডেমো"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"বেছে নেওয়া যায় এমন তালিকার ডেমো"</string>
     <string name="option_1_title" msgid="7221252541651471199">"১ নম্বর বিকল্প"</string>
     <string name="option_2_title" msgid="1905146448697963818">"২ নম্বর বিকল্প"</string>
@@ -298,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"টগল বোতাম সংক্রান্ত ডেমো"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"টগল টেস্ট"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"টগল টেস্ট চালু করুন"</string>
@@ -314,49 +307,29 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"টগল টেস্ট বন্ধ করা হয়েছে"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
-    <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
-    <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লেট লেআউট সংক্রান্ত ডেমো"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"গ্রিড টেমপ্লেট ডেমো"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"\'ভয়েস অ্যাক্সেস\' অ্যাপের ডেমো স্ক্রিন"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ব্যবহারকারীর ইন্টার‍্যাকশন"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"অনুমতি সংক্রান্ত ডেমোর জন্য অনুরোধ জানানো"</string>
+    <string name="perm_group" msgid="3834918337351876270">"অনুমতি সংক্রান্ত গ্রুপ"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Showcase অ্যাপের জন্য অনুমতি সংক্রান্ত গ্রুপ"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"সুনির্দিষ্ট লোকেশনে অ্যাক্সেস"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"সুনির্দিষ্ট লোকেশন অ্যাক্সেস করার অনুমতি"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"অনির্দিষ্ট লোকেশনে অ্যাক্সেস"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"অনির্দিষ্ট লোকেশন অ্যাক্সেস করার অনুমতি"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"রেকর্ড অডিওতে অ্যাক্সেস"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"রেকর্ড অডিওতে অ্যাক্সেস করার অনুমতি"</string>
     <string name="location_1_description" msgid="4801052291684791371">"রঙিন রিসোর্স ভেক্টর"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ছবির রিসোর্সের বিটম্যাপ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"রঙিন টেক্সট মার্কার"</string>
     <string name="location_4_description" msgid="6560365445044381911">"ছবির বিটম্যাপ"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"টেক্সট লেবেল"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"\'পার্কিং\' মোড এবং \'ড্রাইভিং\' মোডের তুলনা দেখানো হয় এমন ডেমো"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"গাড়ির ক্লাস্টার ডিসপ্লে!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"লেটেস্ট ফিচার"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"লোডিং চালু হয়েছে"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"লোডিং বন্ধ হয়ে গেছে"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"স্ক্রিন লোড হচ্ছে"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"কালার যোগ করতে/সরাতে টগল করুন"</string>
 </resources>
