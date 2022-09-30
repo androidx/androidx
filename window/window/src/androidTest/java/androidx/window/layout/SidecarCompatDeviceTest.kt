@@ -57,12 +57,12 @@ import org.mockito.ArgumentMatcher
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterface {
+class SidecarCompatDeviceTest : WindowTestBase() {
 
     private lateinit var sidecarCompat: SidecarCompat
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         assumeValidSidecar()
         val sidecar = SidecarCompat.getSidecarCompat(ApplicationProvider.getApplicationContext())
         // TODO(b/206055949) convert to strict validation.
@@ -70,7 +70,7 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
     }
 
     @Test
-    override fun testWindowLayoutCallback() {
+    fun testWindowLayoutCallback() {
         activityTestRule.scenario.onActivity { testActivity ->
             val windowToken = getActivityWindowToken(testActivity)
             assertNotNull(windowToken)
