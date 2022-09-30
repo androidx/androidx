@@ -29,7 +29,7 @@ package androidx.annotation
  * **Note:** Ordinarily, an app's UI thread is also the main
  * thread. However, under special circumstances, an app's UI thread
  * might not be its main thread; for more information, see
- * [Thread annotations](/studio/write/annotations.html#thread-annotations).
+ * [Thread annotations](https://developer.android.com/studio/write/annotations#thread-annotations).
  *
  * @see androidx.annotation.MainThread
  */
