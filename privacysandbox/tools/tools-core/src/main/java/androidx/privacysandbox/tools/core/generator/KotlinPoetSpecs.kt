@@ -29,12 +29,12 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 
 /** [ParameterSpec] equivalent to this parameter. */
-public fun Parameter.poetSpec(): ParameterSpec {
+fun Parameter.poetSpec(): ParameterSpec {
     return ParameterSpec.builder(name, type.poetSpec()).build()
 }
 
 /** [TypeName] equivalent to this parameter. */
-public fun Type.poetSpec(): ClassName {
+fun Type.poetSpec(): ClassName {
     val splits = name.split('.')
     return ClassName(splits.dropLast(1).joinToString("."), splits.last())
 }
@@ -44,7 +44,7 @@ public fun Type.poetSpec(): ClassName {
  *
  * @param modifiers extra modifiers added to the constructor
  */
-public fun TypeSpec.Builder.primaryConstructor(
+fun TypeSpec.Builder.primaryConstructor(
     properties: List<PropertySpec>,
     vararg modifiers: KModifier,
 ) {
@@ -63,34 +63,34 @@ public fun TypeSpec.Builder.primaryConstructor(
 }
 
 /** Builds a [TypeSpec] using the given builder block. */
-public fun TypeSpec.Builder.build(block: TypeSpec.Builder.() -> Unit): TypeSpec {
+fun TypeSpec.Builder.build(block: TypeSpec.Builder.() -> Unit): TypeSpec {
     block()
     return build()
 }
 
-public fun CodeBlock.Builder.build(block: CodeBlock.Builder.() -> Unit): CodeBlock {
+fun CodeBlock.Builder.build(block: CodeBlock.Builder.() -> Unit): CodeBlock {
     block()
     return build()
 }
 
 /** Builds a [FunSpec] using the given builder block. */
-public fun FunSpec.Builder.build(block: FunSpec.Builder.() -> Unit): FunSpec {
+fun FunSpec.Builder.build(block: FunSpec.Builder.() -> Unit): FunSpec {
     block()
     return build()
 }
 
 /** Builds a [FileSpec] using the given builder block. */
-public fun FileSpec.Builder.build(block: FileSpec.Builder.() -> Unit): FileSpec {
+fun FileSpec.Builder.build(block: FileSpec.Builder.() -> Unit): FileSpec {
     block()
     return build()
 }
 
-public fun FunSpec.Builder.addCode(block: CodeBlock.Builder.() -> Unit) {
+fun FunSpec.Builder.addCode(block: CodeBlock.Builder.() -> Unit) {
     addCode(CodeBlock.builder().build { block() })
 }
 
 /** Auto-closing control flow construct and its code. */
-public fun CodeBlock.Builder.addControlFlow(
+fun CodeBlock.Builder.addControlFlow(
     controlFlow: String,
     block: CodeBlock.Builder.() -> Unit
 ) {
