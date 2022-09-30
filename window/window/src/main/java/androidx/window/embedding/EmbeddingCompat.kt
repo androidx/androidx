@@ -25,6 +25,7 @@ import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
 
 /**
@@ -77,30 +78,11 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
-        let {
-            val vendorApiLevel = getExtensionApiLevel()
-            vendorApiLevel != null && vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
-        }
+        ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2
 
     companion object {
         const val DEBUG = true
         private const val TAG = "EmbeddingCompat"
-
-        fun getExtensionApiLevel(): Int? {
-            return try {
-                WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
-            } catch (e: NoClassDefFoundError) {
-                if (DEBUG) {
-                    Log.d(TAG, "Embedding extension version not found")
-                }
-                null
-            } catch (e: UnsupportedOperationException) {
-                if (DEBUG) {
-                    Log.d(TAG, "Stub Extension")
-                }
-                null
-            }
-        }
 
         fun isEmbeddingAvailable(): Boolean {
             return try {
@@ -120,7 +102,7 @@ internal class EmbeddingCompat constructor(
 
         fun embeddingComponent(): ActivityEmbeddingComponent {
             return if (isEmbeddingAvailable()) {
-                WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
+                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent
                     ?: Proxy.newProxyInstance(
                         EmbeddingCompat::class.java.classLoader,
                         arrayOf(ActivityEmbeddingComponent::class.java)

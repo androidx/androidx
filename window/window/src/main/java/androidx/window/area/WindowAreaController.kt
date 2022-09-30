@@ -22,12 +22,11 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.SpecificationComputer
+import androidx.window.core.VerificationMode
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.area.WindowAreaComponent
-import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.Executor
-import kotlin.jvm.Throws
+import kotlinx.coroutines.flow.Flow
 
 /**
  * An interface to provide the information and behavior around moving windows between
@@ -75,7 +74,7 @@ interface WindowAreaController {
                     .getWindowExtensions()
                     .windowAreaComponent
             } catch (t: Throwable) {
-                if (BuildConfig.verificationMode == SpecificationComputer.VerificationMode.STRICT) {
+                if (BuildConfig.verificationMode == VerificationMode.STRICT) {
                     Log.d(TAG, "Failed to load WindowExtensions")
                 }
                 windowAreaComponentExtensions = null

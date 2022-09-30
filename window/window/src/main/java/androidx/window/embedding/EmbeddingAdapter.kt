@@ -36,6 +36,7 @@ import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setDefaultSplitAttributesCompat
 import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setFinishPrimaryWithPlaceholderCompat
@@ -47,7 +48,6 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_T
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams
 import androidx.window.extensions.WindowExtensions
-import androidx.window.extensions.WindowExtensions.INVALID_VENDOR_API_LEVEL
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
@@ -60,7 +60,7 @@ import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter
 internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
-    private val vendorApiLevel = EmbeddingCompat.getExtensionApiLevel() ?: INVALID_VENDOR_API_LEVEL
+    private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
         return splitInfoList.map(this::translate)

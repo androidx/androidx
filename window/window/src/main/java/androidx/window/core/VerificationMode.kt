@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package androidx.window.core
 
-import androidx.window.core.VerificationMode.STRICT
-
 /**
- * A configuration to be used for the debug flavor of the library. Default [VerificationMode] is
- * [STRICT] so to surface errors.
+ * An enum to specify which [VerificationMode] should be used with the [SpecificationComputer]
  */
-internal object BuildConfig {
-    val verificationMode: VerificationMode = STRICT
+internal enum class VerificationMode {
+    STRICT,
+    LOG,
+    QUIET
 }

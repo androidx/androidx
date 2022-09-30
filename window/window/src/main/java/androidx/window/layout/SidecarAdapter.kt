@@ -21,8 +21,8 @@ import android.annotation.SuppressLint
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
-import androidx.window.core.SpecificationComputer.VerificationMode
-import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
+import androidx.window.core.VerificationMode
+import androidx.window.core.VerificationMode.QUIET
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG

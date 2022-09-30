@@ -16,19 +16,19 @@
 
 package androidx.window.layout
 
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
+import android.content.Context
 import androidx.annotation.GuardedBy
+import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter.translate
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
-import android.content.Context
-import androidx.annotation.UiContext
-import androidx.window.embedding.EmbeddingCompat
 
 /**
  * A wrapper around [WindowLayoutComponent] that ensures
@@ -83,7 +83,7 @@ internal class ExtensionWindowLayoutInfoBackend(
                 // The registrations above maintain 1-many mapping of Context-Listeners across
                 // different subscription implementations.
                 val disposableToken =
-                    when (EmbeddingCompat.getExtensionApiLevel() ?: 0) {
+                    when (ExtensionsUtil.safeVendorApiLevel) {
                         // TODO(b/246640575) Use Extension Level constants here instead of raw ints.
                         2 ->
                             consumerAdapter.createSubscription(

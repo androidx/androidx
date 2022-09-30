@@ -23,15 +23,15 @@ import androidx.annotation.RequiresApi
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.SpecificationComputer
+import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.WindowAreaComponent
+import java.util.concurrent.Executor
+import java.util.function.Consumer
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
-import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 /**
  * Implementation of WindowAreaController for devices
@@ -124,8 +124,7 @@ internal class WindowAreaControllerImpl(
                 WindowAreaComponent.SESSION_STATE_ACTIVE -> onSessionStarted()
                 WindowAreaComponent.SESSION_STATE_INACTIVE -> onSessionFinished()
                 else -> {
-                    if (BuildConfig.verificationMode ==
-                            SpecificationComputer.VerificationMode.STRICT) {
+                    if (BuildConfig.verificationMode == VerificationMode.STRICT) {
                         Log.d(TAG, "Received an unknown session status value: $sessionStatus")
                     }
                     onSessionFinished()

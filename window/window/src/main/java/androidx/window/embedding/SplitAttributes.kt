@@ -20,8 +20,8 @@ import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.SpecificationComputer
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.SplitAttributes.LayoutDirection
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitAttributes.SplitType
@@ -119,7 +119,7 @@ class SplitAttributes internal constructor(
             ): RatioSplitType {
                 val checkedRatio = ratio.startSpecification(
                     TAG,
-                    SpecificationComputer.VerificationMode.STRICT
+                    VerificationMode.STRICT
                 ).require("Ratio must be in range (0.0, 1.0). " +
                     "Use SplitType.expandContainers() instead of 0 or 1.") {
                     ratio in 0.0..1.0 && ratio !in arrayOf(0.0f, 1.0f)
@@ -201,7 +201,7 @@ class SplitAttributes internal constructor(
             ): HingeSplitType {
                 val checkedType = fallbackSplitType.startSpecification(
                     TAG,
-                    SpecificationComputer.VerificationMode.STRICT
+                    VerificationMode.STRICT
                 ).require(
                     "FallbackSplitType must be a RatioSplitType or ExpandContainerSplitType"
                 ) {
