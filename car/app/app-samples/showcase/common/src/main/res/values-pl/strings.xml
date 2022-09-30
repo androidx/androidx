@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Ten tekst ma zielony kolor"</string>
     <string name="example_3_text" msgid="977269832109695627">"Ten tekst ma niebieski kolor"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Ten tekst ma żółty kolor"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"W ten tekście użyto koloru podstawowego"</string>
     <string name="example_6_text" msgid="7991523168517599600">"W ten tekście użyto koloru dodatkowego"</string>
     <string name="color_demo" msgid="1822427636476178993">"Wersja demonstracyjna koloru"</string>
     <string name="list_limit" msgid="3023536401535417286">"Limit listy"</string>
@@ -114,10 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"Spowoduje to zamknięcie aplikacji, a przy następnym uruchomieniu ekran zostanie wstępnie zainicjowany"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Wersja demonstracyjna zamykania aplikacji"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Wypełnij wstępnie ekran uprawnień przy następnym uruchomieniu wersji demonstracyjnej"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"Wersja demonstracyjna aplikacji do wstępnego uzupełniania uprawnień"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Wersja demonstracyjna wstępnego wypełniania ekranu uprawnień przy następnym uruchomieniu"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Wersja demonstracyjna wczytywania"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Wczytywanie ukończone"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Przejdź na poziom główny"</string>
@@ -233,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Niezgodny serwer"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Wersja demonstracyjna szablonu wiadomości"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tu będzie wiadomość.\nWięcej tekstu w następnej linii."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Wersja demonstracyjna szablonu krótkiej wiadomości"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Wersja demonstracyjna szablonu panelu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Wersja demonstracyjna szablonu listy miejsc"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Przeglądaj miejsca"</string>
@@ -270,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Obiekt rysowalny wektorowo, z zabarwieniem"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Obiekt rysowalny wektorowo, z atrybutem motywu aplikacji jako kolorem"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Plik PNG, wysłany jako zasób"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Plik PNG, wysłany jako bitmapa"</string>
     <string name="just_row_title" msgid="965700021568970725">"Po prostu tytuł"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Tytuł z ikoną aplikacji"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Tytuł z grafiką identyfikatora zasobu"</string>
@@ -283,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Wersja demonstracyjna wierszy"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Wersja demonstracyjna tekstu i ikon"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Wersja demonstracyjna wierszy z tekstem i ikonami"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Wersja demonstracyjna list z opcjami"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Wersja demonstracyjna list z możliwością wyboru"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Opcja 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Opcja 2"</string>
@@ -298,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Osiągnięto limit zadań\nKontynuowanie spowoduje wymuszenie zatrzymania aplikacji"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Krok zadania %1$d z %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknij, aby przejść dalej"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Wersja demonstracyjna przycisku przełączania"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Test przełączania"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Zmiany stanu są dozwolone"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Włącz test przełączania"</string>
@@ -314,49 +307,29 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Test przełączania został wyłączony"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Wersje demonstracyjne różnych szablonów"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Wersje demonstracyjne do prezentacji"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
-    <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
-    <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Wersje demonstracyjne szablonów układu"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Wersje demonstracyjne szablonów siatki"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Ekran wersji demonstracyjnej Voice Access"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interakcje użytkownika"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Wersje demonstracyjne próśb o uprawnienia"</string>
+    <string name="perm_group" msgid="3834918337351876270">"Grupa uprawnień"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Grupa uprawnień dotyczących aplikacji Showcase"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"Dostęp do dokładnej lokalizacji"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Uprawnienia dostępu do dokładnej lokalizacji"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"Dostęp do przybliżonej lokalizacji"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Uprawnienia dostępu do przybliżonej lokalizacji"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"Dostęp do nagrywania dźwięku"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"Uprawnienia dostępu do nagrywania dźwięku"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Zabarwiony wektor zasobu"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Bitmapa zasobu graficznego"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Znacznik kolorowego tekstu"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Bitmapa graficzna"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Etykieta tekstu"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Wersja demonstracyjna porównująca tryb parkowania z trybem jazdy"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Wyświetlanie grupowe w samochodach"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Najnowsze funkcje"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Wczytywanie włączone"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Wczytywanie zablokowane"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Wczytuję ekran"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Przełącz, aby dodać lub usunąć kolor"</string>
 </resources>
