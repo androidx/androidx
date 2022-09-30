@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.extensions
 
-import android.Manifest
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionsManager
@@ -33,7 +32,6 @@ import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
@@ -57,10 +55,6 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
-
-    @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var extensionsManager: ExtensionsManager

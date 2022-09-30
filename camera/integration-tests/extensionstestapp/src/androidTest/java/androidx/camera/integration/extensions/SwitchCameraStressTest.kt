@@ -32,12 +32,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.GrantPermissionRuleUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
@@ -67,8 +67,8 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
     )
 
     @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+    val permissionRule =
+        GrantPermissionRuleUtil.grantWithApiLevelFilter(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
