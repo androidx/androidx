@@ -32,6 +32,7 @@ import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.GrantPermissionRuleUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.lifecycle.Lifecycle
@@ -40,7 +41,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import org.junit.After
 import org.junit.Assume
@@ -70,10 +70,8 @@ class Camera2ExtensionsActivityTest(
     )
 
     @get:Rule
-    val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
+    val permissionRule =
+        GrantPermissionRuleUtil.grantWithApiLevelFilter(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
