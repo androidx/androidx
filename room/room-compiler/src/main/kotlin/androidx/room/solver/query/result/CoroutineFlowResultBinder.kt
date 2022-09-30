@@ -16,15 +16,16 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Binds the result of a of a Kotlin Coroutine Flow<T>
@@ -38,10 +39,11 @@ class CoroutineFlowResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,

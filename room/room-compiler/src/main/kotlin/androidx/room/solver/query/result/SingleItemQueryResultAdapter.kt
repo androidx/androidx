@@ -16,25 +16,36 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XNullability
 import androidx.room.solver.CodeGenScope
 
 /**
  * Wraps a row adapter when there is only 1 item in the result
  */
-class SingleEntityQueryResultAdapter(
+class SingleItemQueryResultAdapter(
     private val rowAdapter: RowAdapter
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
+        scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            addStatement("final $T $L", type.typeName, outVarName)
-            beginControlFlow("if($L.moveToFirst())", cursorVarName)
-            rowAdapter.convert(outVarName, cursorVarName, scope)
+            addLocalVariable(outVarName, type.asTypeName())
+            beginControlFlow("if (%L.moveToFirst())", cursorVarName).apply {
+                rowAdapter.convert(outVarName, cursorVarName, scope)
+            }
             nextControlFlow("else").apply {
-                addStatement("$L = $L", outVarName, rowAdapter.out.defaultValue())
+                val defaultValue = rowAdapter.out.defaultValue()
+                if (
+                    language == CodeLanguage.KOTLIN &&
+                    type.nullability == XNullability.NONNULL &&
+                    defaultValue == "null"
+                ) {
+                    // TODO(b/249984504): Generate / output a better message.
+                    addStatement("error(%S)", "Cursor was empty, but expected a single item.")
+                } else {
+                    addStatement("%L = %L", outVarName, rowAdapter.out.defaultValue())
+                }
             }
             endControlFlow()
         }

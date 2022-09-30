@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
@@ -53,7 +53,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
 
     val roomDatabaseType: XType by lazy {
         context.processingEnv.requireType(
-            RoomTypeNames.ROOM_DB.packageName() + "." + RoomTypeNames.ROOM_DB.simpleName()
+            ROOM_DB.toJavaPoet().packageName() + "." + ROOM_DB.toJavaPoet().simpleName()
         )
     }
 
@@ -94,7 +94,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            it.enclosingElement.className == RoomTypeNames.ROOM_DB
+            it.enclosingElement.className == ROOM_DB.toJavaPoet()
         }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
@@ -376,12 +376,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.forEach { daoMethod ->
             daoMethod.dao.deleteOrUpdateShortcutMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.entityTypeName)
+                    check(method.element, daoMethod.dao, it.value.entityTypeName.toJavaPoet())
                 }
             }
             daoMethod.dao.insertOrUpsertShortcutMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.entityTypeName)
+                    check(method.element, daoMethod.dao, it.value.entityTypeName.toJavaPoet())
                 }
             }
         }

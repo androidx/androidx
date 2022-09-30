@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.EntityUpsertionAdapter;
@@ -22,7 +23,7 @@ public final class UpsertDao_Impl implements UpsertDao {
 
     private final EntityUpsertionAdapter<Book> __upsertionAdapterOfBook;
 
-    public UpsertDao_Impl(RoomDatabase __db) {
+    public UpsertDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
         this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
             @Override
@@ -167,6 +168,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         }
     }
 
+    @NonNull
     public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
     }

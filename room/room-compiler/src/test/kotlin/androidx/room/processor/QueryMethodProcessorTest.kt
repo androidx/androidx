@@ -45,7 +45,7 @@ import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
-import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
+import androidx.room.solver.query.result.SingleItemQueryResultAdapter
 import androidx.room.testing.context
 import androidx.room.vo.Field
 import androidx.room.vo.QueryMethod
@@ -60,9 +60,9 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import createVerifierFromEntitiesAndViews
 import mockElementAndType
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -818,7 +818,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             )
             val adapter = parsedQuery.queryResultBinder.adapter
             assertThat(checkNotNull(adapter))
-            assertThat(adapter::class, `is`(SingleEntityQueryResultAdapter::class))
+            assertThat(adapter::class, `is`(SingleItemQueryResultAdapter::class))
             val rowAdapter = adapter.rowAdapters.single()
             assertThat(checkNotNull(rowAdapter))
             assertThat(rowAdapter::class, `is`(PojoRowAdapter::class))
@@ -1298,7 +1298,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { parsedQuery, invocation ->
             val adapter = parsedQuery.queryResultBinder.adapter
             if (enableVerification) {
-                if (adapter is SingleEntityQueryResultAdapter) {
+                if (adapter is SingleItemQueryResultAdapter) {
                     handler(
                         adapter.rowAdapters.single() as? PojoRowAdapter,
                         parsedQuery,

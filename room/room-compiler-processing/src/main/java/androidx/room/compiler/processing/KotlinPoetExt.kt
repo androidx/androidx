@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.OriginatingElementsHolder
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
@@ -40,5 +42,47 @@ internal fun TypeName.rawTypeName(): TypeName {
         this.rawType
     } else {
         this
+    }
+}
+
+object FunSpecHelper {
+    fun overriding(
+        elm: XMethodElement,
+        owner: XType
+    ): FunSpec.Builder {
+        val asMember = elm.asMemberOf(owner)
+        return overriding(
+            executableElement = elm,
+            resolvedType = asMember
+        )
+    }
+
+    private fun overriding(
+        executableElement: XMethodElement,
+        resolvedType: XMethodType
+    ): FunSpec.Builder {
+        return FunSpec.builder(executableElement.name).apply {
+            addModifiers(KModifier.OVERRIDE)
+            if (executableElement.isPublic()) {
+                addModifiers(KModifier.PUBLIC)
+            } else if (executableElement.isProtected()) {
+                addModifiers(KModifier.PROTECTED)
+            }
+            // TODO(b/251316420): Add type variable names
+            val isVarArgs = executableElement.isVarArgs()
+            resolvedType.parameterTypes.forEachIndexed { index, paramType ->
+                val modifiers = if (isVarArgs && index == resolvedType.parameterTypes.size - 1) {
+                    arrayOf(KModifier.VARARG)
+                } else {
+                    emptyArray()
+                }
+                addParameter(
+                    executableElement.parameters[index].name,
+                    paramType.asTypeName().kotlin,
+                    *modifiers
+                )
+            }
+            returns(resolvedType.returnType.asTypeName().kotlin)
+        }
     }
 }

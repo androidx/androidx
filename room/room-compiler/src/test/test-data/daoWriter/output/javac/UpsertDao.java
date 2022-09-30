@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.EntityUpsertionAdapter;
@@ -22,75 +23,75 @@ public final class UpsertDao_Impl implements UpsertDao {
 
     private final EntityUpsertionAdapter<Book> __upsertionAdapterOfBook;
 
-    public UpsertDao_Impl(RoomDatabase __db) {
+    public UpsertDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
         this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
-                    @Override
-                    public String createQuery() {
-                        return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
-                    }
+            @Override
+            public String createQuery() {
+                return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+            }
 
-                    @Override
-                    public void bind(SupportSQLiteStatement stmt, User value) {
-                        stmt.bindLong(1, value.uid);
-                        if (value.name == null) {
-                            stmt.bindNull(2);
-                        } else {
-                            stmt.bindString(2, value.name);
-                        }
-                        if (value.getLastName() == null) {
-                            stmt.bindNull(3);
-                        } else {
-                            stmt.bindString(3, value.getLastName());
-                        }
-                        stmt.bindLong(4, value.age);
-                    }
-                }, new EntityDeletionOrUpdateAdapter<User>(__db) {
-                    @Override
-                    public String createQuery() {
-                        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-                    }
+            @Override
+            public void bind(SupportSQLiteStatement stmt, User value) {
+                stmt.bindLong(1, value.uid);
+                if (value.name == null) {
+                    stmt.bindNull(2);
+                } else {
+                    stmt.bindString(2, value.name);
+                }
+                if (value.getLastName() == null) {
+                    stmt.bindNull(3);
+                } else {
+                    stmt.bindString(3, value.getLastName());
+                }
+                stmt.bindLong(4, value.age);
+            }
+        }, new EntityDeletionOrUpdateAdapter<User>(__db) {
+            @Override
+            public String createQuery() {
+                return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+            }
 
-                    @Override
-                    public void bind(SupportSQLiteStatement stmt, User value) {
-                        stmt.bindLong(1, value.uid);
-                        if (value.name == null) {
-                            stmt.bindNull(2);
-                        } else {
-                            stmt.bindString(2, value.name);
-                        }
-                        if (value.getLastName() == null) {
-                            stmt.bindNull(3);
-                        } else {
-                            stmt.bindString(3, value.getLastName());
-                        }
-                        stmt.bindLong(4, value.age);
-                        stmt.bindLong(5, value.uid);
-                    }
+            @Override
+            public void bind(SupportSQLiteStatement stmt, User value) {
+                stmt.bindLong(1, value.uid);
+                if (value.name == null) {
+                    stmt.bindNull(2);
+                } else {
+                    stmt.bindString(2, value.name);
+                }
+                if (value.getLastName() == null) {
+                    stmt.bindNull(3);
+                } else {
+                    stmt.bindString(3, value.getLastName());
+                }
+                stmt.bindLong(4, value.age);
+                stmt.bindLong(5, value.uid);
+            }
         });
         this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
-                    @Override
-                    public String createQuery() {
-                        return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
-                    }
+            @Override
+            public String createQuery() {
+                return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
+            }
 
-                    @Override
-                    public void bind(SupportSQLiteStatement stmt, Book value) {
-                        stmt.bindLong(1, value.bookId);
-                        stmt.bindLong(2, value.uid);
-                    }
-                }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
-                    @Override
-                    public String createQuery() {
-                        return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
-                    }
+            @Override
+            public void bind(SupportSQLiteStatement stmt, Book value) {
+                stmt.bindLong(1, value.bookId);
+                stmt.bindLong(2, value.uid);
+            }
+        }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
+            @Override
+            public String createQuery() {
+                return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+            }
 
-                    @Override
-                    public void bind(SupportSQLiteStatement stmt, Book value) {
-                        stmt.bindLong(1, value.bookId);
-                        stmt.bindLong(2, value.uid);
-                        stmt.bindLong(3, value.bookId);
-                    }
+            @Override
+            public void bind(SupportSQLiteStatement stmt, Book value) {
+                stmt.bindLong(1, value.bookId);
+                stmt.bindLong(2, value.uid);
+                stmt.bindLong(3, value.bookId);
+            }
         });
     }
 
@@ -183,6 +184,7 @@ public final class UpsertDao_Impl implements UpsertDao {
         }
     }
 
+    @NonNull
     public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
     }

@@ -16,16 +16,16 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.ext.L
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
-import androidx.room.ext.typeName
-import com.squareup.javapoet.TypeName
 
 class DataSourceFactoryQueryResultBinder(
     val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
@@ -36,7 +36,7 @@ class DataSourceFactoryQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
@@ -54,7 +54,7 @@ class DataSourceFactoryQueryResultBinder(
                     addMethod(
                         createCreateMethod(
                             roomSQLiteQueryVar = roomSQLiteQueryVar,
-                            dbField = dbField,
+                            dbProperty = dbProperty,
                             inTransaction = inTransaction,
                             scope = scope
                         )
@@ -67,7 +67,7 @@ class DataSourceFactoryQueryResultBinder(
 
     private fun createCreateMethod(
         roomSQLiteQueryVar: String,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ): MethodSpec = MethodSpec.methodBuilder("create").apply {
@@ -78,7 +78,7 @@ class DataSourceFactoryQueryResultBinder(
         positionalDataSourceQueryResultBinder.convertAndReturn(
             roomSQLiteQueryVar = roomSQLiteQueryVar,
             canReleaseQuery = true,
-            dbField = dbField,
+            dbProperty = dbProperty,
             inTransaction = inTransaction,
             scope = countedBinderScope
         )

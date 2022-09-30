@@ -191,6 +191,151 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun pojoRowAdapter_enum() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val enum: Fruit,
+                val nullableEnum: Fruit?,
+            )
+
+            enum class Fruit {
+                APPLE,
+                BANANA
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_uuid() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import java.util.UUID
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val uuid: UUID,
+                val nullableUuid: UUID?,
+            )
+
+            enum class Fruit {
+                APPLE,
+                BANANA
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_embedded() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import java.util.UUID
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                @Embedded
+                val foo: Foo,
+                @Embedded(prefix = "nullable")
+                val nullableFoo: Foo?,
+            )
+
+            data class Foo(
+                val numberData: Long,
+                val stringData: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_customTypeConverter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import java.util.UUID
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            @TypeConverters(FooConverter::class)
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val foo: Foo,
+            )
+
+            data class Foo(val data: String)
+
+            class FooConverter {
+                @TypeConverter
+                fun fromString(data: String): Foo = Foo(data)
+                @TypeConverter
+                fun toString(foo: Foo): String = foo.data
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }
@@ -214,7 +359,7 @@ class KotlinCodeGenTest {
                 this.generatedSource(
                     loadTestSource(
                         expectedFilePath,
-                        "androidx.room.temp.PojoRowAdapter_1427165205"
+                        "MyDao_Impl"
                     )
                 )
                 this.hasNoWarnings()

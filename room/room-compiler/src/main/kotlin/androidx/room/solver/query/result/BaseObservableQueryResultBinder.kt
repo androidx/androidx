@@ -20,7 +20,7 @@ import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
@@ -31,8 +31,9 @@ import javax.lang.model.element.Modifier
  * Base class for query result binders that observe the database. It includes common functionality
  * like creating a finalizer to release the query or creating the actual adapter call code.
  */
-abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
-    QueryResultBinder(adapter) {
+abstract class BaseObservableQueryResultBinder(
+    adapter: QueryResultAdapter?
+) : QueryResultBinder(adapter) {
 
     protected fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
         return MethodSpec.methodBuilder("finalize").apply {
@@ -64,7 +65,7 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
                 "final $T $L = $T.query($N, $L, $L, $L)",
                 CURSOR.toJavaPoet(),
                 cursorVar,
-                RoomTypeNames.DB_UTIL,
+                DB_UTIL.toJavaPoet(),
                 dbField,
                 roomSQLiteQueryVar,
                 if (shouldCopyCursor) "true" else "false",

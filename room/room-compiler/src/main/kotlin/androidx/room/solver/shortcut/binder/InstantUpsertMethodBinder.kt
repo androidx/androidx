@@ -21,7 +21,6 @@ import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
 /**
@@ -37,7 +36,7 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
         scope: CodeGenScope
     ) {
         scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+            addStatement("$N.assertNotSuspendingTransaction()", dbField)
         }
         adapter?.createMethodBody(
             parameters = parameters,

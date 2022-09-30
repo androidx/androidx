@@ -16,16 +16,17 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * A ResultBinder that emits a ListenableFuture<T> where T is the input {@code typeArg}.
@@ -40,16 +41,17 @@ class GuavaListenableFutureQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
         scope.builder().addStatement(
             "final $T $L = $T.createCancellationSignal()",
             AndroidTypeNames.CANCELLATION_SIGNAL,
             cancellationSignalVar,
-            RoomTypeNames.DB_UTIL
+            DB_UTIL.toJavaPoet()
         )
 
         // Callable<T> // Note that this callable does not release the query object.
