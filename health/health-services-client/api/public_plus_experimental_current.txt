@@ -555,8 +555,7 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseUpdate extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.ExerciseUpdate> {
-    ctor public ExerciseUpdate(java.time.Instant? startTime, java.time.Duration activeDuration, java.time.Duration? updateDurationFromBoot, androidx.health.services.client.data.DataPointContainer latestMetrics, java.util.Set<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig? exerciseConfig, androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint, androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo);
-    method public java.time.Duration getActiveDuration();
+    ctor public ExerciseUpdate(java.time.Instant? startTime, java.time.Duration? updateDurationFromBoot, androidx.health.services.client.data.DataPointContainer latestMetrics, java.util.Set<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig? exerciseConfig, androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint, androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo);
     method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.IntervalDataPoint<?> dataPoint);
     method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.SampleDataPoint<?> dataPoint);
     method public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? getActiveDurationCheckpoint();
@@ -568,7 +567,6 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.proto.DataProto.ExerciseUpdate getProto();
     method public java.time.Instant? getStartTime();
     method public java.time.Duration getUpdateDurationFromBoot();
-    property public final java.time.Duration activeDuration;
     property public final androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint;
     property public final androidx.health.services.client.data.ExerciseConfig? exerciseConfig;
     property public final androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo;
