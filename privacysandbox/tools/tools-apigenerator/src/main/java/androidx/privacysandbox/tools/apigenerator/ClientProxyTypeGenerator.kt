@@ -32,15 +32,15 @@ import com.squareup.kotlinpoet.TypeSpec
 
 internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface) {
     internal val className =
-        ClassName(service.packageName, "${service.name}ClientProxy")
+        ClassName(service.type.packageName, "${service.type.simpleName}ClientProxy")
     internal val remoteBinderClassName =
-        ClassName(service.packageName, "I${service.name}")
+        ClassName(service.type.packageName, "I${service.type.simpleName}")
     private val cancellationSignalClassName =
-        ClassName(service.packageName, "ICancellationSignal")
+        ClassName(service.type.packageName, "ICancellationSignal")
 
     fun generate(): TypeSpec = TypeSpec.classBuilder(className).build {
         addModifiers(KModifier.PRIVATE)
-        addSuperinterface(ClassName(service.packageName, service.name))
+        addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
         primaryConstructor(
             listOf(
                 PropertySpec.builder("remote", remoteBinderClassName)
@@ -101,7 +101,7 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
 
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(
-            service.packageName,
+            service.type.packageName,
             "I${method.returnType.poetSpec().simpleName}TransactionCallback",
             "Stub"
         )
@@ -145,6 +145,6 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
 
     private val Method.returnsUnit: Boolean
         get() {
-            return returnType.name == Unit::class.qualifiedName
+            return returnType.qualifiedName == Unit::class.qualifiedName
         }
 }
