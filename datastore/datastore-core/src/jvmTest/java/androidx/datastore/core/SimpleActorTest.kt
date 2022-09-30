@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -239,6 +240,7 @@ class SimpleActorTest {
         sender.await()
     }
 
+    @Ignore // b/250077079
     @Test
     fun testAllMessagesAreRespondedTo() = runBlocking<Unit> {
         val myScope =
