@@ -81,6 +81,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -163,6 +164,7 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @FlakyTest(bugId = 249803914)
     @Test
     fun createResponsiveAppWidget() {
         TestGlanceAppWidget.sizeMode =

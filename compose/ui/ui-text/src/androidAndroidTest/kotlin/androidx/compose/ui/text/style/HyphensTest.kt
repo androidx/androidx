@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.test.filters.FlakyTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -24,6 +25,7 @@ import org.junit.Test
 class HyphensTest : TextLineBreaker() {
     private val text = "Transformation"
 
+    @FlakyTest(bugId = 249115942)
     @Test
     fun check_hyphens_Auto() {
         val brokenLines = breakTextIntoLines(
