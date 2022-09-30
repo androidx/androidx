@@ -35,7 +35,7 @@ dependencies {
     compileOnly(project(":camera:camera-extensions-stub"))
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
@@ -49,7 +49,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":camera:camera-lifecycle"))

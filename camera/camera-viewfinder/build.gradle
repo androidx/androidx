@@ -39,7 +39,7 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
@@ -47,7 +47,7 @@ dependencies {
     testImplementation(libs.testCore)
 
     androidTestImplementation(libs.multidex)
-    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
 }
 
