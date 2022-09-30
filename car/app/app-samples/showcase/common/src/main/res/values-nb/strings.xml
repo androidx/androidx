@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Denne teksten har en grønn farge"</string>
     <string name="example_3_text" msgid="977269832109695627">"Denne teksten har en blå farge"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Denne teksten har en gul farge"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Denne teksten bruker hovedfargen"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Denne fargen bruker sekundærfargen"</string>
     <string name="color_demo" msgid="1822427636476178993">"Fargedemo"</string>
     <string name="list_limit" msgid="3023536401535417286">"Listegrense"</string>
@@ -114,10 +113,8 @@
     <string name="finish_app_msg" msgid="8354334557053141891">"Dette lukker appen, og når du kommer tilbake til den, forhåndsseeder den en tillatelsesskjerm"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Lukk appdemo"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Demo av forhåndsseeding av tillatelsesskjermen ved neste kjøring"</string>
-    <!-- no translation found for preseed_permission_app_title (182847662545676962) -->
-    <skip />
-    <!-- no translation found for preseed_permission_demo_title (5476541421753978071) -->
-    <skip />
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"Appdemo for forhåndsseeding av tillatelser"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Demo for forhåndsseeding av tillatelsesskjermen ved neste kjøring"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Laster inn demoen"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Innlastingen er ferdig!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Gå til rotnivå"</string>
@@ -233,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Inkompatibel vert"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo av meldingsmal"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Meldingen skal skrives her.\nMer tekst i den andre linjen."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo av mal for kort melding"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo av panelmal"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo av mal for stedsliste"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Bla gjennom steder"</string>
@@ -270,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"En vektor-drawable, med fargetone"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"En vektor-drawable, med temaattributten til en app som farge"</string>
     <string name="png_res_title" msgid="7437083018336747544">"En PNG-fil, sendt som en ressurs"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"En PNG-fil, sendt som punktgrafikk"</string>
     <string name="just_row_title" msgid="965700021568970725">"Bare en tittel"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Tittel med appikon"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Tittel med bilde av ressurs-ID"</string>
@@ -283,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demo av rader"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Demoer for tekst og ikoner"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demo av rader med tekst og ikoner"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demo av lister med alternativknapper"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demo av velgbare lister"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Alternativ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Alternativ 2"</string>
@@ -298,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Oppgavegrensen er nådd\nHvis du fortsetter, blir appen tvunget til å avslutte"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Oppgavetrinn %1$d av %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klikk for å fortsette"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demo av av/på-knapp"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Test av/på-knapp"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Dynamiske endringer er tillatt"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Aktiver test av av/på-knapp"</string>
@@ -314,49 +307,29 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Test av av/på-knapp er deaktivert"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demoer av diverse maler"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demoer i fokus"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
-    <!-- no translation found for voice_access_demo_title (3825223890895361496) -->
-    <skip />
-    <!-- no translation found for user_interactions_demo_title (1356952319161314986) -->
-    <skip />
-    <!-- no translation found for request_permission_menu_demo_title (4796486779527427017) -->
-    <skip />
-    <!-- no translation found for perm_group (3834918337351876270) -->
-    <skip />
-    <!-- no translation found for perm_group_description (7348847631139139024) -->
-    <skip />
-    <!-- no translation found for perm_fine_location (5438874642600304118) -->
-    <skip />
-    <!-- no translation found for perm_fine_location_desc (3549183883787912516) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location (6140337431619481015) -->
-    <skip />
-    <!-- no translation found for perm_coarse_location_desc (6074759942301565943) -->
-    <skip />
-    <!-- no translation found for perm_record_audio (2758340693260523493) -->
-    <skip />
-    <!-- no translation found for perm_record_audio_desc (8038648467605928912) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Demoer av mallayout"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Demoer av rutenettmaler"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Demoskjerm for Voice Access"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"Brukerinteraksjoner"</string>
+    <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demoer for forespørsler om tillatelser"</string>
+    <string name="perm_group" msgid="3834918337351876270">"Tillatelsesgruppe"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Tillatelsesgruppe for Showcase-appen"</string>
+    <string name="perm_fine_location" msgid="5438874642600304118">"Tilgang til nøyaktig posisjon"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Tillatelse for tilgang til nøyaktig posisjon"</string>
+    <string name="perm_coarse_location" msgid="6140337431619481015">"Tilgang til anslått posisjon"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Tillatelse for tilgang til anslått posisjon"</string>
+    <string name="perm_record_audio" msgid="2758340693260523493">"Tilgang til lydopptak"</string>
+    <string name="perm_record_audio_desc" msgid="8038648467605928912">"Tillatelse for tilgang til lydopptak"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Ressursvektor med justert fargetone"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Punktgrafikk av bilderessurs"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Farget tekstmarkør"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Punktgrafikkbilde"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Tekstetikett"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Demo av parkering kontra kjøring"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Klyngeskjermer i biler!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"De nyeste funksjonene"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Innlasting er aktivert"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Innlasting er deaktivert"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Innlastingsskjerm"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Slå av/på for å legge til / fjerne farge"</string>
 </resources>
