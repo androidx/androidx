@@ -552,7 +552,9 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected abstract Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution);
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
+    }
 
     /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
