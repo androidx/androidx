@@ -35,12 +35,6 @@ public class ExerciseUpdate(
      */
     public val startTime: Instant?,
 
-    /**
-     * Returns the total elapsed time for which the exercise has been active, i.e. started but not
-     * paused. The active duration is zero in prepare phase.
-     */
-    public val activeDuration: Duration,
-
     /** The duration since boot when this ExerciseUpdate was created. */
     private val updateDurationFromBoot: Duration?,
 
@@ -83,7 +77,6 @@ public class ExerciseUpdate(
         proto: DataProto.ExerciseUpdate
     ) : this(
         if (proto.hasStartTimeEpochMs()) Instant.ofEpochMilli(proto.startTimeEpochMs) else null,
-        Duration.ofMillis(proto.activeDurationMs),
         if (proto.hasUpdateDurationFromBootMs()) {
             Duration.ofMillis(proto.updateDurationFromBootMs)
         } else {
@@ -141,6 +134,24 @@ public class ExerciseUpdate(
         override fun toString(): String =
             "ActiveDurationCheckpoint(time=$time, activeDuration=$activeDuration)"
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ActiveDurationCheckpoint
+
+            if (time != other.time) return false
+            if (activeDuration != other.activeDuration) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = time.hashCode()
+            result = 31 * result + activeDuration.hashCode()
+            return result
+        }
+
         internal companion object {
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -161,7 +172,6 @@ public class ExerciseUpdate(
         val builder =
             DataProto.ExerciseUpdate.newBuilder()
                 .setState(exerciseStateInfo.state.toProto())
-                .setActiveDurationMs(activeDuration.toMillis())
                 .addAllLatestMetrics(
                     latestMetrics.sampleDataPoints
                         .groupBy { it.dataType }
@@ -207,6 +217,7 @@ public class ExerciseUpdate(
         exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.toProto()) }
         activeDurationCheckpoint?.let {
             builder.setActiveDurationCheckpoint(activeDurationCheckpoint.toProto())
+            builder.setActiveDurationMs(activeDurationCheckpoint.activeDuration.toMillis())
         }
 
         return builder.build()
@@ -240,8 +251,6 @@ public class ExerciseUpdate(
      * The provided [SampleDataPoint] should be present in this [ExerciseUpdate].
      *
      * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
-     * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
-     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
     public fun getActiveDurationAtDataPoint(dataPoint: SampleDataPoint<*>): Duration =
         getActiveDurationAtDataPoint(dataPoint, dataPoint.timeDurationFromBoot)
@@ -255,25 +264,30 @@ public class ExerciseUpdate(
             throw IllegalArgumentException("dataPoint not found in ExerciseUpdate")
         }
 
+        // If activeDurationCheckpoint is null, user has not started their activity yet. Default to
+        // zero.
+        if (activeDurationCheckpoint == null) {
+            return Duration.ZERO
+        }
+
         // If we are paused then the last active time applies to all updates.
         if (exerciseStateInfo.state == ExerciseState.USER_PAUSED ||
             exerciseStateInfo.state == ExerciseState.AUTO_PAUSED
         ) {
-            return activeDuration
+            return activeDurationCheckpoint.activeDuration
         }
 
         // Active duration applies to when this update was generated so calculate for the given time
         // by working backwards.
         // First find time since this point was generated.
         val durationSinceProvidedTime = getUpdateDurationFromBoot().minus(durationFromBoot)
-        return activeDuration.minus(durationSinceProvidedTime)
+        return activeDurationCheckpoint.activeDuration.minus(durationSinceProvidedTime)
     }
 
     override fun toString(): String =
         "ExerciseUpdate(" +
             "state=$exerciseStateInfo.state, " +
             "startTime=$startTime, " +
-            "activeDuration=$activeDuration, " +
             "updateDurationFromBoot=$updateDurationFromBoot, " +
             "latestMetrics=$latestMetrics, " +
             "latestAchievedGoals=$latestAchievedGoals, " +
@@ -288,7 +302,6 @@ public class ExerciseUpdate(
         if (other !is ExerciseUpdate) return false
 
         if (startTime != other.startTime) return false
-        if (activeDuration != other.activeDuration) return false
         if (latestMetrics != other.latestMetrics) return false
         if (latestAchievedGoals != other.latestAchievedGoals) return false
         if (latestMilestoneMarkerSummaries != other.latestMilestoneMarkerSummaries) return false
@@ -302,7 +315,6 @@ public class ExerciseUpdate(
 
     override fun hashCode(): Int {
         var result = startTime?.hashCode() ?: 0
-        result = 31 * result + activeDuration.hashCode()
         result = 31 * result + latestMetrics.hashCode()
         result = 31 * result + latestAchievedGoals.hashCode()
         result = 31 * result + latestMilestoneMarkerSummaries.hashCode()

@@ -41,7 +41,6 @@ internal class ExerciseUpdateTest {
         )
         val proto = ExerciseUpdate(
             startTime = 10.instant(),
-            activeDuration = 60.duration(),
             updateDurationFromBoot = 42.duration(),
             latestMetrics = DataPointContainer(
                 listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
@@ -74,7 +73,6 @@ internal class ExerciseUpdateTest {
         val caloriesDataPoint = update.latestMetrics.getData(DataType.CALORIES).first()
         val markerSummary = update.latestMilestoneMarkerSummaries.first()
         assertThat(update.startTime).isEqualTo(10.instant())
-        assertThat(update.activeDuration).isEqualTo(60.duration())
         assertThat(update.getUpdateDurationFromBoot()).isEqualTo(42.duration())
         assertThat(caloriesDataPoint.value).isEqualTo(130.0)
         assertThat(caloriesDataPoint.startDurationFromBoot).isEqualTo(15.duration())
