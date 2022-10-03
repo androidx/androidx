@@ -415,28 +415,40 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testJpegFiles() throws Throwable {
+    public void testJpegWithExifIntelByteOrder() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
         writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
+    }
 
+    @Test
+    @LargeTest
+    public void testJpegWithExifMotorolaByteOrder() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
         writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
+    }
 
+    @Test
+    @LargeTest
+    public void testJpegWithExifAndXmp() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
         writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
     }
 
     @Test
     @LargeTest
-    public void testDngFiles() throws Throwable {
+    public void testDngWithExifAndXmp() throws Throwable {
         readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
     }
 
     @Test
     @LargeTest
-    public void testPngFiles() throws Throwable {
+    public void testPngWithExif() throws Throwable {
         readFromFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
+    }
 
+    @Test
+    @LargeTest
+    public void testPngWithoutExif() throws Throwable {
         writeToFilesWithoutExif(PNG_WITHOUT_EXIF);
     }
 
@@ -451,12 +463,25 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testWebpFiles() throws Throwable {
+    public void testWebpWithExif() throws Throwable {
         readFromFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
         writeToFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
+    }
 
-        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+    @Test
+    @LargeTest
+    public void testWebpWithoutExif() throws Throwable {
         writeToFilesWithoutExif(WEBP_WITHOUT_EXIF);
+    }
+
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifWithAnimData() throws Throwable {
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
+    }
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
         writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING);
     }
 
@@ -1247,15 +1272,19 @@ public class ExifInterfaceTest {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
-        File imageFile = getFileFromExternalDir(fileName);
+        File srcFile = getFileFromExternalDir(fileName);
+        File imageFile = clone(srcFile);
         String verboseTag = imageFile.getName();
 
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         exifInterface.saveAttributes();
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
+        assertBitmapsEquivalent(srcFile, imageFile);
+        assertSecondSaveProducesSameSizeFile(imageFile);
 
         // Test for modifying one attribute.
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         String backupValue = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
         exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
         exifInterface.saveAttributes();
@@ -1263,7 +1292,6 @@ public class ExifInterfaceTest {
         if (expectedValue.hasThumbnail) {
             testThumbnail(expectedValue, exifInterface);
         }
-        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
         // Check if thumbnail bytes can be retrieved from the new thumbnail range.
         if (expectedValue.hasThumbnail) {
@@ -1307,15 +1335,19 @@ public class ExifInterfaceTest {
     }
 
     private void writeToFilesWithoutExif(String fileName) throws IOException {
-        File imageFile = getFileFromExternalDir(fileName);
+        File srcFile = getFileFromExternalDir(fileName);
+        File imageFile = clone(srcFile);
 
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
         exifInterface.saveAttributes();
 
+        assertBitmapsEquivalent(srcFile, imageFile);
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
         assertEquals("abc", make);
+
+        assertSecondSaveProducesSameSizeFile(imageFile);
     }
 
     private void testThumbnail(ExpectedValue expectedValue, ExifInterface exifInterface) {
@@ -1412,5 +1444,71 @@ public class ExifInterfaceTest {
     private File getFileFromExternalDir(String fileName) {
         return new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
                 fileName);
+    }
+
+    /**
+     * Asserts that {@code expectedImageFile} and {@code actualImageFile} can be decoded by
+     * {@link BitmapFactory} and the results have the same width, height and MIME type.
+     *
+     * <p>This does not check the image itself for similarity/equality.
+     */
+    private void assertBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
+        BitmapFactory.Options expectedOptions = new BitmapFactory.Options();
+        Bitmap expectedBitmap = decodeBitmap(expectedImageFile, expectedOptions);
+        BitmapFactory.Options actualOptions = new BitmapFactory.Options();
+        Bitmap actualBitmap = decodeBitmap(actualImageFile, actualOptions);
+
+        assertEquals(expectedOptions.outWidth, actualOptions.outWidth);
+        assertEquals(expectedOptions.outHeight, actualOptions.outHeight);
+        assertEquals(expectedOptions.outMimeType, actualOptions.outMimeType);
+        assertEquals(expectedBitmap.getWidth(), actualBitmap.getWidth());
+        assertEquals(expectedBitmap.getHeight(), actualBitmap.getHeight());
+    }
+
+    /**
+     * Equivalent to {@link BitmapFactory#decodeFile(String, BitmapFactory.Options)} but uses a
+     * {@link BufferedInputStream} to avoid violating
+     * {@link StrictMode.ThreadPolicy.Builder#detectUnbufferedIo()}.
+     */
+    private static Bitmap decodeBitmap(File file, BitmapFactory.Options options) {
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+            return BitmapFactory.decodeStream(inputStream, /* outPadding= */ null, options);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Asserts that saving the file the second time (without modifying any attributes) produces
+     * exactly the same length file as the first save. The first save (with no modifications) is
+     * expected to (possibly) change the file length because {@link ExifInterface} may move/reformat
+     * the Exif block within the file, but the second save should not make further modifications.
+     */
+    private void assertSecondSaveProducesSameSizeFile(File imageFileAfterOneSave)
+            throws IOException {
+        File imageFileAfterTwoSaves = clone(imageFileAfterOneSave);
+        ExifInterface exifInterface = new ExifInterface(imageFileAfterTwoSaves.getAbsolutePath());
+        exifInterface.saveAttributes();
+        if (imageFileAfterOneSave.getAbsolutePath().endsWith(".png")
+                || imageFileAfterOneSave.getAbsolutePath().endsWith(".webp")) {
+            // PNG and (some) WebP files are (surprisingly) modified between the first and second
+            // save (b/249097443), so we check the difference between second and third save instead.
+            File imageFileAfterThreeSaves = clone(imageFileAfterTwoSaves);
+            exifInterface = new ExifInterface(imageFileAfterThreeSaves.getAbsolutePath());
+            exifInterface.saveAttributes();
+            assertEquals(imageFileAfterTwoSaves.length(), imageFileAfterThreeSaves.length());
+        } else {
+            assertEquals(imageFileAfterOneSave.length(), imageFileAfterTwoSaves.length());
+        }
+    }
+
+    private File clone(File original) throws IOException {
+        File cloned =
+                File.createTempFile("tmp_", System.nanoTime() + "_" + original.getName());
+        try (FileInputStream inputStream = new FileInputStream(original);
+             FileOutputStream outputStream = new FileOutputStream(cloned)) {
+            copy(inputStream, outputStream);
+        }
+        return cloned;
     }
 }
