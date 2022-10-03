@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -13,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("MigrationKt")
 
 package androidx.room.migration
 
@@ -47,5 +49,5 @@ private class MigrationImpl(
     endVersion: Int,
     val migrateCallback: (SupportSQLiteDatabase) -> Unit
 ) : Migration(startVersion, endVersion) {
-    override fun migrate(database: SupportSQLiteDatabase) = migrateCallback(database)
+    override fun migrate(db: SupportSQLiteDatabase) = migrateCallback(db)
 }
