@@ -18,7 +18,7 @@ package androidx.camera.extensions.internal;
 
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CaptureResult;
@@ -73,7 +73,7 @@ public class AdaptingRequestUpdateProcessorTest {
 
         mAdaptingRequestUpdateProcessor.getCaptureStage();
 
-        verifyNoMoreInteractions(mPreviewExtenderImpl);
+        verifyZeroInteractions(mPreviewExtenderImpl);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class AdaptingRequestUpdateProcessorTest {
 
         mAdaptingRequestUpdateProcessor.process(mImageInfo);
 
-        verifyNoMoreInteractions(mImpl);
+        verifyZeroInteractions(mImpl);
     }
 
     /**
