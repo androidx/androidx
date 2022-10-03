@@ -22,6 +22,7 @@ import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import java.io.File
 import java.util.UUID
 
@@ -40,4 +41,5 @@ object Utils {
     internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
         TEMP_FILE
     ).build()
+    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult()
 }

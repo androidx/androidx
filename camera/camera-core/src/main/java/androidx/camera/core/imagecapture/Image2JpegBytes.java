@@ -32,7 +32,6 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.os.Build;
-import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -86,7 +85,8 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),
-                packet.getSensorToBufferTransform());
+                packet.getSensorToBufferTransform(),
+                packet.getCameraCaptureResult());
     }
 
     private Packet<byte[]> processYuvImage(@NonNull Image2JpegBytes.In input)
@@ -114,12 +114,12 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
                 new Size(cropRect.width(), cropRect.height()),
                 new Rect(0, 0, cropRect.width(), cropRect.height()),
                 packet.getRotationDegrees(),
-                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));
+                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect),
+                packet.getCameraCaptureResult());
     }
 
     private static byte[] byteBufferToByteArray(@NonNull ByteBuffer buffer) {
         int jpegSize = buffer.position();
-        Log.d("asdf", "jpeg size " + jpegSize);
         byte[] bytes = new byte[jpegSize];
         buffer.rewind();
         buffer.get(bytes, 0, jpegSize);

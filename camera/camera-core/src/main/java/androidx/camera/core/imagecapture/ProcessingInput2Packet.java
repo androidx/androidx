@@ -38,7 +38,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
 
@@ -72,6 +74,8 @@ final class ProcessingInput2Packet implements
             }
         }
 
+        CameraCaptureResult cameraCaptureResult =
+                ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
         // Default metadata based on UseCase config.
         Rect cropRect = request.getCropRect();
         Matrix sensorToBuffer = request.getSensorToBufferTransform();
@@ -92,8 +96,10 @@ final class ProcessingInput2Packet implements
             rotationDegrees = exif.getRotation();
         }
 
-        return Packet.of(image, exif, cropRect, rotationDegrees, sensorToBuffer);
+        return Packet.of(image, exif, cropRect, rotationDegrees, sensorToBuffer,
+                cameraCaptureResult);
     }
+
 
     private static boolean isSizeMatch(@NonNull Exif exif, @NonNull ImageProxy image) {
         return exif.getWidth() == image.getWidth() && exif.getHeight() == image.getHeight();

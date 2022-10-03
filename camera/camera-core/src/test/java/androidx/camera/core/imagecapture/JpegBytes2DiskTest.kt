@@ -26,6 +26,7 @@ import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.imagecapture.Utils.ALTITUDE
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
@@ -69,7 +70,8 @@ class JpegBytes2DiskTest {
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             ROTATION_DEGREES,
-            Matrix()
+            Matrix(),
+            CAMERA_CAPTURE_RESULT
         )
         // Act: save to a OutputStream.
         FileOutputStream(TEMP_FILE).use {
@@ -153,7 +155,8 @@ class JpegBytes2DiskTest {
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             rotation,
-            Matrix()
+            Matrix(),
+            CAMERA_CAPTURE_RESULT
         )
         val options = OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()
         val input = JpegBytes2Disk.In.of(inputPacket, options)

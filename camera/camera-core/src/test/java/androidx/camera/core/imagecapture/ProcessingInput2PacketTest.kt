@@ -22,6 +22,7 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -31,13 +32,13 @@ import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.testing.ExifUtil.updateExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
-import androidx.camera.testing.fakes.FakeImageInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,11 @@ class ProcessingInput2PacketTest {
     @Test
     fun processYuvInput_exifIsNull() {
         // Arrange: create input
-        val image = createYuvFakeImageProxy(FakeImageInfo(), WIDTH, HEIGHT)
+        val image = createYuvFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            WIDTH,
+            HEIGHT
+        )
         val processingRequest = createProcessingRequest()
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
@@ -73,6 +78,7 @@ class ProcessingInput2PacketTest {
         assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)
         assertThat(output.size).isEqualTo(Size(WIDTH, HEIGHT))
         assertThat(output.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
     }
 
     @Test
