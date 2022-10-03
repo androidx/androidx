@@ -22,5 +22,7 @@
   <item name="carColorSecondary">#328E10</item>
   <item name="carColorSecondaryDark">#1A6004</item>
   <item name="carPermissionActivityLayout">@layout/permission_request</item>
+  <item name="markerIconTintColor">#FF7F39FB</item>
+  <item name="markerIconTintColorDark">#FF5904DF</item>
 </style>
 </resources>
