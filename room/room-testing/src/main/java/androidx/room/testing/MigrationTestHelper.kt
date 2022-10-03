@@ -13,209 +13,163 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room.testing
 
-package androidx.room.testing;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-
-import android.annotation.SuppressLint;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.room.AutoMigration;
-import androidx.room.DatabaseConfiguration;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.room.RoomOpenHelper;
-import androidx.room.RoomOpenHelper.ValidationResult;
-import androidx.room.migration.AutoMigrationSpec;
-import androidx.room.migration.Migration;
-import androidx.room.migration.bundle.DatabaseBundle;
-import androidx.room.migration.bundle.DatabaseViewBundle;
-import androidx.room.migration.bundle.EntityBundle;
-import androidx.room.migration.bundle.FieldBundle;
-import androidx.room.migration.bundle.ForeignKeyBundle;
-import androidx.room.migration.bundle.FtsEntityBundle;
-import androidx.room.migration.bundle.IndexBundle;
-import androidx.room.migration.bundle.SchemaBundle;
-import androidx.room.util.FtsTableInfo;
-import androidx.room.util.TableInfo;
-import androidx.room.util.ViewInfo;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
-
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import android.annotation.SuppressLint
+import android.app.Instrumentation
+import android.content.Context
+import android.util.Log
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.room.DatabaseConfiguration
+import androidx.room.Room
+import androidx.room.Room.getGeneratedImplementation
+import androidx.room.RoomDatabase
+import androidx.room.RoomOpenHelper
+import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.DatabaseViewBundle
+import androidx.room.migration.bundle.EntityBundle
+import androidx.room.migration.bundle.FieldBundle
+import androidx.room.migration.bundle.ForeignKeyBundle
+import androidx.room.migration.bundle.FtsEntityBundle
+import androidx.room.migration.bundle.IndexBundle
+import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.migration.bundle.SchemaBundle.Companion.deserialize
+import androidx.room.util.FtsTableInfo
+import androidx.room.util.TableInfo
+import androidx.room.util.ViewInfo
+import androidx.room.util.useCursor
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.lang.ref.WeakReference
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 
 /**
  * A class that can be used in your Instrumentation tests that can create the database in an
  * older schema.
- * <p>
- * You must copy the schema json files (created by passing {@code room.schemaLocation} argument
+ *
+ * You must copy the schema json files (created by passing `room.schemaLocation` argument
  * into the annotation processor) into your test assets and pass in the path for that folder into
  * the constructor. This class will read the folder and extract the schemas from there.
- * <pre>
+ *
+ * ```
  * android {
- *   defaultConfig {
- *     javaCompileOptions {
- *       annotationProcessorOptions {
- *         arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
- *       }
+ *     defaultConfig {
+ *         javaCompileOptions {
+ *             annotationProcessorOptions {
+ *                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+ *             }
+ *         }
  *     }
- *   }
- *   sourceSets {
- *     androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
- *   }
+ *     sourceSets {
+ *         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+ *     }
  * }
- * </pre>
+ * ```
  */
-public class MigrationTestHelper extends TestWatcher {
-    private static final String TAG = "MigrationTestHelper";
-    private final String mAssetsFolder;
-    private final SupportSQLiteOpenHelper.Factory mOpenFactory;
-    private List<WeakReference<SupportSQLiteDatabase>> mManagedDatabases = new ArrayList<>();
-    private List<WeakReference<RoomDatabase>> mManagedRoomDatabases = new ArrayList<>();
-    private boolean mTestStarted;
-    private Instrumentation mInstrumentation;
-    @Nullable
-    private List<AutoMigrationSpec> mSpecs;
-    @Nullable
-    private Class<? extends RoomDatabase> mDatabaseClass;
-    @NonNull
-    private DatabaseConfiguration mDatabaseConfiguration;
+open class MigrationTestHelper : TestWatcher {
+    private val assetsFolder: String
+    private val openFactory: SupportSQLiteOpenHelper.Factory
+    private val managedDatabases = mutableListOf<WeakReference<SupportSQLiteDatabase>>()
+    private val managedRoomDatabases = mutableListOf<WeakReference<RoomDatabase>>()
+    private var testStarted = false
+    private val instrumentation: Instrumentation
+    private val specs: List<AutoMigrationSpec>
+    private val databaseClass: Class<out RoomDatabase>?
+    internal lateinit var databaseConfiguration: DatabaseConfiguration
 
     /**
      * Creates a new migration helper. It uses the Instrumentation context to load the schema
      * (falls back to the app resources) and the target context to create the database.
-     *
-     * @deprecated Cannot be used to run migration tests involving {@link AutoMigration}.
-     * <p>
-     * To test {@link AutoMigration}, you must use
-     * {@link #MigrationTestHelper(Instrumentation, Class, List, SupportSQLiteOpenHelper.Factory)}
-     * for tests containing a {@link androidx.room.ProvidedAutoMigrationSpec}, or use
-     * {@link #MigrationTestHelper(Instrumentation, Class, List)}
-     * otherwise.
      *
      * @param instrumentation The instrumentation instance.
      * @param assetsFolder    The asset folder in the assets directory.
+     * @param openFactory factory for creating an [SupportSQLiteOpenHelper]
      */
-    @Deprecated
-    public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder) {
-        this(instrumentation, assetsFolder, new FrameworkSQLiteOpenHelperFactory());
-    }
-
-    /**
-     * Creates a new migration helper. It uses the Instrumentation context to load the schema
-     * (falls back to the app resources) and the target context to create the database.
-     *
-     * @deprecated Cannot be used to run migration tests involving {@link AutoMigration}.
-     * <p>
-     * To test {@link AutoMigration}, you must use
-     * {@link #MigrationTestHelper(Instrumentation, Class, List, SupportSQLiteOpenHelper.Factory)}
-     * for tests containing a {@link androidx.room.ProvidedAutoMigrationSpec}, or use
-     * {@link #MigrationTestHelper(Instrumentation, Class, List)}
-     * otherwise.
-     *
-     * @param instrumentation The instrumentation instance.
-     * @param assetsFolder    The asset folder in the assets directory.
-     * @param openFactory     Factory class that allows creation of {@link SupportSQLiteOpenHelper}
-     */
-    @Deprecated
-    public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder,
-            SupportSQLiteOpenHelper.Factory openFactory) {
-        mInstrumentation = instrumentation;
-        mAssetsFolder = assetsFolder;
-        mOpenFactory = openFactory;
-        mDatabaseClass = null;
-        mSpecs = new ArrayList<>();
-    }
-
-    /**
-     * Creates a new migration helper. It uses the Instrumentation context to load the schema
-     * (falls back to the app resources) and the target context to create the database.
-     *
-     * @param instrumentation The instrumentation instance.
-     * @param databaseClass   The Database class to be tested.
-     */
-    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
-            @NonNull Class<? extends RoomDatabase> databaseClass) {
-        this(instrumentation, databaseClass, new ArrayList<>(),
-                new FrameworkSQLiteOpenHelperFactory());
-    }
-
-    /**
-     * Creates a new migration helper. It uses the Instrumentation context to load the schema
-     * (falls back to the app resources) and the target context to create the database.
-     * <p>
-     * An instance of a class annotated with {@link androidx.room.ProvidedAutoMigrationSpec} has
-     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
-     * spec classes to their provided instances before running and validatingt the Migrations.
-     *
-     * @param instrumentation The instrumentation instance.
-     * @param databaseClass   The Database class to be tested.
-     * @param specs           The list of available auto migration specs that will be provided to
-     *                        Room at runtime.
-     */
-    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
-            @NonNull Class<? extends RoomDatabase> databaseClass,
-            @NonNull List<AutoMigrationSpec> specs) {
-        this(instrumentation, databaseClass, specs, new FrameworkSQLiteOpenHelperFactory());
-    }
-
-    /**
-     * Creates a new migration helper. It uses the Instrumentation context to load the schema
-     * (falls back to the app resources) and the target context to create the database.
-     * <p>
-     * An instance of a class annotated with {@link androidx.room.ProvidedAutoMigrationSpec} has
-     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
-     * spec classes to their provided instances before running and validatingt the Migrations.
-     *
-     * @param instrumentation The instrumentation instance.
-     * @param databaseClass   The Database class to be tested.
-     * @param specs           The list of available auto migration specs that will be provided to
-     *                        Room at runtime.
-     * @param openFactory     Factory class that allows creation of {@link SupportSQLiteOpenHelper}
-     */
-    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
-            @NonNull Class<? extends RoomDatabase> databaseClass,
-            @NonNull List<AutoMigrationSpec> specs,
-            @NonNull SupportSQLiteOpenHelper.Factory openFactory
+    @Deprecated(
+        """
+            Cannot be used to run migration tests involving [AutoMigration].
+            To test [AutoMigration], you must use [MigrationTestHelper(Instrumentation, Class, List,
+            SupportSQLiteOpenHelper.Factory)] for tests containing a
+            [androidx.room.ProvidedAutoMigrationSpec], or use
+            [MigrationTestHelper(Instrumentation, Class, List)] otherwise.
+      """
+    )
+    @JvmOverloads
+    constructor(
+        instrumentation: Instrumentation,
+        assetsFolder: String,
+        openFactory: SupportSQLiteOpenHelper.Factory = FrameworkSQLiteOpenHelperFactory()
     ) {
-        String assetsFolder = databaseClass.getCanonicalName();
-        mInstrumentation = instrumentation;
-        if (assetsFolder.endsWith("/")) {
-            assetsFolder = assetsFolder.substring(0, assetsFolder.length() - 1);
-        }
-        mAssetsFolder = assetsFolder;
-        mOpenFactory = openFactory;
-        mDatabaseClass = databaseClass;
-        mSpecs = specs;
+        this.instrumentation = instrumentation
+        this.assetsFolder = assetsFolder
+        this.openFactory = openFactory
+        databaseClass = null
+        specs = mutableListOf()
     }
 
-    @Override
-    protected void starting(Description description) {
-        super.starting(description);
-        mTestStarted = true;
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     *
+     * An instance of a class annotated with [androidx.room.ProvidedAutoMigrationSpec] has
+     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
+     * spec classes to their provided instances before running and validating the Migrations.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param databaseClass   The Database class to be tested.
+     */
+    constructor(
+        instrumentation: Instrumentation,
+        databaseClass: Class<out RoomDatabase>
+    ) : this(
+        instrumentation, databaseClass, emptyList(), FrameworkSQLiteOpenHelperFactory()
+    )
+
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     *
+     *
+     * An instance of a class annotated with [androidx.room.ProvidedAutoMigrationSpec] has
+     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
+     * spec classes to their provided instances before running and validating the Migrations.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param databaseClass   The Database class to be tested.
+     * @param specs           The list of available auto migration specs that will be provided to
+     * Room at runtime.
+     * @param openFactory factory for creating an [SupportSQLiteOpenHelper]
+     */
+    @JvmOverloads
+    constructor(
+        instrumentation: Instrumentation,
+        databaseClass: Class<out RoomDatabase>,
+        specs: List<AutoMigrationSpec>,
+        openFactory: SupportSQLiteOpenHelper.Factory = FrameworkSQLiteOpenHelperFactory()
+    ) {
+        this.assetsFolder = checkNotNull(databaseClass.canonicalName).let {
+            if (it.endsWith("/")) {
+                it.substring(0, databaseClass.canonicalName!!.length - 1)
+            } else {
+                it
+            }
+        }
+        this.instrumentation = instrumentation
+        this.openFactory = openFactory
+        this.databaseClass = databaseClass
+        this.specs = specs
+    }
+
+    override fun starting(description: Description?) {
+        super.starting(description)
+        testStarted = true
     }
 
     /**
@@ -226,494 +180,500 @@ public class MigrationTestHelper extends TestWatcher {
      * @param name    The name of the database.
      * @param version The version in which the database should be created.
      * @return A database connection which has the schema in the requested version.
-     * @throws IOException If it cannot find the schema description in the assets folder.
      */
     @SuppressLint("RestrictedApi")
-    @SuppressWarnings("SameParameterValue")
-    public SupportSQLiteDatabase createDatabase(String name, int version) throws IOException {
-        File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
+    @Throws(IOException::class)
+    open fun createDatabase(name: String, version: Int): SupportSQLiteDatabase {
+        val dbPath: File = instrumentation.targetContext.getDatabasePath(name)
         if (dbPath.exists()) {
-            Log.d(TAG, "deleting database file " + name);
-            if (!dbPath.delete()) {
-                throw new IllegalStateException("There is a database file and I could not delete"
-                        + " it. Make sure you don't have any open connections to that database"
-                        + " before calling this method.");
+            Log.d(TAG, "deleting database file $name")
+            check(dbPath.delete()) {
+                "There is a database file and I could not delete" +
+                    " it. Make sure you don't have any open connections to that database" +
+                    " before calling this method."
             }
         }
-        SchemaBundle schemaBundle = loadSchema(version);
-        RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
-        DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(),
-                name,
-                mOpenFactory,
-                container,
-                null,
-                true,
-                RoomDatabase.JournalMode.TRUNCATE,
-                ArchTaskExecutor.getIOThreadExecutor(),
-                ArchTaskExecutor.getIOThreadExecutor(),
-                null,
-                true,
-                false,
-                emptySet(),
-                null,
-                null,
-                null,
-                null,
-                emptyList(),
-                emptyList());
-        RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
-                new CreatingDelegate(schemaBundle.getDatabase()),
-                schemaBundle.getDatabase().getIdentityHash(),
-                // we pass the same hash twice since an old schema does not necessarily have
-                // a legacy hash and we would not even persist it.
-                schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, roomOpenHelper);
+        val schemaBundle = loadSchema(version)
+        val container: RoomDatabase.MigrationContainer = RoomDatabase.MigrationContainer()
+        val configuration = DatabaseConfiguration(
+            context = instrumentation.targetContext,
+            name = name,
+            sqliteOpenHelperFactory = openFactory,
+            migrationContainer = container,
+            callbacks = null,
+            allowMainThreadQueries = true,
+            journalMode = RoomDatabase.JournalMode.TRUNCATE,
+            queryExecutor = ArchTaskExecutor.getIOThreadExecutor(),
+            transactionExecutor = ArchTaskExecutor.getIOThreadExecutor(),
+            multiInstanceInvalidationServiceIntent = null,
+            requireMigration = true,
+            allowDestructiveMigrationOnDowngrade = false,
+            migrationNotRequiredFrom = emptySet(),
+            copyFromAssetPath = null,
+            copyFromFile = null,
+            copyFromInputStream = null,
+            prepackagedDatabaseCallback = null,
+            typeConverters = emptyList(),
+            autoMigrationSpecs = emptyList()
+        )
+        val roomOpenHelper = RoomOpenHelper(
+            configuration = configuration,
+            delegate = CreatingDelegate(schemaBundle.database),
+            identityHash = schemaBundle.database.identityHash,
+            // we pass the same hash twice since an old schema does not necessarily have
+            // a legacy hash and we would not even persist it.
+            legacyHash = schemaBundle.database.identityHash
+        )
+        return openDatabase(name, roomOpenHelper)
     }
 
     /**
      * Runs the given set of migrations on the provided database.
-     * <p>
+     *
      * It uses the same algorithm that Room uses to choose migrations so the migrations instances
      * that are provided to this method must be sufficient to bring the database from current
      * version to the desired version.
-     * <p>
+     *
      * After the migration, the method validates the database schema to ensure that migration
      * result matches the expected schema. Handling of dropped tables depends on the
-     * {@code validateDroppedTables} argument. If set to true, the verification will fail if it
+     * `validateDroppedTables` argument. If set to true, the verification will fail if it
      * finds a table that is not registered in the Database. If set to false, extra tables in the
      * database will be ignored (this is the runtime library behavior).
      *
      * @param name                  The database name. You must first create this database via
-     *                              {@link #createDatabase(String, int)}.
+     * [createDatabase].
      * @param version               The final version after applying the migrations.
      * @param validateDroppedTables If set to true, validation will fail if the database has
-     *                              unknown
-     *                              tables.
+     * unknown tables.
      * @param migrations            The list of available migrations.
-     * @throws IOException           If it cannot find the schema for {@code toVersion}.
-     * @throws IllegalStateException If the schema validation fails.
+     * @throws IllegalArgumentException If the schema validation fails.
      */
     @SuppressLint("RestrictedApi")
-    public SupportSQLiteDatabase runMigrationsAndValidate(String name, int version,
-            boolean validateDroppedTables, Migration... migrations) throws IOException {
-        File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
-        if (!dbPath.exists()) {
-            throw new IllegalStateException("Cannot find the database file for " + name + ". "
-                    + "Before calling runMigrations, you must first create the database via "
-                    + "createDatabase.");
+    open fun runMigrationsAndValidate(
+        name: String,
+        version: Int,
+        validateDroppedTables: Boolean,
+        vararg migrations: Migration
+    ): SupportSQLiteDatabase {
+        val dbPath = instrumentation.targetContext.getDatabasePath(name)
+        check(dbPath.exists()) {
+            "Cannot find the database file for $name. " +
+                "Before calling runMigrations, you must first create the database via " +
+                "createDatabase."
         }
-        SchemaBundle schemaBundle = loadSchema(version);
-        RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
-        container.addMigrations(migrations);
-        List<Migration> autoMigrations = getAutoMigrations(mSpecs);
-        for (Migration autoMigration : autoMigrations) {
-            boolean migrationExists = container.contains(
-                    autoMigration.startVersion,
-                    autoMigration.endVersion
-            );
+        val schemaBundle = loadSchema(version)
+        val container = RoomDatabase.MigrationContainer()
+        container.addMigrations(*migrations)
+        val autoMigrations = getAutoMigrations(specs)
+        autoMigrations.forEach { autoMigration ->
+            val migrationExists = container.contains(
+                autoMigration.startVersion,
+                autoMigration.endVersion
+            )
             if (!migrationExists) {
-                container.addMigrations(autoMigration);
+                container.addMigrations(autoMigration)
             }
         }
-
-        mDatabaseConfiguration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(),
-                name,
-                mOpenFactory,
-                container,
-                null,
-                true,
-                RoomDatabase.JournalMode.TRUNCATE,
-                ArchTaskExecutor.getIOThreadExecutor(),
-                ArchTaskExecutor.getIOThreadExecutor(),
-                null,
-                true,
-                false,
-                emptySet(),
-                null,
-                null,
-                null,
-                null,
-                emptyList(),
-                emptyList());
-        RoomOpenHelper roomOpenHelper = new RoomOpenHelper(mDatabaseConfiguration,
-                new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
+        databaseConfiguration = DatabaseConfiguration(
+            context = instrumentation.targetContext,
+            name = name,
+            sqliteOpenHelperFactory = openFactory,
+            migrationContainer = container,
+            callbacks = null,
+            allowMainThreadQueries = true,
+            journalMode = RoomDatabase.JournalMode.TRUNCATE,
+            queryExecutor = ArchTaskExecutor.getIOThreadExecutor(),
+            transactionExecutor = ArchTaskExecutor.getIOThreadExecutor(),
+            multiInstanceInvalidationServiceIntent = null,
+            requireMigration = true,
+            allowDestructiveMigrationOnDowngrade = false,
+            migrationNotRequiredFrom = emptySet(),
+            copyFromAssetPath = null,
+            copyFromFile = null,
+            copyFromInputStream = null,
+            prepackagedDatabaseCallback = null,
+            typeConverters = emptyList(),
+            autoMigrationSpecs = emptyList()
+        )
+        val roomOpenHelper = RoomOpenHelper(
+            configuration = databaseConfiguration,
+            delegate = MigratingDelegate(
+                databaseBundle = schemaBundle.database,
                 // we pass the same hash twice since an old schema does not necessarily have
                 // a legacy hash and we would not even persist it.
-                schemaBundle.getDatabase().getIdentityHash(),
-                schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, roomOpenHelper);
+                mVerifyDroppedTables = validateDroppedTables
+            ),
+            identityHash = schemaBundle.database.identityHash,
+            legacyHash = schemaBundle.database.identityHash
+        )
+        return openDatabase(name, roomOpenHelper)
     }
 
     /**
-     * Returns the {@link DatabaseConfiguration} at the current state of the database after all
-     * migrations have been run and validated in
-     * {@link MigrationTestHelper#runMigrationsAndValidate(String, int, boolean, Migration...)}.
-     * <p>
-     * Returns null if runMigrationsAndValidate() has not been called yet.
-     *
-     * @hide
+     * Returns a list of [Migration] of a database that has been generated using
+     * [androidx.room.AutoMigration].
      */
-    @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public DatabaseConfiguration getDbConfigurationAfterMigrations() {
-        return mDatabaseConfiguration;
-    }
-
-    /**
-     * Returns a list of {@link Migration} of a database that has been generated using
-     * {@link AutoMigration}.
-     */
-    @NonNull
-    private List<Migration> getAutoMigrations(List<AutoMigrationSpec> userProvidedSpecs) {
-        if (mDatabaseClass == null) {
-            if (userProvidedSpecs.isEmpty()) {
+    private fun getAutoMigrations(userProvidedSpecs: List<AutoMigrationSpec>): List<Migration> {
+        if (databaseClass == null) {
+            return if (userProvidedSpecs.isEmpty()) {
                 // TODO: Detect that there are auto migrations to test when a deprecated
                 //  constructor is used.
-                Log.e(TAG, "If you have any AutoMigrations in your implementation, you must use "
-                        + "a non-deprecated MigrationTestHelper constructor to provide the "
-                        + "Database class in order to test them. If you do not have any "
-                        + "AutoMigrations to test, you may ignore this warning.");
-                return new ArrayList<>();
+                Log.e(
+                    TAG, "If you have any AutoMigrations in your implementation, you must use " +
+                        "a non-deprecated MigrationTestHelper constructor to provide the " +
+                        "Database class in order to test them. If you do not have any " +
+                        "AutoMigrations to test, you may ignore this warning."
+                )
+                mutableListOf()
             } else {
-                throw new IllegalStateException("You must provide the database class in the "
-                        + "MigrationTestHelper constructor in order to test auto migrations.");
+                error(
+                    "You must provide the database class in the " +
+                        "MigrationTestHelper constructor in order to test auto migrations."
+                )
             }
         }
-
-        RoomDatabase db = Room.getGeneratedImplementation(mDatabaseClass, "_Impl");
-        Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs =
-                db.getRequiredAutoMigrationSpecs();
+        val db: RoomDatabase = getGeneratedImplementation(
+            databaseClass, "_Impl"
+        )
+        val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecs()
         return db.getAutoMigrations(
-                createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
-        );
+            createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
+        )
     }
 
     /**
      * Maps auto migration spec classes to their provided instance.
      */
-    private Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> createAutoMigrationSpecMap(
-            Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs,
-            List<AutoMigrationSpec> userProvidedSpecs) {
-        Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> specMap = new HashMap<>();
+    private fun createAutoMigrationSpecMap(
+        requiredAutoMigrationSpecs: Set<Class<out AutoMigrationSpec>>,
+        userProvidedSpecs: List<AutoMigrationSpec>
+    ): Map<Class<out AutoMigrationSpec>, AutoMigrationSpec> {
         if (requiredAutoMigrationSpecs.isEmpty()) {
-            return specMap;
+            return emptyMap()
         }
-
-        if (userProvidedSpecs == null) {
-            throw new IllegalStateException(
-                    "You must provide all required auto migration specs in the "
-                            + "MigrationTestHelper constructor."
-            );
-        }
-
-        for (Class<? extends AutoMigrationSpec> spec : requiredAutoMigrationSpecs) {
-            boolean found = false;
-            AutoMigrationSpec match = null;
-            for (AutoMigrationSpec provided : userProvidedSpecs) {
-                if (spec.isAssignableFrom(provided.getClass())) {
-                    found = true;
-                    match = provided;
-                    break;
+        return buildMap {
+            requiredAutoMigrationSpecs.forEach { spec ->
+                val match = userProvidedSpecs.firstOrNull { provided ->
+                    spec.isAssignableFrom(provided.javaClass)
                 }
+                require(match != null) {
+                    "A required auto migration spec (${spec.canonicalName}) has not been provided."
+                }
+                put(spec, match)
             }
-            if (!found) {
-                throw new IllegalArgumentException(
-                        "A required auto migration spec (" + spec.getCanonicalName() + ") has not"
-                                + " been provided."
-                );
-            }
-            specMap.put(spec, match);
         }
-        return specMap;
     }
 
-
-    private SupportSQLiteDatabase openDatabase(String name, RoomOpenHelper roomOpenHelper) {
-        SupportSQLiteOpenHelper.Configuration config =
-                SupportSQLiteOpenHelper.Configuration
-                        .builder(mInstrumentation.getTargetContext())
-                        .callback(roomOpenHelper)
-                        .name(name)
-                        .build();
-        SupportSQLiteDatabase db = mOpenFactory.create(config).getWritableDatabase();
-        mManagedDatabases.add(new WeakReference<>(db));
-        return db;
+    private fun openDatabase(name: String, roomOpenHelper: RoomOpenHelper): SupportSQLiteDatabase {
+        val config = SupportSQLiteOpenHelper.Configuration.builder(instrumentation.targetContext)
+            .callback(roomOpenHelper)
+            .name(name)
+            .build()
+        val db = openFactory.create(config).writableDatabase
+        managedDatabases.add(WeakReference(db))
+        return db
     }
 
-    @Override
-    protected void finished(Description description) {
-        super.finished(description);
-        for (WeakReference<SupportSQLiteDatabase> dbRef : mManagedDatabases) {
-            SupportSQLiteDatabase db = dbRef.get();
-            if (db != null && db.isOpen()) {
+    override fun finished(description: Description?) {
+        super.finished(description)
+        managedDatabases.forEach { dbRef ->
+            val db = dbRef.get()
+            if (db != null && db.isOpen) {
                 try {
-                    db.close();
-                } catch (Throwable ignored) {
+                    db.close()
+                } catch (ignored: Throwable) {
                 }
             }
         }
-        for (WeakReference<RoomDatabase> dbRef : mManagedRoomDatabases) {
-            final RoomDatabase roomDatabase = dbRef.get();
-            if (roomDatabase != null) {
-                roomDatabase.close();
-            }
+        managedRoomDatabases.forEach { dbRef ->
+            val roomDatabase = dbRef.get()
+            roomDatabase?.close()
         }
     }
 
     /**
      * Registers a database connection to be automatically closed when the test finishes.
-     * <p>
-     * This only works if {@code MigrationTestHelper} is registered as a Junit test rule via
-     * {@link org.junit.Rule Rule} annotation.
+     *
+     * This only works if `MigrationTestHelper` is registered as a Junit test rule via
+     * [Rule][org.junit.Rule] annotation.
      *
      * @param db The database connection that should be closed after the test finishes.
      */
-    public void closeWhenFinished(SupportSQLiteDatabase db) {
-        if (!mTestStarted) {
-            throw new IllegalStateException("You cannot register a database to be closed before"
-                    + " the test starts. Maybe you forgot to annotate MigrationTestHelper as a"
-                    + " test rule? (@Rule)");
+    open fun closeWhenFinished(db: SupportSQLiteDatabase) {
+        check(testStarted) {
+            "You cannot register a database to be closed before" +
+                " the test starts. Maybe you forgot to annotate MigrationTestHelper as a" +
+                " test rule? (@Rule)"
         }
-        mManagedDatabases.add(new WeakReference<>(db));
+        managedDatabases.add(WeakReference(db))
     }
 
     /**
      * Registers a database connection to be automatically closed when the test finishes.
-     * <p>
-     * This only works if {@code MigrationTestHelper} is registered as a Junit test rule via
-     * {@link org.junit.Rule Rule} annotation.
+     *
+     * This only works if `MigrationTestHelper` is registered as a Junit test rule via
+     * [Rule][org.junit.Rule] annotation.
      *
      * @param db The RoomDatabase instance which holds the database.
      */
-    public void closeWhenFinished(RoomDatabase db) {
-        if (!mTestStarted) {
-            throw new IllegalStateException("You cannot register a database to be closed before"
-                    + " the test starts. Maybe you forgot to annotate MigrationTestHelper as a"
-                    + " test rule? (@Rule)");
+    open fun closeWhenFinished(db: RoomDatabase) {
+        check(testStarted) {
+            "You cannot register a database to be closed before" +
+                " the test starts. Maybe you forgot to annotate MigrationTestHelper as a" +
+                " test rule? (@Rule)"
         }
-        mManagedRoomDatabases.add(new WeakReference<>(db));
+        managedRoomDatabases.add(WeakReference(db))
     }
 
-    private SchemaBundle loadSchema(int version) throws IOException {
-        try {
-            return loadSchema(mInstrumentation.getContext(), version);
-        } catch (FileNotFoundException testAssetsIOExceptions) {
-            Log.w(TAG, "Could not find the schema file in the test assets. Checking the"
-                    + " application assets");
+    private fun loadSchema(version: Int): SchemaBundle {
+        return try {
+            loadSchema(instrumentation.context, version)
+        } catch (testAssetsIOExceptions: FileNotFoundException) {
+            Log.w(
+                TAG, "Could not find the schema file in the test assets. Checking the" +
+                    " application assets"
+            )
             try {
-                return loadSchema(mInstrumentation.getTargetContext(), version);
-            } catch (FileNotFoundException appAssetsException) {
+                loadSchema(instrumentation.targetContext, version)
+            } catch (appAssetsException: FileNotFoundException) {
                 // throw the test assets exception instead
-                throw new FileNotFoundException("Cannot find the schema file in the assets folder. "
-                        + "Make sure to include the exported json schemas in your test assert "
-                        + "inputs. See "
-                        + "https://developer.android.com/training/data-storage/room/"
-                        + "migrating-db-versions#export-schema for details. Missing file: "
-                        + testAssetsIOExceptions.getMessage());
+                throw FileNotFoundException(
+                    "Cannot find the schema file in the assets folder. " +
+                        "Make sure to include the exported json schemas in your test assert " +
+                        "inputs. See " +
+                        "https://developer.android.com/training/data-storage/room/" +
+                        "migrating-db-versions#export-schema for details. Missing file: " +
+                        testAssetsIOExceptions.message
+                )
             }
         }
     }
 
-    private SchemaBundle loadSchema(Context context, int version) throws IOException {
-        InputStream input = context.getAssets().open(mAssetsFolder + "/" + version + ".json");
-        return SchemaBundle.deserialize(input);
+    private fun loadSchema(context: Context, version: Int): SchemaBundle {
+        val input = context.assets.open("$assetsFolder/$version.json")
+        return deserialize(input)
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static TableInfo toTableInfo(EntityBundle entityBundle) {
-        return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle),
-                toForeignKeys(entityBundle.getForeignKeys()), toIndices(entityBundle.getIndices()));
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static FtsTableInfo toFtsTableInfo(FtsEntityBundle ftsEntityBundle) {
-        return new FtsTableInfo(ftsEntityBundle.getTableName(), toColumnNamesSet(ftsEntityBundle),
-                ftsEntityBundle.getCreateSql());
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static ViewInfo toViewInfo(DatabaseViewBundle viewBundle) {
-        return new ViewInfo(viewBundle.getViewName(), viewBundle.createView());
-    }
-
-    private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
-        if (indices == null) {
-            return emptySet();
-        }
-        Set<TableInfo.Index> result = new HashSet<>();
-        for (IndexBundle bundle : indices) {
-            result.add(new TableInfo.Index(bundle.getName(), bundle.isUnique(),
-                    bundle.getColumnNames(), bundle.getOrders()));
-        }
-        return result;
-    }
-
-    private static Set<TableInfo.ForeignKey> toForeignKeys(
-            List<ForeignKeyBundle> bundles) {
-        if (bundles == null) {
-            return emptySet();
-        }
-        Set<TableInfo.ForeignKey> result = new HashSet<>(bundles.size());
-        for (ForeignKeyBundle bundle : bundles) {
-            result.add(new TableInfo.ForeignKey(bundle.getTable(),
-                    bundle.getOnDelete(), bundle.getOnUpdate(),
-                    bundle.getColumns(), bundle.getReferencedColumns()));
-        }
-        return result;
-    }
-
-    private static Set<String> toColumnNamesSet(EntityBundle entity) {
-        Set<String> result = new HashSet<>();
-        for (FieldBundle field : entity.getFields()) {
-            result.add(field.getColumnName());
-        }
-        return result;
-    }
-
-    private static Map<String, TableInfo.Column> toColumnMap(EntityBundle entity) {
-        Map<String, TableInfo.Column> result = new HashMap<>();
-        for (FieldBundle bundle : entity.getFields()) {
-            TableInfo.Column column = toColumn(entity, bundle);
-            result.put(column.name, column);
-        }
-        return result;
-    }
-
-    private static TableInfo.Column toColumn(EntityBundle entity, FieldBundle field) {
-        return new TableInfo.Column(field.getColumnName(), field.getAffinity(),
-                field.isNonNull(), findPrimaryKeyPosition(entity, field), field.getDefaultValue(),
-                TableInfo.CREATED_FROM_ENTITY);
-    }
-
-    private static int findPrimaryKeyPosition(EntityBundle entity, FieldBundle field) {
-        List<String> columnNames = entity.getPrimaryKey().getColumnNames();
-        int i = 0;
-        for (String columnName : columnNames) {
-            i++;
-            if (field.getColumnName().equalsIgnoreCase(columnName)) {
-                return i;
-            }
-        }
-        return 0;
-    }
-
-    static class MigratingDelegate extends RoomOpenHelperDelegate {
-        private final boolean mVerifyDroppedTables;
-
-        MigratingDelegate(DatabaseBundle databaseBundle, boolean verifyDroppedTables) {
-            super(databaseBundle);
-            mVerifyDroppedTables = verifyDroppedTables;
+    internal class MigratingDelegate(
+        databaseBundle: DatabaseBundle,
+        private val mVerifyDroppedTables: Boolean
+    ) : RoomOpenHelperDelegate(databaseBundle) {
+        override fun createAllTables(database: SupportSQLiteDatabase) {
+            throw UnsupportedOperationException(
+                "Was expecting to migrate but received create." +
+                    "Make sure you have created the database first."
+            )
         }
 
-        @Override
-        public void createAllTables(SupportSQLiteDatabase database) {
-            throw new UnsupportedOperationException("Was expecting to migrate but received create."
-                    + "Make sure you have created the database first.");
-        }
-
-        @NonNull
-        @Override
-        public RoomOpenHelper.ValidationResult onValidateSchema(
-                @NonNull SupportSQLiteDatabase db) {
-            final Map<String, EntityBundle> tables = mDatabaseBundle.getEntitiesByTableName();
-            for (EntityBundle entity : tables.values()) {
-                if (entity instanceof FtsEntityBundle) {
-                    final FtsTableInfo expected = toFtsTableInfo((FtsEntityBundle) entity);
-                    final FtsTableInfo found = FtsTableInfo.read(db, entity.getTableName());
-                    if (!expected.equals(found)) {
-                        return new ValidationResult(false, expected.name
-                                + "\nExpected: " + expected + "\nFound: " + found);
+        override fun onValidateSchema(
+            db: SupportSQLiteDatabase
+        ): RoomOpenHelper.ValidationResult {
+            val tables = mDatabaseBundle.entitiesByTableName
+            tables.values.forEach { entity ->
+                if (entity is FtsEntityBundle) {
+                    val expected = toFtsTableInfo(entity)
+                    val found = FtsTableInfo.read(db, entity.tableName)
+                    if (expected != found) {
+                        return RoomOpenHelper.ValidationResult(
+                            false,
+                            """
+                                ${expected.name}
+                                Expected: $expected
+                                Found: $found
+                            """.trimIndent()
+                        )
                     }
                 } else {
-                    final TableInfo expected = toTableInfo(entity);
-                    final TableInfo found = TableInfo.read(db, entity.getTableName());
-                    if (!expected.equals(found)) {
-                        return new ValidationResult(false, expected.name
-                                + "\nExpected: " + expected + " \nfound: " + found);
+                    val expected = toTableInfo(entity)
+                    val found = TableInfo.read(db, entity.tableName)
+                    if (expected != found) {
+                        return RoomOpenHelper.ValidationResult(
+                            false,
+                            """
+                                ${expected.name}
+                                Expected: $expected
+                                found: $found
+                            """.trimIndent()
+                        )
                     }
                 }
             }
-            for (DatabaseViewBundle view : mDatabaseBundle.getViews()) {
-                final ViewInfo expected = toViewInfo(view);
-                final ViewInfo found = ViewInfo.read(db, view.getViewName());
-                if (!expected.equals(found)) {
-                    return new ValidationResult(false, expected
-                                + "\nExpected: " + expected + " \nfound: " + found);
+            mDatabaseBundle.views.forEach { view ->
+                val expected = toViewInfo(view)
+                val found = ViewInfo.read(db, view.viewName)
+                if (expected != found) {
+                    return RoomOpenHelper.ValidationResult(
+                        false,
+                            """
+                                ${expected.name}
+                                Expected: $expected
+                                Found: $found
+                            """.trimIndent()
+                    )
                 }
             }
             if (mVerifyDroppedTables) {
                 // now ensure tables that should be removed are removed.
-                Set<String> expectedTables = new HashSet<>();
-                for (EntityBundle entity : tables.values()) {
-                    expectedTables.add(entity.getTableName());
-                    if (entity instanceof FtsEntityBundle) {
-                        expectedTables.addAll(((FtsEntityBundle) entity).getShadowTableNames());
-                    }
-                }
-                Cursor cursor = db.query("SELECT name FROM sqlite_master WHERE type='table'"
-                                + " AND name NOT IN(?, ?, ?)",
-                        new String[]{Room.MASTER_TABLE_NAME, "android_metadata",
-                                "sqlite_sequence"});
-                //noinspection TryFinallyCanBeTryWithResources
-                try {
-                    while (cursor.moveToNext()) {
-                        final String tableName = cursor.getString(0);
-                        if (!expectedTables.contains(tableName)) {
-                            return new ValidationResult(false, "Unexpected table "
-                                    + tableName);
+                val expectedTables = buildSet {
+                    tables.values.forEach { entity ->
+                        add(entity.tableName)
+                        if (entity is FtsEntityBundle) {
+                            addAll(entity.shadowTableNames)
                         }
                     }
-                } finally {
-                    cursor.close();
+                }
+                db.query(
+                    "SELECT name FROM sqlite_master WHERE type='table'" +
+                        " AND name NOT IN(?, ?, ?)",
+                    arrayOf(
+                        Room.MASTER_TABLE_NAME, "android_metadata",
+                        "sqlite_sequence"
+                    )
+                ).useCursor { cursor ->
+                    while (cursor.moveToNext()) {
+                        val tableName = cursor.getString(0)
+                        if (!expectedTables.contains(tableName)) {
+                            return RoomOpenHelper.ValidationResult(
+                                false, "Unexpected table $tableName"
+                            )
+                        }
+                    }
                 }
             }
-            return new ValidationResult(true, null);
+            return RoomOpenHelper.ValidationResult(true, null)
         }
     }
 
-    static class CreatingDelegate extends RoomOpenHelperDelegate {
-
-        CreatingDelegate(DatabaseBundle databaseBundle) {
-            super(databaseBundle);
-        }
-
-        @Override
-        public void createAllTables(SupportSQLiteDatabase database) {
-            for (String query : mDatabaseBundle.buildCreateQueries()) {
-                database.execSQL(query);
+    internal class CreatingDelegate(
+        databaseBundle: DatabaseBundle
+    ) : RoomOpenHelperDelegate(databaseBundle) {
+        override fun createAllTables(database: SupportSQLiteDatabase) {
+            mDatabaseBundle.buildCreateQueries().forEach { query ->
+                database.execSQL(query)
             }
         }
 
-        @NonNull
-        @Override
-        public RoomOpenHelper.ValidationResult onValidateSchema(
-                @NonNull SupportSQLiteDatabase db) {
-            throw new UnsupportedOperationException("This open helper just creates the database but"
-                    + " it received a migration request.");
+        override fun onValidateSchema(
+            db: SupportSQLiteDatabase
+        ): RoomOpenHelper.ValidationResult {
+            throw UnsupportedOperationException(
+                "This open helper just creates the database but it received a migration request."
+            )
         }
     }
 
-    abstract static class RoomOpenHelperDelegate extends RoomOpenHelper.Delegate {
-        final DatabaseBundle mDatabaseBundle;
-
-        RoomOpenHelperDelegate(DatabaseBundle databaseBundle) {
-            super(databaseBundle.getVersion());
-            mDatabaseBundle = databaseBundle;
+    internal abstract class RoomOpenHelperDelegate(
+        val mDatabaseBundle: DatabaseBundle
+    ) : RoomOpenHelper.Delegate(
+            mDatabaseBundle.version
+        ) {
+        override fun dropAllTables(database: SupportSQLiteDatabase) {
+            throw UnsupportedOperationException("cannot drop all tables in the test")
         }
 
-        @Override
-        public void dropAllTables(SupportSQLiteDatabase database) {
-            throw new UnsupportedOperationException("cannot drop all tables in the test");
+        override fun onCreate(database: SupportSQLiteDatabase) {}
+        override fun onOpen(database: SupportSQLiteDatabase) {}
+    }
+
+    internal companion object {
+        private const val TAG = "MigrationTestHelper"
+        @JvmStatic
+        internal fun toTableInfo(entityBundle: EntityBundle): TableInfo {
+            return TableInfo(
+                name = entityBundle.tableName,
+                columns = toColumnMap(entityBundle),
+                foreignKeys = toForeignKeys(entityBundle.foreignKeys),
+                indices = toIndices(entityBundle.indices)
+            )
         }
 
-        @Override
-        public void onCreate(SupportSQLiteDatabase database) {
+        @JvmStatic
+        internal fun toFtsTableInfo(ftsEntityBundle: FtsEntityBundle): FtsTableInfo {
+            return FtsTableInfo(
+                name = ftsEntityBundle.tableName,
+                columns = toColumnNamesSet(ftsEntityBundle),
+                createSql = ftsEntityBundle.createSql
+            )
         }
 
-        @Override
-        public void onOpen(SupportSQLiteDatabase database) {
+        @JvmStatic
+        internal fun toViewInfo(viewBundle: DatabaseViewBundle): ViewInfo {
+            return ViewInfo(
+                name = viewBundle.viewName,
+                sql = viewBundle.createView()
+            )
+        }
+
+        @JvmStatic
+        internal fun toIndices(indices: List<IndexBundle>?): Set<TableInfo.Index> {
+            if (indices == null) {
+                return emptySet()
+            }
+            val result = indices.map { bundle ->
+                TableInfo.Index(
+                    name = bundle.name,
+                    unique = bundle.isUnique,
+                    columns = bundle.columnNames!!,
+                    orders = bundle.orders!!
+                )
+            }.toSet()
+            return result
+        }
+
+        @JvmStatic
+        internal fun toForeignKeys(
+            bundles: List<ForeignKeyBundle>?
+        ): Set<TableInfo.ForeignKey> {
+            if (bundles == null) {
+                return emptySet()
+            }
+            val result = bundles.map { bundle ->
+                TableInfo.ForeignKey(
+                    referenceTable = bundle.table,
+                    onDelete = bundle.onDelete,
+                    onUpdate = bundle.onUpdate,
+                    columnNames = bundle.columns,
+                    referenceColumnNames = bundle.referencedColumns
+                )
+            }.toSet()
+            return result
+        }
+
+        @JvmStatic
+        internal fun toColumnNamesSet(entity: EntityBundle): Set<String> {
+            val result = entity.fields.map { field ->
+                field.columnName
+            }.toSet()
+            return result
+        }
+
+        @JvmStatic
+        internal fun toColumnMap(entity: EntityBundle): Map<String, TableInfo.Column> {
+            val result: MutableMap<String, TableInfo.Column> = HashMap()
+            entity.fields.associateBy { bundle ->
+                val column = toColumn(entity, bundle)
+                result[column.name] = column
+            }
+            return result
+        }
+
+        @JvmStatic
+        internal fun toColumn(entity: EntityBundle, field: FieldBundle): TableInfo.Column {
+            return TableInfo.Column(
+                name = field.columnName,
+                type = field.affinity,
+                notNull = field.isNonNull,
+                primaryKeyPosition = findPrimaryKeyPosition(entity, field),
+                defaultValue = field.defaultValue,
+                createdFrom = TableInfo.CREATED_FROM_ENTITY
+            )
+        }
+
+        @JvmStatic
+        internal fun findPrimaryKeyPosition(entity: EntityBundle, field: FieldBundle): Int {
+            return entity.primaryKey.columnNames.indexOfFirst { columnName ->
+                field.columnName.equals(columnName, ignoreCase = true)
+            } + 1 // Shift by 1 to get primary key position
         }
     }
 }

@@ -149,7 +149,7 @@ public class AutoMigrationTest {
                 true,
                 MIGRATION_1_0
         );
-        DatabaseConfiguration config = helper.getDbConfigurationAfterMigrations();
+        DatabaseConfiguration config = helper.databaseConfiguration;
         assertThat(config).isNotNull();
         assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotNull();
         assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotEmpty();

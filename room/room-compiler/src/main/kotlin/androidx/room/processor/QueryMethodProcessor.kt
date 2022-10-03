@@ -312,6 +312,7 @@ private class InternalQueryProcessor(
         )
 
         val resultColumns = query.resultInfo?.columns
+
         if (resultColumns != null) {
             context.checker.check(
                 keyColumn.isEmpty() || resultColumns.contains(keyColumn, keyTable),
