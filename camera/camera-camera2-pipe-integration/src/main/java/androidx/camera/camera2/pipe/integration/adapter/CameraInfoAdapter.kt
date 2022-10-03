@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
@@ -114,8 +115,14 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     override fun getTimebase(): Timebase {
-        Log.warn { "TODO: getTimebase are not yet supported." }
-        return Timebase.UPTIME
+        val timeSource = cameraProperties.metadata[
+            CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE
+        ]!!
+        return when (timeSource) {
+            CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME -> Timebase.REALTIME
+            CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN -> Timebase.UPTIME
+            else -> Timebase.UPTIME
+        }
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
