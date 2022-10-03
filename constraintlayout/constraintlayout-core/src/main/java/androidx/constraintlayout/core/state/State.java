@@ -20,7 +20,6 @@ import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_PACK
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD_INSIDE;
 
-import androidx.constraintlayout.core.motion.utils.Utils;
 import androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference;
 import androidx.constraintlayout.core.state.helpers.AlignVerticallyReference;
 import androidx.constraintlayout.core.state.helpers.BarrierReference;
@@ -562,6 +561,20 @@ public class State {
                 container.add(widget);
             } else {
                 reference.setConstraintWidget(container);
+            }
+        }
+        for (Object key : mHelperReferences.keySet()) {
+            // We need this pass to apply chains properly
+            HelperReference reference = mHelperReferences.get(key);
+            HelperWidget helperWidget = reference.getHelperWidget();
+            if (helperWidget != null) {
+                for (Object keyRef : reference.mReferences) {
+                    Reference constraintReference = mReferences.get(keyRef);
+                    reference.getHelperWidget().add(constraintReference.getConstraintWidget());
+                }
+                reference.apply();
+            } else {
+                reference.apply();
             }
         }
         for (Object key : mReferences.keySet()) {
