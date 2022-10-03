@@ -84,10 +84,9 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
     override fun SubComposition() { wrapped.SubComposition() }
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int = with(wrapped) {
-        initializeMeasure(measurables, index)
+        measurables: Iterator<Measurable>
+    ) = with(wrapped) {
+        initializeMeasure(measurables)
     }
 
     override fun computeParentData(): Any? = wrapped.computeParentData()
