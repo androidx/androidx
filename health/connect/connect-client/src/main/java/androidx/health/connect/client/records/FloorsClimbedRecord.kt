@@ -32,6 +32,7 @@ public class FloorsClimbedRecord(
 ) : IntervalRecord {
     init {
         requireNonNegative(value = floors, name = "floors")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     override fun equals(other: Any?): Boolean {

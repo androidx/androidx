@@ -34,6 +34,7 @@ public class HydrationRecord(
 
     init {
         volume.requireNotLess(other = volume.zero(), name = "volume")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     override fun equals(other: Any?): Boolean {

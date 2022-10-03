@@ -37,6 +37,7 @@ public class TotalCaloriesBurnedRecord(
 
     init {
         energy.requireNotLess(other = energy.zero(), "energy")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     /*

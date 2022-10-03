@@ -40,6 +40,11 @@ public class ExerciseEventRecord(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+
+    init {
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ExerciseEventRecord) return false

@@ -30,15 +30,13 @@ import java.time.ZoneOffset
  */
 public class CervicalMucusRecord(
     /**
-     * The consistency of the user's cervical mucus. Optional field. Allowed values:
-     * [Appearance].
+     * The consistency of the user's cervical mucus. Optional field. Allowed values: [Appearance].
      *
      * @see Appearance
      */
     @property:Appearances public val appearance: String? = null,
     /**
-     * The feel of the user's cervical mucus. Optional field. Allowed values:
-     * [Sensation].
+     * The feel of the user's cervical mucus. Optional field. Allowed values: [Sensation].
      *
      * @see Sensation
      */
