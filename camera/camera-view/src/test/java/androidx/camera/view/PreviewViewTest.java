@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 import android.util.Size;
+import android.widget.FrameLayout;
 
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.SurfaceRequest;
@@ -77,6 +78,44 @@ public class PreviewViewTest {
         assertThat(PreviewView.shouldUseTextureView(
                 createSurfaceRequestCompatibleWithSurfaceView(),
                 PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.N_MR1)
+    public void surfaceView_reuseImplementation() {
+        // Arrange:
+        FrameLayout parent = new FrameLayout(ApplicationProvider.getApplicationContext());
+        PreviewTransformation transformation = new PreviewTransformation();
+
+        // Assert: The implementation should be reused if it is a SurfaceViewImplementation and
+        //         other requirements are compatible with SurfaceView.
+        assertThat(PreviewView.shouldReuseImplementation(
+                new SurfaceViewImplementation(parent, transformation),
+                createSurfaceRequestCompatibleWithSurfaceView(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.N_MR1)
+    public void surfaceView_notReuseImplementation_whenNull() {
+        // Assert: The implementation should not be reused if it is null.
+        assertThat(PreviewView.shouldReuseImplementation(
+                null,
+                createSurfaceRequestCompatibleWithSurfaceView(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
+    }
+
+    @Test
+    public void textureView_notReuseImplementation() {
+        // Arrange:
+        FrameLayout parent = new FrameLayout(ApplicationProvider.getApplicationContext());
+        PreviewTransformation transformation = new PreviewTransformation();
+
+        // Assert: The implementation should not be reused if it is a TextureViewImplementation.
+        assertThat(PreviewView.shouldReuseImplementation(
+                new TextureViewImplementation(parent, transformation),
+                createSurfaceRequestCompatibleWithSurfaceView(),
+                PreviewView.ImplementationMode.COMPATIBLE)).isFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
