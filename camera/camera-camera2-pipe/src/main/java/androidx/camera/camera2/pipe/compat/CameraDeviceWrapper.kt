@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
+import kotlinx.atomicfu.atomic
 
 /** Interface around a [CameraDevice] with minor modifications.
  *
@@ -104,10 +105,16 @@ internal interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     @RequiresApi(Build.VERSION_CODES.P)
     @Throws(ObjectUnavailableException::class)
     fun createCaptureSession(config: SessionConfigData)
+
+    /** Invoked when the [CameraDevice] has been closed **/
+    fun onDeviceClosed()
 }
 
 internal fun CameraDeviceWrapper?.closeWithTrace() {
-    this?.unwrap().closeWithTrace()
+    this?.let {
+        it.unwrap().closeWithTrace()
+        it.onDeviceClosed()
+    }
 }
 
 internal fun CameraDevice?.closeWithTrace() {
@@ -128,6 +135,7 @@ internal class AndroidCameraDevice(
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId
 ) : CameraDeviceWrapper, UnsafeWrapper<CameraDevice> {
+    private val _lastStateCallback = atomic<CameraCaptureSessionWrapper.StateCallback?>(null)
 
     override fun createCaptureSession(
         outputs: List<Surface>,
@@ -135,12 +143,15 @@ internal class AndroidCameraDevice(
         handler: Handler?
     ) = rethrowCamera2Exceptions {
 
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
         @Suppress("deprecation")
         cameraDevice.createCaptureSession(
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback),
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
     }
@@ -153,13 +164,16 @@ internal class AndroidCameraDevice(
         handler: Handler?
     ) = rethrowCamera2Exceptions {
 
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
         Api23Compat.createReprocessableCaptureSession(
             cameraDevice,
             input,
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback),
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
     }
@@ -171,12 +185,15 @@ internal class AndroidCameraDevice(
         handler: Handler?
     ) = rethrowCamera2Exceptions {
 
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
         Api23Compat.createConstrainedHighSpeedCaptureSession(
             cameraDevice,
             outputs,
-            AndroidCaptureSessionStateCallback(this, stateCallback),
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
     }
@@ -188,12 +205,15 @@ internal class AndroidCameraDevice(
         handler: Handler?
     ) = rethrowCamera2Exceptions {
 
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
         Api24Compat.createCaptureSessionByOutputConfigurations(
             cameraDevice,
             outputConfigurations.map { it.unwrap() },
-            AndroidCaptureSessionStateCallback(this, stateCallback),
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
     }
@@ -206,6 +226,9 @@ internal class AndroidCameraDevice(
         handler: Handler?
     ) = rethrowCamera2Exceptions {
 
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
         Api24Compat.createCaptureSessionByOutputConfigurations(
@@ -214,18 +237,22 @@ internal class AndroidCameraDevice(
                 inputConfig.width, inputConfig.height, inputConfig.format
             ),
             outputs.map { it.unwrap() },
-            AndroidCaptureSessionStateCallback(this, stateCallback),
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
     }
 
     @RequiresApi(28)
     override fun createCaptureSession(config: SessionConfigData) = rethrowCamera2Exceptions {
+        val stateCallback = config.stateCallback
+        val previousStateCallback = _lastStateCallback.value
+        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+
         val sessionConfig = Api28Compat.newSessionConfiguration(
             config.sessionType,
             config.outputConfigurations.map { it.unwrap() },
             config.executor,
-            AndroidCaptureSessionStateCallback(this, config.stateCallback)
+            AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback)
         )
 
         if (config.inputConfiguration != null) {
@@ -254,7 +281,6 @@ internal class AndroidCameraDevice(
             }
         }
         Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
-
         Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
     }
 
@@ -268,6 +294,11 @@ internal class AndroidCameraDevice(
         inputResult: TotalCaptureResult
     ): CaptureRequest.Builder = rethrowCamera2Exceptions {
         Api23Compat.createReprocessCaptureRequest(cameraDevice, inputResult)
+    }
+
+    override fun onDeviceClosed() {
+        val lastStateCallback = _lastStateCallback.getAndSet(null)
+        lastStateCallback?.onSessionFinalized()
     }
 
     override fun unwrap(): CameraDevice? {

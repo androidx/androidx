@@ -65,9 +65,9 @@ internal class CaptureSessionState(
 ) : CameraCaptureSessionWrapper.StateCallback {
     private val debugId = captureSessionDebugIds.incrementAndGet()
     private val lock = Any()
+    private val finalized = atomic<Boolean>(false)
 
     private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
-
     private var sessionCreatingTimestamp: TimestampNs? = null
 
     @GuardedBy("lock")
@@ -149,7 +149,7 @@ internal class CaptureSessionState(
     }
 
     override fun onConfigureFailed(session: CameraCaptureSessionWrapper) {
-        Log.warn { "Failed to configure $this" }
+        Log.warn { "$this Configuration Failed" }
         Debug.traceStart { "$this#onConfigureFailed" }
         disconnect()
         Debug.traceStop()
@@ -168,6 +168,17 @@ internal class CaptureSessionState(
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this CaptureQueueEmpty" }
+    }
+
+    override fun onSessionFinalized() {
+        // Only invoke finalizeSession once regardless of the number of times it is invoked.
+        if (finalized.compareAndSet(expect = false, update = true)) {
+            Log.debug { "$this Finalizing Session" }
+            Debug.traceStart { "$this#onSessionFinalized" }
+            disconnect()
+            finalizeSession()
+            Debug.traceStop()
+        }
     }
 
     private fun configure(session: CameraCaptureSessionWrapper?) {
@@ -235,7 +246,6 @@ internal class CaptureSessionState(
      */
     private fun shutdown(abortAndStopRepeating: Boolean) {
         var configuredCaptureSession: ConfiguredCameraCaptureSession? = null
-        var tokensToClose: List<Closeable>? = null
 
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
@@ -245,8 +255,6 @@ internal class CaptureSessionState(
 
             configuredCaptureSession = cameraCaptureSession
             cameraCaptureSession = null
-            tokensToClose = _surfaceTokenMap.values.toList()
-            _surfaceTokenMap.clear()
         }
 
         val graphProcessor = configuredCaptureSession?.processor
@@ -280,12 +288,19 @@ internal class CaptureSessionState(
             Debug.traceStop()
         }
 
-        tokensToClose?.forEach { it.close() }
-
         synchronized(lock) {
             _cameraDevice = null
             state = State.CLOSED
         }
+    }
+
+    private fun finalizeSession() {
+        val tokenList = synchronized(lock) {
+            val tokens = _surfaceTokenMap.values.toList()
+            _surfaceTokenMap.clear()
+            tokens
+        }
+        tokenList.forEach { it.close() }
     }
 
     private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
