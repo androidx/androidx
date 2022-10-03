@@ -153,12 +153,6 @@ Wrote \$DIST_DIR/task_outputs\.txt
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
 BUILD SUCCESSFUL in .*
-# > Task :doclava:compileJava
-Note\: Some input files use or override a deprecated API\.
-Note: Some input files use or override a deprecated API that is marked for removal\.
-Note: Recompile with \-Xlint:removal for details\.
-Note\: Some input files use unchecked or unsafe operations\.
-Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
