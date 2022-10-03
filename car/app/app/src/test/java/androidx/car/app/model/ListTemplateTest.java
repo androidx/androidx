@@ -192,6 +192,25 @@ public class ListTemplateTest {
     }
 
     @Test
+    public void clearSectionedLists() {
+        ItemList list1 = getList();
+        ItemList list2 = getList();
+        ItemList list3 = getList();
+
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setTitle("Title")
+                        .addSectionedList(SectionedItemList.create(list1, "header1"))
+                        .addSectionedList(SectionedItemList.create(list2, "header2"))
+                        .clearSectionedLists()
+                        // At least one list is required to build
+                        .addSectionedList(SectionedItemList.create(list3, "header3"))
+                        .build();
+
+        assertThat(template.getSectionedLists()).hasSize(1);
+    }
+
+    @Test
     public void createInstance_setHeaderAction_invalidActionThrows() {
         assertThrows(
                 IllegalArgumentException.class,
@@ -225,26 +244,8 @@ public class ListTemplateTest {
 
     @Test
     public void equals() {
-        ItemList itemList = new ItemList.Builder().build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        String title = "title";
-
-        ListTemplate template =
-                new ListTemplate.Builder()
-                        .setSingleList(itemList)
-                        .setActionStrip(actionStrip)
-                        .setHeaderAction(Action.BACK)
-                        .setTitle(title)
-                        .build();
-
-        assertThat(template)
-                .isEqualTo(
-                        new ListTemplate.Builder()
-                                .setSingleList(itemList)
-                                .setActionStrip(actionStrip)
-                                .setHeaderAction(Action.BACK)
-                                .setTitle(title)
-                                .build());
+        assertThat(createFullyPopulatedListTemplate())
+                .isEqualTo(createFullyPopulatedListTemplate());
     }
 
     @Test
@@ -315,6 +316,48 @@ public class ListTemplateTest {
         assertThat(template)
                 .isNotEqualTo(new ListTemplate.Builder().setSingleList(itemList).setTitle(
                         "yo").build());
+    }
+
+    @Test
+    public void toBuilder_createsEquivalentInstance() {
+        ListTemplate listTemplate = createFullyPopulatedListTemplate();
+
+        assertThat(listTemplate).isEqualTo(listTemplate.toBuilder().build());
+    }
+
+    @Test
+    public void toBuilder_fieldsCanBeOverwritten() {
+        ItemList itemList = new ItemList.Builder().build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+        String title = "title";
+
+        ListTemplate listTemplate = new ListTemplate.Builder()
+                .setSingleList(itemList)
+                .setActionStrip(actionStrip)
+                .setHeaderAction(Action.BACK)
+                .setTitle(title)
+                .build();
+
+        // Verify fields can be overwritten (no crash)
+        listTemplate.toBuilder()
+                .setSingleList(itemList)
+                .setActionStrip(actionStrip)
+                .setHeaderAction(Action.BACK)
+                .setTitle(title)
+                .build();
+    }
+
+    private static ListTemplate createFullyPopulatedListTemplate() {
+        ItemList itemList = new ItemList.Builder().build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+        String title = "title";
+
+        return new ListTemplate.Builder()
+            .setSingleList(itemList)
+            .setActionStrip(actionStrip)
+            .setHeaderAction(Action.BACK)
+            .setTitle(title)
+            .build();
     }
 
     private static ItemList getList() {
