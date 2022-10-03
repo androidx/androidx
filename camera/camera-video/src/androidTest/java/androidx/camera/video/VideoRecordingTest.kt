@@ -83,7 +83,7 @@ class VideoRecordingTest(
 
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
+        active = implName.contains(CameraPipeConfig::class.simpleName!!),
     )
 
     @get:Rule
@@ -104,22 +104,22 @@ class VideoRecordingTest(
         fun data(): Collection<Array<Any>> {
             return listOf(
                 arrayOf(
-                    "back+camera2",
+                    "back+" + Camera2Config::class.simpleName,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     Camera2Config.defaultConfig()
                 ),
                 arrayOf(
-                    "front+camera2",
+                    "front+" + Camera2Config::class.simpleName,
                     CameraSelector.DEFAULT_FRONT_CAMERA,
                     Camera2Config.defaultConfig()
                 ),
                 arrayOf(
-                    "back+camerapipe",
+                    "back+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     CameraPipeConfig.defaultConfig()
                 ),
                 arrayOf(
-                    "front+camerapipe",
+                    "front+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_FRONT_CAMERA,
                     CameraPipeConfig.defaultConfig()
                 ),
@@ -181,6 +181,7 @@ class VideoRecordingTest(
                 (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
 
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
