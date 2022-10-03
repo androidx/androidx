@@ -30,6 +30,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -55,7 +56,7 @@ class FragmentTransitionAnimTest(
     // callbacks
     @Test
     fun transitionShorterThanAnimation() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimationFragment()
             fragment.exitTransition.duration = 100
 
@@ -116,7 +117,7 @@ class FragmentTransitionAnimTest(
     // callbacks
     @Test
     fun transitionLongerThanAnimation() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimationFragment()
             fragment.exitTransition.duration = 1000
 
@@ -177,7 +178,7 @@ class FragmentTransitionAnimTest(
     // callbacks
     @Test
     fun transitionShorterThanAnimator() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimatorFragment()
             fragment.exitTransition.duration = 100
 
@@ -233,7 +234,7 @@ class FragmentTransitionAnimTest(
     // callbacks
     @Test
     fun transitionLongerThanAnimator() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimatorFragment()
             fragment.exitTransition.duration = 1000
 

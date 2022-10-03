@@ -24,6 +24,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +41,7 @@ class ComponentActivityRunOnNextRecreateTest {
 
     @Test
     fun test() {
-        with(ActivityScenario.launch(AutoRestarterActivity::class.java)) {
+       withUse(ActivityScenario.launch(AutoRestarterActivity::class.java)) {
             withActivity {
                 savedStateRegistry.runOnNextRecreation(Restarted2::class.java)
             }

@@ -22,6 +22,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ import org.mockito.Mockito.mock
 class DefaultSpecialEffectsControllerTest {
     @Test
     fun fragmentManagerGetSetSpecialEffectsController() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val factory = SpecialEffectsControllerFactory {
                 mock(SpecialEffectsController::class.java)
@@ -49,7 +50,7 @@ class DefaultSpecialEffectsControllerTest {
      */
     @Test
     fun fragmentManagerDefaultFactory() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             val factory = fm.specialEffectsControllerFactory
@@ -65,7 +66,7 @@ class DefaultSpecialEffectsControllerTest {
      */
     @Test
     fun fragmentManagerGetOrCreateController() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val controller = SpecialEffectsController.getOrCreateController(container, fm)

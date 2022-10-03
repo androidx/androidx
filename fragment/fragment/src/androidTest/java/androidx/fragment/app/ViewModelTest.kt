@@ -27,6 +27,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +45,7 @@ class ViewModelTest {
 
     @Test
     fun testMaxLifecycleInitializedFragment() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = StrictFragment()
                 supportFragmentManager.beginTransaction()
@@ -68,7 +69,7 @@ class ViewModelTest {
 
     @Test
     fun testMaxLifecycleInitializedNestedFragment() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = StrictFragment()
                 val childFragment = StrictFragment()
@@ -98,7 +99,7 @@ class ViewModelTest {
 
     @Test
     fun testSameActivityViewModels() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val activityModel = withActivity { activityModel }
             val defaultActivityModel = withActivity { defaultActivityModel }
             assertThat(defaultActivityModel).isNotSameInstanceAs(activityModel)
@@ -135,7 +136,7 @@ class ViewModelTest {
 
     @Test
     fun testSameFragmentViewModels() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             var fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
             var fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
             assertThat(fragment1).isNotNull()
@@ -159,7 +160,7 @@ class ViewModelTest {
 
     @Test
     fun testCreateFragmentViewModelViaExtras() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val fragment = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
 
             val creationViewModel = ViewModelProvider(
@@ -179,7 +180,7 @@ class ViewModelTest {
 
     @Test
     fun testFragmentOnClearedWhenFinished() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val fragmentModel = withActivity {
                 getFragment(ViewModelActivity.FRAGMENT_TAG_1).fragmentModel
             }
@@ -215,7 +216,7 @@ class ViewModelTest {
 
     @Test
     fun testFragmentOnCleared() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val fragment = withActivity {
                 Fragment().also {
                     supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
@@ -233,7 +234,7 @@ class ViewModelTest {
 
     @Test
     fun testDefaultFactoryAfterReuse() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val fragment = withActivity {
                 Fragment().also {
                     supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
