@@ -31,6 +31,7 @@ import java.util.ArrayList;
 public class TestCustomTabsCallback extends CustomTabsCallback {
     private boolean mOnMessageChannelReady;
     private ArrayList<String> mMessageList = new ArrayList<>();
+    private boolean mOnResizedReceived;
     private ICustomTabsCallback.Stub mWrapper = new ICustomTabsCallback.Stub() {
         @Override
         public void onNavigationEvent(final int navigationEvent, final Bundle extras) {
@@ -100,5 +101,14 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
      */
     public ArrayList<String> getMessages() {
         return mMessageList;
+    }
+
+    @Override
+    public void onActivityResized(int size, Bundle extras) {
+        mOnResizedReceived = true;
+    }
+
+    public boolean hasActivityBeenResized() {
+        return mOnResizedReceived;
     }
 }
