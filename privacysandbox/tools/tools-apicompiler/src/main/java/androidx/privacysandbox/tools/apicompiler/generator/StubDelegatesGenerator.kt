@@ -16,15 +16,17 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
+import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.addCode
-import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.addControlFlow
+import androidx.privacysandbox.tools.core.generator.aidlName
+import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.poetSpec
+import androidx.privacysandbox.tools.core.generator.primaryConstructor
+import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
-import androidx.privacysandbox.tools.core.generator.AidlGenerator
-import androidx.privacysandbox.tools.core.generator.aidlName
-import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -56,34 +58,35 @@ class StubDelegatesGenerator(
 
     private fun generateServiceStubDelegate(service: AnnotatedInterface) {
         val className = service.stubDelegateName()
-        val aidlBaseClassName = ClassName(service.packageName, service.aidlName(), "Stub")
+        val aidlBaseClassName = ClassName(service.type.packageName, service.aidlName(), "Stub")
 
-        val classSpec =
-            TypeSpec.classBuilder(className)
-                .superclass(aidlBaseClassName)
-                .primaryConstructor(
+        val classSpec = TypeSpec.classBuilder(className).build {
+            superclass(aidlBaseClassName)
+
+            primaryConstructor(
+                listOf(
                     PropertySpec.builder(
                         "delegate",
-                        service.specClassName(),
+                        service.type.poetSpec(),
                     ).addModifiers(KModifier.PRIVATE).build()
-                )
-                .addFunctions(
-                    service.methods.map(::toFunSpec)
-                )
+                ), KModifier.INTERNAL
+            )
 
-        val fileSpec = FileSpec.builder(service.packageName, className)
-            .addType(classSpec.build())
-            .apply {
-                if (service.methods.any(Method::isSuspend)) {
-                    addImport("kotlinx.coroutines", "CoroutineScope")
-                    addImport("kotlinx.coroutines", "Dispatchers")
-                    addImport("kotlinx.coroutines", "GlobalScope")
-                    addImport("kotlinx.coroutines", "launch")
-                }
+            addFunctions(service.methods.map(::toFunSpec))
+        }
+
+        val fileSpec = FileSpec.builder(service.type.packageName, className).build {
+            addType(classSpec)
+            if (service.methods.any(Method::isSuspend)) {
+                addImport("kotlinx.coroutines", "CoroutineScope")
+                addImport("kotlinx.coroutines", "Dispatchers")
+                addImport("kotlinx.coroutines", "GlobalScope")
+                addImport("kotlinx.coroutines", "launch")
             }
-            .build()
-        codeGenerator.createNewFile(Dependencies(false), service.packageName, className)
-            .write(fileSpec)
+        }
+        codeGenerator.createNewFile(
+            Dependencies(false), service.type.packageName, className
+        ).write(fileSpec)
     }
 
     private fun toFunSpec(method: Method): FunSpec {
@@ -115,73 +118,64 @@ class StubDelegatesGenerator(
         }
     }
 
-    private fun toNonSuspendFunSpec(method: Method): FunSpec {
+    private fun toNonSuspendFunSpec(method: Method) = FunSpec.builder(method.name).build {
         val returnStatement =
             "return delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
-        return FunSpec.builder(method.name)
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameters(getParameters(method))
-            .returns(method.returnType.specClassName())
-            .addStatement(returnStatement)
-            .build()
+        addModifiers(KModifier.OVERRIDE)
+        addParameters(getParameters(method))
+        returns(method.returnType.poetSpec())
+        addStatement(returnStatement).build()
     }
 
     private fun getParameters(method: Method) = buildList {
         addAll(method.parameters.map { parameter ->
-            ParameterSpec(parameter.name, parameter.type.specClassName())
+            ParameterSpec(parameter.name, parameter.type.poetSpec())
         })
-        if (method.isSuspend)
-            add(
-                ParameterSpec(
-                    "transactionCallback",
-                    ClassName(
-                        api.getOnlyService().packageName,
-                        method.returnType.transactionCallbackName()
-                    )
+        if (method.isSuspend) add(
+            ParameterSpec(
+                "transactionCallback", ClassName(
+                    api.getOnlyService().type.packageName,
+                    method.returnType.transactionCallbackName()
                 )
             )
+        )
     }
 
     private fun generateTransportCancellationCallback() {
-        val packageName = api.getOnlyService().packageName
+        val packageName = api.getOnlyService().type.packageName
         val className = "TransportCancellationCallback"
         val cancellationSignalStubName =
             ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")
 
-        val classSpec =
-            TypeSpec.classBuilder(className)
-                .superclass(cancellationSignalStubName)
-                .addModifiers(KModifier.INTERNAL)
-                .primaryConstructor(
+        val classSpec = TypeSpec.classBuilder(className).build {
+            superclass(cancellationSignalStubName)
+            addModifiers(KModifier.INTERNAL)
+            primaryConstructor(
+                listOf(
                     PropertySpec.builder(
                         "onCancel",
                         LambdaTypeName.get(returnType = Unit::class.asTypeName()),
                     ).addModifiers(KModifier.PRIVATE).build()
-                )
-                .addProperty(
-                    PropertySpec.builder(
-                        "hasCancelled",
-                        ATOMIC_BOOLEAN_CLASS,
-                        KModifier.PRIVATE
-                    ).initializer("%T(false)", ATOMIC_BOOLEAN_CLASS).build()
-                )
-                .addFunction(
-                    FunSpec.builder("cancel").build {
-                        addModifiers(KModifier.OVERRIDE)
-                        addCode {
-                            addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
-                                addStatement("onCancel()")
-                            }
-                        }
+                ), KModifier.INTERNAL
+            )
+            addProperty(
+                PropertySpec.builder(
+                    "hasCancelled", ATOMIC_BOOLEAN_CLASS, KModifier.PRIVATE
+                ).initializer("%T(false)", ATOMIC_BOOLEAN_CLASS).build()
+            )
+            addFunction(FunSpec.builder("cancel").build {
+                addModifiers(KModifier.OVERRIDE)
+                addCode {
+                    addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
+                        addStatement("onCancel()")
                     }
-                )
+                }
+            })
+        }
 
-        val fileSpec = FileSpec.builder(packageName, className)
-            .addType(classSpec.build())
-            .build()
-        codeGenerator.createNewFile(Dependencies(false), packageName, className)
-            .write(fileSpec)
+        val fileSpec = FileSpec.builder(packageName, className).addType(classSpec).build()
+        codeGenerator.createNewFile(Dependencies(false), packageName, className).write(fileSpec)
     }
 }
 
-internal fun AnnotatedInterface.stubDelegateName() = "${name}StubDelegate"
+internal fun AnnotatedInterface.stubDelegateName() = "${type.simpleName}StubDelegate"

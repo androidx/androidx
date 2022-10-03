@@ -171,7 +171,7 @@ class AidlGenerator private constructor(
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
 
-    private fun packageName() = api.getOnlyService().packageName
+    private fun packageName() = api.getOnlyService().type.packageName
 }
 
 data class InMemorySource(
@@ -195,11 +195,11 @@ internal fun File.ensureDirectory() {
     }
 }
 
-fun AnnotatedInterface.aidlName() = "I$name"
+fun AnnotatedInterface.aidlName() = "I${type.simpleName}"
 
-fun Type.transactionCallbackName() = "I${name.split(".").last()}TransactionCallback"
+fun Type.transactionCallbackName() = "I${simpleName}TransactionCallback"
 
-internal fun Type.toAidlType() = when (name) {
+internal fun Type.toAidlType() = when (qualifiedName) {
     Boolean::class.qualifiedName -> "boolean"
     Int::class.qualifiedName -> "int"
     Long::class.qualifiedName -> "long"
@@ -210,5 +210,5 @@ internal fun Type.toAidlType() = when (name) {
     // TODO: AIDL doesn't support short, make sure it's handled correctly.
     Short::class.qualifiedName -> "int"
     Unit::class.qualifiedName -> "void"
-    else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
+    else -> throw IllegalArgumentException("Unsupported type conversion ${this.qualifiedName}")
 }

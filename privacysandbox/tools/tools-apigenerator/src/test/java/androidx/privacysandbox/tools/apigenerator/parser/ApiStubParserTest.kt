@@ -24,7 +24,6 @@ import androidx.privacysandbox.tools.core.model.Type
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import kotlin.io.path.name
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -48,20 +47,23 @@ class ApiStubParserTest {
         assertThat(compileAndParseApi(source))
             .containsExactly(
                 AnnotatedInterface(
-                    name = "MySdk", packageName = "com.mysdk", methods = listOf(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"), methods = listOf(
                         Method(
                             name = "doSomething",
                             parameters = listOf(
-                                Parameter("magicNumber", Type("kotlin.Int")),
-                                Parameter("awesomeString", Type("kotlin.String"))
+                                Parameter(
+                                    "magicNumber",
+                                    Type(packageName = "kotlin", simpleName = "Int")
+                                ),
+                                Parameter("awesomeString", Type("kotlin", simpleName = "String"))
                             ),
-                            returnType = Type("kotlin.Unit"),
+                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
                             isSuspend = true,
                         ),
                         Method(
                             name = "returnMagicNumber",
                             parameters = listOf(),
-                            returnType = Type("kotlin.Int"),
+                            returnType = Type(packageName = "kotlin", simpleName = "Int"),
                             isSuspend = false,
                         )
                     )
@@ -97,7 +99,14 @@ class ApiStubParserTest {
             )
         )
 
-        assertThat(interfaces).containsExactly(AnnotatedInterface("MySdk", "com.mysdk"))
+        assertThat(interfaces).containsExactly(
+            AnnotatedInterface(
+                Type(
+                    packageName = "com.mysdk",
+                    simpleName = "MySdk",
+                )
+            )
+        )
     }
 
     @Test
@@ -110,7 +119,14 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThat(compileAndParseApi(source)).containsExactly(AnnotatedInterface("MySdk", ""))
+        assertThat(compileAndParseApi(source)).containsExactly(
+            AnnotatedInterface(
+                Type(
+                    packageName = "",
+                    simpleName = "MySdk"
+                )
+            )
+        )
     }
 
     @Test

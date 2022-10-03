@@ -16,13 +16,13 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
+import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
+import androidx.privacysandbox.tools.apicompiler.util.parseSource
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
-import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
-import androidx.privacysandbox.tools.apicompiler.util.parseSource
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -51,34 +51,27 @@ class ApiParserTest {
             ParsedApi(
                 services = mutableSetOf(
                     AnnotatedInterface(
-                        name = "MySdk",
-                        packageName = "com.mysdk",
+                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
                         methods = listOf(
                             Method(
                                 name = "doStuff",
                                 parameters = listOf(
                                     Parameter(
                                         name = "x",
-                                        type = Type(
-                                            name = "kotlin.Int",
-                                        )
+                                        type = Type(packageName = "kotlin", simpleName = "Int")
                                     ),
                                     Parameter(
                                         name = "y",
-                                        type = Type(
-                                            name = "kotlin.Int",
-                                        )
+                                        type = Type(packageName = "kotlin", simpleName = "Int")
                                     )
                                 ),
-                                returnType = Type(
-                                    name = "kotlin.String",
-                                ),
+                                returnType = Type(packageName = "kotlin", simpleName = "String"),
                                 isSuspend = true,
                             ),
                             Method(
                                 name = "doMoreStuff",
                                 parameters = listOf(),
-                                returnType = Type("kotlin.Unit"),
+                                returnType = Type(packageName = "kotlin", simpleName = "Unit"),
                                 isSuspend = false,
                             )
                         )
@@ -131,7 +124,9 @@ class ApiParserTest {
             )
 
         checkSourceFails(source, source2)
-            .containsError("Multiple interfaces annotated with @PrivacySandboxService are not " +
-                "supported (MySdk, MySdk2).")
+            .containsError(
+                "Multiple interfaces annotated with @PrivacySandboxService are not " +
+                    "supported (MySdk, MySdk2)."
+            )
     }
 }

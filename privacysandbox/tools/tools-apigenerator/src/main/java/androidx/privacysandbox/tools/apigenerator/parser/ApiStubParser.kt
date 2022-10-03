@@ -25,6 +25,7 @@ import androidx.privacysandbox.tools.core.model.Type
 import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import kotlinx.metadata.ClassName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmClassifier
@@ -82,30 +83,24 @@ internal object ApiStubParser {
 
     private fun parseClass(classNode: ClassNode): AnnotatedInterface {
         val kotlinMetadata = parseKotlinMetadata(classNode)
-
-        // Package names are separated with slashes and nested classes are separated with dots.
-        // (e.g com/example/OuterClass.InnerClass).
-        val (packageName, className) = kotlinMetadata.name.split('/').run {
-            dropLast(1).joinToString(separator = ".") to last()
-        }
+        val type = kotlinMetadata.name.parsedType()
 
         if (!Flag.Class.IS_INTERFACE(kotlinMetadata.flags)) {
             throw IllegalArgumentException(
-                "$packageName.$className is not a Kotlin interface but it's annotated with " +
+                "${type.qualifiedName} is not a Kotlin interface but it's annotated with " +
                     "@PrivacySandboxService."
             )
         }
 
-        if (className.contains('.')) {
+        if (type.simpleName.contains('.')) {
             throw IllegalArgumentException(
-                "$packageName.$className is an inner interface so it can't be annotated with " +
+                "${type.qualifiedName} is an inner interface so it can't be annotated with " +
                     "@PrivacySandboxService."
             )
         }
 
         return AnnotatedInterface(
-            className,
-            packageName,
+            type = type,
             kotlinMetadata.functions.map(this::parseMethod),
         )
     }
@@ -151,7 +146,7 @@ internal object ApiStubParser {
 
     private fun parseType(type: KmType): Type {
         return when (val classifier = type.classifier) {
-            is KmClassifier.Class -> Type(classifier.name.replace('/', '.'))
+            is KmClassifier.Class -> classifier.name.parsedType()
             else -> throw IllegalArgumentException(
                 "Unsupported type in API description: $type"
             )
@@ -159,18 +154,27 @@ internal object ApiStubParser {
     }
 }
 
-val ClassNode.isPrivacySandboxService: Boolean get() {
+internal val ClassNode.isPrivacySandboxService: Boolean get() {
     return visibleAnnotationsWithType<PrivacySandboxService>().isNotEmpty()
 }
 
-inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
+internal inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
     return (visibleAnnotations ?: listOf<AnnotationNode>())
         .filter { getDescriptor(T::class.java) == it?.desc }
         .filterNotNull()
 }
 
+internal fun ClassName.parsedType(): Type {
+    // Package names are separated with slashes and nested classes are separated with dots.
+    // (e.g com/example/OuterClass.InnerClass).
+    val (packageName, className) = split('/').run {
+        dropLast(1).joinToString(separator = ".") to last()
+    }
+    return Type(packageName, className)
+}
+
 /** Map of annotation attributes. This is a convenience wrapper around [AnnotationNode.values]. */
-val AnnotationNode.attributeMap: Map<String, Any>
+internal val AnnotationNode.attributeMap: Map<String, Any>
     get() {
         values ?: return mapOf()
         val attributes = mutableMapOf<String, Any>()

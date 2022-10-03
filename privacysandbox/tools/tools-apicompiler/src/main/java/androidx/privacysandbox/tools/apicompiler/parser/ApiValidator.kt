@@ -60,8 +60,6 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
             )
         }
         if (interfaceDeclaration.typeParameters.isNotEmpty()) {
-            interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
-                .joinToString(limit = 3)
             logger.error("Error in $name: annotated interfaces cannot declare type parameters (${
                 interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
                     .joinToString(limit = 3)
