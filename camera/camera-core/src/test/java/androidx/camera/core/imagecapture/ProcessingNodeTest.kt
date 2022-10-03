@@ -24,17 +24,20 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
+import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.Exif.createFromFileString
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.internal.utils.ImageUtil
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
+import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.testing.ExifUtil.updateExif
 import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
@@ -134,13 +137,17 @@ class ProcessingNodeTest {
         val callback = FakeTakePictureCallback()
         val request = FakeProcessingRequest(createCaptureBundle(intArrayOf()), callback)
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val image = createJpegFakeImageProxy(jpegBytes)
+        val image = createJpegFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT), jpegBytes
+        )
         // Act.
         processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
         shadowOf(getMainLooper()).idle()
         // Assert: the output image is identical to the input.
-        val restoredJpeg = ImageUtil.jpegImageToJpegByteArray(callback.inMemoryResult!!)
+        val imageOut = callback.inMemoryResult!!
+        val restoredJpeg = jpegImageToJpegByteArray(imageOut)
         assertThat(getAverageDiff(jpegBytes, restoredJpeg)).isEqualTo(0)
+        assertThat(imageOut.imageInfo.timestamp).isEqualTo(TIMESTAMP)
     }
 
     @Test

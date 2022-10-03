@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.processing.Packet
@@ -53,7 +54,8 @@ class Bitmap2JpegBytesTest {
             createExif(createJpegBytes(WIDTH, HEIGHT)),
             Rect(0, 0, WIDTH, HEIGHT),
             90,
-            Matrix()
+            Matrix(),
+            CAMERA_CAPTURE_RESULT
         )
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 
@@ -63,5 +65,6 @@ class Bitmap2JpegBytesTest {
         // Assert
         val restoredBitmap = decodeByteArray(output.data, 0, output.data.size)
         assertThat(getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
     }
 }

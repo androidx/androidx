@@ -19,6 +19,7 @@ package androidx.camera.core.imagecapture
 import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Matrix
 import android.media.ExifInterface.TAG_FOCAL_LENGTH
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
 import androidx.camera.core.imagecapture.Utils.FOCAL_LENGTH
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -59,7 +60,8 @@ class Image2JpegBytesDeviceTest {
             null, // YuvImage doesn't have exif info.
             CROP_RECT,
             ROTATION_DEGREES,
-            Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
+            Matrix().also { it.setScale(-1F, 1F, 320F, 240F) },
+            CAMERA_CAPTURE_RESULT
         )
 
         // Act.
@@ -84,5 +86,7 @@ class Image2JpegBytesDeviceTest {
         val points = floatArrayOf(WIDTH.toFloat(), HEIGHT.toFloat())
         output.sensorToBufferTransform.mapPoints(points)
         assertThat(points).usingTolerance(1E-4).containsExactly(0, 240)
+        // Assert: capture result
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
     }
 }

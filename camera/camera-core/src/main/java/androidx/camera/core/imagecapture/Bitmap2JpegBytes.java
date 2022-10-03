@@ -53,7 +53,8 @@ class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>>
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),
-                packet.getSensorToBufferTransform());
+                packet.getSensorToBufferTransform(),
+                packet.getCameraCaptureResult());
     }
 
     /**

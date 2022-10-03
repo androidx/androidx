@@ -40,6 +40,7 @@ import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.SIZE
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.imagecapture.Utils.createCameraCaptureResultImageInfo
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
@@ -242,9 +243,10 @@ class ImagePipelineTest {
             IN_MEMORY_REQUEST, CALLBACK
         ).second!!
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val imageInfo = FakeImageInfo().apply {
-            this.setTag(processingRequest.tagBundleKey, processingRequest.stageIds.single())
-        }
+        val imageInfo = createCameraCaptureResultImageInfo(
+            processingRequest.tagBundleKey,
+            processingRequest.stageIds.single()
+        )
         val image = createJpegFakeImageProxy(imageInfo, jpegBytes)
 
         // Act: send processing request and the image.

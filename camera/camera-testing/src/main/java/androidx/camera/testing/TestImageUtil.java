@@ -32,7 +32,9 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.testing.fakes.FakeImageInfo;
+import androidx.camera.core.ImageInfo;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.camera.testing.fakes.FakeJpegPlaneProxy;
 
@@ -65,7 +67,7 @@ public class TestImageUtil {
      * TODO(b/245940015): fix the content of the image to match the value of {@link #createBitmap}.
      */
     @NonNull
-    public static FakeImageProxy createYuvFakeImageProxy(@NonNull FakeImageInfo imageInfo,
+    public static FakeImageProxy createYuvFakeImageProxy(@NonNull ImageInfo imageInfo,
             int width, int height) {
         FakeImageProxy image = new FakeImageProxy(imageInfo);
         image.setFormat(YUV_420_888);
@@ -79,10 +81,10 @@ public class TestImageUtil {
      * Creates a {@link FakeImageProxy} from JPEG bytes.
      */
     @NonNull
-    public static FakeImageProxy createJpegFakeImageProxy(@NonNull FakeImageInfo fakeImageInfo,
+    public static FakeImageProxy createJpegFakeImageProxy(@NonNull ImageInfo imageInfo,
             @NonNull byte[] jpegBytes) {
         Bitmap bitmap = decodeByteArray(jpegBytes, 0, jpegBytes.length);
-        FakeImageProxy image = new FakeImageProxy(fakeImageInfo);
+        FakeImageProxy image = new FakeImageProxy(imageInfo);
         image.setFormat(JPEG);
         image.setPlanes(new FakeJpegPlaneProxy[]{new FakeJpegPlaneProxy(jpegBytes)});
         image.setWidth(bitmap.getWidth());
@@ -95,7 +97,8 @@ public class TestImageUtil {
      */
     @NonNull
     public static FakeImageProxy createJpegFakeImageProxy(@NonNull byte[] jpegBytes) {
-        return createJpegFakeImageProxy(new FakeImageInfo(), jpegBytes);
+        return createJpegFakeImageProxy(
+                new CameraCaptureResultImageInfo(new FakeCameraCaptureResult()), jpegBytes);
     }
 
     /**
