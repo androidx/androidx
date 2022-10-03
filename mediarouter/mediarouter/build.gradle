@@ -31,6 +31,11 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
 
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
