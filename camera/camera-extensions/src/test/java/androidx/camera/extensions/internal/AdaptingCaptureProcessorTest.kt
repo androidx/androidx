@@ -55,7 +55,7 @@ class AdaptingCaptureProcessorTest {
         callOnInitAndVerify()
         adaptingCaptureProcessor.close()
         adaptingCaptureProcessor.process(imageProxyBundle)
-        Mockito.verifyNoMoreInteractions(captureProcessorImpl)
+        Mockito.verifyZeroInteractions(captureProcessorImpl)
     }
 
     @Test
@@ -63,7 +63,7 @@ class AdaptingCaptureProcessorTest {
         adaptingCaptureProcessor.close()
         adaptingCaptureProcessor.onOutputSurface(Mockito.mock(Surface::class.java), 0)
         adaptingCaptureProcessor.onInit()
-        Mockito.verifyNoMoreInteractions(captureProcessorImpl)
+        Mockito.verifyZeroInteractions(captureProcessorImpl)
     }
 
     @Test
@@ -71,7 +71,7 @@ class AdaptingCaptureProcessorTest {
         adaptingCaptureProcessor.close()
         adaptingCaptureProcessor.onResolutionUpdate(Size(640, 480))
         adaptingCaptureProcessor.onInit()
-        Mockito.verifyNoMoreInteractions(captureProcessorImpl)
+        Mockito.verifyZeroInteractions(captureProcessorImpl)
     }
 
     @Test
@@ -86,7 +86,7 @@ class AdaptingCaptureProcessorTest {
         callOnInitAndVerify()
         adaptingCaptureProcessor.onDeInit()
         adaptingCaptureProcessor.process(imageProxyBundle)
-        Mockito.verifyNoMoreInteractions(captureProcessorImpl)
+        Mockito.verifyZeroInteractions(captureProcessorImpl)
     }
 
     private fun createFakeImageProxyBundle(

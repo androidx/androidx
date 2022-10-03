@@ -22,7 +22,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.media.Image;
 import android.os.Build;
@@ -73,7 +73,7 @@ public class AdaptingPreviewProcessorTest {
         mAdaptingPreviewProcessor.process(mImageProxyBundle);
         mAdaptingPreviewProcessor.onInit();
 
-        verifyNoMoreInteractions(mImpl);
+        verifyZeroInteractions(mImpl);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class AdaptingPreviewProcessorTest {
         mAdaptingPreviewProcessor.onOutputSurface(mock(Surface.class), 0);
         mAdaptingPreviewProcessor.onInit();
 
-        verifyNoMoreInteractions(mImpl);
+        verifyZeroInteractions(mImpl);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AdaptingPreviewProcessorTest {
         mAdaptingPreviewProcessor.onResolutionUpdate(new Size(640, 480));
         mAdaptingPreviewProcessor.onInit();
 
-        verifyNoMoreInteractions(mImpl);
+        verifyZeroInteractions(mImpl);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class AdaptingPreviewProcessorTest {
         mAdaptingPreviewProcessor.onDeInit();
         mAdaptingPreviewProcessor.process(mImageProxyBundle);
 
-        verifyNoMoreInteractions(mImpl);
+        verifyZeroInteractions(mImpl);
     }
 
     private void callOnInitAndVerify() {
