@@ -505,3 +505,5 @@ Warning: Lint will treat :annotation:annotation as an external dependency and no
 Did you make a typo\? Are you trying to refer to something not visible to users\?
 \* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
 WARN: Sources for .+ is empty
+# > Task :linkDebugTestIosX64
+w: Cached libraries will not be used with std allocator
