@@ -28,6 +28,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.core.app.ActivityOptionsCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -75,6 +76,7 @@ class ComponentActivityResultTest {
         }
     }
 
+    @FlakyTest(bugId = 249285459)
     @Test
     fun registerInInitTest() {
         ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
