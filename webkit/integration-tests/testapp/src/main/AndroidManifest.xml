@@ -122,5 +122,8 @@
             android:exported="true" />
         <activity android:name=".ProcessGlobalConfigActivity"
             android:exported="true" />
+        <activity
+            android:name=".RequestedWithHeaderActivity"
+            android:exported="true" />
     </application>
 </manifest>

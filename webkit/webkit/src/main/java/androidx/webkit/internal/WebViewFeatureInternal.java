@@ -26,6 +26,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
@@ -485,6 +486,20 @@ public class WebViewFeatureInternal {
      */
     public static final ApiFeature.NoFramework GET_COOKIE_INFO =
             new ApiFeature.NoFramework(WebViewFeature.GET_COOKIE_INFO, Features.GET_COOKIE_INFO);
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)],
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderAllowList(WebSettings)}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_ALLOW_LIST =
+            new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
+                    Features.REQUESTED_WITH_HEADER_ALLOW_LIST);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
