@@ -54,23 +54,6 @@ import java.util.concurrent.Executor;
  * feature is supported by the current framework and/or WebView APK.
  */
 public class WebViewFeatureInternal {
-
-    /**
-     * WebView APK feature that is used in cases where the standard feature detection
-     * mechanism of querying for the flag in the WebView APK is not used.
-     *
-     * The non-standard feature detection mechanism can be provided by overriding the
-     * {@link ApiFeature#isSupportedByWebView()} method of the framework dependant subclass. If
-     * it is not overridden, {@link ApiFeature#isSupportedByWebView()} would return {@code false}.
-     *
-     * The value should not coincide with any other actual feature names in the WebView APK. The
-     * extra '_'s prefixing the value is added to reduce the chance of collision.
-     *
-     * One of the main reason for using a non-standard feature detection is to check whether a
-     * feature is present in the WebView APK without loading WebView into the calling process.
-     */
-    private static final String NONSTANDARD_FEATURE_DETECTION = "__NONSTANDARD_FEATURE_DETECTION";
-
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
@@ -386,16 +369,9 @@ public class WebViewFeatureInternal {
      * This feature covers
      * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
      */
-    public static final ApiFeature.P SET_DATA_DIRECTORY_SUFFIX =
-            new ApiFeature.P(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
-                    NONSTANDARD_FEATURE_DETECTION) {
-                @Override
-                public boolean isSupportedByWebView() {
-                    // TODO(crbug.com/1355297): Change it to version check once the support is
-                    //  added to WebView.
-                    return false;
-                }
-            };
+    public static final StartupApiFeature.P SET_DATA_DIRECTORY_SUFFIX =
+            new StartupApiFeature.P(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+                    StartupFeatures.SET_DATA_DIRECTORY_SUFFIX);
 
     /**
      * This feature covers
@@ -524,6 +500,16 @@ public class WebViewFeatureInternal {
     }
 
     /**
+     * Return whether a public startup feature is supported by any internal features defined in
+     * this class.
+     */
+    public static boolean isStartupFeatureSupported(
+            @NonNull @WebViewFeature.WebViewStartupFeature String publicFeatureValue,
+            @NonNull Context context) {
+        return isStartupFeatureSupported(publicFeatureValue, StartupApiFeature.values(), context);
+    }
+
+    /**
      * Return whether a public feature is supported by any {@link ConditionallySupportedFeature}s
      * defined in {@code internalFeatures}.
      *
@@ -545,6 +531,32 @@ public class WebViewFeatureInternal {
         }
         for (ConditionallySupportedFeature feature : matchingFeatures) {
             if (feature.isSupported()) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Return whether a public startup feature is supported by any {@link StartupApiFeature}s
+     * defined in {@code internalFeatures}.
+     *
+     * @throws RuntimeException if {@code publicFeatureValue} is not matched in
+     *      {@code internalFeatures}
+     */
+    @VisibleForTesting
+    public static boolean isStartupFeatureSupported(
+            @NonNull @WebViewFeature.WebViewStartupFeature String publicFeatureValue,
+            @NonNull Collection<StartupApiFeature> internalFeatures, @NonNull Context context) {
+        Set<StartupApiFeature> matchingFeatures = new HashSet<>();
+        for (StartupApiFeature feature : internalFeatures) {
+            if (feature.getPublicFeatureName().equals(publicFeatureValue)) {
+                matchingFeatures.add(feature);
+            }
+        }
+        if (matchingFeatures.isEmpty()) {
+            throw new RuntimeException("Unknown feature " + publicFeatureValue);
+        }
+        for (StartupApiFeature feature : matchingFeatures) {
+            if (feature.isSupported(context)) return true;
         }
         return false;
     }
