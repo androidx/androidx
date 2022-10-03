@@ -13,20 +13,20 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 public suspend fun createTestSandboxSdk(context: Context): TestSandboxSdk =
     suspendCancellableCoroutine {
   val sdkSandboxManager = context.getSystemService(SdkSandboxManager::class.java)
+  val outcomeReceiver = object: OutcomeReceiver<SandboxedSdk, LoadSdkException> {
+    override fun onResult(result: SandboxedSdk) {
+      it.resume(TestSandboxSdkClientProxy(ITestSandboxSdk.Stub.asInterface(result.getInterface())))
+    }
+    override fun onError(error: LoadSdkException) {
+      it.resumeWithException(error)
+    }
+  }
   sdkSandboxManager.loadSdk(
       "com.mysdk",
       Bundle.EMPTY,
       { obj: Runnable -> obj.run() },
-      object : OutcomeReceiver<SandboxedSdk, LoadSdkException> {
-          override fun onResult(result: SandboxedSdk) {
-              it.resume(TestSandboxSdkClientProxy(
-                  ITestSandboxSdk.Stub.asInterface(result.getInterface())))
-          }
-
-          override fun onError(error: LoadSdkException) {
-              it.resumeWithException(error)
-          }
-      })}
+      outcomeReceiver)
+}
 
 private class TestSandboxSdkClientProxy(
   private val remote: ITestSandboxSdk,

@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
@@ -48,7 +49,7 @@ class AbstractSdkProviderGenerator(
         if (api.services.isEmpty()) {
             return
         }
-        val packageName = api.getOnlyService().packageName
+        val packageName = api.getOnlyService().type.packageName
         val className = "AbstractSandboxedSdkProvider"
         val classSpec =
             TypeSpec.classBuilder(className)
@@ -96,7 +97,7 @@ class AbstractSdkProviderGenerator(
         return FunSpec.builder(getCreateServiceFunctionName(service))
             .addModifiers(KModifier.ABSTRACT, KModifier.PROTECTED)
             .addParameter("context", CONTEXT_CLASS)
-            .returns(service.toPoetClassName())
+            .returns(service.type.poetSpec())
             .build()
     }
 
@@ -108,7 +109,6 @@ class AbstractSdkProviderGenerator(
             .build()
     }
 
-    private fun getCreateServiceFunctionName(service: AnnotatedInterface) = "create${service.name}"
-
-    private fun AnnotatedInterface.toPoetClassName() = ClassName(packageName, name)
+    private fun getCreateServiceFunctionName(service: AnnotatedInterface) =
+        "create${service.type.simpleName}"
 }

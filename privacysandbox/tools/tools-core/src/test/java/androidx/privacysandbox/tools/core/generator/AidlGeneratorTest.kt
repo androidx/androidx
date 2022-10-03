@@ -40,82 +40,59 @@ class AidlGeneratorTest {
         val api = ParsedApi(
             services = mutableSetOf(
                 AnnotatedInterface(
-                    name = "MySdk",
-                    packageName = "com.mysdk",
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
                     methods = listOf(
                         Method(
                             name = "suspendMethodWithReturnValue",
                             parameters = listOf(
                                 Parameter(
                                     name = "a",
-                                    type = Type(
-                                        name = "kotlin.Boolean",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Boolean")
                                 ),
                                 Parameter(
                                     name = "b",
-                                    type = Type(
-                                        name = "kotlin.Int",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Int")
                                 ),
                                 Parameter(
                                     name = "c",
-                                    type = Type(
-                                        name = "kotlin.Long",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Long")
                                 ),
                                 Parameter(
                                     name = "d",
-                                    type = Type(
-                                        name = "kotlin.Float",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Float")
                                 ),
                                 Parameter(
                                     name = "e",
-                                    type = Type(
-                                        name = "kotlin.Double",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Double")
                                 ),
                                 Parameter(
                                     name = "f",
-                                    type = Type(
-                                        name = "kotlin.Char",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Char")
                                 ),
                                 Parameter(
                                     name = "g",
-                                    type = Type(
-                                        name = "kotlin.Short",
-                                    )
+                                    type = Type(packageName = "kotlin", simpleName = "Int")
                                 )
                             ),
-                            returnType = Type(
-                                name = "kotlin.String",
-                            ),
+        returnType = Type(packageName = "kotlin", simpleName = "String"),
                             isSuspend = true,
                         ),
                         Method(
                             name = "suspendMethodWithoutReturnValue",
                             parameters = listOf(),
-                            returnType = Type(
-                                name = "kotlin.Unit",
-                            ),
+                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
                             isSuspend = true,
                         ),
                         Method(
                             name = "methodWithReturnValue",
                             parameters = listOf(),
-                            returnType = Type(
-                                name = "kotlin.Int",
-                            ),
+                            returnType = Type(packageName = "kotlin", simpleName = "Int"),
                             isSuspend = false,
                         ),
                         Method(
                             name = "methodWithoutReturnValue",
                             parameters = listOf(),
-                            returnType = Type(
-                                name = "kotlin.Unit",
-                            ),
+                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
                             isSuspend = false,
                         )
                     )

@@ -27,9 +27,9 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 
@@ -74,8 +74,7 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     private fun parseInterface(classDeclaration: KSClassDeclaration): AnnotatedInterface {
         validator.validateInterface(classDeclaration)
         return AnnotatedInterface(
-            name = classDeclaration.simpleName.getShortName(),
-            packageName = classDeclaration.packageName.getFullName(),
+            type = parseType(classDeclaration),
             methods = getAllMethods(classDeclaration),
         )
     }
@@ -85,11 +84,13 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
 
     private fun parseMethod(method: KSFunctionDeclaration): Method {
         validator.validateMethod(method)
+        // TODO: returnType "Can be null if an error occurred during resolution".
+        val returnType = method.returnType!!.resolve()
+        validator.validateType(method, returnType)
         return Method(
             name = method.simpleName.getFullName(),
             parameters = getAllParameters(method),
-            // TODO: returnType "Can be null if an error occurred during resolution".
-            returnType = parseType(method, method.returnType!!.resolve()),
+            returnType = parseType(returnType.declaration),
             isSuspend = method.modifiers.contains(Modifier.SUSPEND)
         )
     }
@@ -100,18 +101,18 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     private fun parseParameter(method: KSFunctionDeclaration, parameter: KSValueParameter):
         Parameter {
         validator.validateParameter(method, parameter)
+        val type = parameter.type.resolve()
+        validator.validateType(method, type)
         return Parameter(
             name = parameter.name!!.getFullName(),
-            type = parseType(method, parameter.type.resolve()),
+            type = parseType(type.declaration),
         )
     }
 
-    private fun parseType(method: KSFunctionDeclaration, type: KSType): Type {
-        validator.validateType(method, type)
+    private fun parseType(declaration: KSDeclaration): Type {
         return Type(
-            // we should always have the qualified name here because there can't be local type
-            // declarations in method signatures.
-            name = type.declaration.qualifiedName!!.getFullName(),
+            packageName = declaration.packageName.getFullName(),
+            simpleName = declaration.simpleName.getShortName(),
         )
     }
 }
