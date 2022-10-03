@@ -17,8 +17,8 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.StringDef
 import androidx.health.connect.client.aggregate.AggregateMetric
-import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.records.BloodPressureRecord.MeasurementLocation
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Pressure
 import java.time.Instant
 import java.time.ZoneOffset
@@ -34,8 +34,8 @@ public class BloodPressureRecord(
      */
     public val systolic: Pressure,
     /**
-     * Diastolic blood pressure measurement, in [Pressure] unit. Required field. Valid range:
-     * 10-180 mmHg.
+     * Diastolic blood pressure measurement, in [Pressure] unit. Required field. Valid range: 10-180
+     * mmHg.
      */
     public val diastolic: Pressure,
     /**

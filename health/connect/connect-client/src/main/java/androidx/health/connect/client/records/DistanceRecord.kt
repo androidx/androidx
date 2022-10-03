@@ -42,6 +42,7 @@ public class DistanceRecord(
 
     init {
         distance.requireNotLess(other = distance.zero(), name = "distance")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     /*

@@ -29,8 +29,7 @@ import java.time.ZoneOffset
  */
 public class BloodGlucoseRecord(
     /**
-     * Blood glucose level or concentration. Required field. Valid
-     * range: 0-50 mmol/L.
+     * Blood glucose level or concentration. Required field. Valid range: 0-50 mmol/L.
      *
      * @see BloodGlucose
      */
@@ -118,14 +117,15 @@ public class BloodGlucoseRecord(
      */
     @Retention(AnnotationRetention.SOURCE)
     @StringDef(
-        value = [
-            SpecimenSource.INTERSTITIAL_FLUID,
-            SpecimenSource.CAPILLARY_BLOOD,
-            SpecimenSource.PLASMA,
-            SpecimenSource.SERUM,
-            SpecimenSource.TEARS,
-            SpecimenSource.WHOLE_BLOOD,
-        ]
+        value =
+            [
+                SpecimenSource.INTERSTITIAL_FLUID,
+                SpecimenSource.CAPILLARY_BLOOD,
+                SpecimenSource.PLASMA,
+                SpecimenSource.SERUM,
+                SpecimenSource.TEARS,
+                SpecimenSource.WHOLE_BLOOD,
+            ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class SpecimenSources
