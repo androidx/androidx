@@ -61,22 +61,6 @@ internal class EmbeddingCompat constructor(
         const val DEBUG = true
         private const val TAG = "EmbeddingCompat"
 
-        fun getExtensionApiLevel(): Int? {
-            return try {
-                WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
-            } catch (e: NoClassDefFoundError) {
-                if (DEBUG) {
-                    Log.d(TAG, "Embedding extension version not found")
-                }
-                null
-            } catch (e: UnsupportedOperationException) {
-                if (DEBUG) {
-                    Log.d(TAG, "Stub Extension")
-                }
-                null
-            }
-        }
-
         fun isEmbeddingAvailable(): Boolean {
             return try {
                 WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent != null
@@ -95,7 +79,7 @@ internal class EmbeddingCompat constructor(
 
         fun embeddingComponent(): ActivityEmbeddingComponent {
             return if (isEmbeddingAvailable()) {
-                WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
+                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent
                     ?: Proxy.newProxyInstance(
                         EmbeddingCompat::class.java.classLoader,
                         arrayOf(ActivityEmbeddingComponent::class.java)

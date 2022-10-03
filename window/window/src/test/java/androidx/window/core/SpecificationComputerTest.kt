@@ -17,9 +17,9 @@
 package androidx.window.core
 
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
-import androidx.window.core.SpecificationComputer.VerificationMode.LOG
-import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
-import androidx.window.core.SpecificationComputer.VerificationMode.STRICT
+import androidx.window.core.VerificationMode.LOG
+import androidx.window.core.VerificationMode.QUIET
+import androidx.window.core.VerificationMode.STRICT
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
