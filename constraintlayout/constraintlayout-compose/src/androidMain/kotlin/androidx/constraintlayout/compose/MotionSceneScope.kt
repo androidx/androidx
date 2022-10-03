@@ -165,11 +165,11 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
         constraintSetContent: ConstraintSetScope.() -> Unit
     ): ConstraintSetRef {
         return addConstraintSet(
-            name = name,
             constraintSet = DslConstraintSet(
                 description = constraintSetContent,
                 extendFrom = extendConstraintSet?.let { constraintSetsByName[it.name] }
-            )
+            ),
+            name = name
         )
     }
 
@@ -203,8 +203,8 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * as a parameter of [transition].
      */
     fun addConstraintSet(
-        name: String? = null,
-        constraintSet: ConstraintSet
+        constraintSet: ConstraintSet,
+        name: String? = null
     ): ConstraintSetRef {
         val cSetName = name ?: nextName()
         constraintSetsByName[cSetName] = constraintSet
@@ -222,8 +222,8 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * @see [addConstraintSet]
      */
     fun addTransition(
-        name: String? = null,
-        transition: Transition
+        transition: Transition,
+        name: String? = null
     ) {
         val transitionName = name ?: nextName()
         transitionsByName[transitionName] = transition

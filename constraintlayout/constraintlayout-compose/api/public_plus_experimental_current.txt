@@ -644,8 +644,8 @@ package androidx.constraintlayout.compose {
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionSceneScope {
-    method public androidx.constraintlayout.compose.ConstraintSetRef addConstraintSet(optional String? name, androidx.constraintlayout.compose.ConstraintSet constraintSet);
-    method public void addTransition(optional String? name, androidx.constraintlayout.compose.Transition transition);
+    method public androidx.constraintlayout.compose.ConstraintSetRef addConstraintSet(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional String? name);
+    method public void addTransition(androidx.constraintlayout.compose.Transition transition, optional String? name);
     method public androidx.constraintlayout.compose.ConstraintSetRef constraintSet(optional String? name, optional androidx.constraintlayout.compose.ConstraintSetRef? extendConstraintSet, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> constraintSetContent);
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
     method public void customColor(androidx.constraintlayout.compose.ConstrainScope, String name, long value);
