@@ -320,7 +320,7 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean isGpsEnabled);
-    method public androidx.health.services.client.data.ExerciseConfig.Builder setSwimmingPoolLength(float swimmingPoolLength);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setSwimmingPoolLengthMeters(float swimmingPoolLength);
   }
 
   public static final class ExerciseConfig.Companion {
