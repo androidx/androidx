@@ -21,7 +21,6 @@ import android.media.MediaCodec;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
@@ -61,9 +60,10 @@ public class SurfaceSorter {
         });
     }
 
+    @SuppressWarnings("deprecation")
     private int getSurfacePriority(@NonNull DeferrableSurface surface) {
         if (surface.getContainerClass() == MediaCodec.class
-                || surface.getContainerClass() == VideoCapture.class) {
+                || surface.getContainerClass() == androidx.camera.core.VideoCapture.class) {
             return PRIORITY_MEDIA_CODEC_SURFACE;
         } else if (surface.getContainerClass() == Preview.class) {
             return PRIORITY_PREVIEW_SURFACE;

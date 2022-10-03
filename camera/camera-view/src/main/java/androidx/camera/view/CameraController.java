@@ -61,7 +61,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -109,6 +108,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link UseCase}s freezes the preview for a short period of time. To avoid the glitch, the
  * {@link UseCase}s need to be enabled/disabled before the controller is set on {@link PreviewView}.
  */
+@SuppressWarnings("deprecation")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class CameraController {
 
@@ -257,7 +257,7 @@ public abstract class CameraController {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @NonNull
-    VideoCapture mVideoCapture;
+    androidx.camera.core.VideoCapture mVideoCapture;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -322,7 +322,7 @@ public abstract class CameraController {
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
-        mVideoCapture = new VideoCapture.Builder().build();
+        mVideoCapture = new androidx.camera.core.VideoCapture.Builder().build();
 
         // Wait for camera to be initialized before binding use cases.
         mInitializationFuture = Futures.transform(
@@ -1136,10 +1136,11 @@ public abstract class CameraController {
         Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
 
         mVideoCapture.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
-                new VideoCapture.OnVideoSavedCallback() {
+                new androidx.camera.core.VideoCapture.OnVideoSavedCallback() {
                     @Override
                     public void onVideoSaved(
-                            @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                            @NonNull androidx.camera.core.VideoCapture.OutputFileResults
+                                    outputFileResults) {
                         mVideoIsRecording.set(false);
                         callback.onVideoSaved(
                                 OutputFileResults.create(outputFileResults.getSavedUri()));
@@ -1221,7 +1222,8 @@ public abstract class CameraController {
         if (isCameraInitialized()) {
             mCameraProvider.unbind(mVideoCapture);
         }
-        VideoCapture.Builder builder = new VideoCapture.Builder();
+        androidx.camera.core.VideoCapture.Builder builder =
+                new androidx.camera.core.VideoCapture.Builder();
         setTargetOutputSize(builder, mVideoCaptureOutputSize);
         mVideoCapture = builder.build();
     }

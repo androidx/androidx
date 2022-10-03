@@ -29,7 +29,6 @@ import android.view.Surface;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
@@ -370,10 +369,11 @@ public class SessionConfigTest {
         return deferrableSurface;
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void combineTwoSessionsSurfaces() {
         DeferrableSurface previewSurface = createSurface(Preview.class);
-        DeferrableSurface videoSurface = createSurface(VideoCapture.class);
+        DeferrableSurface videoSurface = createSurface(androidx.camera.core.VideoCapture.class);
         DeferrableSurface imageCaptureSurface = createSurface(ImageCapture.class);
 
         SessionConfig.Builder builder0 = new SessionConfig.Builder();

@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.internal.ThreadConfig;
 
 /**
@@ -26,9 +25,10 @@ import androidx.camera.core.internal.ThreadConfig;
  *
  * <p>In the earlier stage, the VideoCapture is deprioritized.
  */
+@SuppressWarnings("deprecation")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCaptureConfig
-        implements UseCaseConfig<VideoCapture>,
+        implements UseCaseConfig<androidx.camera.core.VideoCapture>,
         ImageOutputConfig,
         ThreadConfig {
 

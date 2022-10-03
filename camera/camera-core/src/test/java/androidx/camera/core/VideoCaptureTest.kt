@@ -42,6 +42,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
+@Suppress("DEPRECATION")
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP

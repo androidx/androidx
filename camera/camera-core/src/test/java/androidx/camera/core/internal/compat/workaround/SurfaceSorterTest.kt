@@ -21,7 +21,6 @@ import android.os.Build
 import android.view.Surface
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
@@ -89,11 +88,12 @@ class SurfaceSorterTest {
         assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun sort_previewSurfaceIsInTheFirstAndVideoCaptureSurfaceIsInTheLast() {
         // Arrange.
         val videoOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = VideoCapture::class.java)).build()
+            createSurface(containerClass = androidx.camera.core.VideoCapture::class.java)).build()
         val previewOutput = SessionConfig.OutputConfig.builder(
             createSurface(containerClass = Preview::class.java)).build()
         val imageOutput = SessionConfig.OutputConfig.builder(
