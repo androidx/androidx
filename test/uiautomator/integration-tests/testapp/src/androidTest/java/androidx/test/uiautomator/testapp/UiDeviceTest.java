@@ -27,6 +27,7 @@ import android.view.KeyEvent;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
@@ -54,6 +55,10 @@ import javax.xml.xpath.XPathFactory;
 public class UiDeviceTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 5_000;
+
+    private static final int GESTURE_MARGIN = 50;
+
+    private static final String PACKAGE_NAME = "androidx.test.uiautomator.testapp";
 
     // Defined in 'AndroidManifest.xml'.
     private static final String APP_NAME = "UiAutomator Test App";
@@ -293,21 +298,61 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("I've been clicked!", button.getText());
     }
 
+    @Test
+    public void testSwipe() {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+
+        int width = mDevice.getDisplayWidth();
+        int height = mDevice.getDisplayHeight();
+        mDevice.swipe(GESTURE_MARGIN, height / 2, width - GESTURE_MARGIN, height / 2, 10);
+
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testDrag() {
+        launchTestActivity(DragTestActivity.class);
+
+        UiObject2 dragButton = mDevice.findObject(By.res(TEST_APP, "drag_button"));
+        UiObject2 dragDestination = mDevice.findObject(By.res(TEST_APP, "drag_destination"));
+
+        Point start = dragButton.getVisibleCenter();
+        Point end = dragDestination.getVisibleCenter();
+
+        assertEquals("no_drag_yet", dragDestination.getText());
+        mDevice.drag(start.x, start.y, end.x, end.y, 10);
+        assertTrue(dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testSwipe_withPointArray() {
+        launchTestActivity(SwipeTestActivity.class);
+
+        UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
+
+        int width = mDevice.getDisplayWidth();
+        int height = mDevice.getDisplayHeight();
+
+        Point point1 = new Point(GESTURE_MARGIN, height / 2);
+        Point point2 = new Point(width / 2, height / 2);
+        Point point3 = new Point(width - GESTURE_MARGIN, height / 2);
+
+        mDevice.swipe(new Point[]{point1, point2, point3}, 10);
+
+        assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testGetCurrentPackageName() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        assertEquals(PACKAGE_NAME, mDevice.getCurrentPackageName());
+    }
+
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testSwipe() {}
-
-    public void testDrag() {}
-
-    public void testSwipe_withPointArray() {}
-
-    public void testWaitForIdle() {}
-
-    public void testWaitForIdle_withTimeout() {}
-
-    public void testGetCurrentActivityName() {}
-
-    public void testGetCurrentPackageName() {}
 
     public void testRegisterWatcher() {}
 
