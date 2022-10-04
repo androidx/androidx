@@ -88,7 +88,7 @@ public final class NavigationDemosScreen extends Screen {
         // If the screenArray size is under the limit, we will show all of them on the first page.
         // Otherwise we will show them in multiple pages.
         if (screenArray.length <= listLimit) {
-            for (int i = 0; i < listLimit; i++) {
+            for (int i = 0; i < screenArray.length; i++) {
                 listBuilder.addItem(screenArray[i]);
             }
         } else {
