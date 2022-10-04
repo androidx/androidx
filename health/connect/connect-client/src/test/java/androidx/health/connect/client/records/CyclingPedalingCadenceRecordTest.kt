@@ -49,10 +49,32 @@ class CyclingPedalingCadenceRecordTest {
     }
 
     @Test
+    fun sameStartTimeEndTime_validRecord_equals() {
+        assertThat(
+            CyclingPedalingCadenceRecord(
+                Instant.ofEpochMilli(1234L),
+                null,
+                Instant.ofEpochMilli(1234L),
+                null,
+                listOf<CyclingPedalingCadenceRecord.Sample>()
+            )
+        )
+            .isEqualTo(
+                CyclingPedalingCadenceRecord(
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    listOf<CyclingPedalingCadenceRecord.Sample>()
+                )
+            )
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             CyclingPedalingCadenceRecord(
-                Instant.ofEpochMilli(1234L),
+                Instant.ofEpochMilli(1235L),
                 null,
                 Instant.ofEpochMilli(1234L),
                 null,

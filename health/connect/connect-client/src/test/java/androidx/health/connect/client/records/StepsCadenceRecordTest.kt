@@ -49,10 +49,32 @@ class StepsCadenceRecordTest {
     }
 
     @Test
+    fun sameStartEndTime_validRecord_equals() {
+        assertThat(
+            StepsCadenceRecord(
+                Instant.ofEpochMilli(1234L),
+                null,
+                Instant.ofEpochMilli(1234L),
+                null,
+                listOf<StepsCadenceRecord.Sample>()
+            )
+        )
+            .isEqualTo(
+                StepsCadenceRecord(
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    listOf<StepsCadenceRecord.Sample>()
+                )
+            )
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             StepsCadenceRecord(
-                Instant.ofEpochMilli(1234L),
+                Instant.ofEpochMilli(1235L),
                 null,
                 Instant.ofEpochMilli(1234L),
                 null,
