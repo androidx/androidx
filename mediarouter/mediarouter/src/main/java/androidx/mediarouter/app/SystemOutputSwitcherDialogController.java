@@ -23,6 +23,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 
@@ -66,15 +67,26 @@ public final class SystemOutputSwitcherDialogController {
      * @return {@code true} if the dialog was shown successfully and {@code false} otherwise
      */
     public static boolean showDialog(@NonNull Context context) {
+        boolean result = false;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return showDialogForAndroidSAndAbove(context)
+            result = showDialogForAndroidSAndAbove(context)
                     // The intent action and related string constants are changed in S,
                     // however they are not public API yet. Try opening the output switcher with the
                     // old constants for devices that have prior version of the constants.
                     || showDialogForAndroidR(context);
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return showDialogForAndroidR(context);
+            result = showDialogForAndroidR(context);
         }
+
+        if (result) {
+            return true;
+        }
+
+        if (isRunningOnWear(context) && showBluetoothSettingsFragment(context)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -129,5 +141,38 @@ public final class SystemOutputSwitcherDialogController {
             }
         }
         return false;
+    }
+
+    private static boolean showBluetoothSettingsFragment(@NonNull Context context) {
+        // Wear OS specific intent. This is a default behaviour
+        // for devices without the output switcher dialog.
+        // See https://developer.android.com/training/wearables/overlays/audio.
+        Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .putExtra("EXTRA_CONNECTION_ONLY", true)
+                .putExtra("EXTRA_CLOSE_ON_CONNECT", true)
+                .putExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 1);
+
+        PackageManager packageManager = context.getPackageManager();
+        List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent,
+                0 /* flags */);
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            ActivityInfo activityInfo = resolveInfo.activityInfo;
+            if (activityInfo == null || activityInfo.applicationInfo == null) {
+                continue;
+            }
+            ApplicationInfo appInfo = activityInfo.applicationInfo;
+            if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
+                    & appInfo.flags) != 0) {
+                context.startActivity(intent);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isRunningOnWear(@NonNull Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
     }
 }

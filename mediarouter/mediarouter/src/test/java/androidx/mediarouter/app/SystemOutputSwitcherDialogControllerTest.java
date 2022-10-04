@@ -27,6 +27,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
@@ -87,7 +88,6 @@ public class SystemOutputSwitcherDialogControllerTest {
 
     private static void assertAndroidROrBelowOutputSwitcherIntent(
             @NonNull Intent intent, @NonNull Context context) {
-        assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(OUTPUT_SWITCHER_INTENT_ACTION_ANDROID_R);
         assertThat(intent.getStringExtra("com.android.settings.panel.extra.PACKAGE_NAME"))
                 .isEqualTo(context.getPackageName());
@@ -99,6 +99,15 @@ public class SystemOutputSwitcherDialogControllerTest {
                 .isEqualTo(OUTPUT_SWITCHER_INTENT_ACTION_ANDROID_S);
         assertThat(intent.getPackage()).isEqualTo(PACKAGE_NAME_SYSTEM_UI);
         assertThat(intent.getStringExtra("package_name")).isEqualTo(context.getPackageName());
+    }
+
+    private static void assertWearOsBluetoothSettingsIntent(@NonNull Intent intent) {
+        assertThat(intent.getAction())
+                .isEqualTo(Settings.ACTION_BLUETOOTH_SETTINGS);
+        assertThat(intent.getBooleanExtra("EXTRA_CONNECTION_ONLY", false)).isTrue();
+        assertThat(intent.getBooleanExtra("EXTRA_CLOSE_ON_CONNECT", false)).isTrue();
+        assertThat(intent.getIntExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 0))
+                .isEqualTo(1);
     }
 
     @RunWith(RobolectricTestRunner.class)
@@ -138,6 +147,28 @@ public class SystemOutputSwitcherDialogControllerTest {
 
             Intent intent = mShadowApplication.getNextStartedActivity();
             assertAndroidROrBelowOutputSwitcherIntent(intent, mContext);
+
+            // check that no API S code was called
+            assertThat(mShadowApplication.getBroadcastIntents()).isEmpty();
+        }
+
+        @Test
+        public void testThatShowsBluetoothSettingsDialogOnWearOs() {
+            try {
+                registerSystemUiIntentResolver(mShadowPackageManager,
+                        Settings.ACTION_BLUETOOTH_SETTINGS,
+                        SystemIntentResolverType.ACTIVITY);
+            } catch (PackageManager.NameNotFoundException e) {
+                assertWithMessage("Cannot register Settings Bluetooth").fail();
+            }
+
+            // enable wear os
+            mShadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, true);
+
+            assertThat(SystemOutputSwitcherDialogController.showDialog(mContext)).isTrue();
+
+            Intent intent = mShadowApplication.getNextStartedActivity();
+            assertWearOsBluetoothSettingsIntent(intent);
 
             // check that no API S code was called
             assertThat(mShadowApplication.getBroadcastIntents()).isEmpty();
@@ -235,6 +266,28 @@ public class SystemOutputSwitcherDialogControllerTest {
 
             // check that no API R code was called
             assertThat(mShadowApplication.getNextStartedActivity()).isNull();
+        }
+
+        @Test
+        public void testThatShowsBluetoothSettingsDialogOnWearOs() {
+            try {
+                registerSystemUiIntentResolver(mShadowPackageManager,
+                        Settings.ACTION_BLUETOOTH_SETTINGS,
+                        SystemIntentResolverType.ACTIVITY);
+            } catch (PackageManager.NameNotFoundException e) {
+                assertWithMessage("Cannot register Settings Bluetooth").fail();
+            }
+
+            // enable wear os
+            mShadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, true);
+
+            assertThat(SystemOutputSwitcherDialogController.showDialog(mContext)).isTrue();
+
+            Intent intent = mShadowApplication.getNextStartedActivity();
+            assertWearOsBluetoothSettingsIntent(intent);
+
+            // check that no API S code was as there is no receiver to resolve broadcast
+            assertThat(mShadowApplication.getBroadcastIntents()).isEmpty();
         }
     }
 }
