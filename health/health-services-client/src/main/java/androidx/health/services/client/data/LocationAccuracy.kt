@@ -19,6 +19,7 @@ package androidx.health.services.client.data
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataPointAccuracy.LocationAccuracy as LocationAccuracyProto
+import android.util.Log
 import androidx.annotation.FloatRange
 
 /** Accuracy for a [DataType.LOCATION] data point. */
@@ -41,16 +42,12 @@ public class LocationAccuracy(
 ) : DataPointAccuracy() {
     init {
         if (horizontalPositionErrorMeters < 0.0) {
-            throw IllegalArgumentException(
-                "horizontalPositionErrorMeters value " +
-                    "$horizontalPositionErrorMeters is out of range"
-            )
+            Log.w(TAG, "horizontalPositionErrorMeters value " +
+                "$horizontalPositionErrorMeters is out of range")
         }
         if (verticalPositionErrorMeters < 0.0) {
-            throw IllegalArgumentException(
-                "verticalPositionErrorMeters value " +
-                    "$verticalPositionErrorMeters is out of range"
-            )
+            Log.w(TAG, "verticalPositionErrorMeters value " +
+                "$verticalPositionErrorMeters is out of range")
         }
     }
 
@@ -84,6 +81,7 @@ public class LocationAccuracy(
             "verticalPositionErrorMeters=$verticalPositionErrorMeters)"
 
     public companion object {
+        private const val TAG = "LocationAccuracy"
         @JvmField
         public val CREATOR: Parcelable.Creator<LocationAccuracy> = newCreator {
             val proto = DataProto.DataPointAccuracy.parseFrom(it)
