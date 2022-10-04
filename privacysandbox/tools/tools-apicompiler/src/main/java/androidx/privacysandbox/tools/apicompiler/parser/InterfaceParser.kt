@@ -16,11 +16,18 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.Type
+import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -28,27 +35,33 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Nullability
 
-class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver) {
+internal class InterfaceParser(resolver: Resolver, private val logger: KSPLogger) {
     private val primitiveTypes = getPrimitiveTypes(resolver.builtIns)
+    private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
+    private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
 
-    companion object {
-        val validInterfaceModifiers = setOf(Modifier.PUBLIC)
-        val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
-    }
-
-    fun validateInterface(interfaceDeclaration: KSClassDeclaration) {
+    fun parseInterface(interfaceDeclaration: KSAnnotated): AnnotatedInterface? {
+        if (interfaceDeclaration !is KSClassDeclaration ||
+            interfaceDeclaration.classKind != ClassKind.INTERFACE) {
+            logger.error(
+                "Only interfaces can be annotated with @PrivacySandboxService."
+            )
+            return null
+        }
         val name = interfaceDeclaration.qualifiedName?.getFullName()
             ?: interfaceDeclaration.simpleName.getFullName()
         if (!interfaceDeclaration.isPublic()) {
             logger.error("Error in $name: annotated interfaces should be public.")
         }
         if (interfaceDeclaration.getDeclaredProperties().any()) {
-            logger.error("Error in $name: annotated interfaces cannot declare properties.")
+            logger.error(
+                "Error in $name: annotated interfaces cannot declare properties.")
         }
         if (interfaceDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
                 .any(KSClassDeclaration::isCompanionObject)
         ) {
-            logger.error("Error in $name: annotated interfaces cannot declare companion objects.")
+            logger.error(
+                "Error in $name: annotated interfaces cannot declare companion objects.")
         }
         val invalidModifiers =
             interfaceDeclaration.modifiers.filterNot(validInterfaceModifiers::contains)
@@ -60,14 +73,22 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
             )
         }
         if (interfaceDeclaration.typeParameters.isNotEmpty()) {
-            logger.error("Error in $name: annotated interfaces cannot declare type parameters (${
-                interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
-                    .joinToString(limit = 3)
-            }).")
+            logger.error(
+                "Error in $name: annotated interfaces cannot declare type parameters (${
+                    interfaceDeclaration.typeParameters.map { it.simpleName.getShortName() }
+                        .sorted().joinToString(limit = 3)
+                })."
+            )
         }
+
+        val methods = interfaceDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
+        return AnnotatedInterface(
+            type = Converters.typeFromDeclaration(interfaceDeclaration),
+            methods = methods,
+        )
     }
 
-    fun validateMethod(method: KSFunctionDeclaration) {
+    private fun parseMethod(method: KSFunctionDeclaration): Method {
         val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
         if (!method.isAbstract) {
             logger.error("Error in $name: method cannot have default implementation.")
@@ -85,23 +106,49 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
                 })."
             )
         }
+
+        if (method.returnType == null) {
+            logger.error("Error in $name: failed to resolve return type.")
+        }
+        val returnType = parseType(method, method.returnType!!.resolve())
+
+        val parameters =
+            method.parameters.map { parameter -> parseParameter(method, parameter) }.toList()
+
+        return Method(
+            name = method.simpleName.getFullName(),
+            parameters = parameters,
+            returnType = returnType,
+            isSuspend = method.modifiers.contains(Modifier.SUSPEND)
+        )
     }
 
-    fun validateParameter(method: KSFunctionDeclaration, parameter: KSValueParameter) {
+    private fun parseParameter(
+        method: KSFunctionDeclaration,
+        parameter: KSValueParameter
+    ): Parameter {
         val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
         if (parameter.hasDefault) {
-            logger.error("Error in $name: parameters cannot have default values.")
+            logger.error(
+                "Error in $name: parameters cannot have default values."
+            )
         }
+
+        return Parameter(
+            name = parameter.name!!.getFullName(),
+            type = parseType(method, parameter.type.resolve()),
+        )
     }
 
-    fun validateType(method: KSFunctionDeclaration, type: KSType) {
-        val name = getMethodName(method)
+    private fun parseType(method: KSFunctionDeclaration, type: KSType): Type {
+        val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
         if (type.nullability == Nullability.NULLABLE) {
             logger.error("Error in $name: nullable types are not supported.")
-        } // else because primitive nullables are not primitive
-        else if (!primitiveTypes.contains(type)) {
+        }
+        if (!primitiveTypes.contains(type)) {
             logger.error("Error in $name: only primitive types are supported.")
         }
+        return Converters.typeFromDeclaration(type.declaration)
     }
 
     private fun getPrimitiveTypes(builtIns: KSBuiltIns) = listOf(
@@ -115,7 +162,4 @@ class ApiValidator(private val logger: KSPLogger, private val resolver: Resolver
         builtIns.stringType,
         builtIns.unitType,
     )
-
-    private fun getMethodName(method: KSFunctionDeclaration) =
-        method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
 }

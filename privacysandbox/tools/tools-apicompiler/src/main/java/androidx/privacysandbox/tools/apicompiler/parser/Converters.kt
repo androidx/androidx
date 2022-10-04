@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core.model
+package androidx.privacysandbox.tools.apicompiler.parser
 
-/** Result of parsing a full developer-defined API for an SDK. */
-data class ParsedApi(
-    val services: Set<AnnotatedInterface>,
-    val values: Set<AnnotatedValue> = setOf(),
-)
+import androidx.privacysandbox.tools.core.model.Type
+import com.google.devtools.ksp.symbol.KSDeclaration
+
+internal object Converters {
+    fun typeFromDeclaration(declaration: KSDeclaration): Type {
+        return Type(
+            packageName = declaration.packageName.getFullName(),
+            simpleName = declaration.simpleName.getShortName(),
+        )
+    }
+}
