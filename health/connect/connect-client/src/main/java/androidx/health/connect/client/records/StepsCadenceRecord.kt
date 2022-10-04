@@ -36,7 +36,7 @@ class StepsCadenceRecord(
 ) : SeriesRecord<StepsCadenceRecord.Sample> {
 
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        require(!startTime.isAfter(endTime)) { "startTime must not be after endTime." }
     }
 
     /*

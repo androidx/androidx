@@ -49,10 +49,32 @@ class PowerRecordTest {
     }
 
     @Test
+    fun sameStartEndTime_validRecord_equals() {
+        assertThat(
+            PowerRecord(
+                Instant.ofEpochMilli(1234L),
+                null,
+                Instant.ofEpochMilli(1234L),
+                null,
+                listOf<PowerRecord.Sample>()
+            )
+        )
+            .isEqualTo(
+                PowerRecord(
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    listOf<PowerRecord.Sample>()
+                )
+            )
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             PowerRecord(
-                Instant.ofEpochMilli(1234L),
+                Instant.ofEpochMilli(1235L),
                 null,
                 Instant.ofEpochMilli(1234L),
                 null,

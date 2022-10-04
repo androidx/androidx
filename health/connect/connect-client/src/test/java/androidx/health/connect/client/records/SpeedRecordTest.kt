@@ -49,10 +49,32 @@ class SpeedRecordTest {
     }
 
     @Test
+    fun sameStartEndTime_validRecord_equals() {
+        assertThat(
+            SpeedRecord(
+                Instant.ofEpochMilli(1234L),
+                null,
+                Instant.ofEpochMilli(1234L),
+                null,
+                listOf<SpeedRecord.Sample>()
+            )
+        )
+            .isEqualTo(
+                SpeedRecord(
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    listOf<SpeedRecord.Sample>()
+                )
+            )
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             SpeedRecord(
-                Instant.ofEpochMilli(1234L),
+                Instant.ofEpochMilli(1235L),
                 null,
                 Instant.ofEpochMilli(1234L),
                 null,
