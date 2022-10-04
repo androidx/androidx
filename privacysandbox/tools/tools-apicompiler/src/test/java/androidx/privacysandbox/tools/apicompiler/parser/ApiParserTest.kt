@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -58,20 +59,20 @@ class ApiParserTest {
                                 parameters = listOf(
                                     Parameter(
                                         name = "x",
-                                        type = Type(packageName = "kotlin", simpleName = "Int")
+                                        type = Types.int
                                     ),
                                     Parameter(
                                         name = "y",
-                                        type = Type(packageName = "kotlin", simpleName = "Int")
+                                        type = Types.int
                                     )
                                 ),
-                                returnType = Type(packageName = "kotlin", simpleName = "String"),
+                                returnType = Types.string,
                                 isSuspend = true,
                             ),
                             Method(
                                 name = "doMoreStuff",
                                 parameters = listOf(),
-                                returnType = Type(packageName = "kotlin", simpleName = "Unit"),
+                                returnType = Types.unit,
                                 isSuspend = false,
                             )
                         )

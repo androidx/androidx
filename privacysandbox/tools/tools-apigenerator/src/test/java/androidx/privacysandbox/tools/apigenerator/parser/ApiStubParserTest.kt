@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -53,17 +54,17 @@ class ApiStubParserTest {
                             parameters = listOf(
                                 Parameter(
                                     "magicNumber",
-                                    Type(packageName = "kotlin", simpleName = "Int")
+                                    Types.int
                                 ),
-                                Parameter("awesomeString", Type("kotlin", simpleName = "String"))
+                                Parameter("awesomeString", Types.string)
                             ),
-                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
+                            returnType = Types.unit,
                             isSuspend = true,
                         ),
                         Method(
                             name = "returnMagicNumber",
                             parameters = listOf(),
-                            returnType = Type(packageName = "kotlin", simpleName = "Int"),
+                            returnType = Types.int,
                             isSuspend = false,
                         )
                     )
