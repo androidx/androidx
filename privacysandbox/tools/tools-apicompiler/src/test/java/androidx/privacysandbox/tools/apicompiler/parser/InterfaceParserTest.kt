@@ -17,13 +17,109 @@
 package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
+import androidx.privacysandbox.tools.apicompiler.util.parseSource
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Type
 import androidx.room.compiler.processing.util.Source
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ApiValidatorTest {
+class InterfaceParserTest {
+
+    @Test
+    fun parseServiceInterface_ok() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk {
+                        suspend fun doStuff(x: Int, y: Int): String
+                        fun doMoreStuff()
+                    }
+                """
+        )
+        assertThat(parseSource(source)).isEqualTo(
+            ParsedApi(
+                services = mutableSetOf(
+                    AnnotatedInterface(
+                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                        methods = listOf(
+                            Method(
+                                name = "doStuff",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "x",
+                                        type = Types.int,
+                                    ), Parameter(
+                                        name = "y",
+                                        type = Types.int,
+                                    )
+                                ),
+                                returnType = Types.string,
+                                isSuspend = true,
+                            ), Method(
+                                name = "doMoreStuff",
+                                parameters = listOf(),
+                                returnType = Types.unit,
+                                isSuspend = false,
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun serviceAnnotatedClass_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    abstract class MySdk {  // Fails because it's a class, not an interface.
+                        abstract fun doStuff(x: Int, y: Int): String
+                    }
+                """
+        )
+
+        checkSourceFails(source)
+            .containsError("Only interfaces can be annotated with @PrivacySandboxService.")
+    }
+
+    @Test
+    fun multipleServices_fails() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk
+                """
+        )
+        val source2 = Source.kotlin(
+            "com/mysdk/MySdk2.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk2
+                """
+        )
+
+        checkSourceFails(source, source2)
+            .containsError(
+                "Multiple interfaces annotated with @PrivacySandboxService are not " +
+                    "supported (MySdk, MySdk2)."
+            )
+    }
     @Test
     fun privateInterface_fails() {
         checkSourceFails(
@@ -156,7 +252,7 @@ class ApiValidatorTest {
     @Test
     fun nullableParameter_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: Int?)"))
-            .containsExactlyErrors(
+            .containsError(
                 "Error in com.mysdk.MySdk.foo: nullable types are not supported."
             )
     }
