@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.VideoCapture;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -175,32 +174,35 @@ public abstract class OutputFileOptions {
     }
 
     /**
-     * Converts to a {@link VideoCapture.OutputFileOptions}.
+     * Converts to a {@link androidx.camera.core.VideoCapture.OutputFileOptions}.
      *
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @SuppressWarnings("deprecation")
     @NonNull
-    public VideoCapture.OutputFileOptions toVideoCaptureOutputFileOptions() {
-        VideoCapture.OutputFileOptions.Builder internalOutputFileOptionsBuilder;
+    public androidx.camera.core.VideoCapture.OutputFileOptions toVideoCaptureOutputFileOptions() {
+        androidx.camera.core.VideoCapture.OutputFileOptions.Builder
+                internalOutputFileOptionsBuilder;
         if (isSavingToFile()) {
             internalOutputFileOptionsBuilder =
-                    new VideoCapture.OutputFileOptions.Builder(
+                    new androidx.camera.core.VideoCapture.OutputFileOptions.Builder(
                             Preconditions.checkNotNull(getFile()));
         } else if (isSavingToFileDescriptor()) {
             internalOutputFileOptionsBuilder =
-                    new VideoCapture.OutputFileOptions.Builder(
+                    new androidx.camera.core.VideoCapture.OutputFileOptions.Builder(
                             Preconditions.checkNotNull(getFileDescriptor()).getFileDescriptor());
         } else {
             Preconditions.checkState(isSavingToMediaStore());
             internalOutputFileOptionsBuilder =
-                    new VideoCapture.OutputFileOptions.Builder(
+                    new androidx.camera.core.VideoCapture.OutputFileOptions.Builder(
                             Preconditions.checkNotNull(getContentResolver()),
                             Preconditions.checkNotNull(getSaveCollection()),
                             Preconditions.checkNotNull(getContentValues()));
         }
 
-        VideoCapture.Metadata internalMetadata = new VideoCapture.Metadata();
+        androidx.camera.core.VideoCapture.Metadata internalMetadata =
+                new androidx.camera.core.VideoCapture.Metadata();
         internalMetadata.location = getMetadata().getLocation();
         internalOutputFileOptionsBuilder.setMetadata(internalMetadata);
 

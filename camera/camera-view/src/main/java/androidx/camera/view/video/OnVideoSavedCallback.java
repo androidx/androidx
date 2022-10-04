@@ -21,13 +21,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.VideoCapture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Listener containing callbacks for video file I/O events. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@SuppressWarnings("deprecation")
 @ExperimentalVideo
 public interface OnVideoSavedCallback {
     /**
@@ -35,26 +35,26 @@ public interface OnVideoSavedCallback {
      *
      * <p>See message parameter in onError callback or log for more details.
      */
-    int ERROR_UNKNOWN = VideoCapture.ERROR_UNKNOWN;
+    int ERROR_UNKNOWN = androidx.camera.core.VideoCapture.ERROR_UNKNOWN;
     /**
      * An error occurred with encoder state, either when trying to change state or when an
      * unexpected state change occurred.
      */
-    int ERROR_ENCODER = VideoCapture.ERROR_ENCODER;
+    int ERROR_ENCODER = androidx.camera.core.VideoCapture.ERROR_ENCODER;
     /** An error with muxer state such as during creation or when stopping. */
-    int ERROR_MUXER = VideoCapture.ERROR_MUXER;
+    int ERROR_MUXER = androidx.camera.core.VideoCapture.ERROR_MUXER;
     /**
      * An error indicating start recording was called when video recording is still in progress.
      */
-    int ERROR_RECORDING_IN_PROGRESS = VideoCapture.ERROR_RECORDING_IN_PROGRESS;
+    int ERROR_RECORDING_IN_PROGRESS = androidx.camera.core.VideoCapture.ERROR_RECORDING_IN_PROGRESS;
     /**
      * An error indicating the file saving operations.
      */
-    int ERROR_FILE_IO = VideoCapture.ERROR_FILE_IO;
+    int ERROR_FILE_IO = androidx.camera.core.VideoCapture.ERROR_FILE_IO;
     /**
      * An error indicating this VideoCapture is not bound to a camera.
      */
-    int ERROR_INVALID_CAMERA = VideoCapture.ERROR_INVALID_CAMERA;
+    int ERROR_INVALID_CAMERA = androidx.camera.core.VideoCapture.ERROR_INVALID_CAMERA;
 
     /**
      * Describes the error that occurred during video capture operations.
