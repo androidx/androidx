@@ -1169,12 +1169,6 @@ public abstract class WatchFaceService : WallpaperService() {
             isHeadless = headless
         }
 
-        // It's possible for two getOrCreateInteractiveWatchFaceClient calls to come in back to
-        // back for the same instance. If the second one specifies a UserStyle we need to apply it
-        // but if the instance isn't fully initialized we need to defer application to avoid
-        // blocking in getOrCreateInteractiveWatchFaceClient until the watch face is ready.
-        internal var pendingUserStyle: UserStyleWireFormat? = null
-
         /**
          * Whether or not we allow watch faces to animate. In some tests or for headless
          * rendering (for remote config) we don't want this.
@@ -1259,7 +1253,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val lock = Any()
 
-        /** Protected by [lock]. */
+        /** All members after this are protected by [lock]. */
         private val listeners = RemoteCallbackList<IWatchfaceListener>()
         private var lastWatchFaceColors: WatchFaceColors? = null
         private var lastPreviewImageNeedsUpdateRequest: String? = null
@@ -1436,26 +1430,34 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @UiThread
-        internal suspend fun setUserStyle(userStyle: UserStyleWireFormat): Unit = TraceEvent(
+        fun setUserStyle(userStyle: UserStyleWireFormat): Unit = TraceEvent(
             "EngineWrapper.setUserStyle"
         ).use {
-            setUserStyleImpl(deferredWatchFaceImpl.await(), userStyle)
+            uiThreadCoroutineScope.launch {
+                try {
+                    setUserStyleImpl(
+                        deferredEarlyInitDetails.await().userStyleRepository,
+                        userStyle
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "setUserStyle failed", e)
+                    throw e
+                }
+            }
         }
 
         @UiThread
         private fun setUserStyleImpl(
-            watchFaceImpl: WatchFaceImpl,
+            currentUserStyleRepository: CurrentUserStyleRepository,
             userStyle: UserStyleWireFormat
         ) {
-            watchFaceImpl.onSetStyleInternal(
-                UserStyle(UserStyleData(userStyle), watchFaceImpl.currentUserStyleRepository.schema)
+            currentUserStyleRepository.updateUserStyle(
+                UserStyle(UserStyleData(userStyle), currentUserStyleRepository.schema)
             )
 
             // Update direct boot params if we have any.
             val params = directBootParams ?: return
-            val currentStyle =
-                watchFaceImpl.currentUserStyleRepository.userStyle.value.toWireFormat()
+            val currentStyle = currentUserStyleRepository.userStyle.value.toWireFormat()
             if (params.userStyle.equals(currentStyle)) {
                 return
             }
@@ -2166,15 +2168,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 // deferredWatchFaceImpl) occurs before initStyleAndComplications has
                 // executed. NB usually we won't have to wait at all.
                 initStyleAndComplicationsDone.await()
-
-                // Its possible a second getOrCreateInteractiveWatchFaceClient call came in before
-                // the watch face for the first one had finished initializing, in that case we want
-                // to apply the updated style. NB pendingUserStyle is accessed on the UiThread so
-                // there shouldn't be any problems with race conditions.
-                pendingUserStyle?.let {
-                    setUserStyleImpl(watchFaceImpl, it)
-                    pendingUserStyle = null
-                }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
 
                 asyncWatchFaceConstructionPending = false

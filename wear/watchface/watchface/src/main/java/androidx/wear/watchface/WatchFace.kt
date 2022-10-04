@@ -665,7 +665,6 @@ public class WatchFaceImpl @UiThread constructor(
             }
         )
 
-    private var inOnSetStyle = false
     internal var initComplete = false
 
     private fun interruptionFilter(it: Int) {
@@ -857,15 +856,6 @@ public class WatchFaceImpl @UiThread constructor(
                 this@WatchFaceImpl.onDestroy()
             }
         }
-    }
-
-    /** Called by the system in response to remote configuration. */
-    @UiThread
-    internal fun onSetStyleInternal(style: UserStyle) {
-        // No need to echo the userStyle back.
-        inOnSetStyle = true
-        currentUserStyleRepository.updateUserStyle(style)
-        inOnSetStyle = false
     }
 
     internal fun onDestroy() {
@@ -1091,7 +1081,9 @@ public class WatchFaceImpl @UiThread constructor(
         val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
 
         params.userStyle?.let {
-            onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
+            currentUserStyleRepository.updateUserStyle(
+                UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
+            )
         }
 
         val oldComplicationData =
@@ -1115,7 +1107,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         // Restore previous style & complicationSlots if required.
         if (params.userStyle != null) {
-            onSetStyleInternal(oldStyle)
+            currentUserStyleRepository.updateUserStyle(oldStyle)
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
@@ -1143,7 +1135,7 @@ public class WatchFaceImpl @UiThread constructor(
 
             val newStyle = params.userStyle
             if (newStyle != null) {
-                onSetStyleInternal(
+                currentUserStyleRepository.updateUserStyle(
                     UserStyle(UserStyleData(newStyle), currentUserStyleRepository.schema)
                 )
             }
@@ -1182,7 +1174,7 @@ public class WatchFaceImpl @UiThread constructor(
             }
 
             if (newStyle != null) {
-                onSetStyleInternal(oldStyle)
+                currentUserStyleRepository.updateUserStyle(oldStyle)
             }
 
             SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
