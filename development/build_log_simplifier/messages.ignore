@@ -76,13 +76,16 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 Html results of .* zipped into.*\.zip
 # b/230127926
 [0-9]+ problem.* found storing the configuration cache.*
-\- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.plugin\.mpp\.[A-Za-z0-9]+`: invocation of 'Task\.project' at execution time is unsupported\.
+plus [0-9]+ more problems\. Please see the report for details\.
 # https://youtrack.jetbrains.com/issue/KT-52694/
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
+# https://youtrack.jetbrains.com/issue/KT-43293 fixed in Kotlin 1.8.0
+\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains(\.[a-zA-Z]+)+\.(CInteropCommonizerTask|KotlinNativeCompile|KotlinNativeLink|KotlinNativeHostTest|CInteropMetadataDependencyTransformationTask|GenerateProjectStructureMetadata|TransformKotlinGranularMetadata)\`\: invocation of \'Task\.project\' at execution time is unsupported\.
+\- Task \`((\:[a-z1-9-]+)+)?\:[a-zA-Z1-9]+\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.(CInteropMetadataDependencyTransformationTask|NativeDistributionCommonizerTask)\`: cannot serialize object of type \'org\.gradle(\.[a-zA-Z]+)+\'\, a subtype of \'org\.gradle(\.[a-zA-Z]+)+\'\, as these are not supported with the configuration cache\.
+# https://youtrack.jetbrains.com/issue/KT-54627
+\- Task \`\:commonizeNativeDistribution\` of type \`org\.jetbrains\.kotlin\.gradle\.targets\.native\.internal\.NativeDistributionCommonizerTask\`\: error writing value of type \'java\.util\.concurrent\.locks\.ReentrantLock\'
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
-# https://youtrack.jetbrains.com/issue/KT-52694
-\- Task \`:[:A-Za-z0-9#\-]+` of type \`org\.jetbrains\.kotlin\.gradle\.tooling\.BuildKotlinToolingMetadataTask\$FromKotlinExtension\`\: invocation of \'Task\.project\' at execution time is unsupported\.
-plus [0-9]+ more problems\. Please see the report for details\.
+See https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\/userguide\/configuration_cache\.html\#config_cache\:requirements\:disallowed_types
 See the complete report at file://\$SUPPORT/build/reports/configuration\-cache/[^/]*/[^/]*/configuration\-cache\-report\.html
 See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
