@@ -513,9 +513,11 @@ package androidx.glance.template {
     method public int getLarge();
     method public int getMedium();
     method public int getSmall();
+    method public int getUndefined();
     property public final int Large;
     property public final int Medium;
     property public final int Small;
+    property public final int Undefined;
   }
 
   @kotlin.jvm.JvmInline public final value class ListStyle {
