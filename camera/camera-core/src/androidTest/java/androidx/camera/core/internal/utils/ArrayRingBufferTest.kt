@@ -18,7 +18,6 @@ package androidx.camera.core.internal.utils
 
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,7 +38,6 @@ class ArrayRingBufferTest {
         Truth.assertThat(testBuffer.dequeue()).isEqualTo(2)
     }
 
-    @Ignore("b/249127050")
     @Test
     fun testDequeue_correctValueIsDequeued() {
         @Suppress("UNCHECKED_CAST")
