@@ -133,10 +133,11 @@ public fun CurvedLayout(
 
         // Give the curved row scope the information needed to measure and map measurables
         // to children.
-        with(CurvedMeasureScope(subDensity = this, curvedLayoutDirection)) {
+        with(CurvedMeasureScope(subDensity = this, curvedLayoutDirection, radius)) {
             with(curvedRowChild) {
-                val mapped = initializeMeasure(measurables, 0)
-                require(mapped == measurables.size)
+                val iterator = measurables.iterator()
+                initializeMeasure(iterator)
+                require(!iterator.hasNext())
             }
         }
 
@@ -265,7 +266,8 @@ internal class PartialLayoutInfo(
 // Similar to IntrinsicMeasureScope
 internal class CurvedMeasureScope(
     val subDensity: Density,
-    val curvedLayoutDirection: CurvedLayoutDirection
+    val curvedLayoutDirection: CurvedLayoutDirection,
+    val radius: Float
 ) : Density by subDensity
 
 /**
@@ -318,14 +320,8 @@ internal abstract class CurvedChild() {
      *
      * @param measurables: The measurables on the CurvedLayout, used to map to the compose-ui nodes
      * we generated in [SubComposition] as we walk the tree.
-     * @param index: The current index in the measurables array
-     * @return The new index in the measurables array, taking into account how many items we
-     * mapped.
      */
-    open fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int = index
+    open fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) { }
 
     /**
      * Compute the parent data required to give to the parent layout to properly size and position

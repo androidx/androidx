@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
@@ -63,13 +64,11 @@ internal class CurvedComposableChild(
     }
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int {
+        measurables: Iterator<Measurable>
+    ) {
         // TODO: check that we actually match adding a parent data modifier to the Box in
         // composeIfNeeded and verifying this measurable has it?
-        placeable = measurables[index].measure(Constraints())
-        return index + 1
+        placeable = measurables.next().measure(Constraints())
     }
 
     override fun doEstimateThickness(maxRadius: Float): Float {
@@ -100,35 +99,18 @@ internal class CurvedComposableChild(
         )
     }
 
-    override fun (Placeable.PlacementScope).placeIfNeeded() {
-        // Distance from the center of the CurvedRow to the top left of the component.
-        val radiusToTopLeft = layoutInfo!!.outerRadius
+    private var parentSweepRadians: Float = 0f
 
-        // Distance from the center of the CurvedRow to the top center of the component.
-        val radiusToTopCenter = sqrt(pow2(radiusToTopLeft) - pow2(placeable.width / 2f))
-
-        // To position this child, we move its center rotating it around the CurvedRow's center.
-        val radiusToCenter = radiusToTopCenter - placeable.height / 2f
-        val centerAngle = layoutInfo!!.startAngleRadians + layoutInfo!!.sweepRadians / 2f
-        val childCenterX = layoutInfo!!.centerOffset.x + radiusToCenter * cos(centerAngle)
-        val childCenterY = layoutInfo!!.centerOffset.y + radiusToCenter * sin(centerAngle)
-
-        // Then compute the position of the top left corner given that center.
-        val positionX = (childCenterX - placeable.width / 2f).roundToInt()
-        val positionY = (childCenterY - placeable.height / 2f).roundToInt()
-
-        val rotationAngle = centerAngle + if (clockwise) 0f else PI.toFloat()
-
-        placeable.placeWithLayer(
-            x = positionX,
-            y = positionY,
-            layerBlock = {
-                rotationZ = rotationAngle.toDegrees() - 270f
-                // Should this be computed with centerOffset & size??
-                transformOrigin = TransformOrigin.Center
-            }
-        )
+    override fun doAngularPosition(
+        parentStartAngleRadians: Float,
+        parentSweepRadians: Float,
+        centerOffset: Offset
+    ): Float = parentStartAngleRadians.also {
+        this.parentSweepRadians = parentSweepRadians
     }
+
+    override fun (Placeable.PlacementScope).placeIfNeeded() =
+        place(placeable, layoutInfo!!, parentSweepRadians, clockwise)
 
     /**
      * Compute the inner and outer radii of the annulus sector required to fit the given box.
@@ -156,6 +138,43 @@ internal class CurvedComposableChild(
 
         return innerRadius to outerRadius
     }
-
-    private fun pow2(x: Float): Float = x * x
 }
+
+internal fun (Placeable.PlacementScope).place(
+    placeable: Placeable,
+    layoutInfo: CurvedLayoutInfo,
+    parentSweepRadians: Float,
+    clockwise: Boolean
+) {
+    with(layoutInfo) {
+        // Distance from the center of the CurvedRow to the top left of the component.
+        val radiusToTopLeft = outerRadius
+
+        // Distance from the center of the CurvedRow to the top center of the component.
+        val radiusToTopCenter = sqrt(pow2(radiusToTopLeft) - pow2(placeable.width / 2f))
+
+        // To position this child, we move its center rotating it around the CurvedRow's center.
+        val radiusToCenter = radiusToTopCenter - placeable.height / 2f
+        val centerAngle = startAngleRadians + parentSweepRadians / 2f
+        val childCenterX = centerOffset.x + radiusToCenter * cos(centerAngle)
+        val childCenterY = centerOffset.y + radiusToCenter * sin(centerAngle)
+
+        // Then compute the position of the top left corner given that center.
+        val positionX = (childCenterX - placeable.width / 2f).roundToInt()
+        val positionY = (childCenterY - placeable.height / 2f).roundToInt()
+
+        val rotationAngle = centerAngle + if (clockwise) 0f else PI.toFloat()
+
+        placeable.placeWithLayer(
+            x = positionX,
+            y = positionY,
+            layerBlock = {
+                rotationZ = rotationAngle.toDegrees() - 270f
+                // Rotate around the center of the placeable.
+                transformOrigin = TransformOrigin.Center
+            }
+        )
+    }
+}
+
+private fun pow2(x: Float): Float = x * x

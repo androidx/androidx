@@ -24,6 +24,7 @@ import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.OversizeComposable
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 
 val WearFoundationDemos = DemoCategory(
@@ -37,6 +38,7 @@ val WearFoundationDemos = DemoCategory(
             ComposableDemo("Curved Text") { BasicCurvedTextDemo() },
             ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
             ComposableDemo("Fixed size") { CurvedFixedSize() },
+            ComposableDemo("Oversize composable") { OversizeComposable() },
             ComposableDemo("Weights") { CurvedWeight() },
             ComposableDemo("Ellipsis Demo") { CurvedEllipsis() },
             ComposableDemo("Bottom layout") { CurvedBottomLayout() },
