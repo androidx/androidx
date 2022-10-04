@@ -96,6 +96,27 @@ internal class EmittableRadioButton : Emittable {
     var style: TextStyle? = null
     var colors: RadioButtonColors = RadioButtonColors()
     var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableRadioButton().also {
+        it.modifier = modifier
+        it.checked = checked
+        it.enabled = enabled
+        it.text = text
+        it.style = style
+        it.colors = colors
+        it.maxLines = maxLines
+    }
+
+    override fun toString(): String = "EmittableRadioButton(" +
+        "$text, " +
+        "modifier=$modifier, " +
+        "checked=$checked, " +
+        "enabled=$enabled, " +
+        "text=$text, " +
+        "style=$style, " +
+        "colors=$colors, " +
+        "maxLines=$maxLines, " +
+        ")"
 }
 
 /**

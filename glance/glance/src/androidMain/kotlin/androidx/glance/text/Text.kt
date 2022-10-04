@@ -58,6 +58,13 @@ class EmittableText : Emittable {
     var style: TextStyle? = null
     var maxLines: Int = Int.MAX_VALUE
 
+    override fun copy(): Emittable = EmittableText().also {
+        it.modifier = modifier
+        it.text = text
+        it.style = style
+        it.maxLines = it.maxLines
+    }
+
     override fun toString(): String =
         "EmittableText($text, style=$style, modifier=$modifier, maxLines=$maxLines)"
 }

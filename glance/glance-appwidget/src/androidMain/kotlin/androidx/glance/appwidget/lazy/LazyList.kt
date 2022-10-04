@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.lazy
 
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -252,9 +253,21 @@ internal class EmittableLazyListItem : EmittableWithChildren() {
     var itemId: Long = 0
     var alignment: Alignment = Alignment.CenterStart
 
+    override fun copy(): Emittable = EmittableLazyListItem().also {
+        it.itemId = itemId
+        it.alignment = alignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
     override fun toString() =
         "EmittableLazyListItem(modifier=$modifier, alignment=$alignment, " +
             "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyColumn : EmittableLazyList()
+internal class EmittableLazyColumn : EmittableLazyList() {
+    override fun copy(): Emittable = EmittableLazyColumn().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+}
