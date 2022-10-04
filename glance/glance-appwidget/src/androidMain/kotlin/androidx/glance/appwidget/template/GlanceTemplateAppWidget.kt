@@ -19,6 +19,8 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
@@ -35,8 +37,22 @@ import androidx.glance.template.TemplateMode
  */
 abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
-    /** Default widget size mode is [SizeMode.Exact] */
-    override val sizeMode = SizeMode.Exact
+    companion object {
+        private val COLLAPSED = DpSize(30.dp, 30.dp)
+        private val HORIZONTAL_S = DpSize(241.dp, 30.dp)
+        private val HORIZONTAL_M = DpSize(241.dp, 200.dp)
+        private val HORIZONTAL_L = DpSize(350.dp, 200.dp)
+        private val VERTICAL_S = DpSize(30.dp, 241.dp)
+        private val VERTICAL_M = DpSize(200.dp, 241.dp)
+        private val VERTICAL_L = DpSize(200.dp, 350.dp)
+    }
+
+    /** Default widget size mode is [SizeMode.Responsive] */
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(
+            COLLAPSED, VERTICAL_S, VERTICAL_M, VERTICAL_L, HORIZONTAL_S, HORIZONTAL_M, HORIZONTAL_L
+        )
+    )
 
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition

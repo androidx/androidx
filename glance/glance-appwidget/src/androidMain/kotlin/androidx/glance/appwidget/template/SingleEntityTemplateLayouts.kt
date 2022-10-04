@@ -87,10 +87,13 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
         }
         Row(modifier = GlanceModifier.fillMaxWidth()) {
             data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
-            data.actionBlock?.let {
-                Spacer(modifier = GlanceModifier.width(16.dp))
-                Spacer(modifier = GlanceModifier.defaultWeight())
-                ActionBlockTemplate(it)
+            // TODO(b/247613894): Fix for multiple actions
+            if (LocalSize.current.width > 100.dp) {
+                data.actionBlock?.let {
+                    Spacer(modifier = GlanceModifier.width(16.dp))
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+                    ActionBlockTemplate(it)
+                }
             }
         }
     }
