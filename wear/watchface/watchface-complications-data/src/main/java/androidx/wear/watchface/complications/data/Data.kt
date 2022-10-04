@@ -22,7 +22,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
-import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
@@ -864,48 +863,6 @@ internal constructor(
     validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
     dataSource = dataSource
 ) {
-
-    /**
-     * Optional metadata for [value] which explains renderers may use to influence styling of the
-     * ranged value complication.
-     *
-     * @hide
-     */
-    @IntDef(
-        value = [
-            ValueType.NONE,
-            ValueType.DISCRETE,
-            ValueType.PROGRESS,
-            ValueType.SCORE
-        ]
-    )
-    @ComplicationExperimental
-    public annotation class ValueType {
-        public companion object {
-            /** The default [value] has no special meaning. */
-            public const val NONE: Int = 0
-
-            /**
-             * The default [value] contains integral values, the renderer may chose to style the
-             * complication accordingly. E.g. it may draw them with a segmented line/arc.
-             */
-            public const val DISCRETE: Int = 1
-
-            /**
-             * The default [value] represents progress towards a goal. E.g. 1200 / 2000 calories
-             * burned, or 7500 / 10000 steps.
-             */
-            public const val PROGRESS: Int = 2
-
-            /**
-             * The default [value] represents score such as 75/100 oxygen saturation or 25/100 of a
-             * task complete. The renderer may choose to style the complication accordingly, perhaps
-             * rendering a marker on top of the line/arc.
-             */
-            public const val SCORE: Int = 3
-        }
-    }
-
     /** Optional hint to render the value with the specified [ColorRamp]. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ComplicationExperimental
