@@ -21,10 +21,13 @@ import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.text.TextUtils
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Timebase
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.LabTestRule
@@ -52,14 +55,21 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class EncoderFinderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
     private val lensFacing: Int,
     private var cameraSelector: CameraSelector,
     private var quality: Quality,
 ) {
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -75,7 +85,7 @@ class EncoderFinderTest(
         private val timebase = Timebase.UPTIME
 
         @JvmStatic
-        private val quality = arrayOf(
+        private val availableQualities = arrayOf(
             Quality.SD,
             Quality.HD,
             Quality.FHD,
@@ -85,11 +95,31 @@ class EncoderFinderTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}")
+        private val cameraxConfigs =
+            listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "config={0}, lensFacing={2}, quality={4}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            cameraSelectors.forEach { cameraSelector ->
-                quality.forEach { quality ->
-                    add(arrayOf(cameraSelector.lensFacing, cameraSelector, quality))
+            cameraxConfigs.forEach { configImplName ->
+                cameraSelectors.forEach { cameraSelector ->
+                    availableQualities.forEach { quality ->
+                        add(
+                            arrayOf(
+                                configImplName,
+                                when (configImplName) {
+                                    CameraPipeConfig::class.simpleName ->
+                                        CameraPipeConfig.defaultConfig()
+                                    Camera2Config::class.simpleName ->
+                                        Camera2Config.defaultConfig()
+                                    else -> Camera2Config.defaultConfig()
+                                },
+                                cameraSelector.lensFacing,
+                                cameraSelector,
+                                quality
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -102,7 +132,7 @@ class EncoderFinderTest(
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
 
-        CameraXUtil.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
     }
 
