@@ -23,6 +23,5 @@ dependencies {
     kmpDocs(project(":datastore:datastore-core-okio"))
     kmpDocs(project(":datastore:datastore-preferences"))
     kmpDocs(project(":datastore:datastore-preferences-core"))
-    kmpDocs(project(":datastore:datastore-preferences-proto"))
     kmpDocs(project(":datastore:datastore"))
 }
