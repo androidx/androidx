@@ -17,6 +17,7 @@
 package androidx.test.uiautomator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -48,6 +49,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class UiDeviceTest {
+
+    private static final String WATCHER_NAME = "test_watcher";
 
     @Rule
     public TemporaryFolder mTmpDir = new TemporaryFolder();
@@ -104,6 +107,55 @@ public class UiDeviceTest {
                 Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(dm.heightPixels, mDevice.getDisplayHeight());
+    }
+
+    @Test
+    public void testRegisterAndRunUiWatcher_conditionMet() {
+        // The watcher will return true when its watching condition is met.
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+        mDevice.runWatchers();
+        assertTrue(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertTrue(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testRegisterAndRunUiWatcher_conditionNotMet() {
+        UiWatcher watcher = () -> false;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+        mDevice.runWatchers();
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testResetUiWatcher() {
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+        mDevice.runWatchers();
+
+        assertTrue(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertTrue(mDevice.hasAnyWatcherTriggered());
+        mDevice.resetWatcherTriggers();
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testRemoveUiWatcher() {
+        UiWatcher watcher = () -> true;
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+        mDevice.removeWatcher(WATCHER_NAME);
+        mDevice.runWatchers();
+
+        assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
+        assertFalse(mDevice.hasAnyWatcherTriggered());
     }
 
     @Test

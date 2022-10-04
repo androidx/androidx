@@ -55,11 +55,8 @@ import javax.xml.xpath.XPathFactory;
 public class UiDeviceTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 5_000;
-
     private static final int GESTURE_MARGIN = 50;
-
     private static final String PACKAGE_NAME = "androidx.test.uiautomator.testapp";
-
     // Defined in 'AndroidManifest.xml'.
     private static final String APP_NAME = "UiAutomator Test App";
 
@@ -353,18 +350,6 @@ public class UiDeviceTest extends BaseTest {
     }
 
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testRegisterWatcher() {}
-
-    public void testRemoveWatcher() {}
-
-    public void testRunWatchers() {}
-
-    public void testResetWatcherTriggers() {}
-
-    public void testHasWatcherTriggered() {}
-
-    public void testHasAnyWatcherTriggered() {}
 
     public void testIsNaturalOrientation() {}
 
