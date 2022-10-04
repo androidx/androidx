@@ -49,10 +49,32 @@ class HeartRateRecordTest {
     }
 
     @Test
+    fun sameStartEndTime_validRecord_equals() {
+        assertThat(
+            HeartRateRecord(
+                Instant.ofEpochMilli(1234L),
+                null,
+                Instant.ofEpochMilli(1234L),
+                null,
+                listOf<HeartRateRecord.Sample>()
+            )
+        )
+            .isEqualTo(
+                HeartRateRecord(
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    Instant.ofEpochMilli(1234L),
+                    null,
+                    listOf<HeartRateRecord.Sample>()
+                )
+            )
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             HeartRateRecord(
-                Instant.ofEpochMilli(1234L),
+                Instant.ofEpochMilli(1235L),
                 null,
                 Instant.ofEpochMilli(1234L),
                 null,
