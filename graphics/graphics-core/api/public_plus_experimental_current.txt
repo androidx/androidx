@@ -1,6 +1,36 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBuffer {
+    ctor public FrameBuffer(androidx.graphics.opengl.egl.EGLSpec egl, android.hardware.HardwareBuffer hardwareBuffer);
+    method public void close();
+    method public android.hardware.HardwareBuffer getHardwareBuffer();
+    method public boolean isClosed();
+    method public void makeCurrent();
+    property public final android.hardware.HardwareBuffer hardwareBuffer;
+    property public final boolean isClosed;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBufferRenderer implements androidx.graphics.opengl.GLRenderer.RenderCallback {
+    ctor public FrameBufferRenderer(androidx.graphics.lowlatency.FrameBufferRenderer.RenderCallback frameBufferRendererCallbacks, optional androidx.graphics.lowlatency.SyncStrategy syncStrategy);
+    method public void clear();
+    method public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager);
+  }
+
+  public static interface FrameBufferRenderer.RenderCallback {
+    method public androidx.graphics.lowlatency.FrameBuffer obtainFrameBuffer(androidx.graphics.opengl.egl.EGLSpec egl);
+    method public void onDraw(androidx.graphics.opengl.egl.EGLManager eglManager);
+    method public void onDrawComplete(androidx.graphics.lowlatency.FrameBuffer frameBuffer, androidx.graphics.lowlatency.SyncFenceCompat? syncFenceCompat);
+  }
+
+  public final class FrontBufferSyncStrategy implements androidx.graphics.lowlatency.SyncStrategy {
+    ctor public FrontBufferSyncStrategy(long usageFlags);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.graphics.lowlatency.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    method public boolean isVisible();
+    method public void setVisible(boolean);
+    property public final boolean isVisible;
+  }
+
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
@@ -41,6 +71,15 @@ package androidx.graphics.lowlatency {
 
   public final class SyncFenceCompatKt {
     method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.graphics.lowlatency.SyncFenceCompat! createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
+  }
+
+  public interface SyncStrategy {
+    method public androidx.graphics.lowlatency.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    field public static final androidx.graphics.lowlatency.SyncStrategy ALWAYS;
+    field public static final androidx.graphics.lowlatency.SyncStrategy.Companion Companion;
+  }
+
+  public static final class SyncStrategy.Companion {
   }
 
 }

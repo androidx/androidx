@@ -25,11 +25,11 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * Allocation pool used for the creation and reuse of [RenderBuffer] instances.
+ * Allocation pool used for the creation and reuse of [FrameBuffer] instances.
  * This class is thread safe.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class RenderBufferPool(
+internal class FrameBufferPool(
     /**
      * Width of the [HardwareBuffer] objects to allocate if none are available in the pool
      */
@@ -52,12 +52,12 @@ internal class RenderBufferPool(
 
     /**
      * Maximum size that the pool before additional requests to allocate buffers blocks until
-     * another [RenderBuffer] is released. Must be greater than 0.
+     * another [FrameBuffer] is released. Must be greater than 0.
      */
     private val maxPoolSize: Int
 ) {
 
-    private val mPool = ArrayList<RenderBuffer>()
+    private val mPool = ArrayList<FrameBuffer>()
     private var mNumAllocated = 0
     private val mLock = ReentrantLock()
     private val mCondition = mLock.newCondition()
@@ -69,27 +69,27 @@ internal class RenderBufferPool(
     }
 
     /**
-     * Obtains a [RenderBuffer] instance. This will either return a [RenderBuffer] if one is
-     * available within the pool, or creates a new [RenderBuffer] instance if the number of
-     * outstanding [RenderBuffer] instances is less than [maxPoolSize]
+     * Obtains a [FrameBuffer] instance. This will either return a [FrameBuffer] if one is
+     * available within the pool, or creates a new [FrameBuffer] instance if the number of
+     * outstanding [FrameBuffer] instances is less than [maxPoolSize]
      */
-    fun obtain(eglSpec: EGLSpec): RenderBuffer {
+    fun obtain(eglSpec: EGLSpec): FrameBuffer {
         mLock.withLock {
             while (mPool.isEmpty() && mNumAllocated >= maxPoolSize) {
                 Log.w(
                     TAG,
-                    "Waiting for RenderBuffer to become available, current allocation " +
+                    "Waiting for FrameBuffer to become available, current allocation " +
                         "count: $mNumAllocated"
                 )
                 mCondition.await()
             }
             return if (mPool.isNotEmpty()) {
-                val renderBuffer = mPool[mPool.size - 1]
+                val frameBuffer = mPool[mPool.size - 1]
                 mPool.removeAt(mPool.size - 1)
-                renderBuffer
+                frameBuffer
             } else {
                 mNumAllocated++
-                RenderBuffer(
+                FrameBuffer(
                     eglSpec,
                     HardwareBuffer.create(
                         width,
@@ -104,27 +104,27 @@ internal class RenderBufferPool(
     }
 
     /**
-     * Releases the given [RenderBuffer] back to the pool and signals all
+     * Releases the given [FrameBuffer] back to the pool and signals all
      * consumers that are currently waiting for a buffer to become available
-     * via [RenderBufferPool.obtain]
+     * via [FrameBufferPool.obtain]
      * This method is thread safe.
      */
-    fun release(renderBuffer: RenderBuffer) {
+    fun release(frameBuffer: FrameBuffer) {
         mLock.withLock {
-            mPool.add(renderBuffer)
+            mPool.add(frameBuffer)
             mCondition.signal()
         }
     }
 
     /**
-     * Invokes [RenderBuffer.close] on all [RenderBuffer] instances currently available within
+     * Invokes [FrameBuffer.close] on all [FrameBuffer] instances currently available within
      * the pool and clears the pool.
      * This method is thread safe.
      */
     fun close() {
         mLock.withLock {
-            for (renderBuffer in mPool) {
-                renderBuffer.close()
+            for (frameBuffer in mPool) {
+                frameBuffer.close()
             }
             mPool.clear()
             mNumAllocated = 0
@@ -132,6 +132,6 @@ internal class RenderBufferPool(
     }
 
     private companion object {
-        private const val TAG = "RenderBufferPool"
+        private const val TAG = "FrameBufferPool"
     }
 }

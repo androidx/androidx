@@ -267,14 +267,10 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testBaseFlags() {
-        assertNotEquals(
-            0, GLFrontBufferedRenderer.BaseFlags and
-                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
-        )
-        assertNotEquals(
-            0, GLFrontBufferedRenderer.BaseFlags and
-                HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-        )
+        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
+            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
+        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
+            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT)
     }
 
     @Test

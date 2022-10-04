@@ -77,7 +77,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
-            mFrontBufferSyncStrategy.setVisible(false)
+            mFrontBufferSyncStrategy.isVisible = false
             callback.onDoubleBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
@@ -89,7 +89,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
-            mFrontBufferSyncStrategy.setVisible(true)
+            mFrontBufferSyncStrategy.isVisible = true
             callback.onFrontBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
@@ -98,7 +98,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * [GLRenderer.EGLContextCallback]s used to release the corresponding [RenderBufferPool]
+     * [GLRenderer.EGLContextCallback]s used to release the corresponding [FrameBufferPool]
      * if the [GLRenderer] is torn down.
      * This is especially helpful if a [GLRenderer] is being provided and shared across other
      * [GLRenderer.RenderTarget] instances in which case it can be released externally from
@@ -135,7 +135,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         override fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat? =
             mFrontBufferedLayerSurfaceControl
 
-        override fun getRenderBufferPool(): RenderBufferPool? =
+        override fun getFrameBufferPool(): FrameBufferPool? =
             mBufferPool
     }
 
@@ -155,25 +155,25 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val mParentBufferParamQueue = Collections.synchronizedList(ArrayList<T>())
 
     /**
-     * [RenderBuffer] used for rendering into the front buffered layer. This buffer is persisted
+     * [FrameBuffer] used for rendering into the front buffered layer. This buffer is persisted
      * across frames as part of front buffered rendering and is not expected to be released again
      * after the corresponding [SurfaceControlCompat.Transaction] that submits this buffer is
      * applied as per the implementation of "scan line racing" that is done for front buffered
      * rendering
      */
-    private var mFrontLayerBuffer: RenderBuffer? = null
+    private var mFrontLayerBuffer: FrameBuffer? = null
 
     /**
-     * [RenderBufferPool] used to cycle through [RenderBuffer] instances that are released when
-     * the [HardwareBuffer] within the [RenderBuffer] is already displayed by the hardware
+     * [FrameBufferPool] used to cycle through [FrameBuffer] instances that are released when
+     * the [HardwareBuffer] within the [FrameBuffer] is already displayed by the hardware
      * compositor
      */
-    private var mBufferPool: RenderBufferPool? = null
+    private var mBufferPool: FrameBufferPool? = null
 
     /**
      * [GLRenderer.RenderCallback] used for drawing into the front buffered layer
      */
-    private var mFrontBufferedLayerRenderer: HardwareBufferRenderer? = null
+    private var mFrontBufferedLayerRenderer: FrameBufferRenderer? = null
 
     /**
      * [SurfaceControlCompat] used to configure buffers and visibility of the front buffered layer
@@ -181,7 +181,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mFrontBufferedLayerSurfaceControl: SurfaceControlCompat? = null
 
     /**
-     * [FrontBufferSyncStrategy] used for [HardwareBufferRenderer] to conditionally decide
+     * [FrontBufferSyncStrategy] used for [FrameBufferRenderer] to conditionally decide
      * when to create a [SyncFenceCompat] for transaction calls.
      */
     private val mFrontBufferSyncStrategy: FrontBufferSyncStrategy
@@ -235,12 +235,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mHardwareBufferUsageFlags: Long
 
-    /**
-     * Flag to determine if [HardwareBuffer.USAGE_FRONT_BUFFER] is supported or not on
-     * the device
-     */
-    private val mSupportsFrontBufferUsage: Boolean
-
     init {
         mParentRenderLayer.setParentLayerCallbacks(mParentLayerCallback)
         val renderer = if (glRenderer == null) {
@@ -260,10 +254,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
 
-        mSupportsFrontBufferUsage =
-            (mHardwareBufferUsageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
-
-        mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mSupportsFrontBufferUsage)
+        mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mHardwareBufferUsageFlags)
     }
 
     internal fun update(width: Int, height: Int) {
@@ -277,7 +268,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
                 .build()
 
-            val bufferPool = RenderBufferPool(
+            val bufferPool = FrameBufferPool(
                 width,
                 height,
                 format = HardwareBuffer.RGBA_8888,
@@ -445,17 +436,16 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     private fun createFrontBufferedLayerRenderer(
         frontBufferedLayerSurfaceControl: SurfaceControlCompat
-    ): HardwareBufferRenderer {
-        return HardwareBufferRenderer(
-            object : HardwareBufferRenderer.RenderCallbacks {
-
+    ): FrameBufferRenderer {
+        return FrameBufferRenderer(
+            object : FrameBufferRenderer.RenderCallback {
                 @WorkerThread
-                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
+                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
                     var buffer = mFrontLayerBuffer
                     if (buffer == null) {
-                        // Allocate and persist a RenderBuffer instance across frames
+                        // Allocate and persist a FrameBuffer instance across frames
                         buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
-                            ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
+                            ?: throw IllegalArgumentException("Unable to obtain FrameBuffer")
                     }
                     return buffer
                 }
@@ -482,7 +472,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
                 @WorkerThread
                 override fun onDrawComplete(
-                    renderBuffer: RenderBuffer,
+                    frameBuffer: FrameBuffer,
                     syncFenceCompat: SyncFenceCompat?
                 ) {
                     val transaction = SurfaceControlCompat.Transaction()
@@ -490,7 +480,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                         .setLayer(frontBufferedLayerSurfaceControl, Integer.MAX_VALUE)
                         .setBuffer(
                             frontBufferedLayerSurfaceControl,
-                            renderBuffer.hardwareBuffer,
+                            frameBuffer.hardwareBuffer,
                             syncFenceCompat
                         )
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
@@ -515,9 +505,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Release the buffers associated with the front buffered layer as well as the
-     * [RenderBufferPool]
+     * [FrameBufferPool]
      */
-    internal fun releaseBuffers(pool: RenderBufferPool) {
+    internal fun releaseBuffers(pool: FrameBufferPool) {
         mFrontLayerBuffer?.let {
             pool.release(it)
             mFrontLayerBuffer = null
