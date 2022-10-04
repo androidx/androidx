@@ -29,7 +29,6 @@ import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
-import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
@@ -64,6 +63,7 @@ import org.mockito.Mockito.verify
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 @SdkSuppress(minSdkVersion = 21)
 class VideoCaptureTest {
     companion object {
@@ -143,7 +143,7 @@ class VideoCaptureTest {
             ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE).fileDescriptor
 
         assertThrows<IllegalArgumentException> {
-            VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
+            androidx.camera.core.VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
         }
 
         file.delete()
@@ -164,7 +164,7 @@ class VideoCaptureTest {
         val fileDescriptor = parcelFileDescriptor.fileDescriptor
 
         val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
+        val videoCapture = androidx.camera.core.VideoCapture.Builder().build()
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
@@ -182,9 +182,10 @@ class VideoCaptureTest {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
-        val outputFileOptions = VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
+        val outputFileOptions =
+            androidx.camera.core.VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
 
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        val callback = mock(androidx.camera.core.VideoCapture.OnVideoSavedCallback::class.java)
 
         // Start recording with FileDescriptor
         videoCapture.startRecording(
@@ -212,7 +213,7 @@ class VideoCaptureTest {
         }
 
         val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
+        val videoCapture = androidx.camera.core.VideoCapture.Builder().build()
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
@@ -226,9 +227,10 @@ class VideoCaptureTest {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
-        val outputFileOptions = VideoCapture.OutputFileOptions.Builder(file).build()
+        val outputFileOptions =
+            androidx.camera.core.VideoCapture.OutputFileOptions.Builder(file).build()
 
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        val callback = mock(androidx.camera.core.VideoCapture.OnVideoSavedCallback::class.java)
 
         videoCapture.startRecording(
             outputFileOptions,
@@ -250,7 +252,7 @@ class VideoCaptureTest {
     @SdkSuppress(minSdkVersion = 26)
     fun startRecordingWithUri_whenAPILevelLargerThan26() {
         val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
+        val videoCapture = androidx.camera.core.VideoCapture.Builder().build()
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
@@ -264,7 +266,7 @@ class VideoCaptureTest {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        val callback = mock(androidx.camera.core.VideoCapture.OnVideoSavedCallback::class.java)
         videoCapture.startRecording(
             getNewVideoOutputFileOptions(contentResolver),
             CameraXExecutors.mainThreadExecutor(),
@@ -277,7 +279,7 @@ class VideoCaptureTest {
         // Assert: Wait for the signal that the image has been saved.
         val outputFileResultsArgumentCaptor =
             ArgumentCaptor.forClass(
-                VideoCapture.OutputFileResults::class.java
+                androidx.camera.core.VideoCapture.OutputFileResults::class.java
             )
         verify(callback, timeout(10000)).onVideoSaved(outputFileResultsArgumentCaptor.capture())
 
@@ -297,7 +299,7 @@ class VideoCaptureTest {
         }
 
         val preview = Preview.Builder().build()
-        val videoCapture = VideoCapture.Builder().build()
+        val videoCapture = androidx.camera.core.VideoCapture.Builder().build()
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
@@ -311,9 +313,9 @@ class VideoCaptureTest {
             cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        val callback = mock(androidx.camera.core.VideoCapture.OnVideoSavedCallback::class.java)
         videoCapture.startRecording(
-            VideoCapture.OutputFileOptions.Builder(file).build(),
+            androidx.camera.core.VideoCapture.OutputFileOptions.Builder(file).build(),
             CameraXExecutors.mainThreadExecutor(),
             callback
         )
@@ -329,7 +331,7 @@ class VideoCaptureTest {
     /** Return a VideoOutputFileOption which is used to save a video.  */
     private fun getNewVideoOutputFileOptions(
         resolver: ContentResolver
-    ): VideoCapture.OutputFileOptions {
+    ): androidx.camera.core.VideoCapture.OutputFileOptions {
         val videoFileName = "video_" + System.currentTimeMillis()
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
@@ -337,7 +339,7 @@ class VideoCaptureTest {
             put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName)
         }
 
-        return VideoCapture.OutputFileOptions.Builder(
+        return androidx.camera.core.VideoCapture.OutputFileOptions.Builder(
             resolver,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues
         ).build()
@@ -355,7 +357,7 @@ class VideoCaptureTest {
         })
     }
 
-    private fun recordingUntilKeyFrameArrived(videoCapture: VideoCapture) {
+    private fun recordingUntilKeyFrameArrived(videoCapture: androidx.camera.core.VideoCapture) {
         Logger.i(TAG, "recordingUntilKeyFrameArrived begins: " + System.nanoTime() / 1000)
         while (true) {
             if (videoCapture.mIsFirstVideoKeyFrameWrite.get() && videoCapture

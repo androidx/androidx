@@ -48,7 +48,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -361,12 +360,14 @@ public final class Camera2DeviceSurfaceManagerTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test(expected = IllegalArgumentException.class)
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCapture.Builder()
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
@@ -390,12 +391,14 @@ public final class Camera2DeviceSurfaceManagerTest {
                 new ArrayList<>(useCaseToConfigMap.values()));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCapture.Builder()
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()

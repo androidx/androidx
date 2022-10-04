@@ -2481,6 +2481,7 @@ class SupportedSurfaceCombinationTest() {
      * @param defaultResolution the default resolution setting. Default is null.
      * @param supportedResolutions the customized supported resolutions. Default is null.
      */
+    @Suppress("DEPRECATION")
     private fun createUseCase(
         useCaseType: Int,
         targetRotation: Int = UNKNOWN_ROTATION,

@@ -122,9 +122,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>This class is designed for simple video capturing. It gives basic configuration of the
  * recorded video such as resolution and file format.
  *
+ * @deprecated Use {@link androidx.camera.video.VideoCapture} instead.
+ *
  * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@Deprecated
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class VideoCapture extends UseCase {
 
