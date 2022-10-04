@@ -152,6 +152,7 @@ public final class CaptureSessionTest {
     private SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
+    private final List<DeferrableSurface> mDeferrableSurfaces = new ArrayList<>();
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -204,8 +205,12 @@ public final class CaptureSessionTest {
 
         if (mCameraDeviceHolder != null) {
             CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
-            mTestParameters0.tearDown();
-            mTestParameters1.tearDown();
+        }
+
+        mTestParameters0.tearDown();
+        mTestParameters1.tearDown();
+        for (DeferrableSurface deferrableSurface : mDeferrableSurfaces) {
+            deferrableSurface.close();
         }
     }
 
@@ -420,6 +425,13 @@ public final class CaptureSessionTest {
         DeferrableSurface surface0 = new ImmediateSurface(imageReader0.getSurface());
         ImageReader imageReader1 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
         DeferrableSurface surface1 = new ImmediateSurface(imageReader1.getSurface());
+        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        surface1.getTerminationFuture().addListener(() -> imageReader1.close(),
+                CameraXExecutors.mainThreadExecutor());
+        mDeferrableSurfaces.add(surface0);
+        mDeferrableSurfaces.add(surface1);
         SessionConfig.OutputConfig outputConfig0 =
                 SessionConfig.OutputConfig.builder(surface0).setSharedSurfaces(
                         Arrays.asList(surface1)).build();
@@ -451,15 +463,6 @@ public final class CaptureSessionTest {
         // Ensures main surface and shared share surface have outputs.
         assertThat(latch0.await(2, TimeUnit.SECONDS)).isTrue();
         assertThat(latch1.await(2, TimeUnit.SECONDS)).isTrue();
-
-        // clean up
-        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
-                CameraXExecutors.mainThreadExecutor()
-        );
-        surface1.getTerminationFuture().addListener(() -> imageReader1.close(),
-                CameraXExecutors.mainThreadExecutor());
-        surface0.close();
-        surface1.close();
     }
 
     // LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID is supported since API 29
@@ -476,6 +479,10 @@ public final class CaptureSessionTest {
 
         ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
         DeferrableSurface surface0 = new ImmediateSurface(imageReader0.getSurface());
+        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        mDeferrableSurfaces.add(surface0);
         SessionConfig.OutputConfig outputConfig0 =
                 SessionConfig.OutputConfig.builder(surface0).setPhysicalCameraId(
                         physicalCameraId).build();
@@ -514,12 +521,6 @@ public final class CaptureSessionTest {
         CaptureResult captureResult = captureResultFuture.get(3, TimeUnit.SECONDS);
         assertThat(captureResult.get(CaptureResult.LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID))
                 .isEqualTo(physicalCameraId);
-
-        // clean up
-        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
-                CameraXExecutors.mainThreadExecutor()
-        );
-        surface0.close();
     }
 
     @Test
@@ -530,6 +531,11 @@ public final class CaptureSessionTest {
         // deferrableSurface0 and deferrableSurface1 contain the same Surface.
         DeferrableSurface deferrableSurface0 = new ImmediateSurface(imageReader.getSurface());
         DeferrableSurface deferrableSurface1 = new ImmediateSurface(imageReader.getSurface());
+        deferrableSurface0.getTerminationFuture().addListener(() -> imageReader.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        mDeferrableSurfaces.add(deferrableSurface0);
+        mDeferrableSurfaces.add(deferrableSurface1);
         SessionConfig sessionConfig =
                 new SessionConfig.Builder()
                         .addSurface(deferrableSurface0)
@@ -553,13 +559,6 @@ public final class CaptureSessionTest {
         }, handler);
 
         assertThat(latch0.await(2, TimeUnit.SECONDS)).isTrue();
-
-        // clean up
-        deferrableSurface0.getTerminationFuture().addListener(() -> imageReader.close(),
-                CameraXExecutors.mainThreadExecutor()
-        );
-        deferrableSurface0.close();
-        deferrableSurface1.close();
     }
 
     @Test
@@ -1212,6 +1211,7 @@ public final class CaptureSessionTest {
             surface.release();
             surfaceTexture.release();
         }, CameraXExecutors.directExecutor());
+        mDeferrableSurfaces.add(deferrableSurface);
         return deferrableSurface;
     }
 
@@ -1471,11 +1471,6 @@ public final class CaptureSessionTest {
             assertThat(outputConfigurationCompatList.get(i).getSurface())
                     .isEqualTo(surfaceList.get(i).getSurface().get());
         }
-
-        // Clean up.
-        for (DeferrableSurface deferrableSurface : surfaceList) {
-            deferrableSurface.close();
-        }
     }
 
     @Test
@@ -1571,6 +1566,9 @@ public final class CaptureSessionTest {
             }
         }, mHandler);
         DeferrableSurface surface = new ImmediateSurface(imageReader.getSurface());
+        surface.getTerminationFuture().addListener(() -> imageReader.close(),
+                CameraXExecutors.directExecutor());
+        mDeferrableSurfaces.add(surface);
 
         // Prepare SessionConfig builder
         SessionConfig.Builder builder = new SessionConfig.Builder();
@@ -1604,11 +1602,6 @@ public final class CaptureSessionTest {
 
         // Wait for #onReady which means there is no repeating request.
         verify(stateCallback, timeout(3000L)).onReady(any());
-
-        // Clean up
-        surface.close();
-        surface.getTerminationFuture().addListener(() -> imageReader.close(),
-                CameraXExecutors.directExecutor());
     }
 
     /**
