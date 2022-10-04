@@ -413,6 +413,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.ExerciseState AUTO_RESUMING;
     field public static final androidx.health.services.client.data.ExerciseState.Companion Companion;
     field public static final androidx.health.services.client.data.ExerciseState ENDED;
+    field public static final androidx.health.services.client.data.ExerciseState ENDING;
     field public static final androidx.health.services.client.data.ExerciseState PREPARING;
     field public static final androidx.health.services.client.data.ExerciseState TERMINATING;
     field public static final androidx.health.services.client.data.ExerciseState USER_ENDING;

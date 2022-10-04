@@ -240,7 +240,8 @@ enum ExerciseState {
   EXERCISE_STATE_TERMINATING = 13;
   EXERCISE_STATE_TERMINATED = 14;
   EXERCISE_STATE_ENDED = 18;
-  reserved 19 to max;  // Next ID
+  EXERCISE_STATE_ENDING = 19;
+  reserved 20 to max;  // Next ID
 }
 
 enum ExerciseTrackedStatus {

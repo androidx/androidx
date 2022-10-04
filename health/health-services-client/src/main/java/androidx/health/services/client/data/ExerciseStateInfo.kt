@@ -43,14 +43,18 @@ public class ExerciseStateInfo(
             state = exerciseState
         } else {
             endReason = getEndReasonFromState(exerciseState)
-            // Mark exerciseState as ExerciseState.ENDED if we set exerciseEndReason from
+            // Mark exerciseState as ExerciseState.ENDED or ENDING if we set exerciseEndReason from
             // exerciseState.
             state =
-                if (endReason != ExerciseEndReason.UNKNOWN) {
-                    ExerciseState.ENDED
+              if (endReason != ExerciseEndReason.UNKNOWN) {
+                if (exerciseState.isEnded) {
+                  ExerciseState.ENDED
                 } else {
-                    exerciseState
+                  ExerciseState.ENDING
                 }
+              } else {
+                exerciseState
+              }
         }
     }
 
@@ -74,6 +78,15 @@ public class ExerciseStateInfo(
         internal fun getEndReasonFromState(exerciseState: ExerciseState): Int =
             when (exerciseState) {
                 // Follows ordering of ExerciseState definition in ExerciseState.kt
+                // ENDING states.
+                ExerciseState.USER_ENDING -> ExerciseEndReason.USER_END
+                ExerciseState.AUTO_ENDING -> ExerciseEndReason.AUTO_END_MISSING_LISTENER
+                ExerciseState.AUTO_ENDING_PERMISSION_LOST ->
+                    ExerciseEndReason.AUTO_END_PERMISSION_LOST
+                ExerciseState.TERMINATING -> ExerciseEndReason.AUTO_END_SUPERSEDED
+                ExerciseState.ENDING -> ExerciseEndReason.AUTO_END_PERMISSION_LOST
+
+                // ENDED states.
                 ExerciseState.USER_ENDED -> ExerciseEndReason.USER_END
                 ExerciseState.AUTO_ENDED -> ExerciseEndReason.AUTO_END_MISSING_LISTENER
                 ExerciseState.AUTO_ENDED_PERMISSION_LOST ->
