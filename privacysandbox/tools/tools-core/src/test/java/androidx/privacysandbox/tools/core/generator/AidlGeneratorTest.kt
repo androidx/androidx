@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
@@ -47,52 +48,52 @@ class AidlGeneratorTest {
                             parameters = listOf(
                                 Parameter(
                                     name = "a",
-                                    type = Type(packageName = "kotlin", simpleName = "Boolean")
+                                    type = Types.boolean,
                                 ),
                                 Parameter(
                                     name = "b",
-                                    type = Type(packageName = "kotlin", simpleName = "Int")
+                                    type = Types.int,
                                 ),
                                 Parameter(
                                     name = "c",
-                                    type = Type(packageName = "kotlin", simpleName = "Long")
+                                    type = Types.long,
                                 ),
                                 Parameter(
                                     name = "d",
-                                    type = Type(packageName = "kotlin", simpleName = "Float")
+                                    type = Types.float,
                                 ),
                                 Parameter(
                                     name = "e",
-                                    type = Type(packageName = "kotlin", simpleName = "Double")
+                                    type = Types.double,
                                 ),
                                 Parameter(
                                     name = "f",
-                                    type = Type(packageName = "kotlin", simpleName = "Char")
+                                    type = Types.char,
                                 ),
                                 Parameter(
                                     name = "g",
-                                    type = Type(packageName = "kotlin", simpleName = "Int")
+                                    type = Types.int,
                                 )
                             ),
-        returnType = Type(packageName = "kotlin", simpleName = "String"),
+                            returnType = Types.string,
                             isSuspend = true,
                         ),
                         Method(
                             name = "suspendMethodWithoutReturnValue",
                             parameters = listOf(),
-                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
+                            returnType = Types.unit,
                             isSuspend = true,
                         ),
                         Method(
                             name = "methodWithReturnValue",
                             parameters = listOf(),
-                            returnType = Type(packageName = "kotlin", simpleName = "Int"),
+                            returnType = Types.int,
                             isSuspend = false,
                         ),
                         Method(
                             name = "methodWithoutReturnValue",
                             parameters = listOf(),
-                            returnType = Type(packageName = "kotlin", simpleName = "Unit"),
+                            returnType = Types.unit,
                             isSuspend = false,
                         )
                     )
