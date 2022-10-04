@@ -28,6 +28,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -39,7 +40,7 @@ class ContentViewTest {
 
     @Test
     fun testLifecycleObserver() {
-        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
             assertThat(inflatedTextView)
                 .isNotNull()
@@ -48,7 +49,7 @@ class ContentViewTest {
 
     @Test
     fun testViewTreeInflation() {
-        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
 
             withActivity {
@@ -80,7 +81,7 @@ class ContentViewTest {
         message: String,
         attach: ComponentActivity.(View) -> Unit
     ) {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             withActivity {
                 val view = View(this)
 

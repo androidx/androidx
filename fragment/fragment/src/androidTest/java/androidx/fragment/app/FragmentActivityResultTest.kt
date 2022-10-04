@@ -30,6 +30,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -44,7 +45,7 @@ class FragmentActivityResultTest {
 
     @Test
     fun registerActivityResultInOnAttach() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.ATTACHED)
 
@@ -59,7 +60,7 @@ class FragmentActivityResultTest {
 
     @Test
     fun registerActivityResultInOnCreate() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.CREATED)
 
@@ -74,7 +75,7 @@ class FragmentActivityResultTest {
 
     @Test
     fun registerActivityResultInOnStart() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = RegisterInLifecycleCallbackFragment(Fragment.STARTED)
 
@@ -97,7 +98,7 @@ class FragmentActivityResultTest {
 
     @Test
     fun launchActivityResultInOnCreate() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = ActivityResultFragment()
 
@@ -110,7 +111,7 @@ class FragmentActivityResultTest {
 
     @Test
     fun launchTwoActivityResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = DoubleActivityResultFragment()
 

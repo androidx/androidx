@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
@@ -75,7 +76,7 @@ public class FragmentStrictModeTest {
             .penaltyListener { lastTriggeredPolicy = name }
             .build()
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val parentFragment = StrictFragment()
@@ -118,7 +119,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val fragment = StrictFragment()
@@ -142,7 +143,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
 
@@ -178,7 +179,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
 
@@ -215,7 +216,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity { setContentView(R.layout.activity_inflated_fragment) }
             val fragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
@@ -315,7 +316,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val fragment1 = StrictFragment()

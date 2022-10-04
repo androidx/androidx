@@ -25,6 +25,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
@@ -51,7 +52,7 @@ class ComponentActivitySavedStateTest {
     @Test
     @Throws(Throwable::class)
     fun savedState() {
-        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
             assertThat(initializeSavedState()).isTrue()
             recreate()
             moveToState(Lifecycle.State.CREATED)
@@ -66,7 +67,7 @@ class ComponentActivitySavedStateTest {
     @Test
     @Throws(Throwable::class)
     fun savedStateLateInit() {
-        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
             assertThat(initializeSavedState()).isTrue()
             recreate()
             val registry = withActivity { savedStateRegistry }
@@ -77,7 +78,7 @@ class ComponentActivitySavedStateTest {
     @Test
     @Throws(Throwable::class)
     fun savedStateEarlyRegisterOnCreate() {
-        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
             assertThat(initializeSavedState()).isTrue()
             SavedStateActivity.checkEnabledInOnCreate = true
             recreate()
@@ -87,7 +88,7 @@ class ComponentActivitySavedStateTest {
     @Test
     @Throws(Throwable::class)
     fun savedStateEarlyRegisterOnContextAvailable() {
-        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
             assertThat(initializeSavedState()).isTrue()
             SavedStateActivity.checkEnabledInOnContextAvailable = true
             recreate()
@@ -97,7 +98,7 @@ class ComponentActivitySavedStateTest {
     @Test
     @Throws(Throwable::class)
     fun savedStateEarlyRegisterInitAddedLifecycleObserver() {
-        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
             assertThat(initializeSavedState()).isTrue()
             SavedStateActivity.checkEnabledInInitAddedLifecycleObserver = true
             recreate()

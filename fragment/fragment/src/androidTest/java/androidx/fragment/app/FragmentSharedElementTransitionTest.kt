@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +37,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedSharedElementView() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.nested_transition_groups)
             withActivity {
                 supportFragmentManager
@@ -65,7 +66,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedSharedElementViewsMoreOutViews() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene5)
             withActivity {
                 supportFragmentManager
@@ -114,7 +115,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedSharedElementViewsMoreInViews() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene4)
             withActivity {
                 supportFragmentManager
@@ -157,7 +158,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedTransitionGroupTrue() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene7)
             withActivity {
                 supportFragmentManager
