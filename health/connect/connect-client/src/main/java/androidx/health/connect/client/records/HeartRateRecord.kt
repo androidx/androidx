@@ -120,6 +120,7 @@ public class HeartRateRecord(
 
         init {
             requireNonNegative(value = beatsPerMinute, name = "beatsPerMinute")
+            beatsPerMinute.requireNotMore(other = 300, name = "beatsPerMinute")
         }
 
         /*

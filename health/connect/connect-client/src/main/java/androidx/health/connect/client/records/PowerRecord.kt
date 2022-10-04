@@ -22,6 +22,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.
 import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Power
+import androidx.health.connect.client.units.watts
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -75,6 +76,7 @@ public class PowerRecord(
     companion object {
         private const val TYPE = "PowerSeries"
         private const val POWER_FIELD = "power"
+        private val MAX_POWER = 100_000.watts
 
         /**
          * Metric identifier to retrieve average power from
@@ -132,6 +134,7 @@ public class PowerRecord(
 
         init {
             power.requireNotLess(other = power.zero(), name = "power")
+            power.requireNotMore(other = MAX_POWER, name = "power")
         }
 
         /*

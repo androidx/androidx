@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.kilocalories
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -38,6 +39,7 @@ public class ActiveCaloriesBurnedRecord(
 
     init {
         energy.requireNotLess(other = energy.zero(), "energy")
+        energy.requireNotMore(other = MAX_ENERGY, "energy")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
@@ -74,6 +76,7 @@ public class ActiveCaloriesBurnedRecord(
     companion object {
         private const val TYPE_NAME = "ActiveCaloriesBurned"
         private const val ENERGY_FIELD_NAME = "energy"
+        private val MAX_ENERGY = 1000_000.kilocalories
 
         /**
          * Metric identifier to retrieve total active calories burned from

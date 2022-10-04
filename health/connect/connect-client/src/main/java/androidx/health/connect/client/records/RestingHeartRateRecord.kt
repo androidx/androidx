@@ -34,6 +34,7 @@ public class RestingHeartRateRecord(
 ) : InstantaneousRecord {
     init {
         requireNonNegative(value = beatsPerMinute, name = "beatsPerMinute")
+        beatsPerMinute.requireNotMore(other = 300, name = "beatsPerMinute")
     }
 
     override fun equals(other: Any?): Boolean {

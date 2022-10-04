@@ -105,6 +105,7 @@ class StepsCadenceRecord(
 
         init {
             requireNonNegative(value = rate, name = "rate")
+            rate.requireNotMore(other = 10_000.0, name = "rate")
         }
 
         /*

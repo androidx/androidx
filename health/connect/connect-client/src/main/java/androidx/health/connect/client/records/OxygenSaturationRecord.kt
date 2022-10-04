@@ -35,6 +35,7 @@ public class OxygenSaturationRecord(
 
     init {
         requireNonNegative(value = percentage.value, name = "percentage")
+        percentage.value.requireNotMore(other = 100.0, name = "percentage")
     }
 
     /*
