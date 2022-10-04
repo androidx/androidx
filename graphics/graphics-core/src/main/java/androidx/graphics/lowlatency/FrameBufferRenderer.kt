@@ -16,6 +16,7 @@
 
 package androidx.graphics.lowlatency
 
+import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.opengl.EGLConfig
 import android.opengl.EGLSurface
@@ -33,9 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean
  * backed by a [HardwareBuffer] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class HardwareBufferRenderer(
-    private val hardwareBufferRendererCallbacks: RenderCallbacks,
-    private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS
+class FrameBufferRenderer(
+    private val frameBufferRendererCallbacks: RenderCallback,
+    @SuppressLint("ListenerLast") private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS
 ) : GLRenderer.RenderCallback {
 
     private val mClear = AtomicBoolean(false)
@@ -54,7 +55,7 @@ internal class HardwareBufferRenderer(
 
     override fun onDrawFrame(eglManager: EGLManager) {
         val egl = eglManager.eglSpec
-        val buffer = hardwareBufferRendererCallbacks.obtainRenderBuffer(egl)
+        val buffer = frameBufferRendererCallbacks.obtainFrameBuffer(egl)
         var syncFenceCompat: SyncFenceCompat? = null
         try {
             buffer.makeCurrent()
@@ -62,32 +63,35 @@ internal class HardwareBufferRenderer(
                 GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             } else {
-                hardwareBufferRendererCallbacks.onDraw(eglManager)
+                frameBufferRendererCallbacks.onDraw(eglManager)
             }
 
             syncFenceCompat = syncStrategy.createSyncFence(egl)
 
             // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
-            hardwareBufferRendererCallbacks.onDrawComplete(buffer, syncFenceCompat)
+            frameBufferRendererCallbacks.onDrawComplete(buffer, syncFenceCompat)
         } finally {
             syncFenceCompat?.close()
         }
     }
 
     /**
-     * Callbacks invoked to render content leveraging a [HardwareBufferRenderer]
+     * Callbacks invoked to render content leveraging a [FrameBufferRenderer]
      */
-    interface RenderCallbacks {
+    interface RenderCallback {
 
         /**
-         * Obtain a [RenderBuffer] to render content into. The [RenderBuffer] obtained here
-         * is expected to be managed by the consumer of [HardwareBufferRenderer]. That is
+         * Obtain a [FrameBuffer] to render content into. The [FrameBuffer] obtained here
+         * is expected to be managed by the consumer of [FrameBufferRenderer]. That is
          * callers of this API are expected to be maintaining a reference to the returned
-         * [RenderBuffer] here and calling [RenderBuffer.close] where appropriate as this will
-         * these instances will not be released by [HardwareBufferRenderer]
+         * [FrameBuffer] here and calling [FrameBuffer.close] where appropriate as the instance
+         * will not be released by [FrameBufferRenderer].
+         *
+         * @param egl EGLSpec that is utilized within creation of the [FrameBuffer] object
          */
-        fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer
+        @SuppressLint("CallbackMethodName")
+        fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer
 
         /**
          * Draw contents into the [HardwareBuffer]
@@ -96,21 +100,26 @@ internal class HardwareBufferRenderer(
 
         /**
          * Callback when [onDraw] is complete and the contents of the draw
-         * are reflected in the corresponding [HardwareBuffer]
+         * are reflected in the corresponding [HardwareBuffer].
+         *
+         * @param frameBuffer [FrameBuffer] that content is rendered into. The frameBuffer
+         * should not be consumed unless the syncFenceCompat is signalled or the fence is null.
+         * @param syncFenceCompat [SyncFenceCompat] is used to determine when rendering
+         * is done in [onDraw] and reflected within the given frameBuffer.
          */
-        fun onDrawComplete(renderBuffer: RenderBuffer, syncFenceCompat: SyncFenceCompat?)
+        fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?)
     }
 }
 
 /**
  * A strategy class for deciding how to utilize [SyncFenceCompat] within
- * [HardwareBufferRenderer.RenderCallbacks]. SyncStrategy provides default strategies for
+ * [FrameBufferRenderer.RenderCallback]. SyncStrategy provides default strategies for
  * usage:
  *
  * [SyncStrategy.ALWAYS] will always create a [SyncFenceCompat] to pass into the render
- * callbacks for [HardwareBufferRenderer]
+ * callbacks for [FrameBufferRenderer]
  */
-internal interface SyncStrategy {
+interface SyncStrategy {
     /**
      * Conditionally generates a [SyncFenceCompat] based upon implementation.
      *
@@ -139,23 +148,41 @@ internal interface SyncStrategy {
  * This will always provide a fence if the corresponding layer transitions from
  * an invisible to a visible state. If the layer is already visible and front
  * buffer usage flags are support on the device, then no fence is provided. If this
- * flag is not supported, then a fence is created and "peeked" to ensure contents
+ * flag is not supported, then a fence is created to ensure contents
  * are flushed to the single buffer.
+ *
+ * @param usageFlags usage flags that describe the [HardwareBuffer] that is used as the destination
+ * for rendering content within [FrameBufferRenderer]. The usage flags can be obtained via
+ * [HardwareBuffer.getUsage] or by passing in the same flags from [HardwareBuffer.create]
  */
-internal class FrontBufferSyncStrategy(
-    private val supportsFrontBufferUsage: Boolean
+class FrontBufferSyncStrategy(
+    usageFlags: Long
 ) : SyncStrategy {
+    private val supportsFrontBufferUsage = (usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
     private var mFrontBufferVisible: Boolean = false
 
-    fun isVisible(): Boolean = mFrontBufferVisible
+    /**
+     * Tells whether the corresponding front buffer layer is visible in its current state or not.
+     * Utilize this to dictate when a [SyncFenceCompat] will be created when using
+     * [createSyncFence].
+     */
+    var isVisible
+        get() = mFrontBufferVisible
+        set(visibility) {
+            mFrontBufferVisible = visibility
+        }
 
-    fun setVisible(visibility: Boolean) {
-        mFrontBufferVisible = visibility
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
+    /**
+     * Creates a [SyncFenceCompat] based on various conditions.
+     * If the layer is changing from invisible to visible, a fence is provided.
+     * If the layer is already visible and front buffer usage flag is supported on the device, then
+     * no fence is provided.
+     * If front buffer usage is not supported, then a fence is created and destroyed to flush
+     * contents to screen.
+     */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
-        return if (!isVisible()) {
+        return if (!isVisible) {
             eglSpec.createNativeSyncFence()
         } else if (supportsFrontBufferUsage) {
             return null

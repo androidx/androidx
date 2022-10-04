@@ -31,7 +31,7 @@ import androidx.opengl.EGLImageKHR
  * that is loaded as a texture.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class RenderBuffer(
+class FrameBuffer(
     private val egl: EGLSpec,
     val hardwareBuffer: HardwareBuffer,
 ) {

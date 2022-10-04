@@ -111,9 +111,9 @@ internal interface ParentRenderLayer<T> {
         fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat?
 
         /**
-         * Obtain a handle to the [RenderBufferPool] to get [RenderBuffer] instances for
+         * Obtain a handle to the [FrameBufferPool] to get [FrameBuffer] instances for
          * rendering to front and double buffered layers
          */
-        fun getRenderBufferPool(): RenderBufferPool?
+        fun getFrameBufferPool(): FrameBufferPool?
     }
 }

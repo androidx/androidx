@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-internal class RenderBufferPoolTest {
+internal class FrameBufferPoolTest {
 
     @Test
     fun testHardwareBufferMatchesConfig() {
@@ -64,13 +64,13 @@ internal class RenderBufferPoolTest {
     }
 
     @Test
-    fun testCloseReleasesRenderBuffer() {
+    fun testCloseReleasesFrameBuffer() {
         withEGLSpec { egl ->
             val pool = createPool()
-            val renderBuffer = pool.obtain(egl)
-            pool.release(renderBuffer)
+            val frameBuffer = pool.obtain(egl)
+            pool.release(frameBuffer)
             pool.close()
-            assertTrue(renderBuffer.isClosed)
+            assertTrue(frameBuffer.isClosed)
         }
     }
 
@@ -100,7 +100,7 @@ internal class RenderBufferPoolTest {
             val pool = createPool(maxPoolSize = poolSize)
             val b1 = pool.obtain(egl)
             pool.obtain(egl)
-            var b3: RenderBuffer? = null
+            var b3: FrameBuffer? = null
             thread {
                 b3 = pool.obtain(egl)
                 latch.countDown()
@@ -117,8 +117,8 @@ internal class RenderBufferPoolTest {
         format: Int = HardwareBuffer.RGB_565,
         usage: Long = HardwareBuffer.USAGE_GPU_COLOR_OUTPUT,
         maxPoolSize: Int = 2
-    ): RenderBufferPool =
-        RenderBufferPool(
+    ): FrameBufferPool =
+        FrameBufferPool(
             width,
             height,
             format,
