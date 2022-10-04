@@ -59,7 +59,7 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                     headerBlock = HeaderBlock(
                         text = TemplateText("Single Entity Demo", TextType.Title),
                         icon = TemplateImageWithDescription(
-                            ImageProvider(R.drawable.compose),
+                            ImageProvider(R.drawable.ic_widgets),
                             "icon"
                         ),
                     ),
@@ -74,7 +74,10 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                     ),
                     imageBlock = ImageBlock(
                         images = listOf(
-                            TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.palm_leaf),
+                                "image"
+                            )
                         ),
                         priority = 1,
                     ),

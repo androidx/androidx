@@ -93,7 +93,7 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
         for (i in 1..30) {
             galleryContent.add(
                 TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
+                    ImageProvider(R.drawable.palm_leaf),
                     "gallery image $i"
                 )
             )
@@ -103,7 +103,7 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                 header = HeaderBlock(
                     text = TemplateText("Gallery Template example"),
                     icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
+                        ImageProvider(R.drawable.ic_widgets),
                         "test logo"
                     ),
                 ),
@@ -116,10 +116,11 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                 mainImageBlock = ImageBlock(
                     images = listOf(
                         TemplateImageWithDescription(
-                            ImageProvider(R.drawable.compose),
+                            ImageProvider(R.drawable.palm_leaf),
                             "test image"
                         )
                     ),
+                    size = ImageSize.Medium,
                     priority = if (isMainTextBlockFirst) 1 else 0,
                 ),
                 mainActionBlock = ActionBlock(

@@ -39,6 +39,7 @@ import androidx.glance.currentState
 import androidx.glance.template.ActionBlock
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
+import androidx.glance.template.ImageSize
 import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
 import androidx.glance.template.ListTemplateItem
@@ -153,10 +154,11 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                     imageBlock = ImageBlock(
                         images = listOf(
                             TemplateImageWithDescription(
-                                ImageProvider(R.drawable.compose),
+                                ImageProvider(R.drawable.palm_leaf),
                                 "$i"
                             )
                         ),
+                        size = ImageSize.Medium,
                         priority = 0, // ahead of textBlock
                     ),
                     actionBlock = ActionBlock(
@@ -166,7 +168,7 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                                     actionParametersOf(ClickedKey to i)
                                 ),
                                 TemplateImageWithDescription(
-                                    ImageProvider(R.drawable.ic_favorite),
+                                    ImageProvider(R.drawable.ic_bookmark),
                                     "button"
                                 )
                             ),
@@ -180,7 +182,7 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                 headerBlock = if (showHeader) HeaderBlock(
                     text = TemplateText("List Demo", TextType.Title),
                     icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.ic_widget),
+                        ImageProvider(R.drawable.ic_widgets),
                         "Logo"
                     ),
                 ) else null,

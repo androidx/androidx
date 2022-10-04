@@ -55,7 +55,7 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                 headerBlock = HeaderBlock(
                     text = TemplateText("Single Entity Demo", TextType.Title),
                     icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
+                        ImageProvider(R.drawable.ic_widgets),
                         "Header icon"
                     ),
                 ),
@@ -73,7 +73,7 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                 imageBlock = ImageBlock(
                     images = listOf(
                         TemplateImageWithDescription(
-                            ImageProvider(R.drawable.compose),
+                            ImageProvider(R.drawable.palm_leaf),
                             "Compose image"
                         )
                     ),
