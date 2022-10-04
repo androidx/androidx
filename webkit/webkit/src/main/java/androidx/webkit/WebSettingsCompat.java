@@ -435,8 +435,8 @@ public class WebSettingsCompat {
      *     <thead>
      *         <tr>
      *             <th>App</th>
-     *             <th>Web content which uses {@code prefers-color-scheme}</th>
-     *             <th>Web content which does not use {@code prefers-color-scheme}</th>
+     *             <th>Web content which uses prefers-color-scheme</th>
+     *             <th>Web content which does not use prefers-color-scheme</th>
      *         </tr>
      *     </thead>
      *     <tbody>
