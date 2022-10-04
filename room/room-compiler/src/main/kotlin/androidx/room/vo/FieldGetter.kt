@@ -16,22 +16,53 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
+import androidx.room.solver.CodeGenScope
+import androidx.room.solver.types.StatementValueBinder
 
-data class FieldGetter(val jvmName: String, val type: XType, val callType: CallType) {
+data class FieldGetter(
+    val fieldName: String,
+    val jvmName: String,
+    val type: XType,
+    val callType: CallType
+) {
     fun writeGet(ownerVar: String, outVar: String, builder: XCodeBlock.Builder) {
-        val stmt = when (callType) {
-            CallType.FIELD -> "%L.%L"
-            CallType.METHOD -> "%L.%L()"
-            CallType.CONSTRUCTOR -> null
-        }
-        if (stmt != null) {
-            builder.addLocalVariable(
-                name = outVar,
-                typeName = type.asTypeName(),
-                assignExpr = XCodeBlock.of(builder.language, stmt, ownerVar, jvmName)
-            )
+        builder.addLocalVariable(
+            name = outVar,
+            typeName = type.asTypeName(),
+            assignExpr = getterExpression(ownerVar, builder.language)
+        )
+    }
+
+    fun writeGetToStatement(
+        ownerVar: String,
+        stmtParamVar: String,
+        indexVar: String,
+        binder: StatementValueBinder,
+        scope: CodeGenScope
+    ) {
+        val varExpr = getterExpression(ownerVar, scope.language).toString()
+        binder.bindToStmt(stmtParamVar, indexVar, varExpr, scope)
+    }
+
+    private fun getterExpression(ownerVar: String, codeLanguage: CodeLanguage): XCodeBlock {
+        return when (codeLanguage) {
+            CodeLanguage.JAVA -> when (callType) {
+                CallType.FIELD -> "%L.%L"
+                CallType.METHOD, CallType.SYNTHETIC_METHOD -> "%L.%L()"
+                CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
+            }.let { expr ->
+                XCodeBlock.of(codeLanguage, expr, ownerVar, jvmName)
+            }
+            CodeLanguage.KOTLIN -> when (callType) {
+                CallType.FIELD, CallType.SYNTHETIC_METHOD ->
+                    XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, fieldName)
+                CallType.METHOD ->
+                    XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, jvmName)
+                CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
+            }
         }
     }
 }

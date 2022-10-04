@@ -740,6 +740,7 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.getter = FieldGetter(
+                    fieldName = field.name,
                     jvmName = field.name,
                     type = field.type,
                     callType = CallType.FIELD
@@ -747,9 +748,15 @@ class PojoProcessor private constructor(
             },
             assignFromMethod = { match ->
                 field.getter = FieldGetter(
+                    fieldName = field.name,
                     jvmName = match.element.jvmName,
                     type = match.resolvedType.returnType,
-                    callType = CallType.METHOD
+                    callType =
+                        if (match.element.isKotlinPropertyMethod()) {
+                            CallType.SYNTHETIC_METHOD
+                        } else {
+                            CallType.METHOD
+                        }
                 )
             },
             reportAmbiguity = { matching ->
@@ -800,6 +807,7 @@ class PojoProcessor private constructor(
     ) {
         if (constructor != null && constructor.hasField(field)) {
             field.setter = FieldSetter(
+                fieldName = field.name,
                 jvmName = field.name,
                 type = field.type,
                 callType = CallType.CONSTRUCTOR
@@ -815,6 +823,7 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.setter = FieldSetter(
+                    fieldName = field.name,
                     jvmName = field.name,
                     type = field.type,
                     callType = CallType.FIELD
@@ -823,9 +832,15 @@ class PojoProcessor private constructor(
             assignFromMethod = { match ->
                 val paramType = match.resolvedType.parameterTypes.first()
                 field.setter = FieldSetter(
+                    fieldName = field.name,
                     jvmName = match.element.jvmName,
                     type = paramType,
-                    callType = CallType.METHOD
+                    callType =
+                        if (match.element.isKotlinPropertyMethod()) {
+                            CallType.SYNTHETIC_METHOD
+                        } else {
+                            CallType.METHOD
+                        }
                 )
             },
             reportAmbiguity = { matching ->

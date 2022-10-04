@@ -40,6 +40,103 @@ class KotlinCodeGenTest {
     )
 
     @Test
+    fun pojoRowAdapter_variableProperty() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            ) {
+                var variable: Long = 0
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_variableProperty_java() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+            """.trimIndent()
+        )
+        val javaEntity = Source.java(
+            "MyEntity",
+            """
+            import androidx.room.*;
+            
+            @Entity
+            public class MyEntity {
+              @PrimaryKey
+              private long mValue;
+              
+              public long getValue() { return mValue; }
+              public void setValue(long value) { mValue = value; }
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, javaEntity, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_internalVisibility() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                internal val internalVal: Long
+            ) {
+                internal var internalVar: Long = 0
+                var internalSetterVar: Long = 0
+                    internal set
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun pojoRowAdapter_primitives() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
