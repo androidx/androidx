@@ -26,8 +26,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.LocaleList;
+import android.provider.Browser;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -35,9 +39,11 @@ import android.widget.RemoteViews;
 import androidx.annotation.AnimRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Dimension;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.BundleCompat;
@@ -451,6 +457,11 @@ public final class CustomTabsIntent {
      * The maximum toolbar corner radius in dp.
      */
     private static final int MAX_TOOLBAR_CORNER_RADIUS_DP = 16;
+
+    /**
+     * The name of the accept language HTTP header.
+     */
+    private static final String HTTP_ACCEPT_LANGUAGE = "Accept-Language";
 
     /**
      * An {@link Intent} used to start the Custom Tabs Activity.
@@ -1069,7 +1080,28 @@ public final class CustomTabsIntent {
             }
             mIntent.putExtra(EXTRA_SHARE_STATE, mShareState);
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setCurrentLocaleAsDefaultAcceptLanguage();
+            }
+
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
+        }
+
+        /**
+         * Sets the current app's locale as default Accept-Language. If the app has its own locale,
+         * we set it to Accept-Language, otherwise use the system locale.
+         */
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private void setCurrentLocaleAsDefaultAcceptLanguage() {
+            String defaultLocale = Api24Impl.getDefaultLocale();
+            if (!TextUtils.isEmpty(defaultLocale)) {
+                Bundle header = mIntent.hasExtra(Browser.EXTRA_HEADERS) ?
+                        mIntent.getBundleExtra(Browser.EXTRA_HEADERS) : new Bundle();
+                if (!header.containsKey(HTTP_ACCEPT_LANGUAGE)) {
+                    header.putString(HTTP_ACCEPT_LANGUAGE, defaultLocale);
+                    mIntent.putExtra(Browser.EXTRA_HEADERS, header);
+                }
+            }
         }
     }
 
@@ -1199,5 +1231,15 @@ public final class CustomTabsIntent {
     @CloseButtonPosition
     public static int getCloseButtonPosition(@NonNull Intent intent) {
         return intent.getIntExtra(EXTRA_CLOSE_BUTTON_POSITION, CLOSE_BUTTON_POSITION_DEFAULT);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private static class Api24Impl {
+        @DoNotInline
+        @Nullable
+        static String getDefaultLocale() {
+            LocaleList defaultLocaleList = LocaleList.getAdjustedDefault();
+            return (defaultLocaleList.size() > 0) ? defaultLocaleList.get(0).toLanguageTag(): null;
+        }
     }
 }

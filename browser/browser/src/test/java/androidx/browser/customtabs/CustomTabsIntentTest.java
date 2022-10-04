@@ -16,6 +16,8 @@
 
 package androidx.browser.customtabs;
 
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +28,9 @@ import static org.junit.Assert.fail;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.LocaleList;
+import android.provider.Browser;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.RequiresApi;
@@ -511,6 +516,25 @@ public class CustomTabsIntentTest {
                 .intent;
         assertEquals(pendingSession.getId(),
                 intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Config(maxSdk = Build.VERSION_CODES.M)
+    @Test
+    public void putDefaultAcceptLanguage_BeforeSdk24() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        Bundle header = intent.getBundleExtra(Browser.EXTRA_HEADERS);
+        boolean isEmptyAcceptLanguage = header == null || !header.containsKey(ACCEPT_LANGUAGE);
+        assertTrue(isEmptyAcceptLanguage);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void putDefaultAcceptLanguage() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertEquals(LocaleList.getAdjustedDefault().get(0).toLanguageTag(),
+                intent.getBundleExtra(Browser.EXTRA_HEADERS).getString(ACCEPT_LANGUAGE));
     }
 
     private void assertNullSessionInExtras(Intent intent) {
