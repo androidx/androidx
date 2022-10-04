@@ -19,5 +19,6 @@ package androidx.privacysandbox.tools.core.model
 /** Result of parsing a full developer-defined API for an SDK. */
 data class ParsedApi(
     val services: Set<AnnotatedInterface>,
-    val values: Set<AnnotatedValue> = setOf(),
+    val values: Set<AnnotatedValue> = emptySet(),
+    val callbacks: Set<AnnotatedInterface> = emptySet(),
 )

@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
-import androidx.privacysandbox.tools.apicompiler.util.parseSource
+import androidx.privacysandbox.tools.apicompiler.util.parseSources
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
@@ -46,7 +46,7 @@ class InterfaceParserTest {
                     }
                 """
         )
-        assertThat(parseSource(source)).isEqualTo(
+        assertThat(parseSources(source)).isEqualTo(
             ParsedApi(
                 services = mutableSetOf(
                     AnnotatedInterface(
@@ -120,6 +120,7 @@ class InterfaceParserTest {
                     "supported (MySdk, MySdk2)."
             )
     }
+
     @Test
     fun privateInterface_fails() {
         checkSourceFails(
@@ -255,6 +256,63 @@ class InterfaceParserTest {
             .containsError(
                 "Error in com.mysdk.MySdk.foo: nullable types are not supported."
             )
+    }
+
+    @Test
+    fun parseCallbackInterface_ok() {
+        val serviceSource =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk
+                """
+            )
+        val callbackSource =
+            Source.kotlin(
+                "com/mysdk/MyCallback.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    @PrivacySandboxCallback
+                    interface MyCallback {
+                        fun onComplete(x: Int, y: Int)
+                    }
+                """
+            )
+        assertThat(parseSources(serviceSource, callbackSource)).isEqualTo(
+            ParsedApi(
+                services = setOf(
+                    AnnotatedInterface(
+                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    )
+                ),
+                callbacks = setOf(
+                    AnnotatedInterface(
+                        type = Type(packageName = "com.mysdk", simpleName = "MyCallback"),
+                        methods = listOf(
+                            Method(
+                                name = "onComplete",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "x",
+                                        type = Types.int,
+                                    ),
+                                    Parameter(
+                                        name = "y",
+                                        type = Types.int,
+                                    )
+                                ),
+                                returnType = Types.unit,
+                                isSuspend = false,
+                            ),
+                        )
+                    )
+                )
+            )
+        )
     }
 
     private fun serviceInterface(declaration: String) = Source.kotlin(

@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
+import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
@@ -23,7 +24,10 @@ import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSName
+import kotlin.reflect.KClass
 
 /** Convenience extension to get the full qualifier + name from a [KSName]. */
 internal fun KSName.getFullName(): String {
@@ -41,13 +45,14 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
         if (services.count() > 1) {
             logger.error(
                 "Multiple interfaces annotated with @PrivacySandboxService are not supported (${
-                services.joinToString {
-                    it.type.simpleName
-                }
-            }).")
+                    services.joinToString {
+                        it.type.simpleName
+                    }
+                }).")
         }
         val values = parseAllValues()
-        return ParsedApi(services, values)
+        val callbacks = parseAllCallbacks()
+        return ParsedApi(services, values, callbacks)
     }
 
     private fun parseAllValues(): Set<AnnotatedValue> {
@@ -56,7 +61,28 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
     }
 
     private fun parseAllServices(): Set<AnnotatedInterface> {
-        return resolver.getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!)
-            .mapNotNull(interfaceParser::parseInterface).toSet()
+        return getInterfacesWithAnnotation(PrivacySandboxService::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun parseAllCallbacks(): Set<AnnotatedInterface> {
+        return getInterfacesWithAnnotation(PrivacySandboxCallback::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun getInterfacesWithAnnotation(annotationName: KClass<*>):
+        Sequence<KSClassDeclaration> {
+        val symbolsWithAnnotation =
+            resolver.getSymbolsWithAnnotation(annotationName.qualifiedName!!)
+        if (symbolsWithAnnotation.any {
+                it !is KSClassDeclaration ||
+                    it.classKind != ClassKind.INTERFACE
+            }) {
+            logger.error("Only interfaces can be annotated with @${annotationName.simpleName}.")
+            return emptySequence()
+        }
+        return symbolsWithAnnotation.filterIsInstance<KSClassDeclaration>()
     }
 }
