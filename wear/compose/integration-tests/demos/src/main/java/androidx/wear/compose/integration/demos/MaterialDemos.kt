@@ -46,6 +46,7 @@ import androidx.wear.compose.material.samples.CompactChipWithLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.CurvedTextProviderDemo
 import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
@@ -630,7 +631,13 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }
             )
         ),
-        ComposableDemo("Curved Text") { CurvedTextDemo() },
+        DemoCategory(
+            "Curved Text",
+            listOf(
+                ComposableDemo("Basic Styling") { CurvedTextDemo() },
+                ComposableDemo("Provider Styling") { CurvedTextProviderDemo() },
+            )
+        ),
         DemoCategory(
             "Theme",
             listOf(
