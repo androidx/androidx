@@ -94,6 +94,7 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
         ImageSize.Small -> 64.0.pow(2.0)
         ImageSize.Medium -> 96.0.pow(2.0)
         ImageSize.Large -> 128.0.pow(2.0)
+        ImageSize.Undefined -> 64.0.pow(2.0)
         else -> 64.0.pow(2.0)
     }
     val margin = 16
