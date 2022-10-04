@@ -135,13 +135,11 @@ internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
 internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
     BaseCurvedChildWrapper(wrapped) {
 
-    override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int = with(wrapped) {
-        capturedInfo.measuresCount++
-        initializeMeasure(measurables, index)
-    }
+    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) =
+        with(wrapped) {
+            capturedInfo.measuresCount++
+            initializeMeasure(measurables)
+        }
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
