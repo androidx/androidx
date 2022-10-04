@@ -26,6 +26,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +41,7 @@ class FragmentViewLifecycleOwnerTest {
      */
     @Test
     fun defaultFactoryNotOverwritten() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -73,7 +74,7 @@ class FragmentViewLifecycleOwnerTest {
      */
     @Test
     fun defaultFactoryOverwritten() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -95,7 +96,7 @@ class FragmentViewLifecycleOwnerTest {
 
     @Test
     fun testCreateViewModelViaExtras() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager

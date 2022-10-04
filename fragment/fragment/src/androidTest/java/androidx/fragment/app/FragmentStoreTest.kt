@@ -25,6 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -312,7 +313,7 @@ class FragmentStoreTest {
     @LargeTest
     @Test
     fun testFindFragmentByWhoChildFragment() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val parentFragment = StrictFragment()
             fm.beginTransaction()

@@ -23,6 +23,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -34,7 +35,7 @@ import org.junit.runner.RunWith
 class ComponentDialogTest {
     @Test
     fun testLifecycle() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 ComponentDialog(this)
             }
@@ -59,7 +60,7 @@ class ComponentDialogTest {
 
     @Test
     fun testOnBackPressed() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 DoubleTapBackDialog(this).also {
                     it.show()
@@ -83,7 +84,7 @@ class ComponentDialogTest {
 
     @Test
     fun testViewTreeOnBackPressedDispatcherOwner() {
-        with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             val dialog = withActivity {
                 ViewOwnerDialog(this).also {
                     it.show()

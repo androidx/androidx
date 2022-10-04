@@ -26,6 +26,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -112,7 +113,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndExecute() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -160,7 +161,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueRemoveAndExecute() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -212,7 +213,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndCancel() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -281,7 +282,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndForceCompleteAllPending() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -327,7 +328,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndForceCompleteAllExecuting() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -390,7 +391,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndPostpone() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {

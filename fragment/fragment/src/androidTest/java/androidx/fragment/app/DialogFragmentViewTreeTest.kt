@@ -27,6 +27,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +37,7 @@ import org.junit.runner.RunWith
 class DialogFragmentViewTreeTest {
     @Test
     fun testDialogFragmentViewTree() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val dialogFragment = TestDialogFragment()
 
             onActivity {

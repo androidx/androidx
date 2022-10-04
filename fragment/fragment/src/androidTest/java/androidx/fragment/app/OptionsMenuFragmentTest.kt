@@ -36,6 +36,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -71,7 +72,7 @@ class OptionsMenuFragmentTest {
     @LargeTest
     @Test
     fun setMenuVisibilityShowHide() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val fragment = MenuFragment()

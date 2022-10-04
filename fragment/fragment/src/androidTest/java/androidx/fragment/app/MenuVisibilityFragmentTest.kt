@@ -22,6 +22,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ class MenuVisibilityFragmentTest {
 
     @Test
     fun setMenuVisibility() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val fragment = MenuVisibilityFragment()
@@ -65,7 +66,7 @@ class MenuVisibilityFragmentTest {
 
     @Test
     fun setChildMenuVisibilityTrue() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val parentFragment = ParentMenuVisibilityFragment()
@@ -95,7 +96,7 @@ class MenuVisibilityFragmentTest {
 
     @Test
     fun setChildMenuVisibilityFalse() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val parentFragment = MenuVisibilityFragment()

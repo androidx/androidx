@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.RecreatedActivity
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +56,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedState() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState()
             recreate()
             withActivity {
@@ -67,7 +68,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedStateLateInit() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState()
             recreate()
             withActivity {
@@ -84,7 +85,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedStateEarlyRegister() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState(OnCreateCheckingFragment())
             recreate()
         }
@@ -92,7 +93,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedStateOnActivityResult() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             val registry = withActivity { registry }
             initializeSavedState(OnActivityResultCheckingFragment(registry))
             recreate()
