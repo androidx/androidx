@@ -16,7 +16,13 @@
 
 package androidx.credentials
 
+import android.app.Activity
 import android.content.Context
+import android.os.CancellationSignal
+import java.util.concurrent.Executor
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Manages user authentication flows.
@@ -38,11 +44,41 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
+     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
+     * 34 or above.
+     *
+     * @param request the request for getting the credential
+     * @param activity the activity used to potentially launch any UI needed
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
     // TODO(helenqin): support failure flow.
-    suspend fun executeGetCredential(request: GetCredentialRequest): GetCredentialResponse {
-        throw UnsupportedOperationException("Unimplemented")
+    suspend fun executeGetCredential(
+        request: GetCredentialRequest,
+        activity: Activity? = null,
+    ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
+
+        val callback = object : CredentialManagerCallback<GetCredentialResponse> {
+            override fun onResult(result: GetCredentialResponse) {
+                continuation.resume(result)
+            }
+
+            override fun onError(e: CredentialManagerException) {
+                continuation.resumeWithException(e)
+            }
+        }
+
+        executeGetCredentialAsync(
+            request,
+            activity,
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback)
     }
 
     /**
@@ -52,11 +88,92 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
+     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
+     * 34 or above.
+     *
+     * @param request the request for creating the credential
+     * @param activity the activity used to potentially launch any UI needed
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
     suspend fun executeCreateCredential(
-        request: CreateCredentialRequest
-    ): CreateCredentialResponse {
+        request: CreateCredentialRequest,
+        activity: Activity? = null,
+    ): CreateCredentialResponse = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
+
+        val callback = object : CredentialManagerCallback<CreateCredentialResponse> {
+            override fun onResult(result: CreateCredentialResponse) {
+                continuation.resume(result)
+            }
+
+            override fun onError(e: CredentialManagerException) {
+                continuation.resumeWithException(e)
+            }
+        }
+
+        executeCreateCredentialAsync(
+            request,
+            activity,
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback)
+    }
+
+    /**
+     * Java API for requesting a credential from the user.
+     *
+     * The execution potentially launches framework UI flows for a user to view available
+     * credentials, consent to using one of them, etc.
+     *
+     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
+     * 34 or above.
+     *
+     * @param request the request for getting the credential
+     * @param activity an optional activity used to potentially launch any UI needed
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     * @throws UnsupportedOperationException Since the api is unimplemented
+     */
+    fun executeGetCredentialAsync(
+        request: GetCredentialRequest,
+        activity: Activity?,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<GetCredentialResponse>,
+    ) {
+        throw UnsupportedOperationException("Unimplemented")
+    }
+
+    /**
+     * Java API for registering a user credential that can be used to authenticate the user to
+     * the app in the future.
+     *
+     * The execution potentially launches framework UI flows for a user to view their registration
+     * options, grant consent, etc.
+     *
+     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
+     * 34 or above.
+     *
+     * @param request the request for creating the credential
+     * @param activity an optional activity used to potentially launch any UI needed
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     * @throws UnsupportedOperationException Since the api is unimplemented
+     */
+    fun executeCreateCredentialAsync(
+        request: CreateCredentialRequest,
+        activity: Activity?,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<CreateCredentialResponse>,
+    ) {
         throw UnsupportedOperationException("Unimplemented")
     }
 }
