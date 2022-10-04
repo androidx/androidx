@@ -74,6 +74,15 @@ class EmittableButton : Emittable {
     var enabled: Boolean = true
     var maxLines: Int = Int.MAX_VALUE
 
+    override fun copy(): Emittable = EmittableButton().also {
+        it.modifier = modifier
+        it.text = text
+        it.style = style
+        it.colors = colors
+        it.enabled = enabled
+        it.maxLines = maxLines
+    }
+
     override fun toString(): String = "EmittableButton('$text', enabled=$enabled, style=$style, " +
         "colors=$colors modifier=$modifier, maxLines=$maxLines)"
 }
