@@ -31,6 +31,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
         validateSingleService()
         validateNonSuspendFunctionsReturnUnit()
         validateParameterAndReturnValueTypes()
+        validateValuePropertyTypes()
         return ValidationResult(errors)
     }
 
@@ -69,6 +70,22 @@ class ModelValidator private constructor(val api: ParsedApi) {
                         "Error in ${service.type.qualifiedName}.${method.name}: " +
                             "only primitives and data classes annotated with " +
                             "@PrivacySandboxValue are supported as parameter and return types."
+                    )
+                }
+            }
+        }
+    }
+
+    private fun validateValuePropertyTypes() {
+        val allowedValuePropertyTypes =
+            (api.values.map(AnnotatedValue::type) + Types.primitiveTypes).toSet()
+        for (value in api.values) {
+            for (property in value.properties) {
+                if (!allowedValuePropertyTypes.contains(property.type)) {
+                    errors.add(
+                        "Error in ${value.type.qualifiedName}.${property.name}: " +
+                            "only primitives and data classes annotated with " +
+                            "@PrivacySandboxValue are supported as properties."
                     )
                 }
             }

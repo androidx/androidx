@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +65,15 @@ class ModelValidatorTest {
             values = setOf(
                 AnnotatedValue(
                     type = Type(packageName = "com.mysdk", simpleName = "Foo"),
+                    properties = listOf(
+                        ValueProperty(
+                            name = "bar",
+                            type = Type(packageName = "com.mysdk", simpleName = "Bar"),
+                        )
+                    ),
+                ),
+                AnnotatedValue(
+                    type = Type(packageName = "com.mysdk", simpleName = "Bar"),
                     properties = emptyList(),
                 )
             )
@@ -166,6 +176,29 @@ class ModelValidatorTest {
                 "@PrivacySandboxValue are supported as parameter and return types.",
             "Error in com.mysdk.MySdk.receiveFoo: only primitives and data classes annotated " +
                 "with @PrivacySandboxValue are supported as parameter and return types."
+        )
+    }
+
+    @Test
+    fun valueWithIllegalProperty_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
+            ),
+            values = setOf(
+                AnnotatedValue(
+                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
+                    properties = listOf(
+                        ValueProperty("bar", Type("com.mysdk", "Bar"))
+                    )
+                )
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.Foo.bar: only primitives and data classes annotated with " +
+                "@PrivacySandboxValue are supported as properties."
         )
     }
 }
