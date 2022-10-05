@@ -15,9 +15,10 @@
  */
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -33,7 +34,7 @@ class PreparedStatementWriter(val queryWriter: QueryWriter) {
         val scope = CodeGenScope(typeWriter)
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$N", dbParam).apply {
-            superclass(RoomTypeNames.SHARED_SQLITE_STMT)
+            superclass(SHARED_SQLITE_STMT.toJavaPoet())
             addMethod(
                 MethodSpec.methodBuilder("createQuery").apply {
                     addAnnotation(Override::class.java)

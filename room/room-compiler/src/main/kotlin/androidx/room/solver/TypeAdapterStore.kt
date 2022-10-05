@@ -16,6 +16,7 @@
 
 package androidx.room.solver
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
@@ -112,7 +113,6 @@ import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.MapInfo
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.isEnabled
-import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
@@ -132,7 +132,7 @@ class TypeAdapterStore private constructor(
      * first type adapter has the highest priority
      */
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
-    @VisibleForTesting
+    @get:VisibleForTesting
     internal val typeConverterStore: TypeConverterStore,
     private val builtInConverterFlags: BuiltInConverterFlags
 ) {

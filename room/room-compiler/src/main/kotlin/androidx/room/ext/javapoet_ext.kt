@@ -58,14 +58,14 @@ object RoomTypeNames {
     val ROOM_DB: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
-    val INSERTION_ADAPTER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
-    val UPSERTION_ADAPTER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
-    val SHARED_SQLITE_STMT: ClassName =
-        ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
+    val INSERTION_ADAPTER: XClassName =
+        XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERTION_ADAPTER: XClassName =
+        XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER: XClassName =
+        XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+    val SHARED_SQLITE_STMT: XClassName =
+        XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER: ClassName =
         ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
@@ -94,15 +94,15 @@ object RoomTypeNames {
         ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
-    val CURSOR_UTIL: ClassName =
-        ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
+    val CURSOR_UTIL: XClassName =
+        XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")
     val AUTO_MIGRATION_SPEC: ClassName = ClassName.get(
         "$ROOM_PACKAGE.migration",
         "AutoMigrationSpec"
     )
-    val UUID_UTIL: ClassName =
-        ClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
+    val UUID_UTIL: XClassName =
+        XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
         ClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
 }
@@ -152,9 +152,6 @@ object CommonTypeNames {
     val STRING = ClassName.get("java.lang", "String")
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
-    val ILLEGAL_ARG_EXCEPTION = ClassName.get(
-        "java.lang", "IllegalArgumentException"
-    )
     val UUID = ClassName.get("java.util", "UUID")
 }
 

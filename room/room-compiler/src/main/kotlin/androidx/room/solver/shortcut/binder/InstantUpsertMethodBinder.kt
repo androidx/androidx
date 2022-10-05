@@ -16,6 +16,7 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
@@ -31,7 +32,7 @@ class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {

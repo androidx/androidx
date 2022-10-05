@@ -17,17 +17,13 @@
 package androidx.room.compiler.codegen.java
 
 import androidx.room.compiler.codegen.JTypeSpecBuilder
-import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.processing.XNullability
-import com.squareup.javapoet.FieldSpec
 import com.squareup.kotlinpoet.javapoet.JTypeSpec
-import javax.lang.model.element.Modifier
 
 internal class JavaTypeSpec(
     override val className: XClassName,
@@ -47,36 +43,9 @@ internal class JavaTypeSpec(
             actual.addAnnotation(annotation.actual)
         }
 
-        override fun addProperty(
-            typeName: XTypeName,
-            name: String,
-            visibility: VisibilityModifier,
-            isMutable: Boolean,
-            initExpr: XCodeBlock?,
-            annotations: List<XAnnotationSpec>
-        ) = apply {
-            actual.addField(
-                FieldSpec.builder(typeName.java, name).apply {
-                    val visibilityModifier = visibility.toJavaVisibilityModifier()
-                    // TODO(b/247242374) Add nullability annotations for non-private fields
-                    if (visibilityModifier != Modifier.PRIVATE) {
-                        if (typeName.nullability == XNullability.NULLABLE) {
-                            addAnnotation(NULLABLE_ANNOTATION)
-                        } else if (typeName.nullability == XNullability.NONNULL) {
-                            addAnnotation(NONNULL_ANNOTATION)
-                        }
-                    }
-                    addModifiers(visibilityModifier)
-                    if (!isMutable) {
-                        addModifiers(Modifier.FINAL)
-                    }
-                    initExpr?.let {
-                        require(it is JavaCodeBlock)
-                        initializer(it.actual)
-                    }
-                    // TODO(b/247247439): Add other annotations
-                }.build()
-            )
+        override fun addProperty(propertySpec: XPropertySpec) = apply {
+            require(propertySpec is JavaPropertySpec)
+            actual.addField(propertySpec.actual)
         }
 
         override fun addFunction(functionSpec: XFunSpec) = apply {

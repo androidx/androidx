@@ -16,6 +16,7 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
@@ -48,7 +49,7 @@ class CallableInsertMethodBinder(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {

@@ -55,7 +55,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users")
                 abstract java.util.List<Integer> selectAllIds();
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -77,22 +77,31 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE name LIKE :name")
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """
-        ) { writer ->
+        ) { isKsp, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
+            val expectedStringBind = if (isKsp) {
+                """
+                _stmt.bindString(_argIndex, name);
+                """.trimIndent()
+            } else {
+                """
+                if (name == null) {
+                  _stmt.bindNull(_argIndex);
+                } else {
+                  _stmt.bindString(_argIndex, name);
+                }
+                """.trimIndent()
+            }
             assertThat(
                 scope.builder().build().toString().trim(),
                 `is`(
                     """
-                    final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
-                    final $QUERY _stmt = $QUERY.acquire(_sql, 1);
-                    int _argIndex = 1;
-                    if (name == null) {
-                      _stmt.bindNull(_argIndex);
-                    } else {
-                      _stmt.bindString(_argIndex, name);
-                    }
-                    """.trimIndent()
+                    |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
+                    |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
+                    |int _argIndex = 1;
+                    |$expectedStringBind
+                    """.trimMargin()
                 )
             )
         }
@@ -105,7 +114,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:id1,:id2)")
                 abstract java.util.List<Integer> selectAllIds(int id1, int id2);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -131,7 +140,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract java.util.List<Integer> selectAllIds(long time, int... ids);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -190,7 +199,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
@@ -204,7 +213,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract ImmutableList<Integer> selectAllIds(long time, List<Integer> ids);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
@@ -218,7 +227,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, Set<Integer> ids);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
@@ -232,7 +241,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age")
                 abstract List<Integer> selectAllIds(int age);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -258,7 +267,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -299,7 +308,7 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE age IN (:ages) OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
                 """
-        ) { writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(
@@ -339,7 +348,7 @@ class QueryWriterTest {
 
     fun singleQueryMethod(
         vararg input: String,
-        handler: (QueryWriter) -> Unit
+        handler: (Boolean, QueryWriter) -> Unit
     ) {
         val source = Source.java(
             "foo.bar.MyClass",
@@ -365,7 +374,7 @@ class QueryWriterTest {
                 executableElement = methods.first()
             )
             val method = parser.process()
-            handler(QueryWriter(method))
+            handler(invocation.isKsp, QueryWriter(method))
         }
     }
 }

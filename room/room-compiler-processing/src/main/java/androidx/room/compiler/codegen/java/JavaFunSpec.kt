@@ -31,12 +31,19 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import javax.lang.model.element.Modifier
 
 internal class JavaFunSpec(
+    override val name: String,
     internal val actual: MethodSpec
 ) : JavaLang(), XFunSpec {
 
     internal class Builder(
+        private val name: String,
         internal val actual: MethodSpec.Builder
     ) : JavaLang(), XFunSpec.Builder {
+
+        override fun addAnnotation(annotation: XAnnotationSpec) {
+            require(annotation is JavaAnnotationSpec)
+            actual.addAnnotation(annotation.actual)
+        }
 
         override fun addCode(code: XCodeBlock) = apply {
             require(code is JavaCodeBlock)
@@ -89,7 +96,7 @@ internal class JavaFunSpec(
             actual.returns(typeName.java)
         }
 
-        override fun build() = JavaFunSpec(actual.build())
+        override fun build() = JavaFunSpec(name, actual.build())
     }
 }
 

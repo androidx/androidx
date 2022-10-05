@@ -101,6 +101,14 @@ internal class JavacProcessingEnv(
                 elementNullability = XNullability.NONNULL
             )
         }
+        // check no types, such as 'void'
+        NO_TYPES[qName]?.let {
+            return wrap(
+                typeMirror = typeUtils.getNoType(it),
+                kotlinType = null,
+                elementNullability = XNullability.NONNULL
+            )
+        }
         return findTypeElement(qName)?.type
     }
 
@@ -297,6 +305,12 @@ internal class JavacProcessingEnv(
         val PRIMITIVE_TYPES = TypeKind.values().filter {
             it.isPrimitive
         }.associateBy {
+            it.name.lowercase(Locale.US)
+        }
+        val NO_TYPES = listOf(
+            TypeKind.VOID,
+            TypeKind.NONE
+        ).associateBy {
             it.name.lowercase(Locale.US)
         }
     }
