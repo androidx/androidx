@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBuffer {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBuffer implements java.lang.AutoCloseable {
     ctor public FrameBuffer(androidx.graphics.opengl.egl.EGLSpec egl, android.hardware.HardwareBuffer hardwareBuffer);
     method public void close();
     method public android.hardware.HardwareBuffer getHardwareBuffer();
