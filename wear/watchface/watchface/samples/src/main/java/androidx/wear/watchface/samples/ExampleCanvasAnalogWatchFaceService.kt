@@ -183,6 +183,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
 
     // These are style overrides applied on top of the complicationSlots passed into
     // complicationSlotsManager below.
+    @Suppress("Deprecation")
     private val complicationsStyleSetting by lazy {
         ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),

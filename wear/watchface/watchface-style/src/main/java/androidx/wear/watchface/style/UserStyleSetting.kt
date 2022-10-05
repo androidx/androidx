@@ -931,11 +931,10 @@ public sealed class UserStyleSetting private constructor(
              * optional parameters nameResourceId and screenReaderNameResourceId
              * [ComplicationSlotOverlay(Int, Boolean?, ComplicationSlotBounds?, Int?, Int?, Int?]
              */
-
             @Deprecated(
                 message = "This constructor is deprecated in favour of the one that specifies " +
                     "optional parameters nameResourceId and screenReaderNameResourceId",
-                level = DeprecationLevel.HIDDEN)
+                level = DeprecationLevel.WARNING)
             public constructor(
                 complicationSlotId: Int,
                 @Suppress("AutoBoxing")
