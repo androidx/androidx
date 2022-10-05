@@ -22,24 +22,17 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
-import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import java.nio.file.Files.createTempDirectory
-import javax.tools.Diagnostic
-import kotlin.io.path.Path
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class AidlGeneratorTest {
+class AidlServiceGeneratorTest {
     @Test
     fun generate() {
         val api = ParsedApi(
-            services = mutableSetOf(
+            services = setOf(
                 AnnotatedInterface(
                     type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
                     methods = listOf(
@@ -100,14 +93,8 @@ class AidlGeneratorTest {
                 )
             )
         )
-        val aidlPath = System.getProperty("aidl_compiler_path")?.let(::Path)
-            ?: throw IllegalArgumentException("aidl_compiler_path flag not set.")
-        val tmpDir = createTempDirectory("test")
-        val aidlCompiler = AidlCompiler(aidlPath)
 
-        val javaGeneratedSources = AidlGenerator.generate(aidlCompiler, api, tmpDir)
-
-        // Check expected java sources were generated.
+        val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })
             .containsExactly(
                 "com.mysdk" to "IMySdk",
@@ -116,70 +103,49 @@ class AidlGeneratorTest {
                 "com.mysdk" to "ICancellationSignal",
             )
 
-        // Check the contents of the AIDL generated files.
-        val aidlGeneratedFiles = tmpDir.toFile().walk().filter { it.extension == "aidl" }
-            .map { it.name to it.readText() }.toList()
-        assertThat(aidlGeneratedFiles).containsExactly(
-            "IMySdk.aidl" to """
-                package com.mysdk;
-                import com.mysdk.IStringTransactionCallback;
-                import com.mysdk.IUnitTransactionCallback;
-                interface IMySdk {
-                    int methodWithReturnValue();
-                    void methodWithoutReturnValue();
-                    void suspendMethodWithReturnValue(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
-                    void suspendMethodWithoutReturnValue(IUnitTransactionCallback transactionCallback);
-                }
-            """.trimIndent(),
-            "ICancellationSignal.aidl" to """
-                package com.mysdk;
-                oneway interface ICancellationSignal {
-                    void cancel();
-                }
-            """.trimIndent(),
-            "IStringTransactionCallback.aidl" to """
-                package com.mysdk;
-                import com.mysdk.ICancellationSignal;
-                oneway interface IStringTransactionCallback {
-                    void onCancellable(ICancellationSignal cancellationSignal);
-                    void onSuccess(String result);
-                    void onFailure(int errorCode, String errorMessage);
-                }
-            """.trimIndent(),
-            "IUnitTransactionCallback.aidl" to """
-                package com.mysdk;
-                import com.mysdk.ICancellationSignal;
-                oneway interface IUnitTransactionCallback {
-                    void onCancellable(ICancellationSignal cancellationSignal);
-                    void onSuccess();
-                    void onFailure(int errorCode, String errorMessage);
-                }
-            """.trimIndent(),
+        assertThat(aidlGeneratedSources.map { it.relativePath to it.content }).containsExactly(
+            "com/mysdk/IMySdk.aidl" to """
+                |package com.mysdk;
+                |
+                |import com.mysdk.IStringTransactionCallback;
+                |import com.mysdk.IUnitTransactionCallback;
+                |
+                |interface IMySdk {
+                |    int methodWithReturnValue();
+                |    void methodWithoutReturnValue();
+                |    void suspendMethodWithReturnValue(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
+                |    void suspendMethodWithoutReturnValue(IUnitTransactionCallback transactionCallback);
+                |}
+            """.trimMargin(),
+            "com/mysdk/ICancellationSignal.aidl" to """
+                |package com.mysdk;
+                |
+                |oneway interface ICancellationSignal {
+                |    void cancel();
+                |}
+            """.trimMargin(),
+            "com/mysdk/IStringTransactionCallback.aidl" to """
+                |package com.mysdk;
+                |
+                |import com.mysdk.ICancellationSignal;
+                |
+                |oneway interface IStringTransactionCallback {
+                |    void onCancellable(ICancellationSignal cancellationSignal);
+                |    void onFailure(int errorCode, String errorMessage);
+                |    void onSuccess(String result);
+                |}
+            """.trimMargin(),
+            "com/mysdk/IUnitTransactionCallback.aidl" to """
+                |package com.mysdk;
+                |
+                |import com.mysdk.ICancellationSignal;
+                |
+                |oneway interface IUnitTransactionCallback {
+                |    void onCancellable(ICancellationSignal cancellationSignal);
+                |    void onFailure(int errorCode, String errorMessage);
+                |    void onSuccess();
+                |}
+            """.trimMargin(),
         )
-
-        // Check that the Java generated sources compile.
-        ensureCompiles(
-            javaGeneratedSources.map {
-                Source.java(
-                    "${it.packageName.replace('.', '/')}/${it.interfaceName}",
-                    it.file.readText()
-                )
-            }.toList()
-        )
-    }
-
-    private fun ensureCompiles(sources: List<Source>) {
-        val result = compile(
-            createTempDirectory("compile").toFile(),
-            TestCompilationArguments(
-                sources = sources,
-            )
-        )
-        assertWithMessage(
-            "Compilation of java files generated from AIDL failed with errors: " +
-                "${result.diagnostics[Diagnostic.Kind.ERROR]?.joinToString("\n") { it.msg }}"
-        ).that(
-            result.success
-        ).isTrue()
     }
 }
