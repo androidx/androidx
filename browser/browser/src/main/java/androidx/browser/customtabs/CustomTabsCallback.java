@@ -161,11 +161,11 @@ public class CustomTabsCallback {
             boolean result, @Nullable Bundle extras) {}
 
     /**
-     * To be called when CCT is resized in its height. This is applicable when users resize a CCT
+     * Called when the tab is resized in its height. This is applicable when users resize a tab
      * launched with {@link CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE} for the {@link
      * CustomTabsIntent#ActivityResizeBehavior}.
      *
-     * @param size The updated size in height.
+     * @param size The updated height in px.
      * @param extras Reserved for future use.
      */
     public void onActivityResized(@Dimension(unit = PX) int size, @NonNull Bundle extras) {}
