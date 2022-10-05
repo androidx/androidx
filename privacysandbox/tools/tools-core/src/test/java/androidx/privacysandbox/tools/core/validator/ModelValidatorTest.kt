@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.core.validator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -44,20 +45,26 @@ class ModelValidatorTest {
                                     type = Types.int
                                 ),
                                 Parameter(
-                                    name = "y",
-                                    type = Types.int
+                                    name = "foo",
+                                    type = Type(packageName = "com.mysdk", simpleName = "Foo")
                                 )
                             ),
                             returnType = Types.string,
                             isSuspend = true,
                         ),
                         Method(
-                            name = "doMoreStuff",
+                            name = "fireAndForget",
                             parameters = listOf(),
                             returnType = Types.unit,
                             isSuspend = false,
                         )
                     )
+                )
+            ),
+            values = setOf(
+                AnnotatedValue(
+                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
+                    properties = emptyList(),
                 )
             )
         )
@@ -155,8 +162,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitive types are supported.",
-            "Error in com.mysdk.MySdk.receiveFoo: only primitive types are supported."
+            "Error in com.mysdk.MySdk.returnFoo: only primitives and data classes annotated with " +
+                "@PrivacySandboxValue are supported as parameter and return types.",
+            "Error in com.mysdk.MySdk.receiveFoo: only primitives and data classes annotated " +
+                "with @PrivacySandboxValue are supported as parameter and return types."
         )
     }
 }

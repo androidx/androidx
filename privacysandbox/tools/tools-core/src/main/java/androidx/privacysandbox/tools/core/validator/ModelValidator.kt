@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.validator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Types
 
@@ -56,16 +57,18 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun validateParameterAndReturnValueTypes() {
-        // TODO: allow data classes.
+        val allowedParameterAndReturnValueTypes =
+            (api.values.map(AnnotatedValue::type) + Types.primitiveTypes).toSet()
         for (service in api.services) {
             for (method in service.methods) {
                 val isAnyTypeInvalid = (method.parameters.map { it.type } + method.returnType).any {
-                    !Types.primitiveTypes.contains(it)
+                    !allowedParameterAndReturnValueTypes.contains(it)
                 }
                 if (isAnyTypeInvalid) {
                     errors.add(
                         "Error in ${service.type.qualifiedName}.${method.name}: " +
-                            "only primitive types are supported."
+                            "only primitives and data classes annotated with " +
+                            "@PrivacySandboxValue are supported as parameter and return types."
                     )
                 }
             }
