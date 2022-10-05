@@ -81,7 +81,9 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.requested_with_activity_title),
                         new Intent(activityContext, RequestedWithHeaderActivity.class)),
-
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.cookie_manager_activity_title),
+                        new Intent(activityContext, CookieManagerActivity.class)),
         };
         listView.setItems(menuItems);
     }

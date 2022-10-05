@@ -83,6 +83,10 @@
     <string name="variations_header_activity_title">Variations Header</string>
     <string name="variations_header_message">Variations header is: "%1$s"</string>
     <string name="variations_header_unavailable">Variations Header not available</string>
+    <string name="cookie_manager_activity_title">Cookie Manager</string>
+    <string name="cookie_manager_old_api_text">Old cookie API: </string>
+    <string name="cookie_manager_new_api_text">New cookie API: </string>
+    <string name="cookie_manager_get_cookie_info_not_supported">CookieManagerCompat#getCookieInfo not supported.</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
