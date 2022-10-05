@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataPointAccuracy.LocationAccuracy as LocationAccuracyProto
 import android.util.Log
@@ -64,10 +63,7 @@ public class LocationAccuracy(
         }
     )
 
-    /** @hide */
-    override val proto: DataProto.DataPointAccuracy = getDataPointAccuracyProto()
-
-    private fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {
+    internal fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {
         val locationAccuracyProtoBuilder =
             LocationAccuracyProto.newBuilder()
                 .setHorizontalPositionError(horizontalPositionErrorMeters)
@@ -84,10 +80,5 @@ public class LocationAccuracy(
 
     public companion object {
         private const val TAG = "LocationAccuracy"
-        @JvmField
-        public val CREATOR: Parcelable.Creator<LocationAccuracy> = newCreator {
-            val proto = DataProto.DataPointAccuracy.parseFrom(it)
-            LocationAccuracy(proto)
-        }
     }
 }
