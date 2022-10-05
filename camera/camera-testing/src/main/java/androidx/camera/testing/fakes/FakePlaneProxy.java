@@ -13,41 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageProxy;
 
 import java.nio.ByteBuffer;
 
 /**
- * Fake {@link ImageProxy.PlaneProxy} with JPEG format.
- *
- * TODO: Rename this to FakeByteArrayPlaneProxy and inherit {@link FakePlaneProxy}.
- *
- * @hide
+ * Fake {@link ImageProxy.PlaneProxy} for testing.
  */
-@RequiresApi(21)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeJpegPlaneProxy implements ImageProxy.PlaneProxy {
+public class FakePlaneProxy implements ImageProxy.PlaneProxy {
 
+    @NonNull
     private final ByteBuffer mByteBuffer;
 
-    public FakeJpegPlaneProxy(@NonNull byte[] jpegBytes) {
-        mByteBuffer = ByteBuffer.allocateDirect(jpegBytes.length);
-        mByteBuffer.put(jpegBytes);
+    private final int mRowStride;
+
+    private final int mPixelStride;
+
+    public FakePlaneProxy(@NonNull ByteBuffer byteBuffer, int rowStride, int pixelStride) {
+        mByteBuffer = byteBuffer;
+        mRowStride = rowStride;
+        mPixelStride = pixelStride;
     }
 
     @Override
     public int getRowStride() {
-        return 0;
+        return mRowStride;
     }
 
     @Override
     public int getPixelStride() {
-        return 0;
+        return mPixelStride;
     }
 
     @NonNull
