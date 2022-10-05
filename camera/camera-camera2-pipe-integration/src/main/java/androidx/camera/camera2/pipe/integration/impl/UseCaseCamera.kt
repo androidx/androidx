@@ -85,6 +85,7 @@ class UseCaseCameraImpl @Inject constructor(
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
+    private val graphStateJob: Job
 
     override var runningUseCases = setOf<UseCase>()
         set(value) {
@@ -105,9 +106,20 @@ class UseCaseCameraImpl @Inject constructor(
 
     init {
         debug { "Configured $this for $useCases" }
+        useCaseGraphConfig.apply {
+            cameraStateAdapter.onGraphUpdated(graph)
+        }
+        graphStateJob = threads.scope.launch {
+            useCaseGraphConfig.apply {
+                graph.graphState.collect {
+                    cameraStateAdapter.onGraphStateUpdated(graph, it)
+                }
+            }
+        }
     }
 
     override fun close(): Job {
+        graphStateJob.cancel()
         return threads.scope.launch {
             debug { "Closing $this" }
             useCaseGraphConfig.graph.close()

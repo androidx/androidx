@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
@@ -66,8 +67,9 @@ class UseCaseManager @Inject constructor(
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
+    private val cameraStateAdapter: CameraStateAdapter,
     cameraProperties: CameraProperties,
-    displayInfoManager: DisplayInfoManager
+    displayInfoManager: DisplayInfoManager,
 ) {
     private val lock = Any()
 
@@ -242,7 +244,7 @@ class UseCaseManager @Inject constructor(
         }
 
         // Create and configure the new camera component.
-        _activeComponent = builder.config(UseCaseCameraConfig(useCases)).build()
+        _activeComponent = builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter)).build()
         for (control in allControls) {
             control.useCaseCamera = camera
         }

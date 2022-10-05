@@ -30,7 +30,6 @@ import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
-import androidx.camera.core.impl.LiveDataObservable
 import androidx.camera.core.impl.Observable
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
@@ -49,16 +48,14 @@ class CameraInternalAdapter @Inject constructor(
     private val cameraInfo: CameraInfoInternal,
     private val cameraController: CameraControlInternal,
     private val threads: UseCaseThreads,
+    private val cameraStateAdapter: CameraStateAdapter
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
         CameraConfigs.emptyConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
-    private val cameraState = LiveDataObservable<CameraInternal.State>()
 
     init {
-        cameraState.postValue(CameraInternal.State.CLOSED)
-
         debug { "Created $this for $cameraId" }
         // TODO: Consider preloading the list of camera ids and metadata.
     }
@@ -78,7 +75,9 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun getCameraInfoInternal(): CameraInfoInternal = cameraInfo
-    override fun getCameraState(): Observable<CameraInternal.State> = cameraState
+    override fun getCameraState(): Observable<CameraInternal.State> =
+        cameraStateAdapter.cameraInternalState
+
     override fun getCameraControlInternal(): CameraControlInternal = cameraController
 
     // UseCase attach / detach behaviors.

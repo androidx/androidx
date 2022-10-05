@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -46,11 +47,13 @@ import javax.inject.Scope
 annotation class UseCaseCameraScope
 
 /** Dependency bindings for building a [UseCaseCamera] */
-@Module(includes = [
-    CapturePipelineImpl.Bindings::class,
-    UseCaseCameraImpl.Bindings::class,
-    UseCaseCameraRequestControlImpl.Bindings::class,
-])
+@Module(
+    includes = [
+        CapturePipelineImpl.Bindings::class,
+        UseCaseCameraImpl.Bindings::class,
+        UseCaseCameraRequestControlImpl.Bindings::class,
+    ]
+)
 abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
     companion object
@@ -59,7 +62,8 @@ abstract class UseCaseCameraModule {
 /** Dagger module for binding the [UseCase]'s to the [UseCaseCamera]. */
 @Module
 class UseCaseCameraConfig(
-    private val useCases: List<UseCase>
+    private val useCases: List<UseCase>,
+    private val cameraStateAdapter: CameraStateAdapter,
 ) {
     @UseCaseCameraScope
     @Provides
@@ -105,11 +109,13 @@ class UseCaseCameraConfig(
         }
 
         // Build up a config (using TEMPLATE_PREVIEW by default)
-        val graph = cameraPipe.create(CameraGraph.Config(
-            camera = cameraConfig.cameraId,
-            streams = streamConfigMap.keys.toList(),
-            defaultListeners = listOf(callbackMap, requestListener),
-        ))
+        val graph = cameraPipe.create(
+            CameraGraph.Config(
+                camera = cameraConfig.cameraId,
+                streams = streamConfigMap.keys.toList(),
+                defaultListeners = listOf(callbackMap, requestListener),
+            )
+        )
 
         val surfaceToStreamMap = mutableMapOf<DeferrableSurface, StreamId>()
         streamConfigMap.forEach { (streamConfig, deferrableSurface) ->
@@ -138,6 +144,7 @@ class UseCaseCameraConfig(
         return UseCaseGraphConfig(
             graph = graph,
             surfaceToStreamMap = surfaceToStreamMap,
+            cameraStateAdapter = cameraStateAdapter,
         )
     }
 }
@@ -145,6 +152,7 @@ class UseCaseCameraConfig(
 data class UseCaseGraphConfig(
     val graph: CameraGraph,
     val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
+    val cameraStateAdapter: CameraStateAdapter,
 )
 
 /** Dagger subcomponent for a single [UseCaseCamera] instance. */

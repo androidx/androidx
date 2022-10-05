@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -35,7 +36,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
-    private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList())
+    private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList(), CameraStateAdapter())
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config

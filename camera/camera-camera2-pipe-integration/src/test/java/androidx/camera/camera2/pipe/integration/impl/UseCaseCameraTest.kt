@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -68,6 +69,7 @@ class UseCaseCameraTest {
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = fakeCameraGraph,
         surfaceToStreamMap = surfaceToStreamMap,
+        cameraStateAdapter = CameraStateAdapter(),
     )
     private val fakeConfigAdapter = CaptureConfigAdapter(
         useCaseGraphConfig = fakeUseCaseGraphConfig,

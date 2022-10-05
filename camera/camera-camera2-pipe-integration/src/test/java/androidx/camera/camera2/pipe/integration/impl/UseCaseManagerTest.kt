@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -185,6 +186,7 @@ class UseCaseManagerTest {
             useCaseThreads,
             ComboRequestListener()
         ),
-        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext())
+        cameraStateAdapter = CameraStateAdapter(),
+        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
     )
 }
