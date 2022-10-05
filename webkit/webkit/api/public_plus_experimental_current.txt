@@ -1,6 +1,10 @@
 // Signature format: 4.0
 package androidx.webkit {
 
+  public class CookieManagerCompat {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_COOKIE_INFO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.List<java.lang.String!> getCookieInfo(android.webkit.CookieManager, String);
+  }
+
   public abstract class JavaScriptReplyProxy {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
@@ -227,6 +231,7 @@ package androidx.webkit {
     field public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY = "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
     field public static final String FORCE_DARK = "FORCE_DARK";
     field public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
+    field public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
     field public static final String GET_VARIATIONS_HEADER = "GET_VARIATIONS_HEADER";
     field public static final String GET_WEB_CHROME_CLIENT = "GET_WEB_CHROME_CLIENT";
     field public static final String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
