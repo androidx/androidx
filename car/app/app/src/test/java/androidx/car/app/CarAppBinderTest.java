@@ -94,6 +94,7 @@ public class CarAppBinderTest {
     private CarAppBinder mCarAppBinder;
     private Intent mIntentSet;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

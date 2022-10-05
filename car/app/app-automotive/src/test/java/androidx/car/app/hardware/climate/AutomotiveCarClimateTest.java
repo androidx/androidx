@@ -127,6 +127,7 @@ public class AutomotiveCarClimateTest {
     @Mock
     private PropertyManager mPropertyManager;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

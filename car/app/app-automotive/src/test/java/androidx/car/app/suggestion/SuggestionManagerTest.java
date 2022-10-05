@@ -66,6 +66,7 @@ public class SuggestionManagerTest {
             new Suggestion.Builder().setIdentifier(mIdentifier).setTitle(mTitle).setSubtitle(
                     mSubTitle).setIcon(mIcon).setAction(mPendingIntent).build();
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

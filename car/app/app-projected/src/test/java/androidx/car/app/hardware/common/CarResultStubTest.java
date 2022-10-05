@@ -60,6 +60,7 @@ public class CarResultStubTest {
     @Mock
     OnCarDataAvailableListener<Integer> mMockCarDataListener;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

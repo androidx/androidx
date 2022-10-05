@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinStdlib)
     lintPublish(project(":recyclerview:recyclerview-lint"))
 }

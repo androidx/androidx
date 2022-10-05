@@ -55,6 +55,7 @@ public class HostDispatcherTest {
     private ISuggestionHost mSuggestionHost;
     private HostDispatcher mHostDispatcher = new HostDispatcher();
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

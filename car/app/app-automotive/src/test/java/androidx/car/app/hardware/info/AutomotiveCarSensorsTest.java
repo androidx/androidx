@@ -52,6 +52,7 @@ public class AutomotiveCarSensorsTest {
     @Mock
     private OnCarDataAvailableListener<CarHardwareLocation> mCarHardwareLocationListener;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

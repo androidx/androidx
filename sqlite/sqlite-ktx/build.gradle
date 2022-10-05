@@ -27,7 +27,7 @@ dependencies {
     api(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {

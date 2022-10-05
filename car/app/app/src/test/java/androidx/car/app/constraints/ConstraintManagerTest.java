@@ -59,6 +59,7 @@ public class ConstraintManagerTest {
 
     private ConstraintManager mConstraintManager;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

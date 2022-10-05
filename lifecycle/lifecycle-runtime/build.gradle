@@ -21,7 +21,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.1.0")
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

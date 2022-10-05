@@ -57,6 +57,7 @@ public class CarAppPermissionActivityTest {
     private ActivityScenario<CarAppPermissionActivity> mActivity;
     private Application mApplication;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

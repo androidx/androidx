@@ -89,6 +89,7 @@ public class NavigationManagerTest {
                     .build();
     private TestCarContext mTestCarContext;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

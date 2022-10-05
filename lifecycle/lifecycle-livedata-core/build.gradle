@@ -31,7 +31,7 @@ dependencies {
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 
     constraints {
         implementation(project(":lifecycle:lifecycle-common"))
