@@ -16,6 +16,12 @@
 
 package androidx.camera.core.internal.utils;
 
+import static androidx.camera.core.internal.utils.ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE;
+import static androidx.camera.core.internal.utils.ImageUtil.createBitmapFromPlane;
+import static androidx.camera.core.internal.utils.ImageUtil.createDirectByteBuffer;
+import static androidx.camera.testing.TestImageUtil.createBitmap;
+import static androidx.camera.testing.TestImageUtil.getAverageDiff;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertEquals;
@@ -36,6 +42,7 @@ import android.util.Size;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.fakes.FakePlaneProxy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +104,55 @@ public class ImageUtilTest {
         mImage.setPlanes(new ImageProxy.PlaneProxy[]{mDataPlane});
         mDataBuffer.get(mDataByteArray);
         mDataBuffer.clear();
+    }
+
+    @Test
+    public void createBitmapFromPlane_bitmapCreated() {
+        // Arrange.
+        Bitmap original = createBitmap(WIDTH, HEIGHT);
+        ByteBuffer byteBuffer = createDirectByteBuffer(original);
+        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(byteBuffer,
+                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE, DEFAULT_RGBA_PIXEL_STRIDE);
+        // Act.
+        Bitmap restored = createBitmapFromPlane(
+                new ImageProxy.PlaneProxy[]{planeProxy},
+                WIDTH,
+                HEIGHT);
+        // Assert.
+        assertThat(getAverageDiff(original, restored)).isEqualTo(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createBitmapWithMultiplePlanes_throwsException() {
+        // Arrange.
+        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
+                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
+                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE,
+                DEFAULT_RGBA_PIXEL_STRIDE);
+        // Act.
+        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy, planeProxy}, WIDTH, HEIGHT);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createBitmapWithWrongPixelStride_throwsException() {
+        // Arrange.
+        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
+                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
+                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE,
+                3); // Wrong pixel stride.
+        // Act.
+        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy}, WIDTH, HEIGHT);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createBitmapWithWrongRowStride_throwsException() {
+        // Arrange.
+        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
+                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
+                (WIDTH - 1) * DEFAULT_RGBA_PIXEL_STRIDE, // Wrong row stride.
+                DEFAULT_RGBA_PIXEL_STRIDE);
+        // Act.
+        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy}, WIDTH, HEIGHT);
     }
 
     @Test
