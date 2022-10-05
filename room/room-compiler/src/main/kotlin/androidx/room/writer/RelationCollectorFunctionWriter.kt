@@ -16,13 +16,16 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.toXTypeName
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.stripNonJava
@@ -31,20 +34,20 @@ import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.vo.RelationCollector
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Modifier
 
 /**
- * Writes the method that fetches the relations of a POJO and assigns them into the given map.
+ * Writes the function that fetches the relations of a POJO and assigns them into the given map.
  */
-class RelationCollectorMethodWriter(private val collector: RelationCollector) :
-    TypeWriter.SharedMethodSpec(
-        "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
-            "As${collector.relation.pojoTypeName.toString().stripNonJava()}"
-    ) {
+class RelationCollectorFunctionWriter(
+    private val collector: RelationCollector
+) : TypeWriter.SharedFunctionSpec(
+    "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
+        "As${collector.relation.pojoTypeName.toString().stripNonJava()}"
+) {
     companion object {
         const val PARAM_MAP_VARIABLE = "_map"
         const val KEY_SET_VARIABLE = "__mapKeySet"
@@ -59,7 +62,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
             "-${relation.createLoadAllSql()}"
     }
 
-    override fun prepare(methodName: String, writer: TypeWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
         val scope = CodeGenScope(writer)
         val relation = collector.relation
 
@@ -216,7 +219,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                 } else {
                     addStatement(
                         "final $T $L = $T.getColumnIndex($L, $S)",
-                        TypeName.INT, itemKeyIndexVar, RoomTypeNames.CURSOR_UTIL, cursorVar,
+                        TypeName.INT, itemKeyIndexVar, CURSOR_UTIL.toJavaPoet(), cursorVar,
                         relation.entityField.columnName
                     )
                 }
@@ -263,10 +266,8 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
             endControlFlow()
         }
         builder.apply {
-            addModifiers(Modifier.PRIVATE)
-            addParameter(param)
-            returns(TypeName.VOID)
-            addCode(scope.builder().build())
+            addParameter(param.type.toXTypeName(), param.name)
+            addCode(scope.generate())
         }
     }
 }

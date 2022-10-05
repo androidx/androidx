@@ -28,21 +28,26 @@ interface XTypeSpec : TargetLanguage {
     interface Builder : TargetLanguage {
         fun superclass(typeName: XTypeName): Builder
         fun addAnnotation(annotation: XAnnotationSpec)
-
-        // TODO(b/247241418): Maybe make a XPropertySpec ?
-        fun addProperty(
-            typeName: XTypeName,
-            name: String,
-            visibility: VisibilityModifier,
-            isMutable: Boolean = false,
-            initExpr: XCodeBlock? = null,
-            annotations: List<XAnnotationSpec> = emptyList()
-        ): Builder
-
+        fun addProperty(propertySpec: XPropertySpec): Builder
         fun addFunction(functionSpec: XFunSpec): Builder
         fun build(): XTypeSpec
 
         companion object {
+
+            fun Builder.addProperty(
+                name: String,
+                typeName: XTypeName,
+                visibility: VisibilityModifier,
+                isMutable: Boolean = false,
+                initExpr: XCodeBlock? = null,
+            ) = apply {
+                val builder = XPropertySpec.builder(language, name, typeName, visibility, isMutable)
+                if (initExpr != null) {
+                    builder.initializer(initExpr)
+                }
+                addProperty(builder.build())
+            }
+
             fun Builder.apply(
                 javaTypeBuilder: com.squareup.javapoet.TypeSpec.Builder.() -> Unit,
                 kotlinTypeBuilder: com.squareup.kotlinpoet.TypeSpec.Builder.() -> Unit,

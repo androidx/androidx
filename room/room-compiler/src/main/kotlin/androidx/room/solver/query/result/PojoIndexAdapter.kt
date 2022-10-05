@@ -16,8 +16,9 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.capitalize
@@ -70,7 +71,7 @@ class PojoIndexAdapter(
                 }
                 scope.builder().addStatement(
                     "final $T $L = $T.$L($L, $S)",
-                    TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
+                    TypeName.INT, indexVar, CURSOR_UTIL.toJavaPoet(), indexMethod, cursorVarName,
                     it.columnName
                 )
             }

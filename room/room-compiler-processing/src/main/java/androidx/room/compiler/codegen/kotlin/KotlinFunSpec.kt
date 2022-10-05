@@ -27,12 +27,19 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.UNIT
 
 internal class KotlinFunSpec(
+    override val name: String,
     internal val actual: FunSpec
 ) : KotlinLang(), XFunSpec {
 
     internal class Builder(
+        private val name: String,
         internal val actual: FunSpec.Builder
     ) : KotlinLang(), XFunSpec.Builder {
+
+        override fun addAnnotation(annotation: XAnnotationSpec) {
+            require(annotation is KotlinAnnotationSpec)
+            actual.addAnnotation(annotation.actual)
+        }
 
         override fun addCode(code: XCodeBlock) = apply {
             require(code is KotlinCodeBlock)
@@ -67,7 +74,7 @@ internal class KotlinFunSpec(
             actual.returns(typeName.kotlin)
         }
 
-        override fun build() = KotlinFunSpec(actual.build())
+        override fun build() = KotlinFunSpec(name, actual.build())
     }
 }
 

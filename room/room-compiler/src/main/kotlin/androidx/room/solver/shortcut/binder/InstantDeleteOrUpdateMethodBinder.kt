@@ -16,6 +16,7 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
@@ -33,7 +34,7 @@ class InstantDeleteOrUpdateMethodBinder(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<XPropertySpec, TypeSpec>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {

@@ -16,11 +16,11 @@
 
 package androidx.room.solver
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.codegen.JCodeBlockBuilder
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.writer.TypeWriter
-import com.google.common.annotations.VisibleForTesting
 
 /**
  * Defines a code generation scope where we can provide temporary variables, global variables etc

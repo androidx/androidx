@@ -16,12 +16,12 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.T
@@ -32,14 +32,13 @@ import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
 import androidx.room.writer.EntityCursorConverterWriter
 import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 
 class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) {
 
     override val mapping = EntityMapping(entity)
 
-    private lateinit var methodSpec: MethodSpec
+    private lateinit var functionSpec: XFunSpec
 
     private var cursorDelegateVarName: String? = null
 
@@ -53,7 +52,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
                     column = it,
                     indexVar = CodeBlock.of(
                         "$T.getColumnIndex($N, $S)",
-                        CURSOR_UTIL, cursorVarName, it
+                        CURSOR_UTIL.toJavaPoet(), cursorVarName, it
                     ).toString()
                 )
             }
@@ -91,19 +90,19 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
                 "final $T $N = $T.wrapMappedColumns($N, $L, $L)",
                 CURSOR.toJavaPoet(),
                 cursorDelegateVarName,
-                RoomTypeNames.CURSOR_UTIL,
+                CURSOR_UTIL.toJavaPoet(),
                 cursorVarName,
                 entityColumnNamesParam,
                 entityColumnIndicesParam
             )
         }
-        methodSpec = scope.writer.getOrCreateMethod(EntityCursorConverterWriter(entity))
+        functionSpec = scope.writer.getOrCreateFunction(EntityCursorConverterWriter(entity))
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        scope.builder().addStatement(
-            "$L = $N($L)",
-            outVarName, methodSpec, cursorDelegateVarName ?: cursorVarName
+        scope.builder.addStatement(
+            "%L = %N(%L)",
+            outVarName, functionSpec, cursorDelegateVarName ?: cursorVarName
         )
     }
 

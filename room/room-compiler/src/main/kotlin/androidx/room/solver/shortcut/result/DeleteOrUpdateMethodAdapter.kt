@@ -16,15 +16,16 @@
 
 package androidx.room.solver.shortcut.result
 
-import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
+import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
@@ -53,7 +54,7 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
 
     fun createDeleteOrUpdateMethodBody(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        adapters: Map<String, Pair<XPropertySpec, TypeSpec>>,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
@@ -69,11 +70,11 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
             addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
-                    val adapter = adapters[param.name]?.first
+                    val adapter = adapters.getValue(param.name).first
                     addStatement(
-                        "$L$N.$L($L)",
+                        "$L$L.$L($L)",
                         if (resultVar == null) "" else "$resultVar +=",
-                        adapter, param.handleMethodName(), param.name
+                        adapter.name, param.handleMethodName(), param.name
                     )
                 }
                 addStatement("$N.setTransactionSuccessful()", dbField)

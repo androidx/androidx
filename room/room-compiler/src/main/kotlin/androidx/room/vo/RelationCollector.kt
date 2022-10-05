@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
@@ -39,7 +38,7 @@ import androidx.room.solver.query.result.RowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.writer.QueryWriter
-import androidx.room.writer.RelationCollectorMethodWriter
+import androidx.room.writer.RelationCollectorFunctionWriter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
@@ -135,9 +134,9 @@ data class RelationCollector(
 
     fun writeCollectionCode(scope: CodeGenScope) {
         val method = scope.writer
-            .getOrCreateMethod(RelationCollectorMethodWriter(this))
+            .getOrCreateFunction(RelationCollectorFunctionWriter(this))
         scope.builder().apply {
-            addStatement("$N($L)", method, varName)
+            addStatement("$L($L)", method.name, varName)
         }
     }
 
@@ -269,8 +268,8 @@ data class RelationCollector(
                     val longSparseArrayElement = context.processingEnv
                         .requireTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY)
                     QueryParameter(
-                        name = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
-                        sqlName = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
+                        name = RelationCollectorFunctionWriter.PARAM_MAP_VARIABLE,
+                        sqlName = RelationCollectorFunctionWriter.PARAM_MAP_VARIABLE,
                         type = longSparseArrayElement.type,
                         queryParamAdapter = LONG_SPARSE_ARRAY_KEY_QUERY_PARAM_ADAPTER
                     )
@@ -279,8 +278,8 @@ data class RelationCollector(
                     val set = context.processingEnv.requireTypeElement("java.util.Set")
                     val keySet = context.processingEnv.getDeclaredType(set, keyTypeMirror)
                     QueryParameter(
-                        name = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
-                        sqlName = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
+                        name = RelationCollectorFunctionWriter.KEY_SET_VARIABLE,
+                        sqlName = RelationCollectorFunctionWriter.KEY_SET_VARIABLE,
                         type = keySet,
                         queryParamAdapter = context.typeAdapterStore.findQueryParameterAdapter(
                             typeMirror = keySet,

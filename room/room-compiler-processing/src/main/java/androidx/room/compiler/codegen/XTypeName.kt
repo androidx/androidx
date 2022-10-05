@@ -17,9 +17,11 @@
 package androidx.room.compiler.codegen
 
 import androidx.room.compiler.processing.XNullability
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -41,6 +43,14 @@ open class XTypeName protected constructor(
 ) {
     val isPrimitive: Boolean
         get() = java.isPrimitive
+
+    open fun copy(nullable: Boolean): XTypeName {
+        return XTypeName(
+            java = java,
+            kotlin = kotlin.copy(nullable = nullable),
+            nullability = if (nullable) XNullability.NULLABLE else XNullability.NONNULL
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -114,7 +124,16 @@ class XClassName internal constructor(
     val simpleNames: List<String> = java.simpleNames()
     val canonicalName: String = java.canonicalName()
 
-    fun copy(nullable: Boolean): XClassName {
+    fun parametrizedBy(
+        vararg typeArguments: XTypeName,
+    ): XTypeName {
+        return XTypeName(
+            java = JParameterizedTypeName.get(java, *typeArguments.map { it.java }.toTypedArray()),
+            kotlin = kotlin.parameterizedBy(typeArguments.map { it.kotlin })
+        )
+    }
+
+    override fun copy(nullable: Boolean): XClassName {
         return XClassName(
             java = java,
             kotlin = kotlin.copy(nullable = nullable) as KClassName,

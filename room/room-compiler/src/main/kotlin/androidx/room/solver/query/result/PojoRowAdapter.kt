@@ -157,7 +157,11 @@ class PojoRowAdapter(
             )
         }
         // TODO(b/127483380): Inline in code gen scope once Kotlin code gen progresses.
-        if (relationCollectors.isEmpty() && context.codeLanguage == CodeLanguage.KOTLIN) {
+        if (
+            context.codeLanguage == CodeLanguage.KOTLIN &&
+            relationCollectors.isEmpty() &&
+            fieldsWithIndices.none { it.indexVar.contains('[') } // hacky id of dupe column
+        ) {
             // The name of the class is based on the query, possible to be collisions, but good,
             // enough for now.
             val nameHash = abs(query?.original?.hashCode() ?: out.asTypeName().hashCode())

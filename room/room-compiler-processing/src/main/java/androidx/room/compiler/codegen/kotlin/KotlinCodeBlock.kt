@@ -22,6 +22,7 @@ import androidx.room.compiler.codegen.KCodeBlockBuilder
 import androidx.room.compiler.codegen.TargetLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 
@@ -114,6 +115,7 @@ internal class KotlinCodeBlock(
                 when (arg) {
                     is XTypeName -> arg.kotlin
                     is XTypeSpec -> (arg as KotlinTypeSpec).actual
+                    is XPropertySpec -> (arg as KotlinPropertySpec).actual
                     is XFunSpec -> (arg as KotlinFunSpec).actual
                     is XCodeBlock -> (arg as KotlinCodeBlock).actual
                     else -> arg

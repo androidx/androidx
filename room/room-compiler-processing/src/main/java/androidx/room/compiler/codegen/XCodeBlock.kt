@@ -112,5 +112,18 @@ interface XCodeBlock : TargetLanguage {
                 }
             }.build()
         }
+
+        /**
+         * Convenience code block of a Java class literal.
+         */
+        fun ofJavaClassLiteral(
+            language: CodeLanguage,
+            typeName: XClassName,
+        ): XCodeBlock {
+            return when (language) {
+                CodeLanguage.JAVA -> of(language, "%T.class", typeName)
+                CodeLanguage.KOTLIN -> of(language, "%T::class.java", typeName)
+            }
+        }
     }
 }
