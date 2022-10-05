@@ -29,16 +29,24 @@ import androidx.opengl.EGLImageKHR
  * creating a frame buffer object from it by leveraging Android
  * specific EGL extensions to create an [EGLImageKHR] object
  * that is loaded as a texture.
+ *
+ * @param egl [EGLSpec] used to specify EGL version and call various EGL methods
+ * @property hardwareBuffer the [HardwareBuffer] that this class wraps and used to generate a
+ * [EGLImageKHR] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
 class FrameBuffer(
     private val egl: EGLSpec,
     val hardwareBuffer: HardwareBuffer,
-) {
+) : AutoCloseable {
 
     private var eglImage: EGLImageKHR?
     private var texture: Int = -1
     private var frameBuffer: Int = -1
+
+    /**
+     * Boolean that tells if the frame buffer is currently closed
+     */
     var isClosed = false
         private set
 
@@ -60,6 +68,10 @@ class FrameBuffer(
         frameBuffer = buffer[0]
     }
 
+    /**
+     * Binds this frame buffer to the read and draw framebuffer targets if it's not closed.
+     * If the frame buffer is already closed this method will do nothing.
+     */
     fun makeCurrent() {
         if (!isClosed) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer)
@@ -73,7 +85,11 @@ class FrameBuffer(
         }
     }
 
-    fun close() {
+    /**
+     * Closes out the frame buffer, freeing all resources within it. This should be done only
+     * when the frame buffer is no longer needed or being accessed.
+     */
+    override fun close() {
         buffer[0] = frameBuffer
         GLES20.glDeleteBuffers(1, buffer, 0)
         frameBuffer = -1
