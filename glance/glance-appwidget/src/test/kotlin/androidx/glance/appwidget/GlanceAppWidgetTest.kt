@@ -37,6 +37,7 @@ import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.mockito.kotlin.mock
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
@@ -46,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -97,7 +97,7 @@ class GlanceAppWidgetTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
+        assertThat(view.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Test
@@ -121,7 +121,7 @@ class GlanceAppWidgetTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        assertThat(view.text).isEqualTo("FOUND")
+        assertThat(view.text.toString()).isEqualTo("FOUND")
     }
 
     @Test
@@ -144,7 +144,7 @@ class GlanceAppWidgetTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        assertThat(view.text).isEqualTo("AppWidgetId(appWidgetId=1)")
+        assertThat(view.text.toString()).isEqualTo("AppWidgetId(appWidgetId=1)")
     }
 
     @Test
@@ -176,7 +176,7 @@ class GlanceAppWidgetTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
+        assertThat(view.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Config(sdk = [30])
@@ -201,11 +201,11 @@ class GlanceAppWidgetTest {
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
-        assertThat(portraitView.text).isEqualTo("50.0.dp x 100.0.dp")
+        assertThat(portraitView.text.toString()).isEqualTo("50.0.dp x 100.0.dp")
 
         val landscapeView = createLandscapeContext().applyRemoteViews(rv)
         assertIs<TextView>(landscapeView)
-        assertThat(landscapeView.text).isEqualTo("100.0.dp x 50.0.dp")
+        assertThat(landscapeView.text.toString()).isEqualTo("100.0.dp x 50.0.dp")
     }
 
     @Config(sdk = [30])
@@ -237,11 +237,11 @@ class GlanceAppWidgetTest {
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
-        assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
+        assertThat(portraitView.text.toString()).isEqualTo("60.0.dp x 80.0.dp")
 
         val landscapeView = createLandscapeContext().applyRemoteViews(rv)
         assertIs<TextView>(landscapeView)
-        assertThat(landscapeView.text).isEqualTo("100.0.dp x 70.0.dp")
+        assertThat(landscapeView.text.toString()).isEqualTo("100.0.dp x 70.0.dp")
     }
 
     @Test
@@ -273,11 +273,11 @@ class GlanceAppWidgetTest {
 
             val portraitView = createPortraitContext().applyRemoteViews(rv)
             assertIs<TextView>(portraitView)
-            assertThat(portraitView.text).isEqualTo("40.0.dp x 50.0.dp")
+            assertThat(portraitView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
 
             val landscapeView = createLandscapeContext().applyRemoteViews(rv)
             assertIs<TextView>(landscapeView)
-            assertThat(landscapeView.text).isEqualTo("40.0.dp x 50.0.dp")
+            assertThat(landscapeView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
         }
     }
 
@@ -307,11 +307,11 @@ class GlanceAppWidgetTest {
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
-        assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
+        assertThat(portraitView.text.toString()).isEqualTo("60.0.dp x 80.0.dp")
 
         val landscapeView = createLandscapeContext().applyRemoteViews(rv)
         assertIs<TextView>(landscapeView)
-        assertThat(landscapeView.text).isEqualTo("60.0.dp x 80.0.dp")
+        assertThat(landscapeView.text.toString()).isEqualTo("60.0.dp x 80.0.dp")
     }
 
     @Test

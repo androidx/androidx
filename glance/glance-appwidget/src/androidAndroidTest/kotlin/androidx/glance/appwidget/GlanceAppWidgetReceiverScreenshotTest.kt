@@ -224,7 +224,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
     }
 
     @Test
-    fun checkButtonTextAlignement() {
+    fun checkButtonTextAlignment() {
         TestGlanceAppWidget.uiDefinition = {
             Column(modifier = GlanceModifier.fillMaxSize()) {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
