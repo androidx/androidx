@@ -25,7 +25,8 @@ import androidx.annotation.FloatRange
 /** Accuracy for a [DataType.LOCATION] data point. */
 @Suppress("ParcelCreator")
 public class LocationAccuracy(
-    /** Represents the estimated horizontal accuracy of the location, radial, in meters.
+    /**
+     * Represents the estimated horizontal accuracy of the location, radial, in meters.
      * Range starting from 0.0.
      *
      * @throws IllegalArgumentException if [horizontalPositionErrorMeters] is negative
@@ -33,8 +34,9 @@ public class LocationAccuracy(
     @FloatRange(from = 0.0) public val horizontalPositionErrorMeters: Double,
 
     /**
-     * Represents the estimated vertical accuracy of the location, radial, in meters, or it will
-     * be <code>{@value Double#MAX_VALUE}</code> if it cannot be provided. Range starting from 0.0.
+     * Represents the estimated vertical accuracy corresponding to the altitude of the location,
+     * radial, in meters, or it will be [Double.MAX_VALUE] if it cannot be provided. Range starting
+     * from 0.0.
      *
      * @throws IllegalArgumentException if [verticalPositionErrorMeters] is negative
      */
