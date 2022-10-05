@@ -584,6 +584,15 @@ class XTypeElementTest {
                     .containsExactly(
                         "getX", "setX", "getY", "setY"
                     )
+                subject.getField("x").let { field ->
+                    assertThat(field.isFinal()).isFalse()
+                    // b/250567151: Remove exception for KSP + classes
+                    if (invocation.isKsp && pkg == "lib") {
+                        assertThat(field.isPrivate()).isTrue()
+                    } else {
+                        assertThat(field.isPrivate()).isFalse()
+                    }
+                }
             }
         }
     }
