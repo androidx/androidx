@@ -20,6 +20,8 @@ import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
 import androidx.privacysandbox.tools.apicompiler.util.parseSources
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
@@ -41,11 +43,16 @@ class ValueParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
                     @PrivacySandboxService
-                    interface MySdk
+                    interface MySdk {
+                        suspend fun doStuff(request: MySdkRequest): MySdkResponse
+                    }
                     @PrivacySandboxValue
                     data class MySdkRequest(val id: Int, val message: String)
                     @PrivacySandboxValue
-                    data class MySdkResponse(val magicNumber: Long, val isTrulyMagic: Boolean)
+                    data class MySdkResponse(
+                        val magicPayload: MagicPayload, val isTrulyMagic: Boolean)
+                    @PrivacySandboxValue
+                    data class MagicPayload(val magicNumber: Long)
                 """
         )
         assertThat(parseSources(source)).isEqualTo(
@@ -53,6 +60,16 @@ class ValueParserTest {
                 services = mutableSetOf(
                     AnnotatedInterface(
                         type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                        methods = listOf(
+                            Method(
+                                name = "doStuff",
+                                parameters = listOf(
+                                    Parameter("request", Type("com.mysdk", "MySdkRequest"))
+                                ),
+                                returnType = Type("com.mysdk", "MySdkResponse"),
+                                isSuspend = true
+                            )
+                        )
                     )
                 ),
                 values = setOf(
@@ -63,14 +80,22 @@ class ValueParserTest {
                             ValueProperty("message", Types.string),
                         )
                     ),
-
                     AnnotatedValue(
                         type = Type(packageName = "com.mysdk", simpleName = "MySdkResponse"),
                         properties = listOf(
-                            ValueProperty("magicNumber", Types.long),
+                            ValueProperty(
+                                "magicPayload",
+                                Type(packageName = "com.mysdk", simpleName = "MagicPayload")
+                            ),
                             ValueProperty("isTrulyMagic", Types.boolean),
                         )
-                    )
+                    ),
+                    AnnotatedValue(
+                        type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
+                        properties = listOf(
+                            ValueProperty("magicNumber", Types.long),
+                        )
+                    ),
                 )
             )
         )
@@ -91,49 +116,71 @@ class ValueParserTest {
     @Test
     fun privateValue_fails() {
         checkSourceFails(annotatedValue("private data class MySdkRequest(val id: Int)"))
-            .containsExactlyErrors("Error in com.mysdk.MySdkRequest: " +
-                "annotated values should be public.")
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest: annotated values should be public."
+            )
     }
 
     @Test
     fun dataClassWithCompanionObject_fails() {
-        val dataClass = annotatedValue("""
+        val dataClass = annotatedValue(
+            """
             |data class MySdkRequest(val id: Int) {
             |   companion object {
             |       val someConstant = 12
             |   }
             |}
-        """.trimMargin())
+        """.trimMargin()
+        )
         checkSourceFails(dataClass)
-            .containsExactlyErrors("Error in com.mysdk.MySdkRequest: " +
-                "annotated values cannot declare companion objects.")
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest: annotated values cannot declare companion " +
+                    "objects."
+            )
     }
 
     @Test
     fun dataClassWithTypeParameters_fails() {
-        val dataClass = annotatedValue(
-            "data class MySdkRequest<T>(val id: Int, val data: T)")
+        val dataClass = annotatedValue("data class MySdkRequest<T>(val id: Int, val data: T)")
         checkSourceFails(dataClass)
-            .containsError("Error in com.mysdk.MySdkRequest: " +
-                "annotated values cannot declare type parameters (T).")
+            .containsError(
+                "Error in com.mysdk.MySdkRequest: annotated values cannot declare type " +
+                    "parameters (T)."
+            )
     }
 
     @Test
     fun dataClassWithMutableProperty_fails() {
         val dataClass = annotatedValue(
-            "data class MySdkRequest(val id: Int, var data: String)")
+            "data class MySdkRequest(val id: Int, var data: String)"
+        )
         checkSourceFails(dataClass)
-            .containsExactlyErrors("Error in com.mysdk.MySdkRequest.data: " +
-                "properties cannot be mutable.")
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest.data: properties cannot be mutable."
+            )
     }
 
     @Test
     fun dataClassWithNullableProperty_fails() {
         val dataClass = annotatedValue(
-            "data class MySdkRequest(val id: Int, val data: String?)")
+            "data class MySdkRequest(val id: Int, val data: String?)"
+        )
         checkSourceFails(dataClass)
-            .containsExactlyErrors("Error in com.mysdk.MySdkRequest.data: " +
-                "nullable types are not supported.")
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest.data: nullable types are not supported."
+            )
+    }
+
+    @Test
+    fun dataClassWithInvalidPropertyType_fails() {
+        val dataClass = annotatedValue(
+            "data class MySdkRequest(val foo: IntArray)"
+        )
+        checkSourceFails(dataClass)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest.foo: only primitives and data classes " +
+                    "annotated with @PrivacySandboxValue are supported as properties."
+            )
     }
 
     private fun annotatedValue(declaration: String) = Source.kotlin(

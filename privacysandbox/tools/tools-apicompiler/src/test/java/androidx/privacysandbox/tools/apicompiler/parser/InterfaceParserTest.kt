@@ -36,7 +36,8 @@ class InterfaceParserTest {
     @Test
     fun parseServiceInterface_ok() {
         val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+            "com/mysdk/MySdk.kt",
+            """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -44,7 +45,7 @@ class InterfaceParserTest {
                         suspend fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
-                """
+                """,
         )
         assertThat(parseSources(source)).isEqualTo(
             ParsedApi(
@@ -219,7 +220,8 @@ class InterfaceParserTest {
     fun parameterWithGenerics_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+                "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
+                    "@PrivacySandboxValue are supported as parameter and return types."
             )
     }
 
@@ -227,7 +229,8 @@ class InterfaceParserTest {
     fun parameterLambda_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+                "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
+                    "@PrivacySandboxValue are supported as parameter and return types."
             )
     }
 
@@ -246,7 +249,8 @@ class InterfaceParserTest {
                 """
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: only primitive types are supported."
+            "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
+                "@PrivacySandboxValue are supported as parameter and return types."
         )
     }
 
