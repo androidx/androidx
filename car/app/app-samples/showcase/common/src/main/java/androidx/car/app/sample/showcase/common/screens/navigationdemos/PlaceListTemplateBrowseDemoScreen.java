@@ -37,7 +37,6 @@ import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.templates.PlaceListTemplateDemoScreen;
 import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
