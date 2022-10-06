@@ -28,9 +28,10 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kotlinPoet)
 
-    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(project(":privacysandbox:tools:tools-testing"))
+    testImplementation(project(":room:room-compiler-processing-testing"))
     // Include android jar for compilation of generated sources.
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",

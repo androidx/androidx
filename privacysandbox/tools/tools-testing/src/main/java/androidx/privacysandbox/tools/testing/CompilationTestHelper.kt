@@ -115,10 +115,10 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
     private fun contentsHighlightingLine(contents: String, line: Int): String {
         var lineCountdown = line
         // Insert a "->" in the beginning of the highlighted line.
-        return contents.split("\n").map {
+        return contents.split("\n").joinToString("\n") {
             val lineHeader = if (--lineCountdown == 0) "->" else "  "
             "$lineHeader$it"
-        }.joinToString("\n")
+        }
     }
 }
 
