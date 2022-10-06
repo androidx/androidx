@@ -39,6 +39,7 @@ import androidx.webkit.internal.ApiHelperForO;
 import androidx.webkit.internal.ApiHelperForOMR1;
 import androidx.webkit.internal.ApiHelperForP;
 import androidx.webkit.internal.ApiHelperForQ;
+import androidx.webkit.internal.WebMessageAdapter;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -483,10 +484,12 @@ public class WebViewCompat {
         }
 
         final ApiFeature.M feature = WebViewFeatureInternal.POST_WEB_MESSAGE;
-        if (feature.isSupportedByFramework()) {
+        // Only String type is supported by framework.
+        if (feature.isSupportedByFramework() && message.getType() == WebMessageCompat.TYPE_STRING) {
             ApiHelperForM.postWebMessage(webview,
                     WebMessagePortImpl.compatToFrameworkMessage(message), targetOrigin);
-        } else if (feature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()
+                && WebMessageAdapter.isMessagePayloadTypeSupportedByWebView(message.getType())) {
             getProvider(webview).postWebMessage(message, targetOrigin);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
