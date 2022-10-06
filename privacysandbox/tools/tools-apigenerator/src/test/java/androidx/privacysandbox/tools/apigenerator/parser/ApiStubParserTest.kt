@@ -39,8 +39,8 @@ class ApiStubParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                      suspend fun doSomething(magicNumber: Int, awesomeString: String)
-                      fun returnMagicNumber(): Int
+                      fun doSomething(magicNumber: Int, awesomeString: String)
+                      suspend fun returnMagicNumber(): Int
                     }
                 """
         )
@@ -59,13 +59,13 @@ class ApiStubParserTest {
                                 Parameter("awesomeString", Types.string)
                             ),
                             returnType = Types.unit,
-                            isSuspend = true,
+                            isSuspend = false,
                         ),
                         Method(
                             name = "returnMagicNumber",
                             parameters = listOf(),
                             returnType = Types.int,
-                            isSuspend = false,
+                            isSuspend = true,
                         )
                     )
                 )
@@ -141,7 +141,7 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
             "Missing Kotlin metadata annotation in com/mysdk/MySdk. Is this a valid Kotlin class?"
@@ -159,7 +159,7 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
             "com.mysdk.MySdk is not a Kotlin interface but it's annotated with " +
@@ -180,7 +180,7 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
             "com.mysdk.OuterMySdk.InnerMySdk is an inner interface so it can't be annotated with " +
@@ -197,7 +197,7 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
