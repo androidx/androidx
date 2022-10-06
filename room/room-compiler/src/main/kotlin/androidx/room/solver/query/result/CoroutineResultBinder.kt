@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
@@ -24,7 +25,7 @@ import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
@@ -42,16 +43,17 @@ class CoroutineResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
         scope.builder().addStatement(
             "final $T $L = $T.createCancellationSignal()",
             AndroidTypeNames.CANCELLATION_SIGNAL,
             cancellationSignalVar,
-            RoomTypeNames.DB_UTIL
+            DB_UTIL.toJavaPoet()
         )
 
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
@@ -102,7 +104,7 @@ class CoroutineResultBinder(
                 "final $T $L = $T.query($N, $L, $L, $L)",
                 CURSOR.toJavaPoet(),
                 cursorVar,
-                RoomTypeNames.DB_UTIL,
+                DB_UTIL.toJavaPoet(),
                 dbField,
                 roomSQLiteQueryVar,
                 if (shouldCopyCursor) "true" else "false",

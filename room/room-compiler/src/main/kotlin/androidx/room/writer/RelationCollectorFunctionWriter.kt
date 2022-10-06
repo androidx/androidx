@@ -24,8 +24,9 @@ import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
+import androidx.room.ext.RoomTypeNames.DB_UTIL
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.stripNonJava
@@ -112,14 +113,14 @@ class RelationCollectorFunctionWriter(
             addStatement("// check if the size is too big, if so divide")
             beginControlFlow(
                 "if($N.size() > $T.MAX_BIND_PARAMETER_CNT)",
-                param, RoomTypeNames.ROOM_DB
+                param, ROOM_DB.toJavaPoet()
             ).apply {
                 // divide it into chunks
                 val tmpMapVar = scope.getTmpVar("_tmpInnerMap")
                 addStatement(
                     "$T $L = new $T($L.MAX_BIND_PARAMETER_CNT)",
                     collector.mapTypeName, tmpMapVar,
-                    collector.mapTypeName, RoomTypeNames.ROOM_DB
+                    collector.mapTypeName, ROOM_DB.toJavaPoet()
                 )
                 val tmpIndexVar = scope.getTmpVar("_tmpIndex")
                 addStatement("$T $L = 0", TypeName.INT, tmpIndexVar)
@@ -161,7 +162,7 @@ class RelationCollectorFunctionWriter(
                     addStatement("$L++", tmpIndexVar)
                     beginControlFlow(
                         "if($L == $T.MAX_BIND_PARAMETER_CNT)",
-                        tmpIndexVar, RoomTypeNames.ROOM_DB
+                        tmpIndexVar, ROOM_DB.toJavaPoet()
                     ).apply {
                         // recursively load that batch
                         addStatement("$L($L)", methodName, tmpMapVar)
@@ -173,7 +174,7 @@ class RelationCollectorFunctionWriter(
                         // clear nukes the backing data hence we create a new one
                         addStatement(
                             "$L = new $T($T.MAX_BIND_PARAMETER_CNT)",
-                            tmpMapVar, collector.mapTypeName, RoomTypeNames.ROOM_DB
+                            tmpMapVar, collector.mapTypeName, ROOM_DB.toJavaPoet()
                         )
                         addStatement("$L = 0", tmpIndexVar)
                     }.endControlFlow()
@@ -197,8 +198,8 @@ class RelationCollectorFunctionWriter(
                 "final $T $L = $T.query($N, $L, $L, $L)",
                 CURSOR.toJavaPoet(),
                 cursorVar,
-                RoomTypeNames.DB_UTIL,
-                DaoWriter.dbField,
+                DB_UTIL.toJavaPoet(),
+                DaoWriter.DB_PROPERTY_NAME,
                 stmtVar,
                 if (shouldCopyCursor) "true" else "false",
                 "null"

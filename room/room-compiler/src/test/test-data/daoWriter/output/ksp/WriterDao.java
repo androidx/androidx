@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -24,7 +25,7 @@ public final class WriterDao_Impl implements WriterDao {
 
     private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
 
-    public WriterDao_Impl(RoomDatabase __db) {
+    public WriterDao_Impl(@NonNull final RoomDatabase __db) {
         this.__db = __db;
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
@@ -145,6 +146,7 @@ public final class WriterDao_Impl implements WriterDao {
         }
     }
 
+    @NonNull
     public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
     }

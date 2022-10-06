@@ -17,6 +17,7 @@
 package androidx.room.compiler.codegen.kotlin
 
 import androidx.room.compiler.codegen.KTypeSpecBuilder
+import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XFunSpec
@@ -26,16 +27,26 @@ import androidx.room.compiler.codegen.XTypeSpec
 import com.squareup.kotlinpoet.javapoet.KTypeSpec
 
 internal class KotlinTypeSpec(
-    override val className: XClassName,
+    private val _className: XClassName?,
     internal val actual: KTypeSpec
 ) : KotlinLang(), XTypeSpec {
 
+    override val className: XClassName
+        get() {
+            checkNotNull(_className) { "Anonymous classes have no name." }
+            return _className
+        }
+
     internal class Builder(
-        private val className: XClassName,
+        private val className: XClassName?,
         internal val actual: KTypeSpecBuilder
     ) : KotlinLang(), XTypeSpec.Builder {
         override fun superclass(typeName: XTypeName) = apply {
             actual.superclass(typeName.kotlin)
+        }
+
+        override fun addSuperinterface(typeName: XTypeName) = apply {
+            actual.addSuperinterface(typeName.kotlin)
         }
 
         override fun addAnnotation(annotation: XAnnotationSpec) {
@@ -51,6 +62,15 @@ internal class KotlinTypeSpec(
         override fun addFunction(functionSpec: XFunSpec) = apply {
             require(functionSpec is KotlinFunSpec)
             actual.addFunction(functionSpec.actual)
+        }
+
+        override fun addType(typeSpec: XTypeSpec) = apply {
+            require(typeSpec is KotlinTypeSpec)
+            actual.addType(typeSpec.actual)
+        }
+
+        override fun setVisibility(visibility: VisibilityModifier) {
+            actual.addModifiers(visibility.toKotlinVisibilityModifier())
         }
 
         override fun build(): XTypeSpec {

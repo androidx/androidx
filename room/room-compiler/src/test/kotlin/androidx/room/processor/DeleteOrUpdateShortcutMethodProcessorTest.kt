@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -74,8 +76,8 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
 
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
-        val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
-        val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
+        val USERNAME_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Username")
+        val BOOK_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Book")
     }
 
     @Test
@@ -112,7 +114,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
             assertThat(
-                shortcut.entities["user"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["user"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -154,11 +156,11 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             }
             assertThat(shortcut.entities.size, `is`(2))
             assertThat(
-                shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
             assertThat(
-                shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
             assertThat(
@@ -201,7 +203,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities.size, `is`(1))
                 assertThat(
-                    shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
                     `is`(USER_TYPE_NAME)
                 )
             }
@@ -227,7 +229,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -255,7 +257,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -283,7 +285,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -312,7 +314,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -350,11 +352,11 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 assertThat(shortcut.parameters.map { it.name }, `is`(listOf("u1", "b1")))
                 assertThat(shortcut.entities.size, `is`(2))
                 assertThat(
-                    shortcut.entities["u1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
                     `is`(USER_TYPE_NAME)
                 )
                 assertThat(
-                    shortcut.entities["b1"]?.pojo?.let { it.typeName.toJavaPoet() },
+                    shortcut.entities["b1"]?.pojo?.typeName,
                     `is`(BOOK_TYPE_NAME)
                 )
             }
@@ -447,13 +449,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName, `is`(USERNAME_TYPE_NAME))
-            assertThat(param.pojoType?.typeName, `is`(USERNAME_TYPE_NAME))
+            assertThat(param.type.asTypeName(), `is`(USERNAME_TYPE_NAME))
+            assertThat(param.pojoType?.asTypeName(), `is`(USERNAME_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
-            assertThat(shortcut.entities["username"]?.entityTypeName, `is`(USER_TYPE_NAME))
+            assertThat(shortcut.entities["username"]?.entityTypeName?.toJavaPoet(),
+                `is`(USER_TYPE_NAME))
             assertThat(
-                shortcut.entities["username"]?.pojo?.let { it.typeName.toJavaPoet() },
+                shortcut.entities["username"]?.pojo?.typeName,
                 `is`(USERNAME_TYPE_NAME)
             )
         }

@@ -22,6 +22,7 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.TypeWriter
@@ -30,8 +31,9 @@ import androidx.room.writer.TypeWriter
  * Uses enum string representation.
  */
 class EnumColumnTypeAdapter(
-    private val enumTypeElement: XEnumTypeElement
-) : ColumnTypeAdapter(enumTypeElement.type, TEXT) {
+    private val enumTypeElement: XEnumTypeElement,
+    out: XType
+) : ColumnTypeAdapter(out, TEXT) {
 
     override fun readFromCursor(
         outVarName: String,
@@ -84,7 +86,7 @@ class EnumColumnTypeAdapter(
             out.typeElement!!.name + "_enumToString"
         ) {
             override fun getUniqueKey(): String {
-                return "enumToString_" + out.asTypeName().toString()
+                return "enumToString_" + enumTypeElement.asClassName().toString()
             }
 
             override fun prepare(
@@ -150,7 +152,7 @@ class EnumColumnTypeAdapter(
             out.typeElement!!.name + "_stringToEnum"
         ) {
             override fun getUniqueKey(): String {
-                return out.asTypeName().toString()
+                return "stringToEnum_" + enumTypeElement.asClassName().toString()
             }
 
             override fun prepare(

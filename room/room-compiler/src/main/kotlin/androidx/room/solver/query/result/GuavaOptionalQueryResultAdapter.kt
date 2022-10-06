@@ -29,7 +29,7 @@ import com.squareup.javapoet.ParameterizedTypeName
  */
 class GuavaOptionalQueryResultAdapter(
     private val typeArg: XType,
-    private val resultAdapter: SingleEntityQueryResultAdapter
+    private val resultAdapter: SingleItemQueryResultAdapter
 ) : QueryResultAdapter(resultAdapter.rowAdapters) {
     override fun convert(
         outVarName: String,

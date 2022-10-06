@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
@@ -23,7 +24,6 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
@@ -47,10 +47,11 @@ class PositionalDataSourceQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         // first comma for table names comes from the string since it might be empty in which case
         // we don't need a comma. If list is empty, this prevents generating bad code (it is still
         // an error to have empty list but that is already reported while item is processed)

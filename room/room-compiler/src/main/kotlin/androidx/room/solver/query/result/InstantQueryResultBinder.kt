@@ -15,15 +15,12 @@
  */
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.DaoWriter
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Instantly runs and returns the query.
@@ -32,42 +29,45 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        scope.builder.apply {
+            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
         }
         val transactionWrapper = if (inTransaction) {
-            scope.builder().transactionWrapper(dbField)
+            scope.builder.transactionWrapper(dbProperty.name)
         } else {
             null
         }
         transactionWrapper?.beginTransactionWithControlFlow()
-        scope.builder().apply {
+        scope.builder.apply {
             val shouldCopyCursor = adapter?.shouldCopyCursor() == true
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
-            addStatement(
-                "final $T $L = $T.query($N, $L, $L, $L)",
-                CURSOR.toJavaPoet(),
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                "null"
+            addLocalVariable(
+                name = cursorVar,
+                typeName = AndroidTypeNames.CURSOR,
+                assignExpr = XCodeBlock.of(
+                    language,
+                    "%M(%N, %L, %L, %L)",
+                    RoomTypeNames.DB_UTIL.packageMember("query"),
+                    dbProperty,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false",
+                    "null"
+                )
             )
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
                 transactionWrapper?.commitTransaction()
-                addStatement("return $L", outVar)
+                addStatement("return %L", outVar)
             }
             nextControlFlow("finally").apply {
-                addStatement("$L.close()", cursorVar)
+                addStatement("%L.close()", cursorVar)
                 if (canReleaseQuery) {
-                    addStatement("$L.release()", roomSQLiteQueryVar)
+                    addStatement("%L.release()", roomSQLiteQueryVar)
                 }
             }
             endControlFlow()

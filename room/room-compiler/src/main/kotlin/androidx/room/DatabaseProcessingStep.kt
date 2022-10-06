@@ -94,7 +94,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 DaoWriter(
                     daoMethod.dao,
                     db.element,
-                    CodeLanguage.JAVA
+                    context.codeLanguage
                 ).write(context.processingEnv)
             }
         }

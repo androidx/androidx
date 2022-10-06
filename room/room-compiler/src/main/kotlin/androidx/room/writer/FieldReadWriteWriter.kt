@@ -280,7 +280,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     // always declare, we'll set below
                     scope.builder.addLocalVariable(
                         node.varName,
-                        fieldParent.pojo.typeName
+                        fieldParent.field.typeName
                     )
                     if (fieldParent.nonNull) {
                         readNode()

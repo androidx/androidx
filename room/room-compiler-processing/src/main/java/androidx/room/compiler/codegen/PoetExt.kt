@@ -30,6 +30,7 @@ typealias KCodeBlock = com.squareup.kotlinpoet.CodeBlock
 typealias KCodeBlockBuilder = com.squareup.kotlinpoet.CodeBlock.Builder
 typealias KAnnotationSpecBuilder = com.squareup.kotlinpoet.AnnotationSpec.Builder
 typealias KTypeSpecBuilder = com.squareup.kotlinpoet.TypeSpec.Builder
+typealias KMemberName = com.squareup.kotlinpoet.MemberName
 typealias JArrayTypeName = com.squareup.javapoet.ArrayTypeName
 
 // TODO(b/127483380): Recycle to room-compiler?

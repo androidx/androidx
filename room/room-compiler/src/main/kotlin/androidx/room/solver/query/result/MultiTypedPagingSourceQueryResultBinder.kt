@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CommonTypeNames
@@ -23,7 +24,6 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
@@ -52,10 +52,11 @@ class MultiTypedPagingSourceQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         scope.builder().apply {
             val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
             val pagingSourceSpec = TypeSpec.anonymousClassBuilder(

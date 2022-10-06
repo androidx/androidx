@@ -78,7 +78,7 @@ import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
-import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
+import androidx.room.solver.query.result.SingleItemQueryResultAdapter
 import androidx.room.solver.query.result.SingleNamedColumnRowAdapter
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
@@ -370,7 +370,7 @@ class TypeAdapterStore private constructor(
         val typeElement = type.typeElement
         return when {
             builtInConverterFlags.enums.isEnabled() &&
-                typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement)
+                typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement, type)
             builtInConverterFlags.uuid.isEnabled() &&
                 type.isUUID() -> UuidColumnTypeAdapter(type)
             else -> null
@@ -482,7 +482,7 @@ class TypeAdapterStore private constructor(
             return ArrayQueryResultAdapter(rowAdapter)
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
-            return SingleEntityQueryResultAdapter(rowAdapter)
+            return SingleItemQueryResultAdapter(rowAdapter)
         } else if (typeMirror.rawType.typeName == GuavaBaseTypeNames.OPTIONAL) {
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
             // The Optional adapter will reappend the Optional type.
@@ -492,7 +492,7 @@ class TypeAdapterStore private constructor(
             val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
             return GuavaOptionalQueryResultAdapter(
                 typeArg = typeArg,
-                resultAdapter = SingleEntityQueryResultAdapter(rowAdapter)
+                resultAdapter = SingleItemQueryResultAdapter(rowAdapter)
             )
         } else if (typeMirror.rawType.typeName == CommonTypeNames.OPTIONAL) {
             // Handle java.util.Optional similarly.
@@ -502,7 +502,7 @@ class TypeAdapterStore private constructor(
             val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
             return OptionalQueryResultAdapter(
                 typeArg = typeArg,
-                resultAdapter = SingleEntityQueryResultAdapter(rowAdapter)
+                resultAdapter = SingleItemQueryResultAdapter(rowAdapter)
             )
         } else if (typeMirror.isTypeOf(ImmutableList::class)) {
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()

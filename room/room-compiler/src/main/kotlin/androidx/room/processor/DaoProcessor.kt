@@ -18,12 +18,12 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -217,7 +217,7 @@ class DaoProcessor(
                 it.parameters[0].type.isAssignableFrom(dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
-            goodConstructor.parameters[0].type.typeName
+            goodConstructor.parameters[0].type.asTypeName()
         } else {
             validateEmptyConstructor(constructors)
             null

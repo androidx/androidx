@@ -16,8 +16,8 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.ext.N
-import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 
@@ -47,19 +47,19 @@ fun MethodSpec.Builder.transactionWrapper(dbField: FieldSpec) = object : Transac
     }
 }
 
-fun CodeBlock.Builder.transactionWrapper(dbField: FieldSpec) = object : TransactionWrapper {
+fun XCodeBlock.Builder.transactionWrapper(dbPropertyName: String) = object : TransactionWrapper {
     override fun beginTransactionWithControlFlow() {
-        addStatement("$N.beginTransaction()", dbField)
+        addStatement("%N.beginTransaction()", dbPropertyName)
         beginControlFlow("try")
     }
 
     override fun commitTransaction() {
-        addStatement("$N.setTransactionSuccessful()", dbField)
+        addStatement("%N.setTransactionSuccessful()", dbPropertyName)
     }
 
     override fun endTransactionWithControlFlow() {
         nextControlFlow("finally")
-        addStatement("$N.endTransaction()", dbField)
+        addStatement("%N.endTransaction()", dbPropertyName)
         endControlFlow()
     }
 }

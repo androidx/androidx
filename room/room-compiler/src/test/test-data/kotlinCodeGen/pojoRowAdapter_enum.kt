@@ -5,6 +5,7 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
 import java.lang.Class
+import java.lang.IllegalArgumentException
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -27,19 +28,18 @@ public class MyDao_Impl : MyDao {
         __db.assertNotSuspendingTransaction()
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
-            val _cursorIndexOfString: Int = getColumnIndexOrThrow(_cursor, "string")
-            val _cursorIndexOfNullableString: Int = getColumnIndexOrThrow(_cursor, "nullableString")
+            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
+            val _cursorIndexOfEnum: Int = getColumnIndexOrThrow(_cursor, "enum")
+            val _cursorIndexOfNullableEnum: Int = getColumnIndexOrThrow(_cursor, "nullableEnum")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
-                val _tmpString: String
-                _tmpString = _cursor.getString(_cursorIndexOfString)
-                val _tmpNullableString: String?
-                if (_cursor.isNull(_cursorIndexOfNullableString)) {
-                    _tmpNullableString = null
-                } else {
-                    _tmpNullableString = _cursor.getString(_cursorIndexOfNullableString)
-                }
-                _result = MyEntity(_tmpString,_tmpNullableString)
+                val _tmpPk: Int
+                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+                val _tmpEnum: Fruit
+                _tmpEnum = checkNotNull(__Fruit_stringToEnum(_cursor.getString(_cursorIndexOfEnum)))
+                val _tmpNullableEnum: Fruit?
+                _tmpNullableEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfNullableEnum))
+                _result = MyEntity(_tmpPk,_tmpEnum,_tmpNullableEnum)
             } else {
                 error("Cursor was empty, but expected a single item.")
             }
@@ -47,6 +47,18 @@ public class MyDao_Impl : MyDao {
         } finally {
             _cursor.close()
             _statement.release()
+        }
+    }
+
+    private fun __Fruit_stringToEnum(_value: String?): Fruit? {
+        if (_value == null) {
+            return null
+        }
+        return when (_value) {
+            "APPLE" -> Fruit.APPLE
+            "BANANA" -> Fruit.BANANA
+            else -> throw IllegalArgumentException("Can't convert value to enum, unknown value: " +
+                _value)
         }
     }
 

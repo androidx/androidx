@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
@@ -36,7 +37,7 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   private final SharedSQLiteStatement __preparedStmtOfAgeUserAll;
 
-  public UpdateDao_Impl(RoomDatabase __db) {
+  public UpdateDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
@@ -432,6 +433,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     });
   }
 
+  @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();
   }

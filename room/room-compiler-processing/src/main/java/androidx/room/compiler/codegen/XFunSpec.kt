@@ -20,6 +20,10 @@ import androidx.room.compiler.codegen.java.JavaFunSpec
 import androidx.room.compiler.codegen.java.toJavaVisibilityModifier
 import androidx.room.compiler.codegen.kotlin.KotlinFunSpec
 import androidx.room.compiler.codegen.kotlin.toKotlinVisibilityModifier
+import androidx.room.compiler.processing.FunSpecHelper
+import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.MethodSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -56,7 +60,7 @@ interface XFunSpec : TargetLanguage {
 
             fun Builder.apply(
                 javaMethodBuilder: MethodSpec.Builder.() -> Unit,
-                kotlinFunBuilder: FunSpec.Builder.() -> Unit,
+                kotlinFunctionBuilder: FunSpec.Builder.() -> Unit,
             ): Builder = apply {
                 when (language) {
                     CodeLanguage.JAVA -> {
@@ -65,7 +69,7 @@ interface XFunSpec : TargetLanguage {
                     }
                     CodeLanguage.KOTLIN -> {
                         check(this is KotlinFunSpec.Builder)
-                        this.actual.kotlinFunBuilder()
+                        this.actual.kotlinFunctionBuilder()
                     }
                 }
             }
@@ -135,6 +139,23 @@ interface XFunSpec : TargetLanguage {
                         }
                     )
                 }
+            }
+        }
+
+        fun overridingBuilder(
+            language: CodeLanguage,
+            element: XMethodElement,
+            owner: XType
+        ): Builder {
+            return when (language) {
+                CodeLanguage.JAVA -> JavaFunSpec.Builder(
+                    name = element.jvmName,
+                    actual = MethodSpecHelper.overridingWithFinalParams(element, owner)
+                )
+                CodeLanguage.KOTLIN -> KotlinFunSpec.Builder(
+                    name = element.name,
+                    actual = FunSpecHelper.overriding(element, owner)
+                )
             }
         }
     }

@@ -121,7 +121,7 @@ class CustomTypeConverterWrapper(
                         builder.addCode(body)
                     },
                     // Use synchronized std-lib function for Kotlin
-                    kotlinFunBuilder = {
+                    kotlinFunctionBuilder = {
                         beginControlFlow("return synchronized")
                         builder.addCode(body)
                         endControlFlow()
@@ -136,7 +136,7 @@ class CustomTypeConverterWrapper(
                     addStatement(
                         "%N = %L.getTypeConverter(%L)",
                         converterField,
-                        DaoWriter.dbFieldName,
+                        DaoWriter.DB_PROPERTY_NAME,
                         XCodeBlock.ofJavaClassLiteral(language, custom.className)
                     )
                     endControlFlow()

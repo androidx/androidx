@@ -21,7 +21,6 @@ import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
 
@@ -39,7 +38,7 @@ class InstantDeleteOrUpdateMethodBinder(
         scope: CodeGenScope
     ) {
         scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+            addStatement("$N.assertNotSuspendingTransaction()", dbField)
         }
         adapter?.createDeleteOrUpdateMethodBody(
             parameters = parameters,

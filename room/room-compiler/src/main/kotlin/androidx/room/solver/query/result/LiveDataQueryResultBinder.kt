@@ -16,14 +16,15 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
@@ -37,10 +38,11 @@ class LiveDataQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        val dbField = dbProperty.toJavaPoet()
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,

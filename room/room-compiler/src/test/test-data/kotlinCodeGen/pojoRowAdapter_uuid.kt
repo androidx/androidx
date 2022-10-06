@@ -2,9 +2,11 @@ import android.database.Cursor
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
+import androidx.room.util.convertByteToUUID
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
 import java.lang.Class
+import java.util.UUID
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -27,19 +29,22 @@ public class MyDao_Impl : MyDao {
         __db.assertNotSuspendingTransaction()
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
-            val _cursorIndexOfString: Int = getColumnIndexOrThrow(_cursor, "string")
-            val _cursorIndexOfNullableString: Int = getColumnIndexOrThrow(_cursor, "nullableString")
+            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
+            val _cursorIndexOfUuid: Int = getColumnIndexOrThrow(_cursor, "uuid")
+            val _cursorIndexOfNullableUuid: Int = getColumnIndexOrThrow(_cursor, "nullableUuid")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
-                val _tmpString: String
-                _tmpString = _cursor.getString(_cursorIndexOfString)
-                val _tmpNullableString: String?
-                if (_cursor.isNull(_cursorIndexOfNullableString)) {
-                    _tmpNullableString = null
+                val _tmpPk: Int
+                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+                val _tmpUuid: UUID
+                _tmpUuid = convertByteToUUID(_cursor.getBlob(_cursorIndexOfUuid))
+                val _tmpNullableUuid: UUID?
+                if (_cursor.isNull(_cursorIndexOfNullableUuid)) {
+                    _tmpNullableUuid = null
                 } else {
-                    _tmpNullableString = _cursor.getString(_cursorIndexOfNullableString)
+                    _tmpNullableUuid = convertByteToUUID(_cursor.getBlob(_cursorIndexOfNullableUuid))
                 }
-                _result = MyEntity(_tmpString,_tmpNullableString)
+                _result = MyEntity(_tmpPk,_tmpUuid,_tmpNullableUuid)
             } else {
                 error("Cursor was empty, but expected a single item.")
             }

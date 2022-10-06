@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -33,6 +34,7 @@ open class Pojo(
     val relations: List<Relation>,
     val constructor: Constructor? = null
 ) : HasFields {
+    val className: XClassName by lazy { element.asClassName() }
     val typeName: XTypeName by lazy { type.asTypeName() }
 
     override val fields = Fields(fields)
