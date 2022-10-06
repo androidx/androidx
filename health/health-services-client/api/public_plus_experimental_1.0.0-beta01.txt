@@ -73,7 +73,6 @@ package androidx.health.services.client {
     method public void onNewDataPointsReceived(androidx.health.services.client.data.DataPointContainer dataPoints);
     method public void onPermissionLost();
     method public void onUserActivityInfoReceived(androidx.health.services.client.data.UserActivityInfo info);
-    field public static final String TAG = "PassiveListenerService";
   }
 
   public interface PassiveMonitoringClient {

@@ -130,6 +130,6 @@ public abstract class PassiveListenerService : Service() {
     }
 
     private companion object {
-        const val TAG = "PassiveListenerService"
+        private const val TAG = "PassiveListenerService"
     }
 }
