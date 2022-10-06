@@ -20,9 +20,9 @@ import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode.LOG
 import androidx.window.core.VerificationMode.QUIET
 import androidx.window.core.VerificationMode.STRICT
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
