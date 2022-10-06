@@ -40,8 +40,6 @@ internal class ExerciseUpdateTest {
             DataTypeCondition(CALORIES_TOTAL, 125.0, GREATER_THAN_OR_EQUAL)
         )
         val proto = ExerciseUpdate(
-            startTime = 10.instant(),
-            updateDurationFromBoot = 42.duration(),
             latestMetrics = DataPointContainer(
                 listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
             ),
@@ -57,6 +55,7 @@ internal class ExerciseUpdateTest {
                     )
                 )
             ),
+            exerciseStateInfo = ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN),
             exerciseConfig = ExerciseConfig(
                 WALKING,
                 setOf(CALORIES_TOTAL),
@@ -65,7 +64,8 @@ internal class ExerciseUpdateTest {
                 exerciseGoals = listOf(goal)
             ),
             activeDurationCheckpoint = ActiveDurationCheckpoint(42.instant(), 30.duration()),
-            exerciseStateInfo = ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN)
+            updateDurationFromBoot = 42.duration(),
+            startTime = 10.instant()
         ).proto
 
         val update = ExerciseUpdate(proto)
