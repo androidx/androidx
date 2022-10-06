@@ -95,7 +95,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun registersPassiveListenerService() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -110,7 +110,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(
             STEPS_DAILY, CALORIES_DAILY
         )
-        assertThat(request.passiveListenerConfig.shouldRequestUserActivityState).isTrue()
+        assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
         assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
     }
 
@@ -118,7 +118,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun registersPassiveListenerCallback() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -131,7 +131,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(callback.onRegisteredCalls).isEqualTo(1)
         val request = fakeService.registerCallbackRequests[0]
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(STEPS_DAILY)
-        assertThat(request.passiveListenerConfig.shouldRequestUserActivityState).isTrue()
+        assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
         assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
     }
 
@@ -140,7 +140,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         shadowOf(Looper.getMainLooper()).idle() // ?????
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -185,7 +185,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesCompletedGoals() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(
                 PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
@@ -226,7 +226,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesHealthEvents() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(),
             healthEventTypes = setOf(FALL_DETECTED)
         )
@@ -257,7 +257,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesPermissionsLost() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(
                 PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
