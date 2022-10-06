@@ -187,7 +187,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = false,
             dailyGoals = setOf(
-                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
             healthEventTypes = setOf()
         )
@@ -259,7 +259,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             dataTypes = setOf(STEPS_DAILY),
             shouldRequestUserActivityState = false,
             dailyGoals = setOf(
-                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
             healthEventTypes = setOf()
         )
