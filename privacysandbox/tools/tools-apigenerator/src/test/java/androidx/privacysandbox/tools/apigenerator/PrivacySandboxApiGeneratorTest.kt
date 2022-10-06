@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -59,8 +60,8 @@ class PrivacySandboxApiGeneratorTest {
 
         val outputSourceMap = outputSources.associateBy(Source::relativePath)
         for (expected in expectedSources) {
-            assertThat(outputSourceMap[expected.relativePath]?.contents)
-                .isEqualTo(expected.contents)
+            assertWithMessage("Contents of file ${expected.relativePath} don't match.")
+                .that(outputSourceMap[expected.relativePath]?.contents).isEqualTo(expected.contents)
         }
     }
 

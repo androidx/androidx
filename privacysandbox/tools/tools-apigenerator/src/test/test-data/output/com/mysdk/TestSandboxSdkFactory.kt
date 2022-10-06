@@ -57,19 +57,33 @@ private class TestSandboxSdkClientProxy(
     }
   }
 
-  public override fun echoBoolean(input: Boolean) = remote.echoBoolean(input)
+  public override fun echoBoolean(input: Boolean): Unit {
+    remote.echoBoolean(input)
+  }
 
-  public override fun echoChar(input: Char) = remote.echoChar(input)
+  public override fun echoChar(input: Char): Unit {
+    remote.echoChar(input)
+  }
 
-  public override fun echoDouble(input: Double) = remote.echoDouble(input)
+  public override fun echoDouble(input: Double): Unit {
+    remote.echoDouble(input)
+  }
 
-  public override fun echoFloat(input: Float) = remote.echoFloat(input)
+  public override fun echoFloat(input: Float): Unit {
+    remote.echoFloat(input)
+  }
 
-  public override fun echoInt(input: Int) = remote.echoInt(input)
+  public override fun echoInt(input: Int): Unit {
+    remote.echoInt(input)
+  }
 
-  public override fun echoLong(input: Long) = remote.echoLong(input)
+  public override fun echoLong(input: Long): Unit {
+    remote.echoLong(input)
+  }
 
-  public override fun echoString(input: String) = remote.echoString(input)
+  public override fun echoString(input: String): Unit {
+    remote.echoString(input)
+  }
 
   public override fun receiveAndReturnNothing(): Unit {
     remote.receiveAndReturnNothing()

@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.validator.ModelValidator
 import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -55,10 +56,10 @@ internal object ApiStubParser {
             .filter { it.isPrivacySandboxService }
             .map(::parseClass)
             .toSet()
-        if (services.isEmpty()) throw IllegalArgumentException(
+        if (services.isEmpty()) throw PrivacySandboxParsingException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
         )
-        return ParsedApi(services)
+        return ParsedApi(services).also(::validate)
     }
 
     private fun unzipClasses(stubClassPath: Path): List<ClassNode> =
@@ -86,14 +87,14 @@ internal object ApiStubParser {
         val type = kotlinMetadata.name.parsedType()
 
         if (!Flag.Class.IS_INTERFACE(kotlinMetadata.flags)) {
-            throw IllegalArgumentException(
+            throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is not a Kotlin interface but it's annotated with " +
                     "@PrivacySandboxService."
             )
         }
 
         if (type.simpleName.contains('.')) {
-            throw IllegalArgumentException(
+            throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is an inner interface so it can't be annotated with " +
                     "@PrivacySandboxService."
             )
@@ -108,7 +109,7 @@ internal object ApiStubParser {
     private fun parseKotlinMetadata(classNode: ClassNode): KmClass {
         val metadataValues =
             classNode.visibleAnnotationsWithType<Metadata>().firstOrNull()?.attributeMap
-                ?: throw IllegalArgumentException(
+                ?: throw PrivacySandboxParsingException(
                     "Missing Kotlin metadata annotation in ${classNode.name}. " +
                         "Is this a valid Kotlin class?"
                 )
@@ -128,7 +129,7 @@ internal object ApiStubParser {
 
         return when (val metadata = KotlinClassMetadata.read(header)) {
             is KotlinClassMetadata.Class -> metadata.toKmClass()
-            else -> throw IllegalArgumentException(
+            else -> throw PrivacySandboxParsingException(
                 "Unable to parse Kotlin metadata from ${classNode.name}. " +
                     "Is this a valid Kotlin class?"
             )
@@ -147,8 +148,18 @@ internal object ApiStubParser {
     private fun parseType(type: KmType): Type {
         return when (val classifier = type.classifier) {
             is KmClassifier.Class -> classifier.name.parsedType()
-            else -> throw IllegalArgumentException(
+            else -> throw PrivacySandboxParsingException(
                 "Unsupported type in API description: $type"
+            )
+        }
+    }
+
+    private fun validate(api: ParsedApi) {
+        val validationResult = ModelValidator.validate(api)
+        if (validationResult.isFailure) {
+            throw PrivacySandboxParsingException(
+                "Invalid API descriptors:\n" +
+                    validationResult.errors.joinToString("\n")
             )
         }
     }
@@ -183,3 +194,5 @@ internal val AnnotationNode.attributeMap: Map<String, Any>
         }
         return attributes
     }
+
+class PrivacySandboxParsingException(message: String) : Exception(message)
