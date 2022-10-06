@@ -59,6 +59,7 @@ import java.util.Objects
  * [CanvasComplicationFactory.create]. If state needs to be shared with the [Renderer] that should
  * be set up inside [onRendererCreated].
  */
+@JvmDefaultWithCompatibility
 public interface CanvasComplication {
 
     /** Interface for observing when a [CanvasComplication] needs the screen to be redrawn. */
@@ -156,6 +157,7 @@ public interface CanvasComplication {
 }
 
 /** Interface for determining whether a tap hits a complication. */
+@JvmDefaultWithCompatibility
 public interface ComplicationTapFilter {
     /**
      * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
