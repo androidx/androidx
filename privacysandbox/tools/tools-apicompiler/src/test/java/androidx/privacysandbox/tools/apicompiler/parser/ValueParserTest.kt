@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.apicompiler.util.checkSourceFails
-import androidx.privacysandbox.tools.apicompiler.util.parseSource
+import androidx.privacysandbox.tools.apicompiler.util.parseSources
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -48,7 +48,7 @@ class ValueParserTest {
                     data class MySdkResponse(val magicNumber: Long, val isTrulyMagic: Boolean)
                 """
         )
-        assertThat(parseSource(source)).isEqualTo(
+        assertThat(parseSources(source)).isEqualTo(
             ParsedApi(
                 services = mutableSetOf(
                     AnnotatedInterface(

@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.core.model
+package androidx.privacysandbox.tools
 
-/** Result of parsing a full developer-defined API for an SDK. */
-data class ParsedApi(
-    val services: Set<AnnotatedInterface>,
-    val values: Set<AnnotatedValue> = emptySet(),
-    val callbacks: Set<AnnotatedInterface> = emptySet(),
-)
+/**
+ * Annotated callbacks that can be passed to an SDK running in the privacy sandbox.
+ *
+ * Callbacks should be public interfaces that only declare functions without implementation.
+ * Callback functions should be fire-and-forget: non-suspending functions that have no return value.
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+annotation class PrivacySandboxCallback()

@@ -34,13 +34,13 @@ import java.nio.file.Files
 /**
  * Helper to run KSP processing functionality in tests.
  */
-fun parseSource(source: Source): ParsedApi {
+fun parseSources(vararg sources: Source): ParsedApi {
     val provider = CapturingSymbolProcessor.Provider()
     assertThat(
         compile(
             Files.createTempDirectory("test").toFile(),
             TestCompilationArguments(
-                sources = listOf(source),
+                sources = sources.toList(),
                 symbolProcessorProviders = listOf(provider),
             )
         )

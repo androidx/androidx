@@ -27,7 +27,6 @@ import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -40,13 +39,9 @@ internal class InterfaceParser(resolver: Resolver, private val logger: KSPLogger
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
 
-    fun parseInterface(interfaceDeclaration: KSAnnotated): AnnotatedInterface? {
-        if (interfaceDeclaration !is KSClassDeclaration ||
-            interfaceDeclaration.classKind != ClassKind.INTERFACE) {
-            logger.error(
-                "Only interfaces can be annotated with @PrivacySandboxService."
-            )
-            return null
+    fun parseInterface(interfaceDeclaration: KSClassDeclaration): AnnotatedInterface {
+        check(interfaceDeclaration.classKind == ClassKind.INTERFACE) {
+            "${interfaceDeclaration.qualifiedName} is not an interface."
         }
         val name = interfaceDeclaration.qualifiedName?.getFullName()
             ?: interfaceDeclaration.simpleName.getFullName()
