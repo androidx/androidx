@@ -23,6 +23,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
@@ -95,4 +96,10 @@ fun CodeBlock.Builder.addControlFlow(
     beginControlFlow(controlFlow, *args)
     block()
     endControlFlow()
+}
+
+object SpecNames {
+    val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
+    val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
+    val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
 }

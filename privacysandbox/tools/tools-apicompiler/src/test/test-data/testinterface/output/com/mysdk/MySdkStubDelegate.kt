@@ -2,7 +2,6 @@ package com.mysdk
 
 import kotlin.Int
 import kotlin.Unit
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

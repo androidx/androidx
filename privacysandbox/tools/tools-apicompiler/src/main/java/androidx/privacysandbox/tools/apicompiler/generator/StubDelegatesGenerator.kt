@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.SpecNames
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.aidlName
@@ -77,12 +78,6 @@ class StubDelegatesGenerator(
 
         val fileSpec = FileSpec.builder(service.type.packageName, className).build {
             addType(classSpec)
-            if (service.methods.any(Method::isSuspend)) {
-                addImport("kotlinx.coroutines", "CoroutineScope")
-                addImport("kotlinx.coroutines", "Dispatchers")
-                addImport("kotlinx.coroutines", "GlobalScope")
-                addImport("kotlinx.coroutines", "launch")
-            }
         }
         codeGenerator.createNewFile(
             Dependencies(false), service.type.packageName, className
@@ -101,7 +96,12 @@ class StubDelegatesGenerator(
             addModifiers(KModifier.OVERRIDE)
             addParameters(getParameters(method))
             addCode {
-                addControlFlow("val job = GlobalScope.launch(Dispatchers.Main)") {
+                addControlFlow(
+                    "val job = %T.%M(%T)",
+                    SpecNames.globalScopeClass,
+                    SpecNames.launchMethod,
+                    SpecNames.dispatchersMainClass
+                ) {
                     addControlFlow("try") {
                         addStatement("val result = $resultStatement")
                         addStatement("transactionCallback.onSuccess(result)")
