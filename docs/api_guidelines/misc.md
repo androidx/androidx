@@ -760,3 +760,38 @@ parameters order for the public Kotlin functions:
 2.  All parameters with default values.
 3.  An optional last parameter without default value which can be used as a
     trailing lambda.
+
+### Default interface methods {#kotlin-jvm-default}
+
+The Kotlin compiler is capable of generating Kotlin-specific default interface
+methods that are compatible with Java 7 language level; however, Jetpack
+libraries ship as Java 8 language level and should use the native Java
+implementation of default methods.
+
+To maximize compatibility, Jetpack libraries should pass `-Xjvm-default=all` to
+the Kotlin compiler:
+
+```
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
+}
+```
+
+Before adding this argument, library owners must ensure that existing interfaces
+with default methods in stable API surfaces are annotated with
+`@JvmDefaultWithCompatibility` to preserve binary compatibility:
+
+1.  Any interface with stable default method implementations from before the
+    `all` conversion
+1.  Any interface with stable methods that have default argument values from
+    before the `all` conversion
+1.  Any interface that extends another `@JvmDefaultWithCompatibility` interface
+
+Unstable API surfaces do not need to be annotated, e.g. if the methods or whole
+interface is `@RequiresOptIn` or was never released in a stable library version.
+
+One way to handle this task is to search the API `.txt` file from the latest
+release for `default` or `optional` and add the annotation by hand, then look
+for public sub-interfaces and add the annotation there as well.
