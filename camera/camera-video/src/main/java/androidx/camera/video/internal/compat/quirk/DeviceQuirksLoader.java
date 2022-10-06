@@ -89,6 +89,9 @@ public class DeviceQuirksLoader {
         if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
             quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
         }
+        if (MediaCodecDoesNotSendEos.load()) {
+            quirks.add(new MediaCodecDoesNotSendEos());
+        }
 
         return quirks;
     }
