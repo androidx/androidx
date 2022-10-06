@@ -24,7 +24,9 @@ import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
+import androidx.privacysandbox.tools.testing.loadFilesFromDirectory
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -95,71 +97,11 @@ class AidlValueGeneratorTest {
                 "com.mysdk" to "IOuterValueTransactionCallback",
                 "com.mysdk" to "ICancellationSignal",
             )
+
+        val outputTestDataDir = File("src/test/test-data/aidlvaluegeneratortest/output")
+        val expectedSources = loadFilesFromDirectory(outputTestDataDir)
+
         assertThat(aidlGeneratedSources.map { it.relativePath to it.content })
-            .containsExactly(
-            "com/mysdk/IMySdk.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.IOuterValueTransactionCallback;
-                |import com.mysdk.IUnitTransactionCallback;
-                |import com.mysdk.ParcelableInnerValue;
-                |import com.mysdk.ParcelableOuterValue;
-                |
-                |interface IMySdk {
-                |    void methodReceivingValue(in ParcelableOuterValue value);
-                |    void suspendMethodReceivingValue(in ParcelableOuterValue inputValue, IUnitTransactionCallback transactionCallback);
-                |    void suspendMethodThatReturnsValue(IOuterValueTransactionCallback transactionCallback);
-                |}
-            """.trimMargin(),
-            "com/mysdk/ICancellationSignal.aidl" to """
-                |package com.mysdk;
-                |
-                |oneway interface ICancellationSignal {
-                |    void cancel();
-                |}
-            """.trimMargin(),
-            "com/mysdk/ParcelableInnerValue.aidl" to """
-                |package com.mysdk;
-                |
-                |parcelable ParcelableInnerValue {
-                |    boolean booleanProperty;
-                |    int intProperty;
-                |    long longProperty;
-                |}
-            """.trimMargin(),
-            "com/mysdk/ParcelableOuterValue.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.ParcelableInnerValue;
-                |
-                |parcelable ParcelableOuterValue {
-                |    ParcelableInnerValue anotherInnerValue;
-                |    ParcelableInnerValue innerValue;
-                |}
-            """.trimMargin(),
-            "com/mysdk/IOuterValueTransactionCallback.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.ICancellationSignal;
-                |import com.mysdk.ParcelableOuterValue;
-                |
-                |oneway interface IOuterValueTransactionCallback {
-                |    void onCancellable(ICancellationSignal cancellationSignal);
-                |    void onFailure(int errorCode, String errorMessage);
-                |    void onSuccess(in ParcelableOuterValue result);
-                |}
-                """.trimMargin(),
-            "com/mysdk/IUnitTransactionCallback.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.ICancellationSignal;
-                |
-                |oneway interface IUnitTransactionCallback {
-                |    void onCancellable(ICancellationSignal cancellationSignal);
-                |    void onFailure(int errorCode, String errorMessage);
-                |    void onSuccess();
-                |}
-            """.trimMargin(),
-        )
+            .containsExactlyElementsIn(expectedSources)
     }
 }

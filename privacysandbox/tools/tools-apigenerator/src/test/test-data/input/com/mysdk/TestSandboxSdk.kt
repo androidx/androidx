@@ -4,19 +4,19 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 
 @PrivacySandboxService
 interface TestSandboxSdk {
-    fun echoBoolean(input: Boolean): Boolean
+    fun echoBoolean(input: Boolean)
 
-    fun echoInt(input: Int): Int
+    fun echoInt(input: Int)
 
-    fun echoLong(input: Long): Long
+    fun echoLong(input: Long)
 
-    fun echoFloat(input: Float): Float
+    fun echoFloat(input: Float)
 
-    fun echoDouble(input: Double): Double
+    fun echoDouble(input: Double)
 
-    fun echoChar(input: Char): Char
+    fun echoChar(input: Char)
 
-    fun echoString(input: String): String
+    fun echoString(input: String)
 
     fun receiveMultipleArguments(first: Int, second: String, third: Long)
 
