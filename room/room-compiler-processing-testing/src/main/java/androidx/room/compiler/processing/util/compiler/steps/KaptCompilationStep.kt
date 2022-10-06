@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.ExitCode
 import java.io.File
 import javax.annotation.processing.Processor
+import org.jetbrains.kotlin.compiler.plugin.parsePluginOption
 
 /**
  * Runs KAPT to run annotation processors.
@@ -38,6 +39,7 @@ internal class KaptCompilationStep(
     private fun createKaptArgs(
         workingDir: File,
         javacArguments: List<String>,
+        kotlincArguments: List<String>
     ): KaptOptions.Builder {
         return KaptOptions.Builder().also {
             it.stubsOutputDir = workingDir.resolve("kapt-stubs") // IGNORED
@@ -57,6 +59,11 @@ internal class KaptCompilationStep(
             // NOTE: this does not work very well until the following bug is fixed
             //  https://youtrack.jetbrains.com/issue/KT-47934
             it.flags.add(KaptFlag.MAP_DIAGNOSTIC_LOCATIONS)
+
+            if (getPluginOptions(KAPT_PLUGIN_ID, kotlincArguments)
+                    .getOrDefault("correctErrorTypes", "false") == "true") {
+                it.flags.add(KaptFlag.CORRECT_ERROR_TYPES)
+            }
 
             javacArguments.forEach { javacArg ->
                 it.javacOptions[javacArg.substringBefore("=")] =
@@ -79,7 +86,11 @@ internal class KaptCompilationStep(
             pluginRegistrars = listOf(
                 TestKapt3Registrar(
                     processors = annotationProcessors,
-                    baseOptions = createKaptArgs(workingDir, arguments.javacArguments),
+                    baseOptions = createKaptArgs(
+                        workingDir,
+                        arguments.javacArguments,
+                        arguments.kotlincArguments
+                    ),
                     messageCollector = kaptMessages
                 )
             )
@@ -111,5 +122,21 @@ internal class KaptCompilationStep(
         private const val KOTLIN_SRC_OUT_FOLDER_NAME = "kapt-kotlin-src-out"
         private const val RESOURCES_OUT_FOLDER_NAME = "kapt-classes-out"
         private const val CLASS_OUT_FOLDER_NAME = "class-out"
+        private const val KAPT_PLUGIN_ID = "org.jetbrains.kotlin.kapt3"
+
+        internal fun getPluginOptions(
+            pluginId: String,
+            kotlincArguments: List<String>
+        ): Map<String, String> {
+            val options = kotlincArguments.dropLast(1).zip(kotlincArguments.drop(1))
+                .filter { it.first == "-P" }
+                .mapNotNull {
+                    parsePluginOption(it.second)
+                }
+            val filteredOptionsMap = options
+                .filter { it.pluginId == pluginId }
+                .associateBy({ it.optionName }, { it.value })
+            return filteredOptionsMap
+        }
     }
 }
