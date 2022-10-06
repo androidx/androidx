@@ -23,7 +23,7 @@ import androidx.glance.GlanceComposable
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.color.dynamicThemeColorProviders
+import androidx.glance.color.DynamicThemeColorProviders
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.template.LocalTemplateColors
@@ -45,7 +45,7 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     final override fun Content() {
         // TODO: Add other local values
         val mode = mode()
-        val colors = dynamicThemeColorProviders()
+        val colors = DynamicThemeColorProviders
         CompositionLocalProvider(
             LocalTemplateMode provides mode,
             LocalTemplateColors provides colors
