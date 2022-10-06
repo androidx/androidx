@@ -118,15 +118,19 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         builder = scope.builder
                     )
                     scope.builder.apply {
-                        beginControlFlow("if (%L != null)", node.varName).apply {
+                        if (fieldParent.nonNull) {
                             bindWithDescendants()
-                        }
-                        nextControlFlow("else").apply {
-                            node.allFields().forEach {
-                                addStatement("%L.bindNull(%L)", stmtParamVar, it.indexVar)
+                        } else {
+                            beginControlFlow("if (%L != null)", node.varName).apply {
+                                bindWithDescendants()
                             }
+                            nextControlFlow("else").apply {
+                                node.allFields().forEach {
+                                    addStatement("%L.bindNull(%L)", stmtParamVar, it.indexVar)
+                                }
+                            }
+                            endControlFlow()
                         }
-                        endControlFlow()
                     }
                 } else {
                     bindWithDescendants()

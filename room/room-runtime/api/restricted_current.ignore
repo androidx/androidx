@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite.db.SupportSQLiteStatement, T) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter statement in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
