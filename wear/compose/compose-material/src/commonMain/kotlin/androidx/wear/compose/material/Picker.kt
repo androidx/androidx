@@ -140,16 +140,16 @@ public fun Picker(
                 }
             }.then(
                 if (!readOnly && gradientRatio > 0.0f) {
-                    Modifier
-                        .drawWithContent {
-                            drawContent()
-                            drawGradient(gradientColor, gradientRatio)
-                        }
-                        // b/223386180 - add padding when drawing rectangles to
-                        // prevent jitter on screen.
-                        .padding(vertical = 1.dp)
-                        .align(Alignment.Center)
-                } else if (readOnly) {
+                        Modifier
+                            .drawWithContent {
+                                drawContent()
+                                drawGradient(gradientColor, gradientRatio)
+                            }
+                            // b/223386180 - add padding when drawing rectangles to
+                            // prevent jitter on screen.
+                            .padding(vertical = 1.dp)
+                            .align(Alignment.Center)
+                    } else if (readOnly) {
                     Modifier
                         .drawWithContent {
                             drawContent()
@@ -185,7 +185,8 @@ public fun Picker(
             verticalArrangement = Arrangement.spacedBy(
                 space = separation
             ),
-            flingBehavior = flingBehavior
+            flingBehavior = flingBehavior,
+            autoCentering = AutoCenteringParams(itemIndex = 0)
         )
         if (readOnly && readOnlyLabel != null) {
             readOnlyLabel()
