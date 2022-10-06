@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
 import android.graphics.Rect
 import androidx.annotation.GuardedBy
 import androidx.window.core.Bounds
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock

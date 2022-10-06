@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -24,7 +24,9 @@ import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.Version
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.WindowBackend
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock

@@ -16,7 +16,7 @@
 // Sidecar is deprecated but consuming code must be maintained for compatibility reasons
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
 import android.content.Context
@@ -30,12 +30,15 @@ import androidx.test.filters.LargeTest
 import androidx.window.TestWindow
 import androidx.window.WindowTestBase
 import androidx.window.core.Bounds
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.TestFoldingFeatureUtil.invalidFoldBounds
 import androidx.window.layout.TestFoldingFeatureUtil.validFoldBound
+import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
@@ -380,11 +383,13 @@ class SidecarCompatTest : WindowTestBase() {
     fun testOnWindowLayoutInfoChanged_emitNewValueWhenResubscribe() {
         val layoutInfo = SidecarWindowLayoutInfo()
         val expectedLayoutInfo = WindowLayoutInfo(listOf())
-        val expectedLayoutInfo2 = WindowLayoutInfo(listOf(HardwareFoldingFeature(
+        val expectedLayoutInfo2 = WindowLayoutInfo(listOf(
+            HardwareFoldingFeature(
             Bounds(validFoldBound(WINDOW_BOUNDS)),
             FOLD,
             HALF_OPENED
-        )))
+        )
+        ))
         val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
         whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
@@ -395,12 +400,14 @@ class SidecarCompatTest : WindowTestBase() {
         sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
         // change the value for new subscriber
         whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
-            .thenReturn(newWindowLayoutInfo(listOf(
+            .thenReturn(
+                newWindowLayoutInfo(listOf(
                 newDisplayFeature(
                     validFoldBound(WINDOW_BOUNDS),
                     SidecarDisplayFeature.TYPE_FOLD
                 )
-            )))
+            ))
+            )
         // resubscribe
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         verify(listener).onWindowLayoutChanged(activity, expectedLayoutInfo2)

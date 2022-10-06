@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter
 
 import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
+import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.Executor
 import androidx.annotation.UiContext
 
 /**
- * Backing interface for [WindowInfoTracker] instances that serve as the default
- * information supplier.
+ * Backing interface for [androidx.window.layout.WindowInfoTracker] instances that serve as the
+ * default information supplier.
  */
 internal interface WindowBackend {
 

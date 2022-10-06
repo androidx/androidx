@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
+import androidx.window.layout.WindowLayoutInfo
 
 /**
  * Base interface for different extension versions that serves as an API compatibility wrapper.

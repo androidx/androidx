@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
-import android.app.Activity
-import androidx.window.core.Bounds
-import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
-import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
-import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import androidx.annotation.UiContext
+import androidx.window.core.Bounds
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.FoldingFeature.State.Companion.FLAT
+import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.layout.HardwareFoldingFeature
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.WindowMetrics
+import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 
 internal object ExtensionsWindowLayoutInfoAdapter {
 
@@ -88,7 +92,7 @@ internal object ExtensionsWindowLayoutInfoAdapter {
      *  - [Bounds] are not `0`
      *  - [Bounds] are either full width or full height
      *  - [Bounds] do not take up the entire [windowMetrics]
-     * @param windowBounds Extracted from a [UiContext] housing the [FoldingFeature].
+     * @param windowMetrics Extracted from a [UiContext] housing the [FoldingFeature].
      * @param bounds the bounds of a [FoldingFeature]
      * @return true if the bounds are valid for the [WindowMetrics], false otherwise.
      */

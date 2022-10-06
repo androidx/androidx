@@ -16,7 +16,7 @@
 // Sidecar is deprecated but consuming code must be maintained for compatibility reasons
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.app.Activity
 import android.graphics.Rect
@@ -25,9 +25,10 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.window.TestWindow
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.TestFoldingFeatureUtil.invalidFoldBounds
 import androidx.window.layout.TestFoldingFeatureUtil.validFoldBound
+import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
