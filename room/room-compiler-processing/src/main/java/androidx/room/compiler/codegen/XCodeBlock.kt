@@ -19,6 +19,25 @@ package androidx.room.compiler.codegen
 import androidx.room.compiler.codegen.java.JavaCodeBlock
 import androidx.room.compiler.codegen.kotlin.KotlinCodeBlock
 
+/**
+ * A fragment of a .java or .kt file, potentially containing declarations, statements.
+ *
+ * Code blocks support placeholders like [java.text.Format]. This uses a percent sign `%` but has
+ * its own set of permitted placeholders:
+ *
+ *  * `%L` emits a *literal* value with no escaping. Arguments for literals may be strings,
+ *    primitives, [type declarations][XTypeSpec], [annotations][XAnnotationSpec] and even other code
+ *    blocks.
+ *  * `%N` emits a *name*, using name collision avoidance where necessary. Arguments for names may
+ *    be strings (actually any [character sequence][CharSequence]), [parameters][XParameterSpec],
+ *    [properties][XPropertySpec], [functions][XFunSpec], and [types][XTypeSpec].
+ *  * `%S` escapes the value as a *string*, wraps it with double quotes, and emits that.
+ *  * `%T` emits a *type* reference. Types will be imported if possible. Arguments for types are
+ *    their [names][XTypeName].
+ *  * `%M` emits a *member* reference. A member is either a function or a property. If the member is
+ *    importable, e.g. it's a top-level function or a property declared inside an object, the import
+ *    will be resolved if possible. Arguments for members must be of type [XMemberName].
+ */
 interface XCodeBlock : TargetLanguage {
 
     interface Builder : TargetLanguage {
@@ -43,6 +62,25 @@ interface XCodeBlock : TargetLanguage {
         fun build(): XCodeBlock
 
         companion object {
+            /**
+             * Convenience local immutable variable emitter.
+             *
+             * Shouldn't contain declaration, only right hand assignment expression.
+             */
+            fun Builder.addLocalVal(
+                name: String,
+                typeName: XTypeName,
+                assignExprFormat: String,
+                vararg assignExprArgs: Any
+            ) {
+                addLocalVariable(
+                    name = name,
+                    typeName = typeName,
+                    isMutable = false,
+                    assignExpr = of(language, assignExprFormat, *assignExprArgs)
+                )
+            }
+
             fun Builder.apply(
                 javaCodeBuilder: com.squareup.javapoet.CodeBlock.Builder.() -> Unit,
                 kotlinCodeBuilder: com.squareup.kotlinpoet.CodeBlock.Builder.() -> Unit,

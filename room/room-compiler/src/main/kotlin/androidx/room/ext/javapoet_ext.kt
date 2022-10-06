@@ -54,8 +54,8 @@ object SupportDbTypeNames {
 }
 
 object RoomTypeNames {
-    val STRING_UTIL: ClassName = ClassName.get("$ROOM_PACKAGE.util", "StringUtil")
-    val ROOM_DB: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabase")
+    val STRING_UTIL: XClassName = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
+    val ROOM_DB: XClassName = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: XClassName =
@@ -70,8 +70,8 @@ object RoomTypeNames {
         ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
         ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
-    val ROOM_SQL_QUERY: ClassName =
-        ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
+    val ROOM_SQL_QUERY: XClassName =
+        XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
     val OPEN_HELPER: ClassName =
         ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
@@ -92,8 +92,8 @@ object RoomTypeNames {
         ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
         ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
-    val DB_UTIL: ClassName =
-        ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
+    val DB_UTIL: XClassName =
+        XClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: XClassName =
         XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")

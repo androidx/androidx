@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -73,8 +75,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 """
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
-        val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
-        val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
+        val USERNAME_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Username")
+        val BOOK_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Book")
     }
 
     @Test
@@ -375,7 +377,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
                 .isEqualTo(BOOK_TYPE_NAME)
         }
     }
@@ -582,19 +584,19 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             val param = insertionUpsertion.parameters.first()
 
-            assertThat(param.type.typeName).isEqualTo(USERNAME_TYPE_NAME)
+            assertThat(param.type.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
-            assertThat(param.pojoType?.typeName).isEqualTo(USERNAME_TYPE_NAME)
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
             assertThat(insertionUpsertion.entities["username"]?.isPartialEntity)
                 .isEqualTo(true)
 
-            assertThat(insertionUpsertion.entities["username"]?.entityTypeName)
+            assertThat(insertionUpsertion.entities["username"]?.entityTypeName?.toJavaPoet())
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName)
                 .isEqualTo(USERNAME_TYPE_NAME)
         }
     }
@@ -660,7 +662,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = USERNAME_TYPE_NAME.toString(),
+                        partialEntityName = USERNAME_TYPE_NAME.toJavaPoet().toString(),
                         missingColumnNames = listOf("ageColumn")
                     )
                 )

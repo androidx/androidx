@@ -6,8 +6,8 @@ import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
 import java.lang.Class
 import javax.`annotation`.processing.Generated
-import kotlin.Boolean
 import kotlin.Int
+import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
@@ -29,25 +29,32 @@ public class MyDao_Impl : MyDao {
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfBoolean: Int = getColumnIndexOrThrow(_cursor, "boolean")
-            val _cursorIndexOfNullableBoolean: Int = getColumnIndexOrThrow(_cursor, "nullableBoolean")
+            val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_cursor, "numberData")
+            val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_cursor, "stringData")
+            val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_cursor, "nullablenumberData")
+            val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_cursor, "nullablestringData")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
                 val _tmpPk: Int
                 _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-                val _tmpBoolean: Boolean
-                val _tmp: Int
-                _tmp = _cursor.getInt(_cursorIndexOfBoolean)
-                _tmpBoolean = _tmp != 0
-                val _tmpNullableBoolean: Boolean?
-                val _tmp_1: Int?
-                if (_cursor.isNull(_cursorIndexOfNullableBoolean)) {
-                    _tmp_1 = null
+                val _tmpFoo: Foo
+                val _tmpNumberData: Long
+                _tmpNumberData = _cursor.getLong(_cursorIndexOfNumberData)
+                val _tmpStringData: String
+                _tmpStringData = _cursor.getString(_cursorIndexOfStringData)
+                _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
+                val _tmpNullableFoo: Foo?
+                if (!(_cursor.isNull(_cursorIndexOfNumberData_1) &&
+                        _cursor.isNull(_cursorIndexOfStringData_1))) {
+                    val _tmpNumberData_1: Long
+                    _tmpNumberData_1 = _cursor.getLong(_cursorIndexOfNumberData_1)
+                    val _tmpStringData_1: String
+                    _tmpStringData_1 = _cursor.getString(_cursorIndexOfStringData_1)
+                    _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
                 } else {
-                    _tmp_1 = _cursor.getInt(_cursorIndexOfNullableBoolean)
+                    _tmpNullableFoo = null
                 }
-                _tmpNullableBoolean = _tmp_1?.let { it != 0 }
-                _result = MyEntity(_tmpPk,_tmpBoolean,_tmpNullableBoolean)
+                _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
             } else {
                 error("Cursor was empty, but expected a single item.")
             }

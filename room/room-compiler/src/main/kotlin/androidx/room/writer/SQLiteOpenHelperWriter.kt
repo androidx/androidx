@@ -17,9 +17,11 @@
 package androidx.room.writer
 
 import androidx.annotation.VisibleForTesting
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
@@ -223,7 +225,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
-            addStatement("$T.dropFtsSyncTriggers($L)", RoomTypeNames.DB_UTIL, "_db")
+            addStatement("$T.dropFtsSyncTriggers($L)", DB_UTIL.toJavaPoet(), "_db")
         }.build()
     }
 

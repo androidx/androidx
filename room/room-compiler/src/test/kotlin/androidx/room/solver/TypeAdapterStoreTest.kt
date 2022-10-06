@@ -21,6 +21,7 @@ import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
@@ -31,7 +32,7 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
@@ -1170,7 +1171,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1223,7 +1224,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1275,7 +1276,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1323,7 +1324,7 @@ class TypeAdapterStoreTest {
                 ).first()
             check(dao.isTypeElement())
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB.toJavaPoet())
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, null,
@@ -1676,7 +1677,7 @@ class TypeAdapterStoreTest {
                 return XCodeBlock.of(
                     scope.language,
                     "%T.joinIntoString(%L)",
-                    STRING_UTIL,
+                    STRING_UTIL.toJavaPoet(),
                     inputVarName
                 )
             }
@@ -1689,7 +1690,7 @@ class TypeAdapterStoreTest {
                 return XCodeBlock.of(
                     scope.language,
                     "%T.splitToIntList(%L)",
-                    STRING_UTIL,
+                    STRING_UTIL.toJavaPoet(),
                     inputVarName
                 )
             }

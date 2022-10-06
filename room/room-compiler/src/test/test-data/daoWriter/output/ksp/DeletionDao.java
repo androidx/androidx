@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
@@ -36,7 +37,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteEverything;
 
-  public DeletionDao_Impl(RoomDatabase __db) {
+  public DeletionDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
@@ -360,7 +361,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   @Override
   public int deleteByUidList(final int... uid) {
     __db.assertNotSuspendingTransaction();
-    StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("DELETE FROM user where uid IN(");
     final int _inputSize = uid.length;
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -382,6 +383,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     }
   }
 
+  @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();
   }

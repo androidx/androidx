@@ -30,7 +30,7 @@ import javax.annotation.processing.Generated;
 public final class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 
-    public ComplexDao_Impl(ComplexDatabase __db) {
+    public ComplexDao_Impl(final ComplexDatabase __db) {
         super(__db);
         this.__db = __db;
     }
@@ -91,7 +91,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
             final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final User _result;
-            if(_cursor.moveToFirst()) {
+            if (_cursor.moveToFirst()) {
                 _result = new User();
                 _result.uid = _cursor.getInt(_cursorIndexOfUid);
                 if (_cursor.isNull(_cursorIndexOfName)) {
@@ -141,7 +141,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
             final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final User _result;
-            if(_cursor.moveToFirst()) {
+            if (_cursor.moveToFirst()) {
                 _result = new User();
                 _result.uid = _cursor.getInt(_cursorIndexOfUid);
                 if (_cursor.isNull(_cursorIndexOfName)) {
@@ -169,7 +169,7 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public List<User> loadAllByIds(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT * FROM user where uid IN (");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -226,7 +226,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _result;
-            if(_cursor.moveToFirst()) {
+            if (_cursor.moveToFirst()) {
                 _result = _cursor.getInt(0);
             } else {
                 _result = 0;
@@ -240,7 +240,7 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public int[] getAllAges(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -273,7 +273,7 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public List<Integer> getAllAgesAsList(final List<Integer> ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.size();
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -313,7 +313,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<Integer> getAllAgesAsList(final List<Integer> ids1, final int[] ids2,
             final int... ids3) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids1.size();
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -382,7 +382,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
                     final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
                     final User _result;
-                    if(_cursor.moveToFirst()) {
+                    if (_cursor.moveToFirst()) {
                         _result = new User();
                         _result.uid = _cursor.getInt(_cursorIndexOfUid);
                         if (_cursor.isNull(_cursorIndexOfName)) {
@@ -416,7 +416,7 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public LiveData<List<User>> loadUsersByIdsLive(final int... ids) {
-        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT * FROM user where uid IN (");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
@@ -642,7 +642,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final Cursor _cursor = DBUtil.query(__db, _internalQuery, false, null);
         try {
             final User _result;
-            if(_cursor.moveToFirst()) {
+            if (_cursor.moveToFirst()) {
                 _result = __entityCursorConverter_fooBarUser(_cursor);
             } else {
                 _result = null;
@@ -653,6 +653,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         }
     }
 
+    @NonNull
     public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
     }

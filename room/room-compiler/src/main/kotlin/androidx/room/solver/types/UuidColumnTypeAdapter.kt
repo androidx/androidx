@@ -17,6 +17,7 @@
 package androidx.room.solver.types
 
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.RoomTypeNames
@@ -36,14 +37,12 @@ class UuidColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder.apply {
-            val conversionMethodName = "convertUUIDToByte"
             fun XCodeBlock.Builder.addBindBlobStatement() {
                 addStatement(
-                    "%L.bindBlob(%L, %T.%L(%L))",
+                    "%L.bindBlob(%L, %M(%L))",
                     stmtName,
                     indexVarName,
-                    RoomTypeNames.UUID_UTIL,
-                    conversionMethodName,
+                    RoomTypeNames.UUID_UTIL.packageMember("convertUUIDToByte"),
                     valueVarName,
                 )
             }
@@ -66,13 +65,11 @@ class UuidColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder.apply {
-            val conversionMethodName = "convertByteToUUID"
             fun XCodeBlock.Builder.addGetBlobStatement() {
                 addStatement(
-                    "%L = %T.%L(%L.getBlob(%L))",
+                    "%L = %M(%L.getBlob(%L))",
                     outVarName,
-                    RoomTypeNames.UUID_UTIL,
-                    conversionMethodName,
+                    RoomTypeNames.UUID_UTIL.packageMember("convertByteToUUID"),
                     cursorVarName,
                     indexVarName
                 )

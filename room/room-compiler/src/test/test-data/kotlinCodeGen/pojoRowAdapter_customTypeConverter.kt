@@ -17,6 +17,8 @@ import kotlin.jvm.JvmStatic
 public class MyDao_Impl : MyDao {
     private val __db: RoomDatabase
 
+    private val __fooConverter: FooConverter = FooConverter()
+
     public constructor(__db: RoomDatabase) {
         this.__db = __db
     }
@@ -27,19 +29,17 @@ public class MyDao_Impl : MyDao {
         __db.assertNotSuspendingTransaction()
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
-            val _cursorIndexOfString: Int = getColumnIndexOrThrow(_cursor, "string")
-            val _cursorIndexOfNullableString: Int = getColumnIndexOrThrow(_cursor, "nullableString")
+            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
+            val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_cursor, "foo")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
-                val _tmpString: String
-                _tmpString = _cursor.getString(_cursorIndexOfString)
-                val _tmpNullableString: String?
-                if (_cursor.isNull(_cursorIndexOfNullableString)) {
-                    _tmpNullableString = null
-                } else {
-                    _tmpNullableString = _cursor.getString(_cursorIndexOfNullableString)
-                }
-                _result = MyEntity(_tmpString,_tmpNullableString)
+                val _tmpPk: Int
+                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+                val _tmpFoo: Foo
+                val _tmp: String
+                _tmp = _cursor.getString(_cursorIndexOfFoo)
+                _tmpFoo = __fooConverter.fromString(_tmp)
+                _result = MyEntity(_tmpPk,_tmpFoo)
             } else {
                 error("Cursor was empty, but expected a single item.")
             }

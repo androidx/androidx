@@ -18,13 +18,14 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
@@ -225,7 +226,7 @@ object ProcessorErrors {
         "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
-        RoomTypeNames.ROOM_DB
+        ROOM_DB.toJavaPoet()
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
         ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
