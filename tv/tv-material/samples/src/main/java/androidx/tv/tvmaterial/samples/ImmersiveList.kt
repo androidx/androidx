@@ -18,14 +18,14 @@ package androidx.tv.tvmaterial.samples
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,65 +37,56 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material.ExperimentalTvMaterialApi
-import androidx.tv.material.carousel.Carousel
-import androidx.tv.material.carousel.CarouselItem
+import androidx.tv.material.immersivelist.ImmersiveList
 
 @OptIn(ExperimentalTvMaterialApi::class)
 @Composable
-fun FeaturedCarousel() {
+fun SampleImmersiveList() {
+    val immersiveListHeight = 300.dp
+    val cardSpacing = 10.dp
+    val cardWidth = 200.dp
+    val cardHeight = 150.dp
     val backgrounds = listOf(
-        Color.Red.copy(alpha = 0.3f),
-        Color.Yellow.copy(alpha = 0.3f),
-        Color.Green.copy(alpha = 0.3f)
+        Color.Red,
+        Color.Blue,
+        Color.Magenta,
     )
 
-    Carousel(
-        slideCount = backgrounds.size,
+    Box(
         modifier = Modifier
-            .height(300.dp)
-            .fillMaxWidth(),
-    ) { itemIndex ->
-        CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
-            background = {
+            .height(immersiveListHeight + cardHeight / 2)
+            .fillMaxWidth()
+    ) {
+        ImmersiveList(
+            modifier = Modifier
+                .height(immersiveListHeight)
+                .fillMaxWidth(),
+            listAlignment = Alignment.BottomEnd,
+            background = { index, _ ->
                 Box(
                     modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
+                        .background(backgrounds[index].copy(alpha = 0.3f))
                         .fillMaxSize()
                 )
             }
         ) {
-            Card()
-        }
-    }
-}
-
-@Composable
-private fun Card() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(40.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        var isFocused by remember { mutableStateOf(false) }
-
-        Box(
-            modifier = Modifier
-                .border(
-                    width = 2.dp,
-                    color = if (isFocused) Color.Red else Color.Transparent,
-                    shape = RoundedCornerShape(50)
-                )
-        ) {
-            Button(
-                onClick = { },
-                modifier = Modifier
-                    .onFocusChanged { isFocused = it.isFocused }
-                    .padding(vertical = 2.dp, horizontal = 5.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(cardSpacing),
+                modifier = Modifier.offset(y = cardHeight / 2)
             ) {
-                Text(text = "Play")
+                backgrounds.forEachIndexed { index, backgroundColor ->
+                    var isFocused by remember { mutableStateOf(false) }
+
+                    Box(
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .width(cardWidth)
+                            .height(cardHeight)
+                            .border(5.dp, Color.White.copy(alpha = if (isFocused) 1f else 0.3f))
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .focusableItem(index)
+                    )
+                }
             }
         }
     }
