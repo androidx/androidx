@@ -72,6 +72,9 @@ internal class ValueParser(private val logger: KSPLogger) {
             logger.error("Error in $name: properties cannot be mutable.")
         }
         val type = property.type.resolve()
+        if (type.isError) {
+            logger.error("Failed to resolve type for property $name.")
+        }
         if (type.nullability == Nullability.NULLABLE) {
             logger.error("Error in $name: nullable types are not supported.")
         }

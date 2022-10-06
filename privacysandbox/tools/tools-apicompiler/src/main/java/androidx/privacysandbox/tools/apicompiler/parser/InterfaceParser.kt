@@ -23,9 +23,7 @@ import androidx.privacysandbox.tools.core.model.Type
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
-import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -34,8 +32,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Nullability
 
-internal class InterfaceParser(resolver: Resolver, private val logger: KSPLogger) {
-    private val primitiveTypes = getPrimitiveTypes(resolver.builtIns)
+internal class InterfaceParser(private val logger: KSPLogger) {
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
 
@@ -140,21 +137,6 @@ internal class InterfaceParser(resolver: Resolver, private val logger: KSPLogger
         if (type.nullability == Nullability.NULLABLE) {
             logger.error("Error in $name: nullable types are not supported.")
         }
-        if (!primitiveTypes.contains(type)) {
-            logger.error("Error in $name: only primitive types are supported.")
-        }
         return Converters.typeFromDeclaration(type.declaration)
     }
-
-    private fun getPrimitiveTypes(builtIns: KSBuiltIns) = listOf(
-        builtIns.booleanType,
-        builtIns.shortType,
-        builtIns.intType,
-        builtIns.longType,
-        builtIns.floatType,
-        builtIns.doubleType,
-        builtIns.charType,
-        builtIns.stringType,
-        builtIns.unitType,
-    )
 }
