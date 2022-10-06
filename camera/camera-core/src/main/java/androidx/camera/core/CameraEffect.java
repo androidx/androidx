@@ -15,7 +15,6 @@
  */
 package androidx.camera.core;
 
-import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.os.Build;
@@ -81,15 +80,22 @@ public class CameraEffect {
     private final Executor mProcessorExecutor;
     @Nullable
     private final SurfaceProcessor mSurfaceProcessor;
+    @Nullable
+    private final ImageProcessor mImageProcessor;
 
     /**
-     * Private constructor as a workaround to allow @Nullable annotation on final fields.
+     * @param targets           the target {@link UseCase} to which this effect should be applied.
+     * @param processorExecutor the {@link Executor} on which the processor will be invoked.
+     * @param imageProcessor    a {@link ImageProcessor} implementation.
      */
-    @SuppressWarnings("UnusedMethod") // TODO: remove once we add {@link ImageProcessor}.
-    private CameraEffect(@Targets int targets) {
+    protected CameraEffect(
+            @Targets int targets,
+            @NonNull Executor processorExecutor,
+            @NonNull ImageProcessor imageProcessor) {
         mTargets = targets;
-        mProcessorExecutor = mainThreadExecutor();
+        mProcessorExecutor = processorExecutor;
         mSurfaceProcessor = null;
+        mImageProcessor = imageProcessor;
     }
 
     /**
@@ -104,6 +110,7 @@ public class CameraEffect {
         mTargets = targets;
         mProcessorExecutor = processorExecutor;
         mSurfaceProcessor = surfaceProcessor;
+        mImageProcessor = null;
     }
 
     /**
@@ -135,6 +142,16 @@ public class CameraEffect {
     }
 
     /**
+     * Gets the {@link ImageProcessor} associated with this effect.
+     *
+     * <p>This method returns the value set via {@link Builder#setImageProcessor}.
+     */
+    @Nullable
+    public ImageProcessor getImageProcessor() {
+        return mImageProcessor;
+    }
+
+    /**
      * Builder class for {@link CameraEffect}.
      */
     public static class Builder {
@@ -144,6 +161,8 @@ public class CameraEffect {
         private Executor mProcessorExecutor;
         @Nullable
         private SurfaceProcessor mSurfaceProcessor;
+        @Nullable
+        private ImageProcessor mImageProcessor;
 
         /**
          * @param targets the target {@link UseCase} of the Effect. e.g. if the
@@ -161,6 +180,9 @@ public class CameraEffect {
          * {@link SurfaceProcessor} on the {@link Executor}, and deliver the processed output
          * frames to the app.
          *
+         * <p>Only one processor can be set via {@code #setImageProcessor()} /
+         * {@code #setSurfaceProcessor}, or the {@link #build()} call will throw error.
+         *
          * @param executor  on which the {@link SurfaceProcessor} will be invoked.
          * @param processor the post processor to be injected into CameraX pipeline.
          */
@@ -173,6 +195,27 @@ public class CameraEffect {
         }
 
         /**
+         * Sets a {@link ImageProcessor} for the effect.
+         *
+         * <p>Once the effect is active, CameraX will send original camera frames to the
+         * {@link ImageProcessor} on the {@link Executor}, and deliver the processed output
+         * frames to the app.
+         *
+         * <p>Only one processor can be set via {@code #setImageProcessor()} /
+         * {@code #setSurfaceProcessor}, or the {@link #build()} call will throw error.
+         *
+         * @param executor  on which the {@link ImageProcessor} will be invoked.
+         * @param processor the post processor to be injected into CameraX pipeline.
+         */
+        @NonNull
+        public Builder setImageProcessor(@NonNull Executor executor,
+                @NonNull ImageProcessor processor) {
+            mProcessorExecutor = executor;
+            mImageProcessor = processor;
+            return this;
+        }
+
+        /**
          * Builds a {@link CameraEffect} instance.
          *
          * <p>CameraX supports a selected set of configuration/processor combinations. This method
@@ -181,9 +224,14 @@ public class CameraEffect {
          */
         @NonNull
         public CameraEffect build() {
-            checkState(mProcessorExecutor != null && mSurfaceProcessor != null,
-                    "Must set a processor.");
-            return new CameraEffect(mTargets, mProcessorExecutor, mSurfaceProcessor);
+            checkState(mProcessorExecutor != null, "Must have a executor");
+            checkState(mImageProcessor != null ^ mSurfaceProcessor != null,
+                    "Must have one and only one processor");
+            if (mSurfaceProcessor != null) {
+                return new CameraEffect(mTargets, mProcessorExecutor, mSurfaceProcessor);
+            } else {
+                return new CameraEffect(mTargets, mProcessorExecutor, mImageProcessor);
+            }
         }
     }
 }
