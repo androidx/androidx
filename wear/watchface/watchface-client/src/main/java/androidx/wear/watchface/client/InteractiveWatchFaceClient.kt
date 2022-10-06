@@ -247,6 +247,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Callback that observes when the client disconnects. Use [addClientDisconnectListener] to
      * register a ClientDisconnectListener.
      */
+    @JvmDefaultWithCompatibility
     public interface ClientDisconnectListener {
         /**
          * The client disconnected, typically due to the server side crashing. Note this is not

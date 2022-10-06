@@ -271,6 +271,7 @@ public abstract class ComplicationDataSourceService : Service() {
      * Callback for [onComplicationRequest] where only one of [onComplicationData] or
      * [onComplicationDataTimeline] should be called.
      */
+    @JvmDefaultWithCompatibility
     public interface ComplicationRequestListener {
         /**
          * Sends the [ComplicationData] to the system. If null is passed then any previous
