@@ -16,12 +16,20 @@
 
 package androidx.webkit.internal;
 
+import static org.chromium.support_lib_boundary.WebMessagePayloadBoundaryInterface.WebMessagePayloadType;
+
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 
 import org.chromium.support_lib_boundary.WebMessageBoundaryInterface;
+import org.chromium.support_lib_boundary.WebMessagePayloadBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+import org.chromium.support_lib_boundary.util.Features;
 
 import java.lang.reflect.InvocationHandler;
 
@@ -33,21 +41,29 @@ import java.lang.reflect.InvocationHandler;
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
     private WebMessageCompat mWebMessageCompat;
 
+    private static final String[] sFeatures = {Features.WEB_MESSAGE_GET_MESSAGE_PAYLOAD};
+
     public WebMessageAdapter(@NonNull WebMessageCompat webMessage) {
         this.mWebMessageCompat = webMessage;
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @deprecated  Keep backwards competibility with old version of WebView. This method is
+     * equivalent to {@link WebMessagePayloadBoundaryInterface#getAsString()}.
+     */
+    @Deprecated
     @Override
     @Nullable
     public String getData() {
         return mWebMessageCompat.getData();
     }
 
-    @SuppressWarnings("MissingOverride")
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
     @Nullable
     public InvocationHandler getMessagePayload() {
-        throw new UnsupportedOperationException("This method is not yet supported");
+        return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                new WebMessagePayloadAdapter(mWebMessageCompat));
     }
 
     @Override
@@ -67,7 +83,17 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
     @NonNull
     public String[] getSupportedFeatures() {
         // getData() and getPorts() are not covered by feature flags.
-        return new String[0];
+        return sFeatures;
+    }
+
+    /**
+     * Utility method to check if the WebMessageCompat payload type is supported by WebView.
+     */
+    public static boolean isMessagePayloadTypeSupportedByWebView(
+            @WebMessageCompat.Type final int type) {
+        return type == WebMessageCompat.TYPE_STRING
+                || (type == WebMessageCompat.TYPE_ARRAY_BUFFER
+                && WebViewFeatureInternal.WEB_MESSAGE_GET_MESSAGE_PAYLOAD.isSupportedByWebView());
     }
 
     // ====================================================================================
@@ -77,16 +103,31 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
     /**
      * Utility method used to convert PostMessages from the Chromium side to
      * {@link WebMessageCompat} objects - a class apps recognize.
+     * Return null when the WebMessageCompat payload type is not supported by AndroidX now.
      */
-    @NonNull
-    // Suppress deprecation warning for usage of WebMessageBoundaryInterface's getData() method,
-    // TODO(linyhe@microsoft.com): remove this once changes corresponding to https://crrev.com/c/3607795
-    // are done in webkit.
     @SuppressWarnings("deprecation")
+    @Nullable
     public static WebMessageCompat webMessageCompatFromBoundaryInterface(
             @NonNull WebMessageBoundaryInterface boundaryInterface) {
-        return new WebMessageCompat(boundaryInterface.getData(),
-                toWebMessagePortCompats(boundaryInterface.getPorts()));
+        final WebMessagePortCompat[] ports = toWebMessagePortCompats(
+                boundaryInterface.getPorts());
+        if (WebViewFeatureInternal.WEB_MESSAGE_GET_MESSAGE_PAYLOAD.isSupportedByWebView()) {
+            WebMessagePayloadBoundaryInterface payloadInterface =
+                    BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                            WebMessagePayloadBoundaryInterface.class,
+                            boundaryInterface.getMessagePayload());
+            final @WebMessagePayloadType int type = payloadInterface.getType();
+            switch (type) {
+                case WebMessagePayloadType.TYPE_STRING:
+                    return new WebMessageCompat(payloadInterface.getAsString(), ports);
+                case WebMessagePayloadType.TYPE_ARRAY_BUFFER:
+                    return new WebMessageCompat(payloadInterface.getAsArrayBuffer(), ports);
+            }
+            // Unsupported message type.
+            return null;
+        }
+        // MessagePayload not supported by WebView, fallback.
+        return new WebMessageCompat(boundaryInterface.getData(), ports);
     }
 
     @NonNull

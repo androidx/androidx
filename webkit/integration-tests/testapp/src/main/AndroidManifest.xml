@@ -106,6 +106,9 @@
             android:name=".JsJavaInteractionActivity"
             android:exported="true" />
         <activity
+            android:name=".WebMessageCompatActivity"
+            android:exported="true" />
+        <activity
             android:name=".WebMessageListenerActivity"
             android:exported="true" />
         <activity
