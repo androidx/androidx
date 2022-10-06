@@ -22,7 +22,9 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.testing.loadFilesFromDirectory
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,34 +41,13 @@ class AidlServiceGeneratorTest {
                         Method(
                             name = "suspendMethodWithReturnValue",
                             parameters = listOf(
-                                Parameter(
-                                    name = "a",
-                                    type = Types.boolean,
-                                ),
-                                Parameter(
-                                    name = "b",
-                                    type = Types.int,
-                                ),
-                                Parameter(
-                                    name = "c",
-                                    type = Types.long,
-                                ),
-                                Parameter(
-                                    name = "d",
-                                    type = Types.float,
-                                ),
-                                Parameter(
-                                    name = "e",
-                                    type = Types.double,
-                                ),
-                                Parameter(
-                                    name = "f",
-                                    type = Types.char,
-                                ),
-                                Parameter(
-                                    name = "g",
-                                    type = Types.int,
-                                )
+                                Parameter("a", Types.boolean),
+                                Parameter("b", Types.int),
+                                Parameter("c", Types.long),
+                                Parameter("d", Types.float),
+                                Parameter("e", Types.double),
+                                Parameter("f", Types.char),
+                                Parameter("g", Types.int)
                             ),
                             returnType = Types.string,
                             isSuspend = true,
@@ -103,49 +84,10 @@ class AidlServiceGeneratorTest {
                 "com.mysdk" to "ICancellationSignal",
             )
 
-        assertThat(aidlGeneratedSources.map { it.relativePath to it.content }).containsExactly(
-            "com/mysdk/IMySdk.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.IStringTransactionCallback;
-                |import com.mysdk.IUnitTransactionCallback;
-                |
-                |interface IMySdk {
-                |    int methodWithReturnValue();
-                |    void methodWithoutReturnValue();
-                |    void suspendMethodWithReturnValue(boolean a, int b, long c, float d, double e, char f, int g, IStringTransactionCallback transactionCallback);
-                |    void suspendMethodWithoutReturnValue(IUnitTransactionCallback transactionCallback);
-                |}
-            """.trimMargin(),
-            "com/mysdk/ICancellationSignal.aidl" to """
-                |package com.mysdk;
-                |
-                |oneway interface ICancellationSignal {
-                |    void cancel();
-                |}
-            """.trimMargin(),
-            "com/mysdk/IStringTransactionCallback.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.ICancellationSignal;
-                |
-                |oneway interface IStringTransactionCallback {
-                |    void onCancellable(ICancellationSignal cancellationSignal);
-                |    void onFailure(int errorCode, String errorMessage);
-                |    void onSuccess(String result);
-                |}
-            """.trimMargin(),
-            "com/mysdk/IUnitTransactionCallback.aidl" to """
-                |package com.mysdk;
-                |
-                |import com.mysdk.ICancellationSignal;
-                |
-                |oneway interface IUnitTransactionCallback {
-                |    void onCancellable(ICancellationSignal cancellationSignal);
-                |    void onFailure(int errorCode, String errorMessage);
-                |    void onSuccess();
-                |}
-            """.trimMargin(),
-        )
+        val outputTestDataDir = File("src/test/test-data/aidlservicegeneratortest/output")
+        val expectedSources = loadFilesFromDirectory(outputTestDataDir)
+
+        assertThat(aidlGeneratedSources.map { it.relativePath to it.content })
+            .containsExactlyElementsIn(expectedSources)
     }
 }
