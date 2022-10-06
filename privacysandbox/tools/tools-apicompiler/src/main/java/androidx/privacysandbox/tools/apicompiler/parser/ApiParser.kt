@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.validator.ModelValidator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
@@ -37,7 +38,7 @@ internal fun KSName.getFullName(): String {
 
 /** Top-level entry point to parse a complete user-defined sandbox SDK API into a [ParsedApi]. */
 class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
-    private val interfaceParser = InterfaceParser(resolver, logger)
+    private val interfaceParser = InterfaceParser(logger)
     private val valueParser = ValueParser(logger)
 
     fun parseApi(): ParsedApi {
@@ -52,7 +53,7 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
         }
         val values = parseAllValues()
         val callbacks = parseAllCallbacks()
-        return ParsedApi(services, values, callbacks)
+        return ParsedApi(services, values, callbacks).also(::validate)
     }
 
     private fun parseAllValues(): Set<AnnotatedValue> {
@@ -84,5 +85,12 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
             return emptySequence()
         }
         return symbolsWithAnnotation.filterIsInstance<KSClassDeclaration>()
+    }
+
+    private fun validate(api: ParsedApi) {
+        val validationResult = ModelValidator.validate(api)
+        for (error in validationResult.errors) {
+            logger.error(error)
+        }
     }
 }
