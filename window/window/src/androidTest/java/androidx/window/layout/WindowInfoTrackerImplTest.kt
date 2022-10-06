@@ -21,6 +21,7 @@ import androidx.core.util.Consumer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
+import androidx.window.layout.adapter.WindowBackend
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope

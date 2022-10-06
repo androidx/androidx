@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
-import android.app.Activity
-import androidx.window.core.Bounds
-import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
-import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
-import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import android.app.Activity
+import androidx.window.core.Bounds
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.FoldingFeature.State.Companion.FLAT
+import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.layout.HardwareFoldingFeature
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 
 internal object ExtensionsWindowLayoutInfoAdapter {
 

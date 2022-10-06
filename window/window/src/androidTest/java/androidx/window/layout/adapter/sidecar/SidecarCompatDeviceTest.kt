@@ -16,7 +16,7 @@
 // Sidecar is deprecated but consuming code must be maintained for compatibility reasons
 @file:Suppress("DEPRECATION")
 
-package androidx.window.layout
+package androidx.window.layout.adapter.sidecar
 
 import android.content.pm.ActivityInfo
 import androidx.test.core.app.ActivityScenario
@@ -27,10 +27,12 @@ import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
 import androidx.window.core.VerificationMode.QUIET
 import androidx.window.core.Version
-import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.HardwareFoldingFeature
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.HardwareFoldingFeature.Type
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.any

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.adapter.extensions
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -28,7 +28,7 @@ import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.WindowLayoutComponent
-import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter.translate
+import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -44,6 +44,8 @@ import org.junit.Test
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import java.util.function.Consumer as JavaConsumer
+import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.WindowMetricsCalculatorCompat
 import com.nhaarman.mockitokotlin2.times
 
 class ExtensionWindowLayoutInfoBackendTest {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout;
+package androidx.window.layout.adapter.sidecar;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;

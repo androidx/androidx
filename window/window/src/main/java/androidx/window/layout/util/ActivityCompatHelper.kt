@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.util
 
 import android.app.Activity
 import android.graphics.Rect
@@ -45,7 +45,7 @@ internal object ActivityCompatHelperApi30 {
      * @DoNotInline required for implementation-specific class method to prevent it from being
      * inlined.
      *
-     * @see WindowMetrics.getWindowInsets
+     * @see androidx.window.layout.WindowMetrics.getWindowInsets
      */
     @DoNotInline
     fun currentWindowInsets(activity: Activity): WindowInsetsCompat {
