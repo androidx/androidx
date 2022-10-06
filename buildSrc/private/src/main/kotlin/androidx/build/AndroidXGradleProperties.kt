@@ -270,6 +270,18 @@ fun Project.usingMaxDepVersions(): Boolean {
 }
 
 /**
+ * Returns whether we export compose compiler metrics
+ */
+fun Project.enableComposeCompilerMetrics() =
+    findBooleanProperty(ENABLE_COMPOSE_COMPILER_METRICS) ?: false
+
+/**
+ * Returns whether we export compose compiler reports
+ */
+fun Project.enableComposeCompilerReports() =
+    findBooleanProperty(ENABLE_COMPOSE_COMPILER_REPORTS) ?: false
+
+/**
  * Returns whether this is an integration test that is allowing lint checks to be skipped to save
  * configuration time.
  */

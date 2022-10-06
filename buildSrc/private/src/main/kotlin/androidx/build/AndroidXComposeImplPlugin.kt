@@ -30,6 +30,8 @@ import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.ClasspathNormalizer
+import org.gradle.api.tasks.bundling.Zip
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -41,8 +43,8 @@ const val composeMetricsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination"
 const val composeReportsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
-const val enableMetricsArg = "androidx.enableComposeCompilerMetrics"
-const val enableReportsArg = "androidx.enableComposeCompilerReports"
+const val zipComposeReportsTaskName = "zipComposeCompilerReports"
+const val zipComposeMetricsTaskName = "zipComposeCompilerMetrics"
 
 /** Plugin to apply common configuration for Compose projects. */
 class AndroidXComposeImplPlugin : Plugin<Project> {
@@ -221,39 +223,102 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
                 }
                 .files
 
-        val enableMetricsProvider = project.providers.gradleProperty(enableMetricsArg)
-        val enableReportsProvider = project.providers.gradleProperty(enableReportsArg)
+        val enableMetrics = project.enableComposeCompilerMetrics()
+        val enableReports = project.enableComposeCompilerReports()
 
-        val libraryMetricsDirectory = project.rootProject.getLibraryMetricsDirectory()
-        val libraryReportsDirectory = project.rootProject.getLibraryReportsDirectory()
-        project.tasks.withType(KotlinCompile::class.java).configureEach { compile ->
+        val compileTasks = project.tasks.withType(KotlinCompile::class.java)
+
+        compileTasks.configureEach { compile ->
             // Append inputs to KotlinCompile so tasks get invalidated if any of these values change
             compile.inputs
                 .files({ kotlinPlugin })
                 .withPropertyName("composeCompilerExtension")
                 .withNormalizer(ClasspathNormalizer::class.java)
-            compile.inputs.property("composeMetricsEnabled", enableMetricsProvider).optional(true)
-            compile.inputs.property("composeReportsEnabled", enableReportsProvider).optional(true)
+            compile.inputs.property("composeMetricsEnabled", enableMetrics)
+            compile.inputs.property("composeReportsEnabled", enableReports)
 
             // Gradle hack ahead, we use of absolute paths, but is OK here because we do it in
             // doFirst which happens after Gradle task input snapshotting. AGP does the same.
             compile.doFirst {
                 compile.kotlinOptions.freeCompilerArgs += "-Xplugin=${kotlinPlugin.first()}"
 
-                if (enableMetricsProvider.orNull == "true") {
-                    val metricsDest = File(libraryMetricsDirectory, "compose")
-                    compile.kotlinOptions.freeCompilerArgs +=
-                        listOf("-P", "$composeMetricsOption=${metricsDest.absolutePath}")
-                }
-                if ((enableReportsProvider.orNull == "true")) {
-                    val reportsDest = File(libraryReportsDirectory, "compose")
-                    compile.kotlinOptions.freeCompilerArgs +=
-                        listOf("-P", "$composeReportsOption=${reportsDest.absolutePath}")
-                }
                 if (shouldPublish) {
                     compile.kotlinOptions.freeCompilerArgs += listOf("-P", composeSourceOption)
                 }
             }
         }
+
+        if (enableMetrics) {
+            project.rootProject.tasks.named(zipComposeMetricsTaskName).configure({ zipTask ->
+                zipTask.dependsOn(compileTasks)
+            })
+
+            val metricsIntermediateDir = project.compilerMetricsIntermediatesDir()
+            compileTasks.configureEach { compile ->
+                compile.doFirst {
+                    compile.kotlinOptions.freeCompilerArgs +=
+                        listOf(
+                            "-P",
+                            "$composeMetricsOption=$metricsIntermediateDir"
+                        )
+                }
+            }
+        }
+        if (enableReports) {
+            project.rootProject.tasks.named(zipComposeReportsTaskName).configure({ zipTask ->
+                zipTask.dependsOn(compileTasks)
+            })
+
+            val reportsIntermediateDir = project.compilerReportsIntermediatesDir()
+            compileTasks.configureEach { compile ->
+                compile.doFirst {
+                    compile.kotlinOptions.freeCompilerArgs +=
+                        listOf(
+                            "-P",
+                            "$composeReportsOption=$reportsIntermediateDir"
+                        )
+                }
+            }
+        }
     }
+}
+
+public fun Project.zipComposeCompilerMetrics() {
+    if (project.enableComposeCompilerMetrics()) {
+        val zipComposeMetrics = project.tasks.register(zipComposeMetricsTaskName, Zip::class.java) {
+            zipTask ->
+            zipTask.from(project.compilerMetricsIntermediatesDir())
+            zipTask.destinationDirectory.set(project.composeCompilerDataDir())
+            zipTask.archiveBaseName.set("composemetrics")
+        }
+        project.addToBuildOnServer(zipComposeMetrics)
+    }
+}
+
+public fun Project.zipComposeCompilerReports() {
+    if (project.enableComposeCompilerReports()) {
+        val zipComposeReports = project.tasks.register(zipComposeReportsTaskName, Zip::class.java) {
+            zipTask ->
+            zipTask.from(project.compilerReportsIntermediatesDir())
+            zipTask.destinationDirectory.set(project.composeCompilerDataDir())
+            zipTask.archiveBaseName.set("composereports")
+        }
+        project.addToBuildOnServer(zipComposeReports)
+    }
+}
+
+fun Project.compilerMetricsIntermediatesDir(): File {
+    return project.rootProject.layout.buildDirectory.dir(
+        "libraryreports/composemetrics"
+    ).get().getAsFile()
+}
+
+fun Project.compilerReportsIntermediatesDir(): File {
+    return project.rootProject.layout.buildDirectory.dir(
+        "libraryreports/composereports"
+    ).get().getAsFile()
+}
+
+fun Project.composeCompilerDataDir(): File {
+    return File(getDistributionDirectory(), "compose-compiler-data")
 }
