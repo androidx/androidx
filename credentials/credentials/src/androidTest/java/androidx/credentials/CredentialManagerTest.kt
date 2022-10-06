@@ -38,7 +38,7 @@ class CredentialManagerTest {
     }
 
     @Test
-    fun testCreateCredential() = runBlocking<Unit> {
+    fun createCredential() = runBlocking<Unit> {
         assertThrows<UnsupportedOperationException> {
             credentialManager.executeCreateCredential(
                 CreatePasswordRequest("test-user-id", "test-password")
@@ -47,7 +47,7 @@ class CredentialManagerTest {
     }
 
     @Test
-    fun testGetCredential() = runBlocking<Unit> {
+    fun getCredential() = runBlocking<Unit> {
         val request = GetCredentialRequest.Builder()
             .addGetCredentialOption(GetPasswordOption())
             .build()
