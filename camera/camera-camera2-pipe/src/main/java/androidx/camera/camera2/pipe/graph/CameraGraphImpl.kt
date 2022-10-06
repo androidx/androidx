@@ -108,6 +108,7 @@ internal class CameraGraphImpl @Inject constructor(
         sessionLock.close()
         graphProcessor.close()
         cameraController.close()
+        surfaceGraph.close()
         Debug.traceStop()
     }
 
