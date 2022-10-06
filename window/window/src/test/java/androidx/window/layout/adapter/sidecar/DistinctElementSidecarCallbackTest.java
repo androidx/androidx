@@ -17,7 +17,7 @@
 package androidx.window.layout.adapter.sidecar;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import androidx.window.sidecar.SidecarInterface;
 
@@ -33,6 +33,6 @@ public class DistinctElementSidecarCallbackTest {
         DistinctElementSidecarCallback callback = new DistinctElementSidecarCallback(mockCallback);
 
         callback.onDeviceStateChanged(null);
-        verifyZeroInteractions(mockCallback);
+        verifyNoMoreInteractions(mockCallback);
     }
 }
