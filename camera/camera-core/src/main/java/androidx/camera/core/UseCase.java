@@ -236,6 +236,13 @@ public abstract class UseCase {
             mergedConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
+        // Forces disable ZSL when high resolution is enabled.
+        if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
+                && mergedConfig.retrieveOption(
+                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).isHighResolutionEnabled()) {
+            mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
+        }
+
         return onMergeConfig(cameraInfo, getUseCaseConfigBuilder(mergedConfig));
     }
 
