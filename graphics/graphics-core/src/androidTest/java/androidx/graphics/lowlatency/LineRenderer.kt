@@ -96,7 +96,7 @@ class LineRenderer {
 
         val buff = FloatBuffer.allocate(2)
         GLES20.glGetFloatv(GLES20.GL_ALIASED_LINE_WIDTH_RANGE, buff)
-        GLES20.glLineWidth(100.0f)
+        GLES20.glLineWidth(10.0f)
 
         GLES20.glEnableVertexAttribArray(mPositionHandle)
 
