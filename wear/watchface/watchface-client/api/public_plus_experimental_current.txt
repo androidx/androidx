@@ -169,7 +169,7 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
-  public static interface InteractiveWatchFaceClient.ClientDisconnectListener {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface InteractiveWatchFaceClient.ClientDisconnectListener {
     method @Deprecated public default void onClientDisconnected();
     method public default void onClientDisconnected(int disconnectReason);
   }
