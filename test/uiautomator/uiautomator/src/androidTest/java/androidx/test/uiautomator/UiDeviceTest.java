@@ -177,6 +177,14 @@ public class UiDeviceTest {
     }
 
     @Test
+    public void testWakeUpAndShutDownScreen() throws Exception {
+        mDevice.wakeUp();
+        assertTrue(mDevice.isScreenOn());
+        mDevice.sleep();
+        assertFalse(mDevice.isScreenOn());
+    }
+
+    @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)
     public void testGetUiAutomation_withoutFlags() {
         mDevice.getUiAutomation();

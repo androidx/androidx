@@ -388,12 +388,6 @@ public class UiDeviceTest extends BaseTest {
 
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
 
-    public void testWakeUp() {}
-
-    public void testIsScreenOn() {}
-
-    public void testSleep() {}
-
     public void testDumpWindowHierarchy_withString() {}
 
     public void testDumpWindowHierarchy_withFile() {} // already added
