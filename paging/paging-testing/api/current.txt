@@ -1,6 +1,10 @@
 // Signature format: 4.0
 package androidx.paging.testing {
 
+  public final class StaticListPagingSourceFactoryKt {
+    method public static <Value> kotlin.jvm.functions.Function0<androidx.paging.PagingSource<java.lang.Integer,Value>> asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope);
+  }
+
   public final class TestPager<Key, Value> {
     ctor public TestPager(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingConfig config);
     method public suspend Object? append(kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>);
