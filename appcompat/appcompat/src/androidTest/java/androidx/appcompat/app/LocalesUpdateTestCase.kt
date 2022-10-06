@@ -16,11 +16,13 @@
 
 package androidx.appcompat.app
 
+import android.util.LayoutDirection.RTL
 import android.webkit.WebView
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
+import androidx.appcompat.testutils.LocalesUtils.getRTLLocaleList
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWait
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
 import androidx.core.os.LocaleListCompat
@@ -112,5 +114,14 @@ class LocalesUpdateTestCase() {
         )
         // Assert that onConfigurationChange was not called
         assertNull(activity.lastConfigurationChangeAndClear)
+    }
+
+    @SdkSuppress(minSdkVersion = 17)
+    @Test
+    fun testLayoutDirectionAfterRecreating() {
+        setLocalesAndWaitForRecreate(rule, getRTLLocaleList())
+
+        // Now assert that the layoutDirection of decorView is RTL
+        assertEquals(rule.activity.window.decorView.layoutDirection, RTL)
     }
 }
