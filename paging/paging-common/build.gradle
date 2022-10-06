@@ -38,10 +38,8 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin, {
-        exclude group: "org.mockito" // to keep control on the mockito version
-    })
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":internal-testutils-common"))
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-paging"))

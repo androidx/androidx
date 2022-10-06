@@ -26,7 +26,7 @@ dependencies {
     api("androidx.annotation:annotation:1.0.0")
     implementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
 }

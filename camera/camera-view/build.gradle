@@ -40,7 +40,7 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)

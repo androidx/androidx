@@ -115,6 +115,7 @@ public class MockedCarTestBase {
     @Mock
     private CarPropertyManager mCarPropertyManagerMock;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

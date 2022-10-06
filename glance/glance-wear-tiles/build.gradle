@@ -50,8 +50,8 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.core:core-ktx:1.7.0")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0")
 

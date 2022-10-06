@@ -251,6 +251,7 @@ public class ComplicationDataSourceServiceTest {
                 }
             };
 
+    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

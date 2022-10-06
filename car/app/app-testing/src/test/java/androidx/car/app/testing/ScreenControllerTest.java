@@ -51,6 +51,7 @@ public class ScreenControllerTest {
     private ScreenController mScreenController;
     private TestCarContext mCarContext;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);

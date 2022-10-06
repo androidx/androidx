@@ -67,6 +67,7 @@ public class HostValidatorTestApi28 {
     @Mock
     private Resources mResources;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

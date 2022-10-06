@@ -34,6 +34,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class AutomotiveCarConnectionTypeLiveDataTest {
     @Mock private Observer<Integer> mMockObserver;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

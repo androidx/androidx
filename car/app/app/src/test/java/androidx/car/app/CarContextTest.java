@@ -95,6 +95,7 @@ public class CarContextTest {
     private Screen mScreen2;
     private final TestLifecycleOwner mLifecycleOwner = new TestLifecycleOwner();
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

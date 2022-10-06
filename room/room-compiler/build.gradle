@@ -110,7 +110,7 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
     testImplementation(libs.kotlinCompilerEmbeddable)
     testImplementation(fileTree(

@@ -31,8 +31,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRules)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
 
     implementation("androidx.core:core-ktx:1.6.0")
 

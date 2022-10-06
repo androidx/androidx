@@ -169,6 +169,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     private var initLatch = CountDownLatch(1)
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
+    @Suppress("DEPRECATION") // b/251211092
     @Before
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 29", Build.VERSION.SDK_INT >= 29)

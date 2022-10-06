@@ -75,6 +75,7 @@ public final class ScreenManagerTest {
 
     private ScreenManager mScreenManager;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

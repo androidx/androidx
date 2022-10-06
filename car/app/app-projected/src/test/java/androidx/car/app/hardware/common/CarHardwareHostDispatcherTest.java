@@ -57,6 +57,7 @@ public class CarHardwareHostDispatcherTest {
             new CarHardwareHostDispatcher(mHostDispatcher);
     private TestCarHardwareHostStub mCarHardwareHost;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);

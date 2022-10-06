@@ -28,7 +28,7 @@ dependencies {
     api(libs.truth)
     api(libs.kotlinStdlib)
     testImplementation(libs.truth)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(project(":internal-testutils-truth"))
 }

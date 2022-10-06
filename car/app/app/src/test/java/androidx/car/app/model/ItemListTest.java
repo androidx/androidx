@@ -58,6 +58,7 @@ public class ItemListTest {
     @Mock
     private IOnDoneCallback.Stub mMockOnDoneCallback;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

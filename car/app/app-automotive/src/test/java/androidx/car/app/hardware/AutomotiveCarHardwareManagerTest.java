@@ -60,6 +60,7 @@ public class AutomotiveCarHardwareManagerTest {
     private Application mContext;
     private ShadowApplication mShadowApplication;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 public class PropertyRequestProcessorTest extends MockedCarTestBase {
     private static final int WAIT_CALLBACK_MS = 50;
     private PropertyRequestProcessor mRequestProcessor;
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         super.setUp();

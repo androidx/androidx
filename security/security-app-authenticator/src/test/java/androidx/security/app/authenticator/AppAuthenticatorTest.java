@@ -53,6 +53,7 @@ public class AppAuthenticatorTest {
     @Mock
     private AppSignatureVerifier mMockAppSignatureVerifier;
 
+    @SuppressWarnings("deprecation") // b/251210952
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);

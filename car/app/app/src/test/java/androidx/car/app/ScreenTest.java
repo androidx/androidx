@@ -54,6 +54,7 @@ public final class ScreenTest {
 
     private Screen mScreen;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
