@@ -338,6 +338,7 @@ dependencies {
     docs(project(":wear:watchface:watchface-style"))
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))
+    docs(project(":window:window-core"))
     docs(project(":window:window-java"))
     docs(project(":window:window-rxjava2"))
     docs(project(":window:window-rxjava3"))
