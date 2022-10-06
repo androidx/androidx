@@ -59,12 +59,6 @@ class AidlServiceGeneratorTest {
                             isSuspend = true,
                         ),
                         Method(
-                            name = "methodWithReturnValue",
-                            parameters = listOf(),
-                            returnType = Types.int,
-                            isSuspend = false,
-                        ),
-                        Method(
                             name = "methodWithoutReturnValue",
                             parameters = listOf(),
                             returnType = Types.unit,

@@ -17,13 +17,20 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.validator.ModelValidator
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
+import com.google.common.truth.Truth.assertWithMessage
 import java.nio.file.Files
 import kotlin.io.path.Path
 
 internal object AidlTestHelper {
     fun runGenerator(api: ParsedApi): AidlGenerationOutput {
+        ModelValidator.validate(api).also {
+            assertWithMessage("Tried to generate AIDL code for invalid interface:\n" +
+                it.errors.joinToString("\n")
+            ).that(it.isSuccess).isTrue()
+        }
         val tmpDir = Files.createTempDirectory("aidlGenerationTest")
         val aidlPath = System.getProperty("aidl_compiler_path")?.let(::Path)
             ?: throw IllegalArgumentException("aidl_compiler_path flag not set.")

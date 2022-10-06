@@ -112,14 +112,8 @@ class AidlGenerator private constructor(
                 add("${method.returnType.transactionCallbackName()} transactionCallback")
             }
         }
-        // TODO remove return type.
-        val returnType = if (method.isSuspend) {
-            "void"
-        } else {
-            getAidlTypeDeclaration(method.returnType)
-        }
 
-        return "$returnType ${method.name}(${parameters.joinToString()});"
+        return "void ${method.name}(${parameters.joinToString()});"
     }
 
     private fun generateAidlParameter(parameter: Parameter): String {
