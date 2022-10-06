@@ -100,6 +100,7 @@ public class ComplicationDrawableTest {
     @Mock
     Drawable.Callback mMockDrawableCallback;
 
+    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

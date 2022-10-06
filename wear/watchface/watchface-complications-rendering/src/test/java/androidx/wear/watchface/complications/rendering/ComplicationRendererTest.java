@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -107,6 +107,7 @@ public class ComplicationRendererTest {
     private OnInvalidateListener mMockInvalidateListener;
     private final Resources mResurces = ApplicationProvider.getApplicationContext().getResources();
 
+    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -334,7 +335,7 @@ public class ComplicationRendererTest {
         // AND complication is drawn again
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test
@@ -351,7 +352,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
 
         // THEN nothing is drawn on canvas
-        verifyZeroInteractions(mMockCanvas);
+        verifyNoMoreInteractions(mMockCanvas);
     }
 
     @Test

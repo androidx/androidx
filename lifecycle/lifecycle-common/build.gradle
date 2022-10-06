@@ -25,7 +25,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 
     constraints {
         implementation(project(":lifecycle:lifecycle-common-java8"))

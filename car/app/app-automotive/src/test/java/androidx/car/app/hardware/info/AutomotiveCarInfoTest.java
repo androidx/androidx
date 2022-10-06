@@ -113,6 +113,7 @@ public class AutomotiveCarInfoTest {
     private static final List<CarZone> GLOBAL_ZONE = Collections.singletonList(
             CarZone.CAR_ZONE_GLOBAL);
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

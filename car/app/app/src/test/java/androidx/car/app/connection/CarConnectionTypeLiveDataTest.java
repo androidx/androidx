@@ -64,6 +64,7 @@ public class CarConnectionTypeLiveDataTest {
     private CarConnectionTypeLiveData mCarConnectionTypeLiveData;
     private TestContentProvider mContentProvider;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

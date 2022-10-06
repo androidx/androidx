@@ -38,7 +38,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")

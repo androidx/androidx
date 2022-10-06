@@ -31,7 +31,6 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 
@@ -258,7 +257,7 @@ class PageKeyedDataSourceTest {
 
         pagedList.loadAround(0)
 
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         dispatcher.executeAll()
 
@@ -311,7 +310,7 @@ class PageKeyedDataSourceTest {
 
         pagedList.loadAround(0)
 
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         dispatcher.executeAll()
 

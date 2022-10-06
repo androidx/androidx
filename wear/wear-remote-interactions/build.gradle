@@ -41,8 +41,8 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
 
     implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)

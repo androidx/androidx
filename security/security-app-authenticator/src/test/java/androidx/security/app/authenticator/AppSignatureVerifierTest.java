@@ -76,6 +76,7 @@ public class AppSignatureVerifierTest {
 
     private AppSignatureVerifierTestBuilder mBuilder;
 
+    @SuppressWarnings("deprecation") // b/251210952
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);

@@ -54,6 +54,7 @@ public class SessionControllerTest {
     private Intent mIntent;
     private Intent mScreenIntent;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);

@@ -52,6 +52,7 @@ public class PropertyManagerTest extends MockedCarTestBase {
             Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
     private PropertyManager mPropertyManager;
 
+    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         super.setUp();
