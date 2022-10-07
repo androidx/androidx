@@ -29,13 +29,16 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
 import android.app.UiAutomation;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -156,6 +159,29 @@ public class UiDeviceTest {
 
         assertFalse(mDevice.hasWatcherTriggered(WATCHER_NAME));
         assertFalse(mDevice.hasAnyWatcherTriggered());
+    }
+
+    @Test
+    public void testFreezeAndUnfreezeRotation() throws Exception {
+        ContentResolver resolver = ApplicationProvider.getApplicationContext().getContentResolver();
+
+        mDevice.freezeRotation();
+        // The value of `ACCELEROMETER_ROTATION` will be 0 if the accelerometer is NOT used for
+        // detecting rotation, and 1 otherwise.
+        assertEquals(0,
+                Settings.System.getInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0));
+
+        mDevice.unfreezeRotation();
+        assertEquals(1,
+                Settings.System.getInt(resolver, Settings.System.ACCELEROMETER_ROTATION, 0));
+    }
+
+    @Test
+    public void testWakeUpAndShutDownScreen() throws Exception {
+        mDevice.wakeUp();
+        assertTrue(mDevice.isScreenOn());
+        mDevice.sleep();
+        assertFalse(mDevice.isScreenOn());
     }
 
     @Test
