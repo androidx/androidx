@@ -50,12 +50,10 @@ class FragmentTest {
     @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var activity: FragmentTestActivity
     private lateinit var instrumentation: Instrumentation
 
     @Before
     fun setup() {
-        activity = activityRule.activity
         instrumentation = InstrumentationRegistry.getInstrumentation()
     }
 
@@ -63,6 +61,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testRequireView() {
+        val activity = activityRule.activity
         val fragment1 = StrictViewFragment()
         activity.supportFragmentManager.beginTransaction().add(R.id.content, fragment1).commitNow()
         assertThat(fragment1.requireView()).isNotNull()
@@ -72,6 +71,7 @@ class FragmentTest {
     @UiThreadTest
     @Test(expected = IllegalStateException::class)
     fun testRequireViewWithoutView() {
+        val activity = activityRule.activity
         val fragment1 = StrictFragment()
         activity.supportFragmentManager.beginTransaction().add(fragment1, "fragment").commitNow()
         fragment1.requireView()
@@ -81,6 +81,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testOnCreateOrder() {
+        val activity = activityRule.activity
         val fragment1 = OrderFragment()
         val fragment2 = OrderFragment()
         activity.supportFragmentManager.beginTransaction()
@@ -95,6 +96,7 @@ class FragmentTest {
     @Test
     @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testChildFragmentManagerGone() {
+        val activity = activityRule.activity
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         activityRule.runOnUiThread {
@@ -139,6 +141,7 @@ class FragmentTest {
     @Test
     @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testRemoveUnrelatedDuringAnimation() {
+        val activity = activityRule.activity
         val unrelatedFragment = StrictFragment()
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
@@ -225,6 +228,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testViewOrder() {
+        val activity = activityRule.activity
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         val fragmentC = FragmentC()
@@ -242,6 +246,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testRequireParentFragment() {
+        val activity = activityRule.activity
         val parentFragment = StrictFragment()
         activity.supportFragmentManager.beginTransaction().add(parentFragment, "parent").commitNow()
 
