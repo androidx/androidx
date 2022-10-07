@@ -188,6 +188,7 @@ public class IconWireSizeAndDimensionsTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun estimateWireSizeInBytes_ComplicationSlotsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102

@@ -130,7 +130,7 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay {
     ctor public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional Boolean? enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional Integer? accessibilityTraversalIndex, optional Integer? nameResourceId, optional Integer? screenReaderNameResourceId);
-    ctor @Deprecated public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional boolean enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional int accessibilityTraversalIndex);
+    ctor @Deprecated public UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(int complicationSlotId, optional Boolean? enabled, optional androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds, optional Integer? accessibilityTraversalIndex);
     method public Integer? getAccessibilityTraversalIndex();
     method public androidx.wear.watchface.complications.ComplicationSlotBounds? getComplicationSlotBounds();
     method public int getComplicationSlotId();

@@ -254,6 +254,7 @@ public class UserStyleSettingTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun noDuplicatedComplicationSlotOptions() {
         val leftComplicationSlot =
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(1)
