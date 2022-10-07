@@ -18,7 +18,7 @@ package androidx.credentials
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +48,7 @@ class GetPublicKeyCredentialOptionTest {
             "JSON"
         )
         val allowHybridActual = getPublicKeyCredentialOpt.allowHybrid
-        Truth.assertThat(allowHybridActual).isTrue()
+        assertThat(allowHybridActual).isTrue()
     }
 
     @Test
@@ -58,7 +58,7 @@ class GetPublicKeyCredentialOptionTest {
             "JSON", allowHybridExpected
         )
         val allowHybridActual = getPublicKeyCredentialOpt.allowHybrid
-        Truth.assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
     }
 
     @Test
@@ -66,6 +66,6 @@ class GetPublicKeyCredentialOptionTest {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val createPublicKeyCredentialReq = GetPublicKeyCredentialOption(testJsonExpected)
         val testJsonActual = createPublicKeyCredentialReq.requestJson
-        Truth.assertThat(testJsonActual).isEqualTo(testJsonExpected)
+        assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 }
