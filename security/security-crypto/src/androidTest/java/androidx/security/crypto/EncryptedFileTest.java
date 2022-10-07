@@ -340,7 +340,7 @@ public class EncryptedFileTest {
         outputStream.close();
 
         StreamingAeadConfig.register();
-        KeysetHandle streadmingAeadKeysetHandle = new AndroidKeysetManager.Builder()
+        KeysetHandle streamingAeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_file_keyset__",
@@ -349,7 +349,7 @@ public class EncryptedFileTest {
                 .build().getKeysetHandle();
 
         StreamingAead streamingAead = com.google.crypto.tink.streamingaead.StreamingAeadFactory
-                .getPrimitive(streadmingAeadKeysetHandle);
+                .getPrimitive(streamingAeadKeysetHandle);
 
         FileInputStream fileInputStream = new FileInputStream(file);
         InputStream inputStream = streamingAead.newDecryptingStream(fileInputStream,
