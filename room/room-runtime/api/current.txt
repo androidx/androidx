@@ -148,12 +148,12 @@ package androidx.room {
 package androidx.room.migration {
 
   public interface AutoMigrationSpec {
-    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
   }
 
   public abstract class Migration {
-    ctor public Migration(int, int);
-    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    ctor public Migration(int startVersion, int endVersion);
+    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int endVersion;
     field public final int startVersion;
   }

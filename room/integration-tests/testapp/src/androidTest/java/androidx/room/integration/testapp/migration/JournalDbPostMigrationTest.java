@@ -114,16 +114,16 @@ public class JournalDbPostMigrationTest {
 
     private static Migration sMigrationV1toV2 = new Migration(1, 2) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE user ADD COLUMN `address` TEXT");
-            Cursor cursor = database.query("SELECT * FROM user");
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE user ADD COLUMN `address` TEXT");
+            Cursor cursor = db.query("SELECT * FROM user");
             while (cursor.moveToNext()) {
                 String authCode = cursor.getString(cursor.getColumnIndex("address"));
                 if (TextUtils.isEmpty(authCode)) {
                     int id = cursor.getInt(cursor.getColumnIndex("uid"));
                     ContentValues values = new ContentValues();
                     values.put("address", UUID.randomUUID().toString());
-                    database.update(
+                    db.update(
                             "user", SQLiteDatabase.CONFLICT_IGNORE, values,
                             "uid = " + id, null);
                 }
@@ -132,8 +132,8 @@ public class JournalDbPostMigrationTest {
     };
     private static Migration sMigrationV2toV3 = new Migration(2, 3) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE user ADD COLUMN `age` INTEGER NOT NULL DEFAULT 0");
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE user ADD COLUMN `age` INTEGER NOT NULL DEFAULT 0");
         }
     };
 

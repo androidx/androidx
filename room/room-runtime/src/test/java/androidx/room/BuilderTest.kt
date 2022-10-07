@@ -453,6 +453,6 @@ class BuilderTest {
     }
 
     internal class EmptyMigration(start: Int, end: Int) : Migration(start, end) {
-        override fun migrate(database: SupportSQLiteDatabase) {}
+        override fun migrate(db: SupportSQLiteDatabase) {}
     }
 }
