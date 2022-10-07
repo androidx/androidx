@@ -420,18 +420,28 @@ public class UiDeviceTest extends BaseTest {
         validateMainActivityXml(xml);
     }
 
-    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testWaitForWindowUpdate() {
+        launchTestActivity(WaitTestActivity.class);
 
-    public void testWaitForWindowUpdate() {}
+        // Returns false when the current window doesn't have the specified package name.
+        assertFalse(mDevice.waitForWindowUpdate("non-existent package name", 1_000));
 
-    public void testTakeScreenshot() {} // already added
+        UiObject2 text1 = mDevice.findObject(By.res(TEST_APP, "text_1"));
 
-    public void testTakeScreenshot_withScaleAndQuality() {} // already added
+        // Returns true when change happens in the current window within the timeout.
+        text1.click();
+        assertTrue(mDevice.waitForWindowUpdate(PACKAGE_NAME, 5_000));
 
-    public void testGetLauncherPackageName() {}
+        // Returns false when no change happens in the current window within the timeout.
+        text1.click();
+        assertFalse(mDevice.waitForWindowUpdate(PACKAGE_NAME, 1_000));
+    }
 
-    public void testExecuteShellCommand() {} // already added
-    */
+    @Test
+    public void testGetLauncherPackageName() {
+        assertTrue(mDevice.wait(Until.hasObject(By.pkg(mDevice.getLauncherPackageName())), 5_000));
+    }
 
     private static void validateMainActivityXml(Document xml) throws Exception {
         Element element = (Element) XPathFactory.newInstance().newXPath()
