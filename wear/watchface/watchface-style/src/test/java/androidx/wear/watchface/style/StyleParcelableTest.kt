@@ -543,6 +543,7 @@ public class StyleParcelableTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102

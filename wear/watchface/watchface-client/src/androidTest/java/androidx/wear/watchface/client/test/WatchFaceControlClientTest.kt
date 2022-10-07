@@ -2463,6 +2463,7 @@ internal class TestComplicationStyleUpdateWatchFaceService(
         attachBaseContext(testContext)
     }
 
+    @Suppress("deprecation")
     private val complicationsStyleSetting =
         UserStyleSetting.ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),

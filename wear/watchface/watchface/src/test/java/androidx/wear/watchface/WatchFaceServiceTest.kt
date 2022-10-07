@@ -5116,6 +5116,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun applyComplicationSlotsStyleCategoryOption() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
