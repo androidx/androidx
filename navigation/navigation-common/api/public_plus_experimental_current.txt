@@ -398,6 +398,7 @@ package androidx.navigation {
     method public abstract T! parseValue(String value);
     method public T! parseValue(String value, T? previousValue);
     method public abstract void put(android.os.Bundle bundle, String key, T? value);
+    method public String serializeAsValue(T? value);
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
