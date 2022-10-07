@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -37,7 +39,14 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl
 import androidx.camera.extensions.impl.PreviewExtenderImpl
+import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.AutoAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl
 import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
@@ -131,6 +140,32 @@ object CameraXExtensionsTestUtil {
     }
 
     /**
+     * Creates a [AdvancedExtenderImpl] object for specific [ExtensionMode] and
+     * camera id.
+     *
+     * @param extensionMode The extension mode for the created object.
+     * @param cameraId The target camera id.
+     * @param cameraCharacteristics The camera characteristics of the target camera.
+     * @return A [AdvancedExtenderImpl] object.
+     */
+    @JvmStatic
+    fun createAdvancedExtenderImpl(
+        @ExtensionMode.Mode extensionMode: Int,
+        cameraId: String,
+        cameraInfo: CameraInfo
+    ): AdvancedExtenderImpl = when (extensionMode) {
+        ExtensionMode.HDR -> HdrAdvancedExtenderImpl()
+        ExtensionMode.BOKEH -> BokehAdvancedExtenderImpl()
+        ExtensionMode.FACE_RETOUCH -> BeautyAdvancedExtenderImpl()
+        ExtensionMode.NIGHT -> NightAdvancedExtenderImpl()
+        ExtensionMode.AUTO -> AutoAdvancedExtenderImpl()
+        else -> throw AssertionFailedError("No such Preview extender implementation")
+    }.apply {
+        val cameraCharacteristicsMap = Camera2CameraInfo.from(cameraInfo).cameraCharacteristicsMap
+        init(cameraId, cameraCharacteristicsMap)
+    }
+
+    /**
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
     @JvmStatic
@@ -152,8 +187,10 @@ object CameraXExtensionsTestUtil {
         extensionMode: Int
     ) {
         val cameraIdCameraSelector = createCameraSelectorById(cameraId)
-        assumeTrue("Extensions mode($extensionMode) not supported",
-            extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode))
+        assumeTrue(
+            "Extensions mode($extensionMode) not supported",
+            extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode)
+        )
     }
 
     @JvmStatic
@@ -188,6 +225,18 @@ object CameraXExtensionsTestUtil {
         }
 
         return ExtensionMode.NONE
+    }
+
+    @JvmStatic
+    fun isAdvancedExtenderImplemented(): Boolean {
+        if (!isTargetDeviceAvailableForExtensions()) {
+            return false
+        }
+        if (ExtensionVersion.getRuntimeVersion()!! < Version.VERSION_1_2) {
+            return false
+        }
+
+        return ExtensionVersion.isAdvancedExtenderSupported()
     }
 
     @JvmStatic
