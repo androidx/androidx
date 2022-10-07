@@ -1,0 +1,15 @@
+// Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.java.topics {
+
+  public abstract class TopicsManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures? from(android.content.Context context);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse> getTopicsAsync(androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures.Companion Companion;
+  }
+
+  public static final class TopicsManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures? from(android.content.Context context);
+  }
+
+}
+
