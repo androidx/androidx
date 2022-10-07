@@ -13,11 +13,11 @@ function runGradle() {
 }
 
 # This script regenerates signature-related information (dependency-verification-metadata and keyring)
-function regenerateTrustedKeys() {
-  echo "regenerating list of trusted keys"
+function regenerateVerificationMetadata() {
+  echo "regenerating verification metadata and keyring"
   # regenerate metadata
   # Need to run a clean build, https://github.com/gradle/gradle/issues/19228
-  runGradle --write-verification-metadata pgp,sha256 --dry-run --clean bOS
+  runGradle --write-verification-metadata pgp,sha256 --export-keys --dry-run --clean bOS
   # extract and keep only the <trusted-keys> section
   WORK_DIR=gradle/update-keys-temp
   rm -rf "$WORK_DIR"
@@ -38,20 +38,8 @@ function regenerateTrustedKeys() {
   grep -B 10000 "<trusted-keys>" gradle/verification-metadata.xml > "$WORK_DIR/old.head"
   grep -A 10000 "</trusted-keys>" gradle/verification-metadata.xml > "$WORK_DIR/old.tail"
 
-  # update file
+  # update verification metadata file
   cat "$WORK_DIR/old.head" "$WORK_DIR/new.middle" "$WORK_DIR/old.tail" > gradle/verification-metadata.xml
-
-  # remove temporary files
-  rm -rf "$WORK_DIR"
-  rm -rf gradle/verification-metadata.dryrun.xml
-}
-regenerateTrustedKeys
-
-# updates the keyring, including sorting entries and removing duplicates
-function regenerateKeyring() {
-  # a separate step from regenerating the verification metadata, https://github.com/gradle/gradle/issues/20138
-  echo "regenerating keyring"
-  runGradle --write-verification-metadata sha256 --export-keys --dry-run bOS
 
   echo "sorting keyring and removing duplicates"
   # sort and unique the keyring
@@ -72,12 +60,13 @@ function regenerateKeyring() {
     | sed 's/NEWLINE/\n/g' \
     > gradle/verification-keyring.keys
 
-  # remove unused files
+  # remove temporary files
+  rm -rf "$WORK_DIR"
   rm -f gradle/verification-keyring-dryrun.gpg
   rm -f gradle/verification-keyring-dryrun.keys
   rm -f gradle/verification-metadata.dryrun.xml
 }
-regenerateKeyring
+regenerateVerificationMetadata
 
 echo
 echo "Done. Please check that these changes look correct ('git diff')"
