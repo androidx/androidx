@@ -2,7 +2,6 @@ package com.mysdk;
 
 import com.mysdk.IOuterValueTransactionCallback;
 import com.mysdk.IUnitTransactionCallback;
-import com.mysdk.ParcelableInnerValue;
 import com.mysdk.ParcelableOuterValue;
 
 interface IMySdk {
