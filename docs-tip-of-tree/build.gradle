@@ -175,6 +175,7 @@ dependencies {
     samples(project(":hilt:hilt-navigation-compose-samples"))
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
+    docs(project(":input:input-motionprediction"))
     docs(project(":interpolator:interpolator"))
     docs(project(":javascriptengine:javascriptengine"))
     docs(project(":metrics:metrics-performance"))
