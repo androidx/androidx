@@ -20,6 +20,13 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME"/>
+        </intent>
+    </queries>
+
     <application android:label="UiAutomator Test App">
         <activity android:name=".MainActivity"
             android:exported="true"
