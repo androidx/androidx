@@ -22,7 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.UiAutomation;
 import android.graphics.Point;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
@@ -349,27 +351,42 @@ public class UiDeviceTest extends BaseTest {
         assertEquals(PACKAGE_NAME, mDevice.getCurrentPackageName());
     }
 
+    @Test
+    public void testSetOrientationLeft() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        assertTrue(mDevice.isNaturalOrientation());
+        assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+
+        mDevice.setOrientationLeft();
+        // Make the device wait for 1 sec for the rotation animation to finish.
+        SystemClock.sleep(1_000);
+        assertFalse(mDevice.isNaturalOrientation());
+        assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
+
+        mDevice.setOrientationNatural();
+        SystemClock.sleep(1_000);
+        assertTrue(mDevice.isNaturalOrientation());
+    }
+
+    @Test
+    public void testSetOrientationRight() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        assertTrue(mDevice.isNaturalOrientation());
+        assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+
+        mDevice.setOrientationRight();
+        SystemClock.sleep(1_000);
+        assertFalse(mDevice.isNaturalOrientation());
+        assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
+
+        mDevice.setOrientationNatural();
+        SystemClock.sleep(1_000);
+        assertTrue(mDevice.isNaturalOrientation());
+    }
+
     /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testIsNaturalOrientation() {}
-
-    public void testGetDisplayRotation() {}
-
-    public void testFreezeRotation() {}
-
-    public void testUnfreezeRotation() {}
-
-    public void testSetOrientationLeft() {}
-
-    public void testSetOrientationRight() {}
-
-    public void testSetOrientationNatural() {}
-
-    public void testWakeUp() {}
-
-    public void testIsScreenOn() {}
-
-    public void testSleep() {}
 
     public void testDumpWindowHierarchy_withString() {}
 

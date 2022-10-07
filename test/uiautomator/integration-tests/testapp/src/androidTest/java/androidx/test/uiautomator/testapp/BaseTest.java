@@ -48,6 +48,7 @@ public abstract class BaseTest {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         mDevice.wakeUp();
         mDevice.pressHome();
+        mDevice.setOrientationNatural();
     }
 
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {
