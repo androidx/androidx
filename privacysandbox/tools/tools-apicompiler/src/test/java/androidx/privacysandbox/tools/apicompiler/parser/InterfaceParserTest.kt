@@ -220,8 +220,9 @@ class InterfaceParserTest {
     fun parameterWithGenerics_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
-                    "@PrivacySandboxValue are supported as parameter and return types."
+                "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
+                    "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
+                    "are supported as parameter types."
             )
     }
 
@@ -229,8 +230,9 @@ class InterfaceParserTest {
     fun parameterLambda_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
-                    "@PrivacySandboxValue are supported as parameter and return types."
+                "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
+                    "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
+                    "are supported as parameter types."
             )
     }
 
@@ -250,7 +252,7 @@ class InterfaceParserTest {
         )
         checkSourceFails(source).containsExactlyErrors(
             "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
-                "@PrivacySandboxValue are supported as parameter and return types."
+                "@PrivacySandboxValue are supported as return types."
         )
     }
 

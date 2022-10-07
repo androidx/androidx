@@ -21,18 +21,48 @@ import androidx.privacysandbox.tools.core.model.Type
 /** AIDL file with a single interface. */
 internal data class AidlInterfaceSpec(
     override val type: Type,
-    val methods: List<String>,
+    val methods: List<AidlMethodSpec>,
     val oneway: Boolean = true,
-    override val typesToImport: Set<Type> = emptySet(),
 ) : AidlFileSpec {
+    companion object {
+        fun aidlInterface(
+            type: Type,
+            oneway: Boolean = true,
+            block: Builder.() -> Unit = {}
+        ): AidlInterfaceSpec {
+            return Builder(type, oneway).also(block).build()
+        }
+    }
+
+    override val typesToImport: Set<Type>
+        get() {
+            return methods.flatMap { method ->
+                method.parameters.map { it.type }.filter { it.requiresImport }.map { it.innerType }
+            }.toSet()
+        }
+
     override val innerContent: String
         get() {
             val modifiers = if (oneway) "oneway " else ""
-            val body = methods.sorted().joinToString("\n|    ")
+            val body = methods.map { it.toString() }.sorted().joinToString("\n|    ")
             return """
                 |${modifiers}interface ${type.simpleName} {
                 |    $body
                 |}
             """.trimMargin()
         }
+
+    class Builder(val type: Type, val oneway: Boolean = true) {
+        val methods = mutableListOf<AidlMethodSpec>()
+
+        fun addMethod(method: AidlMethodSpec) {
+            methods.add(method)
+        }
+
+        fun addMethod(name: String, block: AidlMethodSpec.Builder.() -> Unit = {}) {
+            addMethod(AidlMethodSpec.Builder(name).also(block).build())
+        }
+
+        fun build() = AidlInterfaceSpec(type, methods, oneway)
+    }
 }

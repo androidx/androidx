@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.validator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Types
@@ -32,6 +33,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
         validateNonSuspendFunctionsReturnUnit()
         validateParameterAndReturnValueTypes()
         validateValuePropertyTypes()
+        callbackMethodsAreFireAndForget()
+        callbacksDontReceiveCallbacks()
         return ValidationResult(errors)
     }
 
@@ -58,18 +61,27 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun validateParameterAndReturnValueTypes() {
-        val allowedParameterAndReturnValueTypes =
+        val allowedParameterTypes =
+            (api.values.map(AnnotatedValue::type) +
+                api.callbacks.map(AnnotatedInterface::type) +
+                Types.primitiveTypes).toSet()
+        val allowedReturnValueTypes =
             (api.values.map(AnnotatedValue::type) + Types.primitiveTypes).toSet()
         for (service in api.services) {
             for (method in service.methods) {
-                val isAnyTypeInvalid = (method.parameters.map { it.type } + method.returnType).any {
-                    !allowedParameterAndReturnValueTypes.contains(it)
+                if (method.parameters.any { !allowedParameterTypes.contains(it.type) }) {
+                    errors.add(
+                        "Error in ${service.type.qualifiedName}.${method.name}: " +
+                            "only primitives, data classes annotated with @PrivacySandboxValue " +
+                            "and interfaces annotated with @PrivacySandboxCallback are supported " +
+                            "as parameter types."
+                    )
                 }
-                if (isAnyTypeInvalid) {
+                if (!allowedReturnValueTypes.contains(method.returnType)) {
                     errors.add(
                         "Error in ${service.type.qualifiedName}.${method.name}: " +
                             "only primitives and data classes annotated with " +
-                            "@PrivacySandboxValue are supported as parameter and return types."
+                            "@PrivacySandboxValue are supported as return types."
                     )
                 }
             }
@@ -92,7 +104,32 @@ class ModelValidator private constructor(val api: ParsedApi) {
         }
     }
 
-    // TODO: check that callback methods are fire-and-forget
+    private fun callbackMethodsAreFireAndForget() {
+        for (callback in api.callbacks) {
+            for (method in callback.methods) {
+                if (method.returnType != Types.unit || method.isSuspend) {
+                    errors.add(
+                        "Error in ${callback.type.qualifiedName}.${method.name}: callback " +
+                            "methods should be non-suspending and have no return values."
+                    )
+                }
+            }
+        }
+    }
+
+    private fun callbacksDontReceiveCallbacks() {
+        val callbackTypes = api.callbacks.map { it.type }.toSet()
+        for (callback in api.callbacks) {
+            for (method in callback.methods) {
+                if (method.parameters.any { callbackTypes.contains(it.type) }) {
+                    errors.add(
+                        "Error in ${callback.type.qualifiedName}.${method.name}: callback " +
+                            "methods cannot receive other callbacks as arguments."
+                    )
+                }
+            }
+        }
+    }
 }
 
 data class ValidationResult(val errors: List<String>) {
