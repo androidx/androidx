@@ -71,6 +71,8 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(null)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -82,7 +84,7 @@ public class AsWireComplicationDataTest {
             "NoDataComplicationData(placeholder=null, " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -125,6 +127,8 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("title".complicationText)
             .setDataSource(dataSourceA)
+            .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
+            .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -133,6 +137,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
                     .build()
             )
         testRoundTripConversions(data)
@@ -150,6 +156,8 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("title".complicationText)
             .setDataSource(dataSourceA)
+            .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
+            .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
             .build()
         val data3 = ShortTextComplicationData.Builder(
             "text3".complicationText,
@@ -157,6 +165,8 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("title3".complicationText)
             .setDataSource(dataSourceB)
+            .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
+            .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -171,7 +181,7 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
-                "ComponentInfo{com.pkg_a/com.a})"
+                "ComponentInfo{com.pkg_a/com.a}, persistencePolicy=1, displayPolicy=1)"
         )
     }
 
@@ -197,6 +207,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -244,7 +256,7 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -264,6 +276,8 @@ public class AsWireComplicationDataTest {
                     .setLongTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -302,7 +316,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -328,6 +343,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -375,7 +392,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -398,6 +416,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -439,7 +459,8 @@ public class AsWireComplicationDataTest {
                 "tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
-                "ComponentInfo{com.pkg_a/com.a}, colorRamp=null)"
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -468,6 +489,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -517,7 +540,8 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null)"
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -542,6 +566,8 @@ public class AsWireComplicationDataTest {
                     .setDataSource(dataSourceA)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -585,7 +611,7 @@ public class AsWireComplicationDataTest {
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
                 "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, -16711936, " +
-                "-16776961], interpolated=true))"
+                "-16776961], interpolated=true), persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -616,6 +642,8 @@ public class AsWireComplicationDataTest {
                     .setDataSource(dataSourceA)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -667,7 +695,8 @@ public class AsWireComplicationDataTest {
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true))"
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true), " +
+                "persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -690,6 +719,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -730,7 +761,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -759,6 +791,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -808,7 +842,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -834,6 +869,8 @@ public class AsWireComplicationDataTest {
                     .setDataSource(dataSourceA)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -878,7 +915,7 @@ public class AsWireComplicationDataTest {
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
                 "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, -16711936, " +
-                "-16776961], interpolated=true))"
+                "-16776961], interpolated=true), persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -904,6 +941,8 @@ public class AsWireComplicationDataTest {
                     .setShortTitle(WireComplicationText.plainText("calories"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -957,7 +996,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -989,6 +1029,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1051,7 +1093,8 @@ public class AsWireComplicationDataTest {
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1067,6 +1110,8 @@ public class AsWireComplicationDataTest {
                     .setIcon(icon)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1094,7 +1139,8 @@ public class AsWireComplicationDataTest {
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
                 ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1112,6 +1158,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1142,7 +1190,8 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1162,6 +1211,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1189,6 +1240,8 @@ public class AsWireComplicationDataTest {
                     .setLargeImage(photoImage)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1217,7 +1270,8 @@ public class AsWireComplicationDataTest {
                 "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
                 ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1232,6 +1286,8 @@ public class AsWireComplicationDataTest {
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_PERMISSION)
                     .setShortText(WireComplicationText.plainText("needs location"))
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1258,7 +1314,8 @@ public class AsWireComplicationDataTest {
                 " mTimeDependentText=null}, title=null, monochromaticImage=null, smallImage=null," +
                 " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z), dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1278,6 +1335,8 @@ public class AsWireComplicationDataTest {
                     .setSmallImage(smallImageIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1309,7 +1368,7 @@ public class AsWireComplicationDataTest {
                 "ambientImage=null), tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a})"
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, displayPolicy=0)"
         )
     }
 
@@ -1341,17 +1400,27 @@ public class AsWireComplicationDataTest {
                         listOf(
                             WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
                                 .setShortText(WireComplicationText.plainText("text"))
+                                .setPersistencePolicy(
+                                    ComplicationPersistencePolicies.CACHING_ALLOWED
+                                )
+                                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                                 .build(),
                             WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                                 .setRangedValue(95f)
                                 .setRangedMinValue(0f)
                                 .setRangedMaxValue(100f)
                                 .setShortText(WireComplicationText.plainText("battery"))
+                                .setPersistencePolicy(
+                                    ComplicationPersistencePolicies.CACHING_ALLOWED
+                                )
+                                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                                 .build()
                         )
                     )
                     .setListStyleHint(ListComplicationData.StyleHint.RowOfColumns.ordinal)
                     .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1415,20 +1484,23 @@ public class AsWireComplicationDataTest {
                 "contentDescription=ComplicationText{mSurroundingText=, mTimeDependentText=null}," +
                 " tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=null), " +
-                "RangedValueComplicationData(value=95.0, min=0.0, max=100.0, " +
-                "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
-                "mSurroundingText=battery, mTimeDependentText=null}, contentDescription=" +
-                "ComplicationText{mSurroundingText=, mTimeDependentText=null}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=null, " +
+                "persistencePolicy=0, displayPolicy=0), RangedValueComplicationData(value=95.0, " +
+                "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, title=null, " +
+                "text=ComplicationText{mSurroundingText=battery, mTimeDependentText=null}, " +
+                "contentDescription=ComplicationText{mSurroundingText=, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=null, " +
-                "colorRamp=null)], contentDescription=ComplicationText{mSurroundingText=, " +
-                "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
+                "colorRamp=null, persistencePolicy=0, displayPolicy=0)], " +
+                "contentDescription=ComplicationText{mSurroundingText=, mTimeDependentText=null}," +
+                " tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z," +
                 " endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
                 "ComponentInfo{com.pkg_a/com.a}, " +
-                "styleHint=ListComplicationLayoutStyleHint(wireType=1))"
+                "styleHint=ListComplicationLayoutStyleHint(wireType=1), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1456,8 +1528,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1498,10 +1574,11 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
                 "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null," +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null," +
                 " validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1523,8 +1600,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1557,10 +1638,11 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
                 "+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
-                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1591,8 +1673,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1635,11 +1721,12 @@ public class AsWireComplicationDataTest {
                 "content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)," +
-                " dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=null), tapActionLostDueToSerialization=false, tapAction=null, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1671,8 +1758,12 @@ public class AsWireComplicationDataTest {
                             .setDataSource(dataSourceA)
                             .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setColorRampIsSmoothShaded(false)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1716,10 +1807,12 @@ public class AsWireComplicationDataTest {
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=false))," +
-                " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
-                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=false)," +
+                " persistencePolicy=0, displayPolicy=0), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(" +
+                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1750,8 +1843,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1794,11 +1891,12 @@ public class AsWireComplicationDataTest {
                 "content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)," +
-                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1830,8 +1928,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1879,10 +1981,11 @@ public class AsWireComplicationDataTest {
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
-                "dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1916,8 +2019,12 @@ public class AsWireComplicationDataTest {
                             .setDataSource(dataSourceA)
                             .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setColorRampIsSmoothShaded(true)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -1963,10 +2070,12 @@ public class AsWireComplicationDataTest {
                 "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
                 "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
                 "dataSource=ComponentInfo{com.pkg_a/com.a}, " +
-                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true)), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, " +
-                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
-                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true), " +
+                "persistencePolicy=0, displayPolicy=0), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(" +
+                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -1988,8 +2097,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -2023,11 +2136,12 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)," +
-                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
-                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -2050,8 +2164,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -2085,11 +2203,12 @@ public class AsWireComplicationDataTest {
                 "content description, mTimeDependentText=null}), tapActionLostDueToSerialization=" +
                 "false, tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
                 "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)," +
-                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
-                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -2111,8 +2230,12 @@ public class AsWireComplicationDataTest {
                                 WireComplicationText.plainText("content description")
                             )
                             .setDataSource(dataSourceA)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
         testRoundTripConversions(data)
@@ -2144,11 +2267,12 @@ public class AsWireComplicationDataTest {
                 "mSurroundingText=content description, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
                 "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z)," +
-                " dataSource=ComponentInfo{com.pkg_a/com.a}), " +
-                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange(" +
-                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
-                "+1000000000-12-31T23:59:59.999999999Z))"
+                "+1000000000-12-31T23:59:59.999999999Z), " +
+                "dataSource=ComponentInfo{com.pkg_a/com.a}, persistencePolicy=0, " +
+                "displayPolicy=0), tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
     }
 
@@ -2179,7 +2303,10 @@ public class FromWireComplicationDataTest {
     public fun noDataComplicationData() {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
-                .setPlaceholder(null).build(),
+                .setPlaceholder(null)
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                .build(),
             ComplicationType.NO_DATA
         )
     }
@@ -2207,6 +2334,8 @@ public class FromWireComplicationDataTest {
                 .setShortText(WireComplicationText.plainText("text"))
                 .setShortTitle(WireComplicationText.plainText("title"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.SHORT_TEXT
         )
@@ -2219,6 +2348,8 @@ public class FromWireComplicationDataTest {
                 .setLongText(WireComplicationText.plainText("text"))
                 .setLongTitle(WireComplicationText.plainText("title"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.LONG_TEXT
         )
@@ -2234,6 +2365,8 @@ public class FromWireComplicationDataTest {
                 .setRangedMaxValue(100f)
                 .setShortTitle(WireComplicationText.plainText("battery"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.RANGED_VALUE
         )
@@ -2249,6 +2382,8 @@ public class FromWireComplicationDataTest {
                 .setRangedMaxValue(100f)
                 .setShortTitle(WireComplicationText.plainText("battery"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.RANGED_VALUE
         )
@@ -2265,6 +2400,8 @@ public class FromWireComplicationDataTest {
                 .setContentDescription(WireComplicationText.plainText("content description"))
                 .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                 .setColorRampIsSmoothShaded(false)
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.GOAL_PROGRESS
         )
@@ -2280,6 +2417,8 @@ public class FromWireComplicationDataTest {
                 .setDiscreteRangedMaxValue(100)
                 .setShortTitle(WireComplicationText.plainText("battery"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.DISCRETE_RANGED_VALUE
         )
@@ -2294,6 +2433,8 @@ public class FromWireComplicationDataTest {
                 .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                 .setShortTitle(WireComplicationText.plainText("calories"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.WEIGHTED_ELEMENTS
         )
@@ -2306,6 +2447,8 @@ public class FromWireComplicationDataTest {
             WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                 .setIcon(icon)
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.MONOCHROMATIC_IMAGE
         )
@@ -2319,6 +2462,8 @@ public class FromWireComplicationDataTest {
                 .setSmallImage(icon)
                 .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.SMALL_IMAGE
         )
@@ -2331,6 +2476,8 @@ public class FromWireComplicationDataTest {
             WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                 .setLargeImage(icon)
                 .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.PHOTO_IMAGE
         )
@@ -2341,6 +2488,8 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_PERMISSION)
                 .setShortText(WireComplicationText.plainText("needs location"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_PERMISSION
         )
@@ -2358,6 +2507,8 @@ public class FromWireComplicationDataTest {
                 .setAmbientLayout(ambientLayout)
                 .setInteractiveLayout(interactiveLayout)
                 .setLayoutResources(resources)
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.PROTO_LAYOUT
         )
@@ -2383,6 +2534,8 @@ public class FromWireComplicationDataTest {
                 .setListStyleHint(
                     ListComplicationData.StyleHint.RowOfColumns.ordinal
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.LIST
         )
@@ -2401,8 +2554,12 @@ public class FromWireComplicationDataTest {
                         .setShortText(WireComplicationText.plainText("text"))
                         .setShortTitle(WireComplicationText.plainText("title"))
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2421,8 +2578,12 @@ public class FromWireComplicationDataTest {
                         .setLongText(WireComplicationText.plainText("text"))
                         .setLongTitle(WireComplicationText.plainText("title"))
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2444,8 +2605,12 @@ public class FromWireComplicationDataTest {
                         .setRangedMaxValue(100f)
                         .setShortTitle(WireComplicationText.plainText("battery"))
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2467,8 +2632,12 @@ public class FromWireComplicationDataTest {
                         .setRangedMaxValue(100f)
                         .setShortTitle(WireComplicationText.plainText("battery"))
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2491,8 +2660,12 @@ public class FromWireComplicationDataTest {
                         .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                         .setColorRampIsSmoothShaded(true)
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2514,8 +2687,12 @@ public class FromWireComplicationDataTest {
                         .setDiscreteRangedMaxValue(100)
                         .setShortTitle(WireComplicationText.plainText("battery"))
                         .setIcon(icon)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2534,8 +2711,13 @@ public class FromWireComplicationDataTest {
                         .setContentDescription(
                             WireComplicationText.plainText("content description")
                         )
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
-                ).build(),
+                )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                .build(),
             ComplicationType.NO_DATA
         )
     }
@@ -2552,8 +2734,12 @@ public class FromWireComplicationDataTest {
                         .setContentDescription(
                             WireComplicationText.plainText("content description")
                         )
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2570,8 +2756,12 @@ public class FromWireComplicationDataTest {
                         .setContentDescription(
                             WireComplicationText.plainText("content description")
                         )
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2589,8 +2779,12 @@ public class FromWireComplicationDataTest {
                         .setAmbientLayout(ambientLayout)
                         .setInteractiveLayout(interactiveLayout)
                         .setLayoutResources(resources)
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build()
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -2608,6 +2802,8 @@ public class FromWireComplicationDataTest {
             .setRangedMinValue(0f)
             .setRangedMaxValue(100f)
             .setShortTitle(WireComplicationText.plainText("battery"))
+            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
             .build()
 
         assertRoundtrip(
@@ -2618,8 +2814,12 @@ public class FromWireComplicationDataTest {
                         .setListStyleHint(
                             ListComplicationData.StyleHint.RowOfColumns.ordinal
                         )
+                        .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                        .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                         .build(),
                 )
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
             ComplicationType.NO_DATA
         )
@@ -3003,6 +3203,8 @@ public class ValidTimeRangeTest {
                     .setShortText(WireComplicationText.plainText("text"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3018,6 +3220,8 @@ public class ValidTimeRangeTest {
                     .setLongText(WireComplicationText.plainText("text"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3041,6 +3245,8 @@ public class ValidTimeRangeTest {
                     .setShortText(WireComplicationText.plainText("battery"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3067,6 +3273,8 @@ public class ValidTimeRangeTest {
                     .setColorRampIsSmoothShaded(true)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3090,6 +3298,8 @@ public class ValidTimeRangeTest {
                     .setShortText(WireComplicationText.plainText("battery"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3117,6 +3327,8 @@ public class ValidTimeRangeTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3134,6 +3346,8 @@ public class ValidTimeRangeTest {
                     .setIcon(icon)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3152,6 +3366,8 @@ public class ValidTimeRangeTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3168,6 +3384,8 @@ public class ValidTimeRangeTest {
                     .setLargeImage(photoImage)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3196,6 +3414,8 @@ public class ValidTimeRangeTest {
                     .setLayoutResources(resources)
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3227,6 +3447,8 @@ public class ValidTimeRangeTest {
 
         val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
             .setShortText(WireComplicationText.plainText("text"))
+            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
             .build()
 
         val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
@@ -3234,6 +3456,8 @@ public class ValidTimeRangeTest {
             .setRangedMinValue(0f)
             .setRangedMaxValue(100f)
             .setShortText(WireComplicationText.plainText("battery"))
+            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
             .build()
 
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -3245,6 +3469,8 @@ public class ValidTimeRangeTest {
                     )
                     .setStartDateTimeMillis(testStartInstant.toEpochMilli())
                     .setEndDateTimeMillis(testEndDateInstant.toEpochMilli())
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3261,8 +3487,12 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
                             .setShortText(WireComplicationText.plainText("text"))
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3279,8 +3509,12 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
                             .setLongText(WireComplicationText.plainText("text"))
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3307,8 +3541,12 @@ public class ValidTimeRangeTest {
                             .setRangedMinValue(0f)
                             .setRangedMaxValue(100f)
                             .setShortText(WireComplicationText.plainText("battery"))
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3338,8 +3576,12 @@ public class ValidTimeRangeTest {
                             )
                             .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setColorRampIsSmoothShaded(false)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3366,8 +3608,12 @@ public class ValidTimeRangeTest {
                             .setDiscreteRangedMinValue(0)
                             .setDiscreteRangedMaxValue(100)
                             .setShortText(WireComplicationText.plainText("battery"))
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3398,8 +3644,12 @@ public class ValidTimeRangeTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3417,8 +3667,12 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                             .setIcon(icon)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3437,8 +3691,12 @@ public class ValidTimeRangeTest {
                         WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                             .setSmallImage(icon)
                             .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3455,8 +3713,12 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                             .setLargeImage(icon)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3484,8 +3746,12 @@ public class ValidTimeRangeTest {
                             .setAmbientLayout(ambientLayout)
                             .setInteractiveLayout(interactiveLayout)
                             .setLayoutResources(resources)
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3517,6 +3783,8 @@ public class ValidTimeRangeTest {
 
         val wireShortText = WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
             .setShortText(WireComplicationText.plainText("text"))
+            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
             .build()
 
         val wireRangedValue = WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
@@ -3524,6 +3792,8 @@ public class ValidTimeRangeTest {
             .setRangedMinValue(0f)
             .setRangedMaxValue(100f)
             .setShortText(WireComplicationText.plainText("battery"))
+            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
             .build()
 
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -3535,8 +3805,12 @@ public class ValidTimeRangeTest {
                             .setListStyleHint(
                                 ListComplicationData.StyleHint.RowOfColumns.ordinal
                             )
+                            .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                            .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
                     )
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
             )
     }
@@ -3573,7 +3847,8 @@ public class RedactionTest {
                 "mTimeDependentText=null}, monochromaticImage=null, smallImage=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
                 "mTimeDependentText=null}, tapActionLostDueToSerialization=false, tapAction=null," +
-                " validTimeRange=TimeRange(REDACTED), dataSource=null)"
+                " validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
+                "displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=3, mFields=REDACTED}"
@@ -3595,7 +3870,7 @@ public class RedactionTest {
             "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText" +
             "{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
             "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange" +
-            "(REDACTED), dataSource=null)"
+            "(REDACTED), dataSource=null, persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=4, mFields=REDACTED}"
@@ -3620,7 +3895,8 @@ public class RedactionTest {
             "text=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
             "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
             "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
-            "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, colorRamp=null)"
+            "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, " +
+            "colorRamp=null, persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=5, mFields=REDACTED}"
@@ -3645,7 +3921,8 @@ public class RedactionTest {
                 "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, " +
-                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true))"
+                "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true), " +
+                "persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=13, mFields=REDACTED}"
@@ -3672,7 +3949,8 @@ public class RedactionTest {
             "mSurroundingText=REDACTED, mTimeDependentText=null}, contentDescription=" +
             "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
             "tapActionLostDueToSerialization=false, tapAction=null, " +
-            "validTimeRange=TimeRange(REDACTED), dataSource=null)"
+            "validTimeRange=TimeRange(REDACTED), dataSource=null, persistencePolicy=0, " +
+            "displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=14, mFields=REDACTED}"
@@ -3694,8 +3972,9 @@ public class RedactionTest {
                 "title=null, monochromaticImage=null, smallImage=null, contentDescription=" +
                 "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
                 "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
-                "TimeRange(REDACTED), dataSource=null), tapActionLostDueToSerialization=false, " +
-                "tapAction=null, validTimeRange=TimeRange(REDACTED))"
+                "TimeRange(REDACTED), dataSource=null, persistencePolicy=0, displayPolicy=0), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, " +
+                "validTimeRange=TimeRange(REDACTED), persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=10, mFields=REDACTED}"
