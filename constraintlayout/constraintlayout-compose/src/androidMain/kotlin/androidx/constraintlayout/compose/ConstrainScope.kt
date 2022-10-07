@@ -134,7 +134,7 @@ class ConstrainScope internal constructor(internal val id: Any) {
         set(value) {
             field = value
             addTransform {
-                if (visibility != Visibility.Invisible) {
+                if (this@ConstrainScope.visibility != Visibility.Invisible) {
                     // A bit of a hack, this behavior is not defined in :core
                     // Invisible should override alpha
                     alpha(value)

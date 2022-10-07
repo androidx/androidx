@@ -19,11 +19,17 @@ package androidx.constraintlayout.core.state.helpers;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.UNKNOWN;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.state.HelperReference;
 import androidx.constraintlayout.core.state.State;
 
 import java.util.HashMap;
 
+/**
+ * {@link HelperReference} for Chains.
+ *
+ * Elements should be added with {@link ChainReference#addChainElement}
+ */
 public class ChainReference extends HelperReference {
 
     protected float mBias = 0.5f;
@@ -45,6 +51,9 @@ public class ChainReference extends HelperReference {
      */
     @Deprecated // TODO(b/253515185): Change to private visibility once we change major version
     protected @NonNull HashMap<String, Float> mMapPostMargin = new HashMap<>();
+
+    private HashMap<String, Float> mMapPreGoneMargin;
+    private HashMap<String, Float> mMapPostGoneMargin;
 
     protected @NonNull State.Chain mStyle = State.Chain.SPREAD;
 
@@ -74,10 +83,10 @@ public class ChainReference extends HelperReference {
      * The order in which the elements are added is important. It will represent the element's
      * position in the Chain.
      *
-     * @param id Id of the element to add
-     * @param weight Weight used to distribute remaining space each element
-     * @param preMargin Additional space in pixels between the added element and the previous one
-     *                  (if any)
+     * @param id         Id of the element to add
+     * @param weight     Weight used to distribute remaining space to each element
+     * @param preMargin  Additional space in pixels between the added element and the previous one
+     *                   (if any)
      * @param postMargin Additional space in pixels between the added element and the next one (if
      *                   any)
      */
@@ -85,15 +94,61 @@ public class ChainReference extends HelperReference {
             float weight,
             float preMargin,
             float postMargin) {
-        super.add(id);
+        addChainElement(id, weight, preMargin, postMargin, 0, 0);
+    }
+
+    /**
+     * Adds the element by the given id to the Chain.
+     *
+     * The object's {@link Object#toString()} result will be used to map the given margins and
+     * weight to it, so it must stable and comparable.
+     *
+     * The order in which the elements are added is important. It will represent the element's
+     * position in the Chain.
+     *
+     * @param id             Id of the element to add
+     * @param weight         Weight used to distribute remaining space to each element
+     * @param preMargin      Additional space in pixels between the added element and the
+     *                       previous one
+     *                       (if any)
+     * @param postMargin     Additional space in pixels between the added element and the next
+     *                       one (if
+     *                       any)
+     * @param preGoneMargin  Additional space in pixels between the added element and the previous
+     *                       one (if any) when the previous element has Gone visibility
+     * @param postGoneMargin Additional space in pixels between the added element and the next
+     *                       one (if any) when the next element has Gone visibility
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void addChainElement(@NonNull Object id,
+            float weight,
+            float preMargin,
+            float postMargin,
+            float preGoneMargin,
+            float postGoneMargin) {
+        super.add(id); // Add element id as is, it's expected to return the same given instance
+        String idString = id.toString();
         if (!Float.isNaN(weight)) {
-            mMapWeights.put(id, weight);
+            mMapWeights.put(idString, weight);
         }
         if (!Float.isNaN(preMargin)) {
-            mMapPreMargin.put(id, preMargin);
+            mMapPreMargin.put(idString, preMargin);
         }
         if (!Float.isNaN(postMargin)) {
-            mMapPostMargin.put(id, postMargin);
+            mMapPostMargin.put(idString, postMargin);
+        }
+        if (!Float.isNaN(preGoneMargin)) {
+            if (mMapPreGoneMargin == null) {
+                mMapPreGoneMargin = new HashMap<>();
+            }
+            mMapPreGoneMargin.put(idString, preGoneMargin);
+        }
+        if (!Float.isNaN(postGoneMargin)) {
+            if (mMapPostGoneMargin == null) {
+                mMapPostGoneMargin = new HashMap<>();
+            }
+            mMapPostGoneMargin.put(idString, postGoneMargin);
         }
     }
 
@@ -114,6 +169,20 @@ public class ChainReference extends HelperReference {
     protected float getPreMargin(@NonNull String id) {
         if (mMapPreMargin.containsKey(id)) {
             return mMapPreMargin.get(id);
+        }
+        return 0;
+    }
+
+    protected float getPostGoneMargin(@NonNull String id) {
+        if (mMapPostGoneMargin != null && mMapPostGoneMargin.containsKey(id)) {
+            return mMapPostGoneMargin.get(id);
+        }
+        return 0;
+    }
+
+    protected float getPreGoneMargin(@NonNull String id) {
+        if (mMapPreGoneMargin != null && mMapPreGoneMargin.containsKey(id)) {
+            return mMapPreGoneMargin.get(id);
         }
         return 0;
     }
