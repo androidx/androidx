@@ -441,7 +441,7 @@ final class SupportedSurfaceCombination {
             }
 
             return mSupportedOutputSizesCollector.getSupportedOutputSizes(resolutionSelector,
-                    imageFormat, miniBoundingSize,
+                    imageFormat, miniBoundingSize, config.isHigResolutionDisabled(false),
                     getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig));
         }
 

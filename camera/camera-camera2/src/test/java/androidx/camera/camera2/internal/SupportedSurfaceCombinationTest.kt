@@ -197,6 +197,7 @@ class SupportedSurfaceCombinationTest {
                 sizeCoordinate = SizeCoordinate.CAMERA_SENSOR,
                 maxResolution,
                 highResolutionEnabled,
+                highResolutionForceDisabled = false,
                 defaultResolution,
                 supportedResolutions
             )
@@ -221,6 +222,7 @@ class SupportedSurfaceCombinationTest {
                 sizeCoordinate = SizeCoordinate.ANDROID_VIEW,
                 maxResolution,
                 highResolutionEnabled,
+                highResolutionForceDisabled = false,
                 defaultResolution,
                 supportedResolutions
             )

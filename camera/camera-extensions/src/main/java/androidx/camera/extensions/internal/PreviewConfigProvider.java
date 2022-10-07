@@ -131,6 +131,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         List<Pair<Integer, Size[]>> supportedResolutions =
                 vendorExtender.getSupportedPreviewOutputResolutions();
         builder.setSupportedResolutions(supportedResolutions);
+        builder.setHighResolutionDisabled(true);
     }
 
     /**

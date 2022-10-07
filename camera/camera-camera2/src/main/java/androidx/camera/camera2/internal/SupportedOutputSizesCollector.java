@@ -122,11 +122,11 @@ final class SupportedOutputSizesCollector {
      */
     @NonNull
     List<Size> getSupportedOutputSizes(@NonNull ResolutionSelector resolutionSelector,
-            int imageFormat, @Nullable Size miniBoundingSize,
+            int imageFormat, @Nullable Size miniBoundingSize, boolean isHighResolutionDisabled,
             @Nullable Size[] customizedSupportSizes) {
         // 1. Collects the candidate list by the high resolution enable setting.
         List<Size> resolutionCandidateList = collectResolutionCandidateList(resolutionSelector,
-                imageFormat, customizedSupportSizes);
+                imageFormat, isHighResolutionDisabled, customizedSupportSizes);
 
         // 2. Filters out the candidate list according to the min size bound, max resolution or
         // excluded resolution quirk.
@@ -160,11 +160,12 @@ final class SupportedOutputSizesCollector {
     @NonNull
     private List<Size> collectResolutionCandidateList(
             @NonNull ResolutionSelector resolutionSelector, int imageFormat,
-            @Nullable Size[] customizedSupportedSizes) {
+            boolean isHighResolutionDisabled, @Nullable Size[] customizedSupportedSizes) {
         Size[] outputSizes = customizedSupportedSizes;
 
         if (outputSizes == null) {
-            boolean highResolutionEnabled = resolutionSelector.isHighResolutionEnabled();
+            boolean highResolutionEnabled =
+                    !isHighResolutionDisabled && resolutionSelector.isHighResolutionEnabled();
             outputSizes = getAllOutputSizesByFormat(imageFormat, highResolutionEnabled);
         }
 

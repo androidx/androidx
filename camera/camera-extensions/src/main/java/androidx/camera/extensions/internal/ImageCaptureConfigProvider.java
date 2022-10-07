@@ -127,6 +127,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         List<Pair<Integer, Size[]>> supportedResolutions =
                 vendorExtender.getSupportedCaptureOutputResolutions();
         builder.setSupportedResolutions(supportedResolutions);
+        builder.setHighResolutionDisabled(true);
     }
 
 

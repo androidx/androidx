@@ -1042,6 +1042,48 @@ class SupportedOutputSizesCollectorTest(
         assertThat(resultList).isEqualTo(expectedList)
     }
 
+    @Config(minSdk = Build.VERSION_CODES.M)
+    @Test
+    fun highResolutionCanNotBeSelected_whenHighResolutionForceDisabled() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            capabilities = intArrayOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE
+            ),
+            supportedHighResolutionSizes = arrayOf(Size(8000, 6000), Size(8000, 4500))
+        )
+        val supportedOutputSizesCollector = SupportedOutputSizesCollector(
+            DEFAULT_CAMERA_ID,
+            cameraCharacteristicsCompat,
+            displayInfoManager
+        )
+
+        val useCase = createUseCaseByResolutionSelector(
+            FAKE_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9,
+            highResolutionEnabled = true,
+            highResolutionForceDisabled = true
+        )
+        val resultList = getSupportedOutputSizes(supportedOutputSizesCollector, useCase)
+        val expectedList = listOf(
+            // Matched preferred AspectRatio items, sorted by area size.
+            Size(3840, 2160),
+            Size(1920, 1080),
+            Size(1280, 720),
+            Size(960, 544),
+            Size(800, 450),
+            Size(320, 180),
+            Size(256, 144),
+            // Mismatched preferred AspectRatio items, sorted by area size.
+            Size(4032, 3024),
+            Size(1920, 1440),
+            Size(1280, 960),
+            Size(640, 480),
+            Size(320, 240)
+        )
+        assertThat(resultList).isEqualTo(expectedList)
+    }
+
     /**
      * Sets up camera according to the specified settings and initialize [CameraX].
      *
@@ -1144,6 +1186,7 @@ class SupportedOutputSizesCollectorTest(
         val useCaseConfig = useCaseToConfigMap[useCase]!!
         val resolutionSelector = (useCaseConfig as ImageOutputConfig).resolutionSelector
         val imageFormat = useCaseConfig.inputFormat
+        val isHighResolutionDisabled = useCaseConfig.isHigResolutionDisabled(false)
         val customizedSupportSizes = getCustomizedSupportSizesFromConfig(imageFormat, useCaseConfig)
         val miniBoundingSize = SupportedOutputSizesCollector.getTargetSizeByResolutionSelector(
             resolutionSelector,
@@ -1156,6 +1199,7 @@ class SupportedOutputSizesCollectorTest(
             resolutionSelector,
             imageFormat,
             miniBoundingSize,
+            isHighResolutionDisabled,
             customizedSupportSizes
         )
     }
@@ -1237,6 +1281,8 @@ class SupportedOutputSizesCollectorTest(
          * [SizeCoordinate.ANDROID_VIEW]. Default is null.
          * @param maxResolution the max resolution setting. Default is null.
          * @param highResolutionEnabled the high resolution setting, Default is false.
+         * @param highResolutionForceDisabled the high resolution force disabled setting, Default
+         * is false. This will be set in the use case config to force disable high resolution.
          * @param defaultResolution the default resolution setting. Default is null.
          * @param supportedResolutions the customized supported resolutions. Default is null.
          */
@@ -1248,6 +1294,7 @@ class SupportedOutputSizesCollectorTest(
             sizeCoordinate: SizeCoordinate = SizeCoordinate.CAMERA_SENSOR,
             maxResolution: Size? = null,
             highResolutionEnabled: Boolean = false,
+            highResolutionForceDisabled: Boolean = false,
             defaultResolution: Size? = null,
             supportedResolutions: List<Pair<Int, Array<Size>>>? = null
         ): UseCase {
@@ -1280,6 +1327,7 @@ class SupportedOutputSizesCollectorTest(
             resolutionSelectorBuilder.setHighResolutionEnabled(highResolutionEnabled)
 
             builder.setResolutionSelector(resolutionSelectorBuilder.build())
+            builder.setHighResolutionDisabled(highResolutionForceDisabled)
 
             defaultResolution?.let { builder.setDefaultResolution(it) }
             supportedResolutions?.let { builder.setSupportedResolutions(it) }
