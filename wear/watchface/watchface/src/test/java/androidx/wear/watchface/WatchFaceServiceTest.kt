@@ -54,6 +54,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.CountUpTimeReference
@@ -2872,6 +2874,128 @@ public class WatchFaceServiceTest {
             assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_LONG_TEXT")
             assertThat(leftComplicationData.tapActionLostDueToSerialization).isTrue()
+            assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
+                .isEqualTo("TYPE_SHORT_TEXT")
+            assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
+        }
+
+        instance2.release()
+    }
+
+    @Test
+    public fun complicationCachePolicy() {
+        val complicationCache = HashMap<String, ByteArray>()
+        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
+            INTERACTIVE_INSTANCE_ID,
+            DeviceConfig(false, false, 0, 0),
+            WatchUiState(false, 0),
+            UserStyle(emptyMap()).toWireFormat(),
+            null
+        )
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            instanceParams,
+            complicationCache = complicationCache
+        )
+
+        // Set some ComplicationData. The TapAction can't be serialized.
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT"))
+                        .setTapAction(
+                            PendingIntent.getActivity(
+                                context, 0, Intent("LongText"),
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
+                        )
+                        .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
+                        .build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                )
+            )
+        )
+
+        // Complication cache writes are deferred for 1s to try and batch up multiple updates.
+        runPostedTasksFor(1000)
+        assertThat(complicationCache.size).isEqualTo(1)
+        assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
+
+        engineWrapper.onDestroy()
+        InteractiveInstanceManager.releaseInstance(INTERACTIVE_INSTANCE_ID)
+
+        val service2 = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            true,
+            null,
+            choreographer,
+            complicationCache = complicationCache
+        )
+
+        lateinit var instance2: IInteractiveWatchFace
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    instanceParams,
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            instance2 = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper2.onCreate(surfaceHolder)
+        engineWrapper2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
+        // coroutine dispatcher.
+        runBlocking {
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+
+            // Check only the right ComplicationData was cached.
+            val leftComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    LEFT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+            val rightComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    RIGHT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+
+            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_NO_DATA)
             assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
             assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_SHORT_TEXT")
@@ -6019,6 +6143,58 @@ public class WatchFaceServiceTest {
         }
 
         engineWrapper.onDestroy()
+    }
+
+    @Test
+    public fun doNotDisplayComplicationWhenScreenLocked() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        engineWrapper.setComplicationDataList(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ShortTextComplicationData.Builder(
+                        TimeDifferenceComplicationText.Builder(
+                            TimeDifferenceStyle.STOPWATCH,
+                            CountUpTimeReference(Instant.parse("2022-10-30T10:15:30.001Z"))
+                        ).setMinimumTimeUnit(TimeUnit.MINUTES).build(),
+                        androidx.wear.watchface.complications.data.ComplicationText.EMPTY
+                    )
+                        .setDisplayPolicy(
+                            ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED
+                        )
+                        .build()
+                        .asWireComplicationData()
+                )
+            )
+        )
+
+        watchState.isLocked.value = true
+        // Note selectComplicationDataForInstant is called before rendering.
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.EPOCH)
+        assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value)
+            .isInstanceOf(NoDataComplicationData::class.java)
+
+        watchState.isLocked.value = false
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.EPOCH)
+        assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value)
+            .isInstanceOf(ShortTextComplicationData::class.java)
     }
 
     private fun getLeftShortTextComplicationDataText(): CharSequence {

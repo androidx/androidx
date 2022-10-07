@@ -34,6 +34,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies;
+import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy;
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies;
+import androidx.wear.watchface.complications.data.ComplicationPersistencePolicy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -295,6 +299,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_COLOR_RAMP = "COLOR_RAMP";
     private static final String FIELD_COLOR_RAMP_INTERPOLATED = "COLOR_RAMP_INTERPOLATED";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
+    private static final String FIELD_DISPLAY_POLICY = "DISPLAY_POLICY";
     private static final String FIELD_ELEMENT_COLORS = "ELEMENT_COLORS";
     private static final String FIELD_ELEMENT_WEIGHTS = "ELEMENT_WEIGHTS";
     private static final String FIELD_END_TIME = "END_TIME";
@@ -312,6 +317,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_LONG_TEXT = "LONG_TEXT";
     private static final String FIELD_MAX_VALUE = "MAX_VALUE";
     private static final String FIELD_MIN_VALUE = "MIN_VALUE";
+    private static final String FIELD_PERSISTENCE_POLICY = "PERSISTENCE_POLICY";
     private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
     private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
     private static final String FIELD_PROTO_LAYOUT_AMBIENT = "FIELD_PROTO_LAYOUT_AMBIENT";
@@ -375,7 +381,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // SHORT_TEXT
             {
                     FIELD_LONG_TITLE,
@@ -386,7 +394,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_IMAGE_STYLE,
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // LONG_TEXT
             {
                     FIELD_SHORT_TEXT,
@@ -400,22 +410,32 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
                     FIELD_COLOR_RAMP,
-                    FIELD_COLOR_RAMP_INTERPOLATED
+                    FIELD_COLOR_RAMP_INTERPOLATED,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // RANGED_VALUE
             {
                     FIELD_TAP_ACTION,
                     FIELD_ICON_BURN_IN_PROTECTION,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // ICON
             {
                     FIELD_TAP_ACTION,
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // SMALL_IMAGE
             {
-                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
+                    FIELD_TAP_ACTION,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // LARGE_IMAGE
             {
                     FIELD_SHORT_TEXT,
@@ -426,7 +446,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_IMAGE_STYLE,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // TYPE_NO_PERMISSION
             {  // TYPE_NO_DATA
                     FIELD_CONTENT_DESCRIPTION,
@@ -446,16 +468,24 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                     FIELD_TAP_ACTION,
                     FIELD_VALUE,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             },
             {
-                    FIELD_TAP_ACTION, FIELD_CONTENT_DESCRIPTION, FIELD_DATA_SOURCE
+                    FIELD_TAP_ACTION,
+                    FIELD_CONTENT_DESCRIPTION,
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // TYPE_PROTO_LAYOUT
             {
                     FIELD_TAP_ACTION,
                     FIELD_LIST_STYLE_HINT,
                     FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE
+                    FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // TYPE_LIST
             {
                     FIELD_SHORT_TEXT,
@@ -469,7 +499,9 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
                     FIELD_COLOR_RAMP,
-                    FIELD_COLOR_RAMP_INTERPOLATED
+                    FIELD_COLOR_RAMP_INTERPOLATED,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // TYPE_GOAL_PROGRESS
             {
                     FIELD_SHORT_TEXT,
@@ -482,6 +514,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }, // DISCRETE_RANGED_VALUE
             {
                     FIELD_SHORT_TEXT,
@@ -494,6 +528,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                     FIELD_TAP_ACTION,
                     FIELD_CONTENT_DESCRIPTION,
                     FIELD_DATA_SOURCE,
+                    FIELD_PERSISTENCE_POLICY,
+                    FIELD_DISPLAY_POLICY
             }  // TYPE_WEIGHTED_ELEMENTS
     };
 
@@ -536,7 +572,7 @@ public final class ComplicationData implements Parcelable, Serializable {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 16;
+        private static final int VERSION_NUMBER = 17;
 
         @NonNull
         ComplicationData mComplicationData;
@@ -553,6 +589,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             oos.writeInt(VERSION_NUMBER);
             int type = mComplicationData.getType();
             oos.writeInt(type);
+            oos.writeInt(mComplicationData.getPersistencePolicy());
+            oos.writeInt(mComplicationData.getDisplayPolicy());
 
             if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
                 oos.writeObject(mComplicationData.getLongText());
@@ -755,6 +793,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             int type = ois.readInt();
             Bundle fields = new Bundle();
+            fields.putInt(FIELD_PERSISTENCE_POLICY, ois.readInt());
+            fields.putInt(FIELD_DISPLAY_POLICY, ois.readInt());
 
             if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
                 putIfNotNull(fields, FIELD_LONG_TEXT, (ComplicationText) ois.readObject());
@@ -1759,6 +1799,21 @@ public final class ComplicationData implements Parcelable, Serializable {
         return mFields.getByteArray(FIELD_PROTO_LAYOUT_RESOURCES);
     }
 
+    /** Return's the complication's [ComplicationCachePolicy]. */
+    @ComplicationPersistencePolicy
+    public int getPersistencePolicy() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_PERSISTENCE_POLICY, mType);
+        return mFields.getInt(
+                FIELD_PERSISTENCE_POLICY, ComplicationPersistencePolicies.CACHING_ALLOWED);
+    }
+
+    /** Return's the complication's [ComplicationDisplayPolicy]. */
+    @ComplicationDisplayPolicy
+    public int getDisplayPolicy() {
+        checkFieldValidForTypeWithoutThrowingException(FIELD_DISPLAY_POLICY, mType);
+        return mFields.getInt(FIELD_DISPLAY_POLICY, ComplicationDisplayPolicies.ALWAYS_DISPLAY);
+    }
+
     /**
      * Returns the start time for this complication data (i.e. the first time at which it should
      * be considered active and displayed), this may be 0. See also {@link #isActiveAt(long)}.
@@ -1879,6 +1934,20 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (type == TYPE_SMALL_IMAGE || type == TYPE_LONG_TEXT) {
                 setSmallImageStyle(IMAGE_STYLE_PHOTO);
             }
+        }
+
+        /** Sets the complication's [ComplicationCachePolicy]. */
+        @NonNull
+        public Builder setPersistencePolicy(@ComplicationPersistencePolicy int cachePolicy) {
+            mFields.putInt(FIELD_PERSISTENCE_POLICY, cachePolicy);
+            return this;
+        }
+
+        /** Sets the complication's [ComplicationDisplayPolicy]. */
+        @NonNull
+        public Builder setDisplayPolicy(@ComplicationDisplayPolicy int displayPolicy) {
+            mFields.putInt(FIELD_DISPLAY_POLICY, displayPolicy);
+            return this;
         }
 
         /**
