@@ -83,7 +83,7 @@ public final class VideoCapabilities {
 
             // Get CamcorderProfile
             if (!camcorderProfileProvider.hasProfile(qualityValue) || !isDeviceValidQuality(
-                    quality)) {
+                    cameraInfoInternal, quality)) {
                 continue;
             }
             CamcorderProfileProxy profile =
@@ -226,9 +226,11 @@ public final class VideoCapabilities {
                 "Unknown quality: " + quality);
     }
 
-    private boolean isDeviceValidQuality(@NonNull Quality quality) {
+    private boolean isDeviceValidQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
         for (VideoQualityQuirk quirk : DeviceQuirks.getAll(VideoQualityQuirk.class)) {
-            if (quirk != null && quirk.isProblematicVideoQuality(quality)) {
+            if (quirk != null && quirk.isProblematicVideoQuality(cameraInfo, quality)
+                    && !quirk.workaroundBySurfaceProcessing()) {
                 return false;
             }
         }

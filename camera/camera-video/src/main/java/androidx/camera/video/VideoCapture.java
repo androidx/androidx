@@ -105,6 +105,7 @@ import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.MimeInfo;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -152,12 +153,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final boolean HAS_PREVIEW_STRETCH_QUIRK =
-            DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
-    private static final boolean HAS_PREVIEW_DELAY_QUIRK =
-            DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
-    private static final boolean HAS_IMAGE_CAPTURE_QUIRK =
-            DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
+    private static final boolean ENABLE_SURFACE_PROCESSING_BY_QUIRK;
+    private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
+    static {
+        boolean hasPreviewStretchQuirk =
+                DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
+        boolean hasPreviewDelayQuirk =
+                DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
+        boolean hasImageCaptureFailedQuirk =
+                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
+        boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
+                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
+        USE_TEMPLATE_PREVIEW_BY_QUIRK =
+                hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk;
+        ENABLE_SURFACE_PROCESSING_BY_QUIRK = hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
+                || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing;
+    }
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     DeferrableSurface mDeferrableSurface;
@@ -535,7 +546,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, resolution));
-        if (HAS_PREVIEW_STRETCH_QUIRK || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
+        if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         }
 
@@ -698,8 +709,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @Nullable
     private SurfaceProcessorNode createNodeIfNeeded() {
-        if (mSurfaceProcessor != null || HAS_PREVIEW_DELAY_QUIRK || HAS_IMAGE_CAPTURE_QUIRK) {
-            Logger.d(TAG, "SurfaceEffect is enabled.");
+        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK) {
+            Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     APPLY_CROP_ROTATE_AND_MIRRORING,
                     mSurfaceProcessor != null ? mSurfaceProcessor : new DefaultSurfaceProcessor());
@@ -1083,6 +1094,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         return ret;
+    }
+
+    private static boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing() {
+        List<VideoQualityQuirk> quirks = DeviceQuirks.getAll(VideoQualityQuirk.class);
+        for (VideoQualityQuirk quirk : quirks) {
+            if (quirk.workaroundBySurfaceProcessing()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int getArea(@NonNull Size size) {

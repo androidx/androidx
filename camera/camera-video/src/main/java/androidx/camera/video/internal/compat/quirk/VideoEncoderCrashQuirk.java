@@ -16,10 +16,13 @@
 
 package androidx.camera.video.internal.compat.quirk;
 
+import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
 /**
@@ -44,10 +47,17 @@ public class VideoEncoderCrashQuirk implements VideoQualityQuirk {
 
     /** Checks if the given Quality type is a problematic quality. */
     @Override
-    public boolean isProblematicVideoQuality(@NonNull Quality quality) {
+    public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
         if (isPositivoTwist2Pro()) {
-            return quality == Quality.SD;
+            return cameraInfo.getLensFacing() == LENS_FACING_FRONT && quality == Quality.SD;
         }
+        return false;
+    }
+
+    @Override
+    public boolean workaroundBySurfaceProcessing() {
+        // Failed to record video for front camera + SD quality. See b/218841498 comment#5.
         return false;
     }
 }

@@ -24,6 +24,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProvider;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
 /**
@@ -65,7 +66,8 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk 
 
     /** Checks if the given mime type is a problematic quality. */
     @Override
-    public boolean isProblematicVideoQuality(@NonNull Quality quality) {
+    public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
         if (isHuaweiMate20() || isHuaweiMate20Pro()) {
             return quality == Quality.UHD;
         } else if (isVivoY91i()) {
@@ -74,5 +76,11 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk 
             return quality == Quality.HD || quality == Quality.FHD;
         }
         return false;
+    }
+
+    @Override
+    public boolean workaroundBySurfaceProcessing() {
+        // VivoY91i can't be workaround.
+        return isHuaweiMate20() || isHuaweiMate20Pro();
     }
 }
