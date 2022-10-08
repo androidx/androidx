@@ -122,6 +122,8 @@ class AndroidXRootPluginTest {
                |  mavenLocal()
                |}
                |
+               |android { namespace "androidx.docs.docspublic" }
+               |
                |dependencies {
                |  ${sourceDependencies.joinToString("\n") { "docs(\"$it\")" }}
                |}

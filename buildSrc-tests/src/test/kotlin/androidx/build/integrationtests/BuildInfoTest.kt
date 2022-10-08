@@ -80,7 +80,8 @@ class BuildInfoTest {
         writeBuildFiles(
             AndroidXSelfTestProject.cubaneProject.copy(
                 buildGradleTextTemplate = AndroidXSelfTestProject.cubaneBuildGradleText(
-                    plugins = listOf("com.android.library", "AndroidXPlugin")
+                    plugins = listOf("com.android.library", "AndroidXPlugin"),
+                    moreConfig = "android { namespace \"androidx.foo\"}"
                 )
             )
         )
