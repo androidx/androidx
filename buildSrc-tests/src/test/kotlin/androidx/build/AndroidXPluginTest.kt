@@ -58,7 +58,8 @@ class AndroidXPluginTest {
     fun androidLibraryAndKotlinAndroid() = pluginTest {
         val project = cubaneProject.copy(
             buildGradleTextTemplate = cubaneBuildGradleText(
-                listOf("com.android.library", "kotlin-android", "AndroidXPlugin")
+                listOf("com.android.library", "kotlin-android", "AndroidXPlugin"),
+                moreConfig = "android { namespace \"androidx.foo\"}"
             )
         )
         writeBuildFiles(project)
@@ -69,7 +70,8 @@ class AndroidXPluginTest {
     fun kotlinAndroidAndAndroidLibrary() = pluginTest {
         val project = cubaneProject.copy(
             buildGradleTextTemplate = cubaneBuildGradleText(
-                plugins = listOf("kotlin-android", "com.android.library", "AndroidXPlugin")
+                plugins = listOf("kotlin-android", "com.android.library", "AndroidXPlugin"),
+                moreConfig = "android { namespace \"androidx.foo\"}"
             )
         )
         writeBuildFiles(project)
@@ -85,7 +87,8 @@ class AndroidXPluginTest {
                     "org.jetbrains.kotlin.android",
                     "AndroidXPlugin"
                 ),
-                version = null
+                version = null,
+                moreConfig = "android { namespace \"androidx.foo\"}"
             )
         )
         writeBuildFiles(project)

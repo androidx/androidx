@@ -228,6 +228,7 @@ class RoomIncrementalAnnotationProcessingTest(
             }
 
             android {
+                namespace "room.testapp"
                 defaultConfig {
                     javaCompileOptions {
                         annotationProcessorOptions {
