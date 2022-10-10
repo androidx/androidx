@@ -19,6 +19,9 @@ package androidx.credentials
 import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -30,6 +33,54 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * An application can call the CredentialManager apis to launch framework UI flows for a user to
  * register a new credential or to consent to a saved credential from supported credential
  * providers, which can then be used to authenticate to the app.
+ *
+ * This class contains its own exception types.
+ * They represent unique failures during the Credential Manager flow. As required, they
+ * can be extended for unique types containing new and unique versions of the exception - either
+ * with new 'exception types' (same credential class, different exceptions), or inner subclasses
+ * and their exception types (a subclass credential class and all their exception types).
+ *
+ * For example, if there is an UNKNOWN exception type, assuming the base Exception is
+ * [ClearCredentialException], we can add an 'exception type' class for it as follows:
+ * TODO("Add in new flow with extensive 'getType' function")
+ * ```
+ * class ClearCredentialUnknownException(
+ *     errorMessage: CharSequence? = null
+ * ) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
+ *  // ...Any required impl here...//
+ *  companion object {
+ *       private const val TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION: String =
+ *       "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION"
+ *   }
+ * }
+ * ```
+ *
+ * Furthermore, the base class can be subclassed to a new more specific credential type, which
+ * then can further be subclassed into individual exception types. The first is an example of a
+ * 'inner credential type exception', and the next is a 'exception type' of this subclass exception.
+ *
+ * ```
+ * class UniqueCredentialBasedOnClearCredentialException(
+ *     type: String,
+ *     errorMessage: CharSequence? = null
+ * ) : ClearCredentialException(type, errorMessage) {
+ *  // ... Any required impl here...//
+ * }
+ * // .... code and logic .... //
+ * class UniqueCredentialBasedOnClearCredentialUnknownException(
+ *     errorMessage: CharSequence? = null
+ * ) : ClearCredentialException(TYPE_UNIQUE_CREDENTIAL_BASED_ON_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION,
+ * errorMessage) {
+ * // ... Any required impl here ... //
+ *  companion object {
+ *       private const val
+ *       TYPE_UNIQUE_CREDENTIAL_BASED_ON_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION: String =
+ *       "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION"
+ *   }
+ * }
+ * ```
+ *
+ *
  */
 @Suppress("UNUSED_PARAMETER")
 class CredentialManager private constructor(private val context: Context) {
@@ -61,12 +112,13 @@ class CredentialManager private constructor(private val context: Context) {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<GetCredentialResponse> {
+        val callback = object : CredentialManagerCallback<GetCredentialResponse,
+            GetCredentialException> {
             override fun onResult(result: GetCredentialResponse) {
                 continuation.resume(result)
             }
 
-            override fun onError(e: CredentialManagerException) {
+            override fun onError(e: GetCredentialException) {
                 continuation.resumeWithException(e)
             }
         }
@@ -104,12 +156,13 @@ class CredentialManager private constructor(private val context: Context) {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<CreateCredentialResponse> {
+        val callback = object : CredentialManagerCallback<CreateCredentialResponse,
+            CreateCredentialException> {
             override fun onResult(result: CreateCredentialResponse) {
                 continuation.resume(result)
             }
 
-            override fun onError(e: CredentialManagerException) {
+            override fun onError(e: CreateCredentialException) {
                 continuation.resumeWithException(e)
             }
         }
@@ -146,12 +199,12 @@ class CredentialManager private constructor(private val context: Context) {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<Void> {
+        val callback = object : CredentialManagerCallback<Void, ClearCredentialException> {
             override fun onResult(result: Void) {
                 continuation.resume(Unit)
             }
 
-            override fun onError(e: CredentialManagerException) {
+            override fun onError(e: ClearCredentialException) {
                 continuation.resumeWithException(e)
             }
         }
@@ -186,7 +239,7 @@ class CredentialManager private constructor(private val context: Context) {
         activity: Activity?,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<GetCredentialResponse>,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         throw UnsupportedOperationException("Unimplemented")
     }
@@ -213,7 +266,7 @@ class CredentialManager private constructor(private val context: Context) {
         activity: Activity?,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<CreateCredentialResponse>,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
         throw UnsupportedOperationException("Unimplemented")
     }
@@ -240,7 +293,7 @@ class CredentialManager private constructor(private val context: Context) {
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Void>,
+        callback: CredentialManagerCallback<Void, ClearCredentialException>,
     ) {
         throw UnsupportedOperationException("Unimplemented")
     }

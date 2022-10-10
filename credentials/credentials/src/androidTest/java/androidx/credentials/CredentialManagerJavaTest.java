@@ -21,6 +21,9 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.credentials.exceptions.ClearCredentialException;
+import androidx.credentials.exceptions.CreateCredentialException;
+import androidx.credentials.exceptions.GetCredentialException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -50,9 +53,10 @@ public class CredentialManagerJavaTest {
                         null,
                         null,
                         Runnable::run,
-                        new CredentialManagerCallback<CreateCredentialResponse>() {
+                        new CredentialManagerCallback<CreateCredentialResponse,
+                                CreateCredentialException>() {
                             @Override
-                            public void onError(@NonNull CredentialManagerException e) {}
+                            public void onError(@NonNull CreateCredentialException e) {}
 
                             @Override
                             public void onResult(CreateCredentialResponse result) {}
@@ -70,9 +74,10 @@ public class CredentialManagerJavaTest {
                         null,
                         null,
                         Runnable::run,
-                        new CredentialManagerCallback<GetCredentialResponse>() {
+                        new CredentialManagerCallback<GetCredentialResponse,
+                                GetCredentialException>() {
                             @Override
-                            public void onError(@NonNull CredentialManagerException e) {}
+                            public void onError(@NonNull GetCredentialException e) {}
 
                             @Override
                             public void onResult(GetCredentialResponse result) {}
@@ -87,7 +92,14 @@ public class CredentialManagerJavaTest {
                         new ClearCredentialStateRequest(),
                         null,
                         Runnable::run,
-                        result -> {})
+                        new CredentialManagerCallback<Void,
+                                ClearCredentialException>() {
+                            @Override
+                            public void onError(@NonNull ClearCredentialException e) {}
+
+                            @Override
+                            public void onResult(Void result) {}
+                        })
         );
     }
 }

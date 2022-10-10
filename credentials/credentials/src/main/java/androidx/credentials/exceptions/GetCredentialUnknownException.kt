@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.credentials
+package androidx.credentials.exceptions
+
+import androidx.annotation.VisibleForTesting
 
 /**
- * Represents an error encountered during a Credential Manager flow.
+ * This get credential operation failed with no more detailed information.
  *
- * @param errorCode an integer representing the type of the error
- * @param errorMessage a human-readable string that describes the error
+ * @see GetCredentialException
  */
-class CredentialManagerException(
-    val errorCode: Int,
-    val errorMessage: CharSequence? = null,
-) : Exception(errorMessage?.toString()) {
-    // TODO: add specific errors.
+class GetCredentialUnknownException @JvmOverloads constructor(
+    errorMessage: CharSequence? = null
+) : GetCredentialException(TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
+
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION: String =
+            "androidx.credentials.TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION"
+    }
 }

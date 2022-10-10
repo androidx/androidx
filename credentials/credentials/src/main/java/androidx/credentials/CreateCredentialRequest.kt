@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * Base request class for registering a credential.
@@ -24,14 +25,15 @@ import android.os.Bundle
  * An application can construct a subtype request and call [CredentialManager.executeCreateCredential] to
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
- *
- * @property type the credential type determined by the credential-type-specific subclass
- * @property data the request data in the [Bundle] format
- * @property requireSystemProvider true if must only be fulfilled by a system provider and false
- *                              otherwise
  */
 open class CreateCredentialRequest(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val data: Bundle,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val requireSystemProvider: Boolean,
 )

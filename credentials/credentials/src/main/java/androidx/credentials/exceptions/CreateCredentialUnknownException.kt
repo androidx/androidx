@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.credentials
+package androidx.credentials.exceptions
 
-import android.os.Bundle
-import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 
 /**
- * Base response class for the credential creation operation made with the
- * [CreateCredentialRequest].
+ * This create credential operation failed with no more detailed information.
+ *
+ * @see CreateCredentialException
  */
-open class CreateCredentialResponse(
+class CreateCredentialUnknownException @JvmOverloads constructor(
+    errorMessage: CharSequence? = null
+) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
+
     /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle
-    )
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION: String =
+            "androidx.credentials.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION"
+    }
+}

@@ -34,14 +34,14 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
     fun constructor_success() {
         CreatePublicKeyCredentialRequestPrivileged(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-            "RP", "ClientDataHash"
+            "RelyingParty", "ClientDataHash"
         )
     }
 
     @Test
     fun constructor_setsAllowHybridToTrueByDefault() {
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged(
-            "JSON", "RP", "HASH"
+            "JSON", "RelyingParty", "HASH"
         )
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
         assertThat(allowHybridActual).isTrue()
@@ -52,7 +52,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val allowHybridExpected = false
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged(
             "testJson",
-            "RP", "Hash", allowHybridExpected
+            "RelyingParty", "Hash", allowHybridExpected
         )
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
         assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
@@ -62,7 +62,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
     fun builder_build_defaultAllowHybrid_true() {
         val defaultPrivilegedRequest = CreatePublicKeyCredentialRequestPrivileged.Builder(
             "{\"Data\":5}",
-            "RP", "HASH"
+            "RelyingParty", "HASH"
         ).build()
         assertThat(defaultPrivilegedRequest.allowHybrid).isTrue()
     }
@@ -73,7 +73,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged
             .Builder(
                 "testJson",
-                "RP", "Hash"
+                "RelyingParty", "Hash"
             ).setAllowHybrid(allowHybridExpected).build()
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
         assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
@@ -83,21 +83,22 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val createPublicKeyCredentialReqPriv =
-            CreatePublicKeyCredentialRequestPrivileged(testJsonExpected, "RP", "HASH")
+            CreatePublicKeyCredentialRequestPrivileged(testJsonExpected, "RelyingParty",
+                "HASH")
         val testJsonActual = createPublicKeyCredentialReqPriv.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 
     @Test
-    fun getter_rp_success() {
-        val testRpExpected = "RP"
+    fun getter_relyingParty_success() {
+        val testRelyingPartyExpected = "RelyingParty"
         val createPublicKeyCredentialRequestPrivileged =
             CreatePublicKeyCredentialRequestPrivileged(
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                testRpExpected, "X342%4dfd7&"
+                testRelyingPartyExpected, "X342%4dfd7&"
             )
-        val testRpActual = createPublicKeyCredentialRequestPrivileged.rp
-        assertThat(testRpActual).isEqualTo(testRpExpected)
+        val testRelyingPartyActual = createPublicKeyCredentialRequestPrivileged.relyingParty
+        assertThat(testRelyingPartyActual).isEqualTo(testRelyingPartyExpected)
     }
 
     @Test
@@ -106,7 +107,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val createPublicKeyCredentialRequestPrivileged =
             CreatePublicKeyCredentialRequestPrivileged(
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                "RP", clientDataHashExpected
+                "RelyingParty", clientDataHashExpected
             )
         val clientDataHashActual = createPublicKeyCredentialRequestPrivileged.clientDataHash
         assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected)
@@ -115,15 +116,16 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
     @Test
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val rpExpected = "RP"
+        val relyingPartyExpected = "RelyingParty"
         val clientDataHashExpected = "X342%4dfd7&"
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
-            CreatePublicKeyCredentialBaseRequest.BUNDLE_KEY_REQUEST_JSON,
+            CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
-        expectedData.putString(CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RP, rpExpected)
+        expectedData.putString(CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RELYING_PARTY,
+            relyingPartyExpected)
         expectedData.putString(
             CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHashExpected
@@ -135,7 +137,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
 
         val request = CreatePublicKeyCredentialRequestPrivileged(
             requestJsonExpected,
-            rpExpected,
+            relyingPartyExpected,
             clientDataHashExpected,
             allowHybridExpected
         )
