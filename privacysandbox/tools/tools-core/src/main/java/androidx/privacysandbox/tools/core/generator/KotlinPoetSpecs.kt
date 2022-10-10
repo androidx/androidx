@@ -83,6 +83,11 @@ fun FileSpec.Builder.build(block: FileSpec.Builder.() -> Unit): FileSpec {
     return build()
 }
 
+fun FileSpec.Builder.addCommonSettings() {
+    indent("    ")
+    addKotlinDefaultImports(includeJvm = false, includeJs = false)
+}
+
 fun FunSpec.Builder.addCode(block: CodeBlock.Builder.() -> Unit) {
     addCode(CodeBlock.builder().build { block() })
 }
@@ -96,6 +101,13 @@ fun CodeBlock.Builder.addControlFlow(
     beginControlFlow(controlFlow, *args)
     block()
     endControlFlow()
+}
+
+/** Auto-closing statement block. Useful for adding multiple [CodeBlock]s in a single statement. */
+fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
+    add("«")
+    builderBlock()
+    add("\n»")
 }
 
 object SpecNames {

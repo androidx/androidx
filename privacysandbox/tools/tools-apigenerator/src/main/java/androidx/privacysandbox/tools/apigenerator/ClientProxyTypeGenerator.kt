@@ -16,12 +16,14 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
+import androidx.privacysandbox.tools.core.generator.addCode
+import androidx.privacysandbox.tools.core.generator.addControlFlow
+import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.generator.primaryConstructor
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
-import androidx.privacysandbox.tools.core.model.Parameter
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -29,6 +31,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.joinToCode
 
 internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface) {
     internal val className =
@@ -61,16 +64,7 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
             addModifiers(KModifier.OVERRIDE)
             addParameters(method.parameters.map { it.poetSpec() })
 
-            val parameterList = method.parameters.map(Parameter::name)
-            if (method.returnsUnit) {
-                addStatement(
-                    "remote.${method.name}(${parameterList.joinToString()})"
-                )
-            } else {
-                addStatement(
-                    "return remote.${method.name}(${parameterList.joinToString()})"
-                )
-            }
+            addCode(generateRemoteCall(method))
         }
 
     private fun generateSuspendProxyMethodImplementation(method: Method) =
@@ -80,23 +74,18 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
             addParameters(method.parameters.map { it.poetSpec() })
             returns(method.returnType.poetSpec())
 
-            beginControlFlow("return suspendCancellableCoroutine")
+            addCode {
+                addControlFlow("return suspendCancellableCoroutine") {
+                    addStatement("var mCancellationSignal: %T? = null", cancellationSignalClassName)
 
-            addStatement("var mCancellationSignal: %T? = null", cancellationSignalClassName)
+                    add(generateTransactionCallbackObject(method))
+                    add(generateRemoteCall(method, listOf(CodeBlock.of("transactionCallback"))))
 
-            addCode(generateTransactionCallbackObject(method))
-
-            val parameterList = buildList {
-                addAll(method.parameters.map(Parameter::name))
-                add("transactionCallback")
+                    addControlFlow("it.invokeOnCancellation") {
+                        addStatement("mCancellationSignal?.cancel()")
+                    }
+                }
             }
-            addStatement("remote.${method.name}(${parameterList.joinToString()})")
-
-            beginControlFlow("it.invokeOnCancellation")
-            addStatement("mCancellationSignal?.cancel()")
-            endControlFlow()
-
-            endControlFlow()
         }
 
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
@@ -105,42 +94,52 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
             "I${method.returnType.poetSpec().simpleName}TransactionCallback",
             "Stub"
         )
-        beginControlFlow(
-            "val transactionCallback = object: %T()",
-            transactionCallbackClassName
-        )
 
-        beginControlFlow(
-            "override fun onCancellable(cancellationSignal: %T)",
-            cancellationSignalClassName
-        )
-        beginControlFlow("if (it.isCancelled)")
-        addStatement("cancellationSignal.cancel()")
-        endControlFlow()
-        addStatement("mCancellationSignal = cancellationSignal")
-        endControlFlow()
+        addControlFlow("val transactionCallback = object: %T()", transactionCallbackClassName) {
+            addControlFlow(
+                "override fun onCancellable(cancellationSignal: %T)",
+                cancellationSignalClassName
+            ) {
+                addControlFlow("if (it.isCancelled)") {
+                    addStatement("cancellationSignal.cancel()")
+                }
+                addStatement("mCancellationSignal = cancellationSignal")
+            }
 
-        if (method.returnsUnit) {
-            beginControlFlow("override fun onSuccess()")
-            addStatement("it.resumeWith(Result.success(Unit))")
-            endControlFlow()
-        } else {
-            beginControlFlow(
-                "override fun onSuccess(result: %T)",
-                method.returnType.poetSpec()
-            )
-            addStatement("it.resumeWith(Result.success(result))")
-            endControlFlow()
+            if (method.returnsUnit) {
+                addControlFlow("override fun onSuccess()") {
+                    addStatement("it.resumeWith(Result.success(Unit))")
+                }
+            } else {
+                addControlFlow(
+                    "override fun onSuccess(result: %T)",
+                    method.returnType.poetSpec()
+                ) {
+                    addStatement("it.resumeWith(Result.success(result))")
+                }
+            }
+
+            addControlFlow("override fun onFailure(errorCode: Int, errorMessage: String)") {
+                addStatement(
+                    "it.%M(RuntimeException(errorMessage))",
+                    MemberName("kotlin.coroutines", "resumeWithException")
+                )
+            }
         }
+    }
 
-        beginControlFlow("override fun onFailure(errorCode: Int, errorMessage: String)")
-        addStatement(
-            "it.%M(RuntimeException(errorMessage))",
-            MemberName("kotlin.coroutines", "resumeWithException")
-        )
-        endControlFlow()
-
-        endControlFlow()
+    private fun generateRemoteCall(
+        method: Method,
+        extraParameters: List<CodeBlock> = emptyList(),
+    ) = CodeBlock.builder().build {
+        val parameters = method.parameters.map { parameter ->
+            CodeBlock.of(parameter.name)
+        } + extraParameters
+        addStatement {
+            add("remote.${method.name}(")
+            add(parameters.joinToCode())
+            add(")")
+        }
     }
 
     private val Method.returnsUnit: Boolean
