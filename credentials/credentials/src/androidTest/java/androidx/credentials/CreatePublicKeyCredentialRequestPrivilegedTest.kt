@@ -18,7 +18,7 @@ package androidx.credentials
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -43,7 +43,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
             "JSON", "RP", "HASH"
         )
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        Truth.assertThat(allowHybridActual).isTrue()
+        assertThat(allowHybridActual).isTrue()
     }
 
     @Test
@@ -54,7 +54,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
             "RP", "Hash", allowHybridExpected
         )
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        Truth.assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
     }
 
     @Test
@@ -63,7 +63,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
             "{\"Data\":5}",
             "RP", "HASH"
         ).build()
-        Truth.assertThat(defaultPrivilegedRequest.allowHybrid).isTrue()
+        assertThat(defaultPrivilegedRequest.allowHybrid).isTrue()
     }
 
     @Test
@@ -75,7 +75,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
                 "RP", "Hash"
             ).setAllowHybrid(allowHybridExpected).build()
         val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        Truth.assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
     }
 
     @Test
@@ -84,7 +84,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val createPublicKeyCredentialReqPriv =
             CreatePublicKeyCredentialRequestPrivileged(testJsonExpected, "RP", "HASH")
         val testJsonActual = createPublicKeyCredentialReqPriv.requestJson
-        Truth.assertThat(testJsonActual).isEqualTo(testJsonExpected)
+        assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 
     @Test
@@ -96,7 +96,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
                 testRpExpected, "X342%4dfd7&"
             )
         val testRpActual = createPublicKeyCredentialRequestPrivileged.rp
-        Truth.assertThat(testRpActual).isEqualTo(testRpExpected)
+        assertThat(testRpActual).isEqualTo(testRpExpected)
     }
 
     @Test
@@ -108,6 +108,6 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
                 "RP", clientDataHashExpected
             )
         val clientDataHashActual = createPublicKeyCredentialRequestPrivileged.clientDataHash
-        Truth.assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected)
+        assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected)
     }
 }
