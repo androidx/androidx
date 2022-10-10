@@ -20,10 +20,15 @@ import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.fromParcelableNameSpec
+import androidx.privacysandbox.tools.core.generator.parcelableNameSpec
 import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.generator.primaryConstructor
+import androidx.privacysandbox.tools.core.generator.toParcelableNameSpec
+import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -33,7 +38,10 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
 
-internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface) {
+internal class ClientProxyTypeGenerator(
+    private val api: ParsedApi,
+    private val service: AnnotatedInterface
+) {
     internal val className =
         ClassName(service.type.packageName, "${service.type.simpleName}ClientProxy")
     internal val remoteBinderClassName =
@@ -91,7 +99,7 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(
             service.type.packageName,
-            "I${method.returnType.poetSpec().simpleName}TransactionCallback",
+            method.returnType.transactionCallbackName(),
             "Stub"
         )
 
@@ -106,18 +114,7 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
                 addStatement("mCancellationSignal = cancellationSignal")
             }
 
-            if (method.returnsUnit) {
-                addControlFlow("override fun onSuccess()") {
-                    addStatement("it.resumeWith(Result.success(Unit))")
-                }
-            } else {
-                addControlFlow(
-                    "override fun onSuccess(result: %T)",
-                    method.returnType.poetSpec()
-                ) {
-                    addStatement("it.resumeWith(Result.success(result))")
-                }
-            }
+            add(generateTransactionCallbackOnSuccess(method))
 
             addControlFlow("override fun onFailure(errorCode: Int, errorMessage: String)") {
                 addStatement(
@@ -128,12 +125,46 @@ internal class ClientProxyTypeGenerator(private val service: AnnotatedInterface)
         }
     }
 
+    private fun generateTransactionCallbackOnSuccess(method: Method): CodeBlock {
+        if (method.returnsUnit) {
+            return CodeBlock.builder().build {
+                addControlFlow("override fun onSuccess()") {
+                    addStatement("it.resumeWith(Result.success(Unit))")
+                }
+            }
+        }
+
+        val value = api.valueMap[method.returnType]
+        if (value != null) {
+            return CodeBlock.builder().build {
+                addControlFlow(
+                    "override fun onSuccess(result: %T)",
+                    value.parcelableNameSpec()
+                ) {
+                    addStatement("it.resumeWith(Result.success(%M(result)))",
+                        value.fromParcelableNameSpec())
+                }
+            }
+        }
+
+        return CodeBlock.builder().build {
+            addControlFlow(
+                "override fun onSuccess(result: %T)",
+                method.returnType.poetSpec()
+            ) {
+                addStatement("it.resumeWith(Result.success(result))")
+            }
+        }
+    }
+
     private fun generateRemoteCall(
         method: Method,
         extraParameters: List<CodeBlock> = emptyList(),
     ) = CodeBlock.builder().build {
         val parameters = method.parameters.map { parameter ->
-            CodeBlock.of(parameter.name)
+            api.valueMap[parameter.type]?.toParcelableNameSpec()?.let { converterFunctionName ->
+                CodeBlock.of("%M(${parameter.name})", converterFunctionName)
+            } ?: CodeBlock.of(parameter.name)
         } + extraParameters
         addStatement {
             add("remote.${method.name}(")
