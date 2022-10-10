@@ -20,8 +20,12 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.SpecNames
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addControlFlow
+import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.aidlName
 import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.toParcelableNameSpec
+import androidx.privacysandbox.tools.core.generator.fromParcelableNameSpec
+import androidx.privacysandbox.tools.core.generator.parcelableNameSpec
 import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.generator.primaryConstructor
 import androidx.privacysandbox.tools.core.generator.transactionCallbackName
@@ -32,6 +36,7 @@ import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -40,6 +45,7 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.joinToCode
 
 class StubDelegatesGenerator(
     private val codeGenerator: CodeGenerator,
@@ -90,8 +96,6 @@ class StubDelegatesGenerator(
     }
 
     private fun toSuspendFunSpec(method: Method): FunSpec {
-        val resultStatement =
-            "delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
         return FunSpec.builder(method.name).build {
             addModifiers(KModifier.OVERRIDE)
             addParameters(getParameters(method))
@@ -103,8 +107,19 @@ class StubDelegatesGenerator(
                     SpecNames.dispatchersMainClass
                 ) {
                     addControlFlow("try") {
-                        addStatement("val result = $resultStatement")
-                        addStatement("transactionCallback.onSuccess(result)")
+                        addStatement {
+                            add("val result = ")
+                            add(getDelegateCallBlock(method))
+                        }
+                        val value = api.valueMap[method.returnType]
+                        if (value != null) {
+                            addStatement(
+                                "transactionCallback.onSuccess(%M(result))",
+                                value.toParcelableNameSpec()
+                            )
+                        } else {
+                            addStatement("transactionCallback.onSuccess(result)")
+                        }
                     }
                     addControlFlow("catch (t: Throwable)") {
                         addStatement("transactionCallback.onFailure(404, t.message)")
@@ -119,17 +134,16 @@ class StubDelegatesGenerator(
     }
 
     private fun toNonSuspendFunSpec(method: Method) = FunSpec.builder(method.name).build {
-        val returnStatement =
-            "return delegate.${method.name}(${method.parameters.joinToString(", ") { it.name }})"
         addModifiers(KModifier.OVERRIDE)
         addParameters(getParameters(method))
-        returns(method.returnType.poetSpec())
-        addStatement(returnStatement).build()
+        addStatement { add(getDelegateCallBlock(method)) }
     }
 
     private fun getParameters(method: Method) = buildList {
         addAll(method.parameters.map { parameter ->
-            ParameterSpec(parameter.name, parameter.type.poetSpec())
+            api.valueMap[parameter.type]?.let { value ->
+                ParameterSpec(parameter.name, value.parcelableNameSpec())
+            } ?: ParameterSpec(parameter.name, parameter.type.poetSpec())
         })
         if (method.isSuspend) add(
             ParameterSpec(
@@ -139,6 +153,20 @@ class StubDelegatesGenerator(
                 )
             )
         )
+    }
+
+    private fun getDelegateCallBlock(method: Method) = CodeBlock.builder().build {
+        val parameters = method.parameters.map {
+            val value = api.valueMap[it.type]
+            if (value != null) {
+                CodeBlock.of("%M(${it.name})", value.fromParcelableNameSpec())
+            } else {
+                CodeBlock.of(it.name)
+            }
+        }
+        add("delegate.${method.name}(")
+        add(parameters.joinToCode())
+        add(")")
     }
 
     private fun generateTransportCancellationCallback() {
