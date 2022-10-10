@@ -187,6 +187,7 @@ src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a
         check(*input).expect(expected)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe void-type method reference in Java source`() {
         val input = arrayOf(
@@ -219,6 +220,7 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
         check(*input).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe constructor reference in Java source`() {
         val input = arrayOf(
@@ -251,6 +253,7 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
         check(*input).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe static method reference in Java source`() {
         val input = arrayOf(
@@ -283,6 +286,7 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
         check(*input).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe generic-type method reference in Java source`() {
         val input = arrayOf(
@@ -348,6 +352,7 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         check(*input).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe reference in Java source when the fix code already exists`() {
         val input = arrayOf(
@@ -490,6 +495,7 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 40: Extract
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix for unsafe method call on this`() {
         val input = arrayOf(
@@ -571,6 +577,7 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inn
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Auto-fix for unsafe method call on cast object (issue 206111383)`() {
         val input = arrayOf(
