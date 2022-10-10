@@ -18,6 +18,8 @@ package androidx.car.app.messaging.model;
 
 import static java.util.Objects.requireNonNull;
 
+import android.os.Bundle;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +36,7 @@ import androidx.core.app.Person;
 public class CarMessage {
     @Keep
     @NonNull
-    private final Person mSender;
+    private final Bundle mSender;
 
     @Keep
     @NonNull
@@ -46,7 +48,7 @@ public class CarMessage {
     private final boolean mIsRead;
 
     CarMessage(@NonNull Builder builder) {
-        this.mSender = requireNonNull(builder.mSender);
+        this.mSender = requireNonNull(builder.mSender).toBundle();
         this.mBody = requireNonNull(builder.mBody);
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
@@ -54,7 +56,7 @@ public class CarMessage {
 
     /** Default constructor for serialization. */
     private CarMessage() {
-        this.mSender = new Person.Builder().setName("").build();
+        this.mSender = new Person.Builder().setName("").build().toBundle();
         this.mBody = new CarText.Builder("").build();
         this.mReceivedTimeEpochMillis = 0;
         this.mIsRead = false;
@@ -63,7 +65,7 @@ public class CarMessage {
 
     /** Returns a {@link Person} representing the message sender */
     @NonNull public Person getSender() {
-        return mSender;
+        return Person.fromBundle(mSender);
     }
 
     /** Returns a {@link CarText} representing the message body */
