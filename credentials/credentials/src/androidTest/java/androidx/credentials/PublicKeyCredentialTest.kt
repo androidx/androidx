@@ -18,7 +18,7 @@ package androidx.credentials
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +50,13 @@ class PublicKeyCredentialTest {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val publicKeyCredential = PublicKeyCredential(testJsonExpected)
         val testJsonActual = publicKeyCredential.authenticationResponseJson
-        Truth.assertThat(testJsonActual).isEqualTo(testJsonExpected)
+        assertThat(testJsonActual).isEqualTo(testJsonExpected)
+    }
+
+    @Test
+    fun staticProperty_hasCorrectTypeConstantValue() {
+        val typeExpected = "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
+        val typeActual = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL
+        assertThat(typeActual).isEqualTo(typeExpected)
     }
 }

@@ -18,7 +18,7 @@ package androidx.credentials
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +45,6 @@ class CreatePublicKeyCredentialResponseTest {
         val testJsonExpected = "{\"input\":5}"
         val createPublicKeyCredentialResponse = CreatePublicKeyCredentialResponse(testJsonExpected)
         val testJsonActual = createPublicKeyCredentialResponse.registrationResponseJson
-        Truth.assertThat(testJsonActual).isEqualTo(testJsonExpected)
+        assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 }

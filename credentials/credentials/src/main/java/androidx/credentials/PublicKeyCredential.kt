@@ -36,4 +36,9 @@ class PublicKeyCredential constructor(
         require(authenticationResponseJson.isNotEmpty()) {
             "authentication response JSON must not be empty" }
     }
+    companion object {
+        /** The type value for public key credential related operations. */
+        const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
+            "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
+    }
 }

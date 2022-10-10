@@ -62,4 +62,11 @@ public class PublicKeyCredentialJavaTest {
         String testJsonActual = publicKeyCredential.getAuthenticationResponseJson();
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
     }
+
+    @Test
+    public void staticProperty_hasCorrectTypeConstantValue() {
+        String typeExpected = "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL";
+        String typeActual = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL;
+        assertThat(typeActual).isEqualTo(typeExpected);
+    }
 }
