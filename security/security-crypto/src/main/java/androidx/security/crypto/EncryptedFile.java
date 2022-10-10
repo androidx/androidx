@@ -194,14 +194,14 @@ public final class EncryptedFile {
         public EncryptedFile build() throws GeneralSecurityException, IOException {
             StreamingAeadConfig.register();
 
-            KeysetHandle streadmingAeadKeysetHandle = new AndroidKeysetManager.Builder()
+            KeysetHandle streamingAeadKeysetHandle = new AndroidKeysetManager.Builder()
                     .withKeyTemplate(mFileEncryptionScheme.getKeyTemplate())
                     .withSharedPref(mContext, mKeysetAlias, mKeysetPrefName)
                     .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias)
                     .build().getKeysetHandle();
 
             StreamingAead streamingAead =
-                    streadmingAeadKeysetHandle.getPrimitive(StreamingAead.class);
+                    streamingAeadKeysetHandle.getPrimitive(StreamingAead.class);
 
             return new EncryptedFile(mFile, mKeysetAlias, streamingAead, mContext);
         }
