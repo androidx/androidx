@@ -106,7 +106,7 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
     val gridCells = if (Build.VERSION.SDK_INT >= 31) {
         GridCells.Adaptive((imageWidth + margin).dp)
     } else {
-        GridCells.Fixed(nCols)
+        GridCells.Fixed(nCols.coerceAtMost(5))
     }
     Column {
         Row(
