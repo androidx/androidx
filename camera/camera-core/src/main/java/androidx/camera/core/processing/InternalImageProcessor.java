@@ -50,7 +50,7 @@ public class InternalImageProcessor {
 
     public InternalImageProcessor(@NonNull CameraEffect cameraEffect) {
         checkArgument(cameraEffect.getTargets() == CameraEffect.IMAGE_CAPTURE);
-        mExecutor = cameraEffect.getProcessorExecutor();
+        mExecutor = cameraEffect.getExecutor();
         mImageProcessor = requireNonNull(cameraEffect.getImageProcessor());
     }
 

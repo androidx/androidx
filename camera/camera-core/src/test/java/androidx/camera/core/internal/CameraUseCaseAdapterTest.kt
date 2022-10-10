@@ -23,7 +23,6 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
-import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -39,6 +38,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.fakes.FakePreviewEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
@@ -86,9 +86,7 @@ class CameraUseCaseAdapterTest {
         fakeCameraSet.add(fakeCamera)
         surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
-        effects = listOf(
-            CameraEffect.Builder(PREVIEW).setSurfaceProcessor(executor, surfaceProcessor).build()
-        )
+        effects = listOf(FakePreviewEffect(executor, surfaceProcessor))
     }
 
     @After
@@ -340,9 +338,12 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeUseCase.viewPortCropRect).isEqualTo(Rect(505, 0, 3527, 3022))
         assertThat(fakeUseCase.sensorToBufferTransformMatrix).isEqualTo(Matrix().apply {
             // From 4032x3024 to 4032x3022 with Crop Inside, no scale and Y shift 1.
-            setValues(floatArrayOf(/*scaleX=*/1f, 0f, /*translateX=*/0f,
-                0f, /*scaleY=*/1f, /*translateY=*/-1f,
-                0f, 0f, 1f))
+            setValues(
+                floatArrayOf(/*scaleX=*/1f, 0f, /*translateX=*/0f,
+                    0f, /*scaleY=*/1f, /*translateY=*/-1f,
+                    0f, 0f, 1f
+                )
+            )
         })
     }
 
