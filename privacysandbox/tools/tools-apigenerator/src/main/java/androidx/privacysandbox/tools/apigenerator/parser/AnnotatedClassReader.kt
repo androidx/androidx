@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
+import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import java.nio.file.Path
@@ -29,13 +30,18 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 
-data class AnnotatedClasses(val services: Set<KmClass>, val values: Set<KmClass>)
+data class AnnotatedClasses(
+    val services: Set<KmClass>,
+    val values: Set<KmClass>,
+    val callbacks: Set<KmClass>,
+)
 internal object AnnotatedClassReader {
     val annotations = listOf(PrivacySandboxService::class)
 
     fun readAnnotatedClasses(stubClassPath: Path): AnnotatedClasses {
         val services = mutableSetOf<KmClass>()
         val values = mutableSetOf<KmClass>()
+        val callbacks = mutableSetOf<KmClass>()
         readClassNodes(stubClassPath).forEach { classNode ->
             if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
                 services.add(parseKotlinMetadata(classNode))
@@ -43,8 +49,11 @@ internal object AnnotatedClassReader {
             if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
                 values.add(parseKotlinMetadata(classNode))
             }
+            if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
+                callbacks.add(parseKotlinMetadata(classNode))
+            }
         }
-        return AnnotatedClasses(services = services.toSet(), values = values.toSet())
+        return AnnotatedClasses(services.toSet(), values.toSet(), callbacks.toSet())
     }
 
     private fun readClassNodes(stubClassPath: Path): List<ClassNode> =
