@@ -21,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.state.CorePixelDp
 
@@ -251,6 +253,69 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
         tasks.add { state ->
             state.constraints(id).addCustomColor(name, value.toArgb())
         }
+    }
+
+    /**
+     * Declare a custom Int [value] addressed by [name].
+     */
+    fun ConstrainScope.customInt(name: String, value: Int) {
+        tasks.add { state ->
+            state.constraints(id).addCustomFloat(name, value.toFloat())
+        }
+    }
+
+    /**
+     * Declare a custom Dp [value] addressed by [name].
+     */
+    fun ConstrainScope.customDistance(name: String, value: Dp) {
+        tasks.add { state ->
+            state.constraints(id).addCustomFloat(name, value.value)
+        }
+    }
+
+    /**
+     * Declare a custom TextUnit [value] addressed by [name].
+     */
+    fun ConstrainScope.customFontSize(name: String, value: TextUnit) {
+        tasks.add { state ->
+            state.constraints(id).addCustomFloat(name, value.value)
+        }
+    }
+
+    /**
+     * Sets the custom Float [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customFloat(name: String, value: Float) {
+        customPropertiesValue[name] = value
+    }
+
+    /**
+     * Sets the custom Color [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customColor(name: String, value: Color) {
+        // Colors must be in the following format: "#AARRGGBB"
+        customPropertiesValue[name] = "#${value.toArgb().toUInt().toString(16)}"
+    }
+
+    /**
+     * Sets the custom Int [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customInt(name: String, value: Int) {
+        customPropertiesValue[name] = value
+    }
+
+    /**
+     * Sets the custom Dp [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customDistance(name: String, value: Dp) {
+        customPropertiesValue[name] = value.value
+    }
+
+    /**
+     * Sets the custom TextUnit [value] at the frame of the current [KeyAttributeScope].
+     */
+    fun KeyAttributeScope.customFontSize(name: String, value: TextUnit) {
+        customPropertiesValue[name] = value.value
     }
 }
 
