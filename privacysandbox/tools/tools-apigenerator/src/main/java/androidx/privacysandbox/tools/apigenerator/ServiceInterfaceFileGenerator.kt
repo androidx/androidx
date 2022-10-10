@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
+import androidx.privacysandbox.tools.core.generator.addCommonSettings
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.generator.build
@@ -34,7 +35,7 @@ internal class ServiceInterfaceFileGenerator(private val service: AnnotatedInter
             }
 
         return FileSpec.get(service.type.packageName, annotatedInterface).toBuilder().build {
-            addKotlinDefaultImports(includeJvm = false, includeJs = false)
+            addCommonSettings()
         }
     }
 

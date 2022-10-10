@@ -17,26 +17,30 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.core.generator.addCode
+import androidx.privacysandbox.tools.core.generator.addCommonSettings
 import androidx.privacysandbox.tools.core.generator.addControlFlow
+import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.joinToCode
 
-internal class ServiceFactoryFileGenerator(private val service: AnnotatedInterface) {
-    private val proxyTypeGenerator by lazy {
-        ClientProxyTypeGenerator(service)
-    }
+internal class ServiceFactoryFileGenerator(
+    private val service: AnnotatedInterface
+) {
+    private val proxyTypeGenerator = ClientProxyTypeGenerator(service)
 
     fun generate(): FileSpec =
         FileSpec.builder(service.type.packageName, "${service.type.simpleName}Factory").build {
+            addCommonSettings()
             addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
             addImport("kotlin.coroutines", "resume")
             addImport("kotlin.coroutines", "resumeWithException")
-            addKotlinDefaultImports(includeJvm = false, includeJs = false)
 
             addFunction(generateFactoryFunction())
 
@@ -76,13 +80,17 @@ internal class ServiceFactoryFileGenerator(private val service: AnnotatedInterfa
                             addStatement("it.resumeWithException(error)")
                         }
                     }
-                    addStatement("""
-                        |sdkSandboxManager.loadSdk(
-                        |%S,
-                        |%T.EMPTY,
-                        |{ obj: Runnable -> obj.run() },
-                        |outcomeReceiver)
-                    """.trimMargin(), service.type.packageName, AndroidClassNames.bundle)
+                    val loadSdkParameters = listOf(
+                        CodeBlock.of("%S", service.type.packageName),
+                        CodeBlock.of("%T.EMPTY", AndroidClassNames.bundle),
+                        CodeBlock.of("Runnable::run"),
+                        CodeBlock.of("outcomeReceiver"),
+                    )
+                    addStatement {
+                        add("sdkSandboxManager.loadSdk(")
+                        add(loadSdkParameters.joinToCode())
+                        add(")")
+                    }
                 }
             }
         }
