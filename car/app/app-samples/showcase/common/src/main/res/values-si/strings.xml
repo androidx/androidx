@@ -230,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"නොගැළපෙන සංග්‍රාහක"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"පණිවිඩය මෙතැනට යයි.\nදෙවන පේළියේ තවත් පෙළ."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"කෙටි පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"කවුළු අච්චු ආදර්ශනය"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ස්ථාන ලැයිස්තු අච්චු ආදර්ශනය"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ස්ථාන බ්‍රවුස් කරන්න"</string>
@@ -267,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"වර්ණ ගැන්වීමක් සහිතව, ඇඳිය හැකි දෛශිකයක්"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"යෙදුමක එහි වර්ණය සඳහා තේමා ගුණාංගය සහිත, ඇඳිය හැකි දෛශිකයක්"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG, සම්පතක් ලෙස යවන ලදී"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"PNG එකක්, bitmap එකක් ලෙස යවන ලදි"</string>
     <string name="just_row_title" msgid="965700021568970725">"මාතෘකාවක් පමණයි"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"යෙදුම් නිරූපකය සහිත මාතෘකාව"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"සම්පත් ID රූපය සහිත මාතෘකාව"</string>
@@ -280,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"පේළි ආදර්ශනය"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"පෙළ සහ නිරූපක ආදර්ශන"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"පෙළ සහ නිරූපණ ආදර්ශන සහිත පේළි"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"රේඩියෝ බොත්තම් ලැයිස්තු ආදර්ශන"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"තෝරා ගත හැකි ලැයිස්තු ආදර්ශනය"</string>
     <string name="option_1_title" msgid="7221252541651471199">"විකල්පය 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"විකල්පය 2"</string>
@@ -295,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"කාර්ය සීමාව ළඟා විය\nඉදිරියට යාම යෙදුම බලෙන් නවත්වනු ඇත"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d කින් %1$dවන කාර්ය පියවර"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ඉදිරියට යාමට ක්ලික් කරන්න"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"බොත්තම් ආදර්ශනය ටොගල් කරන්න"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ටොගල පරීක්ෂාව"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"රාජ්‍ය වෙනස් කිරීම්වලට ඉඩ දේ"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"ටොගල පරීක්ෂාව සබල කරන්න"</string>
@@ -311,10 +307,8 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ටොගල පරීක්ෂාව අබලයි"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"විවිධ අච්චු ආදර්ශන"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ප්‍රකාශක තේරූ ආදර්ශන"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"අච්චු පිරිසැලසුම් ආදර්ශන"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"ජාල අච්චු ආදර්ශන"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"හඬ ප්‍රවේශ ආදර්ශන තිරය"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"පරිශීලක අන්තර්ක්‍රියා"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"අවසර ආදර්ශන ඉල්ලන්න"</string>
@@ -337,6 +331,5 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"පූරණය සබල කර ඇත"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"පූරණය අබල කර ඇත"</string>
     <string name="loading_screen" msgid="4771507490730308794">"තිරය පූරණය වේ"</string>
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="vector_toggle_details" msgid="1301305340033556819">"වර්ණය එක් කිරීමට/ඉවත් කිරීමට ටොගල් කරන්න"</string>
 </resources>

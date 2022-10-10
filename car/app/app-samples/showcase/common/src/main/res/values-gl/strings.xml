@@ -230,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Host non compatible"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demostración de modelo de mensaxe"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"A mensaxe vai aquí.\nMáis texto na segunda liña."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demostración de modelo de mensaxe curta"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostración de modelo de panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostración de modelo de lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Explorar lugares"</string>
@@ -267,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Un debuxable de vector con axuste de ton"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Un debuxable de vector cun atributo de tema da aplicación para a súa cor"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Un ficheiro PNG, enviado como recurso"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Un ficheiro PNG, enviado como mapa de bits"</string>
     <string name="just_row_title" msgid="965700021568970725">"Só un título"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Título con icona da aplicación"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Título con imaxe de código de identificación de recurso"</string>
@@ -280,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demostración de filas"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Demostracións de texto e iconas"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demostración de filas con texto e iconas"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demostración de listas de botóns de opción"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demostración de listas seleccionables"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Opción 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Opción 2"</string>
@@ -295,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Alcanzouse o límite de tarefas\nSe continúas, forzarase a detención da aplicación"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Paso %1$d de %2$d da tarefa"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Fai clic para continuar"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demostración de botón de activación/desactivación"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Proba do interruptor"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Os cambios de estado están permitidos"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Activar proba do interruptor"</string>
@@ -311,10 +307,8 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Desactivouse a proba do interruptor"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Outras demostracións de modelos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracións de Showcase"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracións de deseños de modelo"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Demostracións de modelos de cuadrícula"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pantalla de demostración de Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interaccións do usuario"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demostracións de solicitude de permisos"</string>
@@ -337,6 +331,5 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Activouse a carga"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Desactivouse a carga"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Pantalla de carga"</string>
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Usa o interruptor para engadir ou quitar cor"</string>
 </resources>
