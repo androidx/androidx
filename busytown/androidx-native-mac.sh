@@ -7,7 +7,7 @@ export ANDROIDX_PROJECTS=KMP
 # disable GCP cache, these machines don't have credentials.
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
-impl/build.sh buildOnServer :docs-kmp:zipCombinedKmpDocs --no-configuration-cache
+impl/build.sh buildOnServer allTests :docs-kmp:zipCombinedKmpDocs --no-configuration-cache -Pandroidx.displayTestOutput=false
 
 # run a separate createArchive task to prepare a repository
 # folder in DIST.
