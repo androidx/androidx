@@ -230,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"অমিল হ’ষ্ট"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"বাৰ্তাৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ইয়াত বাৰ্তা ওলাব।\nদ্বিতীয় শাৰীত অধিক পাঠ।"</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"চুটি বাৰ্তাৰ টেমপ্লে’টৰ ডেম’"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>
@@ -267,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"এটা ৰঙৰ জৰিয়তে স্পৰ্শেৰে স্থানান্তৰ কৰিব পৰা এটা ভেক্টৰ"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"এটা এপৰ নিজৰ ৰঙৰ থীমৰ এট্ৰিবিউটৰ জৰিয়তে স্পৰ্শেৰে স্থানান্তৰ কৰিব পৰা এটা ভেক্টৰ"</string>
     <string name="png_res_title" msgid="7437083018336747544">"উৎস হিচাপে পঠিওৱা এটা PNG"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"বিটমেপ হিচাপে পঠিওৱা এটা PNG"</string>
     <string name="just_row_title" msgid="965700021568970725">"মাত্ৰ অলপ"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"এপৰ চিহ্নৰ সৈতে শিৰোনাম"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"উৎসৰ আইডিৰ প্ৰতিচ্ছবিৰ সৈতে শিৰোনাম"</string>
@@ -280,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"শাৰীৰ ডেম’"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"পাঠ আৰু চিহ্নৰ ডেম’"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"পাঠ আৰু চিহ্নৰ ডেম’যুক্ত শাৰী"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"ৰেডিঅ’ বুটামৰ সূচীৰ ডেম’"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"বাছনিযোগ্য সূচীৰ ডেম’"</string>
     <string name="option_1_title" msgid="7221252541651471199">"বিকল্প ১"</string>
     <string name="option_2_title" msgid="1905146448697963818">"বিকল্প ২"</string>
@@ -295,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"কাৰ্যৰ সীমাত উপনীত হৈছে\nআগবাঢ়ি গ’লে এপ্‌টো বলপূৰ্বকভাৱে বন্ধ কৰা হ’ব"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"কাৰ্যৰ পদক্ষেপ %2$d টাৰ %1$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"আগবাঢ়ি যাবলৈ ক্লিক কৰক"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"ট’গল বুটামৰ ডেম’"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"পৰীক্ষা ট’গল কৰক"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ষ্টে’টফুল সলনি কৰাৰ অনুমতি আছে"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"পৰীক্ষা ট’গল কৰাৰ সুবিধা সক্ষম কৰক"</string>
@@ -311,10 +307,8 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"পৰীক্ষা ট’গল কৰাৰ সুবিধা অক্ষম কৰা হৈছে"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"সানমিহলি টেম্পলে’টৰ ডেম’"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেম’ দেখুৱাওক"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লে’ট লে’আউটৰ ডেম’"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"গ্ৰিড টেমপ্লে’টৰ ডেম’"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"কণ্ঠধ্বনিৰে এক্সেছ কৰাৰ ডেম’ৰ স্ক্ৰীন"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ব্যৱহাৰকাৰীৰ ভাব-বিনিময়"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"অনুমতিৰ অনুৰোধৰ ডেম’"</string>
@@ -337,6 +331,5 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"ল’ড কৰি থকাটো সক্ষম কৰা হৈছে"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ল’ড কৰি থকাটো অক্ষম কৰা হৈছে"</string>
     <string name="loading_screen" msgid="4771507490730308794">"স্ক্ৰীন ল’ড কৰি থকা হৈছে"</string>
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="vector_toggle_details" msgid="1301305340033556819">"ৰং যোগ দিবলৈ/আঁতৰাবলৈ ট’গল কৰক"</string>
 </resources>

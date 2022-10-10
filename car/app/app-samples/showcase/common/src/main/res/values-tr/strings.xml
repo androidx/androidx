@@ -230,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Uyumsuz ana makine"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Mesaj Şablonu Demosu"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Mesaj buraya gelir.\nİkinci satırda daha fazla metin bulunur."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Kısa Mesaj Şablonu Demosu"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bölme Şablonu Demosu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Yer Listesi Şablonu Demosu"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Yerlere Göz At"</string>
@@ -267,8 +266,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Tonlama içeren drawable vektör"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Bir uygulamanın rengiyle ilgili tema özelliği içeren drawable vektör"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Kaynak olarak gönderilen bir PNG"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Bit eşlem olarak gönderilen bir PNG dosyası"</string>
     <string name="just_row_title" msgid="965700021568970725">"Sadece başlık"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Uygulama simgesi içeren başlık"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Kaynak kimliği resmi içeren başlık"</string>
@@ -280,8 +278,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Satırlar Demosu"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Metin ve Simge Demoları"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Metin ve Simge İçeren Satırlar Demosu"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Radyo Düğmesi Listeleri Demosu"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Seçilebilir Listeler Demosu"</string>
     <string name="option_1_title" msgid="7221252541651471199">"1. Seçenek"</string>
     <string name="option_2_title" msgid="1905146448697963818">"2. Seçenek"</string>
@@ -295,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Görev sınırına ulaşıldı\nDevam ederseniz uygulama zorla durdurulacak"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d/%2$d görev adımı"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Devam etmek için tıklayın"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Açma/Kapatma Düğmesi Demosu"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Açma/kapatma testi"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Durum bilgili değişikliklere izin verilir"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Açma/Kapatma Testini Etkinleştir"</string>
@@ -311,10 +307,8 @@
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Açma/Kapatma Testi Devre Dışı"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Çeşitli Şablon Demoları"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Öne Çıkan Demoları"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Şablon Düzeni Demoları"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Izgara Şablonu Demoları"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Sesli Erişim Demo Ekranı"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Kullanıcı Etkileşimleri"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"İzin İsteme Demoları"</string>
@@ -337,6 +331,5 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Yükleme işlemi etkinleştirildi"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Yükleme işlemi devre dışı bırakıldı"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Yükleme ekranı"</string>
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Renk eklemek/kaldırmak için açın/kapatın"</string>
 </resources>
