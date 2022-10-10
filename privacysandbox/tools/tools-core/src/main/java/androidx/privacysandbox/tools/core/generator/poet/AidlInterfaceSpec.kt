@@ -22,15 +22,13 @@ import androidx.privacysandbox.tools.core.model.Type
 internal data class AidlInterfaceSpec(
     override val type: Type,
     val methods: List<AidlMethodSpec>,
-    val oneway: Boolean = true,
 ) : AidlFileSpec {
     companion object {
         fun aidlInterface(
             type: Type,
-            oneway: Boolean = true,
             block: Builder.() -> Unit = {}
         ): AidlInterfaceSpec {
-            return Builder(type, oneway).also(block).build()
+            return Builder(type).also(block).build()
         }
     }
 
@@ -43,16 +41,15 @@ internal data class AidlInterfaceSpec(
 
     override val innerContent: String
         get() {
-            val modifiers = if (oneway) "oneway " else ""
             val body = methods.map { it.toString() }.sorted().joinToString("\n|    ")
             return """
-                |${modifiers}interface ${type.simpleName} {
+                |oneway interface ${type.simpleName} {
                 |    $body
                 |}
             """.trimMargin()
         }
 
-    class Builder(val type: Type, val oneway: Boolean = true) {
+    class Builder(val type: Type) {
         val methods = mutableListOf<AidlMethodSpec>()
 
         fun addMethod(method: AidlMethodSpec) {
@@ -63,6 +60,6 @@ internal data class AidlInterfaceSpec(
             addMethod(AidlMethodSpec.Builder(name).also(block).build())
         }
 
-        fun build() = AidlInterfaceSpec(type, methods, oneway)
+        fun build() = AidlInterfaceSpec(type, methods)
     }
 }

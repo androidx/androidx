@@ -44,6 +44,7 @@ class AidlGenerator private constructor(
     }
 
     private val valueMap = api.values.associateBy { it.type }
+    private val callbackMap = api.callbacks.associateBy { it.type }
 
     companion object {
         fun generate(
@@ -94,12 +95,19 @@ class AidlGenerator private constructor(
     private fun generateAidlContent(): List<AidlFileSpec> {
         val values = api.values.map(::generateValue)
         val transactionCallbacks = generateTransactionCallbacks()
-        val service =
-            aidlInterface(Type(packageName(), api.getOnlyService().aidlName()), oneway = false) {
-                api.getOnlyService().methods.forEach { addMethod(it) }
-            }
-        return transactionCallbacks + generateICancellationSignal() + service + values
+        val service = aidlInterface(api.getOnlyService())
+        val customCallbacks = api.callbacks.map(::aidlInterface)
+        return transactionCallbacks +
+            generateICancellationSignal() +
+            service +
+            values +
+            customCallbacks
     }
+
+    private fun aidlInterface(annotatedInterface: AnnotatedInterface) =
+        aidlInterface(Type(annotatedInterface.type.packageName, annotatedInterface.aidlName())) {
+            annotatedInterface.methods.forEach { addMethod(it) }
+        }
 
     private fun AidlInterfaceSpec.Builder.addMethod(method: Method) {
         addMethod(method.name) {
@@ -176,6 +184,7 @@ class AidlGenerator private constructor(
 
     private fun getAidlTypeDeclaration(type: Type): AidlTypeSpec {
         valueMap[type]?.let { return it.aidlType() }
+        callbackMap[type]?.let { return it.aidlType() }
         return when (type.qualifiedName) {
             Boolean::class.qualifiedName -> primitive("boolean")
             Int::class.qualifiedName -> primitive("int")
@@ -211,5 +220,7 @@ fun Type.transactionCallbackName() = "I${simpleName}TransactionCallback"
 
 internal fun AnnotatedValue.aidlType() =
     AidlTypeSpec(Type(type.packageName, "Parcelable${type.simpleName}"))
+
+internal fun AnnotatedInterface.aidlType() = AidlTypeSpec(Type(type.packageName, aidlName()))
 
 internal fun primitive(name: String) = AidlTypeSpec(Type("", name), requiresImport = false)
