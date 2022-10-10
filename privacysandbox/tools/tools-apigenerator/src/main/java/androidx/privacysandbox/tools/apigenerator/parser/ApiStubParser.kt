@@ -16,32 +16,22 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
-import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.core.validator.ModelValidator
 import java.nio.file.Path
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import kotlinx.metadata.ClassName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmFunction
+import kotlinx.metadata.KmProperty
 import kotlinx.metadata.KmType
-import kotlinx.metadata.jvm.KotlinClassHeader
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassReader.SKIP_CODE
-import org.objectweb.asm.ClassReader.SKIP_DEBUG
-import org.objectweb.asm.ClassReader.SKIP_FRAMES
-import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type.getDescriptor
-import org.objectweb.asm.tree.AnnotationNode
-import org.objectweb.asm.tree.ClassNode
 
 internal object ApiStubParser {
     /**
@@ -52,88 +42,57 @@ internal object ApiStubParser {
      *      Kotlin interface annotated with @PrivacySandboxService.
      */
     internal fun parse(sdkInterfaceDescriptors: Path): ParsedApi {
-        val services = unzipClasses(sdkInterfaceDescriptors)
-            .filter { it.isPrivacySandboxService }
-            .map(::parseClass)
-            .toSet()
+        val (services, values) =
+            AnnotatedClassReader.readAnnotatedClasses(sdkInterfaceDescriptors)
         if (services.isEmpty()) throw PrivacySandboxParsingException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
         )
-        return ParsedApi(services).also(::validate)
+        return ParsedApi(
+            services.map(::parseInterface).toSet(),
+            values.map(::parseValue).toSet()
+        ).also(::validate)
     }
 
-    private fun unzipClasses(stubClassPath: Path): List<ClassNode> =
-        ZipInputStream(stubClassPath.toFile().inputStream()).use { zipInputStream ->
-            buildList {
-                var zipEntry: ZipEntry? = zipInputStream.nextEntry
-                while (zipEntry != null) {
-                    if (zipEntry.name.endsWith(".class")) {
-                        add(toClassNode(zipInputStream.readBytes()))
-                    }
-                    zipEntry = zipInputStream.nextEntry
-                }
-            }
-        }
+    private fun parseInterface(service: KmClass): AnnotatedInterface {
+        val type = parseClassName(service.name)
 
-    private fun toClassNode(classContents: ByteArray): ClassNode {
-        val reader = ClassReader(classContents)
-        val classNode = ClassNode(Opcodes.ASM9)
-        reader.accept(classNode, SKIP_CODE or SKIP_DEBUG or SKIP_FRAMES)
-        return classNode
-    }
-
-    private fun parseClass(classNode: ClassNode): AnnotatedInterface {
-        val kotlinMetadata = parseKotlinMetadata(classNode)
-        val type = kotlinMetadata.name.parsedType()
-
-        if (!Flag.Class.IS_INTERFACE(kotlinMetadata.flags)) {
+        if (!Flag.Class.IS_INTERFACE(service.flags)) {
             throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is not a Kotlin interface but it's annotated with " +
                     "@PrivacySandboxService."
             )
         }
 
-        if (type.simpleName.contains('.')) {
-            throw PrivacySandboxParsingException(
-                "${type.qualifiedName} is an inner interface so it can't be annotated with " +
-                    "@PrivacySandboxService."
-            )
-        }
-
         return AnnotatedInterface(
             type = type,
-            kotlinMetadata.functions.map(this::parseMethod),
+            service.functions.map(this::parseMethod),
         )
     }
 
-    private fun parseKotlinMetadata(classNode: ClassNode): KmClass {
-        val metadataValues =
-            classNode.visibleAnnotationsWithType<Metadata>().firstOrNull()?.attributeMap
-                ?: throw PrivacySandboxParsingException(
-                    "Missing Kotlin metadata annotation in ${classNode.name}. " +
-                        "Is this a valid Kotlin class?"
-                )
+    private fun parseValue(value: KmClass): AnnotatedValue {
+        val type = parseClassName(value.name)
 
-        // ASM models annotation attributes as flat List<Objects>, so the unchecked cast is
-        // inevitable when some of these objects have type parameters, like the lists below.
-        @Suppress("UNCHECKED_CAST")
-        val header = KotlinClassHeader(
-            kind = metadataValues["k"] as Int?,
-            metadataVersion = (metadataValues["mv"] as? List<Int>?)?.toIntArray(),
-            data1 = (metadataValues["d1"] as? List<String>?)?.toTypedArray(),
-            data2 = (metadataValues["d2"] as? List<String>?)?.toTypedArray(),
-            extraInt = metadataValues["xi"] as? Int?,
-            packageName = metadataValues["pn"] as? String?,
-            extraString = metadataValues["xs"] as? String?,
-        )
-
-        return when (val metadata = KotlinClassMetadata.read(header)) {
-            is KotlinClassMetadata.Class -> metadata.toKmClass()
-            else -> throw PrivacySandboxParsingException(
-                "Unable to parse Kotlin metadata from ${classNode.name}. " +
-                    "Is this a valid Kotlin class?"
+        if (!Flag.Class.IS_DATA(value.flags)) {
+            throw PrivacySandboxParsingException(
+                "${type.qualifiedName} is not a Kotlin data class but it's annotated with " +
+                    "@PrivacySandboxValue."
             )
         }
+        return AnnotatedValue(
+            type,
+            value.properties.map { parseProperty(type, it) },
+        )
+    }
+
+    private fun parseProperty(containerType: Type, property: KmProperty): ValueProperty {
+        val qualifiedName = "${containerType.qualifiedName}.${property.name}"
+        if (Flag.Property.IS_VAR(property.flags)) {
+            throw PrivacySandboxParsingException(
+                "Error in $qualifiedName: mutable properties are not allowed in data classes " +
+                    "annotated with @PrivacySandboxValue."
+            )
+        }
+        return ValueProperty(property.name, parseType(property.returnType))
     }
 
     private fun parseMethod(function: KmFunction): Method {
@@ -146,12 +105,28 @@ internal object ApiStubParser {
     }
 
     private fun parseType(type: KmType): Type {
-        return when (val classifier = type.classifier) {
-            is KmClassifier.Class -> classifier.name.parsedType()
-            else -> throw PrivacySandboxParsingException(
-                "Unsupported type in API description: $type"
+        val classifier = type.classifier
+        if (classifier !is KmClassifier.Class) {
+            throw PrivacySandboxParsingException("Unsupported type in API description: $type")
+        }
+        return parseClassName(classifier.name)
+    }
+
+    private fun parseClassName(className: ClassName): Type {
+        // Package names are separated with slashes and nested classes are separated with dots.
+        // (e.g com/example/OuterClass.InnerClass).
+        val (packageName, simpleName) = className.split('/').run {
+            dropLast(1).joinToString(separator = ".") to last()
+        }
+
+        if (simpleName.contains('.')) {
+            throw PrivacySandboxParsingException(
+                "Error in $packageName.$simpleName: Inner types are not supported in API " +
+                    "definitions."
             )
         }
+
+        return Type(packageName, simpleName)
     }
 
     private fun validate(api: ParsedApi) {
@@ -164,35 +139,5 @@ internal object ApiStubParser {
         }
     }
 }
-
-internal val ClassNode.isPrivacySandboxService: Boolean get() {
-    return visibleAnnotationsWithType<PrivacySandboxService>().isNotEmpty()
-}
-
-internal inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
-    return (visibleAnnotations ?: listOf<AnnotationNode>())
-        .filter { getDescriptor(T::class.java) == it?.desc }
-        .filterNotNull()
-}
-
-internal fun ClassName.parsedType(): Type {
-    // Package names are separated with slashes and nested classes are separated with dots.
-    // (e.g com/example/OuterClass.InnerClass).
-    val (packageName, className) = split('/').run {
-        dropLast(1).joinToString(separator = ".") to last()
-    }
-    return Type(packageName, className)
-}
-
-/** Map of annotation attributes. This is a convenience wrapper around [AnnotationNode.values]. */
-internal val AnnotationNode.attributeMap: Map<String, Any>
-    get() {
-        values ?: return mapOf()
-        val attributes = mutableMapOf<String, Any>()
-        for (i in 0 until values.size step 2) {
-            attributes[values[i] as String] = values[i + 1]
-        }
-        return attributes
-    }
 
 class PrivacySandboxParsingException(message: String) : Exception(message)

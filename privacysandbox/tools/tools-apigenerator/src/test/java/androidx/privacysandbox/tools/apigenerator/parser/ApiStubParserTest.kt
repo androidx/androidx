@@ -18,10 +18,13 @@ package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.apigenerator.compileIntoInterfaceDescriptorsJar
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -37,39 +40,77 @@ class ApiStubParserTest {
             "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
                     @PrivacySandboxService
                     interface MySdk {
                       fun doSomething(magicNumber: Int, awesomeString: String)
-                      suspend fun returnMagicNumber(): Int
+                      suspend fun getPayload(request: PayloadRequest): PayloadResponse
                     }
+                    @PrivacySandboxValue
+                    data class PayloadType(val size: Long, val appId: String)
+                    @PrivacySandboxValue
+                    data class PayloadResponse(val url: String)
+                    @PrivacySandboxValue
+                    data class PayloadRequest(val type: PayloadType)
                 """
         )
 
-        assertThat(compileAndParseApi(source))
-            .containsExactly(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"), methods = listOf(
-                        Method(
-                            name = "doSomething",
-                            parameters = listOf(
-                                Parameter(
-                                    "magicNumber",
-                                    Types.int
-                                ),
-                                Parameter("awesomeString", Types.string)
+        val expectedPayloadType = AnnotatedValue(
+            type = Type("com.mysdk", "PayloadType"),
+            properties = listOf(
+                ValueProperty("appId", Types.string),
+                ValueProperty("size", Types.long),
+            )
+        )
+        val expectedPayloadRequest = AnnotatedValue(
+            type = Type("com.mysdk", "PayloadRequest"),
+            properties = listOf(
+                ValueProperty("type", expectedPayloadType.type),
+            )
+        )
+        val expectedPayloadResponse = AnnotatedValue(
+            type = Type("com.mysdk", "PayloadResponse"),
+            properties = listOf(
+                ValueProperty("url", Types.string),
+            )
+        )
+        val expectedService =
+            AnnotatedInterface(
+                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                methods = listOf(
+                    Method(
+                        name = "doSomething",
+                        parameters = listOf(
+                            Parameter(
+                                "magicNumber",
+                                Types.int
                             ),
-                            returnType = Types.unit,
-                            isSuspend = false,
+                            Parameter("awesomeString", Types.string)
                         ),
-                        Method(
-                            name = "returnMagicNumber",
-                            parameters = listOf(),
-                            returnType = Types.int,
-                            isSuspend = true,
-                        )
+                        returnType = Types.unit,
+                        isSuspend = false,
+                    ),
+                    Method(
+                        name = "getPayload",
+                        parameters = listOf(
+                            Parameter(
+                                "request",
+                                expectedPayloadRequest.type
+                            )
+                        ),
+                        returnType = expectedPayloadResponse.type,
+                        isSuspend = true,
                     )
                 )
             )
+
+        val actualApi = compileAndParseApi(source)
+        assertThat(actualApi.services).containsExactly(expectedService)
+        assertThat(actualApi.values).containsExactly(
+            expectedPayloadType,
+            expectedPayloadRequest,
+            expectedPayloadResponse,
+        )
     }
 
     @Test
@@ -98,7 +139,7 @@ class ApiStubParserTest {
                     class NonAnnotatedJavaClass {}
                 """
             )
-        )
+        ).services
 
         assertThat(interfaces).containsExactly(
             AnnotatedInterface(
@@ -120,7 +161,7 @@ class ApiStubParserTest {
                 """
         )
 
-        assertThat(compileAndParseApi(source)).containsExactly(
+        assertThat(compileAndParseApi(source).services).containsExactly(
             AnnotatedInterface(
                 Type(
                     packageName = "",
@@ -149,7 +190,7 @@ class ApiStubParserTest {
     }
 
     @Test
-    fun annotatedKotlinClass_throws() {
+    fun kotlinClassAnnotatedAsService_throws() {
         val source = Source.kotlin(
             "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
@@ -164,6 +205,72 @@ class ApiStubParserTest {
         }.hasMessageThat().contains(
             "com.mysdk.MySdk is not a Kotlin interface but it's annotated with " +
                 "@PrivacySandboxService"
+        )
+    }
+
+    @Test
+    fun nonDataClassAnnotatedAsValue_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    @PrivacySandboxValue
+                    class Value
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "com.mysdk.Value is not a Kotlin data class but it's annotated with " +
+                "@PrivacySandboxValue"
+        )
+    }
+
+    @Test
+    fun interfaceAnnotatedAsValue_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    @PrivacySandboxValue
+                    interface Value
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "com.mysdk.Value is not a Kotlin data class but it's annotated with " +
+                "@PrivacySandboxValue"
+        )
+    }
+
+    @Test
+    fun valueWithMutableProperties_throws() {
+        val source = Source.kotlin(
+            "com/mysdk/TestSandboxSdk.kt", """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    @PrivacySandboxService
+                    interface MySdk
+                    @PrivacySandboxValue
+                    data class Value(var message: String)
+                """
+        )
+
+        assertThrows<PrivacySandboxParsingException> {
+            compileAndParseApi(source)
+        }.hasMessageThat().contains(
+            "Error in com.mysdk.Value.message: mutable properties are not allowed in data " +
+                "classes annotated with @PrivacySandboxValue."
         )
     }
 
@@ -183,8 +290,8 @@ class ApiStubParserTest {
         assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
-            "com.mysdk.OuterMySdk.InnerMySdk is an inner interface so it can't be annotated with " +
-                "@PrivacySandboxService"
+            "Error in com.mysdk.OuterMySdk.InnerMySdk: Inner types are not supported in API " +
+                "definitions"
         )
     }
 
@@ -204,8 +311,8 @@ class ApiStubParserTest {
         )
     }
 
-    private fun compileAndParseApi(vararg sources: Source): Set<AnnotatedInterface> {
+    private fun compileAndParseApi(vararg sources: Source): ParsedApi {
         compileIntoInterfaceDescriptorsJar(*sources)
-        return ApiStubParser.parse(compileIntoInterfaceDescriptorsJar(*sources)).services
+        return ApiStubParser.parse(compileIntoInterfaceDescriptorsJar(*sources))
     }
 }
