@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
@@ -176,10 +177,16 @@ public final class RowListConstraints {
 
     private void validateRows(List<? extends Item> rows) {
         for (Item rowObj : rows) {
-            if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Only Row instances are supported in the list");
+            if (rowObj instanceof Row) {
+                mRowConstraints.validateOrThrow((Row) rowObj);
+            } else if (rowObj instanceof ConversationItem) {
+                // ExperimentalCarApi -- unrestricted for now
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "Unsupported item type: %s",
+                        rowObj.getClass().getSimpleName()
+                ));
             }
-            mRowConstraints.validateOrThrow((Row) rowObj);
         }
     }
 
