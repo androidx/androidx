@@ -37,6 +37,7 @@ public class WheelchairPushesRecord(
 
     init {
         requireNonNegative(value = count, name = "count")
+        count.requireNotMore(other = 1000_000, name = "count")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 

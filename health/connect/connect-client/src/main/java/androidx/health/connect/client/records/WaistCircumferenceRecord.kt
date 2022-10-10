@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.meters
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -35,6 +36,7 @@ public class WaistCircumferenceRecord(
 
     init {
         circumference.requireNotLess(other = circumference.zero(), name = "circumference")
+        circumference.requireNotMore(other = MAX_CIRCUMFERENCE, name = "circumference")
     }
 
     /*
@@ -61,5 +63,9 @@ public class WaistCircumferenceRecord(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    private companion object {
+        private val MAX_CIRCUMFERENCE = 10.meters
     }
 }

@@ -40,6 +40,7 @@ public class StepsRecord(
 ) : IntervalRecord {
     init {
         requireNonNegative(value = count, name = "count")
+        count.requireNotMore(other = 1000_000, name = "count")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
     override fun equals(other: Any?): Boolean {

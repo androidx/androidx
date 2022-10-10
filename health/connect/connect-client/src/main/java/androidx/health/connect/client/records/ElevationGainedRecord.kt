@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.meters
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -33,6 +34,8 @@ public class ElevationGainedRecord(
 ) : IntervalRecord {
 
     init {
+        elevation.requireNotLess(other = MIN_ELEVATION_GAIN, name = "elevation")
+        elevation.requireNotMore(other = MAX_ELEVATION_GAIN, name = "elevation")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
@@ -67,6 +70,9 @@ public class ElevationGainedRecord(
     }
 
     companion object {
+        private val MAX_ELEVATION_GAIN = (1000_000).meters
+        private val MIN_ELEVATION_GAIN = (-1000_000).meters
+
         /**
          * Metric identifier to retrieve the total elevation gained from
          * [androidx.health.connect.client.aggregate.AggregationResult].

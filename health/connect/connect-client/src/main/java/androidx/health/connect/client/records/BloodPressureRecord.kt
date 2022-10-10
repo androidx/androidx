@@ -20,6 +20,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.BloodPressureRecord.MeasurementLocation
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Pressure
+import androidx.health.connect.client.units.millimetersOfMercury
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -58,8 +59,10 @@ public class BloodPressureRecord(
 ) : InstantaneousRecord {
 
     init {
-        systolic.requireNotLess(other = systolic.zero(), name = "systolic")
-        diastolic.requireNotLess(other = diastolic.zero(), name = "diastolic")
+        systolic.requireNotLess(other = MIN_SYSTOLIC, name = "systolic")
+        systolic.requireNotMore(other = MAX_SYSTOLIC, name = "systolic")
+        diastolic.requireNotLess(other = MIN_DIASTOLIC, name = "diastolic")
+        diastolic.requireNotMore(other = MAX_DIASTOLIC, name = "diastolic")
     }
 
     /*
@@ -122,6 +125,10 @@ public class BloodPressureRecord(
         private const val BLOOD_PRESSURE_NAME = "BloodPressure"
         private const val SYSTOLIC_FIELD_NAME = "systolic"
         private const val DIASTOLIC_FIELD_NAME = "diastolic"
+        private val MIN_SYSTOLIC = 10.millimetersOfMercury
+        private val MAX_SYSTOLIC = 200.millimetersOfMercury
+        private val MIN_DIASTOLIC = 10.millimetersOfMercury
+        private val MAX_DIASTOLIC = 180.millimetersOfMercury
 
         /**
          * Metric identifier to retrieve average systolic from

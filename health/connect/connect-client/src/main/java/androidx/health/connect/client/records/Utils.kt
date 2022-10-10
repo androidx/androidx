@@ -24,6 +24,10 @@ internal fun <T : Comparable<T>> T.requireNotLess(other: T, name: String) {
     require(this >= other) { "$name must not be less than $other, currently $this." }
 }
 
+internal fun <T : Comparable<T>> T.requireNotMore(other: T, name: String) {
+    require(this <= other) { "$name must not be more than $other, currently $this." }
+}
+
 internal fun requireNonNegative(value: Long, name: String) {
     require(value >= 0) { "$name must not be negative" }
 }
