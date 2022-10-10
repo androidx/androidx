@@ -40,6 +40,10 @@ public class Vo2MaxRecord(
             value = vo2MillilitersPerMinuteKilogram,
             name = "vo2MillilitersPerMinuteKilogram"
         )
+        vo2MillilitersPerMinuteKilogram.requireNotMore(
+            100.0,
+            name = "vo2MillilitersPerMinuteKilogram"
+        )
     }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.kilograms
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -31,6 +32,7 @@ public class BoneMassRecord(
 
     init {
         mass.requireNotLess(other = mass.zero(), name = "mass")
+        mass.requireNotMore(other = MAX_BONE_MASS, name = "mass")
     }
 
     /*
@@ -57,5 +59,9 @@ public class BoneMassRecord(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    private companion object {
+        private val MAX_BONE_MASS = 1000.kilograms
     }
 }

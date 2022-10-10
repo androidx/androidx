@@ -62,6 +62,7 @@ public class BloodGlucoseRecord(
 
     init {
         level.requireNotLess(other = level.zero(), name = "level")
+        level.requireNotMore(other = MAX_BLOOD_GLUCOSE_LEVEL, name = "level")
     }
 
     /*
@@ -129,4 +130,8 @@ public class BloodGlucoseRecord(
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class SpecimenSources
+
+    private companion object {
+        private val MAX_BLOOD_GLUCOSE_LEVEL = BloodGlucose.millimolesPerLiter(50.0)
+    }
 }

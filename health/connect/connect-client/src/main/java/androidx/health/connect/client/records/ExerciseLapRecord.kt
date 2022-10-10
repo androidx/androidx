@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.meters
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -37,6 +38,7 @@ public class ExerciseLapRecord(
 
     init {
         length?.requireNotLess(other = length.zero(), name = "length")
+        length?.requireNotMore(other = MAX_LAP_LENGTH, name = "length")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
@@ -68,5 +70,9 @@ public class ExerciseLapRecord(
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    private companion object {
+        private val MAX_LAP_LENGTH = 1000_000.meters
     }
 }

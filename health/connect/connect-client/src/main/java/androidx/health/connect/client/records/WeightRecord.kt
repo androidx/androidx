@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.kilograms
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -36,6 +37,7 @@ public class WeightRecord(
 
     init {
         weight.requireNotLess(other = weight.zero(), name = "weight")
+        weight.requireNotMore(other = MAX_WEIGHT, name = "weight")
     }
 
     override fun equals(other: Any?): Boolean {
@@ -67,6 +69,7 @@ public class WeightRecord(
     companion object {
         private const val WEIGHT_NAME = "Weight"
         private const val WEIGHT_FIELD = "weight"
+        private val MAX_WEIGHT = 1000.kilograms
 
         /**
          * Metric identifier to retrieve the average weight from

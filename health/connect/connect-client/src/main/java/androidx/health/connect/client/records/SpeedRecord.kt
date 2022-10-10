@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Velocity
+import androidx.health.connect.client.units.metersPerSecond
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -71,6 +72,7 @@ public class SpeedRecord(
     companion object {
         private const val SPEED_TYPE_NAME = "SpeedSeries"
         private const val SPEED_FIELD_NAME = "speed"
+        private val MAX_SPEED = 1000_000.metersPerSecond
 
         /**
          * Metric identifier to retrieve average speed from
@@ -127,6 +129,7 @@ public class SpeedRecord(
 
         init {
             speed.requireNotLess(other = speed.zero(), name = "speed")
+            speed.requireNotMore(other = MAX_SPEED, name = "speed")
         }
 
         override fun equals(other: Any?): Boolean {

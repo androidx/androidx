@@ -19,6 +19,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Power
+import androidx.health.connect.client.units.kilocaloriesPerDay
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -36,6 +37,7 @@ public class BasalMetabolicRateRecord(
 
     init {
         basalMetabolicRate.requireNotLess(other = basalMetabolicRate.zero(), name = "bmr")
+        basalMetabolicRate.requireNotMore(other = MAX_BASAL_METABLOIC_RATE, name = "bmr")
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,6 +63,7 @@ public class BasalMetabolicRateRecord(
     companion object {
         private const val BASAL_CALORIES_TYPE_NAME = "BasalCaloriesBurned"
         private const val ENERGY_FIELD_NAME = "energy"
+        private val MAX_BASAL_METABLOIC_RATE = 10_000.kilocaloriesPerDay
 
         /**
          * Metric identifier to retrieve the total basal calories burned from
