@@ -44,6 +44,7 @@ import androidx.camera.core.imagecapture.Utils.createCameraCaptureResultImageInf
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
@@ -51,6 +52,7 @@ import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.fakes.GrayscaleImageEffect
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -78,6 +80,7 @@ class ImagePipelineTest {
     }
 
     private lateinit var imagePipeline: ImagePipeline
+    private lateinit var imageCaptureConfig: ImageCaptureConfig
 
     @Before
     fun setUp() {
@@ -87,12 +90,29 @@ class ImagePipelineTest {
         }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
-        imagePipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        imageCaptureConfig = builder.useCaseConfig
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
     }
 
     @After
     fun tearDown() {
         imagePipeline.close()
+    }
+
+    @Test
+    fun createPipelineWithoutEffect_processingNodeHasNoEffect() {
+        assertThat(imagePipeline.processingNode.mImageProcessor).isNull()
+    }
+
+    @Test
+    fun createPipelineWithEffect_processingNodeContainsEffect() {
+        assertThat(
+            ImagePipeline(
+                imageCaptureConfig,
+                SIZE,
+                GrayscaleImageEffect()
+            ).processingNode.mImageProcessor
+        ).isNotNull()
     }
 
     @Test

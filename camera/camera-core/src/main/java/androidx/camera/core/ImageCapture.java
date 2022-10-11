@@ -1937,7 +1937,8 @@ public final class ImageCapture extends UseCase {
         Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, resolution: %s)",
                 cameraId, resolution));
         checkState(mImagePipeline == null);
-        mImagePipeline = new ImagePipeline(config, resolution);
+        // TODO: set CameraEffect
+        mImagePipeline = new ImagePipeline(config, resolution, null);
         checkState(mTakePictureManager == null);
         mTakePictureManager = new TakePictureManager(mImageCaptureControl, mImagePipeline);
 

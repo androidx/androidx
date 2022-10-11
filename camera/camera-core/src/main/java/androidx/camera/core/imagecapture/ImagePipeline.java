@@ -29,8 +29,10 @@ import android.util.Size;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureBundle;
@@ -40,6 +42,7 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
+import androidx.camera.core.processing.InternalImageProcessor;
 import androidx.core.util.Pair;
 
 import java.util.ArrayList;
@@ -78,9 +81,18 @@ public class ImagePipeline {
     // ===== public methods =====
 
     @MainThread
+    @VisibleForTesting
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize) {
+        this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null);
+    }
+
+    @MainThread
+    public ImagePipeline(
+            @NonNull ImageCaptureConfig useCaseConfig,
+            @NonNull Size cameraSurfaceSize,
+            @Nullable CameraEffect cameraEffect) {
         checkMainThread();
         mUseCaseConfig = useCaseConfig;
         mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
@@ -89,7 +101,8 @@ public class ImagePipeline {
         mCaptureNode = new CaptureNode();
         mBundlingNode = new SingleBundlingNode();
         mProcessingNode = new ProcessingNode(
-                requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())));
+                requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
+                cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
         mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat());
@@ -133,6 +146,7 @@ public class ImagePipeline {
 
     /**
      * Sets a listener for close calls on this image.
+     *
      * @param listener to set
      */
     @MainThread
@@ -270,4 +284,9 @@ public class ImagePipeline {
         return mCaptureNode;
     }
 
+    @NonNull
+    @VisibleForTesting
+    ProcessingNode getProcessingNode() {
+        return mProcessingNode;
+    }
 }
