@@ -16,13 +16,10 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
  * Layout configuration rules for individual activities with split layouts. Take precedence over
  * [SplitPairRule].
  */
-@ExperimentalWindowApi
 class ActivityRule internal constructor(
     tag: String?,
     /**

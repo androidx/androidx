@@ -24,7 +24,6 @@ import android.content.res.XmlResourceParser
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.R
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
@@ -34,7 +33,6 @@ import org.xmlpull.v1.XmlPullParser
 /**
  * Parses the static split rules defined in XML.
  */
-@ExperimentalWindowApi
 internal class SplitRuleParser {
     private val splitRuleConfigs = HashSet<EmbeddingRule>()
     private val tags = ArrayList<String>()

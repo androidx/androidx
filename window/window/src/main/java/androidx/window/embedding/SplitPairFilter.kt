@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.areComponentsMatching
 import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
@@ -30,7 +29,6 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
  * Filter used to find if a pair of activities should be put in a split. Applied to the base /
  * primary activity and an intent starting a secondary activity.
  */
-@ExperimentalWindowApi
 class SplitPairFilter(
     /**
      * Component name of the primary activity in the split. Must be non-empty. Can contain a single

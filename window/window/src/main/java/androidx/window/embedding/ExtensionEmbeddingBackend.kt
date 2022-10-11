@@ -23,7 +23,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -32,7 +31,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-@ExperimentalWindowApi
 internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"

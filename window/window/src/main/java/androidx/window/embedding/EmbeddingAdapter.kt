@@ -35,7 +35,6 @@ import android.content.Intent
 import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.core.view.WindowInsetsCompat
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.VendorApiLevel1Impl.setDefaultSplitAttributesCompat
@@ -56,7 +55,6 @@ import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapt
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
  */
-@ExperimentalWindowApi
 internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
