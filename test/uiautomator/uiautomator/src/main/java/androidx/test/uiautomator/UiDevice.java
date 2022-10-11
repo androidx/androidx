@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -72,34 +73,24 @@ public class UiDevice implements Searchable {
 
     private static final String LOG_TAG = UiDevice.class.getSimpleName();
 
-    // Sometimes HOME and BACK key presses will generate no events if already on
-    // home page or there is nothing to go back to, Set low timeouts.
-    private static final long KEY_PRESS_EVENT_TIMEOUT = 1 * 1000;
+    // Use a short timeout after HOME or BACK key presses, as no events might be generated if
+    // already on the home page or if there is nothing to go back to.
+    private static final long KEY_PRESS_EVENT_TIMEOUT = 1_000; // ms
 
-    // store for registered UiWatchers
-    private final HashMap<String, UiWatcher> mWatchers = new HashMap<String, UiWatcher>();
-    private final List<String> mWatchersTriggers = new ArrayList<String>();
-
-    // remember if we're executing in the context of a UiWatcher
-    private boolean mInWatcherContext = false;
-
-    /** keep a reference of {@link Instrumentation} instance*/
-    private Instrumentation mInstrumentation;
-    private QueryController mQueryController;
-    private InteractionController mInteractionController;
-    private DisplayManager mDisplayManager;
-
-    // Singleton instance
+    // Singleton instance.
     private static UiDevice sInstance;
 
-    // Get wait functionality from a mixin
-    private WaitMixin<UiDevice> mWaitMixin = new WaitMixin<UiDevice>(this);
+    private final Instrumentation mInstrumentation;
+    private final QueryController mQueryController;
+    private final InteractionController mInteractionController;
+    private final DisplayManager mDisplayManager;
+    private final WaitMixin<UiDevice> mWaitMixin = new WaitMixin<>(this);
+    private final Context mUiContext;
 
-    /**
-     * @deprecated Should use {@link UiDevice#UiDevice(Instrumentation)} instead.
-     */
-    @Deprecated
-    private UiDevice() {}
+    // Track registered UiWatchers, and whether currently in a UiWatcher execution.
+    private final Map<String, UiWatcher> mWatchers = new HashMap<>();
+    private final List<String> mWatchersTriggers = new ArrayList<>();
+    private boolean mInWatcherContext = false;
 
     /** Private constructor. Clients should use {@link UiDevice#getInstance(Instrumentation)}. */
     UiDevice(Instrumentation instrumentation) {
@@ -109,12 +100,19 @@ public class UiDevice implements Searchable {
         mDisplayManager = (DisplayManager) instrumentation.getContext().getSystemService(
                 Service.DISPLAY_SERVICE);
 
-        // Enable multi-window support for API level 21 and up
+        // Enable multi-window support by subscribing to window information for API 21+.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Subscribe to window information
             AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
             getUiAutomation().setServiceInfo(info);
+        }
+
+        // Create UI context to access UI components for API 31+.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mUiContext = Api31Impl.createWindowContext(
+                    mInstrumentation.getContext(), getDefaultDisplay());
+        } else {
+            mUiContext = mInstrumentation.getContext();
         }
     }
 
@@ -1143,11 +1141,7 @@ public class UiDevice implements Searchable {
     }
 
     Context getUiContext() {
-        Context context = mInstrumentation.getContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return Api31Impl.createWindowContext(context, getDefaultDisplay());
-        }
-        return context;
+        return mUiContext;
     }
 
     static UiAutomation getUiAutomation(final Instrumentation instrumentation) {
