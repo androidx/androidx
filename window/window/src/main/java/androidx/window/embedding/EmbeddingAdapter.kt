@@ -28,14 +28,12 @@ import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.WindowExtensionsProvider
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
  */
-@ExperimentalWindowApi
 internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {

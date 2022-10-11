@@ -16,13 +16,11 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-@ExperimentalWindowApi
 class ActivityStack(
     /**
      * The [Activity] list in this application's process that belongs to this ActivityStack.

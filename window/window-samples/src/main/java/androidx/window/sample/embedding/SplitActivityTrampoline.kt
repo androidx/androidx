@@ -18,7 +18,6 @@ package androidx.window.sample.embedding
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitPlaceholderRule
@@ -27,7 +26,6 @@ import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
 /**
  * Example trampoline activity that launches a split and finishes itself.
  */
-@ExperimentalWindowApi
 class SplitActivityTrampoline : SplitActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

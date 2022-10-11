@@ -24,13 +24,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import androidx.window.sample.R
 import androidx.window.sample.embedding.SplitActivityDetail.Companion.EXTRA_SELECTED_ITEM
 
-@OptIn(ExperimentalWindowApi::class)
 open class SplitActivityList : AppCompatActivity() {
     lateinit var splitController: SplitController
     val splitChangeListener = SplitStateChangeListener()

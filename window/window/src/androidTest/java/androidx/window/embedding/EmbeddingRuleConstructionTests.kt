@@ -23,7 +23,6 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.util.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
@@ -40,7 +39,6 @@ import org.junit.Test
  * @see SplitRule
  * @see ActivityRule
  */
-@OptIn(ExperimentalWindowApi::class)
 class EmbeddingRuleConstructionTests {
     /**
      * Verifies that default params are set correctly when reading {@link SplitPairRule} from XML.

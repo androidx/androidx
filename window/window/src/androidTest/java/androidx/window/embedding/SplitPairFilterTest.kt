@@ -19,13 +19,11 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
-import androidx.window.core.ExperimentalWindowApi
 import com.google.common.truth.Truth.assertWithMessage
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 
-@OptIn(ExperimentalWindowApi::class)
 class SplitPairFilterTest {
     private val component1 = ComponentName("a.b.c", "a.b.c.TestActivity")
     private val component2 = ComponentName("d.e.f", "d.e.f.TestActivity")

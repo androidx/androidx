@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.isActivityOrIntentMatching
 import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
@@ -31,7 +30,6 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
  * end or instead of the package name, and a wildcard symbol in the end or instead of the class
  * name.
  */
-@ExperimentalWindowApi
 class ActivityFilter internal constructor(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
