@@ -357,19 +357,40 @@ interface HealthConnectClient {
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
         /**
+         * Determines whether the current Health Connect SDK is supported on this device. If it is
+         * not supported, then installing any provider will not help - instead disable the
+         * integration.
+         *
+         * @return whether the api is supported on the device.
+         */
+        @JvmStatic
+        public fun isApiSupported(): Boolean {
+            if (!isSdkVersionSufficient()) {
+                return false
+            }
+            // We will redirect implementations on U or above, which isn't implemented yet.
+            // When developers guard their app with the isSupported check, we can safely know they
+            // will not use Jetpack code that is not upgraded to U.
+            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU
+        }
+
+        /**
          * Determines whether an implementation of [HealthConnectClient] is available on this device
-         * at the moment.
+         * at the moment. If none is available, apps may choose to redirect to package installers to
+         * find suitable providers.
+         *
+         * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
          *
          * @param providerPackageNames optional package provider to choose implementation from
          * @return whether the api is available
          */
         @JvmOverloads
         @JvmStatic
-        public fun isAvailable(
+        public fun isProviderAvailable(
             context: Context,
             providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
         ): Boolean {
-            if (!isSdkVersionSufficient()) {
+            if (!isApiSupported()) {
                 return false
             }
             return providerPackageNames.any { isPackageInstalled(context.packageManager, it) }
@@ -385,7 +406,7 @@ interface HealthConnectClient {
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
          *
-         * @see isAvailable
+         * @see isProviderAvailable
          */
         @JvmOverloads
         @JvmStatic
@@ -393,10 +414,10 @@ interface HealthConnectClient {
             context: Context,
             providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
         ): HealthConnectClient {
-            if (!isSdkVersionSufficient()) {
+            if (!isApiSupported()) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            if (!isAvailable(context, providerPackageNames)) {
+            if (!isProviderAvailable(context, providerPackageNames)) {
                 throw IllegalStateException("Service not available")
             }
             val enabledPackage =
