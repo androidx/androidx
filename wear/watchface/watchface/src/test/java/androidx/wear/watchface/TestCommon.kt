@@ -24,9 +24,11 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Handler
+import android.os.IBinder
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.IWatchFaceService
+import android.support.wearable.watchface.ParcelableWrapper
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
@@ -218,8 +220,8 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
         iWatchFaceService.setContentDescriptionLabels(labels)
     }
 
-    override fun reserved5() {
-        iWatchFaceService.reserved5()
+    override fun reserved5(wrapper: ParcelableWrapper) {
+        iWatchFaceService.reserved5(wrapper)
     }
 
     override fun setDefaultComplicationProviderWithFallbacks(
@@ -233,8 +235,8 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
         )
     }
 
-    override fun reserved8() {
-        iWatchFaceService.reserved8()
+    override fun reserved8(wrapper: ParcelableWrapper, binder: IBinder) {
+        iWatchFaceService.reserved8(wrapper, binder)
     }
 }
 
