@@ -152,7 +152,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
+        internal val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
 
         /**
          * The exercise has been ended by the user. No new metrics will be exported and a final
@@ -170,7 +170,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
+        internal val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
 
         /**
          * The exercise has been automatically ended due to a lack of exercise updates being
@@ -187,7 +187,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * data for the exercise.
          */
         @JvmField
-        public val AUTO_ENDING_PERMISSION_LOST: ExerciseState =
+        internal val AUTO_ENDING_PERMISSION_LOST: ExerciseState =
             ExerciseState(16, "AUTO_ENDING_PERMISSION_LOST")
 
         /**
@@ -205,7 +205,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used in both of the manually started exercise and the automatic exercise detection.
          */
         @JvmField
-        public val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
+        internal val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
 
         /**
          * The exercise has been ended because it was superseded by a new exercise being started by
