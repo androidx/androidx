@@ -46,6 +46,11 @@ dependencies {
             include : "android.jar"))
 }
 
+tasks.withType(Test).configureEach {
+    // https://github.com/google/compile-testing/issues/222
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+}
+
 androidx {
     name = "AndroidX Hilt Extension Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR

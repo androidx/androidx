@@ -56,3 +56,8 @@ androidx {
     inceptionYear = "2021"
     description = "Annotation processors for Android resource and layout inspection"
 }
+
+tasks.withType(Test).configureEach {
+    // https://github.com/google/compile-testing/issues/222
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+}

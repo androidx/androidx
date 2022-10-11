@@ -122,7 +122,7 @@ fi
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-$platform_suffix"
+export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
 export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
 
