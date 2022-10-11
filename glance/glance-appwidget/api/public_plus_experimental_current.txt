@@ -321,9 +321,12 @@ package androidx.glance.appwidget.template {
     ctor public GlanceTemplateAppWidget();
     method @androidx.compose.runtime.Composable public final void Content();
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void TemplateContent();
-    method public androidx.glance.appwidget.SizeMode.Exact getSizeMode();
-    property public androidx.glance.appwidget.SizeMode.Exact sizeMode;
+    property public androidx.glance.appwidget.SizeMode sizeMode;
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
+    field public static final androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion Companion;
+  }
+
+  public static final class GlanceTemplateAppWidget.Companion {
   }
 
   @androidx.glance.GlanceComposable public final class ListTemplateLayoutsKt {

@@ -25,7 +25,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -46,7 +45,6 @@ import androidx.glance.template.TextType
  * Demo app widget using [SingleEntityTemplate] to define layout.
  */
 class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
-    override val sizeMode = SizeMode.Exact
 
     @Composable
     override fun TemplateContent() {
