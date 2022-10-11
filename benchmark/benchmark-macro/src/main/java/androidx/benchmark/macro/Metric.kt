@@ -316,7 +316,7 @@ public class TraceSectionMetric(
  * will also be generated for power and energy, as well as a metric which is the sum of all
  * unselected metrics.
  *
- * @param `type` - Either [Type.Energy] or [Type.Power], which can be configured to show components
+ * @param type Either [Type.Energy] or [Type.Power], which can be configured to show components
  * of system power usage, or [Type.Battery], which will halt charging of device to measure power
  * drain.
  *
@@ -389,7 +389,7 @@ public class PowerMetric(
     /**
      * Configures the PowerMetric request.
      *
-     * @param `categories` - A map which is used to configure which metrics are displayed.  The key
+     * @param categories A map which is used to configure which metrics are displayed.  The key
      * is a `PowerCategory` enum, which configures the subsystem category that will be displayed.
      * The value is a `PowerCategoryDisplayLevel`, which configures whether each subsystem in the
      * category will have metrics displayed independently or summed for a total metric of the
