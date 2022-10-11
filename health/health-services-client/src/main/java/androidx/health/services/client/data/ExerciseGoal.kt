@@ -16,11 +16,14 @@
 
 package androidx.health.services.client.data
 
+import android.annotation.SuppressLint
+import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import java.util.Objects
 
 /** Defines a goal for an exercise. */
+@SuppressLint("BanParcelableUsage") // Uses proto in implementation for compat
 class ExerciseGoal<T : Number>
 internal constructor(
     /**
@@ -30,20 +33,24 @@ internal constructor(
     val exerciseGoalType: ExerciseGoalType,
     val dataTypeCondition: DataTypeCondition<T, AggregateDataType<T, *>>,
     val period: T? = null,
-) : ProtoParcelable<DataProto.ExerciseGoal>() {
+) : Parcelable {
 
-    /** @hide */
-    override val proto: DataProto.ExerciseGoal = getDataProtoExerciseGoalProto()
+    public override fun describeContents(): Int = 0
 
-    private fun getDataProtoExerciseGoalProto(): DataProto.ExerciseGoal {
-        val builder =
-            DataProto.ExerciseGoal.newBuilder().setExerciseGoalType(exerciseGoalType.toProto())
-                .setDataTypeCondition(dataTypeCondition.proto)
-        if (period != null) {
-            builder.period = dataTypeCondition.dataType.toProtoFromValue(period)
-        }
-        return builder.build()
+    public override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeByteArray(proto.toByteArray())
     }
+
+    internal val proto: DataProto.ExerciseGoal
+        get() {
+            val builder =
+                DataProto.ExerciseGoal.newBuilder().setExerciseGoalType(exerciseGoalType.toProto())
+                    .setDataTypeCondition(dataTypeCondition.proto)
+            if (period != null) {
+                builder.period = dataTypeCondition.dataType.toProtoFromValue(period)
+            }
+            return builder.build()
+        }
 
     // TODO(yeabkal): try to unify equality logic across goal types.
     // TODO(b/186899729): We need a better way to match on achieved goals.
@@ -83,10 +90,16 @@ internal constructor(
 
     companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseGoal<*>> = newCreator {
-            val proto = DataProto.ExerciseGoal.parseFrom(it)
-            fromProto(proto)
-        }
+        val CREATOR: Parcelable.Creator<ExerciseGoal<*>> =
+            object : Parcelable.Creator<ExerciseGoal<*>> {
+                override fun createFromParcel(source: Parcel): ExerciseGoal<*>? {
+                    val bytes: ByteArray = source.createByteArray() ?: return null
+                    val proto = DataProto.ExerciseGoal.parseFrom(bytes)
+                    return fromProto(proto)
+                }
+
+                override fun newArray(size: Int) = arrayOfNulls<ExerciseGoal<*>>(size)
+            }
 
         @Suppress("UNCHECKED_CAST")
         internal fun fromProto(proto: DataProto.ExerciseGoal): ExerciseGoal<Number> {

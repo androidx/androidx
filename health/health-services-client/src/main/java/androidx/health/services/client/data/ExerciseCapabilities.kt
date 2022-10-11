@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseCapabilities.TypeToCapabilitiesEntry
 
@@ -30,7 +29,7 @@ public class ExerciseCapabilities(
      * Mapping for each supported [ExerciseType] to its [ExerciseTypeCapabilities] on this device.
      */
     public val typeToCapabilities: Map<ExerciseType, ExerciseTypeCapabilities>,
-) : ProtoParcelable<DataProto.ExerciseCapabilities>() {
+) {
 
     internal constructor(
         proto: DataProto.ExerciseCapabilities
@@ -43,8 +42,7 @@ public class ExerciseCapabilities(
             .toMap()
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseCapabilities =
+    internal val proto: DataProto.ExerciseCapabilities =
         DataProto.ExerciseCapabilities.newBuilder()
             .addAllTypeToCapabilities(
                 typeToCapabilities
@@ -85,13 +83,4 @@ public class ExerciseCapabilities(
         }
 
     override fun toString(): String = "ExerciseCapabilities(typeToCapabilities=$typeToCapabilities)"
-
-    public companion object {
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseCapabilities> = newCreator { bytes ->
-            val proto = DataProto.ExerciseCapabilities.parseFrom(bytes)
-            ExerciseCapabilities(proto)
-        }
-    }
 }

@@ -15,7 +15,3 @@ PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasur
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
-
-
-ParcelCreator: androidx.health.services.client.data.ExerciseGoal:
-    Parcelable requires `void writeToParcel(Parcel, int)`; missing in androidx.health.services.client.data.ExerciseGoal
