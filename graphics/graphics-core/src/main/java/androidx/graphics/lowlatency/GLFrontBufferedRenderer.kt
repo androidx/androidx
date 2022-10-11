@@ -356,6 +356,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun commit() {
         if (isValid()) {
+            mFrontBufferQueueParams.clear()
             mDoubleBufferedLayerRenderTarget?.requestRender()
             mFrontBufferedLayerRenderer?.clear()
         } else {
