@@ -274,6 +274,7 @@ class XProcessingEnvTest {
                     """.trimIndent()
                 )
             ),
+            javacArguments = listOf("-source", "11"),
             kotlincArguments = listOf("-Xjvm-target 11")
         ) {
             if (it.processingEnv.backend == XProcessingEnv.Backend.KSP) {
