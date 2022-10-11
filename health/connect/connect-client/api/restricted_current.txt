@@ -1310,26 +1310,26 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Device {
-    ctor public Device(optional String? manufacturer, optional String? model, optional String? type);
+    ctor public Device(optional String? manufacturer, optional String? model, optional int type);
     method public String? getManufacturer();
     method public String? getModel();
-    method public String? getType();
+    method public int getType();
     property public final String? manufacturer;
     property public final String? model;
-    property public final String? type;
+    property public final int type;
+    field public static final androidx.health.connect.client.records.metadata.Device.Companion Companion;
+    field public static final int TYPE_CHEST_STRAP = 7; // 0x7
+    field public static final int TYPE_FITNESS_BAND = 6; // 0x6
+    field public static final int TYPE_HEAD_MOUNTED = 5; // 0x5
+    field public static final int TYPE_PHONE = 2; // 0x2
+    field public static final int TYPE_RING = 4; // 0x4
+    field public static final int TYPE_SCALE = 3; // 0x3
+    field public static final int TYPE_SMART_DISPLAY = 8; // 0x8
+    field public static final int TYPE_UNKNOWN = 0; // 0x0
+    field public static final int TYPE_WATCH = 1; // 0x1
   }
 
-  public final class DeviceTypes {
-    field public static final String CHEST_STRAP = "CHEST_STRAP";
-    field public static final String FITNESS_BAND = "FITNESS_BAND";
-    field public static final String HEAD_MOUNTED = "HEAD_MOUNTED";
-    field public static final androidx.health.connect.client.records.metadata.DeviceTypes INSTANCE;
-    field public static final String PHONE = "PHONE";
-    field public static final String RING = "RING";
-    field public static final String SCALE = "SCALE";
-    field public static final String SMART_DISPLAY = "SMART_DISPLAY";
-    field public static final String UNKNOWN = "UNKNOWN";
-    field public static final String WATCH = "WATCH";
+  public static final class Device.Companion {
   }
 
   public final class Metadata {

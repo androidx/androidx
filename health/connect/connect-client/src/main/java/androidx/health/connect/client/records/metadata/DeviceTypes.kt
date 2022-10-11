@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.records.metadata
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 
-/** List of supported device types on Health Platform. */
-public object DeviceTypes {
+/**
+ * List of supported device types on Health Platform.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+object DeviceTypes {
     const val UNKNOWN = "UNKNOWN"
     const val WATCH = "WATCH"
     const val PHONE = "PHONE"
@@ -30,25 +36,3 @@ public object DeviceTypes {
     const val CHEST_STRAP = "CHEST_STRAP"
     const val SMART_DISPLAY = "SMART_DISPLAY"
 }
-
-/**
- * List of supported device types on Health Platform.
- * @suppress
- */
-@Retention(AnnotationRetention.SOURCE)
-@StringDef(
-    value =
-        [
-            DeviceTypes.UNKNOWN,
-            DeviceTypes.WATCH,
-            DeviceTypes.PHONE,
-            DeviceTypes.SCALE,
-            DeviceTypes.RING,
-            DeviceTypes.HEAD_MOUNTED,
-            DeviceTypes.FITNESS_BAND,
-            DeviceTypes.CHEST_STRAP,
-            DeviceTypes.SMART_DISPLAY,
-        ]
-)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class DeviceType

@@ -84,15 +84,13 @@ internal val DataProto.DataPoint.metadata: Metadata
             lastModifiedTime = Instant.ofEpochMilli(updateTimeMillis),
             clientRecordId = if (hasClientId()) clientId else null,
             clientRecordVersion = clientVersion,
-            device = toDevice(device)
+            device = device.toDevice()
         )
 
-private fun toDevice(proto: DataProto.Device): Device {
-    return with(proto) {
-        Device(
-            manufacturer = if (hasManufacturer()) manufacturer else null,
-            model = if (hasModel()) model else null,
-            type = if (hasType()) type else null
-        )
-    }
+internal fun DataProto.Device.toDevice(): Device {
+    return Device(
+        manufacturer = if (hasManufacturer()) manufacturer else null,
+        model = if (hasModel()) model else null,
+        type = DEVICE_TYPE_STRING_TO_INT_MAP.getOrDefault(type, Device.TYPE_UNKNOWN)
+    )
 }

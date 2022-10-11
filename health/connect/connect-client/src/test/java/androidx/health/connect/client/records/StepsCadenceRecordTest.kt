@@ -51,14 +51,14 @@ class StepsCadenceRecordTest {
     @Test
     fun sameStartEndTime_validRecord_equals() {
         assertThat(
-            StepsCadenceRecord(
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
-                endZoneOffset = null,
-                samples = listOf()
+                StepsCadenceRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
+                )
             )
-        )
             .isEqualTo(
                 StepsCadenceRecord(
                     startTime = Instant.ofEpochMilli(1234L),
