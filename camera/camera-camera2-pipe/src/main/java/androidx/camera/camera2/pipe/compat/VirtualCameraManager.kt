@@ -184,7 +184,12 @@ internal class VirtualCameraManager @Inject constructor(
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
                 realCamera = openCameraWithRetry(cameraIdToOpen, scope = this)
-                activeCameras.add(realCamera)
+                if (realCamera != null) {
+                    activeCameras.add(realCamera)
+                } else {
+                    request.virtualCamera.disconnect()
+                    requests.remove(request)
+                }
                 continue
             }
 
@@ -213,7 +218,7 @@ internal class VirtualCameraManager @Inject constructor(
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
         scope: CoroutineScope
-    ): ActiveCamera {
+    ): ActiveCamera? {
         val metadata = cameraMetadata.getMetadata(cameraId)
         val requestTimestamp = Timestamps.now()
 
@@ -292,6 +297,7 @@ internal class VirtualCameraManager @Inject constructor(
                 } else {
                     cameraState.close()
                 }
+                return null
             }
 
             // Listen to availability - if we are notified that the cameraId is available then
