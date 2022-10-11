@@ -20,13 +20,13 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.integration.kotlintestapp.vo.AnswerConverter
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
@@ -45,11 +45,11 @@ import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import io.reactivex.Observable
+import io.reactivex.Single
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import java.util.Date
 
 @Dao
 @TypeConverters(DateConverter::class, AnswerConverter::class)
@@ -135,6 +135,9 @@ interface BooksDao {
 
     @Query("SELECT * FROM book")
     suspend fun getBooksSuspend(): List<Book>
+
+    @Query("SELECT * FROM publisher")
+    suspend fun getPublishersSuspend(): List<Publisher>
 
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
     fun increaseBookSales(bookId: String)
