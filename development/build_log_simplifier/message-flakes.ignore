@@ -147,3 +147,4 @@ Publishing build scan\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/Support[0-9]+Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
+Calculating task graph as configuration cache cannot be reused because JVM has changed\.
