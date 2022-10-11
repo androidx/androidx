@@ -111,14 +111,17 @@ private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
             }
             Spacer(modifier = GlanceModifier.defaultWeight())
 
-            // TODO: Extract small height as template constant
+            // TODO(b/247613894): Extract size constraints as template constants
             data.textBlock?.let {
-                val body = if (LocalSize.current.height > 240.dp) it.text3 else null
+                val body = if (LocalSize.current.height > 150.dp) it.text3 else null
                 AppWidgetTextSection(textList(it.text1, it.text2, body))
             }
-            data.actionBlock?.let {
-                Spacer(modifier = GlanceModifier.height(16.dp))
-                ActionBlockTemplate(it)
+            // TODO(b/247613894): Extract threshold sizes as constants
+            if (LocalSize.current.height > 30.dp) {
+                data.actionBlock?.let {
+                    Spacer(modifier = GlanceModifier.height(16.dp))
+                    ActionBlockTemplate(it)
+                }
             }
         }
 
