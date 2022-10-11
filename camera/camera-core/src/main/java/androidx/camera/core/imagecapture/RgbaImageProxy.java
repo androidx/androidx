@@ -92,7 +92,7 @@ public final class RgbaImageProxy implements ImageProxy {
      * <p>The {@link Bitmap} must be {@link Bitmap.Config#ARGB_8888}.
      */
     @VisibleForTesting
-    RgbaImageProxy(@NonNull Bitmap bitmap, @NonNull Rect cropRect, int rotationDegrees,
+    public RgbaImageProxy(@NonNull Bitmap bitmap, @NonNull Rect cropRect, int rotationDegrees,
             @NonNull Matrix sensorToBuffer, long timestamp) {
         this(createDirectByteBuffer(bitmap),
                 DEFAULT_RGBA_PIXEL_STRIDE,

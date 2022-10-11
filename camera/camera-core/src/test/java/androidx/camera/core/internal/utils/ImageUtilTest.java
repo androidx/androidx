@@ -111,6 +111,8 @@ public class ImageUtilTest {
         // Arrange.
         Bitmap original = createBitmap(WIDTH, HEIGHT);
         ByteBuffer byteBuffer = createDirectByteBuffer(original);
+        // Move the position to test the case that the ByteBuffer needs rewinding.
+        byteBuffer.position(byteBuffer.capacity());
         ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(byteBuffer,
                 WIDTH * DEFAULT_RGBA_PIXEL_STRIDE, DEFAULT_RGBA_PIXEL_STRIDE);
         // Act.
