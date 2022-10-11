@@ -66,7 +66,6 @@ import java.util.concurrent.TimeoutException;
  * UiDevice provides access to state information about the device.
  * You can also use this class to simulate user actions on the device,
  * such as pressing the d-pad or pressing the Home and Menu buttons.
- * @since API Level 16
  */
 public class UiDevice implements Searchable {
 
@@ -230,7 +229,6 @@ public class UiDevice implements Searchable {
      * and searching the hierarchy inefficient are removed.
      *
      * @param compressed true to enable compression; else, false to disable
-     * @since API Level 18
      */
     public void setCompressedLayoutHeirarchy(boolean compressed) {
         AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
@@ -247,7 +245,6 @@ public class UiDevice implements Searchable {
      * @deprecated Should use {@link #getInstance(Instrumentation)} instead. This version hides
      * UiDevice's dependency on having an Instrumentation reference and is prone to misuse.
      * @return UiDevice instance
-     * @since API Level 16
      */
     @Deprecated
     @NonNull
@@ -301,7 +298,6 @@ public class UiDevice implements Searchable {
      * the same as returned by invoking #adb shell getprop ro.product.name.
      *
      * @return product name of the device
-     * @since API Level 17
      */
     @NonNull
     public String getProductName() {
@@ -322,7 +318,6 @@ public class UiDevice implements Searchable {
      * DOM instead.
      *
      * @return text of the last traversal event, else return an empty string
-     * @since API Level 16
      */
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getLastTraversedText() {
@@ -333,7 +328,6 @@ public class UiDevice implements Searchable {
     /**
      * Clears the text from the last UI traversal event.
      * See {@link #getLastTraversedText()}.
-     * @since API Level 16
      */
     public void clearLastTraversedText() {
         Tracer.trace();
@@ -343,7 +337,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the MENU button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressMenu() {
         Tracer.trace();
@@ -356,7 +349,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the BACK button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressBack() {
         Tracer.trace();
@@ -369,7 +361,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the HOME button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressHome() {
         Tracer.trace();
@@ -382,7 +373,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the SEARCH button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressSearch() {
         Tracer.trace();
@@ -392,7 +382,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the CENTER button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDPadCenter() {
         Tracer.trace();
@@ -402,7 +391,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the DOWN button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDPadDown() {
         Tracer.trace();
@@ -412,7 +400,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the UP button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDPadUp() {
         Tracer.trace();
@@ -422,7 +409,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the LEFT button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDPadLeft() {
         Tracer.trace();
@@ -432,7 +418,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the RIGHT button.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDPadRight() {
         Tracer.trace();
@@ -442,7 +427,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the DELETE key.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressDelete() {
         Tracer.trace();
@@ -452,7 +436,6 @@ public class UiDevice implements Searchable {
     /**
      * Simulates a short press on the ENTER key.
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressEnter() {
         Tracer.trace();
@@ -464,7 +447,6 @@ public class UiDevice implements Searchable {
      *
      * See {@link KeyEvent}
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressKeyCode(int keyCode) {
         Tracer.trace(keyCode);
@@ -479,7 +461,6 @@ public class UiDevice implements Searchable {
      * @param keyCode the key code of the event.
      * @param metaState an integer in which each bit set to 1 represents a pressed meta key
      * @return true if successful, else return false
-     * @since API Level 16
      */
     public boolean pressKeyCode(int keyCode, int metaState) {
         Tracer.trace(keyCode, metaState);
@@ -492,7 +473,6 @@ public class UiDevice implements Searchable {
      *
      * @return true if successful, else return false
      * @throws RemoteException
-     * @since API Level 16
      */
     public boolean pressRecentApps() throws RemoteException {
         Tracer.trace();
@@ -504,7 +484,6 @@ public class UiDevice implements Searchable {
      * Opens the notification shade.
      *
      * @return true if successful, else return false
-     * @since API Level 18
      */
     public boolean openNotification() {
         Tracer.trace();
@@ -516,7 +495,6 @@ public class UiDevice implements Searchable {
      * Opens the Quick Settings shade.
      *
      * @return true if successful, else return false
-     * @since API Level 18
      */
     public boolean openQuickSettings() {
         Tracer.trace();
@@ -528,7 +506,6 @@ public class UiDevice implements Searchable {
      * Gets the width of the display, in pixels. The width and height details
      * are reported based on the current orientation of the display.
      * @return width in pixels or zero on failure
-     * @since API Level 16
      */
     public int getDisplayWidth() {
         Tracer.trace();
@@ -542,7 +519,6 @@ public class UiDevice implements Searchable {
      * Gets the height of the display, in pixels. The size is adjusted based
      * on the current orientation of the display.
      * @return height in pixels or zero on failure
-     * @since API Level 16
      */
     public int getDisplayHeight() {
         Tracer.trace();
@@ -558,7 +534,6 @@ public class UiDevice implements Searchable {
      * @param x coordinate
      * @param y coordinate
      * @return true if the click succeeded else false
-     * @since API Level 16
      */
     public boolean click(int x, int y) {
         Tracer.trace(x, y);
@@ -579,7 +554,6 @@ public class UiDevice implements Searchable {
      * @param endY
      * @param steps is the number of move steps sent to the system
      * @return false if the operation fails or the coordinates are invalid
-     * @since API Level 16
      */
     public boolean swipe(int startX, int startY, int endX, int endY, int steps) {
         Tracer.trace(startX, startY, endX, endY, steps);
@@ -600,7 +574,6 @@ public class UiDevice implements Searchable {
      * @param steps is the number of steps for the swipe action
      * @return true if swipe is performed, false if the operation fails
      * or the coordinates are invalid
-     * @since API Level 18
      */
     public boolean drag(int startX, int startY, int endX, int endY, int steps) {
         Tracer.trace(startX, startY, endX, endY, steps);
@@ -615,7 +588,6 @@ public class UiDevice implements Searchable {
      * @param segments is Point array containing at least one Point object
      * @param segmentSteps steps to inject between two Points
      * @return true on success
-     * @since API Level 16
      */
     public boolean swipe(@NonNull Point[] segments, int segmentSteps) {
         Tracer.trace(segments, segmentSteps);
@@ -625,7 +597,6 @@ public class UiDevice implements Searchable {
     /**
      * Waits for the current application to idle.
      * Default wait timeout is 10 seconds
-     * @since API Level 16
      */
     public void waitForIdle() {
         Tracer.trace();
@@ -635,7 +606,6 @@ public class UiDevice implements Searchable {
     /**
      * Waits for the current application to idle.
      * @param timeout in milliseconds
-     * @since API Level 16
      */
     public void waitForIdle(long timeout) {
         Tracer.trace(timeout);
@@ -646,7 +616,6 @@ public class UiDevice implements Searchable {
      * Retrieves the last activity to report accessibility events.
      * @deprecated The results returned should be considered unreliable
      * @return String name of activity
-     * @since API Level 16
      */
     @Deprecated
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
@@ -658,7 +627,6 @@ public class UiDevice implements Searchable {
     /**
      * Retrieves the name of the last package to report accessibility events.
      * @return String name of package
-     * @since API Level 16
      */
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public String getCurrentPackageName() {
@@ -672,7 +640,6 @@ public class UiDevice implements Searchable {
      *
      * @param name to register the UiWatcher
      * @param watcher {@link UiWatcher}
-     * @since API Level 16
      */
     public void registerWatcher(@Nullable String name, @Nullable UiWatcher watcher) {
         Tracer.trace(name, watcher);
@@ -687,7 +654,6 @@ public class UiDevice implements Searchable {
      *
      * See {@link #registerWatcher(String, UiWatcher)}
      * @param name used to register the UiWatcher
-     * @since API Level 16
      */
     public void removeWatcher(@Nullable String name) {
         Tracer.trace(name);
@@ -700,7 +666,6 @@ public class UiDevice implements Searchable {
     /**
      * This method forces all registered watchers to run.
      * See {@link #registerWatcher(String, UiWatcher)}
-     * @since API Level 16
      */
     public void runWatchers() {
         Tracer.trace();
@@ -730,7 +695,6 @@ public class UiDevice implements Searchable {
      * If a UiWatcher runs and its {@link UiWatcher#checkForCondition()} call
      * returned <code>true</code>, then the UiWatcher is considered triggered.
      * See {@link #registerWatcher(String, UiWatcher)}
-     * @since API Level 16
      */
     public void resetWatcherTriggers() {
         Tracer.trace();
@@ -746,7 +710,6 @@ public class UiDevice implements Searchable {
      *
      * @param watcherName
      * @return true if triggered else false
-     * @since API Level 16
      */
     public boolean hasWatcherTriggered(@Nullable String watcherName) {
         Tracer.trace(watcherName);
@@ -758,7 +721,6 @@ public class UiDevice implements Searchable {
      *
      * See {@link #registerWatcher(String, UiWatcher)}
      * See {@link #hasWatcherTriggered(String)}
-     * @since API Level 16
      */
     public boolean hasAnyWatcherTriggered() {
         Tracer.trace();
@@ -780,7 +742,6 @@ public class UiDevice implements Searchable {
      * Check if the device is in its natural orientation. This is determined by checking if the
      * orientation is at 0 or 180 degrees.
      * @return true if it is in natural orientation
-     * @since API Level 17
      */
     public boolean isNaturalOrientation() {
         Tracer.trace();
@@ -792,7 +753,6 @@ public class UiDevice implements Searchable {
 
     /**
      * Returns the current rotation of the display, as defined in {@link Surface}
-     * @since API Level 17
      */
     public int getDisplayRotation() {
         Tracer.trace();
@@ -804,7 +764,6 @@ public class UiDevice implements Searchable {
      * Disables the sensors and freezes the device rotation at its
      * current rotation state.
      * @throws RemoteException
-     * @since API Level 16
      */
     public void freezeRotation() throws RemoteException {
         Tracer.trace();
@@ -829,7 +788,6 @@ public class UiDevice implements Searchable {
      * If you want to un-freeze the rotation and re-enable the sensors
      * see {@link #unfreezeRotation()}.
      * @throws RemoteException
-     * @since API Level 17
      */
     public void setOrientationLeft() throws RemoteException {
         Tracer.trace();
@@ -844,7 +802,6 @@ public class UiDevice implements Searchable {
      * If you want to un-freeze the rotation and re-enable the sensors
      * see {@link #unfreezeRotation()}.
      * @throws RemoteException
-     * @since API Level 17
      */
     public void setOrientationRight() throws RemoteException {
         Tracer.trace();
@@ -859,7 +816,6 @@ public class UiDevice implements Searchable {
      * If you want to un-freeze the rotation and re-enable the sensors
      * see {@link #unfreezeRotation()}.
      * @throws RemoteException
-     * @since API Level 17
      */
     public void setOrientationNatural() throws RemoteException {
         Tracer.trace();
@@ -874,7 +830,6 @@ public class UiDevice implements Searchable {
      * If the screen was OFF and it just got turned ON, this method will insert a 500ms delay
      * to allow the device time to wake up and accept input.
      * @throws RemoteException
-     * @since API Level 16
      */
     public void wakeUp() throws RemoteException {
         Tracer.trace();
@@ -890,7 +845,6 @@ public class UiDevice implements Searchable {
      *
      * @return true if the screen is ON else false
      * @throws RemoteException
-     * @since API Level 16
      */
     public boolean isScreenOn() throws RemoteException {
         Tracer.trace();
@@ -902,7 +856,6 @@ public class UiDevice implements Searchable {
      * it does nothing if the screen is already OFF.
      *
      * @throws RemoteException
-     * @since API Level 16
      */
     public void sleep() throws RemoteException {
         Tracer.trace();
@@ -914,7 +867,6 @@ public class UiDevice implements Searchable {
      * Relative file paths are stored the application's internal private storage location.
      *
      * @param fileName
-     * @since API Level 16
      * @deprecated Use {@link UiDevice#dumpWindowHierarchy(File)} or
      *     {@link UiDevice#dumpWindowHierarchy(OutputStream)} instead.
      */
@@ -967,7 +919,6 @@ public class UiDevice implements Searchable {
      *
      * @return true if a window update occurred, false if timeout has elapsed or if the current
      *         window does not have the specified package name
-     * @since API Level 16
      */
     public boolean waitForWindowUpdate(@Nullable String packageName, long timeout) {
         Tracer.trace(packageName, timeout);
@@ -1010,7 +961,6 @@ public class UiDevice implements Searchable {
      *
      * @param storePath where the PNG should be written to
      * @return true if screen shot is created successfully, false otherwise
-     * @since API Level 17
      */
     public boolean takeScreenshot(@NonNull File storePath) {
         Tracer.trace(storePath);
@@ -1026,7 +976,6 @@ public class UiDevice implements Searchable {
      * @param scale scale the screenshot down if needed; 1.0f for original size
      * @param quality quality of the PNG compression; range: 0-100
      * @return true if screen shot is created successfully, false otherwise
-     * @since API Level 17
      */
     public boolean takeScreenshot(@NonNull File storePath, float scale, int quality) {
         Tracer.trace(storePath, scale, quality);
@@ -1072,7 +1021,6 @@ public class UiDevice implements Searchable {
      * @param cmd the command to run
      * @return the standard output of the command
      * @throws IOException
-     * @since API Level 21
      * @hide
      */
     @RequiresApi(21)

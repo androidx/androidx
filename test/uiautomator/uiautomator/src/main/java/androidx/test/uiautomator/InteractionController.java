@@ -721,7 +721,6 @@ class InteractionController {
      *        path. Each {@link PointerCoords} in an array constitute a point on a pointer's path.
      * @return <code>true</code> if all points on all paths are injected successfully, <code>false
      *        </code>otherwise
-     * @since API Level 18
      */
     public boolean performMultiPointerGesture(PointerCoords[] ... touches) {
         boolean ret = true;
@@ -805,7 +804,6 @@ class InteractionController {
      * Simulates a short press on the Recent Apps button.
      *
      * @return true if successful, else return false
-     * @since API Level 18
      */
     public boolean toggleRecentApps() {
         return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
@@ -815,7 +813,6 @@ class InteractionController {
      * Opens the notification shade
      *
      * @return true if successful, else return false
-     * @since API Level 18
      */
     public boolean openNotification() {
         return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
@@ -825,7 +822,6 @@ class InteractionController {
      * Opens the quick settings shade
      *
      * @return true if successful, else return false
-     * @since API Level 18
      */
     public boolean openQuickSettings() {
         return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);

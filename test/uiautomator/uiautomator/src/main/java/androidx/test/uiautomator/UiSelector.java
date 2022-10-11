@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
  * by properties such as text value, content-description, class name, and state
  * information. You can also target an element by its location in a layout
  * hierarchy.
- * @since API Level 16
  */
 public class UiSelector {
     static final int SELECTOR_NIL = 0;
@@ -66,9 +65,6 @@ public class UiSelector {
 
     private SparseArray<Object> mSelectorAttributes = new SparseArray<Object>();
 
-    /**
-     * @since API Level 16
-     */
     public UiSelector() {
     }
 
@@ -76,9 +72,6 @@ public class UiSelector {
         mSelectorAttributes = selector.cloneSelector().mSelectorAttributes;
     }
 
-    /**
-     * @since API Level 17
-     */
     @NonNull
     protected UiSelector cloneSelector() {
         UiSelector ret = new UiSelector();
@@ -113,7 +106,6 @@ public class UiSelector {
      *
      * @param text Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector text(@NonNull String text) {
@@ -132,7 +124,6 @@ public class UiSelector {
      *
      * @param regex a regular expression
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public UiSelector textMatches(@NonNull String regex) {
@@ -150,7 +141,6 @@ public class UiSelector {
      *
      * @param text Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector textStartsWith(@NonNull String text) {
@@ -168,7 +158,6 @@ public class UiSelector {
      *
      * @param text Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector textContains(@NonNull String text) {
@@ -184,7 +173,6 @@ public class UiSelector {
      *
      * @param className Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector className(@NonNull String className) {
@@ -200,7 +188,6 @@ public class UiSelector {
      *
      * @param regex a regular expression
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public UiSelector classNameMatches(@NonNull String regex) {
@@ -216,7 +203,6 @@ public class UiSelector {
      *
      * @param type type
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public <T> UiSelector className(@NonNull Class<T> type) {
@@ -241,7 +227,6 @@ public class UiSelector {
      *
      * @param desc Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector description(@NonNull String desc) {
@@ -264,7 +249,6 @@ public class UiSelector {
      *
      * @param regex a regular expression
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public UiSelector descriptionMatches(@NonNull String regex) {
@@ -289,7 +273,6 @@ public class UiSelector {
      *
      * @param desc Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector descriptionStartsWith(@NonNull String desc) {
@@ -314,7 +297,6 @@ public class UiSelector {
      *
      * @param desc Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector descriptionContains(@NonNull String desc) {
@@ -329,7 +311,6 @@ public class UiSelector {
      *
      * @param id Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 18
      */
     @NonNull
     public UiSelector resourceId(@NonNull String id) {
@@ -345,7 +326,6 @@ public class UiSelector {
      *
      * @param regex a regular expression
      * @return UiSelector with the specified search criteria
-     * @since API Level 18
      */
     @NonNull
     public UiSelector resourceIdMatches(@NonNull String regex) {
@@ -367,7 +347,6 @@ public class UiSelector {
      *
      * @param index Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector index(final int index) {
@@ -394,7 +373,6 @@ public class UiSelector {
      *
      * @param instance Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector instance(final int instance) {
@@ -414,7 +392,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector enabled(boolean val) {
@@ -434,7 +411,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector focused(boolean val) {
@@ -454,7 +430,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector focusable(boolean val) {
@@ -474,7 +449,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector scrollable(boolean val) {
@@ -495,7 +469,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector selected(boolean val) {
@@ -516,7 +489,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector checked(boolean val) {
@@ -536,7 +508,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector clickable(boolean val) {
@@ -556,7 +527,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 18
      */
     @NonNull
     public UiSelector checkable(boolean val) {
@@ -576,7 +546,6 @@ public class UiSelector {
      *
      * @param val Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public UiSelector longClickable(boolean val) {
@@ -591,7 +560,6 @@ public class UiSelector {
      *
      * @param selector
      * @return UiSelector with this added search criterion
-     * @since API Level 16
      */
     @NonNull
     public UiSelector childSelector(@NonNull UiSelector selector) {
@@ -618,7 +586,6 @@ public class UiSelector {
      *
      * @param selector
      * @return UiSelector with this added search criterion
-     * @since API Level 16
      */
     @NonNull
     public UiSelector fromParent(@NonNull UiSelector selector) {
@@ -634,7 +601,6 @@ public class UiSelector {
      *
      * @param name Value to match
      * @return UiSelector with the specified search criteria
-     * @since API Level 16
      */
     @NonNull
     public UiSelector packageName(@NonNull String name) {
@@ -650,7 +616,6 @@ public class UiSelector {
      *
      * @param regex a regular expression
      * @return UiSelector with the specified search criteria
-     * @since API Level 17
      */
     @NonNull
     public UiSelector packageNameMatches(@NonNull String regex) {
