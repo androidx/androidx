@@ -29,6 +29,8 @@ import java.time.ZoneOffset
  * of cervical mucus.
  */
 public class CervicalMucusRecord(
+    override val time: Instant,
+    override val zoneOffset: ZoneOffset?,
     /**
      * The consistency of the user's cervical mucus. Optional field. Allowed values: [Appearance].
      *
@@ -41,8 +43,6 @@ public class CervicalMucusRecord(
      * @see Sensation
      */
     @property:Sensations public val sensation: String? = null,
-    override val time: Instant,
-    override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

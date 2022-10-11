@@ -28,12 +28,12 @@ import java.time.ZoneOffset
  * so both the start and end times should be set.
  */
 public class ActiveCaloriesBurnedRecord(
-    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
-    public val energy: Energy,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
+    public val energy: Energy,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

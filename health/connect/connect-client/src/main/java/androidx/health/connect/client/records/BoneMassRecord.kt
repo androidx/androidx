@@ -23,10 +23,10 @@ import java.time.ZoneOffset
 
 /** Captures the user's bone mass. Each record represents a single instantaneous measurement. */
 public class BoneMassRecord(
-    /** Mass in [Mass] unit. Required field. Valid range: 0-1000 kilograms. */
-    public val mass: Mass,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Mass in [Mass] unit. Required field. Valid range: 0-1000 kilograms. */
+    public val mass: Mass,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

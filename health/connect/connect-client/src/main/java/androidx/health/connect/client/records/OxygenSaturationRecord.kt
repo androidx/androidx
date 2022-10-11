@@ -26,10 +26,10 @@ import java.time.ZoneOffset
  * the time of measurement.
  */
 public class OxygenSaturationRecord(
-    /** Percentage. Required field. Valid range: 0-100. */
-    public val percentage: Percentage,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Percentage. Required field. Valid range: 0-100. */
+    public val percentage: Percentage,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

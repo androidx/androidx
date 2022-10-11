@@ -30,20 +30,20 @@ class WheelchairPushesRecordTest {
     fun validRecord_equals() {
         assertThat(
                 WheelchairPushesRecord(
-                    10,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    count = 10,
                 )
             )
             .isEqualTo(
                 WheelchairPushesRecord(
-                    10,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    count = 10,
                 )
             )
     }
@@ -52,11 +52,11 @@ class WheelchairPushesRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             WheelchairPushesRecord(
-                10,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                count = 10,
             )
         }
     }

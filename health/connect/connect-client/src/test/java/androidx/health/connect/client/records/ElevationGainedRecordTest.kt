@@ -31,20 +31,20 @@ class ElevationGainedRecordTest {
     fun validRecord_equals() {
         assertThat(
                 ElevationGainedRecord(
-                    10.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    elevation = 10.meters,
                 )
             )
             .isEqualTo(
                 ElevationGainedRecord(
-                    10.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    elevation = 10.meters,
                 )
             )
     }
@@ -53,11 +53,11 @@ class ElevationGainedRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ElevationGainedRecord(
-                10.meters,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                elevation = 10.meters,
             )
         }
     }

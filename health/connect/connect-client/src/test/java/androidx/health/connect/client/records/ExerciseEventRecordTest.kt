@@ -30,20 +30,20 @@ class ExerciseEventRecordTest {
     fun validRecord_equals() {
         assertThat(
                 ExerciseEventRecord(
-                    ExerciseEventRecord.EventType.PAUSE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    eventType = ExerciseEventRecord.EventType.PAUSE,
                 )
             )
             .isEqualTo(
                 ExerciseEventRecord(
-                    ExerciseEventRecord.EventType.PAUSE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    eventType = ExerciseEventRecord.EventType.PAUSE,
                 )
             )
     }
@@ -52,11 +52,11 @@ class ExerciseEventRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseEventRecord(
-                ExerciseEventRecord.EventType.PAUSE,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                eventType = ExerciseEventRecord.EventType.PAUSE,
             )
         }
     }

@@ -24,12 +24,12 @@ import java.time.ZoneOffset
 
 /** Captures the elevation gained by the user since the last reading. */
 public class ElevationGainedRecord(
-    /** Elevation in [Length] units. Required field. Valid range: -1000000-1000000 meters. */
-    public val elevation: Length,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Elevation in [Length] units. Required field. Valid range: -1000000-1000000 meters. */
+    public val elevation: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

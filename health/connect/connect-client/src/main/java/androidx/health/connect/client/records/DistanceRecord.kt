@@ -32,12 +32,12 @@ import java.time.ZoneOffset
  * previous record.
  */
 public class DistanceRecord(
-    /** Distance in [Length] unit. Required field. Valid range: 0-1000000 meters. */
-    public val distance: Length,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Distance in [Length] unit. Required field. Valid range: 0-1000000 meters. */
+    public val distance: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

@@ -23,18 +23,18 @@ import java.time.ZoneOffset
 
 /** Captures the number of swimming strokes. Type of swimming stroke must be provided. */
 public class SwimmingStrokesRecord(
-    /** Count of strokes. Optional field. Valid range: 1-1000000. */
-    public val count: Long = 0,
+    override val startTime: Instant,
+    override val startZoneOffset: ZoneOffset?,
+    override val endTime: Instant,
+    override val endZoneOffset: ZoneOffset?,
     /**
      * Swimming style. Required field. Allowed values: [SwimmingType].
      *
      * @see SwimmingType
      */
     @property:SwimmingTypes public val type: String,
-    override val startTime: Instant,
-    override val startZoneOffset: ZoneOffset?,
-    override val endTime: Instant,
-    override val endZoneOffset: ZoneOffset?,
+    /** Count of strokes. Optional field. Valid range: 1-1000000. */
+    public val count: Long = 0,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
     init {
