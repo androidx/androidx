@@ -84,7 +84,10 @@
             <trusting group="io.reactivex.rxjava2"/>
             <trusting group="io.reactivex.rxjava3"/>
          </trusted-key>
-         <trusted-key id="1dbb44e80f61493d6369b5fb95c15058a5eda4f1" group="com.google.protobuf" name="protobuf-gradle-plugin"/>
+         <trusted-key id="1dbb44e80f61493d6369b5fb95c15058a5eda4f1">
+            <trusting group="com.google.protobuf" name="protobuf-gradle-plugin"/>
+            <trusting group="com.google.gradle"/>
+         </trusted-key>
          <trusted-key id="1f47744c9b6e14f2049c2857f1f111af65925306" group="io.github.classgraph" name="classgraph"/>
          <trusted-key id="1f8cf885d537a431" group="com.nhaarman.mockitokotlin2"/>
          <trusted-key id="1fa37fbe4453c1073e7ef61d6449005f96bc97a3" group="de.undercouch"/>
