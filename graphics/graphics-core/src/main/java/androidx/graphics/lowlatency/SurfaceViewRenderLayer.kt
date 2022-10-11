@@ -16,11 +16,11 @@
 
 package androidx.graphics.lowlatency
 
-import android.opengl.GLES20
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
@@ -41,6 +41,15 @@ internal class SurfaceViewRenderLayer<T>(
     private var mFrameBufferRenderer: FrameBufferRenderer? = null
     private var mRenderTarget: GLRenderer.RenderTarget? = null
     private var mParentSurfaceControl: SurfaceControlCompat? = null
+    private val mBufferTransform = BufferTransformer()
+
+    override fun getBufferTransformHint(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
+            return TransformHintHelper.resolveBufferTransformHint(surfaceView)
+        } else {
+            -1
+        }
+    }
 
     override fun buildReparentTransaction(
         child: SurfaceControlCompat,
@@ -58,6 +67,8 @@ internal class SurfaceViewRenderLayer<T>(
         renderer: GLRenderer,
         renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
+        var transformHint = ParentRenderLayer.UNKNOWN_TRANSFORM
+        var inverse = ParentRenderLayer.UNKNOWN_TRANSFORM
         val frameBufferRenderer = FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
 
@@ -66,17 +77,14 @@ internal class SurfaceViewRenderLayer<T>(
                         ?: throw IllegalArgumentException("No FrameBufferPool available")
 
                 override fun onDraw(eglManager: EGLManager) {
-                    GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
-                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                     val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
-                    if (params != null) {
-                        renderLayerCallback.onDrawDoubleBufferedLayer(eglManager, params)
-                    } else {
-                        renderLayerCallback.onDrawDoubleBufferedLayer(
-                            eglManager,
-                            Collections.emptyList()
-                        )
-                    }
+                    renderLayerCallback.onDrawDoubleBufferedLayer(
+                        eglManager,
+                        mBufferTransform.glWidth,
+                        mBufferTransform.glHeight,
+                        mBufferTransform.transform,
+                        params ?: Collections.emptyList()
+                    )
                 }
 
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -101,6 +109,9 @@ internal class SurfaceViewRenderLayer<T>(
                             .setBuffer(sc, frameBuffer.hardwareBuffer, syncFenceCompat) {
                                 mLayerCallback?.getFrameBufferPool()?.release(frameBuffer)
                             }
+                        if (transformHint != ParentRenderLayer.UNKNOWN_TRANSFORM) {
+                            transaction.setBufferTransform(sc, inverse)
+                        }
 
                         renderLayerCallback.onDoubleBufferedLayerRenderComplete(
                             frontBufferedLayerSurfaceControl,
@@ -127,6 +138,9 @@ internal class SurfaceViewRenderLayer<T>(
                 width: Int,
                 height: Int
             ) {
+                transformHint = getBufferTransformHint()
+                inverse = mBufferTransform.invertBufferTransform(transformHint)
+                mBufferTransform.computeTransform(width, height, inverse)
                 mParentSurfaceControl?.release()
                 mLayerCallback?.onSizeChanged(width, height)
                 mParentSurfaceControl = createDoubleBufferedSurfaceControl()
@@ -168,5 +182,20 @@ internal class SurfaceViewRenderLayer<T>(
 
     internal companion object {
         internal const val TAG = "SurfaceViewRenderLayer"
+    }
+}
+
+/**
+ * Helper class to avoid class verification errors
+ */
+
+@RequiresApi(Build.VERSION_CODES.S_V2)
+internal class TransformHintHelper private constructor() {
+
+    companion object {
+        @RequiresApi(Build.VERSION_CODES.S_V2)
+        @androidx.annotation.DoNotInline
+        fun resolveBufferTransformHint(view: View): Int =
+            view.rootSurfaceControl?.bufferTransformHint ?: 0
     }
 }

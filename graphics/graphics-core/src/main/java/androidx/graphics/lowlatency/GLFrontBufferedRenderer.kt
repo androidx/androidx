@@ -18,6 +18,8 @@ package androidx.graphics.lowlatency
 
 import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
+import android.opengl.GLES20
+import android.opengl.Matrix
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceView
@@ -27,6 +29,8 @@ import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
 import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -235,6 +239,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mHardwareBufferUsageFlags: Long
 
+    /**
+     * Calculates the corresponding projection based on buffer transform hints
+     */
+    private val mBufferTransform = BufferTransformer()
+
     init {
         mParentRenderLayer.setParentLayerCallbacks(mParentLayerCallback)
         val renderer = if (glRenderer == null) {
@@ -268,12 +277,28 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
                 .build()
 
+            val transformHint = mParentRenderLayer.getBufferTransformHint()
+            val bufferWidth: Int
+            val bufferHeight: Int
+            if (transformHint == BUFFER_TRANSFORM_ROTATE_90 ||
+                transformHint == BUFFER_TRANSFORM_ROTATE_270
+            ) {
+                bufferWidth = height
+                bufferHeight = width
+            } else {
+                bufferWidth = width
+                bufferHeight = height
+            }
+
+            // Create buffer pool for the multi-buffered layer
+            // The flags here are identical to those used for buffers in the front buffered layer
+            // except USAGE_FRONT_BUFFER is not specified
             val bufferPool = FrameBufferPool(
-                width,
-                height,
+                bufferWidth,
+                bufferHeight,
                 format = HardwareBuffer.RGBA_8888,
-                usage = mHardwareBufferUsageFlags,
-                maxPoolSize = 5
+                usage = BaseFlags,
+                maxPoolSize = 4
             )
 
             val previousBufferPool = mBufferPool
@@ -284,7 +309,15 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
 
             val frontBufferedLayerRenderer =
-                createFrontBufferedLayerRenderer(frontBufferedSurfaceControl)
+                createFrontBufferedLayerRenderer(
+                    frontBufferedSurfaceControl,
+                    width,
+                    height,
+                    bufferWidth,
+                    bufferHeight,
+                    transformHint,
+                    mHardwareBufferUsageFlags
+                )
             mFrontBufferedRenderTarget = mGLRenderer.createRenderTarget(
                 width,
                 height,
@@ -436,17 +469,39 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     private fun createFrontBufferedLayerRenderer(
-        frontBufferedLayerSurfaceControl: SurfaceControlCompat
+        frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+        width: Int,
+        height: Int,
+        bufferWidth: Int,
+        bufferHeight: Int,
+        transformHint: Int,
+        usageFlags: Long
     ): FrameBufferRenderer {
+        val inverseTransform = mBufferTransform.invertBufferTransform(transformHint)
+        mBufferTransform.computeTransform(width, height, inverseTransform)
         return FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
+                private fun createFrontBufferLayer(usageFlags: Long): HardwareBuffer {
+                    return HardwareBuffer.create(
+                        bufferWidth,
+                        bufferHeight,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        usageFlags
+                    )
+                }
+
                 @WorkerThread
                 override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
                     var buffer = mFrontLayerBuffer
                     if (buffer == null) {
                         // Allocate and persist a FrameBuffer instance across frames
-                        buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
-                            ?: throw IllegalArgumentException("Unable to obtain FrameBuffer")
+                        buffer = FrameBuffer(
+                            egl,
+                            createFrontBufferLayer(usageFlags)
+                        ).also {
+                            mFrontLayerBuffer = it
+                        }
                     }
                     return buffer
                 }
@@ -462,6 +517,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                         // explicitly provided null as a placeholder
                         mCallback.onDrawFrontBufferedLayer(
                             eglManager,
+                            mBufferTransform.glWidth,
+                            mBufferTransform.glHeight,
+                            mBufferTransform.transform,
                             mFrontBufferQueueParams.remove()
                         )
                     } catch (_: NoSuchElementException) {
@@ -485,6 +543,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                             syncFenceCompat
                         )
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
+                    if (transformHint != ParentRenderLayer.UNKNOWN_TRANSFORM) {
+                        transaction.setBufferTransform(
+                            frontBufferedLayerSurfaceControl,
+                            inverseTransform
+                        )
+                    }
                     mParentRenderLayer.buildReparentTransaction(
                         frontBufferedLayerSurfaceControl, transaction
                     )
@@ -509,10 +573,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * [FrameBufferPool]
      */
     internal fun releaseBuffers(pool: FrameBufferPool) {
-        mFrontLayerBuffer?.let {
-            pool.release(it)
-            mFrontLayerBuffer = null
-        }
+        mFrontLayerBuffer?.close()
+        mFrontLayerBuffer = null
         pool.close()
     }
 
@@ -559,18 +621,90 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
+         * @param bufferWidth Width of the buffer that is being rendered into. This can be different
+         * than the corresponding dimensions of the [SurfaceView] provided to the
+         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
+         * parameters in order to avoid GPU composition to rotate content. This should be used
+         * as input to [GLES20.glViewport].
+         * @param bufferHeight Height of the buffer that is being rendered into. This can be different
+         * than the corresponding dimensions of the [SurfaceView] provided to the
+         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
+         * parameters in order to avoid GPU composition to rotate content. This should be used as
+         * input to [GLES20.glViewport].
+         * @param transform Matrix that should be applied to the rendering in this callback.
+         * This should be consumed as input to any vertex shader implementations. Buffers are
+         * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
+         * rotate content in the same install orientation of the display.
+         * This is a 4 x 4 matrix is represented as a flattened array of 16 floating point values.
+         * Consumers are expected to leverage [Matrix.multiplyMM] with this parameter alongside
+         * any additional transformations that are to be applied.
+         * For example:
+         * ```
+         * val myMatrix = FloatArray(16)
+         * Matrix.orthoM(
+         *      myMatrix, // matrix
+         *      0, // offset starting index into myMatrix
+         *      0f, // left
+         *      bufferWidth.toFloat(), // right
+         *      0f, // bottom
+         *      bufferHeight.toFloat(), // top
+         *      -1f, // near
+         *      1f, // far
+         * )
+         * val result = FloatArray(16)
+         * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
+         * ```
          * @param param optional parameter provided the corresponding
          * [GLFrontBufferedRenderer.renderFrontBufferedLayer] method that triggered this request to render
          * into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: T)
+        fun onDrawFrontBufferedLayer(
+            eglManager: EGLManager,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            transform: FloatArray,
+            param: T
+        )
 
         /**
          * Callback invoked to render content into the doubled buffered layer with the specified
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the double buffered layer
+         * @param bufferWidth Width of the buffer that is being rendered into. This can be different
+         * than the corresponding dimensions of the [SurfaceView] provided to the
+         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
+         * parameters in order to avoid GPU composition to rotate content. This should be used
+         * as input to [GLES20.glViewport].
+         * @param bufferHeight Height of the buffer that is being rendered into. This can be different
+         * than the corresponding dimensions of the [SurfaceView] provided to the
+         * [GLFrontBufferedRenderer] as pre-rotation can occasionally swap width and height
+         * parameters in order to avoid GPU composition to rotate content. This should be used as
+         * input to [GLES20.glViewport].
+         * @param transform Matrix that should be applied to the rendering in this callback.
+         * This should be consumed as input to any vertex shader implementations. Buffers are
+         * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
+         * rotate content in the same install orientation of the display.
+         * This is a 4 x 4 matrix is represented as a flattened array of 16 floating point values.
+         * Consumers are expected to leverage [Matrix.multiplyMM] with this parameter alongside
+         * any additional transformations that are to be applied.
+         * For example:
+         * ```
+         * val myMatrix = FloatArray(16)
+         * Matrix.orthoM(
+         *      myMatrix, // matrix
+         *      0, // offset starting index into myMatrix
+         *      0f, // left
+         *      bufferWidth.toFloat(), // right
+         *      0f, // bottom
+         *      bufferHeight.toFloat(), // top
+         *      -1f, // near
+         *      1f, // far
+         * )
+         * val result = FloatArray(16)
+         * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
+         * ```
          * @param params optional parameter provided to render the entire scene into the double
          * buffered layer.
          * This is a collection of all parameters provided in consecutive invocations to
@@ -596,9 +730,18 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          *
          * This will generate a callback to this method with the params collection containing values
          * [4, 5]
+         *
+         * By default [GLES20.glViewport] is invoked with the correct dimensions of the buffer that
+         * is being rendered into taking into account pre-rotation transformations
          */
         @WorkerThread
-        fun onDrawDoubleBufferedLayer(eglManager: EGLManager, params: Collection<T>)
+        fun onDrawDoubleBufferedLayer(
+            eglManager: EGLManager,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            transform: FloatArray,
+            params: Collection<T>
+        )
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but

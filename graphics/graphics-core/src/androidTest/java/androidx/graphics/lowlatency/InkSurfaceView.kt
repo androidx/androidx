@@ -57,31 +57,60 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     private val mCallbacks = object : GLFrontBufferedRenderer.Callback<FloatArray> {
 
         private val mMVPMatrix = FloatArray(16)
+        private val mProjection = FloatArray(16)
 
-        override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: FloatArray) {
-            GLES20.glViewport(0, 0, mWidth, mHeight)
-            // Map Android coordinates to GL coordinates
+        override fun onDrawFrontBufferedLayer(
+            eglManager: EGLManager,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            transform: FloatArray,
+            param: FloatArray
+        ) {
+            GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
             Matrix.orthoM(
                 mMVPMatrix,
                 0,
                 0f,
-                mWidth.toFloat(),
+                bufferWidth.toFloat(),
                 0f,
-                mHeight.toFloat(),
+                bufferHeight.toFloat(),
                 -1f,
                 1f
             )
-            obtainRenderer().drawLines(mMVPMatrix, param, Color.RED)
+            Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
+            val vWidth = this@InkSurfaceView.width.toFloat()
+            val vHeight = this@InkSurfaceView.height.toFloat()
+            // Draw debug lines outlining the rendering area
+            with(obtainRenderer()) {
+                drawLines(mProjection, floatArrayOf(0f, 0f, 0f, vHeight), Color.GREEN)
+                drawLines(mProjection, floatArrayOf(0f, vHeight, vWidth, vHeight), Color.CYAN)
+                drawLines(mProjection, floatArrayOf(vWidth, vHeight, vWidth, 0f), Color.BLUE)
+                drawLines(mProjection, floatArrayOf(vWidth, 0f, 0f, 0f), Color.MAGENTA)
+                drawLines(mProjection, param, Color.RED, 20f)
+            }
         }
 
         override fun onDrawDoubleBufferedLayer(
             eglManager: EGLManager,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            transform: FloatArray,
             params: Collection<FloatArray>
         ) {
-            GLES20.glViewport(0, 0, mWidth, mHeight)
-            Matrix.orthoM(mMVPMatrix, 0, 0f, mWidth.toFloat(), 0f, mHeight.toFloat(), -1f, 1f)
+            GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+            Matrix.orthoM(
+                mMVPMatrix,
+                0,
+                0f,
+                bufferWidth.toFloat(),
+                0f,
+                bufferHeight.toFloat(),
+                -1f,
+                1f
+            )
+            Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
             for (line in params) {
-                obtainRenderer().drawLines(mMVPMatrix, line, Color.BLUE)
+                obtainRenderer().drawLines(mProjection, line, Color.BLUE, 20f)
             }
         }
     }

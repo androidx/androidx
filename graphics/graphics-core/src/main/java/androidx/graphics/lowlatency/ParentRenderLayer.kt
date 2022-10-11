@@ -30,6 +30,14 @@ import androidx.graphics.surface.SurfaceControlCompat
  * to implementations of front/double buffered layers
  */
 internal interface ParentRenderLayer<T> {
+
+    /**
+     * Obtains a pre-rotation hint to configure buffer content. This is helpful to
+     * avoid unnecessary GPU composition for the purposes of rotating buffer content to
+     * match display orientation
+     */
+    fun getBufferTransformHint(): Int = UNKNOWN_TRANSFORM
+
     /**
      * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided
      * child [SurfaceControlCompat] to a [SurfaceControlCompat] provided by the parent rendering
@@ -115,5 +123,12 @@ internal interface ParentRenderLayer<T> {
          * rendering to front and double buffered layers
          */
         fun getFrameBufferPool(): FrameBufferPool?
+    }
+
+    companion object {
+        /**
+         * Flag indicating that the current suggested buffer transform is unknown
+         */
+        val UNKNOWN_TRANSFORM = -1
     }
 }
