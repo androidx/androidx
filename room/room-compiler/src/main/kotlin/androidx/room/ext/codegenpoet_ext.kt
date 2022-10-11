@@ -27,6 +27,7 @@ import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.codegen.asMutableClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -153,9 +154,14 @@ object CollectionTypeNames {
     val INT_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
+object KotlinCollectionTypeNames {
+    val MUTABLE_LIST = List::class.asMutableClassName()
+}
+
 object CommonTypeNames {
     val ARRAYS = ClassName.get("java.util", "Arrays")
     val LIST = ClassName.get("java.util", "List")
+    val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
     val MAP = ClassName.get("java.util", "Map")
     val SET = ClassName.get("java.util", "Set")
     val STRING = ClassName.get("java.lang", "String")

@@ -954,6 +954,61 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun queryResultAdapter_list() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val dbSource = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [MyEntity::class, MyNullableEntity::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+                abstract fun getDao(): MyDao
+            }
+            """.trimIndent()
+        )
+
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfList(): List<MyEntity>
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableList(): List<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableEntityList(): List<MyNullableEntity?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableListWithNullableEntity(): List<MyNullableEntity>?
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            @Entity
+            data class MyNullableEntity(
+                @PrimaryKey
+                val pk: Int?,
+                val other: String?
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, dbSource),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }
