@@ -19,14 +19,14 @@ package androidx.room.compiler.processing.util.compiler
 import androidx.room.compiler.processing.util.compiler.steps.CompilationStepArguments
 import androidx.room.compiler.processing.util.compiler.steps.RawDiagnosticMessage
 import androidx.room.compiler.processing.util.getSystemClasspaths
+import java.io.File
+import java.net.URLClassLoader
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.jetbrains.kotlin.config.JvmTarget
-import java.io.File
-import java.net.URLClassLoader
 
 /**
  * Utility object to run kotlin compiler via its CLI API.
@@ -97,7 +97,7 @@ internal object KotlinCliRunner {
         arguments.copyToCliArguments(cliArguments)
         compiler.parseArguments(arguments.kotlincArguments.toTypedArray(), cliArguments)
 
-        val diagnosticsMessageCollector = DiagnosticsMessageCollector()
+        val diagnosticsMessageCollector = DiagnosticsMessageCollector("kotlinc")
         val exitCode = DelegatingTestRegistrar.runCompilation(
             compiler = compiler,
             messageCollector = diagnosticsMessageCollector,

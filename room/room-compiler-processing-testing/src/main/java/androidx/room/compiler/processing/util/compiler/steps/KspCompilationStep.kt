@@ -22,8 +22,8 @@ import androidx.room.compiler.processing.util.compiler.TestKspRegistrar
 import androidx.room.compiler.processing.util.compiler.toSourceSet
 import com.google.devtools.ksp.KspOptions
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import org.jetbrains.kotlin.cli.common.ExitCode
 import java.io.File
+import org.jetbrains.kotlin.cli.common.ExitCode
 
 /**
  * Runs the Symbol Processors
@@ -51,7 +51,7 @@ internal class KspCompilationStep(
         if (symbolProcessorProviders.isEmpty()) {
             return CompilationStepResult.skip(arguments)
         }
-        val kspMessages = DiagnosticsMessageCollector()
+        val kspMessages = DiagnosticsMessageCollector(name)
         val result = KotlinCliRunner.runKotlinCli(
             arguments = arguments,
             destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),

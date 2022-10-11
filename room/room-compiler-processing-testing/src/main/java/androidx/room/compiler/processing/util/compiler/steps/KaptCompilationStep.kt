@@ -20,12 +20,12 @@ import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollect
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
 import androidx.room.compiler.processing.util.compiler.TestKapt3Registrar
 import androidx.room.compiler.processing.util.compiler.toSourceSet
+import java.io.File
+import javax.annotation.processing.Processor
 import org.jetbrains.kotlin.base.kapt3.AptMode
 import org.jetbrains.kotlin.base.kapt3.KaptFlag
 import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.ExitCode
-import java.io.File
-import javax.annotation.processing.Processor
 import org.jetbrains.kotlin.compiler.plugin.parsePluginOption
 
 /**
@@ -79,7 +79,7 @@ internal class KaptCompilationStep(
         if (annotationProcessors.isEmpty()) {
             return CompilationStepResult.skip(arguments)
         }
-        val kaptMessages = DiagnosticsMessageCollector()
+        val kaptMessages = DiagnosticsMessageCollector(name)
         val result = KotlinCliRunner.runKotlinCli(
             arguments = arguments, // output is ignored,
             destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
