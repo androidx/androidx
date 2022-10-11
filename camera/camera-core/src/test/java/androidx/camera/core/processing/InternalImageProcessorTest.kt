@@ -17,11 +17,11 @@
 package androidx.camera.core.processing
 
 import android.graphics.PixelFormat
-import androidx.camera.core.CameraEffect
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProcessor
 import androidx.camera.core.ImageProcessor.Response
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.highPriorityExecutor
+import androidx.camera.testing.fakes.FakeImageEffect
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
@@ -43,9 +43,7 @@ class InternalImageProcessorTest {
     fun processorThrowsError_errorIsPropagatedToCameraX() {
         // Arrange.
         val exception = RuntimeException()
-        val cameraEffect = CameraEffect.Builder(CameraEffect.IMAGE_CAPTURE)
-            .setImageProcessor(highPriorityExecutor()) { throw exception }
-            .build()
+        val cameraEffect = FakeImageEffect(highPriorityExecutor()) { throw exception }
         val imageProcessor = InternalImageProcessor(cameraEffect)
 
         // Act.
@@ -74,9 +72,7 @@ class InternalImageProcessorTest {
             Response { imageFromEffect }
         }
         val executor = newSingleThreadExecutor { Thread(it, THREAD_NAME) }
-        val cameraEffect = CameraEffect.Builder(CameraEffect.IMAGE_CAPTURE)
-            .setImageProcessor(executor, processor)
-            .build()
+        val cameraEffect = FakeImageEffect(executor, processor)
         val imageProcessor = InternalImageProcessor(cameraEffect)
 
         // Act.
