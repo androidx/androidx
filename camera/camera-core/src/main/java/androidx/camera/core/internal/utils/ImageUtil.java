@@ -73,6 +73,8 @@ public final class ImageUtil {
                 planes[0].getRowStride() == DEFAULT_RGBA_PIXEL_STRIDE * width,
                 "Expect rowStride=width*" + DEFAULT_RGBA_PIXEL_STRIDE);
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        // Rewind the buffer just to be safe.
+        planes[0].getBuffer().rewind();
         bitmap.copyPixelsFromBuffer(planes[0].getBuffer());
         return bitmap;
     }
