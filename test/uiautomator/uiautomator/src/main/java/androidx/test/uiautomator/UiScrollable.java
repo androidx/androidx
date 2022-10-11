@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
  * UiScrollable is a {@link UiCollection} and provides support for searching
  * for items in scrollable layout elements. This class can be used with
  * horizontally or vertically scrollable controls.
- * @since API Level 16
  */
 public class UiScrollable extends UiCollection {
     private static final String LOG_TAG = UiScrollable.class.getSimpleName();
@@ -52,7 +51,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param container a {@link UiSelector} selector to identify the scrollable
      *     layout element.
-     * @since API Level 16
      */
     public UiScrollable(@NonNull UiSelector container) {
         // wrap the container selector with container so that QueryController can handle
@@ -63,7 +61,6 @@ public class UiScrollable extends UiCollection {
     /**
      * Set the direction of swipes to be vertical when performing scroll actions.
      * @return reference to itself
-     * @since API Level 16
      */
     @NonNull
     public UiScrollable setAsVerticalList() {
@@ -75,7 +72,6 @@ public class UiScrollable extends UiCollection {
     /**
      * Set the direction of swipes to be horizontal when performing scroll actions.
      * @return reference to itself
-     * @since API Level 16
      */
     @NonNull
     public UiScrollable setAsHorizontalList() {
@@ -90,7 +86,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param selector
      * @return true if found else false
-     * @since API Level 16
      */
     protected boolean exists(@NonNull UiSelector selector) {
         if(getQueryController().findAccessibilityNodeInfo(selector) != null) {
@@ -114,7 +109,6 @@ public class UiScrollable extends UiCollection {
      * the <code>childPattern</code> match
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     @Override
@@ -139,7 +133,6 @@ public class UiScrollable extends UiCollection {
      * @param allowScrollSearch set to true if scrolling is allowed
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     public UiObject getChildByDescription(@NonNull UiSelector childPattern, @NonNull String text,
@@ -163,7 +156,6 @@ public class UiScrollable extends UiCollection {
      * @param instance int number representing the occurance of 
      * a <code>childPattern</code> match
      * @return {@link UiObject} representing the child element that matches the search conditions
-     * @since API Level 16
      */
     @NonNull
     @Override
@@ -189,7 +181,6 @@ public class UiScrollable extends UiCollection {
      * @param text String to find in the children of the <code>childPattern</code> match
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     @Override
@@ -212,7 +203,6 @@ public class UiScrollable extends UiCollection {
      * @param allowScrollSearch set to true if scrolling is allowed
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @throws UiObjectNotFoundException
-     * @since API Level 16
      */
     @NonNull
     public UiObject getChildByText(@NonNull UiSelector childPattern,
@@ -236,7 +226,6 @@ public class UiScrollable extends UiCollection {
      * @param text content-description to find within the contents of this scrollable layout
      * element.
      * @return true if item is found; else, false
-     * @since API Level 16
      */
     public boolean scrollDescriptionIntoView(@NonNull String text)
             throws UiObjectNotFoundException {
@@ -250,7 +239,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param obj {@link UiObject}
      * @return true if the item was found and now is in view else false
-     * @since API Level 16
      */
     public boolean scrollIntoView(@NonNull UiObject obj) throws UiObjectNotFoundException {
         Tracer.trace(obj.getSelector());
@@ -265,7 +253,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param selector {@link UiSelector} selector
      * @return true if the item was found and now is in view; else, false
-     * @since API Level 16
      */
     public boolean scrollIntoView(@NonNull UiSelector selector) throws UiObjectNotFoundException {
         Tracer.trace(selector);
@@ -343,7 +330,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param text test to look for
      * @return true if item is found; else, false
-     * @since API Level 16
      */
     public boolean scrollTextIntoView(@NonNull String text) throws UiObjectNotFoundException {
         Tracer.trace(text);
@@ -358,7 +344,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param swipes the number of search swipes to perform until giving up
      * @return reference to itself
-     * @since API Level 16
      */
     @NonNull
     public UiScrollable setMaxSearchSwipes(int swipes) {
@@ -374,7 +359,6 @@ public class UiScrollable extends UiCollection {
      * {@link #getChildByText(UiSelector, String)}.
      *
      * @return max the number of search swipes to perform until giving up
-     * @since API Level 16
      */
     public int getMaxSearchSwipes() {
         Tracer.trace();
@@ -390,7 +374,6 @@ public class UiScrollable extends UiCollection {
      * right-to-left languages like Arabic and Hebrew.
      *
      * @return true if scrolled, false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean flingForward() throws UiObjectNotFoundException {
         Tracer.trace();
@@ -406,7 +389,6 @@ public class UiScrollable extends UiCollection {
      * right-to-left languages like Arabic and Hebrew.
      *
      * @return true if scrolled, false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean scrollForward() throws UiObjectNotFoundException {
         Tracer.trace();
@@ -422,7 +404,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param steps number of steps. Use this to control the speed of the scroll action
      * @return true if scrolled, false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean scrollForward(int steps) throws UiObjectNotFoundException {
         Tracer.trace(steps);
@@ -469,7 +450,6 @@ public class UiScrollable extends UiCollection {
      * right-to-left languages like Arabic and Hebrew.
      *
      * @return true if scrolled, and false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean flingBackward() throws UiObjectNotFoundException {
         Tracer.trace();
@@ -485,7 +465,6 @@ public class UiScrollable extends UiCollection {
      * right-to-left languages like Arabic and Hebrew.
      *
      * @return true if scrolled, and false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean scrollBackward() throws UiObjectNotFoundException {
         Tracer.trace();
@@ -501,7 +480,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param steps number of steps. Use this to control the speed of the scroll action.
      * @return true if scrolled, false if can't scroll anymore
-     * @since API Level 16
      */
     public boolean scrollBackward(int steps) throws UiObjectNotFoundException {
         Tracer.trace(steps);
@@ -549,7 +527,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param steps use steps to control the speed, so that it may be a scroll, or fling
      * @return true on scrolled else false
-     * @since API Level 16
      */
     public boolean scrollToBeginning(int maxSwipes, int steps) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes, steps);
@@ -571,7 +548,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param maxSwipes
      * @return true on scrolled else false
-     * @since API Level 16
      */
     public boolean scrollToBeginning(int maxSwipes) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes);
@@ -586,7 +562,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param maxSwipes
      * @return true on scrolled else false
-     * @since API Level 16
      */
     public boolean flingToBeginning(int maxSwipes) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes);
@@ -601,7 +576,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param steps use steps to control the speed, so that it may be a scroll, or fling
      * @return true on scrolled else false
-     * @since API Level 16
      */
     public boolean scrollToEnd(int maxSwipes, int steps) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes, steps);
@@ -622,7 +596,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param maxSwipes
      * @return true on scrolled, else false
-     * @since API Level 16
      */
     public boolean scrollToEnd(int maxSwipes) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes);
@@ -637,7 +610,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param maxSwipes
      * @return true on scrolled, else false
-     * @since API Level 16
      */
     public boolean flingToEnd(int maxSwipes) throws UiObjectNotFoundException {
         Tracer.trace(maxSwipes);
@@ -653,7 +625,6 @@ public class UiScrollable extends UiCollection {
      * too near to the edge. The default is 10% from either edge.
      *
      * @return a value between 0 and 1
-     * @since API Level 16
      */
     public double getSwipeDeadZonePercentage() {
         Tracer.trace();
@@ -671,7 +642,6 @@ public class UiScrollable extends UiCollection {
      *
      * @param swipeDeadZonePercentage is a value between 0 and 1
      * @return reference to itself
-     * @since API Level 16
      */
     @NonNull
     public UiScrollable setSwipeDeadZonePercentage(double swipeDeadZonePercentage) {
