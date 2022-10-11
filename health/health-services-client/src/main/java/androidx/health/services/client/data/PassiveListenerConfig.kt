@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.proto.DataProto
 
@@ -43,7 +42,7 @@ public class PassiveListenerConfig(
     public val shouldRequestUserActivityState: Boolean,
     public val dailyGoals: Set<PassiveGoal>,
     public val healthEventTypes: Set<HealthEvent.Type>
-) : ProtoParcelable<DataProto.PassiveListenerConfig>() {
+) {
 
     internal constructor(
         proto: DataProto.PassiveListenerConfig
@@ -113,8 +112,7 @@ public class PassiveListenerConfig(
         }
     }
 
-    /** @hide */
-    override val proto: DataProto.PassiveListenerConfig =
+    internal val proto: DataProto.PassiveListenerConfig =
         DataProto.PassiveListenerConfig.newBuilder()
             .addAllDataTypes(dataTypes.map { it.proto })
             .setIncludeUserActivityState(shouldRequestUserActivityState)
@@ -125,11 +123,5 @@ public class PassiveListenerConfig(
     public companion object {
         @JvmStatic
         public fun builder(): Builder = Builder()
-
-        @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveListenerConfig> = newCreator { bytes ->
-            val proto = DataProto.PassiveListenerConfig.parseFrom(bytes)
-            PassiveListenerConfig(proto)
-        }
     }
 }

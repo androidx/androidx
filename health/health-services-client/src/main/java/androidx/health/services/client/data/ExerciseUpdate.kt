@@ -17,7 +17,6 @@
 package androidx.health.services.client.data
 
 import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
-import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseEndReason.Companion.toProto
 import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
@@ -70,7 +69,7 @@ public class ExerciseUpdate(
      * [ExerciseEndReason], if applicable.
      */
     public val exerciseStateInfo: ExerciseStateInfo,
-) : ProtoParcelable<DataProto.ExerciseUpdate>() {
+) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(
@@ -165,8 +164,7 @@ public class ExerciseUpdate(
         }
     }
 
-    /** @hide */
-    override val proto: DataProto.ExerciseUpdate = getExerciseUpdateProto()
+    internal val proto: DataProto.ExerciseUpdate = getExerciseUpdateProto()
 
     private fun getExerciseUpdateProto(): DataProto.ExerciseUpdate {
         val builder =
@@ -326,12 +324,6 @@ public class ExerciseUpdate(
     }
 
     public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseUpdate> = newCreator { bytes ->
-            val proto = DataProto.ExerciseUpdate.parseFrom(bytes)
-            ExerciseUpdate(proto)
-        }
-
         internal fun exerciseUpdateProtoToDataPointContainer(
             proto: DataProto.ExerciseUpdate
         ): DataPointContainer {
