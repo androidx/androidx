@@ -53,6 +53,7 @@ public class SearchSuggestionSpec {
     static final String NAMESPACE_FIELD = "namespace";
     static final String SCHEMA_FIELD = "schema";
     static final String PROPERTY_FIELD = "property";
+    static final String DOCUMENT_IDS_FIELD = "documentIds";
     static final String MAXIMUM_RESULT_COUNT_FIELD = "maximumResultCount";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
     private final Bundle mBundle;
@@ -165,7 +166,11 @@ public class SearchSuggestionSpec {
     /**
      * Returns the map of schema and target properties to search over.
      *
-     * <p>If empty, will search over all schema and properties.
+     * <p>The keys of the returned map are schema types, and the values are the target property path
+     * in that schema to search over.
+     *
+     * <p>If {@link Builder#addFilterPropertyPaths} was never called, returns an empty map. In this
+     * case AppSearch will search over all schemas and properties.
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
@@ -183,11 +188,37 @@ public class SearchSuggestionSpec {
         return typePropertyPathsMap;
     }
 
+    /**
+     * Returns the map of namespace and target document ids to search over.
+     *
+     * <p>The keys of the returned map are namespaces, and the values are the target document ids
+     * in that namespace to search over.
+     *
+     * <p>If {@link Builder#addFilterDocumentIds} was never called, returns an empty map. In this
+     * case AppSearch will search over all namespace and document ids.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
+     * by this function, rather than calling it multiple times.
+     */
+    @NonNull
+    public Map<String, List<String>> getFilterDocumentIds() {
+        Bundle documentIdsBundle = Preconditions.checkNotNull(
+                mBundle.getBundle(DOCUMENT_IDS_FIELD));
+        Set<String> namespaces = documentIdsBundle.keySet();
+        Map<String, List<String>> documentIdsMap = new ArrayMap<>(namespaces.size());
+        for (String namespace : namespaces) {
+            documentIdsMap.put(namespace, Preconditions.checkNotNull(
+                    documentIdsBundle.getStringArrayList(namespace)));
+        }
+        return documentIdsMap;
+    }
+
     /** Builder for {@link SearchSuggestionSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mNamespaces = new ArrayList<>();
         private ArrayList<String> mSchemas = new ArrayList<>();
         private Bundle mTypePropertyFilters = new Bundle();
+        private Bundle mDocumentIds = new Bundle();
         private final int mTotalResultCount;
         private @SuggestionRankingStrategy int mRankingStrategy =
                 SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT;
@@ -444,12 +475,47 @@ public class SearchSuggestionSpec {
         }
 // @exportToFramework:endStrip()
 
+        /**
+         * Adds a document ID filter to {@link SearchSuggestionSpec} Entry. Only search for
+         * suggestions in the given specified documents.
+         *
+         * <p>If unset, the query will search over all documents.
+         */
+        @NonNull
+        public Builder addFilterDocumentIds(@NonNull String namespace,
+                @NonNull String... documentIds) {
+            Preconditions.checkNotNull(namespace);
+            Preconditions.checkNotNull(documentIds);
+            resetIfBuilt();
+            return addFilterDocumentIds(namespace, Arrays.asList(documentIds));
+        }
+
+        /**
+         * Adds a document ID filter to {@link SearchSuggestionSpec} Entry. Only search for
+         * suggestions in the given specified documents.
+         *
+         * <p>If unset, the query will search over all documents.
+         */
+        @NonNull
+        public Builder addFilterDocumentIds(@NonNull String namespace,
+                @NonNull Collection<String> documentIds) {
+            Preconditions.checkNotNull(namespace);
+            Preconditions.checkNotNull(documentIds);
+            resetIfBuilt();
+            ArrayList<String> documentIdList = new ArrayList<>(documentIds.size());
+            for (String documentId : documentIds) {
+                documentIdList.add(Preconditions.checkNotNull(documentId));
+            }
+            mDocumentIds.putStringArrayList(namespace, documentIdList);
+            return this;
+        }
+
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
         public SearchSuggestionSpec build() throws AppSearchException {
             Bundle bundle = new Bundle();
-            Set<String> schemaFilter = new ArraySet<>(mSchemas);
             if (!mSchemas.isEmpty()) {
+                Set<String> schemaFilter = new ArraySet<>(mSchemas);
                 for (String schema : mTypePropertyFilters.keySet()) {
                     if (!schemaFilter.contains(schema)) {
                         throw new AppSearchException(RESULT_INVALID_ARGUMENT,
@@ -458,9 +524,20 @@ public class SearchSuggestionSpec {
                     }
                 }
             }
+            if (!mNamespaces.isEmpty()) {
+                Set<String> namespaceFilter = new ArraySet<>(mNamespaces);
+                for (String namespace : mDocumentIds.keySet()) {
+                    if (!namespaceFilter.contains(namespace)) {
+                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                                "The namespace: " + namespace + " exists in the document id "
+                                        + "filter but doesn't exist in the namespace filter.");
+                    }
+                }
+            }
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
             bundle.putBundle(PROPERTY_FIELD, mTypePropertyFilters);
+            bundle.putBundle(DOCUMENT_IDS_FIELD, mDocumentIds);
             bundle.putInt(MAXIMUM_RESULT_COUNT_FIELD, mTotalResultCount);
             bundle.putInt(RANKING_STRATEGY_FIELD, mRankingStrategy);
             mBuilt = true;
@@ -472,6 +549,7 @@ public class SearchSuggestionSpec {
                 mNamespaces = new ArrayList<>(mNamespaces);
                 mSchemas = new ArrayList<>(mSchemas);
                 mTypePropertyFilters = BundleUtil.deepCopy(mTypePropertyFilters);
+                mDocumentIds = BundleUtil.deepCopy(mDocumentIds);
                 mBuilt = false;
             }
         }

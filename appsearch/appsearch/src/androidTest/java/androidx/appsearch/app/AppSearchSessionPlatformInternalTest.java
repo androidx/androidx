@@ -63,6 +63,12 @@ public class AppSearchSessionPlatformInternalTest extends AppSearchSessionIntern
 
     @Override
     @Test
+    public void testSearchSuggestion_documentIdFilter() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
     public void testSearchSuggestion_differentPrefix() throws Exception {
         // TODO(b/227356108) enable the test when suggestion is ready in platform.
     }

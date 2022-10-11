@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.NamespaceDocumentUriGroup;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SuggestionScoringSpecProto;
 import com.google.android.icing.proto.SuggestionSpecProto;
@@ -117,6 +118,20 @@ public final class SearchSuggestionSpecToProtoConverter {
                     protoBuilder.addTypePropertyFilters(TypePropertyMask.newBuilder()
                             .setSchemaType(prefixedSchemaType)
                             .addAllPaths(entry.getValue())
+                            .build());
+                }
+            }
+        }
+
+        // Convert the document ids filters
+        for (Map.Entry<String, List<String>> entry :
+                mSearchSuggestionSpec.getFilterDocumentIds().entrySet()) {
+            for (String prefix : mPrefixes) {
+                String prefixedNamespace = prefix + entry.getKey();
+                if (mTargetPrefixedNamespaceFilters.contains(prefixedNamespace)) {
+                    protoBuilder.addDocumentUriFilters(NamespaceDocumentUriGroup.newBuilder()
+                            .setNamespace(prefixedNamespace)
+                            .addAllDocumentUris(entry.getValue())
                             .build());
                 }
             }
