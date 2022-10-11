@@ -39,6 +39,7 @@ class ApiStubParserTest {
         val source = Source.kotlin(
             "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
                     @PrivacySandboxService
@@ -52,6 +53,10 @@ class ApiStubParserTest {
                     data class PayloadResponse(val url: String)
                     @PrivacySandboxValue
                     data class PayloadRequest(val type: PayloadType)
+                    @PrivacySandboxCallback
+                    interface CustomCallback {
+                      fun onComplete(status: Int)
+                    }
                 """
         )
 
@@ -104,6 +109,23 @@ class ApiStubParserTest {
                 )
             )
 
+        val expectedCallback = AnnotatedInterface(
+            type = Type(packageName = "com.mysdk", simpleName = "CustomCallback"),
+                methods = listOf(
+                    Method(
+                        name = "onComplete",
+                        parameters = listOf(
+                            Parameter(
+                                "status",
+                                Types.int
+                            ),
+                        ),
+                        returnType = Types.unit,
+                        isSuspend = false,
+                    ),
+                )
+        )
+
         val actualApi = compileAndParseApi(source)
         assertThat(actualApi.services).containsExactly(expectedService)
         assertThat(actualApi.values).containsExactly(
@@ -111,6 +133,7 @@ class ApiStubParserTest {
             expectedPayloadRequest,
             expectedPayloadResponse,
         )
+        assertThat(actualApi.callbacks).containsExactly(expectedCallback)
     }
 
     @Test
