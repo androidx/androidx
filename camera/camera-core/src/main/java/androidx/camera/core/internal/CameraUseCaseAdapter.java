@@ -458,7 +458,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 }
                 preview.setProcessor(new SurfaceProcessorWithExecutor(
                         requireNonNull(effect.getSurfaceProcessor()),
-                        effect.getProcessorExecutor()));
+                        effect.getExecutor()));
             }
         }
     }
