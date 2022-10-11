@@ -71,7 +71,6 @@ internal class SurfaceViewRenderLayer<T>(
                     val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
                     if (params != null) {
                         renderLayerCallback.onDrawDoubleBufferedLayer(eglManager, params)
-                        params.clear()
                     } else {
                         renderLayerCallback.onDrawDoubleBufferedLayer(
                             eglManager,

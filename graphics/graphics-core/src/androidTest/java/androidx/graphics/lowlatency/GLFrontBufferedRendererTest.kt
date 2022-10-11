@@ -19,6 +19,7 @@ package androidx.graphics.lowlatency
 import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
+import android.opengl.Matrix
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceView
@@ -267,10 +268,14 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testBaseFlags() {
-        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
-            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
-        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
-            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT)
+        assertNotEquals(
+            0, GLFrontBufferedRenderer.BaseFlags and
+                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+        )
+        assertNotEquals(
+            0, GLFrontBufferedRenderer.BaseFlags and
+                HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+        )
     }
 
     @Test
@@ -332,6 +337,134 @@ class GLFrontBufferedRendererTest {
             }
         } finally {
             renderer.blockingRelease(10000)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testFrontBufferedLayerPersistence() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding extensions to create
+            // a file descriptor from an EGLSync object then skip the test
+            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
+            return
+        }
+        val mMVPMatrix = FloatArray(16)
+        val mLines = FloatArray(4)
+        val mLineRenderer = LineRenderer()
+        val screenWidth = FrontBufferedRendererTestActivity.WIDTH
+        val screenHeight = FrontBufferedRendererTestActivity.HEIGHT
+
+        val renderLatch = CountDownLatch(1)
+        val firstDrawLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
+                mLineRenderer.initialize()
+                GLES20.glViewport(0, 0, screenWidth, screenHeight)
+
+                Matrix.orthoM(
+                    mMVPMatrix,
+                    0,
+                    0f,
+                    screenWidth.toFloat(),
+                    0f,
+                    screenHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+
+                mLines[0] = screenWidth / 4 + (param as Float)
+                mLines[1] = 0f
+                mLines[2] = screenWidth / 4 + param
+                mLines[3] = 100f
+
+                mLineRenderer.drawLines(mMVPMatrix, mLines)
+                assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+                firstDrawLatch.countDown()
+                mLineRenderer.release()
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                params: Collection<Any>
+            ) {
+                mLineRenderer.initialize()
+                GLES20.glViewport(0, 0, screenWidth, screenHeight)
+                Matrix.orthoM(
+                    mMVPMatrix,
+                    0,
+                    0f,
+                    screenWidth.toFloat(),
+                    0f,
+                    screenHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+
+                for (param in params) {
+                    mLines[0] = screenWidth / 4 + (param as Float)
+                    mLines[1] = 0f
+                    mLines[2] = screenWidth / 4 + param
+                    mLines[3] = 100f
+
+                    mLineRenderer.drawLines(mMVPMatrix, mLines)
+                    assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+                }
+                mLineRenderer.release()
+            }
+
+            override fun onDoubleBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                transaction.addTransactionCommittedListener(
+                    Executors.newSingleThreadExecutor(),
+                    object : SurfaceControlCompat.TransactionCommittedListener {
+                        override fun onTransactionCommitted() {
+                            renderLatch.countDown()
+                        }
+                    })
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(0f)
+                renderer?.commit()
+                renderer?.renderFrontBufferedLayer(screenWidth / 2f)
+                renderer?.commit()
+            }
+
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                (bitmap.getPixel(
+                    coords[0] + width / 4, coords[1] + height / 2
+                ) == Color.RED) &&
+                    (bitmap.getPixel(
+                        coords[0] + 3 * width / 4,
+                        coords[1] + height / 2
+                    ) == Color.RED)
+            }
+        } finally {
+            renderer.blockingRelease()
         }
     }
 
