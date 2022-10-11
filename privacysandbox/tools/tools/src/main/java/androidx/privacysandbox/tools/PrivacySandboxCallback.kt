@@ -22,6 +22,6 @@ package androidx.privacysandbox.tools
  * Callbacks should be public interfaces that only declare functions without implementation.
  * Callback functions should be fire-and-forget: non-suspending functions that have no return value.
  */
+@Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
-annotation class PrivacySandboxCallback()
+annotation class PrivacySandboxCallback

@@ -42,24 +42,25 @@ internal object ApiStubParser {
      *      Kotlin interface annotated with @PrivacySandboxService.
      */
     internal fun parse(sdkInterfaceDescriptors: Path): ParsedApi {
-        val (services, values) =
+        val (services, values, callbacks) =
             AnnotatedClassReader.readAnnotatedClasses(sdkInterfaceDescriptors)
         if (services.isEmpty()) throw PrivacySandboxParsingException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
         )
         return ParsedApi(
-            services.map(::parseInterface).toSet(),
-            values.map(::parseValue).toSet()
+            services.map { parseInterface(it, "PrivacySandboxService") }.toSet(),
+            values.map(::parseValue).toSet(),
+            callbacks.map { parseInterface(it, "PrivacySandboxCallback") }.toSet(),
         ).also(::validate)
     }
 
-    private fun parseInterface(service: KmClass): AnnotatedInterface {
+    private fun parseInterface(service: KmClass, annotationName: String): AnnotatedInterface {
         val type = parseClassName(service.name)
 
         if (!Flag.Class.IS_INTERFACE(service.flags)) {
             throw PrivacySandboxParsingException(
                 "${type.qualifiedName} is not a Kotlin interface but it's annotated with " +
-                    "@PrivacySandboxService."
+                    "@$annotationName."
             )
         }
 
