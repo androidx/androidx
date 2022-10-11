@@ -28,7 +28,7 @@ import java.io.File
 fun AndroidXLayoutlibTestRule(
     deviceConfig: DeviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
     theme: String = "android:Theme.Material.NoActionBar.Fullscreen",
-    renderingMode: RenderingMode = RenderingMode.NORMAL,
+    renderingMode: RenderingMode = RenderingMode.SHRINK,
     imageDiffer: ImageDiffer = ImageDiffer.PixelPerfect
 ) = Paparazzi(
     deviceConfig = deviceConfig,
