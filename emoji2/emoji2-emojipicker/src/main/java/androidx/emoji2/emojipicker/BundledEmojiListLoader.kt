@@ -18,6 +18,7 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import androidx.core.content.res.use
+import androidx.emoji2.emojipicker.utils.FileCache
 import androidx.emoji2.emojipicker.utils.UnicodeRenderableManager
 
 /**
@@ -30,26 +31,25 @@ import androidx.emoji2.emojipicker.utils.UnicodeRenderableManager
  * emoji. This allows faster variants lookup.
  */
 internal object BundledEmojiListLoader {
-
     private var _categorizedEmojiData: List<EmojiDataCategory>? = null
     private var _emojiVariantsLookup: Map<String, List<String>>? = null
 
     internal fun load(context: Context, emojiCompatMetadata: EmojiPickerView.EmojiCompatMetadata) {
-        // TODO(chelseahao): load from cache.
         val categoryNames = context.resources.getStringArray(R.array.category_names)
 
         _categorizedEmojiData = context.resources
             .obtainTypedArray(R.array.emoji_by_category_raw_resources)
             .use { ta ->
+                val emojiFileCache = FileCache.getInstance(context)
                 (0 until ta.length()).map {
-                    EmojiDataCategory(
-                        categoryNames[it],
+                    val cacheFileName = getCacheFileName(it, emojiCompatMetadata)
+                    emojiFileCache.getOrPut(cacheFileName) {
                         loadSingleCategory(
                             context,
                             emojiCompatMetadata,
                             ta.getResourceId(it, 0)
                         )
-                    )
+                    }.let { data -> EmojiDataCategory(categoryNames[it], data) }
                 }.toList()
             }
 
@@ -81,6 +81,18 @@ internal object BundledEmojiListLoader {
             .map { filterRenderableEmojis(it.split(","), emojiCompatMetadata) }
             .filter { it.isNotEmpty() }
             .map { EmojiData(it.first(), it.drop(1)) }
+
+    private fun getCacheFileName(
+        categoryIndex: Int,
+        emojiCompatMetadata: EmojiPickerView.EmojiCompatMetadata
+    ) = StringBuilder().append("emoji.v1.")
+        .append(emojiCompatMetadata.hashCode())
+        .append(".")
+        .append(categoryIndex)
+        .append(".")
+        .append(
+            if (UnicodeRenderableManager.isEmoji12Supported(emojiCompatMetadata)) 1 else 0
+        ).toString()
 
     /**
      * To eliminate 'Tofu' (the fallback glyph when an emoji is not renderable), check the
