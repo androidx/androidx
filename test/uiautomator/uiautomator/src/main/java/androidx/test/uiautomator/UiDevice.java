@@ -1050,7 +1050,18 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Retrieves default launcher package name
+     * Retrieves the default launcher package name.
+     *
+     * <p>As of Android 11 (API level 30), apps must declare the packages and intents they intend
+     * to query. To use this method, an app will need to include the following in its manifest:
+     * <pre>{@code
+     * <queries>
+     *   <intent>
+     *     <action android:name="android.intent.action.MAIN"/>
+     *     <category android:name="android.intent.category.HOME"/>
+     *   </intent>
+     * </queries>
+     * }</pre>
      *
      * @return package name of the default launcher
      */
