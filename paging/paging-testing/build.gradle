@@ -40,7 +40,7 @@ androidx {
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
 }
 
 android {
