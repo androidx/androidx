@@ -495,6 +495,117 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun basicParameterAdapter_string() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity WHERE string = :arg")
+              fun stringParam(arg: String): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE string = :arg")
+              fun nullableStringParam(arg: String?): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val string: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun collectionParameterAdapter_string() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity WHERE string IN (:arg)")
+              fun listOfString(arg: List<String>): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE string IN (:arg)")
+              fun nullableListOfString(arg: List<String>?): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE string IN (:arg)")
+              fun listOfNullableString(arg: List<String?>): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE string IN (:arg)")
+              fun setOfString(arg: Set<String>): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val string: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun arrayParameterAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun arrayOfString(arg: Array<String>): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun nullableArrayOfString(arg: Array<String>?): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun arrayOfNullableString(arg: Array<String?>): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun varargOfString(vararg arg: String): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun varargOfNullableString(vararg arg: String?): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun primitiveIntArray(arg: IntArray): MyEntity
+
+              @Query("SELECT * FROM MyEntity WHERE id IN (:arg)")
+              fun nullablePrimitiveIntArray(arg: IntArray?): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val id: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

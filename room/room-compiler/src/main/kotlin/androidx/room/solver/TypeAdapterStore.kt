@@ -850,7 +850,7 @@ class TypeAdapterStore private constructor(
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             // An adapter for the collection type arg wrapped in the built-in collection adapter.
             val wrappedCollectionAdapter = findStatementValueBinder(typeArg, null)?.let {
-                CollectionQueryParameterAdapter(it)
+                CollectionQueryParameterAdapter(it, typeMirror.nullability)
             }
             // An adapter for the collection itself, likely a user provided type converter for the
             // collection.
@@ -868,7 +868,7 @@ class TypeAdapterStore private constructor(
         } else if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val component = typeMirror.componentType
             val binder = findStatementValueBinder(component, null) ?: return null
-            return ArrayQueryParameterAdapter(binder)
+            return ArrayQueryParameterAdapter(binder, typeMirror.nullability)
         } else {
             val binder = findStatementValueBinder(typeMirror, null) ?: return null
             return BasicQueryParameterAdapter(binder)

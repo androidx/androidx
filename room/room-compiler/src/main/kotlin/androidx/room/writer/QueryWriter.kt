@@ -74,12 +74,11 @@ class QueryWriter(
         scope.builder.apply {
             if (varargParams.isNotEmpty()) {
                 val stringBuilderVar = scope.getTmpVar("_stringBuilder")
-                // TODO(b/127483380): Consider using `buildString { }` for Kotlin codegen
                 addLocalVal(
                     stringBuilderVar,
                     StringBuilder::class.asClassName(),
-                    "%T.newStringBuilder()",
-                    RoomTypeNames.STRING_UTIL
+                    "%M()",
+                    RoomTypeNames.STRING_UTIL.packageMember("newStringBuilder")
                 )
                 query.sections.forEach { section ->
                     when (section) {
