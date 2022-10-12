@@ -35,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
@@ -91,7 +90,6 @@ public final class RgbaImageProxy implements ImageProxy {
      *
      * <p>The {@link Bitmap} must be {@link Bitmap.Config#ARGB_8888}.
      */
-    @VisibleForTesting
     public RgbaImageProxy(@NonNull Bitmap bitmap, @NonNull Rect cropRect, int rotationDegrees,
             @NonNull Matrix sensorToBuffer, long timestamp) {
         this(createDirectByteBuffer(bitmap),
