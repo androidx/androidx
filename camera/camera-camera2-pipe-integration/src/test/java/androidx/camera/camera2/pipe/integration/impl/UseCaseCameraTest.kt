@@ -105,6 +105,7 @@ class UseCaseCameraTest {
                 useCaseThreads,
                 CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
             ),
+            threads = useCaseThreads,
             requestControl = requestControl
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
