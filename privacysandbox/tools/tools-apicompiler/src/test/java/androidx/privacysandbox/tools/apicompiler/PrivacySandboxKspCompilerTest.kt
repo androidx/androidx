@@ -52,6 +52,11 @@ class PrivacySandboxKspCompilerTest {
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
                 "com/mysdk/MySdkStubDelegate.kt",
                 "com/mysdk/TransportCancellationCallback.kt",
+                "com/mysdk/ResponseConverter.kt",
+                "com/mysdk/RequestConverter.kt",
+                "com/mysdk/ParcelableRequest.java",
+                "com/mysdk/ParcelableResponse.java",
+                "com/mysdk/IResponseTransactionCallback.java",
             )
         }.also {
             it.generatesSourcesWithContents(expectedOutput)

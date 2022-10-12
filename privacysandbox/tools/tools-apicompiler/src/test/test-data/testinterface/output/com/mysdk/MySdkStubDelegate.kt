@@ -1,5 +1,7 @@
 package com.mysdk
 
+import com.mysdk.RequestConverter.fromParcelable
+import com.mysdk.ResponseConverter.toParcelable
 import kotlin.Int
 import kotlin.Unit
 import kotlinx.coroutines.Dispatchers
@@ -27,5 +29,22 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun doMoreStuff(): Unit = delegate.doMoreStuff()
+  public override fun handleRequest(request: ParcelableRequest,
+      transactionCallback: IResponseTransactionCallback): Unit {
+    val job = GlobalScope.launch(Dispatchers.Main) {
+      try {
+        val result = delegate.handleRequest(fromParcelable(request))
+        transactionCallback.onSuccess(toParcelable(result))
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(404, t.message)
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
+  }
+
+  public override fun doMoreStuff(): Unit {
+    delegate.doMoreStuff()
+  }
 }

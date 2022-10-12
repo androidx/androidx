@@ -19,6 +19,8 @@ package androidx.privacysandbox.tools.apicompiler.generator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
+import androidx.privacysandbox.tools.core.generator.converterNameSpec
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import java.nio.file.Files.createTempDirectory
@@ -31,8 +33,19 @@ class SdkCodeGenerator(
 ) {
     fun generate() {
         generateAidlSources()
+        generateValueConverters()
         AbstractSdkProviderGenerator(codeGenerator, api).generate()
         StubDelegatesGenerator(codeGenerator, api).generate()
+    }
+
+    private fun generateValueConverters() {
+        api.values.forEach { value ->
+            val file = ValueConverterFileGenerator(api, value).generate()
+            codeGenerator.createNewFile(
+                Dependencies(false), value.converterNameSpec().packageName,
+                value.converterNameSpec().simpleName,
+            ).write(file)
+        }
     }
 
     private fun generateAidlSources() {
