@@ -22,17 +22,46 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.google.protobuf")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
-androidXMultiplatform {
-    jvm() {
-        withJava()
+android {
+    externalNativeBuild {
+        cmake {
+            path "src/androidMain/cpp/CMakeLists.txt"
+            version libs.versions.cmake.get()
+        }
     }
+    namespace "androidx.datastore.core"
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    // Generates the java proto-lite code for the protos in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
+androidXMultiplatform {
+    jvm()
     mac()
     linux()
     ios()
+    android()
 
     sourceSets {
         all {
@@ -49,6 +78,9 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.3.0")
             }
+        }
+        androidMain {
+            dependsOn(jvmMain)
         }
 
         commonTest {
@@ -69,6 +101,17 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-kmp"))
                 implementation(project(":internal-testutils-datastore"))
+            }
+        }
+
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.protobufLite)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
             }
         }
 
