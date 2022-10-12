@@ -64,6 +64,9 @@ class UseCaseSurfaceManager @Inject constructor(
     @GuardedBy("lock")
     private var stopDeferred: CompletableDeferred<Unit>? = null
 
+    @GuardedBy("lock")
+    private var _sessionConfigAdapter: SessionConfigAdapter? = null
+
     /**
      * Async set up the Surfaces to the [CameraGraph]
      */
@@ -91,6 +94,7 @@ class UseCaseSurfaceManager @Inject constructor(
                         configuredSurfaceMap = deferrableSurfaces.associateBy { deferrableSurface ->
                             surfaces[deferrableSurfaces.indexOf(deferrableSurface)]!!
                         }
+                        _sessionConfigAdapter = sessionConfigAdapter
                         setSurfaceListener()
                     }
 
@@ -142,7 +146,12 @@ class UseCaseSurfaceManager @Inject constructor(
                 if (!activeSurfaceMap.containsKey(surface)) {
                     Log.debug { "SurfaceActive $it in ${this@UseCaseSurfaceManager}" }
                     activeSurfaceMap[surface] = it
-                    it.incrementUseCount()
+                    try {
+                        it.incrementUseCount()
+                    } catch (e: SurfaceClosedException) {
+                        Log.error(e) { "Error when $surface going to increase the use count." }
+                        _sessionConfigAdapter?.reportSurfaceInvalid(e.deferrableSurface)
+                    }
                 }
             }
         }
@@ -152,7 +161,11 @@ class UseCaseSurfaceManager @Inject constructor(
         synchronized(lock) {
             activeSurfaceMap.remove(surface)?.let {
                 Log.debug { "SurfaceInactive $it in ${this@UseCaseSurfaceManager}" }
-                it.decrementUseCount()
+                try {
+                    it.decrementUseCount()
+                } catch (e: IllegalStateException) {
+                    Log.error(e) { "Error when $surface going to decrease the use count." }
+                }
                 tryClearSurfaceListener()
             }
         }
@@ -167,6 +180,7 @@ class UseCaseSurfaceManager @Inject constructor(
             if (activeSurfaceMap.isEmpty() && configuredSurfaceMap == null) {
                 Log.debug { "${this@UseCaseSurfaceManager} remove surface listener" }
                 cameraPipe.cameraSurfaceManager().removeListener(this)
+                _sessionConfigAdapter = null
                 stopDeferred?.complete(Unit)
             }
         }
