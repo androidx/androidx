@@ -51,9 +51,8 @@ dependencies {
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
-    runApiTasks = new RunApiTasks.No("Tools-core is an implementation detail of other libraries.")
 }
