@@ -18,6 +18,7 @@ package androidx.health.services.client.data
 
 import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.data.ExerciseEndReason.Companion.toProto
 import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
 import androidx.health.services.client.proto.DataProto
@@ -27,7 +28,7 @@ import java.time.Instant
 
 /** Contains the latest updated state and metrics for the current exercise. */
 @Suppress("ParcelCreator")
-public class ExerciseUpdate(
+public class ExerciseUpdate internal constructor(
     /** Returns the list of the latest [DataPoint]s. */
     public val latestMetrics: DataPointContainer,
 
@@ -71,7 +72,7 @@ public class ExerciseUpdate(
     public val startTime: Instant? = null,
 ) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY)
     public constructor(
         proto: DataProto.ExerciseUpdate
     ) : this(
@@ -123,7 +124,7 @@ public class ExerciseUpdate(
     ) {
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY)
         internal fun toProto(): DataProto.ExerciseUpdate.ActiveDurationCheckpoint =
             DataProto.ExerciseUpdate.ActiveDurationCheckpoint.newBuilder()
                 .setTimeEpochMs(time.toEpochMilli())
@@ -153,7 +154,7 @@ public class ExerciseUpdate(
 
         internal companion object {
             /** @hide */
-            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            @RestrictTo(Scope.LIBRARY)
             internal fun fromProto(
                 proto: DataProto.ExerciseUpdate.ActiveDurationCheckpoint
             ): ActiveDurationCheckpoint? =
