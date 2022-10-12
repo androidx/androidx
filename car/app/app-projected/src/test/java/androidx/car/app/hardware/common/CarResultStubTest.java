@@ -33,10 +33,12 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -45,6 +47,8 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarResultStubTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private ICarHost mMockCarHost;
@@ -60,10 +64,8 @@ public class CarResultStubTest {
     @Mock
     OnCarDataAvailableListener<Integer> mMockCarDataListener;
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
         // Perform after mocks initialized.
         mCarHardwareHost = new TestCarHardwareHostStub(mMockCarHardwareHost);
 

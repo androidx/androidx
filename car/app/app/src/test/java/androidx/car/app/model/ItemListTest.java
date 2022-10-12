@@ -29,20 +29,13 @@ import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
-import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -52,18 +45,6 @@ import java.util.Collections;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ItemListTest {
-    @Rule
-    public final MockitoRule mockito = MockitoJUnit.rule();
-
-    @Mock
-    private IOnDoneCallback.Stub mMockOnDoneCallback;
-
-    @SuppressWarnings("deprecation") // b/239955611
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
     public void createEmpty() {
         ItemList list = new ItemList.Builder().build();
@@ -313,19 +294,23 @@ public class ItemListTest {
     public void toBuilder_fieldsCanBeOverwritten() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList = new ItemList.Builder()
-                .setOnSelectedListener((index) -> {})
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener((start, end) -> {})
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
                 .addItem(row)
                 .build();
 
         // Verify fields can be overwritten (no crash)
         itemList.toBuilder()
-                .setOnSelectedListener((index) -> {})
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener((start, end) -> {})
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
                 .clearItems()
                 .addItem(row)
                 .build();
@@ -334,24 +319,26 @@ public class ItemListTest {
     private static ItemList createFullyPopulatedRowItemList() {
         Row row = new Row.Builder().setTitle("Title").build();
         return new ItemList.Builder()
-            .setOnSelectedListener((index) -> {})
-            .setNoItemsMessage("no items")
-            .setSelectedIndex(0)
-            .setOnItemsVisibilityChangedListener((start, end) -> {})
-            .addItem(row)
-            .build();
+                .setOnSelectedListener((index) -> {
+                })
+                .setNoItemsMessage("no items")
+                .setSelectedIndex(0)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
+                .addItem(row)
+                .build();
     }
 
     private static ItemList createFullyPopulatedGridItemList() {
         GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
         return new ItemList.Builder()
-            .setOnSelectedListener((index) -> {
-            })
-            .setNoItemsMessage("no items")
-            .setSelectedIndex(0)
-            .setOnItemsVisibilityChangedListener((start, end) -> {
-            })
-            .addItem(gridItem)
-            .build();
+                .setOnSelectedListener((index) -> {
+                })
+                .setNoItemsMessage("no items")
+                .setSelectedIndex(0)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
+                .addItem(gridItem)
+                .build();
     }
 }

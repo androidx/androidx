@@ -30,9 +30,11 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -47,16 +49,17 @@ import java.util.concurrent.Executors;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class PropertyManagerTest extends MockedCarTestBase {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
     private static final List<CarZone> CAR_ZONE_GLOBAL =
             Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
     private PropertyManager mPropertyManager;
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
         super.setUp();
-        MockitoAnnotations.initMocks(this);
 
         // Sets application's permission
         Application application = ApplicationProvider.getApplicationContext();
