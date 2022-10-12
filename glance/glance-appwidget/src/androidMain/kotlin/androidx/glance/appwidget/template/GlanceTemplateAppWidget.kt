@@ -38,13 +38,17 @@ import androidx.glance.template.TemplateMode
 abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
     companion object {
-        private val COLLAPSED = DpSize(30.dp, 30.dp)
-        private val HORIZONTAL_S = DpSize(241.dp, 30.dp)
-        private val HORIZONTAL_M = DpSize(241.dp, 200.dp)
-        private val HORIZONTAL_L = DpSize(350.dp, 200.dp)
-        private val VERTICAL_S = DpSize(30.dp, 241.dp)
-        private val VERTICAL_M = DpSize(200.dp, 241.dp)
-        private val VERTICAL_L = DpSize(200.dp, 350.dp)
+        internal val sizeMin = 30.dp
+        internal val sizeS = 200.dp
+        internal val sizeM = 241.dp
+        internal val sizeL = 350.dp
+        private val COLLAPSED = DpSize(sizeMin, sizeMin)
+        private val HORIZONTAL_S = DpSize(sizeM, sizeMin)
+        private val HORIZONTAL_M = DpSize(sizeM, sizeS)
+        private val HORIZONTAL_L = DpSize(sizeL, sizeS)
+        private val VERTICAL_S = DpSize(sizeMin, sizeM)
+        private val VERTICAL_M = DpSize(sizeS, sizeM)
+        private val VERTICAL_L = DpSize(sizeS, sizeL)
     }
 
     /** Default widget size mode is [SizeMode.Responsive] */
