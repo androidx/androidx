@@ -30,20 +30,20 @@ class FloorsClimbedRecordTest {
     fun validRecord_equals() {
         Truth.assertThat(
                 FloorsClimbedRecord(
-                    10.0,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    floors = 10.0,
                 )
             )
             .isEqualTo(
                 FloorsClimbedRecord(
-                    10.0,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    floors = 10.0,
                 )
             )
     }
@@ -52,11 +52,11 @@ class FloorsClimbedRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             FloorsClimbedRecord(
-                10.0,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                floors = 10.0,
             )
         }
     }

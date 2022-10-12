@@ -31,20 +31,20 @@ class ExerciseLapRecordTest {
     fun validRecord_equals() {
         assertThat(
                 ExerciseLapRecord(
-                    10.0.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    length = 10.0.meters,
                 )
             )
             .isEqualTo(
                 ExerciseLapRecord(
-                    10.0.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    length = 10.0.meters,
                 )
             )
     }
@@ -53,11 +53,11 @@ class ExerciseLapRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseLapRecord(
-                10.0.meters,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                length = 10.0.meters,
             )
         }
     }

@@ -23,6 +23,10 @@ import java.time.ZoneOffset
 
 /** Captures the number of repetitions in an exercise set. */
 public class ExerciseRepetitionsRecord(
+    override val startTime: Instant,
+    override val startZoneOffset: ZoneOffset?,
+    override val endTime: Instant,
+    override val endZoneOffset: ZoneOffset?,
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
     /**
@@ -31,10 +35,6 @@ public class ExerciseRepetitionsRecord(
      * @see ExerciseType
      */
     @property:ExerciseTypes public val type: String,
-    override val startTime: Instant,
-    override val startZoneOffset: ZoneOffset?,
-    override val endTime: Instant,
-    override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

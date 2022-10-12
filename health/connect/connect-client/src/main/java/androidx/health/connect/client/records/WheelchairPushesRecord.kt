@@ -26,12 +26,12 @@ import java.time.ZoneOffset
  * the start of the interval in which pushes were made.
  */
 public class WheelchairPushesRecord(
-    /** Count. Required field. Valid range: 1-1000000. */
-    public val count: Long,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Count. Required field. Valid range: 1-1000000. */
+    public val count: Long,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

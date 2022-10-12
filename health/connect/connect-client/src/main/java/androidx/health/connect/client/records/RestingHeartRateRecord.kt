@@ -26,10 +26,10 @@ import java.time.ZoneOffset
  * measurement.
  */
 public class RestingHeartRateRecord(
-    /** Heart beats per minute. Required field. Validation range: 1-300. */
-    public val beatsPerMinute: Long,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Heart beats per minute. Required field. Validation range: 1-300. */
+    public val beatsPerMinute: Long,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     init {

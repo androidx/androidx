@@ -31,20 +31,20 @@ class DistanceRecordTest {
     fun validRecord_equals() {
         assertThat(
                 DistanceRecord(
-                    10.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    distance = 10.meters,
                 )
             )
             .isEqualTo(
                 DistanceRecord(
-                    10.meters,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    distance = 10.meters,
                 )
             )
     }
@@ -53,11 +53,11 @@ class DistanceRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             DistanceRecord(
-                10.meters,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                distance = 10.meters,
             )
         }
     }

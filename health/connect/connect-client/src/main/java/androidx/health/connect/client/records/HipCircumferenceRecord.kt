@@ -23,10 +23,10 @@ import java.time.ZoneOffset
 
 /** Captures the user's hip circumference. */
 public class HipCircumferenceRecord(
-    /** Circumference in [Length] unit. Required field. Valid range: 0-10 meters. */
-    public val circumference: Length,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Circumference in [Length] unit. Required field. Valid range: 0-10 meters. */
+    public val circumference: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

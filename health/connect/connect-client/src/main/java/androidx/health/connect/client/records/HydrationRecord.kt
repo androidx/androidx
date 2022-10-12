@@ -24,12 +24,12 @@ import java.time.ZoneOffset
 
 /** Captures how much water a user drank in a single drink. */
 public class HydrationRecord(
-    /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
-    public val volume: Volume,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
+    public val volume: Volume,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

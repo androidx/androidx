@@ -30,20 +30,20 @@ class SleepStageRecordTest {
     fun validRecord_equals() {
         assertThat(
                 SleepStageRecord(
-                    SleepStageRecord.StageType.AWAKE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    stage = SleepStageRecord.StageType.AWAKE,
                 )
             )
             .isEqualTo(
                 SleepStageRecord(
-                    SleepStageRecord.StageType.AWAKE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    stage = SleepStageRecord.StageType.AWAKE,
                 )
             )
     }
@@ -52,11 +52,11 @@ class SleepStageRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             SleepStageRecord(
-                SleepStageRecord.StageType.AWAKE,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                stage = SleepStageRecord.StageType.AWAKE,
             )
         }
     }

@@ -27,16 +27,16 @@ import java.time.ZoneOffset
  * @see SleepSessionRecord
  */
 public class SleepStageRecord(
+    override val startTime: Instant,
+    override val startZoneOffset: ZoneOffset?,
+    override val endTime: Instant,
+    override val endZoneOffset: ZoneOffset?,
     /**
      * Type of sleep stage. Required field. Allowed values: [StageType].
      *
      * @see StageType
      */
     @property:StageTypes public val stage: String,
-    override val startTime: Instant,
-    override val startZoneOffset: ZoneOffset?,
-    override val endTime: Instant,
-    override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

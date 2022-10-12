@@ -26,6 +26,8 @@ import java.time.ZoneOffset
  * field is optional.
  */
 public class SexualActivityRecord(
+    override val time: Instant,
+    override val zoneOffset: ZoneOffset?,
     /**
      * Whether protection was used during sexual activity. Optional field, null if unknown. Allowed
      * values: [Protection].
@@ -33,8 +35,6 @@ public class SexualActivityRecord(
      * @see Protection
      */
     @property:Protections public val protectionUsed: String? = null,
-    override val time: Instant,
-    override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {

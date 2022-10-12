@@ -31,20 +31,20 @@ class HydrationRecordTest {
     fun validRecord_equals() {
         assertThat(
                 HydrationRecord(
-                    10.liters,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    volume = 10.liters,
                 )
             )
             .isEqualTo(
                 HydrationRecord(
-                    10.liters,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    volume = 10.liters,
                 )
             )
     }
@@ -53,11 +53,11 @@ class HydrationRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             HydrationRecord(
-                10.liters,
                 startTime = Instant.ofEpochMilli(1234L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                volume = 10.liters,
             )
         }
     }

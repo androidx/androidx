@@ -30,22 +30,22 @@ class ExerciseEventRepetitionsTest {
     fun validRecord_equals() {
         assertThat(
                 ExerciseRepetitionsRecord(
-                    10,
-                    ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    count = 10,
+                    type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
                 )
             )
             .isEqualTo(
                 ExerciseRepetitionsRecord(
-                    10,
-                    ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    count = 10,
+                    type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
                 )
             )
     }
@@ -54,12 +54,12 @@ class ExerciseEventRepetitionsTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseRepetitionsRecord(
-                10,
-                ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
                 startTime = Instant.ofEpochMilli(1234L),
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                count = 10,
+                type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
             )
         }
     }
