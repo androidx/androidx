@@ -30,7 +30,6 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
-import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomPagingGuavaTypeNames
 import androidx.room.ext.RoomPagingRx2TypeNames
@@ -281,10 +280,7 @@ object COMMON {
     }
 
     val COROUTINES_ROOM by lazy {
-        loadJavaCode(
-            "common/input/CoroutinesRoom.java",
-            RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()
-        )
+        loadKotlinCode("common/input/CoroutinesRoom.kt")
     }
 
     val CHANNEL by lazy {
@@ -329,6 +325,11 @@ fun testCodeGenScope(): CodeGenScope {
 fun loadJavaCode(fileName: String, qName: String): Source {
     val contents = File("src/test/test-data/$fileName").readText(Charsets.UTF_8)
     return Source.java(qName, contents)
+}
+
+fun loadKotlinCode(fileName: String): Source {
+    val contents = File("src/test/test-data/$fileName").readText(Charsets.UTF_8)
+    return Source.kotlin(fileName, contents)
 }
 
 fun loadTestSource(fileName: String, qName: String): Source {

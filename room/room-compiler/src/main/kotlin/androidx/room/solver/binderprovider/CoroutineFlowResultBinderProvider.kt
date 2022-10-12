@@ -16,9 +16,10 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -33,7 +34,7 @@ fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvid
         context
     ).requireArtifact(
         context = context,
-        requiredType = RoomCoroutinesTypeNames.COROUTINES_ROOM,
+        requiredType = COROUTINES_ROOM.toJavaPoet(),
         missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT
     )
 

@@ -68,9 +68,17 @@ object FunSpecHelper {
             } else if (executableElement.isProtected()) {
                 addModifiers(KModifier.PROTECTED)
             }
+            if (executableElement.isSuspendFunction()) {
+                addModifiers(KModifier.SUSPEND)
+            }
             // TODO(b/251316420): Add type variable names
             val isVarArgs = executableElement.isVarArgs()
-            resolvedType.parameterTypes.forEachIndexed { index, paramType ->
+            resolvedType.parameterTypes.let {
+                // Drop the synthetic Continuation param of suspend functions, always at the last
+                // position.
+                // TODO(b/254135327): Revisit with the introduction of a target language.
+                if (resolvedType.isSuspendFunction()) it.dropLast(1) else it
+            }.forEachIndexed { index, paramType ->
                 val modifiers = if (isVarArgs && index == resolvedType.parameterTypes.size - 1) {
                     arrayOf(KModifier.VARARG)
                 } else {
@@ -82,7 +90,13 @@ object FunSpecHelper {
                     *modifiers
                 )
             }
-            returns(resolvedType.returnType.asTypeName().kotlin)
+            returns(
+                if (resolvedType.isSuspendFunction()) {
+                    resolvedType.getSuspendFunctionReturnType()
+                } else {
+                    resolvedType.returnType
+                }.asTypeName().kotlin
+            )
         }
     }
 }

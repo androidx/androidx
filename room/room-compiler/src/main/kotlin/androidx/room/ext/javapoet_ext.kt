@@ -16,7 +16,14 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.asClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -135,7 +142,7 @@ object LifecyclesTypeNames {
 object AndroidTypeNames {
     val CURSOR: XClassName = XClassName.get("android.database", "Cursor")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
-    val CANCELLATION_SIGNAL: ClassName = ClassName.get("android.os", "CancellationSignal")
+    val CANCELLATION_SIGNAL: XClassName = XClassName.get("android.os", "CancellationSignal")
 }
 
 object CollectionTypeNames {
@@ -233,7 +240,7 @@ object RoomPagingRx3TypeNames {
 }
 
 object RoomCoroutinesTypeNames {
-    val COROUTINES_ROOM = ClassName.get(ROOM_PACKAGE, "CoroutinesRoom")
+    val COROUTINES_ROOM = XClassName.get(ROOM_PACKAGE, "CoroutinesRoom")
 }
 
 object KotlinTypeNames {
@@ -274,6 +281,32 @@ fun TypeName.defaultValue(): String {
     }
 }
 
+fun CallableTypeSpec(
+    language: CodeLanguage,
+    parameterTypeName: XTypeName,
+    callBody: XFunSpec.Builder.() -> Unit
+) = XTypeSpec.anonymousClassBuilder(language, "").apply {
+    addSuperinterface(Callable::class.asClassName().parametrizedBy(parameterTypeName))
+    addFunction(
+        XFunSpec.builder(
+            language = language,
+            name = "call",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverridden = true
+        ).apply {
+            returns(parameterTypeName)
+            callBody()
+        }.apply(
+            javaMethodBuilder = {
+                addException(Exception::class.typeName)
+            },
+            kotlinFunctionBuilder = { }
+        ).build()
+    )
+}.build()
+
+// TODO(b/127483380): Remove once XPoet is more widely adopted.
+// @Deprecated("Use CallableTypeSpec, will be removed as part of XPoet migration.")
 fun CallableTypeSpecBuilder(
     parameterTypeName: TypeName,
     callBody: MethodSpec.Builder.() -> Unit

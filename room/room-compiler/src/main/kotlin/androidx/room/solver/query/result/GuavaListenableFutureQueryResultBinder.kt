@@ -49,7 +49,7 @@ class GuavaListenableFutureQueryResultBinder(
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
         scope.builder().addStatement(
             "final $T $L = $T.createCancellationSignal()",
-            AndroidTypeNames.CANCELLATION_SIGNAL,
+            AndroidTypeNames.CANCELLATION_SIGNAL.toJavaPoet(),
             cancellationSignalVar,
             DB_UTIL.toJavaPoet()
         )

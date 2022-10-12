@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
 import androidx.room.solver.CodeGenScope
@@ -63,7 +63,7 @@ class CoroutineFlowResultBinder(
             val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
             addStatement(
                 "return $T.createFlow($N, $L, new $T{$L}, $L)",
-                RoomCoroutinesTypeNames.COROUTINES_ROOM,
+                COROUTINES_ROOM.toJavaPoet(),
                 dbField,
                 if (inTransaction) "true" else "false",
                 String::class.arrayTypeName,

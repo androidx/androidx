@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import COMMON
 import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -462,6 +463,34 @@ class KotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun coroutineResultBinder() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import java.util.UUID
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              suspend fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM),
             expectedFilePath = getTestGoldenPath(testName)
         )
     }
