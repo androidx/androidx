@@ -26,6 +26,7 @@ import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
+import java.io.File
 
 /**
  * Collects baseline profiles using a given [profileBlock].
@@ -42,25 +43,18 @@ fun collectBaselineProfile(
     packageFilters: List<String> = emptyList(),
     profileBlock: MacrobenchmarkScope.() -> Unit,
 ) {
-    require(Build.VERSION.SDK_INT >= 28) {
-        "Baseline Profile Collection requires API 28 or higher."
-    }
-
-    require(Shell.isSessionRooted()) {
-        "Baseline Profile Collection requires a rooted device, and a rooted adb session." +
-            " Use `adb root`."
+    require(
+        Build.VERSION.SDK_INT >= 33 ||
+            (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
+    ) {
+        "Baseline Profile collection requires API 33+, or a rooted" +
+            " device running API 28 or higher and rooted adb session (via `adb root`)."
     }
 
     getInstalledPackageInfo(packageName) // throws clearly if not installed
 
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
-
-    // Disable because we're *creating* a baseline profile, not using it yet
-    val compilationMode = CompilationMode.Partial(
-        baselineProfileMode = BaselineProfileMode.Disable,
-        warmupIterations = iterations
-    )
 
     val killProcessBlock = {
         // When generating baseline profiles we want to default to using
@@ -73,9 +67,13 @@ fun collectBaselineProfile(
     // always kill the process at beginning of a collection.
     killProcessBlock.invoke()
     try {
-        userspaceTrace("compile $packageName") {
-            var iteration = 1
-            compilationMode.resetAndCompile(
+        userspaceTrace("generate profile for $packageName") {
+            var iteration = 0
+            // Disable because we're *creating* a baseline profile, not using it yet
+            CompilationMode.Partial(
+                baselineProfileMode = BaselineProfileMode.Disable,
+                warmupIterations = iterations
+            ).resetAndCompile(
                 packageName = packageName,
                 killProcessBlock = killProcessBlock
             ) {
@@ -83,19 +81,20 @@ fun collectBaselineProfile(
                 profileBlock(scope)
             }
         }
-        // The path of the reference profile
-        val referenceProfile = "/data/misc/profiles/ref/$packageName/primary.prof"
-        // The path to the primary profile
-        val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
-        Log.d(TAG, "Reference profile location: $referenceProfile")
-        val pathResult = Shell.executeScript("pm path $packageName")
-        // The result looks like: `package: <result>`
-        val apkPath = pathResult.substringAfter("package:").trim()
-        Log.d(TAG, "APK Path: $apkPath")
-        // Convert to HRF
-        Log.d(TAG, "Converting to human readable profile format")
-        // Look at reference profile first, and then fallback to current profile
-        val profile = profile(apkPath, listOf(referenceProfile, currentProfile))
+
+        val unfilteredProfile = if (Build.VERSION.SDK_INT >= 33) {
+            extractProfile(packageName)
+        } else {
+            extractProfileRooted(packageName)
+        }
+
+        check(unfilteredProfile.isNotBlank()) {
+            "Generated Profile is empty, before filtering. Ensure your profileBlock" +
+                " invokes the target app, and runs a non-trivial amount of code"
+        }
+
+        val profile = filterProfileRulesToTargetP(unfilteredProfile)
+
         // Build a startup profile
         var startupProfile: String? = null
         if (Arguments.enableStartupProfiles) {
@@ -152,7 +151,59 @@ fun collectBaselineProfile(
     }
 }
 
-private fun profile(apkPath: String, pathOptions: List<String>): String {
+/**
+ * Use `pm dump-profiles` to get profile from the target app,
+ * which puts results in `/data/misc/profman/`
+ *
+ * Does not require root.
+ */
+@RequiresApi(33)
+private fun extractProfile(packageName: String): String {
+    val dumpResult = Shell.executeScriptWithStderr(
+        "pm dump-profiles --dump-classes-and-methods $packageName"
+    )
+    check(dumpResult.isBlank()) {
+        "Expected no stdout/stderr from pm dump-profiles," +
+            " saw '${dumpResult.stdout}', '${dumpResult.stderr}'"
+    }
+    val fileName = "$packageName-primary.prof.txt"
+    val mvResult = Shell.executeScriptWithStderr(
+        "mv /data/misc/profman/$fileName ${Outputs.dirUsableByAppAndShell}/"
+    )
+    check(mvResult.isBlank()) {
+        "Expected no stdout/stderr from mv, saw '${mvResult.stdout}', '${mvResult.stderr}'"
+    }
+
+    val rawRuleOutput = File(Outputs.dirUsableByAppAndShell, fileName)
+    try {
+        return rawRuleOutput.readText()
+    } finally {
+        rawRuleOutput.delete()
+    }
+}
+
+/**
+ * Use profman to extract profiles from the current or reference profile
+ *
+ * Requires root.
+ */
+private fun extractProfileRooted(packageName: String): String {
+    // The path of the reference profile
+    val referenceProfile = "/data/misc/profiles/ref/$packageName/primary.prof"
+    // The path to the primary profile
+    val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
+    Log.d(TAG, "Reference profile location: $referenceProfile")
+    val pathResult = Shell.executeScript("pm path $packageName")
+    // The result looks like: `package: <result>`
+    val apkPath = pathResult.substringAfter("package:").trim()
+    Log.d(TAG, "APK Path: $apkPath")
+    // Convert to HRF
+    Log.d(TAG, "Converting to human readable profile format")
+    // Look at reference profile first, and then fallback to current profile
+    return profmanGetProfileRules(apkPath, listOf(referenceProfile, currentProfile))
+}
+
+private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): String {
     // When compiling with CompilationMode.SpeedProfile, ART stores the profile in one of
     // 2 locations. The `ref` profile path, or the `current` path.
     // The `current` path is eventually merged  into the `ref` path after background dexopt.
@@ -162,7 +213,7 @@ private fun profile(apkPath: String, pathOptions: List<String>): String {
             "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
         )
         if (profile.isNotBlank()) {
-            return filterProfileRulesToTargetP(profile)
+            return profile
         }
     }
     throw IllegalStateException("The profile is empty.")

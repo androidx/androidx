@@ -235,7 +235,9 @@ public class ProfileInstaller {
             RESULT_PARSE_EXCEPTION,
             RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND,
             RESULT_INSTALL_SKIP_FILE_SUCCESS,
-            RESULT_DELETE_SKIP_FILE_SUCCESS
+            RESULT_DELETE_SKIP_FILE_SUCCESS,
+            RESULT_SAVE_PROFILE_SIGNALLED,
+            RESULT_SAVE_PROFILE_SKIPPED
     })
     public @interface ResultCode {}
 
@@ -307,6 +309,16 @@ public class ProfileInstaller {
      * Indicates that a skip file was successfully deleted and profile installation will resume.
      */
     @ResultCode public static final int RESULT_DELETE_SKIP_FILE_SUCCESS = 11;
+
+    /**
+     * Indicates that this process was signalled to save it's profile information
+     */
+    @ResultCode public static final int RESULT_SAVE_PROFILE_SIGNALLED = 12;
+
+    /**
+     * Indicates that this process was not able to signal itself to save profile information
+     */
+    @ResultCode public static final int RESULT_SAVE_PROFILE_SKIPPED = 13;
 
     /**
      * Check if we've already installed a profile for this app installation.
