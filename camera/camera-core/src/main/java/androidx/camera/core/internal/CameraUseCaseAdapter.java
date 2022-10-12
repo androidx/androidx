@@ -459,6 +459,9 @@ public final class CameraUseCaseAdapter implements Camera {
                 preview.setProcessor(new SurfaceProcessorWithExecutor(
                         requireNonNull(effect.getSurfaceProcessor()),
                         effect.getExecutor()));
+            } else if (useCase instanceof ImageCapture) {
+                ImageCapture imageCapture = ((ImageCapture) useCase);
+                imageCapture.setEffect(effectsByTargets.get(CameraEffect.IMAGE_CAPTURE));
             }
         }
     }
