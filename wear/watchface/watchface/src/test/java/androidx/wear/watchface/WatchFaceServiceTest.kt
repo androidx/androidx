@@ -2884,6 +2884,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    @Suppress("NewApi")
     public fun complicationCachePolicy() {
         val complicationCache = HashMap<String, ByteArray>()
         val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
@@ -6146,6 +6147,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    @Suppress("NewApi")
     public fun doNotDisplayComplicationWhenScreenLocked() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,

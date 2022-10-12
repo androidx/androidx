@@ -23,6 +23,7 @@ import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.FloatRange
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
@@ -197,6 +198,7 @@ public sealed class ComplicationData constructor(
          * Sets the complication's [ComplicationPersistencePolicy].
          */
         @Suppress("UNCHECKED_CAST", "SetterReturnsThis")
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public fun setPersistencePolicy(@ComplicationPersistencePolicy persistencePolicy: Int): T {
             this.persistencePolicy = persistencePolicy
             return this as T
@@ -206,6 +208,7 @@ public sealed class ComplicationData constructor(
          * Sets the complication's [ComplicationDisplayPolicy].
          */
         @Suppress("UNCHECKED_CAST", "SetterReturnsThis")
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public fun setDisplayPolicy(@ComplicationDisplayPolicy displayPolicy: Int): T {
             this.displayPolicy = displayPolicy
             return this as T
@@ -3144,6 +3147,7 @@ public class NoPermissionComplicationData internal constructor(
 }
 
 @OptIn(ComplicationExperimental::class)
+@Suppress("NewApi")
 internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationData? {
     // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
     val dataSourceCopy = dataSource
@@ -3347,6 +3351,7 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
  */
 @OptIn(ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("NewApi")
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
     // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
     val dataSourceCopy = dataSource
