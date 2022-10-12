@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.Type
 import com.squareup.kotlinpoet.ClassName
@@ -36,6 +37,15 @@ fun Parameter.poetSpec(): ParameterSpec {
 
 /** [TypeName] equivalent to this parameter. */
 fun Type.poetSpec() = ClassName(packageName, simpleName)
+
+fun AnnotatedValue.converterNameSpec() =
+    ClassName(type.packageName, "${type.simpleName}Converter")
+fun AnnotatedValue.toParcelableNameSpec() =
+    MemberName(converterNameSpec(), "toParcelable")
+fun AnnotatedValue.fromParcelableNameSpec() =
+    MemberName(converterNameSpec(), "fromParcelable")
+fun AnnotatedValue.parcelableNameSpec() =
+    ClassName(type.packageName, "Parcelable${type.simpleName}")
 
 /**
  * Defines the primary constructor of this type with the given list of properties.
@@ -92,6 +102,10 @@ fun FunSpec.Builder.addCode(block: CodeBlock.Builder.() -> Unit) {
     addCode(CodeBlock.builder().build { block() })
 }
 
+fun FunSpec.Builder.addStatement(block: CodeBlock.Builder.() -> Unit) {
+    addCode(CodeBlock.builder().build { addStatement(block) })
+}
+
 /** Auto-closing control flow construct and its code. */
 fun CodeBlock.Builder.addControlFlow(
     controlFlow: String,
@@ -109,6 +123,9 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
     builderBlock()
     add("\n»")
 }
+
+fun CodeBlock.Companion.statement(builderBlock: CodeBlock.Builder.() -> Unit) =
+    builder().build { addStatement(builderBlock) }
 
 object SpecNames {
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")

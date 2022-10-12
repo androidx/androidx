@@ -43,9 +43,6 @@ class AidlGenerator private constructor(
         check(api.services.count() <= 1) { "Multiple services are not supported." }
     }
 
-    private val valueMap = api.values.associateBy { it.type }
-    private val callbackMap = api.callbacks.associateBy { it.type }
-
     companion object {
         fun generate(
             aidlCompiler: AidlCompiler,
@@ -125,7 +122,7 @@ class AidlGenerator private constructor(
         addParameter(
             parameter.name,
             getAidlTypeDeclaration(parameter.type),
-            isIn = valueMap.containsKey(parameter.type)
+            isIn = api.valueMap.containsKey(parameter.type)
         )
     }
 
@@ -156,7 +153,7 @@ class AidlGenerator private constructor(
 
     private fun generateValue(value: AnnotatedValue): AidlFileSpec {
         val typesToImport =
-            value.properties.mapNotNull { valueMap[it.type]?.aidlType()?.innerType }.toSet()
+            value.properties.mapNotNull { api.valueMap[it.type]?.aidlType()?.innerType }.toSet()
         return AidlParcelableSpec(type = value.aidlType().innerType,
             typesToImport = typesToImport,
             properties = value.properties.map {
@@ -183,8 +180,8 @@ class AidlGenerator private constructor(
         AidlTypeSpec(Type(api.getOnlyService().type.packageName, type.transactionCallbackName()))
 
     private fun getAidlTypeDeclaration(type: Type): AidlTypeSpec {
-        valueMap[type]?.let { return it.aidlType() }
-        callbackMap[type]?.let { return it.aidlType() }
+        api.valueMap[type]?.let { return it.aidlType() }
+        api.callbackMap[type]?.let { return it.aidlType() }
         return when (type.qualifiedName) {
             Boolean::class.qualifiedName -> primitive("boolean")
             Int::class.qualifiedName -> primitive("int")
