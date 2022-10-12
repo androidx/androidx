@@ -19,7 +19,6 @@ package androidx.benchmark.macro.junit4
 import android.Manifest
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.collectBaselineProfile
 import androidx.test.rule.GrantPermissionRule
@@ -34,8 +33,10 @@ import org.junit.runners.model.Statement
  *
  * These rules are used at install time to partially pre-compile your application code.
  *
+ * `BaselineProfileRule` is only supported on Android 13 (API 33) and above, or if using a rooted
+ * device, Android P (API 28) and above.
+ *
  * ```
- * @ExperimentalBaselineProfilesApi
  * @RunWith(AndroidJUnit4::class)
  * class BaselineProfileGenerator {
  *     @get:Rule
@@ -54,11 +55,10 @@ import org.junit.runners.model.Statement
  * }
  * ```
  *
- * See the [Baseline Profile Guide](https://developer.android.com/studio/profile/baselineprofiles)
- * for more information on creating Baseline Profiles.
+ * See the [Baseline Profile Guide](https://d.android.com/baseline-profiles) for more information
+ * on creating Baseline Profiles.
  */
 @RequiresApi(28)
-@ExperimentalBaselineProfilesApi
 class BaselineProfileRule : TestRule {
     private lateinit var currentDescription: Description
 

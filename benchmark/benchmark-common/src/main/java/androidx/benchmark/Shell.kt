@@ -195,7 +195,18 @@ object Shell {
             .stdout
     }
 
-    data class Output(val stdout: String, val stderr: String)
+    data class Output(val stdout: String, val stderr: String) {
+        /**
+         * Returns true if both stdout and stderr are blank
+         *
+         * This can be used with silent-if-successful shell commands:
+         *
+         * ```
+         * check(Shell.executeScriptWithStderr("mv $src $dest").isBlank()) { "Oh no mv failed!" }
+         * ```
+         */
+        fun isBlank(): Boolean = stdout.isBlank() && stderr.isBlank()
+    }
 
     /**
      * Convenience wrapper around [UiAutomation.executeShellCommand()] which enables redirects,

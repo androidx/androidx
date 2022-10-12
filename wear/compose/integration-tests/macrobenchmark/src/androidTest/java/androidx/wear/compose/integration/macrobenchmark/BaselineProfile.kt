@@ -17,7 +17,6 @@
 package androidx.wear.compose.integration.macrobenchmark.test
 
 import android.content.Intent
-import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -52,7 +51,6 @@ import org.junit.runners.Parameterized
 //      <output-file eg ./wear/compose/compose-material/src/androidMain/baseline-prof.txt>
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalBaselineProfilesApi::class)
 class BaselineProfile {
 
     @get:Rule

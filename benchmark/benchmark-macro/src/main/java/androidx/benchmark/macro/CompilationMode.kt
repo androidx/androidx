@@ -25,11 +25,11 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode.Full
+import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.benchmark.userspaceTrace
 import androidx.profileinstaller.ProfileInstallReceiver
-import androidx.profileinstaller.ProfileInstaller
 import org.junit.AssumptionViolatedException
 
 /**
@@ -159,7 +159,7 @@ sealed class CompilationMode {
      * does not interfere with benchmarks.
      */
     private fun writeProfileInstallerSkipFile(packageName: String, killProcessBlock: () -> Unit) {
-        val result = profileInstallerSkipFileOperation(packageName, "WRITE_SKIP_FILE")
+        val result = ProfileInstallBroadcast.skipFileOperation(packageName, "WRITE_SKIP_FILE")
         if (result != null) {
             Log.w(
                 TAG,
@@ -171,61 +171,6 @@ sealed class CompilationMode {
         }
         Log.d(TAG, "Killing process $packageName")
         killProcessBlock()
-    }
-
-    /**
-     * Uses skip files for avoiding interference from ProfileInstaller when using
-     * [CompilationMode.None].
-     *
-     * Operation name is one of `WRITE_SKIP_FILE` or `DELETE_SKIP_FILE`.
-     *
-     * Returned error strings aren't thrown, to let the calling function decide strictness.
-     */
-    private fun profileInstallerSkipFileOperation(
-        packageName: String,
-        operation: String
-    ): String? {
-        // Redefining constants here, because these are only defined in the latest alpha for
-        // ProfileInstaller.
-
-        // Use an explicit broadcast given the app was force-stopped.
-        val name = ProfileInstallReceiver::class.java.name
-        val action = "androidx.profileinstaller.action.SKIP_FILE"
-        val operationKey = "EXTRA_SKIP_FILE_OPERATION"
-        val extras = "$operationKey $operation"
-        Log.d(TAG, "Profile Installation Skip File Operation: $operation")
-        val result = Shell.executeCommand("am broadcast -a $action -e $extras $packageName/$name")
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
-        return when {
-            result == null || result == 0 -> {
-                // 0 is returned by the platform by default, and also if no broadcast receiver
-                // receives the broadcast.
-
-                "The baseline profile skip file broadcast was not received. " +
-                    "This most likely means that the `androidx.profileinstaller` library " +
-                    "used by the target apk is old. Please use `1.2.0-alpha03` or newer. " +
-                    "For more information refer to the release notes at " +
-                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
-            }
-            operation == "WRITE_SKIP_FILE" && result == 10 -> { // RESULT_INSTALL_SKIP_FILE_SUCCESS
-                null // success!
-            }
-            operation == "DELETE_SKIP_FILE" && result == 11 -> { // RESULT_DELETE_SKIP_FILE_SUCCESS
-                null // success!
-            }
-            else -> {
-                throw RuntimeException(
-                    "unrecognized ProfileInstaller result code: $result"
-                )
-            }
-        }
-    }
-
-    @RequiresApi(24)
-    internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
-        Shell.executeCommand("cmd package compile -f -m $compileArgument $packageName")
     }
 
     @RequiresApi(24)
@@ -337,63 +282,6 @@ sealed class CompilationMode {
             }
         }
 
-        /**
-         * Returns null on success, or an error string otherwise.
-         *
-         * Returned error strings aren't thrown, to let the calling function decide strictness.
-         */
-        private fun broadcastBaselineProfileInstall(packageName: String): String? {
-            // For baseline profiles, we trigger this broadcast to force the baseline profile to be
-            // installed synchronously
-            val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
-            // Use an explicit broadcast given the app was force-stopped.
-            val name = ProfileInstallReceiver::class.java.name
-            val result = Shell.executeCommand("am broadcast -a $action $packageName/$name")
-                .substringAfter("Broadcast completed: result=")
-                .trim()
-                .toIntOrNull()
-            when (result) {
-                null,
-                    // 0 is returned by the platform by default, and also if no broadcast receiver
-                    // receives the broadcast.
-                0 -> {
-                    return "The baseline profile install broadcast was not received. " +
-                        "This most likely means that the profileinstaller library is missing " +
-                        "from the target apk."
-                }
-                ProfileInstaller.RESULT_INSTALL_SUCCESS -> {
-                    return null // success!
-                }
-                ProfileInstaller.RESULT_ALREADY_INSTALLED -> {
-                    throw RuntimeException(
-                        "Unable to install baseline profile. This most likely means that the " +
-                            "latest version of the profileinstaller library is not being used. " +
-                            "Please use the latest profileinstaller library version " +
-                            "in the target app."
-                    )
-                }
-                ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION -> {
-                    throw RuntimeException(
-                        "Baseline profiles aren't supported on this device version"
-                    )
-                }
-                ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND -> {
-                    return "No baseline profile was found in the target apk."
-                }
-                ProfileInstaller.RESULT_NOT_WRITABLE,
-                ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED,
-                ProfileInstaller.RESULT_IO_EXCEPTION,
-                ProfileInstaller.RESULT_PARSE_EXCEPTION -> {
-                    throw RuntimeException("Baseline Profile wasn't successfully installed")
-                }
-                else -> {
-                    throw RuntimeException(
-                        "unrecognized ProfileInstaller result code: $result"
-                    )
-                }
-            }
-        }
-
         override fun compileImpl(
             packageName: String,
             killProcessBlock: () -> Unit,
@@ -401,7 +289,7 @@ sealed class CompilationMode {
         ) {
             if (baselineProfileMode != BaselineProfileMode.Disable) {
                 // Ignores the presence of a skip file.
-                val installErrorString = broadcastBaselineProfileInstall(packageName)
+                val installErrorString = ProfileInstallBroadcast.installProfile(packageName)
                 if (installErrorString == null) {
                     // baseline profile install success, kill process before compiling
                     Log.d(TAG, "Killing process $packageName")
@@ -423,10 +311,26 @@ sealed class CompilationMode {
                 // is in the foreground, dump the profile, wait for another 5 secs before
                 // speed-profile compilation.
                 Thread.sleep(5000)
-                val response = Shell.executeCommand("killall -s SIGUSR1 $packageName")
-                if (response.isNotBlank()) {
-                    Log.d(TAG, "Received dump profile response $response")
-                    throw RuntimeException("Failed to dump profile for $packageName ($response)")
+                val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
+                if (saveResult == null) {
+                    killProcessBlock() // success, have to manually kill process
+                } else {
+                    if (Shell.isSessionRooted()) {
+                        // fallback on `killall -s SIGUSR1`, if available with root
+                        Log.d(
+                            TAG,
+                            "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
+                        )
+                        val response = Shell.executeScriptWithStderr(
+                            "killall -s SIGUSR1 $packageName"
+                        )
+                        check(response.isBlank()) {
+                            "Failed to dump profile for $packageName ($response),\n" +
+                                " and failed to save profile with broadcast: $saveResult"
+                        }
+                    } else {
+                        throw RuntimeException(saveResult)
+                    }
                 }
                 cmdPackageCompile(packageName, "speed-profile")
             }
@@ -511,6 +415,11 @@ sealed class CompilationMode {
         } else {
             // API 23 is always fully compiled
             Full()
+        }
+
+        @RequiresApi(24)
+        internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
+            Shell.executeCommand("cmd package compile -f -m $compileArgument $packageName")
         }
     }
 }

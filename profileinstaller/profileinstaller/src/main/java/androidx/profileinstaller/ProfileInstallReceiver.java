@@ -19,7 +19,9 @@ package androidx.profileinstaller;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +42,17 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
     public static final @NonNull String ACTION_INSTALL_PROFILE =
             "androidx.profileinstaller.action.INSTALL_PROFILE";
 
+    /**
+     * This is the action constant for saving the current in-memory hot method data
+     * to a profile on disk.
+     *
+     * This is to be used with compilation:
+     * <p><code>cmd package compile -f -m speed-profile myPackageName</code>
+     * <p>And with profile extraction (API33+):
+     * <p><code>pm dump-profiles --dump-classes-and-methods</code>
+     */
+    public static final @NonNull String ACTION_SAVE_PROFILE =
+            "androidx.profileinstaller.action.SAVE_PROFILE";
     /**
      * This is an action constant which requests that {@link ProfileInstaller} manipulate the
      * skip file used during profile installation. This is only useful when the app is being
@@ -81,6 +94,29 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
                             context, Runnable::run, new ResultDiagnostics());
                 }
             }
+        } else if (ACTION_SAVE_PROFILE.equals(action)) {
+            saveProfile(new ResultDiagnostics());
+        }
+    }
+
+    /**
+     * Sends SIGUSR1 signal to this process, so that the app will dump its profiles to be used for
+     * profile collection.
+     *
+     * On user builds, this signal can't be sent by a separate (e.g. test) process or shell
+     * process, so instead we flush via this broadcast event.
+     *
+     * Unfortunately, this isn't able to validate that the signal is processed correctly both
+     * because it's async, and because the only way to validate appears to be logcat. For local
+     * debugging, you should see a logcat line containing: `SIGUSR1 forcing GC (no HPROF) and
+     * profile save`
+     */
+    static void saveProfile(@NonNull ProfileInstaller.DiagnosticsCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Process.sendSignal(Process.myPid(), /* SIGUSR1 */ 10);
+            callback.onResultReceived(ProfileInstaller.RESULT_SAVE_PROFILE_SIGNALLED, null);
+        } else {
+            callback.onResultReceived(ProfileInstaller.RESULT_SAVE_PROFILE_SKIPPED, null);
         }
     }
 
