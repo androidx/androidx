@@ -116,6 +116,9 @@ class UseCaseCameraConfig(
 
         if (sessionConfigAdapter.isSessionConfigValid()) {
             useCaseSurfaceManager.setupAsync(graph, sessionConfigAdapter, surfaceToStreamMap)
+                .invokeOnCompletion {
+                    it?.let { Log.error(it) { "Surface setup error!" } }
+                }
         } else {
             Log.debug {
                 "Unable to create capture session due to conflicting configurations"
