@@ -302,3 +302,13 @@ internal object Api28Compat {
         cameraManager.registerAvailabilityCallback(executor, callback)
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Suppress("DEPRECATION")
+internal object Api33Compat {
+    @JvmStatic
+    @DoNotInline
+    fun setMirrorMode(outputConfig: OutputConfiguration, mirrorMode: Int) {
+        outputConfig.mirrorMode = mirrorMode
+    }
+}
