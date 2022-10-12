@@ -148,10 +148,6 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
            |    // Needed for ZipFile
            |    classpath('org.apache.ant:ant:1.10.11')
            |
-           |    // Needed for docs-public
-           |    classpath('org.jetbrains.dokka:dokka-gradle-plugin:0.9.17-g014')
-           |    classpath('org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17-g014')
-           |
            |    // Otherwise, comments get stripped from poms (b/230396269)
            |    classpath('xerces:xercesImpl:2.12.0')
            |  }

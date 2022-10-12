@@ -354,10 +354,3 @@ dependencies {
     docs(project(":work:work-rxjava3"))
     docs(project(":work:work-testing"))
 }
-
-afterEvaluate {
-    // b/172817047 : exploratory workaround to avoid running two dokkaKotlinDocs tasks at once
-    tasks["dokkaKotlinDocs"].configure { task ->
-        task.mustRunAfter(":docs-public:dokkaKotlinDocs")
-    }
-}
