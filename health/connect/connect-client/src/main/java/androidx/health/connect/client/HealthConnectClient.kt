@@ -101,8 +101,8 @@ interface HealthConnectClient {
      * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
-     * @param recordIdsList List of
-     * [androidx.health.connect.client.records.metadata.Metadata.id] of [Record] to delete
+     * @param recordIdsList List of [androidx.health.connect.client.records.metadata.Metadata.id] of
+     * [Record] to delete
      * @param clientRecordIdsList List of client record IDs of [Record] to delete
      * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
      * such as a non-existing identifier or deleting the same record multiple times will result in
@@ -138,8 +138,8 @@ interface HealthConnectClient {
      * Reads one [Record] point with its [recordType] and [recordId].
      *
      * @param recordType Which type of [Record] to read, such as `Steps::class`
-     * @param recordId [androidx.health.connect.client.records.metadata.Metadata.id] of
-     * [Record] to read
+     * @param recordId [androidx.health.connect.client.records.metadata.Metadata.id] of [Record] to
+     * read
      * @return The [Record] data point.
      * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
      * will result in IPC failure.
@@ -282,9 +282,9 @@ interface HealthConnectClient {
      * The client application must have a [BroadcastReceiver][android.content.BroadcastReceiver]
      * registered, either in the `AndroidManifest.xml` file or at runtime. The registered
      * `BroadcastReceiver` must have an [IntentFilter][android.content.IntentFilter] specified with
-     * the same action as in [notificationIntentAction] argument.
-     * [DataNotification][androidx.health.connect.client.datanotification.DataNotification] can be
-     * used to extract data from the received [Intent].
+     * the same action as in [notificationIntentAction] argument. [DataNotification]
+     * [androidx.health.connect.client.datanotification.DataNotification] can be used to extract
+     * data from the received [Intent].
      *
      * @param notificationIntentAction an action to be used for broadcast messages.
      * @param recordTypes specifies [Record] types of interest.
@@ -360,26 +360,27 @@ interface HealthConnectClient {
          * Determines whether an implementation of [HealthConnectClient] is available on this device
          * at the moment.
          *
-         * @param packageNames optional package provider to choose implementation from
+         * @param providerPackageNames optional package provider to choose implementation from
          * @return whether the api is available
          */
         @JvmOverloads
         @JvmStatic
         public fun isAvailable(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
         ): Boolean {
             if (!isSdkVersionSufficient()) {
                 return false
             }
-            return packageNames.any { isPackageInstalled(context.packageManager, it) }
+            return providerPackageNames.any { isPackageInstalled(context.packageManager, it) }
         }
 
         /**
          * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
          *
-         * @param packageNames optional package provider to choose implementation from
+         * @param providerPackageNames optional alternative package provider to choose
+         * implementation from
          * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          * @throws IllegalStateException if service not available due to not installed
@@ -390,16 +391,18 @@ interface HealthConnectClient {
         @JvmStatic
         public fun getOrCreate(
             context: Context,
-            packageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
+            providerPackageNames: List<String> = listOf(DEFAULT_PROVIDER_PACKAGE_NAME),
         ): HealthConnectClient {
             if (!isSdkVersionSufficient()) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            if (!isAvailable(context, packageNames)) {
+            if (!isAvailable(context, providerPackageNames)) {
                 throw IllegalStateException("Service not available")
             }
             val enabledPackage =
-                packageNames.first { isPackageInstalled(context.packageManager, it) }
+                providerPackageNames.first {
+                    isPackageInstalled(context.packageManager, it)
+                }
             return HealthConnectClientImpl(
                 enabledPackage,
                 HealthDataService.getClient(context, enabledPackage)
