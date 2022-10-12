@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -31,9 +32,10 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.joinToCode
 
 internal class ServiceFactoryFileGenerator(
+    private val api: ParsedApi,
     private val service: AnnotatedInterface
 ) {
-    private val proxyTypeGenerator = ClientProxyTypeGenerator(service)
+    private val proxyTypeGenerator = ClientProxyTypeGenerator(api, service)
 
     fun generate(): FileSpec =
         FileSpec.builder(service.type.packageName, "${service.type.simpleName}Factory").build {

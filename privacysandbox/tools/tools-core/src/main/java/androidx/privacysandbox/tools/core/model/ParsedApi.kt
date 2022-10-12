@@ -21,4 +21,7 @@ data class ParsedApi(
     val services: Set<AnnotatedInterface>,
     val values: Set<AnnotatedValue> = emptySet(),
     val callbacks: Set<AnnotatedInterface> = emptySet(),
-)
+) {
+    val valueMap = values.associateBy { it.type }
+    val callbackMap = callbacks.associateBy { it.type }
+}
