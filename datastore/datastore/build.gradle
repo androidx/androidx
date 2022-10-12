@@ -14,48 +14,72 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
 
+def enableNative = KmpPlatformsKt.enableNative(project)
+
 android {
-    sourceSets {
-        androidTest {
-            // Shared TestingSerializer between test and androidTest
-            kotlin.srcDirs += test.kotlin.srcDirs
-        }
-    }
     namespace "androidx.datastore.datastore"
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-    api("androidx.annotation:annotation:1.2.0")
-    api(project(":datastore:datastore-core"))
-    api(project(":datastore:datastore-core-okio"))
+androidXMultiplatform {
+    android()
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
-    testImplementation(project(":internal-testutils-truth"))
+    sourceSets {
+        androidMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.2.0")
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+            }
 
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testCore)
+        }
+        androidAndroidTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+
+        }
+        targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
+    }
 }
 
 androidx {
     name = "Android DataStore"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore - contains the underlying store used by each serialization " +
