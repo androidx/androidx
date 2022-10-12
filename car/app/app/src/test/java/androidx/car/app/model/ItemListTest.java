@@ -91,6 +91,20 @@ public class ItemListTest {
     }
 
     @Test
+    public void clearItems() {
+        Row row1 = new Row.Builder().setTitle("Row1").build();
+        Row row2 = new Row.Builder().setTitle("Row2").build();
+        ItemList list = new ItemList.Builder()
+                .addItem(row1)
+                .clearItems()
+                .addItem(row2)
+                .build();
+
+        assertThat(list.getItems()).hasSize(1);
+        assertThat(list.getItems().get(0)).isEqualTo(row2);
+    }
+
+    @Test
     public void setSelectedable_emptyList_throws() {
         assertThrows(
                 IllegalStateException.class,
@@ -212,54 +226,14 @@ public class ItemListTest {
 
     @Test
     public void equals_itemListWithRows() {
-        Row row = new Row.Builder().setTitle("Title").build();
-        ItemList itemList =
-                new ItemList.Builder()
-                        .setOnSelectedListener((index) -> {
-                        })
-                        .setNoItemsMessage("no items")
-                        .setSelectedIndex(0)
-                        .setOnItemsVisibilityChangedListener((start, end) -> {
-                        })
-                        .addItem(row)
-                        .build();
-        assertThat(itemList)
-                .isEqualTo(
-                        new ItemList.Builder()
-                                .setOnSelectedListener((index) -> {
-                                })
-                                .setNoItemsMessage("no items")
-                                .setSelectedIndex(0)
-                                .setOnItemsVisibilityChangedListener((start, end) -> {
-                                })
-                                .addItem(row)
-                                .build());
+        assertThat(createFullyPopulatedRowItemList())
+                .isEqualTo(createFullyPopulatedRowItemList());
     }
 
     @Test
     public void equals_itemListWithGridItems() {
-        GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
-        ItemList itemList =
-                new ItemList.Builder()
-                        .setOnSelectedListener((index) -> {
-                        })
-                        .setNoItemsMessage("no items")
-                        .setSelectedIndex(0)
-                        .setOnItemsVisibilityChangedListener((start, end) -> {
-                        })
-                        .addItem(gridItem)
-                        .build();
-        assertThat(itemList)
-                .isEqualTo(
-                        new ItemList.Builder()
-                                .setOnSelectedListener((index) -> {
-                                })
-                                .setNoItemsMessage("no items")
-                                .setSelectedIndex(0)
-                                .setOnItemsVisibilityChangedListener((start, end) -> {
-                                })
-                                .addItem(gridItem)
-                                .build());
+        assertThat(createFullyPopulatedGridItemList())
+                .isEqualTo(createFullyPopulatedGridItemList());
     }
 
     @Test
@@ -319,5 +293,65 @@ public class ItemListTest {
         GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
         ItemList itemList = new ItemList.Builder().addItem(gridItem).addItem(gridItem).build();
         assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(gridItem).build());
+    }
+
+    @Test
+    public void toBuilder_createsEquivalentInstance_rows() {
+        ItemList itemList = createFullyPopulatedRowItemList();
+
+        assertThat(itemList).isEqualTo(itemList.toBuilder().build());
+    }
+
+    @Test
+    public void toBuilder_createsEquivalentInstance_grid() {
+        ItemList itemList = createFullyPopulatedGridItemList();
+
+        assertThat(itemList).isEqualTo(itemList.toBuilder().build());
+    }
+
+    @Test
+    public void toBuilder_fieldsCanBeOverwritten() {
+        Row row = new Row.Builder().setTitle("Title").build();
+        ItemList itemList = new ItemList.Builder()
+                .setOnSelectedListener((index) -> {})
+                .setNoItemsMessage("no items")
+                .setSelectedIndex(0)
+                .setOnItemsVisibilityChangedListener((start, end) -> {})
+                .addItem(row)
+                .build();
+
+        // Verify fields can be overwritten (no crash)
+        itemList.toBuilder()
+                .setOnSelectedListener((index) -> {})
+                .setNoItemsMessage("no items")
+                .setSelectedIndex(0)
+                .setOnItemsVisibilityChangedListener((start, end) -> {})
+                .clearItems()
+                .addItem(row)
+                .build();
+    }
+
+    private static ItemList createFullyPopulatedRowItemList() {
+        Row row = new Row.Builder().setTitle("Title").build();
+        return new ItemList.Builder()
+            .setOnSelectedListener((index) -> {})
+            .setNoItemsMessage("no items")
+            .setSelectedIndex(0)
+            .setOnItemsVisibilityChangedListener((start, end) -> {})
+            .addItem(row)
+            .build();
+    }
+
+    private static ItemList createFullyPopulatedGridItemList() {
+        GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
+        return new ItemList.Builder()
+            .setOnSelectedListener((index) -> {
+            })
+            .setNoItemsMessage("no items")
+            .setSelectedIndex(0)
+            .setOnItemsVisibilityChangedListener((start, end) -> {
+            })
+            .addItem(gridItem)
+            .build();
     }
 }

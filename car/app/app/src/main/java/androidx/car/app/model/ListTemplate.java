@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -183,12 +184,21 @@ public final class ListTemplate implements Template {
         mActionStrip = null;
     }
 
+    /**
+     * Creates and returns a new {@link Builder} initialized with this {@link ListTemplate}'s data.
+     */
+    @ExperimentalCarApi
+    @NonNull
+    public ListTemplate.Builder toBuilder() {
+        return new ListTemplate.Builder(this);
+    }
+
     /** A builder of {@link ListTemplate}. */
     public static final class Builder {
         boolean mIsLoading;
         @Nullable
         ItemList mSingleList;
-        final List<SectionedItemList> mSectionedLists = new ArrayList<>();
+        final List<SectionedItemList> mSectionedLists;
         @Nullable
         CarText mTitle;
         @Nullable
@@ -318,6 +328,17 @@ public final class ListTemplate implements Template {
         }
 
         /**
+         * Clears all of the {@link SectionedItemList}s added via
+         * {@link #addSectionedList(SectionedItemList)}
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder clearSectionedLists() {
+            mSectionedLists.clear();
+            return this;
+        }
+
+        /**
          * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
          * ActionStrip}.
          *
@@ -380,6 +401,20 @@ public final class ListTemplate implements Template {
 
         /** Returns an empty {@link Builder} instance. */
         public Builder() {
+            mSectionedLists = new ArrayList<>();
+        }
+
+        /** Creates a new {@link Builder}, populated from the input {@link ListTemplate} */
+        Builder(@NonNull ListTemplate listTemplate) {
+            mIsLoading = listTemplate.isLoading();
+            mHeaderAction = listTemplate.getHeaderAction();
+            mTitle = listTemplate.getTitle();
+            mSingleList = listTemplate.getSingleList();
+
+            // Must be mutable
+            mSectionedLists = new ArrayList<>(listTemplate.getSectionedLists());
+
+            mActionStrip = listTemplate.getActionStrip();
         }
     }
 }
