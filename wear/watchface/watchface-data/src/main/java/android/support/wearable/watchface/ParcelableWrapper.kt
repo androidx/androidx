@@ -28,32 +28,15 @@ import androidx.annotation.RestrictTo
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ParcelableWrapper private constructor(
-    private val parcel: Parcel? = null,
-    private val parcelable: Parcelable? = null
-) : Parcelable {
+class ParcelableWrapper(val parcelable: Parcelable) : Parcelable {
 
-    constructor(parcelable: Parcelable) : this(null, parcelable)
-
-    constructor(parcel: Parcel) : this(parcel, null)
-
-    fun getParcel(): Parcel {
-        if (parcel != null) {
-            return parcel
-        }
-
-        // This is a hack to support unit tests, where writeToParcel/CREATOR are not invoked.
-        return Parcel.obtain().apply {
-            parcelable!!.writeToParcel(this, 0)
-            setDataPosition(0)
-        }
-    }
+    constructor(parcel: Parcel) : this(unparcel(parcel))
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        parcelable!!.writeToParcel(dest, flags)
+        parcelable.writeToParcel(dest, flags)
     }
 
-    override fun describeContents(): Int = parcelable!!.describeContents()
+    override fun describeContents(): Int = parcelable.describeContents()
 
     public companion object {
         @JvmField
@@ -64,5 +47,13 @@ class ParcelableWrapper private constructor(
 
                 override fun newArray(size: Int) = arrayOfNulls<ParcelableWrapper?>(size)
             }
+
+        internal var unparcel: (Parcel) -> Parcelable = {
+            throw RuntimeException("setUnparceler not called")
+        }
+
+        public fun setUnparceler(unparceler: (Parcel) -> Parcelable) {
+            unparcel = unparceler
+        }
     }
 }
