@@ -26,6 +26,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -53,45 +54,70 @@ import java.security.KeyStore;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class EncryptedFileTest {
+    private static final String KEYSET_ALIAS = "__androidx_security_crypto_encrypted_file_keyset__";
+    private static final String PREFS_FILE = "__androidx_security_crypto_encrypted_file_pref__";
+    private static final String CUSTOM_PREF_NAME = "CUSTOMPREFNAME";
+    private static final String SECOND_MASTER_KEY_ALIAS = "_androidx_security_second_master_key_";
+
     private Context mContext;
     private MasterKey mMasterKey;
+    private MasterKey mSecondMasterKey;
+
+    /**
+     * Enum for all test files used in the test suite. Each file will be deleted if it exists
+     * before each test is ran.
+     */
+    private enum TestFileName {
+        NOTHING_TO_SEE_HERE("nothing_to_see_here"),
+        NOTHING_TO_SEE_HERE_CUSTOM("nothing_to_see_here_custom"),
+        TINK_TEST_FILE("tink_test_file"),
+        NON_EXISTING("non-existing.data"),
+        ENCRYPTED_FILE_1("encrypted_file_1"),
+        ENCRYPTED_FILE_2("encrypted_file_2");
+
+        private final String mText;
+
+        TestFileName(final String text) {
+            mText = text;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return mText;
+        }
+    }
 
     @Before
     public void setup() throws Exception {
         mContext = ApplicationProvider.getApplicationContext();
 
         SharedPreferences sharedPreferences = mContext.getSharedPreferences(
-                "__androidx_security_crypto_encrypted_file_pref__", Context.MODE_PRIVATE);
+                PREFS_FILE, Context.MODE_PRIVATE);
         sharedPreferences.edit().clear().commit();
 
         SharedPreferences customSharedPreferences = mContext.getSharedPreferences(
-                "CUSTOMPREFNAME", Context.MODE_PRIVATE);
+                CUSTOM_PREF_NAME, Context.MODE_PRIVATE);
         customSharedPreferences.edit().clear().commit();
 
-        // Delete old keys for testing
-        String filePath = mContext.getFilesDir().getParent() + "/shared_prefs/"
-                + "__androidx_security_crypto_encrypted_file_pref__";
-        File deletePrefFile = new File(filePath);
-        deletePrefFile.delete();
+        String appFolderPath = mContext.getFilesDir().getParent();
 
-        filePath = mContext.getFilesDir().getParent() + "nothing_to_see_here";
-        deletePrefFile = new File(filePath);
-        deletePrefFile.delete();
+        // Delete old keys stored in preferences file
+        String prefsFilePath = appFolderPath + "/shared_prefs/" + PREFS_FILE;
+        File prefFile = new File(prefsFilePath);
+        prefFile.delete();
 
-        File dataFile = new File(mContext.getFilesDir(), "nothing_to_see_here");
-        dataFile.delete();
-
-        dataFile = new File(mContext.getFilesDir(), "nothing_to_see_here_custom");
-        dataFile.delete();
-
-        dataFile = new File(mContext.getFilesDir(), "tink_test_file");
-        dataFile.delete();
+        // Delete test files
+        for (TestFileName fileName : TestFileName.values()) {
+            File dataFile = new File(mContext.getFilesDir(), fileName.toString());
+            dataFile.delete();
+        }
 
         // Delete MasterKeys
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
-        keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS);
 
+        keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS);
         mMasterKey = new MasterKey.Builder(mContext)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build();
@@ -100,10 +126,9 @@ public class EncryptedFileTest {
     @Test
     public void testWriteReadEncryptedFile() throws Exception {
         final String fileContent = "Don't tell anyone...";
-        final String fileName = "nothing_to_see_here";
+        final String fileName = TestFileName.NOTHING_TO_SEE_HERE.toString();
 
         // Write
-
         EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
                 new File(mContext.getFilesDir(),
                         fileName), mMasterKey,
@@ -176,10 +201,9 @@ public class EncryptedFileTest {
     @Test
     public void testWriteReadEncryptedFileWithAlias() throws Exception {
         final String fileContent = "Don't tell anyone...";
-        final String fileName = "nothing_to_see_here";
+        final String fileName = TestFileName.NOTHING_TO_SEE_HERE.toString();
 
         // Write
-
         EncryptedFile encryptedFile = new EncryptedFile.Builder(new File(mContext.getFilesDir(),
                 fileName), mContext, mMasterKey.getKeyAlias(),
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
@@ -248,7 +272,8 @@ public class EncryptedFileTest {
 
     @Test
     public void testReadNonExistingFileThrows() throws Exception {
-        final File nonExisting = new File(mContext.getFilesDir(), "non-existing.data");
+        final File nonExisting = new File(mContext.getFilesDir(),
+                TestFileName.NON_EXISTING.toString());
         if (nonExisting.exists()) {
             assertTrue(nonExisting.delete());
         }
@@ -270,7 +295,7 @@ public class EncryptedFileTest {
     @Test
     public void testWriteReadEncryptedFileCustomPrefs() throws Exception {
         final String fileContent = "Don't tell anyone...!!!!!";
-        final String fileName = "nothing_to_see_here_custom";
+        final String fileName = TestFileName.NOTHING_TO_SEE_HERE_CUSTOM.toString();
 
         // Write
         EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
@@ -278,7 +303,7 @@ public class EncryptedFileTest {
                         fileName), mMasterKey,
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .setKeysetAlias("CustomKEYALIAS")
-                .setKeysetPrefName("CUSTOMPREFNAME")
+                .setKeysetPrefName(CUSTOM_PREF_NAME)
                 .build();
 
         OutputStream outputStream = encryptedFile.openFileOutput();
@@ -316,7 +341,7 @@ public class EncryptedFileTest {
                 fileContent, new String(plainText, "UTF-8"));
         inputStream.close();
 
-        SharedPreferences sharedPreferences = mContext.getSharedPreferences("CUSTOMPREFNAME",
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences(CUSTOM_PREF_NAME,
                 Context.MODE_PRIVATE);
         boolean containsKeyset = sharedPreferences.contains("CustomKEYALIAS");
         assertTrue("Keyset should have existed.", containsKeyset);
@@ -326,7 +351,7 @@ public class EncryptedFileTest {
     @Test
     public void tinkTest() throws Exception {
         final String fileContent = "Don't tell anyone...";
-        final String fileName = "tink_test_file";
+        final String fileName = TestFileName.TINK_TEST_FILE.toString();
         File file = new File(mContext.getFilesDir(), fileName);
 
         // Write
@@ -343,8 +368,8 @@ public class EncryptedFileTest {
         KeysetHandle streamingAeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate())
                 .withSharedPref(mContext,
-                        "__androidx_security_crypto_encrypted_file_keyset__",
-                        "__androidx_security_crypto_encrypted_file_pref__")
+                        KEYSET_ALIAS,
+                        PREFS_FILE)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKey.getKeyAlias())
                 .build().getKeysetHandle();
 
