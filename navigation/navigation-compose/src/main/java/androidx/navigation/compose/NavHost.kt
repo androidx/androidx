@@ -139,7 +139,7 @@ public fun NavHost(
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
         Crossfade(backStackEntry.id, modifier) {
-            val lastEntry = visibleEntries.last { entry ->
+            val lastEntry = visibleEntries.lastOrNull { entry ->
                 it == entry.id
             }
             // We are disposing on a Unit as we only want to dispose when the CrossFade completes
@@ -159,7 +159,7 @@ public fun NavHost(
                 }
             }
 
-            lastEntry.LocalOwnersProvider(saveableStateHolder) {
+            lastEntry?.LocalOwnersProvider(saveableStateHolder) {
                 (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
             }
         }
