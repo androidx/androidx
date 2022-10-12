@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.error
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
@@ -57,6 +58,10 @@ class MeteringRepeating(
 ) : UseCase(config) {
 
     private val meteringSurfaceSize = cameraProperties.getMinimumPreviewSize()
+
+    private val deferrableSurfaceLock = Any()
+
+    @GuardedBy("deferrableSurfaceLock")
     private var deferrableSurface: DeferrableSurface? = null
 
     override fun getDefaultConfig(applyDefaultConfig: Boolean, factory: UseCaseConfigFactory) =
@@ -71,8 +76,10 @@ class MeteringRepeating(
     }
 
     override fun onDetached() {
-        deferrableSurface?.close()
-        deferrableSurface = null
+        synchronized(deferrableSurfaceLock) {
+            deferrableSurface?.close()
+            deferrableSurface = null
+        }
     }
 
     /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
@@ -83,21 +90,23 @@ class MeteringRepeating(
     }
 
     private fun createPipeline(): SessionConfig.Builder {
-        val surfaceTexture = SurfaceTexture(0).apply {
-            setDefaultBufferSize(meteringSurfaceSize.width, meteringSurfaceSize.height)
-        }
-        val surface = Surface(surfaceTexture)
+        synchronized(deferrableSurfaceLock) {
+            val surfaceTexture = SurfaceTexture(0).apply {
+                setDefaultBufferSize(meteringSurfaceSize.width, meteringSurfaceSize.height)
+            }
+            val surface = Surface(surfaceTexture)
 
-        deferrableSurface?.close()
-        deferrableSurface = ImmediateSurface(surface, meteringSurfaceSize, imageFormat)
-        deferrableSurface!!.terminationFuture
-            .addListener(
-                {
-                    surface.release()
-                    surfaceTexture.release()
-                },
-                CameraXExecutors.directExecutor()
-            )
+            deferrableSurface?.close()
+            deferrableSurface = ImmediateSurface(surface, meteringSurfaceSize, imageFormat)
+            deferrableSurface!!.terminationFuture
+                .addListener(
+                    {
+                        surface.release()
+                        surfaceTexture.release()
+                    },
+                    CameraXExecutors.directExecutor()
+                )
+        }
 
         return SessionConfig.Builder
             .createFrom(MeteringRepeatingConfig())
