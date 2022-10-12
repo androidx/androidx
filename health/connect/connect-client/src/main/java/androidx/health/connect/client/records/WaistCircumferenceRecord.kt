@@ -27,10 +27,10 @@ import java.time.ZoneOffset
  * See [Length] for supported units.
  */
 public class WaistCircumferenceRecord(
-    /** Circumference in [Length] unit. Required field. Valid range: 0-10 meters. */
-    public val circumference: Length,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Circumference in [Length] unit. Required field. Valid range: 0-10 meters. */
+    public val circumference: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

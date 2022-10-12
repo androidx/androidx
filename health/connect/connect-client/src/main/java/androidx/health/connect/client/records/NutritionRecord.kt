@@ -26,6 +26,10 @@ import java.time.ZoneOffset
 
 /** Captures what nutrients were consumed as part of a meal or a food item. */
 public class NutritionRecord(
+    override val startTime: Instant,
+    override val startZoneOffset: ZoneOffset?,
+    override val endTime: Instant,
+    override val endZoneOffset: ZoneOffset?,
     /** Biotin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
     public val biotin: Mass? = null,
     /** Caffeine in [Mass] unit. Optional field. Valid range: 0-100 grams. */
@@ -119,10 +123,6 @@ public class NutritionRecord(
      * @see MealType
      */
     @property:MealTypes public val mealType: String? = null,
-    override val startTime: Instant,
-    override val startZoneOffset: ZoneOffset?,
-    override val endTime: Instant,
-    override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

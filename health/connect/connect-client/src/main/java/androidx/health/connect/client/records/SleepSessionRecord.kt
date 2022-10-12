@@ -38,14 +38,14 @@ import java.time.ZoneOffset
  * @see SleepStageRecord
  */
 public class SleepSessionRecord(
-    /** Title of the session. Optional field. */
-    public val title: String? = null,
-    /** Additional notes for the session. Optional field. */
-    public val notes: String? = null,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Title of the session. Optional field. */
+    public val title: String? = null,
+    /** Additional notes for the session. Optional field. */
+    public val notes: String? = null,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

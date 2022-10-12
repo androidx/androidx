@@ -27,12 +27,12 @@ import java.time.ZoneOffset
  * contains the start / stop time of the lap.
  */
 public class ExerciseLapRecord(
-    /** Length of the lap, in meters. Optional field. Valid range: 0-1000000 meters. */
-    public val length: Length? = null,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Length of the lap, in meters. Optional field. Valid range: 0-1000000 meters. */
+    public val length: Length? = null,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

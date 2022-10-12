@@ -31,20 +31,20 @@ class TotalCaloriesBurnedRecordTest {
     fun validRecord_equals() {
         assertThat(
                 TotalCaloriesBurnedRecord(
-                    10.calories,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    energy = 10.calories,
                 )
             )
             .isEqualTo(
                 TotalCaloriesBurnedRecord(
-                    10.calories,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    energy = 10.calories,
                 )
             )
     }
@@ -53,11 +53,11 @@ class TotalCaloriesBurnedRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             TotalCaloriesBurnedRecord(
-                10.calories,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                energy = 10.calories,
             )
         }
     }

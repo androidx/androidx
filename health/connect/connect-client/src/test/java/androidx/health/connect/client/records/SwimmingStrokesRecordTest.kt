@@ -30,22 +30,22 @@ class SwimmingStrokesRecordTest {
     fun validRecord_equals() {
         assertThat(
                 SwimmingStrokesRecord(
-                    10,
-                    SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    count = 10,
+                    type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
                 )
             )
             .isEqualTo(
                 SwimmingStrokesRecord(
-                    10,
-                    SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    count = 10,
+                    type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
                 )
             )
     }
@@ -54,12 +54,12 @@ class SwimmingStrokesRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             SwimmingStrokesRecord(
-                10,
-                SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                count = 10,
+                type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
             )
         }
     }

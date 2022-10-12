@@ -30,20 +30,20 @@ class StepsCadenceRecordTest {
     fun validRecord_equals() {
         assertThat(
                 StepsCadenceRecord(
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
-                    listOf<StepsCadenceRecord.Sample>()
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    samples = listOf()
                 )
             )
             .isEqualTo(
                 StepsCadenceRecord(
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
-                    listOf<StepsCadenceRecord.Sample>()
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    samples = listOf()
                 )
             )
     }
@@ -52,20 +52,20 @@ class StepsCadenceRecordTest {
     fun sameStartEndTime_validRecord_equals() {
         assertThat(
             StepsCadenceRecord(
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
-                listOf<StepsCadenceRecord.Sample>()
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                samples = listOf()
             )
         )
             .isEqualTo(
                 StepsCadenceRecord(
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    listOf<StepsCadenceRecord.Sample>()
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
                 )
             )
     }
@@ -74,11 +74,11 @@ class StepsCadenceRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             StepsCadenceRecord(
-                Instant.ofEpochMilli(1235L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
-                listOf<StepsCadenceRecord.Sample>()
+                startTime = Instant.ofEpochMilli(1235L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                samples = listOf()
             )
         }
     }

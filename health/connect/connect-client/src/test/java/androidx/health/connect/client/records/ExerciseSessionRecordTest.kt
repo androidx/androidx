@@ -30,24 +30,24 @@ class ExerciseSessionRecordTest {
     fun validRecord_equals() {
         assertThat(
                 ExerciseSessionRecord(
-                    ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
-                    "title",
-                    "notes",
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                    title = "title",
+                    notes = "notes",
                 )
             )
             .isEqualTo(
                 ExerciseSessionRecord(
-                    ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
-                    "title",
-                    "notes",
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                    title = "title",
+                    notes = "notes",
                 )
             )
     }
@@ -56,13 +56,13 @@ class ExerciseSessionRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseSessionRecord(
-                ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
-                "title",
-                "notes",
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                title = "title",
+                notes = "notes",
             )
         }
     }

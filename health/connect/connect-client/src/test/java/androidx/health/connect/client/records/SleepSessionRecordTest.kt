@@ -30,22 +30,22 @@ class SleepSessionRecordTest {
     fun validRecord_equals() {
         assertThat(
                 SleepSessionRecord(
-                    "title",
-                    "note",
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    title = "title",
+                    notes = "note",
                 )
             )
             .isEqualTo(
                 SleepSessionRecord(
-                    "title",
-                    "note",
-                    Instant.ofEpochMilli(1234L),
-                    null,
-                    Instant.ofEpochMilli(1236L),
-                    null,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    title = "title",
+                    notes = "note",
                 )
             )
     }
@@ -54,12 +54,12 @@ class SleepSessionRecordTest {
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             SleepSessionRecord(
-                "title",
-                "note",
-                Instant.ofEpochMilli(1234L),
-                null,
-                Instant.ofEpochMilli(1234L),
-                null,
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1234L),
+                endZoneOffset = null,
+                title = "title",
+                notes = "note",
             )
         }
     }

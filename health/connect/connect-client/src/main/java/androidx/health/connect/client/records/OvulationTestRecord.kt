@@ -23,6 +23,8 @@ import java.time.ZoneOffset
 
 /** Each record represents the result of an ovulation test. */
 public class OvulationTestRecord(
+    override val time: Instant,
+    override val zoneOffset: ZoneOffset?,
     /**
      * The result of a user's ovulation test, which shows if they're ovulating or not. Required
      * field. Allowed values: [Result].
@@ -30,8 +32,6 @@ public class OvulationTestRecord(
      * @see Result
      */
     @property:Results public val result: String,
-    override val time: Instant,
-    override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {

@@ -28,10 +28,10 @@ import java.time.ZoneOffset
  * day, based on their height and weight.
  */
 public class BasalMetabolicRateRecord(
-    /** Basal metabolic rate, in [Power] unit. Required field. Valid range: 0-10000 kcal/day. */
-    public val basalMetabolicRate: Power,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Basal metabolic rate, in [Power] unit. Required field. Valid range: 0-10000 kcal/day. */
+    public val basalMetabolicRate: Power,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

@@ -24,10 +24,10 @@ import java.time.ZoneOffset
 
 /** Captures the user's height. */
 public class HeightRecord(
-    /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
-    public val height: Length,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
+    public val height: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

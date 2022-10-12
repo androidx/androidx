@@ -28,10 +28,10 @@ import java.time.ZoneOffset
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilitySRecord(
-    /** Heart rate variability in milliseconds. Required field. */
-    public val heartRateVariabilityMillis: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Heart rate variability in milliseconds. Required field. */
+    public val heartRateVariabilityMillis: Double,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {

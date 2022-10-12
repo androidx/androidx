@@ -28,10 +28,10 @@ import java.time.ZoneOffset
  * See [Mass] for supported units.
  */
 public class WeightRecord(
-    /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
-    public val weight: Mass,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
+    public val weight: Mass,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 

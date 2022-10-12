@@ -34,6 +34,10 @@ import java.time.ZoneOffset
  * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
 public class ExerciseSessionRecord(
+    override val startTime: Instant,
+    override val startZoneOffset: ZoneOffset?,
+    override val endTime: Instant,
+    override val endZoneOffset: ZoneOffset?,
     /**
      * Type of exercise (e.g. walking, swimming). Required field. Allowed values: [ExerciseType].
      *
@@ -44,10 +48,6 @@ public class ExerciseSessionRecord(
     public val title: String? = null,
     /** Additional notes for the session. Optional field. */
     public val notes: String? = null,
-    override val startTime: Instant,
-    override val startZoneOffset: ZoneOffset?,
-    override val endTime: Instant,
-    override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 

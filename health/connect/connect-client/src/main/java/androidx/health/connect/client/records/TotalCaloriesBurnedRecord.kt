@@ -27,12 +27,12 @@ import java.time.ZoneOffset
  * Each record represents the total kilocalories burned over a time interval.
  */
 public class TotalCaloriesBurnedRecord(
-    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
-    public val energy: Energy,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
+    public val energy: Energy,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
