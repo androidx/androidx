@@ -35,34 +35,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 /**
- * Represents the current state of the DataStore.
- */
-private sealed class State<T>
-
-private object UnInitialized : State<Any>()
-
-/**
- * A read from disk has succeeded, value represents the current on disk state.
- */
-private class Data<T>(val value: T, val hashCode: Int) : State<T>() {
-    fun checkHashCode() {
-        check(value.hashCode() == hashCode) {
-            "Data in DataStore was mutated but DataStore is only compatible with Immutable types."
-        }
-    }
-}
-
-/**
- * A read from disk has failed. ReadException is the exception that was thrown.
- */
-private class ReadException<T>(val readException: Throwable) : State<T>()
-
-/**
- * The scope has been cancelled. This DataStore cannot process any new reads or writes.
- */
-private class Final<T>(val finalException: Throwable) : State<T>()
-
-/**
  * Single process implementation of DataStore. This is NOT multi-process safe.
  */
 internal class SingleProcessDataStore<T>(
@@ -158,30 +130,6 @@ internal class SingleProcessDataStore<T>(
 
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
-
-    /** The actions for the actor. */
-    private sealed class Message<T> {
-        abstract val lastState: State<T>?
-
-        /**
-         * Represents a read operation. If the data is already cached, this is a no-op. If data
-         * has not been cached, it triggers a new read to the specified dataChannel.
-         */
-        class Read<T>(
-            override val lastState: State<T>?
-        ) : Message<T>()
-
-        /** Represents an update operation. */
-        class Update<T>(
-            val transform: suspend (t: T) -> T,
-            /**
-             * Used to signal (un)successful completion of the update to the caller.
-             */
-            val ack: CompletableDeferred<T>,
-            override val lastState: State<T>?,
-            val callerContext: CoroutineContext
-        ) : Message<T>()
-    }
 
     private val actor = SimpleActor<Message<T>>(
         scope = scope,

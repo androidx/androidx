@@ -23,7 +23,6 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -191,31 +190,6 @@ internal class FileWriteScope<T>(file: File, serializer: Serializer<T>) :
             stream.fd.sync()
             // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
             //  result in reverting to a previous state.
-        }
-    }
-
-    // Wrapper on FileOutputStream to prevent closing the underlying OutputStream.
-    private class UncloseableOutputStream(val fileOutputStream: FileOutputStream) : OutputStream() {
-
-        override fun write(b: Int) {
-            fileOutputStream.write(b)
-        }
-
-        override fun write(b: ByteArray) {
-            fileOutputStream.write(b)
-        }
-
-        override fun write(bytes: ByteArray, off: Int, len: Int) {
-            fileOutputStream.write(bytes, off, len)
-        }
-
-        override fun close() {
-            // We will not close the underlying FileOutputStream until after we're done syncing
-            // the fd. This is useful for things like b/173037611.
-        }
-
-        override fun flush() {
-            fileOutputStream.flush()
         }
     }
 }
