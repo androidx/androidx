@@ -41,15 +41,16 @@ internal class StreamGraphImplTest {
     fun testPrecomputedTestData() {
         val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
 
-        assertThat(streamGraph.streams).hasSize(5)
-        assertThat(streamGraph.streams).hasSize(5)
-        assertThat(streamGraph.outputConfigs).hasSize(4)
+        assertThat(streamGraph.streams).hasSize(6)
+        assertThat(streamGraph.streams).hasSize(6)
+        assertThat(streamGraph.outputConfigs).hasSize(5)
 
         val stream1 = streamGraph[config.streamConfig1]!!
         val outputStream1 = stream1.outputs.single()
         assertThat(outputStream1.format).isEqualTo(StreamFormat.YUV_420_888)
         assertThat(outputStream1.size.width).isEqualTo(100)
         assertThat(outputStream1.size.height).isEqualTo(100)
+        assertThat(outputStream1.mirrorMode).isNull()
 
         val stream2 = streamGraph[config.streamConfig2]!!
         val outputStream2 = stream2.outputs.single()
@@ -57,6 +58,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream2.format).isEqualTo(StreamFormat.YUV_420_888)
         assertThat(outputStream2.size.width).isEqualTo(123)
         assertThat(outputStream2.size.height).isEqualTo(321)
+        assertThat(outputStream2.mirrorMode).isNull()
     }
 
     @Test
@@ -175,5 +177,16 @@ internal class StreamGraphImplTest {
         assertThat(config1.groupNumber).isGreaterThan(-1)
         assertThat(config2.groupNumber).isGreaterThan(-1)
         assertThat(config1.groupNumber).isEqualTo(config2.groupNumber)
+    }
+
+    @Test
+    fun testDefaultAndPropagatedMirrorModes() {
+        val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
+        val stream1 = streamGraph[config.streamConfig1]!!
+        assertThat(stream1.outputs.single().mirrorMode).isNull()
+
+        val stream2 = streamGraph[config.streamConfig4]!!
+        assertThat(stream2.outputs.single().mirrorMode)
+            .isEqualTo(OutputStream.MirrorMode.MIRROR_MODE_H)
     }
 }

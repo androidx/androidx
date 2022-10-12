@@ -73,6 +73,13 @@ internal object FakeGraphConfigs {
         camera = camera2,
         outputType = OutputStream.OutputType.SURFACE_TEXTURE
     )
+    val streamConfig4 = CameraStream.Config.create(
+        size = Size(200, 200),
+        format = StreamFormat.YUV_420_888,
+        camera = camera2,
+        outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+        mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_H
+    )
     val sharedOutputConfig = OutputStream.Config.create(
         size = Size(200, 200),
         format = StreamFormat.YUV_420_888,
@@ -87,6 +94,7 @@ internal object FakeGraphConfigs {
             streamConfig1,
             streamConfig2,
             streamConfig3,
+            streamConfig4,
             sharedStreamConfig1,
             sharedStreamConfig2
         ),

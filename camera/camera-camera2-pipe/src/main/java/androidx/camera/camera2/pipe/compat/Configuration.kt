@@ -27,6 +27,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.Log
@@ -135,6 +136,7 @@ internal class AndroidOutputConfiguration(
         fun create(
             surface: Surface?,
             outputType: OutputType = OutputType.SURFACE,
+            mirrorMode: MirrorMode? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -192,6 +194,19 @@ internal class AndroidOutputConfiguration(
             // Pass along the physicalCameraId, if set.
             if (physicalCameraId != null) {
                 configuration.setPhysicalCameraIdCompat(physicalCameraId)
+            }
+
+            if (mirrorMode != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setMirrorMode(configuration, mirrorMode.value)
+                } else {
+                    if (mirrorMode != MirrorMode.MIRROR_MODE_AUTO) {
+                        Log.warn { "Cannot set mirrorMode to a non-default value on API " +
+                            "${Build.VERSION.SDK_INT}. This may result in unexpected behavior. " +
+                            "Requested $mirrorMode"
+                        }
+                    }
+                }
             }
 
             // Create and return the Android

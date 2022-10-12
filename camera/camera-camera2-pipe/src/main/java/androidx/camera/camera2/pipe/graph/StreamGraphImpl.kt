@@ -119,6 +119,7 @@ internal class StreamGraphImpl @Inject constructor(
                     } else {
                         null
                     },
+                    mirrorMode = output.mirrorMode,
                     externalOutputConfig =
                     (output as? OutputStream.Config.ExternalOutputConfig)?.output
                 )
@@ -139,7 +140,8 @@ internal class StreamGraphImpl @Inject constructor(
                     nextOutputId(),
                     outputConfig.size,
                     outputConfig.format,
-                    outputConfig.camera
+                    outputConfig.camera,
+                    outputConfig.mirrorMode,
                 )
                 outputStream
             }
@@ -175,6 +177,7 @@ internal class StreamGraphImpl @Inject constructor(
         val groupNumber: Int?,
         val externalOutputConfig: OutputConfiguration?,
         val deferredOutputType: OutputStream.OutputType?,
+        val mirrorMode: OutputStream.MirrorMode?,
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
@@ -191,6 +194,7 @@ internal class StreamGraphImpl @Inject constructor(
         override val size: Size,
         override val format: StreamFormat,
         override val camera: CameraId,
+        override val mirrorMode: OutputStream.MirrorMode?,
     ) : OutputStream {
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()
