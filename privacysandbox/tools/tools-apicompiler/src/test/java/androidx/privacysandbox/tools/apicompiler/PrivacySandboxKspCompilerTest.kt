@@ -49,6 +49,7 @@ class PrivacySandboxKspCompilerTest {
                 "com/mysdk/IMySdk.java",
                 "com/mysdk/ICancellationSignal.java",
                 "com/mysdk/IStringTransactionCallback.java",
+                "com/mysdk/IUnitTransactionCallback.java",
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
                 "com/mysdk/MySdkStubDelegate.kt",
                 "com/mysdk/TransportCancellationCallback.kt",

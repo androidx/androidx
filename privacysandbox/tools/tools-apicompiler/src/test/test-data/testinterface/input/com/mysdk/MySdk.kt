@@ -9,6 +9,8 @@ interface MySdk {
 
     suspend fun handleRequest(request: Request): Response
 
+    suspend fun logRequest(request: Request)
+
     fun doMoreStuff()
 }
 
