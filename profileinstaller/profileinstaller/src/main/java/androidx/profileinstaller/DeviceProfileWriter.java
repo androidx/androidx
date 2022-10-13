@@ -286,8 +286,9 @@ public class DeviceProfileWriter {
     }
 
     private static @Nullable byte[] desiredVersion() {
-        // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        // If SDK is pre or post supported version, we don't want to do anything, so return null.
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return null;
         }
 
@@ -318,7 +319,8 @@ public class DeviceProfileWriter {
 
     private static boolean requiresMetadata() {
         // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return false;
         }
 
