@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
@@ -42,14 +41,12 @@ import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
@@ -138,7 +135,8 @@ public final class ProfileVerifier {
             }
 
             // ProfileVerifier supports only api 28 and above.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                    || Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
                 return setCompilationStatus(
                         RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION,
                         false,
@@ -154,28 +152,6 @@ public final class ProfileVerifier {
             long referenceProfileSize = referenceProfileFile.length();
             boolean hasReferenceProfile =
                     referenceProfileFile.exists() && referenceProfileSize > 0;
-
-            // If the reference profile does not exist we need to check if this is simply not
-            // accessible due to a permission issue or if it really doesn't exist. Note that this
-            // operation requires spawning a process and therefore is not done by default. This
-            // behaviour seems to happen only on api 30.
-            if (!hasReferenceProfile && Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-
-                String permissionCheckOutput = executeCommandFirstLineOrFilter(
-                        /* command = */ "ls " + referenceProfileFile.getAbsolutePath(),
-                        /* findLineStartingWith = */ null);
-
-                // If it was actually not possible to check the reference profile because of a
-                // permission issue then try to use oatdump.
-                if (permissionCheckOutput != null
-                        && permissionCheckOutput.contains("Permission denied")) {
-                    String odexBss = getBssFromOdex(context);
-                    if (odexBss != null && !odexBss.contains("empty")) {
-                        hasReferenceProfile = true;
-                        referenceProfileSize = -1L;
-                    }
-                }
-            }
 
             // Check current profile file existence
             File currentProfileFile = new File(
@@ -269,9 +245,8 @@ public final class ProfileVerifier {
                 // The size of the reference profile should be at least the same in current if
                 // the compilation worked. Otherwise something went wrong. Note that on some api
                 // levels the reference profile file may not be visible to the app, so size
-                // cannot be read. In this case we fallback to the odex and set size -1.
-                if (referenceProfileSize != -1L
-                        && referenceProfileSize < currentCache.mInstalledCurrentProfileSize) {
+                // cannot be read.
+                if (referenceProfileSize < currentCache.mInstalledCurrentProfileSize) {
                     resultCode = RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING;
                 }
             }
@@ -325,84 +300,6 @@ public final class ProfileVerifier {
         } else {
             return packageManager.getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
         }
-    }
-
-    /**
-     * Parses the output of `oatdump` on the odex file generated during compilation. Note that if
-     * the odex file does not exist, this method returns null.
-     *
-     * @param context an instance of the {@link Context}.
-     * @return the compilation filter property from the oatdump output.
-     */
-    @Nullable
-    private static String getBssFromOdex(Context context) {
-
-        // Get odex file path
-        String baseApkPath = executeCommandFirstLineOrFilter(
-                "pm path " + context.getPackageName(),
-                "package:");
-        if (baseApkPath == null) {
-            return null;
-        }
-
-        // Use oatdump to parse odex
-        String odexPath = new File(
-                new File(baseApkPath).getParentFile(), "oat/arm64/base.odex").getAbsolutePath();
-        return executeCommandFirstLineOrFilter(
-                /* command = */ "oatdump"
-                        + " --oat-file=" + odexPath
-                        + " --header-only"
-                        + " --no-disassemble",
-                /* findLineStartingWith = */ ".bss:");
-    }
-
-    @Nullable
-    private static String executeCommandFirstLineOrFilter(
-            String command,
-            @Nullable String findLineStartingWith) {
-
-        // Note that this method does not wait for the spawned process to end, rather it looks for
-        // the given line and kills the process after finding it.
-        String output = null;
-        try {
-
-            // Starts the process
-            Process p = new ProcessBuilder(command.split(" "))
-                    .redirectErrorStream(true)
-                    .start();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            // Finds the requested line
-            String line;
-            while ((line = reader.readLine()) != null) {
-
-                // If findLineStartingWith is null, only returns the first line
-                if (findLineStartingWith == null) {
-                    output = line;
-                    break;
-                }
-
-                // Otherwise find a line starting with the given param
-                if (line.startsWith(findLineStartingWith)) {
-                    String[] parts = line.split(findLineStartingWith);
-                    output = parts.length < 2 ? null : parts[1].trim();
-                    break;
-                }
-            }
-
-            // Kills the process in case it's still alive
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Api26Impl.destroyForcibly(p);
-            } else {
-                p.destroy();
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Cannot execute " + command);
-        }
-
-        return output;
     }
 
     /**
@@ -644,17 +541,6 @@ public final class ProfileVerifier {
          */
         public boolean hasProfileEnqueuedForCompilation() {
             return mHasCurrentProfile;
-        }
-    }
-
-    @RequiresApi(26)
-    private static class Api26Impl {
-        private Api26Impl() {
-        }
-
-        @DoNotInline
-        static Process destroyForcibly(Process process) {
-            return process.destroyForcibly();
         }
     }
 
