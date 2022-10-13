@@ -734,6 +734,7 @@ class ActivityResultContracts private constructor() {
         }
 
         @CallSuper
+        @SuppressLint("NewApi", "ClassVerificationFailure")
         override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
             // Check to see if the photo picker is available
             return if (PickVisualMedia.isPhotoPickerAvailable()) {
@@ -783,6 +784,7 @@ class ActivityResultContracts private constructor() {
              *
              * @see MediaStore.EXTRA_PICK_IMAGES_MAX
              */
+            @SuppressLint("NewApi", "ClassVerificationFailure")
             internal fun getMaxItems() = if (PickVisualMedia.isPhotoPickerAvailable()) {
                 MediaStore.getPickImagesMaxLimit()
             } else {
