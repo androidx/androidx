@@ -91,7 +91,7 @@ public abstract class PassiveListenerService : Service() {
      */
     public open fun onPermissionLost() {}
 
-    private inner class IPassiveListenerServiceWrapper : IPassiveListenerService.Stub() {
+    internal inner class IPassiveListenerServiceWrapper : IPassiveListenerService.Stub() {
 
         override fun onPassiveListenerEvent(event: PassiveListenerEvent) {
             val proto = event.proto
