@@ -27,12 +27,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -54,22 +57,31 @@ import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
+import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.OutlinedButton
+import androidx.wear.compose.material.OutlinedChip
+import androidx.wear.compose.material.OutlinedCompactButton
+import androidx.wear.compose.material.OutlinedCompactChip
 import androidx.wear.compose.material.Picker
+import androidx.wear.compose.material.PlaceholderDefaults
 import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Stepper
 import androidx.wear.compose.material.StepperDefaults
+import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TitleCard
@@ -81,16 +93,24 @@ import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Confirmation
+import androidx.wear.compose.material.placeholder
+import androidx.wear.compose.material.placeholderShimmer
 import androidx.wear.compose.material.rememberPickerState
+import androidx.wear.compose.material.rememberPlaceholderState
+import androidx.wear.compose.material.scrollAway
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import kotlinx.coroutines.delay
 
 private val ALERT_DIALOG = "alert-dialog"
 private val CONFIRMATION_DIALOG = "confirmation-dialog"
 private val BUTTONS = "buttons"
 private val CARDS = "cards"
 private val CHIPS = "chips"
+private val RADIO_BUTTON = "radio-button"
+private val CHECKBOX = "checkbox"
+private val SWITCH = "switch"
 private val DIALOGS = "dialogs"
 private val PICKER = "picker"
 private val PROGRESSINDICATORS = "progressindicators"
@@ -100,6 +120,7 @@ private val STEPPER = "stepper"
 private val SWIPE_DISMISS = "swipe-dismiss"
 private val PROGRESS_INDICATOR = "progress-indicator"
 private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
+private val PLACEHOLDERS = "placeholders"
 
 class BaselineActivity : ComponentActivity() {
 
@@ -112,7 +133,11 @@ class BaselineActivity : ComponentActivity() {
 
             MaterialTheme {
                 Scaffold(
-                    timeText = { TimeText() },
+                    timeText = {
+                        TimeText(
+                            modifier = Modifier.scrollAway(scrollState = scrollState)
+                        )
+                    },
                     positionIndicator = { PositionIndicator(scrollState = scrollState) },
                     vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
                 ) {
@@ -144,6 +169,7 @@ class BaselineActivity : ComponentActivity() {
                         composable(CARDS) { Cards() }
                         composable(CHIPS) { Chips() }
                         composable(PICKER) { Picker(scrollState) }
+                        composable(PLACEHOLDERS) { Placeholders() }
                         composable(PROGRESSINDICATORS) { ProgressIndicators(navController) }
                         composable(PROGRESS_INDICATOR) {
                             CircularProgressIndicator(
@@ -187,6 +213,7 @@ fun StartIndex(navController: NavHostController, scrollState: ScrollState) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Widget(navController, BUTTONS, "Btn", BUTTONS)
                 Widget(navController, CARDS, "Card", CARDS)
+                Widget(navController, PLACEHOLDERS, "Plc", PLACEHOLDERS)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -236,14 +263,23 @@ fun Dialogs(navController: NavHostController) {
 fun Buttons() {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
     ) {
         ListHeader { Text("Buttons") }
-        Button(onClick = {}) { Text("Button") }
-        CompactButton(onClick = {}) { Text("CompactButton") }
-        ToggleButton(
-            checked = true,
-            onCheckedChange = {}) { Text("ToggleButton") }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Button(onClick = {}) { Text("B") }
+            OutlinedButton(onClick = {}) { Text("OB") }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            CompactButton(onClick = {}) { Text("CB") }
+            OutlinedCompactButton(onClick = {}) { Text("OCB") }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            ToggleButton(
+                checked = true,
+                onCheckedChange = {}) { Text("TB") }
+        }
     }
 }
 
@@ -272,38 +308,105 @@ fun Chips() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ListHeader { Text("Chips") }
-        Chip(
-            onClick = {},
-            colors = ChipDefaults.primaryChipColors(),
-            label = { Text("Chip") }
-        )
-        CompactChip(onClick = {}, label = { Text("CompactChip") })
-        ToggleChip(
-            checked = true,
-            onCheckedChange = {},
-            label = { Text("ToggleChip") },
-            toggleControl = {
-                Icon(
-                    imageVector =
-                    ToggleChipDefaults.radioIcon(checked = false),
-                    contentDescription = null
-                )
-            }
-        )
-        SplitToggleChip(
-            checked = true,
-            onCheckedChange = {},
-            label = { Text("SplitToggleChip") },
-            onClick = {},
-            toggleControl = {
-                Icon(
-                    imageVector =
-                    ToggleChipDefaults.radioIcon(checked = true),
-                    contentDescription = null
-                )
-            }
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Chip(
+                modifier = Modifier.height(32.dp),
+                onClick = {},
+                colors = ChipDefaults.primaryChipColors(),
+                label = { Text("C") }
+            )
+            OutlinedChip(
+                modifier = Modifier.height(32.dp),
+                onClick = {},
+                label = { Text("OC") }
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            CompactChip(onClick = {}, label = { Text("CC") })
+            OutlinedCompactChip(onClick = {}, label = { Text("OCC") })
+        }
+        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+            var radioState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = radioState,
+                onCheckedChange = { radioState = !radioState },
+                label = { Text("R") },
+                toggleControl = {
+                    Icon(
+                        imageVector =
+                        ToggleChipDefaults.radioIcon(checked = radioState),
+                        contentDescription = null
+                    )
+                }
+            )
+            var switchState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = switchState,
+                onCheckedChange = { switchState = !switchState },
+                label = { Text("S") },
+                toggleControl = {
+                    Icon(
+                        imageVector =
+                        ToggleChipDefaults.switchIcon(checked = switchState),
+                        contentDescription = null
+                    )
+                }
+            )
+            var checkboxState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = checkboxState,
+                onCheckedChange = { checkboxState = !checkboxState },
+                label = { Text("C") },
+                toggleControl = {
+                    Icon(
+                        imageVector =
+                        ToggleChipDefaults.checkboxIcon(checked = checkboxState),
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+            var radioState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = radioState,
+                onCheckedChange = { radioState = !radioState },
+                label = { Text("R") },
+                toggleControl = { RadioButton(selected = radioState) },
+                modifier = Modifier.semantics { contentDescription = RADIO_BUTTON },
+            )
+            var switchState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = switchState,
+                onCheckedChange = { switchState = !switchState },
+                label = { Text("S") },
+                toggleControl = { Switch(checked = switchState) },
+                modifier = Modifier.semantics { contentDescription = SWITCH },
+            )
+            var checkboxState by remember { mutableStateOf(false) }
+            ToggleChip(
+                checked = checkboxState,
+                onCheckedChange = { checkboxState = !checkboxState },
+                label = { Text("C") },
+                toggleControl = { Checkbox(checked = checkboxState) },
+                modifier = Modifier.semantics { contentDescription = CHECKBOX },
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            SplitToggleChip(
+                checked = true,
+                onCheckedChange = {},
+                label = { Text("Split") },
+                onClick = {},
+                toggleControl = {
+                    Icon(
+                        imageVector =
+                        ToggleChipDefaults.radioIcon(checked = true),
+                        contentDescription = null
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -330,6 +433,58 @@ fun Picker(scrollState: ScrollState) {
             option = { Text(items[it]) },
             modifier = Modifier.size(100.dp, 100.dp),
         )
+    }
+}
+
+@OptIn(ExperimentalWearMaterialApi::class)
+@Composable
+fun Placeholders() {
+    var labelText by remember { mutableStateOf("") }
+    var iconContent: @Composable () -> Unit = { Checkbox(true) }
+    val chipPlaceholderState = rememberPlaceholderState {
+        labelText.isNotEmpty()
+    }
+
+    Chip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        label = {
+            Text(
+                text = labelText,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .placeholder(chipPlaceholderState)
+            )
+        },
+        icon = {
+            Box(
+                modifier = Modifier
+                    .size(ChipDefaults.IconSize)
+                    .placeholder(chipPlaceholderState),
+            ) {
+                iconContent()
+            }
+        },
+        colors = PlaceholderDefaults.placeholderChipColors(
+            originalChipColors = ChipDefaults.primaryChipColors(),
+            placeholderState = chipPlaceholderState
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .placeholderShimmer(chipPlaceholderState)
+    )
+    LaunchedEffect(Unit) {
+        delay(50)
+        iconContent = { Switch(true) }
+        delay(1000)
+        labelText = "A label"
+    }
+    if (!chipPlaceholderState.isShowContent) {
+        LaunchedEffect(chipPlaceholderState) {
+            chipPlaceholderState.startPlaceholderAnimation()
+        }
     }
 }
 
