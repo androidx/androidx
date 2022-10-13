@@ -389,6 +389,16 @@
   <string name="toggle_test_enabled">Toggle Test Enabled</string>
   <string name="toggle_test_disabled">Toggle Test Disabled</string>
 
+  <!--SecondaryActionsAndDecorationDemoScreen -->
+  <string name="secondary_actions_decoration_button_demo_title">Secondary Action and Decoration Demo</string>
+  <string name="secondary_actions_test_title">Secondary Action Test</string>
+  <string name="secondary_actions_test_subtitle">Only the secondary action can be selected</string>
+  <string name="decoration_test_title">Decoration Test</string>
+  <string name="secondary_actions_decoration_test_title">Secondary Actions and Decoration</string>
+  <string name="secondary_actions_decoration_test_subtitle">The row can also be selected</string>
+  <string name="secondary_action_toast">Secondary Action is selected</string>
+  <string name="row_primary_action_toast">Row primary action is selected</string>
+
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
