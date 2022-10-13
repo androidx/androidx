@@ -213,7 +213,9 @@ class UseCaseManager @Inject constructor(
             it?.close()?.let { closingJob ->
                 closingCameraJobs.add(closingJob)
                 closingJob.invokeOnCompletion {
-                    closingCameraJobs.remove(closingJob)
+                    synchronized(lock) {
+                        closingCameraJobs.remove(closingJob)
+                    }
                 }
             }
         }
