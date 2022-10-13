@@ -17,7 +17,9 @@
 package androidx.webkit.internal;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
@@ -49,6 +51,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Enum representing a WebView feature, this provides functionality for determining whether a
@@ -396,6 +400,31 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAlgorithmicDarkeningAllowed(WebSettings, boolean)} and
+     * {@link androidx.webkit.WebSettingsCompat#isAlgorithmicDarkeningAllowed(WebSettings)}.
+     */
+    public static final ApiFeature.T ALGORITHMIC_DARKENING =
+            new ApiFeature.T(WebViewFeature.ALGORITHMIC_DARKENING, Features.ALGORITHMIC_DARKENING) {
+                private final Pattern mVersionPattern = Pattern.compile("\\A\\d+");
+                @Override
+                public boolean isSupportedByWebView() {
+                    boolean supported = super.isSupportedByWebView();
+                    if (!supported || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        return supported;
+                    }
+                    //Since version 105, WebView has supported the algorithmic darkening for
+                    // pre-Q Android platform.
+                    // WebView should have been loaded.
+                    PackageInfo info = WebViewCompat.getCurrentLoadedWebViewPackage();
+                    if (info == null) return false;
+                    Matcher m = mVersionPattern.matcher(info.versionName);
+                    return m.find() && Integer.parseInt(info.versionName.substring(m.start(),
+                                m.end())) >= 105;
+                }
+            };
+
+    /**
+     * This feature covers
      * {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)},
      * {@link ProxyController#setProxyOverride(ProxyConfig, Runnable)},
      * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
@@ -435,15 +464,6 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework FORCE_DARK_STRATEGY =
             new ApiFeature.NoFramework(WebViewFeature.FORCE_DARK_STRATEGY,
                     Features.FORCE_DARK_BEHAVIOR);
-
-    /**
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setAlgorithmicDarkeningAllowed(WebSettings, boolean)} and
-     * {@link androidx.webkit.WebSettingsCompat#isAlgorithmicDarkeningAllowed(WebSettings)}.
-     */
-    public static final ApiFeature.NoFramework ALGORITHMIC_DARKENING =
-            new ApiFeature.NoFramework(WebViewFeature.ALGORITHMIC_DARKENING,
-                    Features.ALGORITHMIC_DARKENING);
 
     /**
      * This feature covers
