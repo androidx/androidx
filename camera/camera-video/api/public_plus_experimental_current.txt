@@ -9,6 +9,7 @@ package androidx.camera.video {
     field public static final int AUDIO_STATE_ACTIVE = 0; // 0x0
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
+    field public static final int AUDIO_STATE_SOURCE_ERROR = 4; // 0x4
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
   }
 
