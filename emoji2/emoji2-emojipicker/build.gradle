@@ -28,12 +28,22 @@ dependencies {
     implementation project(path: ':emoji2:emoji2')
     implementation project(path: ':core:core')
 
-    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation project(path: ':test:screenshot:screenshot')
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/emoji2/emoji2-emojipicker"
+    }
+
     namespace "androidx.emoji2.emojipicker"
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
