@@ -16,39 +16,19 @@
 
 package androidx.test.uiautomator;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
 
-/**
- * The {@link Gestures} class provides factory methods for constructing common
- * {@link PointerGesture}s.
- */
+/** Factory methods for constructing {@link PointerGesture}s. */
 class Gestures {
-
-    // Singleton instance
-    private static Gestures sInstance;
 
     // Constants used by pinch gestures
     private static final int INNER = 0;
     private static final int OUTER = 1;
     private static final int INNER_MARGIN = 5;
 
-    // Keep a handle to the ViewConfiguration
-    private ViewConfiguration mViewConfig;
-
-    // Private constructor.
-    private Gestures(ViewConfiguration config) {
-       mViewConfig = config;
-    }
-
-    /** Returns the {@link Gestures} instance for the given {@link Context}. */
-    public static Gestures getInstance(UiDevice device) {
-        if (sInstance == null) {
-            sInstance = new Gestures(ViewConfiguration.get(device.getUiContext()));
-        }
-        return sInstance;
+    private Gestures() {
     }
 
     /**
@@ -59,7 +39,7 @@ class Gestures {
      * @param displayId The ID of display where {@code point} is on.
      * @return The {@link PointerGesture} representing this click.
      */
-    public PointerGesture click(Point point, int displayId) {
+    public static PointerGesture click(Point point, int displayId) {
         // A basic click is a touch down and touch up over the same point with no delay.
         return click(point, 0, displayId);
     }
@@ -73,7 +53,7 @@ class Gestures {
      * @param displayId The ID of display where {@code point} is on.
      * @return The {@link PointerGesture} representing this click.
      */
-    public PointerGesture click(Point point, long duration, int displayId) {
+    public static PointerGesture click(Point point, long duration, int displayId) {
         // A click is a touch down and touch up over the same point with an optional delay inbetween
         return new PointerGesture(point, displayId).pause(duration);
     }
@@ -86,9 +66,9 @@ class Gestures {
      * @param displayId The ID of display where {@code point} is on.
      * @return The {@link PointerGesture} representing this long click.
      */
-    public PointerGesture longClick(Point point, int displayId) {
+    public static PointerGesture longClick(Point point, int displayId) {
         // A long click is a click with a duration that exceeds a certain threshold.
-        return click(point, mViewConfig.getLongPressTimeout(), displayId);
+        return click(point, ViewConfiguration.getLongPressTimeout(), displayId);
     }
 
     /**
@@ -100,7 +80,7 @@ class Gestures {
      * @param displayId The ID of display where the swipe is on.
      * @return The {@link PointerGesture} representing this swipe.
      */
-    public PointerGesture swipe(Point start, Point end, int speed, int displayId) {
+    public static PointerGesture swipe(Point start, Point end, int speed, int displayId) {
         // A swipe is a click that moves before releasing the pointer.
         return new PointerGesture(start, displayId).move(end, speed);
     }
@@ -110,12 +90,12 @@ class Gestures {
      *
      * @param area The area to swipe over.
      * @param direction The direction in which to swipe.
-     * @param float percent The size of the swipe as a percentage of the total area.
+     * @param percent The size of the swipe as a percentage of the total area.
      * @param speed The speed at which to move in pixels per second.
      * @param displayId The ID of display where the swipe is on.
      * @return The {@link PointerGesture} representing this swipe.
      */
-    public PointerGesture swipeRect(
+    public static PointerGesture swipeRect(
             Rect area, Direction direction, float percent, int speed, int displayId) {
         Point start, end;
         // TODO: Reverse horizontal direction if locale is RTL
@@ -152,7 +132,7 @@ class Gestures {
      * @param displayId The ID of display where a click and drag are on.
      * @return The {@link PointerGesture} representing this swipe.
      */
-    public PointerGesture drag(Point start, Point end, int speed, int displayId) {
+    public static PointerGesture drag(Point start, Point end, int speed, int displayId) {
         // A drag is a swipe that starts with a long click.
         return longClick(start, displayId).move(end, speed);
     }
@@ -160,13 +140,13 @@ class Gestures {
     /**
      * Returns an array of {@link PointerGesture}s representing a pinch close.
      *
-     * @param bounds The area to pinch over.
+     * @param area The area to pinch over.
      * @param percent The size of the pinch as a percentage of the total area.
      * @param speed The speed at which to move in pixels per second.
      * @param displayId The ID of display where a pinch close is on.
      * @return An array containing the two PointerGestures representing this pinch.
      */
-    public PointerGesture[] pinchClose(Rect area, float percent, int speed, int displayId) {
+    public static PointerGesture[] pinchClose(Rect area, float percent, int speed, int displayId) {
         Point[] bottomLeft = new Point[2];
         Point[] topRight = new Point[2];
         calcPinchCoordinates(area, percent, bottomLeft, topRight);
@@ -182,13 +162,13 @@ class Gestures {
     /**
      * Returns an array of {@link PointerGesture}s representing a pinch close.
      *
-     * @param bounds The area to pinch over.
+     * @param area The area to pinch over.
      * @param percent The size of the pinch as a percentage of the total area.
      * @param speed The speed at which to move in pixels per second.
      * @param displayId The ID of display where a pinch open is on.
      * @return An array containing the two PointerGestures representing this pinch.
      */
-    public PointerGesture[] pinchOpen(Rect area, float percent, int speed, int displayId) {
+    public static PointerGesture[] pinchOpen(Rect area, float percent, int speed, int displayId) {
         Point[] bottomLeft = new Point[2];
         Point[] topRight = new Point[2];
         calcPinchCoordinates(area, percent, bottomLeft, topRight);
@@ -202,7 +182,7 @@ class Gestures {
     }
 
     /** Calculates the inner and outer coordinates used in a pinch gesture. */
-    private void calcPinchCoordinates(Rect area, float percent,
+    private static void calcPinchCoordinates(Rect area, float percent,
             Point[] bottomLeft, Point[] topRight) {
 
         int offsetX = (int)((area.width() - 2 * INNER_MARGIN) / 2 * percent);
