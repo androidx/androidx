@@ -18,12 +18,16 @@ package androidx.credentials.playservices
 
 import android.app.Activity
 import android.os.CancellationSignal
+import android.util.Log
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.CredentialProvider
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import java.util.concurrent.Executor
 
 /**
@@ -32,6 +36,7 @@ import java.util.concurrent.Executor
  *
  * @hide
  */
+@Suppress("deprecation")
 class CredentialProviderPlayServicesImpl : CredentialProvider {
     override fun onGetCredential(
         request: GetCredentialRequest,
@@ -40,6 +45,10 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse>
     ) {
+        if (cancellationSignal != null) {
+            Log.i(TAG, "onCreateCredential cancellationSignal not used")
+            TODO("Use Cancel Operations Properly")
+        }
         TODO("Not yet implemented")
     }
 
@@ -50,10 +59,31 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse>
     ) {
-        TODO("Not yet implemented")
+        if (cancellationSignal != null) {
+            Log.i(TAG, "onCreateCredential cancellationSignal not used")
+            TODO("Use Cancel Operations Properly")
+        }
+        val fragmentManager: android.app.FragmentManager = activity!!.fragmentManager
+        // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
+        if (request is CreatePasswordRequest) {
+            CredentialProviderCreatePasswordController.getInstance(
+                fragmentManager).invokePlayServices(
+                request,
+                callback,
+                executor)
+        } else if (request is CreatePublicKeyCredentialRequest) {
+            TODO("Not yet implemented")
+        } else {
+            throw UnsupportedOperationException(
+                "Unsupported request; not password or publickeycredential")
+        }
     }
 
     override fun isAvailableOnDevice(): Boolean {
         TODO("Not yet implemented")
+    }
+
+    companion object {
+        private val TAG = CredentialProviderPlayServicesImpl::class.java.name
     }
 }
