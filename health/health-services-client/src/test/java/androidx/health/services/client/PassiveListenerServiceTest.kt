@@ -28,11 +28,15 @@ import androidx.health.services.client.data.DataPoints
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataTypeCondition
+import androidx.health.services.client.data.ExerciseInfo
+import androidx.health.services.client.data.ExerciseTrackedStatus
+import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.HealthEvent
 import androidx.health.services.client.data.HealthEvent.Type.Companion.FALL_DETECTED
 import androidx.health.services.client.data.PassiveGoal
 import androidx.health.services.client.data.PassiveMonitoringUpdate
 import androidx.health.services.client.data.UserActivityInfo
+import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_EXERCISE
 import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_PASSIVE
 import androidx.health.services.client.impl.IPassiveListenerService
 import androidx.health.services.client.impl.event.PassiveListenerEvent
@@ -128,6 +132,41 @@ class PassiveListenerServiceTest {
             .isEqualTo(USER_ACTIVITY_PASSIVE)
         assertThat(service.userActivityReceived!!.exerciseInfo).isNull()
         assertThat(service.userActivityReceived!!.stateChangeTime).isEqualTo(42.instant())
+    }
+
+    @Test
+    fun receivesUserActivityStateWithExerciseInfo() {
+        context.bindService(
+            Intent(context, FakeService::class.java),
+            connection,
+            Context.BIND_AUTO_CREATE
+        )
+        val listenerEvent = PassiveListenerEvent.createPassiveUpdateResponse(
+            PassiveMonitoringUpdateResponse(
+                PassiveMonitoringUpdate(
+                    DataPointContainer(listOf()),
+                    listOf(
+                        UserActivityInfo(
+                            USER_ACTIVITY_EXERCISE,
+                            ExerciseInfo(
+                                ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS,
+                                ExerciseType.RUNNING
+                            ),
+                            42.instant()
+                        )
+                    )
+                )
+            )
+        )
+
+        stub.onPassiveListenerEvent(listenerEvent)
+
+        val activityInfo = service.userActivityReceived!!
+        assertThat(activityInfo.userActivityState).isEqualTo(USER_ACTIVITY_EXERCISE)
+        assertThat(activityInfo.stateChangeTime).isEqualTo(42.instant())
+        assertThat(activityInfo.exerciseInfo!!.exerciseType).isEqualTo(ExerciseType.RUNNING)
+        assertThat(activityInfo.exerciseInfo!!.exerciseTrackedStatus)
+            .isEqualTo(ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS)
     }
 
     @Test
