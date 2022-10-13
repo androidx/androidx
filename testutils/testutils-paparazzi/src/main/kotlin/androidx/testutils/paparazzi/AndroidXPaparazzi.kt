@@ -53,9 +53,18 @@ fun androidxPaparazzi(
 /** Package name used for resolving system properties */
 private const val PACKAGE_NAME = "androidx.testutils.paparazzi"
 
+/** Name of the internal Gradle plugin */
+private const val PLUGIN_NAME = "AndroidXPaparazziPlugin"
+
+/** Name of the module containing this library */
+private const val MODULE_NAME = ":internal-testutils-paparazzi"
+
 /** Read a system property with [PACKAGE_NAME] prefix, throwing an exception if missing */
-private fun systemProperty(name: String) =
-    requireNotNull(System.getProperty("$PACKAGE_NAME.$name")) {
-        "System property $PACKAGE_NAME.$name is not set. You may need to apply " +
-            "AndroidXPaparazziPlugin to your Gradle build."
+private fun systemProperty(name: String) = checkNotNull(System.getProperty("$PACKAGE_NAME.$name")) {
+    if (System.getProperty("$PACKAGE_NAME.gradlePluginApplied").toBoolean()) {
+        "Missing required system property: $PACKAGE_NAME.$name. This is likely due to version " +
+            "mismatch between $PLUGIN_NAME and $MODULE_NAME."
+    } else {
+        "Paparazzi system properties not set. Please ensure $PLUGIN_NAME is applied to your build."
     }
+}
