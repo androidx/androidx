@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import java.io.File
 import java.nio.file.Files
 import javax.tools.Diagnostic
 
@@ -37,14 +38,20 @@ object CompilationTestHelper {
 
     fun compileAll(
         sources: List<Source>,
+        extraClasspath: List<File> = emptyList(),
+        includePrivacySandboxPlatformSources: Boolean = true,
         symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
         processorOptions: Map<String, String> = emptyMap()
     ): TestCompilationResult {
         val tempDir = Files.createTempDirectory("compile").toFile().also { it.deleteOnExit() }
+        val targetSources = if (includePrivacySandboxPlatformSources) {
+            sources + syntheticPrivacySandboxSources
+        } else sources
         return compile(
             tempDir,
             TestCompilationArguments(
-                sources = sources + syntheticPrivacySandboxSources,
+                sources = targetSources,
+                classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,
             )
