@@ -843,6 +843,14 @@ package androidx.car.app.media {
 
 }
 
+package androidx.car.app.messaging {
+
+  @androidx.car.app.annotations.ExperimentalCarApi public class MessagingServiceConstants {
+    field public static final String ACTION_HANDLE_CAR_MESSAGING = "androidx.car.app.messaging.action.HANDLE_CAR_MESSAGING";
+  }
+
+}
+
 package androidx.car.app.messaging.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class CarMessage {
