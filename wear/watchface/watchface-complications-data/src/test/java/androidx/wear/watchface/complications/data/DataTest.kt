@@ -40,6 +40,7 @@ import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
+@Suppress("NewApi")
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
     val dataSourceA = ComponentName("com.pkg_a", "com.a")
@@ -2298,6 +2299,7 @@ public class AsWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@Suppress("NewApi")
 public class FromWireComplicationDataTest {
     @Test
     public fun noDataComplicationData() {
@@ -3186,6 +3188,7 @@ public class RoundtripTapActionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@Suppress("NewApi")
 public class ValidTimeRangeTest {
     private val testStartInstant = Instant.ofEpochMilli(1000L)
     private val testEndDateInstant = Instant.ofEpochMilli(2000L)
