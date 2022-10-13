@@ -32,6 +32,7 @@ import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -112,13 +113,17 @@ class StubDelegatesGenerator(
                             add(getDelegateCallBlock(method))
                         }
                         val value = api.valueMap[method.returnType]
-                        if (value != null) {
-                            addStatement(
-                                "transactionCallback.onSuccess(%M(result))",
-                                value.toParcelableNameSpec()
-                            )
-                        } else {
-                            addStatement("transactionCallback.onSuccess(result)")
+                        when {
+                            value != null -> {
+                                addStatement(
+                                    "transactionCallback.onSuccess(%M(result))",
+                                    value.toParcelableNameSpec()
+                                )
+                            }
+                            method.returnType == Types.unit -> {
+                                addStatement("transactionCallback.onSuccess()")
+                            }
+                            else -> addStatement("transactionCallback.onSuccess(result)")
                         }
                     }
                     addControlFlow("catch (t: Throwable)") {
