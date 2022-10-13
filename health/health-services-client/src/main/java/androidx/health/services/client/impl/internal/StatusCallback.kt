@@ -39,6 +39,6 @@ internal open class StatusCallback(private val resultFuture: SettableFuture<Void
     @Throws(RemoteException::class)
     @CallSuper
     override fun onFailure(msg: String) {
-        resultFuture.setException(Exception(msg))
+        resultFuture.setException(RemoteException(msg))
     }
 }

@@ -76,6 +76,7 @@ class ServiceBackedMeasureClientTest {
     @After
     fun tearDown() {
         client.unregisterMeasureCallbackAsync(HEART_RATE_BPM, callback)
+        shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test
