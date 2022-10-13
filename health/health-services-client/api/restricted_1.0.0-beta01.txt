@@ -660,7 +660,7 @@ package androidx.health.services.client.data {
   }
 
   public final class LocationData {
-    ctor public LocationData(@FloatRange(from=-90.0, to=90.0) double latitude, @FloatRange(from=-180.0, to=180.0) double longitude, optional @FloatRange double altitude, optional @FloatRange(from=-1.0, to=360.0, toInclusive=false) double bearing);
+    ctor public LocationData(@FloatRange(from=-90.0, to=90.0) double latitude, @FloatRange(from=-180.0, to=180.0) double longitude, optional double altitude, optional double bearing);
     method public double getAltitude();
     method public double getBearing();
     method public double getLatitude();
@@ -669,8 +669,8 @@ package androidx.health.services.client.data {
     property public final double bearing;
     property public final double latitude;
     property public final double longitude;
-    field public static final double ALTITUDE_UNAVAILABLE = 1.7976931348623157E308;
-    field public static final double BEARING_UNAVAILABLE = -1.0;
+    field public static final double ALTITUDE_UNAVAILABLE = (0.0/0.0);
+    field public static final double BEARING_UNAVAILABLE = (0.0/0.0);
   }
 
   public final class MeasureCapabilities {

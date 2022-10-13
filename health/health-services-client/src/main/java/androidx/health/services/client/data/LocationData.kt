@@ -27,12 +27,11 @@ public class LocationData(
     /** Longitude of location. Range from -180.0 to = 180.0. */
     @FloatRange(from = -180.0, to = 180.0) public val longitude: Double,
     /** Altitude of location in meters or [ALTITUDE_UNAVAILABLE] if not available. */
-    @FloatRange public val altitude: Double = ALTITUDE_UNAVAILABLE,
+    public val altitude: Double = ALTITUDE_UNAVAILABLE,
     /** Bearing in degrees within the range of [0.0 (inclusive), 360.0(exclusive)] or
      * [BEARING_UNAVAILABLE] if not available.
      */
-    @FloatRange(from = -1.0, to = 360.0, toInclusive = false) public val bearing: Double =
-        BEARING_UNAVAILABLE,
+    public val bearing: Double = BEARING_UNAVAILABLE,
 ) {
     init {
         if (latitude !in -90.0..90.0) {
@@ -114,10 +113,10 @@ public class LocationData(
         private const val BEARING_INDEX: Int = 3
 
         /** When using [DataType.LOCATION], the default value if altitude value is not available. */
-        public const val ALTITUDE_UNAVAILABLE: Double = Double.MAX_VALUE
+        public const val ALTITUDE_UNAVAILABLE: Double = Double.NaN
 
         /** When using [DataType.LOCATION], the default value if bearing value is not available. */
-        public const val BEARING_UNAVAILABLE: Double = -1.0
+        public const val BEARING_UNAVAILABLE: Double = Double.NaN
 
         internal fun fromDataProtoValue(proto: DataProto.Value): LocationData {
             require(proto.hasDoubleArrayVal())

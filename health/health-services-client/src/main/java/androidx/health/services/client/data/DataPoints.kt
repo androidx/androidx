@@ -391,9 +391,8 @@ internal object DataPoints {
         @FloatRange(from = -90.0, to = 90.0) latitude: Double,
         @FloatRange(from = -180.0, to = 180.0) longitude: Double,
         timeDurationFromBoot: Duration,
-        @FloatRange altitude: Double = LocationData.ALTITUDE_UNAVAILABLE,
-        @FloatRange(from = -1.0, to = 360.0, toInclusive = false) bearing: Double =
-            LocationData.BEARING_UNAVAILABLE,
+        altitude: Double = LocationData.ALTITUDE_UNAVAILABLE,
+        bearing: Double = LocationData.BEARING_UNAVAILABLE,
         accuracy: LocationAccuracy? = null
     ): SampleDataPoint<LocationData> {
         if (latitude !in -90.0..90.0) {
