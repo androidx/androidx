@@ -51,7 +51,6 @@ public class UiObject2 implements Searchable {
     private static final String TAG = UiObject2.class.getSimpleName();
 
     private UiDevice mDevice;
-    private Gestures mGestures;
     private GestureController mGestureController;
     private BySelector mSelector;  // Hold this mainly for debugging
     private AccessibilityNodeInfo mCachedNode;
@@ -83,7 +82,6 @@ public class UiObject2 implements Searchable {
         mDevice = device;
         mSelector = selector;
         mCachedNode = cachedNode;
-        mGestures = Gestures.getInstance(device);
         mGestureController = GestureController.getInstance(device);
         final DisplayManager dm =
                 (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
@@ -429,7 +427,7 @@ public class UiObject2 implements Searchable {
     /** Clicks on this object. */
     public void click() {
         Log.v(TAG, String.format("click(center=%s)", getVisibleCenter()));
-        mGestureController.performGesture(mGestures.click(getVisibleCenter(), getDisplayId()));
+        mGestureController.performGesture(Gestures.click(getVisibleCenter(), getDisplayId()));
     }
 
     /**
@@ -441,7 +439,7 @@ public class UiObject2 implements Searchable {
     public void click(@NonNull Point point) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("click(point=%s)", point));
-        mGestureController.performGesture(mGestures.click(point, getDisplayId()));
+        mGestureController.performGesture(Gestures.click(point, getDisplayId()));
     }
 
     /** Performs a click on this object that lasts for {@code duration} milliseconds. */
@@ -449,7 +447,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("click(center=%s,duration=%d)",
                 getVisibleCenter(), duration));
         mGestureController.performGesture(
-                mGestures.click(getVisibleCenter(), duration, getDisplayId()));
+                Gestures.click(getVisibleCenter(), duration, getDisplayId()));
     }
 
     /**
@@ -463,7 +461,7 @@ public class UiObject2 implements Searchable {
     public void click(@NonNull Point point, long duration) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("click(point=%s,duration=%d)", point, duration));
-        mGestureController.performGesture(mGestures.click(point, duration, getDisplayId()));
+        mGestureController.performGesture(Gestures.click(point, duration, getDisplayId()));
     }
 
     /** Clicks on this object, and waits for the given condition to become true. */
@@ -471,7 +469,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)",
                 getVisibleCenter(), timeout));
         return mGestureController.performGestureAndWait(condition, timeout,
-                mGestures.click(getVisibleCenter(), getDisplayId()));
+                Gestures.click(getVisibleCenter(), getDisplayId()));
     }
 
     /**
@@ -487,8 +485,8 @@ public class UiObject2 implements Searchable {
             long timeout) {
         clipToGestureBounds(point);
         Log.v(TAG, String.format("clickAndWait(point=%s,timeout=%d)", point, timeout));
-        return mGestureController.performGestureAndWait(condition, timeout,
-                mGestures.click(point, getDisplayId()));
+        return mGestureController.performGestureAndWait(
+                condition, timeout, Gestures.click(point, getDisplayId()));
     }
 
     /**
@@ -513,14 +511,14 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("drag(start=%s,dest=%s,speed=%d)",
                 getVisibleCenter(), dest, speed));
         mGestureController.performGesture(
-                mGestures.drag(getVisibleCenter(), dest, speed, getDisplayId()));
+                Gestures.drag(getVisibleCenter(), dest, speed, getDisplayId()));
     }
 
     /** Performs a long click on this object. */
     public void longClick() {
         Log.v(TAG, String.format("longClick(center=%s)",
                 getVisibleCenter()));
-        mGestureController.performGesture(mGestures.longClick(getVisibleCenter(), getDisplayId()));
+        mGestureController.performGesture(Gestures.longClick(getVisibleCenter(), getDisplayId()));
     }
 
     /**
@@ -548,8 +546,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("pinchClose(bounds=%s,percent=%f,speed=%d)",
                 getVisibleBoundsForGestures(), percent, speed));
         mGestureController.performGesture(
-                mGestures.pinchClose(
-                        getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
+                Gestures.pinchClose(getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
     }
 
     /**
@@ -577,8 +574,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("pinchOpen(bounds=%s,percent=%f,speed=%d)",
                 getVisibleBoundsForGestures(), percent, speed));
         mGestureController.performGesture(
-                mGestures.pinchOpen(
-                        getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
+                Gestures.pinchOpen(getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
     }
 
     /**
@@ -609,7 +605,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("swipe(bounds=%s,direction=%s,percent=%f,speed=%d)",
                 bounds, direction, percent, speed));
         mGestureController.performGesture(
-                mGestures.swipeRect(bounds, direction, percent, speed, getDisplayId()));
+                Gestures.swipeRect(bounds, direction, percent, speed, getDisplayId()));
     }
 
     /**
@@ -648,7 +644,7 @@ public class UiObject2 implements Searchable {
                 direction, bounds, percent, speed));
         for (; percent > 0.0f; percent -= 1.0f) {
             float segment = percent > 1.0f ? 1.0f : percent;
-            PointerGesture swipe = mGestures.swipeRect(
+            PointerGesture swipe = Gestures.swipeRect(
                     bounds, swipeDirection, segment, speed, getDisplayId()).pause(250);
 
             // Perform the gesture and return early if we reached the end
@@ -690,7 +686,7 @@ public class UiObject2 implements Searchable {
         Rect bounds = getVisibleBoundsForGestures();
         Log.v(TAG, String.format("fling(bounds=%s,direction=%s,speed=%d)",
                 bounds, direction, speed));
-        PointerGesture swipe = mGestures.swipeRect(
+        PointerGesture swipe = Gestures.swipeRect(
                 bounds, swipeDirection, 1.0f, speed, getDisplayId());
 
         // Perform the gesture and return true if we did not reach the end
