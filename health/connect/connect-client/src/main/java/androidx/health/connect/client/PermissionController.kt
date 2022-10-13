@@ -16,6 +16,7 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.permission.HealthDataRequestPermissions
 import androidx.health.connect.client.permission.HealthPermission
@@ -35,6 +36,20 @@ interface PermissionController {
      * @throws IllegalStateException If service is not available.
      */
     suspend fun getGrantedPermissions(permissions: Set<HealthPermission>): Set<HealthPermission>
+
+    /**
+     * Filters and returns a subset of permissions granted by the user to the calling app, out of
+     * the input permissions set.
+     *
+     * @param permissions set of permissions to filter
+     * @return filtered set of granted permissions.
+     *
+     * @throws android.os.RemoteException For any IPC transportation failures.
+     * @throws java.io.IOException For any disk I/O issues.
+     * @throws IllegalStateException If service is not available.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+    suspend fun filterGrantedPermissions(permissions: Set<String>): Set<String>
 
     /**
      * Revokes all previously granted [HealthPermission] by the user to the calling app.

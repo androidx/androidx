@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-syntax = "proto2";
+package androidx.health.platform.client.service;
 
-package androidx.health.platform.client.proto;
+import androidx.health.platform.client.permission.Permission;
+import androidx.health.platform.client.error.ErrorStatus;
 
-import "data.proto";
-
-option java_package = "androidx.health.platform.client.proto";
-option java_outer_classname = "PermissionProto";
-
-enum AccessType {
-  ACCESS_TYPE_UNKNOWN = 0;
-  ACCESS_TYPE_READ = 1;
-  ACCESS_TYPE_WRITE = 2;
-}
-
-// Represents both the new and the old permission format.
-// If "permission" is set, the other 2 fields will be ignored.
-message Permission {
-  optional DataType data_type = 1;
-  optional AccessType access_type = 2;
-
-  optional string permission = 3;
+oneway interface IFilterGrantedPermissionsCallback {
+  void onSuccess(in List<Permission> permissions) = 0;
+  void onError(in ErrorStatus status) = 1;
 }

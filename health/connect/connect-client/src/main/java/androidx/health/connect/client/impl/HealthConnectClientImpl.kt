@@ -51,6 +51,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
@@ -75,6 +76,25 @@ internal constructor(
                 .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
                 .await()
                 .map { it.toJetpackPermission() }
+                .toSet()
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+        )
+        return grantedPermissions
+    }
+
+    override suspend fun filterGrantedPermissions(
+        permissions: Set<String>
+    ): Set<String> {
+        val grantedPermissions =
+            delegate
+                .filterGrantedPermissions(
+                    permissions.map {
+                        PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet())
+                .await()
+                .map { it.permission }
                 .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
