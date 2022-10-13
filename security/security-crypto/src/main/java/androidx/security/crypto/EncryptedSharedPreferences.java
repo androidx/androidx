@@ -31,10 +31,9 @@ import androidx.collection.ArraySet;
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeyTemplate;
+import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.aead.AeadConfig;
-import com.google.crypto.tink.aead.AesGcmKeyManager;
-import com.google.crypto.tink.daead.AesSivKeyManager;
 import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
@@ -176,18 +175,18 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
+         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
          */
-        AES256_SIV(AesSivKeyManager.aes256SivTemplate());
+        AES256_SIV("AES256_SIV");
 
-        private final KeyTemplate mDeterministicAeadKeyTemplate;
+        private final String mDeterministicAeadKeyTemplateName;
 
-        PrefKeyEncryptionScheme(KeyTemplate keyTemplate) {
-            mDeterministicAeadKeyTemplate = keyTemplate;
+        PrefKeyEncryptionScheme(String deterministicAeadKeyTemplateName) {
+            mDeterministicAeadKeyTemplateName = deterministicAeadKeyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mDeterministicAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mDeterministicAeadKeyTemplateName);
         }
     }
 
@@ -200,18 +199,18 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
+         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
          */
-        AES256_GCM(AesGcmKeyManager.aes256GcmTemplate());
+        AES256_GCM("AES256_GCM");
 
-        private final KeyTemplate mAeadKeyTemplate;
+        private final String mAeadKeyTemplateName;
 
-        PrefValueEncryptionScheme(KeyTemplate keyTemplates) {
-            mAeadKeyTemplate = keyTemplates;
+        PrefValueEncryptionScheme(String aeadKeyTemplateName) {
+            mAeadKeyTemplateName = aeadKeyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mAeadKeyTemplateName);
         }
     }
 

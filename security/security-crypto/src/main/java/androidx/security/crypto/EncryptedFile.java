@@ -26,10 +26,10 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.google.crypto.tink.KeyTemplate;
+import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
-import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 
 import java.io.File;
@@ -92,24 +92,23 @@ public final class EncryptedFile {
      */
     public enum FileEncryptionScheme {
         /**
-         * The file content is encrypted using
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/StreamingAead.html">StreamingAead</a> with AES-GCM, with the
-         * file name as associated data.
+         * The file content is encrypted using StreamingAead with AES-GCM, with the file name as
+         * associated data.
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
+         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
          */
-        AES256_GCM_HKDF_4KB(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate());
+        AES256_GCM_HKDF_4KB("AES256_GCM_HKDF_4KB");
 
-        private final KeyTemplate mStreamingAeadKeyTemplate;
+        private final String mKeyTemplateName;
 
-        FileEncryptionScheme(KeyTemplate keyTemplate) {
-            mStreamingAeadKeyTemplate = keyTemplate;
+        FileEncryptionScheme(String keyTemplateName) {
+            mKeyTemplateName = keyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mStreamingAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mKeyTemplateName);
         }
     }
 
