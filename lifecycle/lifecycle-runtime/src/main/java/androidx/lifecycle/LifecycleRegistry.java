@@ -139,7 +139,8 @@ public class LifecycleRegistry extends Lifecycle {
             return;
         }
         if (mState == INITIALIZED && next == DESTROYED) {
-            throw new IllegalStateException("no event down from " + mState);
+            throw new IllegalStateException(
+                    "no event down from " + mState + " in component " + mLifecycleOwner.get());
         }
         mState = next;
         if (mHandlingEvent || mAddingObserverCounter != 0) {
