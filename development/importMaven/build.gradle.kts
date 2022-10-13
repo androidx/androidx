@@ -65,7 +65,7 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "11"
 }
 
 // b/250726951 Gradle ProjectBuilder needs reflection access to java.lang.
