@@ -34,8 +34,6 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.getOnlyService
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -48,23 +46,20 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.joinToCode
 
-class StubDelegatesGenerator(
-    private val codeGenerator: CodeGenerator,
-    private val api: ParsedApi,
-) {
+class StubDelegatesGenerator(private val api: ParsedApi) {
     companion object {
         private val ATOMIC_BOOLEAN_CLASS = ClassName("java.util.concurrent.atomic", "AtomicBoolean")
     }
 
-    fun generate() {
+    fun generate(): List<FileSpec> {
         if (api.services.isEmpty()) {
-            return
+            return emptyList()
         }
-        api.services.forEach(::generateServiceStubDelegate)
-        generateTransportCancellationCallback()
+        return api.services.map(::generateServiceStubDelegate) +
+            generateTransportCancellationCallback()
     }
 
-    private fun generateServiceStubDelegate(service: AnnotatedInterface) {
+    private fun generateServiceStubDelegate(service: AnnotatedInterface): FileSpec {
         val className = service.stubDelegateName()
         val aidlBaseClassName = ClassName(service.type.packageName, service.aidlName(), "Stub")
 
@@ -83,12 +78,9 @@ class StubDelegatesGenerator(
             addFunctions(service.methods.map(::toFunSpec))
         }
 
-        val fileSpec = FileSpec.builder(service.type.packageName, className).build {
+        return FileSpec.builder(service.type.packageName, className).build {
             addType(classSpec)
         }
-        codeGenerator.createNewFile(
-            Dependencies(false), service.type.packageName, className
-        ).write(fileSpec)
     }
 
     private fun toFunSpec(method: Method): FunSpec {
@@ -174,7 +166,7 @@ class StubDelegatesGenerator(
         add(")")
     }
 
-    private fun generateTransportCancellationCallback() {
+    private fun generateTransportCancellationCallback(): FileSpec {
         val packageName = api.getOnlyService().type.packageName
         val className = "TransportCancellationCallback"
         val cancellationSignalStubName =
@@ -206,8 +198,7 @@ class StubDelegatesGenerator(
             })
         }
 
-        val fileSpec = FileSpec.builder(packageName, className).addType(classSpec).build()
-        codeGenerator.createNewFile(Dependencies(false), packageName, className).write(fileSpec)
+        return FileSpec.builder(packageName, className).addType(classSpec).build()
     }
 }
 

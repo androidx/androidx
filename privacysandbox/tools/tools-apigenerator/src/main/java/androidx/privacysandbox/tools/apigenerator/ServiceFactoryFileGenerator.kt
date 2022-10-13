@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
+import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addCommonSettings
 import androidx.privacysandbox.tools.core.generator.addControlFlow
@@ -32,7 +33,7 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.joinToCode
 
 internal class ServiceFactoryFileGenerator(
-    private val api: ParsedApi,
+    api: ParsedApi,
     private val service: AnnotatedInterface
 ) {
     private val proxyTypeGenerator = ClientProxyTypeGenerator(api, service)

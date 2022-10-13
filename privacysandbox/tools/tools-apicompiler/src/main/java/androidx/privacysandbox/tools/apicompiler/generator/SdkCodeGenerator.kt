@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.converterNameSpec
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.squareup.kotlinpoet.FileSpec
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
 
@@ -34,8 +35,8 @@ class SdkCodeGenerator(
     fun generate() {
         generateAidlSources()
         generateValueConverters()
-        AbstractSdkProviderGenerator(codeGenerator, api).generate()
-        StubDelegatesGenerator(codeGenerator, api).generate()
+        AbstractSdkProviderGenerator(api).generate()?.also(::write)
+        StubDelegatesGenerator(api).generate().forEach(::write)
     }
 
     private fun generateValueConverters() {
@@ -66,5 +67,10 @@ class SdkCodeGenerator(
         } finally {
             workingDir.toFile().deleteRecursively()
         }
+    }
+
+    private fun write(spec: FileSpec) {
+        codeGenerator.createNewFile(Dependencies(false), spec.packageName, spec.name)
+            .write(spec)
     }
 }

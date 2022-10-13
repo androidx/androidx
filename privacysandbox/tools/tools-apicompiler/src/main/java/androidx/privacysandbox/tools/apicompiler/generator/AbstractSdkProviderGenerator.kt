@@ -21,18 +21,13 @@ import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
-class AbstractSdkProviderGenerator(
-    private val codeGenerator: CodeGenerator,
-    private val api: ParsedApi,
-) {
+class AbstractSdkProviderGenerator(private val api: ParsedApi) {
     companion object {
         private val SANDBOXED_SDK_PROVIDER_CLASS =
             ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
@@ -45,9 +40,9 @@ class AbstractSdkProviderGenerator(
         private val VIEW_CLASS = ClassName("android.view", "View")
     }
 
-    fun generate() {
+    fun generate(): FileSpec? {
         if (api.services.isEmpty()) {
-            return
+            return null
         }
         val packageName = api.getOnlyService().type.packageName
         val className = "AbstractSandboxedSdkProvider"
@@ -60,10 +55,9 @@ class AbstractSdkProviderGenerator(
                 .addFunction(generateOnDataReceivedFunction())
                 .addFunction(generateCreateServiceFunction(api.getOnlyService()))
 
-        val fileSpec = FileSpec.builder(packageName, className)
+        return FileSpec.builder(packageName, className)
             .addType(classSpec.build())
             .build()
-        codeGenerator.createNewFile(Dependencies(false), packageName, className).write(fileSpec)
     }
 
     private fun generateOnLoadSdkFunction(): FunSpec {
