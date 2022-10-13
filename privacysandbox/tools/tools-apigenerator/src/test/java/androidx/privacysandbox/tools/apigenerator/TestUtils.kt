@@ -16,33 +16,18 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
+import androidx.privacysandbox.tools.apipackager.PrivacySandboxApiPackager
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
-import com.google.common.truth.Truth.assertThat
-import java.io.File
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import kotlin.io.path.name
 
 fun compileIntoInterfaceDescriptorsJar(vararg sources: Source): Path {
-    val tempDir = createTempDirectory("compile").toFile().also { it.deleteOnExit() }
-
+    val tempDir = createTempDirectory("compile").also { it.toFile().deleteOnExit() }
     val result = assertCompiles(sources.toList())
-    val sdkInterfaceDescriptors = File(tempDir, "sdk-interface-descriptors.jar")
-    assertThat(sdkInterfaceDescriptors.createNewFile()).isTrue()
-
-    ZipOutputStream(sdkInterfaceDescriptors.outputStream()).use { zipOutputStream ->
-        result.outputClasspath.forEach { classPathDir ->
-            classPathDir.walk().filter(File::isFile).forEach { file ->
-                val zipEntry = ZipEntry(classPathDir.toPath().relativize(file.toPath()).name)
-                zipOutputStream.putNextEntry(zipEntry)
-                file.inputStream().copyTo(zipOutputStream)
-                zipOutputStream.closeEntry()
-            }
-        }
-    }
-
-    return sdkInterfaceDescriptors.toPath()
+    val sdkInterfaceDescriptors = tempDir.resolve("sdk-interface-descriptors.jar")
+    PrivacySandboxApiPackager().packageSdkDescriptors(
+        result.outputClasspath.first().toPath(), sdkInterfaceDescriptors
+    )
+    return sdkInterfaceDescriptors
 }
