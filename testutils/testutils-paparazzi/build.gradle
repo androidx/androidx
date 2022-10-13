@@ -22,7 +22,11 @@ plugins {
     id("kotlin")
 }
 
-BundleInsideHelper.forInsideJar(project, "com.google.protobuf", "androidx.test.screenshot.protobuf")
+BundleInsideHelper.forInsideJar(
+        project,
+        "com.google.protobuf",
+        "androidx.testutils.paparazzi.protobuf"
+)
 
 dependencies {
     api(project(":external:paparazzi:paparazzi"))
@@ -33,7 +37,5 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Library Screenshot Test - Paparazzi Wrapper"
     type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
-    mavenGroup = LibraryGroups.TESTSCREENSHOT
 }
