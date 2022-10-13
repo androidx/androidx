@@ -122,6 +122,13 @@ public abstract class CarAppService extends Service {
     public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
 
     /**
+     * Used in the app manifest. It declares that this app declares physical objects with sensors,
+     * that connect and exchange data with other devices and systems.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_IOT_APP = "androidx.car.app.category.IOT";
+
+    /**
      * Used to declare that this app is a settings app in the manifest. This app can be used to
      * provide screens corresponding to the settings page and/or any error resolution screens e.g.
      * sign-in screen.
