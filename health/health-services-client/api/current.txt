@@ -85,11 +85,6 @@ package androidx.health.services.client {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> setPassiveListenerServiceAsync(Class<? extends androidx.health.services.client.PassiveListenerService> service, androidx.health.services.client.data.PassiveListenerConfig config);
   }
 
-  public final class VersionApiService extends android.app.Service {
-    ctor public VersionApiService();
-    method public android.os.IBinder? onBind(android.content.Intent? intent);
-  }
-
 }
 
 package androidx.health.services.client.data {
