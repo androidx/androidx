@@ -56,10 +56,12 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -75,6 +77,9 @@ import java.util.Locale;
 @Config(instrumentedPackages = {"androidx.activity"})
 @DoNotInstrument
 public class CarContextTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final String APP_SERVICE = "app";
     private static final String NAVIGATION_SERVICE = "navigation";
     private static final String SCREEN_SERVICE = "screen";
@@ -95,10 +100,8 @@ public class CarContextTest {
     private Screen mScreen2;
     private final TestLifecycleOwner mLifecycleOwner = new TestLifecycleOwner();
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
         when(mMockCarHost.getHost(CarContext.APP_SERVICE)).thenReturn(new IAppHost.Stub() {
             @Override
             public void invalidate() {

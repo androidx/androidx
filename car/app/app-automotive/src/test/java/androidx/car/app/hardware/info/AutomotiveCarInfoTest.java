@@ -72,11 +72,13 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -97,6 +99,9 @@ import java.util.concurrent.atomic.AtomicReference;
 )
 @DoNotInstrument
 public class AutomotiveCarInfoTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private List<GetPropertyRequest> mGetPropertyRequests;
     private List<Integer> mPropertyIds;
     private List<CarPropertyResponse<?>> mResponse;
@@ -113,10 +118,8 @@ public class AutomotiveCarInfoTest {
     private static final List<CarZone> GLOBAL_ZONE = Collections.singletonList(
             CarZone.CAR_ZONE_GLOBAL);
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ShadowCar.setCar(mCarMock);
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);
         mAutomotiveCarInfo = new AutomotiveCarInfo(mPropertyManager);

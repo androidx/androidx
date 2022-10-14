@@ -33,10 +33,12 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.suggestion.ISuggestionHost;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -45,6 +47,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class HostDispatcherTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private ICarHost mMockCarHost;
@@ -55,11 +59,8 @@ public class HostDispatcherTest {
     private ISuggestionHost mSuggestionHost;
     private HostDispatcher mHostDispatcher = new HostDispatcher();
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mAppHost = new IAppHost.Stub() {
             @Override
             public void invalidate() throws RemoteException {

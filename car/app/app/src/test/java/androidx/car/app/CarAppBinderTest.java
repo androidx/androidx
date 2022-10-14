@@ -60,7 +60,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
@@ -94,10 +93,8 @@ public class CarAppBinderTest {
     private CarAppBinder mCarAppBinder;
     private Intent mIntentSet;
 
-    @SuppressWarnings("deprecation") // b/239955611
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         mCarAppService = new TestCarAppService();
 
         AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
