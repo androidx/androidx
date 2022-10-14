@@ -460,7 +460,7 @@ abstract class RoomDatabase {
      * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
-    open fun query(query: String, args: Array<Any?>?): Cursor {
+    open fun query(query: String, args: Array<out Any?>?): Cursor {
         return openHelper.writableDatabase.query(SimpleSQLiteQuery(query, args))
     }
 

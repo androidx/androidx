@@ -231,7 +231,7 @@ internal class AutoClosingRoomOpenHelper(
             return KeepAliveCursor(result, autoCloser)
         }
 
-        override fun query(query: String, bindArgs: Array<Any?>): Cursor {
+        override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
             val result = try {
                 autoCloser.incrementCountAndEnsureDbIsOpen().query(query, bindArgs)
             } catch (throwable: Throwable) {
@@ -275,7 +275,7 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
+        override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
                 db.delete(
                     table,
@@ -290,7 +290,7 @@ internal class AutoClosingRoomOpenHelper(
             conflictAlgorithm: Int,
             values: ContentValues,
             whereClause: String?,
-            whereArgs: Array<Any?>?
+            whereArgs: Array<out Any?>?
         ): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
                 db.update(
@@ -309,7 +309,7 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         @Throws(SQLException::class)
-        override fun execSQL(sql: String, bindArgs: Array<Any?>) {
+        override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
             autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
                 db.execSQL(sql, bindArgs)
                 null

@@ -51,4 +51,17 @@ class SupportSQLiteQueryBuilderTest {
             .create()
         assertThat(query.sql).isEqualTo("SELECT * FROM Books GROUP BY pages HAVING >100")
     }
+
+    @Test
+    fun subtypes_in_array_selection_does_not_throw_error() {
+        val bindArgs: Array<String?> = arrayOf("USA")
+
+        val query = SupportSQLiteQueryBuilder.builder("Books")
+            .columns(arrayOf("country_published"))
+            .selection("country_published=USA", bindArgs)
+            .create()
+        assertThat(query.sql).isEqualTo(
+            "SELECT country_published FROM Books WHERE country_published=USA"
+        )
+    }
 }
