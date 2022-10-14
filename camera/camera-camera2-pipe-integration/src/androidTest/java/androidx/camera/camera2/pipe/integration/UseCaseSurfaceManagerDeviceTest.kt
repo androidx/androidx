@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.testing.TestUseCaseCamera
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.CameraUtil
@@ -107,11 +108,11 @@ class UseCaseSurfaceManagerDeviceTest {
 
     @After
     fun tearDown() = runBlocking {
-        if (::testSessionParameters.isInitialized) {
-            testSessionParameters.cleanup()
-        }
         if (::testUseCaseCamera.isInitialized) {
             testUseCaseCamera.close().join()
+        }
+        if (::testSessionParameters.isInitialized) {
+            testSessionParameters.cleanup()
         }
         if (::cameraHolder.isInitialized) {
             CameraUtil.releaseCameraDevice(cameraHolder)
@@ -144,8 +145,8 @@ class UseCaseSurfaceManagerDeviceTest {
         val cameraClosedUsageCount = testSessionParameters.deferrableSurface.useCount
 
         // Assert, verify the usage count of the DeferrableSurface
-        assertThat(cameraOpenedUsageCount).isAtLeast(1)
-        assertThat(cameraClosedUsageCount).isEqualTo(0)
+        assertThat(cameraOpenedUsageCount).isEqualTo(2)
+        assertThat(cameraClosedUsageCount).isEqualTo(1)
     }
 
     @Test
@@ -200,8 +201,8 @@ class UseCaseSurfaceManagerDeviceTest {
             val cameraClosedUsageCount = testSessionParameters.deferrableSurface.useCount
 
             // Assert, verify the usage count of the DeferrableSurface
-            assertThat(cameraOpenedUsageCount).isAtLeast(1)
-            assertThat(cameraClosedUsageCount).isEqualTo(0)
+            assertThat(cameraOpenedUsageCount).isEqualTo(2)
+            assertThat(cameraClosedUsageCount).isEqualTo(1)
         }
     }
 
@@ -240,7 +241,9 @@ class UseCaseSurfaceManagerDeviceTest {
                 )
             }
 
-        val deferrableSurface: DeferrableSurface = ImmediateSurface(imageReader.surface)
+        val deferrableSurface: DeferrableSurface = ImmediateSurface(imageReader.surface).also {
+            DeferrableSurfaces.incrementAll(listOf(it))
+        }
 
         /** Latch to wait for first image data to appear.  */
         val repeatingOutputDataLatch = CountDownLatch(1)
@@ -260,6 +263,7 @@ class UseCaseSurfaceManagerDeviceTest {
 
         /** Clean up resources.  */
         fun cleanup() {
+            DeferrableSurfaces.decrementAll(listOf(deferrableSurface))
             deferrableSurface.close()
             imageReader.close()
             handlerThread.quitSafely()
