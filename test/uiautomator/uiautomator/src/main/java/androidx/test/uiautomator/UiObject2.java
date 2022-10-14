@@ -18,6 +18,7 @@ package androidx.test.uiautomator;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -54,6 +55,7 @@ public class UiObject2 implements Searchable {
     private GestureController mGestureController;
     private BySelector mSelector;  // Hold this mainly for debugging
     private AccessibilityNodeInfo mCachedNode;
+    private int mDisplayId;
     private float mDisplayDensity;
 
     // Margins
@@ -83,19 +85,18 @@ public class UiObject2 implements Searchable {
         mSelector = selector;
         mCachedNode = cachedNode;
         mGestureController = GestureController.getInstance(device);
-        final DisplayManager dm =
-                (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
-                        Service.DISPLAY_SERVICE);
-        final Display display = dm.getDisplay(getDisplayId());
-        if (display == null) {
-            // Display may be private virtual display. Fallback to default display density.
-            mDisplayDensity = mDevice.getInstrumentation().getContext().getResources()
-                .getDisplayMetrics().density;
+
+        // Fetch and cache display information. This is safe as moving the underlying view to
+        // another display would invalidate the cached node and require recreating this UiObject2.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            AccessibilityWindowInfo window = Api21Impl.getWindow(cachedNode);
+            mDisplayId = window == null ? Display.DEFAULT_DISPLAY : Api30Impl.getDisplayId(window);
         } else {
-            final DisplayMetrics metrics = new DisplayMetrics();
-            display.getRealMetrics(metrics);
-            mDisplayDensity = metrics.density;
+            mDisplayId = Display.DEFAULT_DISPLAY;
         }
+        Context uiContext = device.getUiContext(mDisplayId);
+        int densityDpi = uiContext.getResources().getConfiguration().densityDpi;
+        mDisplayDensity = (float) densityDpi / DisplayMetrics.DENSITY_DEFAULT;
     }
 
     /** {@inheritDoc} */
@@ -232,13 +233,7 @@ public class UiObject2 implements Searchable {
     // Attribute accessors
 
     public int getDisplayId() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            AccessibilityWindowInfo window = Api21Impl.getWindow(getAccessibilityNodeInfo());
-            if (window != null) {
-                return Api30Impl.getDisplayId(window);
-            }
-        }
-        return Display.DEFAULT_DISPLAY;
+        return mDisplayId;
     }
 
     /** Returns the visible bounds of this object in screen coordinates. */
@@ -675,7 +670,7 @@ public class UiObject2 implements Searchable {
      * @return Whether the object can still scroll in the given direction.
      */
     public boolean fling(@NonNull Direction direction, final int speed) {
-        ViewConfiguration vc = ViewConfiguration.get(getDevice().getUiContext());
+        ViewConfiguration vc = ViewConfiguration.get(getDevice().getUiContext(getDisplayId()));
         if (speed < vc.getScaledMinimumFlingVelocity()) {
             throw new IllegalArgumentException("Speed is less than the minimum fling velocity");
         }
