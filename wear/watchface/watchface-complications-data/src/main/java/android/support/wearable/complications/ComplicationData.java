@@ -1912,6 +1912,13 @@ public final class ComplicationData implements Parcelable, Serializable {
         if (shouldRedact()) {
             return "ComplicationData{" + "mType=" + mType + ", mFields=REDACTED}";
         }
+        return toStringNoRedaction();
+    }
+
+    /** @hide */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public String toStringNoRedaction() {
         return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
     }
 
