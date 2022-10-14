@@ -51,14 +51,14 @@ class CyclingPedalingCadenceRecordTest {
     @Test
     fun sameStartTimeEndTime_validRecord_equals() {
         assertThat(
-            CyclingPedalingCadenceRecord(
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
-                endZoneOffset = null,
-                samples = listOf()
+                CyclingPedalingCadenceRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
+                )
             )
-        )
             .isEqualTo(
                 CyclingPedalingCadenceRecord(
                     startTime = Instant.ofEpochMilli(1234L),

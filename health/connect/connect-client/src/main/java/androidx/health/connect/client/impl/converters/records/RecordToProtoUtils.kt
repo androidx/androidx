@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.InstantaneousRecord
 import androidx.health.connect.client.records.IntervalRecord
 import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.DeviceTypes
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -74,13 +75,13 @@ private fun DataProto.DataPoint.Builder.setMetadata(metadata: Metadata) = apply 
     metadata.device?.let { setDevice(it.toProto()) }
 }
 
-private fun Device.toProto(): DataProto.Device {
+internal fun Device.toProto(): DataProto.Device {
     val obj = this
     return DataProto.Device.newBuilder()
         .apply {
             obj.manufacturer?.let { setManufacturer(it) }
             obj.model?.let { setModel(it) }
-            obj.type?.let { setType(it) }
+            setType(DEVICE_TYPE_INT_TO_STRING_MAP.getOrDefault(obj.type, DeviceTypes.UNKNOWN))
         }
         .build()
 }
