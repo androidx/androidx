@@ -56,6 +56,13 @@ class ModelValidatorTest {
                                         simpleName = "MySdkCallback"
                                     )
                                 ),
+                                Parameter(
+                                    name = "myInterface",
+                                    type = Type(
+                                        packageName = "com.mysdk",
+                                        simpleName = "MyInterface"
+                                    )
+                                ),
                             ),
                             returnType = Types.string,
                             isSuspend = true,
@@ -101,7 +108,42 @@ class ModelValidatorTest {
                         ),
                     )
                 )
-            )
+            ),
+            interfaces = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
+                    methods = listOf(
+                        Method(
+                            name = "doStuff",
+                            parameters = listOf(
+                                Parameter(
+                                    name = "x",
+                                    type = Types.int
+                                ),
+                                Parameter(
+                                    name = "foo",
+                                    type = Type(packageName = "com.mysdk", simpleName = "Foo")
+                                ),
+                                Parameter(
+                                    name = "callback",
+                                    type = Type(
+                                        packageName = "com.mysdk",
+                                        simpleName = "MySdkCallback"
+                                    )
+                                ),
+                            ),
+                            returnType = Types.string,
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "fireAndForget",
+                            parameters = listOf(),
+                            returnType = Types.unit,
+                            isSuspend = false,
+                        )
+                    )
+                )
+                ),
         )
         assertThat(ModelValidator.validate(api).isSuccess).isTrue()
     }
@@ -197,11 +239,12 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitives and data classes annotated with " +
-                "@PrivacySandboxValue are supported as return types.",
+            "Error in com.mysdk.MySdk.returnFoo: only primitives, data classes annotated with " +
+                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
+                "supported as return types.",
             "Error in com.mysdk.MySdk.receiveFoo: only primitives, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback are " +
-                "supported as parameter types."
+                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback or " +
+                "@PrivacySandboxInterface are supported as parameter types."
         )
     }
 
