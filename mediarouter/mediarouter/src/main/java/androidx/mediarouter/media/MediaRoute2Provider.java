@@ -46,7 +46,9 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
@@ -72,7 +74,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     final Callback mCallback;
     final Map<MediaRouter2.RoutingController, GroupRouteController> mControllerMap =
             new ArrayMap<>();
-    private final MediaRouter2.RouteCallback mRouteCallback = new RouteCallback();
+    private final MediaRouter2.RouteCallback mRouteCallback;
     private final MediaRouter2.TransferCallback mTransferCallback = new TransferCallback();
     private final MediaRouter2.ControllerCallback mControllerCallback = new ControllerCallback();
     private final Handler mHandler;
@@ -81,6 +83,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
     private Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
 
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    @SuppressWarnings({"SyntheticAccessor"})
     MediaRoute2Provider(@NonNull Context context, @NonNull Callback callback) {
         super(context);
         mMediaRouter2 = MediaRouter2.getInstance(context);
@@ -88,6 +92,12 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         mHandler = new Handler(Looper.getMainLooper());
         mHandlerExecutor = mHandler::post;
+
+        if (BuildCompat.isAtLeastU()) {
+            mRouteCallback = new RouteCallbackUpsideDownCake();
+        } else {
+            mRouteCallback = new RouteCallback();
+        }
     }
 
     @Override
@@ -376,6 +386,14 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         @Override
         public void onRoutesChanged(@NonNull List<MediaRoute2Info> routes) {
+            refreshRoutes();
+        }
+    }
+
+    private class RouteCallbackUpsideDownCake extends MediaRouter2.RouteCallback {
+
+        @Override
+        public void onRoutesUpdated(@NonNull List<MediaRoute2Info> routes) {
             refreshRoutes();
         }
     }
