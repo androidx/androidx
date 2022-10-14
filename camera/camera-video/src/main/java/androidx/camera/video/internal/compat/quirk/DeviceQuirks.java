@@ -22,6 +22,8 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
 
+import java.util.List;
+
 /**
  * Provider of video capture related quirks, which are used for device or API level specific
  * workarounds.
@@ -57,5 +59,17 @@ public class DeviceQuirks {
     @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {
         return QUIRKS.get(quirkClass);
+    }
+
+    /**
+     * Retrieves all video {@link Quirk} instances that are or inherit the given type.
+     *
+     * @param quirkClass The super type of video quirk to retrieve.
+     * @return A video {@link Quirk} list of the provided type. An empty list is returned if it
+     * isn't found.
+     */
+    @NonNull
+    public static <T extends Quirk> List<T> getAll(@NonNull final Class<T> quirkClass) {
+        return QUIRKS.getAll(quirkClass);
     }
 }
