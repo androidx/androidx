@@ -94,11 +94,13 @@ class AidlGenerator private constructor(
         val transactionCallbacks = generateTransactionCallbacks()
         val service = aidlInterface(api.getOnlyService())
         val customCallbacks = api.callbacks.map(::aidlInterface)
+        val interfaces = api.interfaces.map(::aidlInterface)
         return transactionCallbacks +
             generateICancellationSignal() +
             service +
             values +
-            customCallbacks
+            customCallbacks +
+            interfaces
     }
 
     private fun aidlInterface(annotatedInterface: AnnotatedInterface) =
@@ -127,7 +129,10 @@ class AidlGenerator private constructor(
     }
 
     private fun generateTransactionCallbacks(): List<AidlFileSpec> {
-        return api.getOnlyService().methods.filter(Method::isSuspend)
+        val annotatedInterfaces = api.services + api.interfaces
+        return annotatedInterfaces
+            .flatMap(AnnotatedInterface::methods)
+            .filter(Method::isSuspend)
             .map(Method::returnType).toSet()
             .map { generateTransactionCallback(it) }
     }
@@ -182,6 +187,7 @@ class AidlGenerator private constructor(
     private fun getAidlTypeDeclaration(type: Type): AidlTypeSpec {
         api.valueMap[type]?.let { return it.aidlType() }
         api.callbackMap[type]?.let { return it.aidlType() }
+        api.interfaceMap[type]?.let { return it.aidlType() }
         return when (type.qualifiedName) {
             Boolean::class.qualifiedName -> primitive("boolean")
             Int::class.qualifiedName -> primitive("int")
