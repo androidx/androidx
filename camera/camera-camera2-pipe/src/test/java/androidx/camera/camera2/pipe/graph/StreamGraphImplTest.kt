@@ -41,9 +41,9 @@ internal class StreamGraphImplTest {
     fun testPrecomputedTestData() {
         val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
 
-        assertThat(streamGraph.streams).hasSize(6)
-        assertThat(streamGraph.streams).hasSize(6)
-        assertThat(streamGraph.outputConfigs).hasSize(5)
+        assertThat(streamGraph.streams).hasSize(7)
+        assertThat(streamGraph.streams).hasSize(7)
+        assertThat(streamGraph.outputConfigs).hasSize(6)
 
         val stream1 = streamGraph[config.streamConfig1]!!
         val outputStream1 = stream1.outputs.single()
@@ -51,6 +51,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream1.size.width).isEqualTo(100)
         assertThat(outputStream1.size.height).isEqualTo(100)
         assertThat(outputStream1.mirrorMode).isNull()
+        assertThat(outputStream1.timestampBase).isNull()
 
         val stream2 = streamGraph[config.streamConfig2]!!
         val outputStream2 = stream2.outputs.single()
@@ -59,6 +60,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream2.size.width).isEqualTo(123)
         assertThat(outputStream2.size.height).isEqualTo(321)
         assertThat(outputStream2.mirrorMode).isNull()
+        assertThat(outputStream2.timestampBase).isNull()
     }
 
     @Test
@@ -188,5 +190,16 @@ internal class StreamGraphImplTest {
         val stream2 = streamGraph[config.streamConfig4]!!
         assertThat(stream2.outputs.single().mirrorMode)
             .isEqualTo(OutputStream.MirrorMode.MIRROR_MODE_H)
+    }
+
+    @Test
+    fun testDefaultAndPropagatedTimestampBases() {
+        val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
+        val stream1 = streamGraph[config.streamConfig1]!!
+        assertThat(stream1.outputs.single().timestampBase).isNull()
+
+        val stream2 = streamGraph[config.streamConfig5]!!
+        assertThat(stream2.outputs.single().timestampBase)
+            .isEqualTo(OutputStream.TimestampBase.TIMESTAMP_BASE_MONOTONIC)
     }
 }

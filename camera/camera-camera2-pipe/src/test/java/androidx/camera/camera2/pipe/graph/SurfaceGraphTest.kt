@@ -54,8 +54,9 @@ class SurfaceGraphTest {
     private val stream2 = streamMap[config.streamConfig2]!!
     private val stream3 = streamMap[config.streamConfig3]!!
     private val stream4 = streamMap[config.streamConfig4]!!
-    private val stream5 = streamMap[config.sharedStreamConfig1]!!
-    private val stream6 = streamMap[config.sharedStreamConfig2]!!
+    private val stream5 = streamMap[config.streamConfig5]!!
+    private val stream6 = streamMap[config.sharedStreamConfig1]!!
+    private val stream7 = streamMap[config.sharedStreamConfig2]!!
 
     private val fakeSurface1 = Surface(SurfaceTexture(1))
     private val fakeSurface2 = Surface(SurfaceTexture(2))
@@ -63,6 +64,7 @@ class SurfaceGraphTest {
     private val fakeSurface4 = Surface(SurfaceTexture(4))
     private val fakeSurface5 = Surface(SurfaceTexture(5))
     private val fakeSurface6 = Surface(SurfaceTexture(6))
+    private val fakeSurface7 = Surface(SurfaceTexture(7))
 
     @After
     fun teardown() {
@@ -72,6 +74,7 @@ class SurfaceGraphTest {
         fakeSurface4.release()
         fakeSurface5.release()
         fakeSurface6.release()
+        fakeSurface7.release()
     }
 
     @Test
@@ -82,11 +85,14 @@ class SurfaceGraphTest {
         surfaceGraph[stream4.id] = fakeSurface4
         surfaceGraph[stream5.id] = fakeSurface5
         surfaceGraph[stream6.id] = fakeSurface6
+        surfaceGraph[stream7.id] = fakeSurface7
 
         assertThat(controller.surfaceMap).isNotNull()
         assertThat(controller.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
         assertThat(controller.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface2)
         assertThat(controller.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
+        assertThat(controller.surfaceMap?.get(stream4.id)).isEqualTo(fakeSurface4)
+        assertThat(controller.surfaceMap?.get(stream5.id)).isEqualTo(fakeSurface5)
     }
 
     @Test
@@ -97,10 +103,11 @@ class SurfaceGraphTest {
         surfaceGraph[stream2.id] = fakeSurface2
         surfaceGraph[stream3.id] = fakeSurface3
         surfaceGraph[stream4.id] = fakeSurface4
+        surfaceGraph[stream5.id] = fakeSurface5
         assertThat(controller.surfaceMap).isNull()
 
-        surfaceGraph[stream5.id] = fakeSurface5
         surfaceGraph[stream6.id] = fakeSurface6
+        surfaceGraph[stream7.id] = fakeSurface7
 
         assertThat(controller.surfaceMap).isNotNull()
         assertThat(controller.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
@@ -109,6 +116,7 @@ class SurfaceGraphTest {
         assertThat(controller.surfaceMap?.get(stream4.id)).isEqualTo(fakeSurface4)
         assertThat(controller.surfaceMap?.get(stream5.id)).isEqualTo(fakeSurface5)
         assertThat(controller.surfaceMap?.get(stream6.id)).isEqualTo(fakeSurface6)
+        assertThat(controller.surfaceMap?.get(stream7.id)).isEqualTo(fakeSurface7)
     }
 
     @Test
@@ -125,6 +133,7 @@ class SurfaceGraphTest {
         surfaceGraph[stream4.id] = fakeSurface4
         surfaceGraph[stream5.id] = fakeSurface5
         surfaceGraph[stream6.id] = fakeSurface6
+        surfaceGraph[stream7.id] = fakeSurface7
 
         assertThat(controller.surfaceMap).isNotNull()
         assertThat(controller.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1B)
@@ -133,6 +142,7 @@ class SurfaceGraphTest {
         assertThat(controller.surfaceMap?.get(stream4.id)).isEqualTo(fakeSurface4)
         assertThat(controller.surfaceMap?.get(stream5.id)).isEqualTo(fakeSurface5)
         assertThat(controller.surfaceMap?.get(stream6.id)).isEqualTo(fakeSurface6)
+        assertThat(controller.surfaceMap?.get(stream7.id)).isEqualTo(fakeSurface7)
 
         fakeSurface1A.release()
         fakeSurface1B.release()
