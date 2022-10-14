@@ -48,11 +48,12 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun validateNonSuspendFunctionsReturnUnit() {
-        for (service in api.services) {
-            for (method in service.methods) {
+        val annotatedInterfaces = api.services + api.interfaces
+        for (annotatedInterface in annotatedInterfaces) {
+            for (method in annotatedInterface.methods) {
                 if (!method.isSuspend && method.returnType != Types.unit) {
                     errors.add(
-                        "Error in ${service.type.qualifiedName}.${method.name}: " +
+                        "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "functions with return values should be suspending functions."
                     )
                 }
@@ -64,24 +65,30 @@ class ModelValidator private constructor(val api: ParsedApi) {
         val allowedParameterTypes =
             (api.values.map(AnnotatedValue::type) +
                 api.callbacks.map(AnnotatedInterface::type) +
+                api.interfaces.map(AnnotatedInterface::type) +
                 Types.primitiveTypes).toSet()
         val allowedReturnValueTypes =
-            (api.values.map(AnnotatedValue::type) + Types.primitiveTypes).toSet()
-        for (service in api.services) {
-            for (method in service.methods) {
+            (api.values.map(AnnotatedValue::type) +
+                api.interfaces.map(AnnotatedInterface::type) +
+                Types.primitiveTypes).toSet()
+
+        val annotatedInterfaces = api.services + api.interfaces
+        for (annotatedInterface in annotatedInterfaces) {
+            for (method in annotatedInterface.methods) {
                 if (method.parameters.any { !allowedParameterTypes.contains(it.type) }) {
                     errors.add(
-                        "Error in ${service.type.qualifiedName}.${method.name}: " +
+                        "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "only primitives, data classes annotated with @PrivacySandboxValue " +
-                            "and interfaces annotated with @PrivacySandboxCallback are supported " +
-                            "as parameter types."
+                            "and interfaces annotated with @PrivacySandboxCallback or " +
+                            "@PrivacySandboxInterface are supported as parameter types."
                     )
                 }
                 if (!allowedReturnValueTypes.contains(method.returnType)) {
                     errors.add(
-                        "Error in ${service.type.qualifiedName}.${method.name}: " +
-                            "only primitives and data classes annotated with " +
-                            "@PrivacySandboxValue are supported as return types."
+                        "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
+                            "only primitives, data classes annotated with @PrivacySandboxValue " +
+                            "and interfaces annotated with @PrivacySandboxInterface are " +
+                            "supported as return types."
                     )
                 }
             }

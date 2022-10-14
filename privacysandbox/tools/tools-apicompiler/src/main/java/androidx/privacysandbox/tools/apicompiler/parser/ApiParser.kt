@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.parser
 
 import androidx.privacysandbox.tools.PrivacySandboxCallback
+import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
@@ -53,7 +54,8 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
         }
         val values = parseAllValues()
         val callbacks = parseAllCallbacks()
-        return ParsedApi(services, values, callbacks).also(::validate)
+        val interfaces = parseAllInterfaces()
+        return ParsedApi(services, values, callbacks, interfaces).also(::validate)
     }
 
     private fun parseAllValues(): Set<AnnotatedValue> {
@@ -69,6 +71,12 @@ class ApiParser(private val resolver: Resolver, private val logger: KSPLogger) {
 
     private fun parseAllCallbacks(): Set<AnnotatedInterface> {
         return getInterfacesWithAnnotation(PrivacySandboxCallback::class)
+            .map(interfaceParser::parseInterface)
+            .toSet()
+    }
+
+    private fun parseAllInterfaces(): Set<AnnotatedInterface> {
+        return getInterfacesWithAnnotation(PrivacySandboxInterface::class)
             .map(interfaceParser::parseInterface)
             .toSet()
     }
