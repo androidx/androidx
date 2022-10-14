@@ -17,13 +17,11 @@
 package androidx.window.embedding
 
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@OptIn(ExperimentalWindowApi::class)
 class ActivityRuleTest {
 
     @Test

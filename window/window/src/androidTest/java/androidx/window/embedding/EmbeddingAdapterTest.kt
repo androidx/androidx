@@ -19,22 +19,17 @@ package androidx.window.embedding
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
-
 import android.app.Activity
-
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.extensions.WindowExtensions
 import org.junit.Assert.assertEquals
-
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
 /** Tests for [EmbeddingAdapter] */
-@OptIn(ExperimentalWindowApi::class)
 class EmbeddingAdapterTest {
     private lateinit var adapter: EmbeddingAdapter
 

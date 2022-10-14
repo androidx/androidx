@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
-import androidx.window.core.ExperimentalWindowApi
 import com.google.common.truth.Truth.assertWithMessage
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -31,7 +30,6 @@ import org.junit.Test
 /**
  * Integration test for [ActivityFilter] to test construction from [ComponentName].
  */
-@OptIn(ExperimentalWindowApi::class)
 class ActivityFilterTest {
 
     private val intent = Intent()

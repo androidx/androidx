@@ -25,7 +25,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import kotlin.math.min
 
@@ -74,7 +73,6 @@ import kotlin.math.min
  * It is useful if this [SplitRule] is supported to split the parent container in different
  * directions with different device states.
  */
-@ExperimentalWindowApi
 open class SplitRule internal constructor(
     tag: String? = null,
     /**

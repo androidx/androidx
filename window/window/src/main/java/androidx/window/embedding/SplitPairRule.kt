@@ -21,7 +21,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
@@ -34,7 +33,6 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBeh
  * belong to the same application and are running in the same process. The rules are  always
  * applied only to activities that will be started  after the rules were set.
  */
-@ExperimentalWindowApi
 class SplitPairRule : SplitRule {
 
     /**

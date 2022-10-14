@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Rect
 import androidx.test.core.app.ApplicationProvider
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -45,7 +44,6 @@ import org.junit.Test
  * @see SplitRule
  * @see ActivityRule
  */
-@OptIn(ExperimentalWindowApi::class)
 class EmbeddingRuleConstructionTests {
     private val splitController = SplitController.getInstance()
     private lateinit var application: Application

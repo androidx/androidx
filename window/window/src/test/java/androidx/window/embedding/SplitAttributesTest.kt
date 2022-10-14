@@ -16,7 +16,6 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.WindowStrictModeException
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -30,7 +29,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 /** Test class to verify [SplitAttributes] */
-@OptIn(ExperimentalWindowApi::class)
 class SplitAttributesTest {
     @Test
     fun testSplitAttributesEquals() {

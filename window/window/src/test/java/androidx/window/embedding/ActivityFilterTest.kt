@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -27,7 +26,6 @@ import org.junit.Test
 /**
  * The unit tests for [ActivityFilter] that will test construction.
  */
-@OptIn(ExperimentalWindowApi::class)
 class ActivityFilterTest {
 
     @Test(expected = IllegalArgumentException::class)

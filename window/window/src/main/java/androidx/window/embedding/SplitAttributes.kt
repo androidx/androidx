@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.SplitAttributes.LayoutDirection
@@ -46,7 +45,6 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEquall
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
  */
-@ExperimentalWindowApi
 class SplitAttributes internal constructor(
     /**
      * Returns [SplitType] for the [SplitAttributes] with a default value of

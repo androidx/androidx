@@ -22,7 +22,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
@@ -30,7 +29,6 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBeh
 /**
  * Configuration rules for split placeholders.
  */
-@ExperimentalWindowApi
 class SplitPlaceholderRule : SplitRule {
 
     /**
