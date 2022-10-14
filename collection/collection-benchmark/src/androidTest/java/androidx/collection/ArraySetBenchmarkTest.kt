@@ -17,7 +17,6 @@
 package androidx.collection
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,34 +32,22 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
 
     @Test
     fun create() {
-        val b = ArraySetCreateBenchmark(sourceSet)
-        benchmark.measureRepeated {
-            b.measuredBlock()
-        }
+        benchmark.runCollectionBenchmark(ArraySetCreateBenchmark(sourceSet))
     }
 
     @Test
     fun containsElement() {
-        val b = ArraySetContainsElementBenchmark(sourceSet)
-        benchmark.measureRepeated {
-            b.measuredBlock()
-        }
+        benchmark.runCollectionBenchmark(ArraySetContainsElementBenchmark(sourceSet))
     }
 
     @Test
     fun indexOf() {
-        val b = ArraySetIndexOfBenchmark(sourceSet)
-        benchmark.measureRepeated {
-            b.measuredBlock()
-        }
+        benchmark.runCollectionBenchmark(ArraySetIndexOfBenchmark(sourceSet))
     }
 
     @Test
     fun addAllThenRemoveIndividually() {
-        val b = ArraySetAddAllThenRemoveIndividuallyBenchmark(sourceSet)
-        benchmark.measureRepeated {
-            b.measuredBlock()
-        }
+        benchmark.runCollectionBenchmark(ArraySetAddAllThenRemoveIndividuallyBenchmark(sourceSet))
     }
 
     companion object {

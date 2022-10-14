@@ -23,14 +23,13 @@ import platform.XCTest.XCTClockMetric
 import platform.XCTest.XCTMeasureOptions
 import platform.XCTest.XCTMemoryMetric
 
-val all: List<TestCase> = listOf(10, 100, 1000)
+val all: List<TestCase> = listOf(10, 100, 1_000)
     .flatMap { size ->
         listOf(size to true, size to false)
     }
     .map { params ->
         createSourceSet(
-            size = params.first,
-            sparse = params.second
+            size = params.first, sparse = params.second
         )
     }
     .flatMap { sourceSet ->
@@ -45,11 +44,87 @@ val all: List<TestCase> = listOf(10, 100, 1000)
             ),
             CollectionTestCase(
                 benchmark = ArraySetIndexOfBenchmark(sourceSet),
-                testDescription = "ArraySet_IndexOfBenchmark",
+                testDescription = "ArraySet_IndexOf",
             ),
             CollectionTestCase(
                 benchmark = ArraySetAddAllThenRemoveIndividuallyBenchmark(sourceSet),
-                testDescription = "ArraySet_AddAllThenRemoveIndividuallyBenchmark",
+                testDescription = "ArraySet_AddAllThenRemoveIndividually",
+            ),
+        )
+    } + listOf(10, 100, 1_000, 10_000)
+    .map { size ->
+        createSeed(size)
+    }
+    .map { seed ->
+        CollectionTestCase(
+            benchmark = CircularyArrayAddFromHeadAndPopFromTailBenchmark(seed),
+            testDescription = "CircularyArray_AddFromHeadAndPopFromTail",
+        )
+    } + listOf(10, 100, 1_000)
+    .map { size ->
+        createKeyList(size)
+    }
+    .flatMap { keyList ->
+        listOf(
+            CollectionTestCase(
+                benchmark = LruCacheCreateThenFetchWithAllHitsBenchmark(keyList, keyList.size),
+                testDescription = "LruCache_CreateThenFetchWithAllHits",
+            ),
+            CollectionTestCase(
+                benchmark = LruCacheAllMissesBenchmark(keyList, keyList.size),
+                testDescription = "LruCache_AllMisses",
+            ),
+        )
+    } + listOf(10, 100, 1_000)
+    .flatMap { size ->
+        listOf(size to true, size to false)
+    }
+    .map { params ->
+        createSourceMap(
+            size = params.first, sparse = params.second
+        )
+    }
+    .flatMap { sourceMap ->
+        listOf(
+            CollectionTestCase(
+                benchmark = SimpleArrayMapCreateBenchmark(sourceMap),
+                testDescription = "SimpleArrayMap_Create",
+            ),
+            CollectionTestCase(
+                benchmark = SimpleArrayMapContainsKeyBenchmark(sourceMap),
+                testDescription = "SimpleArrayMap_ContainsKey",
+            ),
+            CollectionTestCase(
+                benchmark = SimpleArrayMapAddAllThenRemoveIndividuallyBenchmark(sourceMap),
+                testDescription = "SimpleArrayMap_AddAllThenRemoveIndividually",
+            ),
+        )
+    } + listOf(10, 100, 1_000, 10_000)
+    .flatMap { size ->
+        listOf(size to true, size to false)
+    }
+    .map { params ->
+        createFilledSparseArray(
+            size = params.first, sparse = params.second
+        )
+    }
+    .flatMap { map ->
+        listOf(
+            CollectionTestCase(
+                benchmark = SparseArrayGetBenchmark(map),
+                testDescription = "SimpleArrayMap_Get",
+            ),
+            CollectionTestCase(
+                benchmark = SparseArrayContainsKeyBenchmark(map),
+                testDescription = "SparseArray_ContainsKey",
+            ),
+            CollectionTestCase(
+                benchmark = SparseArrayIndexOfKeyBenchmark(map),
+                testDescription = "SparseArray_IndexOfKey",
+            ),
+            CollectionTestCase(
+                benchmark = SparseArrayIndexOfValueBenchmark(map),
+                testDescription = "SparseArray_IndexOfValue",
             ),
         )
     }
@@ -64,11 +139,8 @@ private class CollectionTestCase(
         options.iterationCount = 1.toULong()
         context.measureWithMetrics(
             listOf(
-                XCTCPUMetric(),
-                XCTMemoryMetric(),
-                XCTClockMetric()
-            ),
-            options
+                XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()
+            ), options
         ) {
             benchmark.measuredBlock()
         }
