@@ -622,7 +622,7 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void show(@InsetsType int types) {
-            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT < 32) {
+            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT < 33) {
                 InputMethodManager imm =
                         (InputMethodManager) mWindow.getContext()
                                 .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -632,7 +632,7 @@ public final class WindowInsetsControllerCompat {
                 // calling a hidden method checkFocus(), which ensures that the IME state has the
                 // correct view in some situations (especially when the focused view changes).
                 // This is essentially a backport, since an equivalent checkFocus() call was
-                // added in API 32 to improve behavior:
+                // added in API 32 to improve behavior and an additional change in API 33:
                 // https://issuetracker.google.com/issues/189858204
                 imm.isActive();
             }
