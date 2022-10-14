@@ -25,6 +25,7 @@ import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.isByteBuffer
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
 import androidx.room.ext.isNotKotlinUnit
@@ -180,7 +181,6 @@ class TypeAdapterStore private constructor(
                 .forEach(::addColumnAdapter)
             StringColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             ByteArrayColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
-            ByteBufferColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
             // null aware converter is able to automatically null wrap converters so we don't
             // need this as long as we are running in KSP
@@ -373,6 +373,8 @@ class TypeAdapterStore private constructor(
                 typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement, type)
             builtInConverterFlags.uuid.isEnabled() &&
                 type.isUUID() -> UuidColumnTypeAdapter(type)
+            builtInConverterFlags.byteBuffer.isEnabled() &&
+                type.isByteBuffer() -> ByteBufferColumnTypeAdapter(type)
             else -> null
         }
     }

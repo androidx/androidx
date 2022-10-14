@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
@@ -61,6 +62,7 @@ import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMeth
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
+import androidx.room.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
@@ -218,6 +220,24 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(enum, null, skipDefaultConverter = false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
+        }
+    }
+
+    @Test
+    fun testJavaLangByteBufferCompilesWithoutError() {
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
+            val byteBufferType = invocation.processingEnv.requireType(CommonTypeNames.BYTE_BUFFER)
+            val adapter = store.findColumnTypeAdapter(
+                byteBufferType,
+                null,
+                skipDefaultConverter = false
+            )
+            assertThat(adapter, notNullValue())
+            assertThat(adapter, instanceOf(ByteBufferColumnTypeAdapter::class.java))
         }
     }
 

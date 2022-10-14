@@ -11,8 +11,10 @@ package androidx.room {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface BuiltInTypeConverters {
+    method public abstract androidx.room.BuiltInTypeConverters.State byteBuffer() default androidx.room.BuiltInTypeConverters.State.INHERITED;
     method public abstract androidx.room.BuiltInTypeConverters.State enums() default androidx.room.BuiltInTypeConverters.State.INHERITED;
     method public abstract androidx.room.BuiltInTypeConverters.State uuid() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+    property public abstract androidx.room.BuiltInTypeConverters.State byteBuffer;
     property public abstract androidx.room.BuiltInTypeConverters.State enums;
     property public abstract androidx.room.BuiltInTypeConverters.State uuid;
   }

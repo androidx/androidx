@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.isEnum
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.CommonTypeNames.BYTE_BUFFER
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
@@ -55,6 +56,11 @@ fun XType.isNotNone() = !isNone()
  * Returns `true` if this is not `byte` type.
  */
 fun XType.isNotByte() = !isByte()
+
+/**
+ * Returns `true` if this is a `ByteBuffer` type.
+ */
+fun XType.isByteBuffer(): Boolean = typeName == BYTE_BUFFER
 
 /**
  * Returns `true` if this represents a `UUID` type.
