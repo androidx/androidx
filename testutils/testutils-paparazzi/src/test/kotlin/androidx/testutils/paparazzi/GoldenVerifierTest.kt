@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot.paparazzi
+package androidx.testutils.paparazzi
 
-import androidx.test.screenshot.layoutlib.GoldenVerifier
-import androidx.test.screenshot.layoutlib.ImageDiffer
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
 import app.cash.paparazzi.Snapshot
@@ -45,7 +43,7 @@ class GoldenVerifierTest {
     @get:Rule
     val reportDirectory = TemporaryFolder()
 
-    private val modulePath = "test/screenshot/screenshot-paparazzi"
+    private val modulePath = "testutils/testutils-paparazzi"
 
     @Test
     fun `snapshot handler success`() {
@@ -264,7 +262,7 @@ class GoldenVerifierTest {
     private fun snapshot() = Snapshot(
         name = null,
         testName = app.cash.paparazzi.TestName(
-            packageName = "androidx.test.screenshot.paparazzi",
+            packageName = this::class.java.packageName,
             className = this::class.simpleName!!,
             methodName = testName.methodName
         ),

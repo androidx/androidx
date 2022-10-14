@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot.layoutlib
+package androidx.testutils.paparazzi
 
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Environment
@@ -25,8 +25,8 @@ import java.io.File
 /**
  * Creates a [Paparazzi] test rule configured from system properties for AndroidX tests.
  */
-fun AndroidXLayoutlibTestRule(
-    deviceConfig: DeviceConfig = DeviceConfig.NEXUS_5.copy(softButtons = false),
+fun androidxPaparazzi(
+    deviceConfig: DeviceConfig = DeviceConfig.PIXEL_6.copy(softButtons = false),
     theme: String = "android:Theme.Material.NoActionBar.Fullscreen",
     renderingMode: RenderingMode = RenderingMode.SHRINK,
     imageDiffer: ImageDiffer = ImageDiffer.PixelPerfect
@@ -35,31 +35,27 @@ fun AndroidXLayoutlibTestRule(
     theme = theme,
     renderingMode = renderingMode,
     environment = Environment(
-        platformDir = systemProperty("platformDir").toFile().path,
-        resDir = systemProperty("resDir").toFile().path,
-        assetsDir = systemProperty("assetsDir").toFile().path,
+        platformDir = systemProperty("platformDir"),
+        resDir = systemProperty("resDir"),
+        assetsDir = systemProperty("assetsDir"),
         compileSdkVersion = systemProperty("compileSdkVersion").toInt(),
         resourcePackageNames = systemProperty("resourcePackageNames").split(","),
         appTestDir = System.getProperty("user.dir")!!
     ),
     snapshotHandler = GoldenVerifier(
         modulePath = systemProperty("modulePath"),
-        goldenRootDirectory = systemProperty("goldenRootDir").toFile(),
-        reportDirectory = systemProperty("reportDir").toFile(),
+        goldenRootDirectory = File(systemProperty("goldenRootDir")),
+        reportDirectory = File(systemProperty("reportDir")),
         imageDiffer = imageDiffer
     )
 )
 
 /** Package name used for resolving system properties */
-private const val PACKAGE_NAME = "androidx.test.screenshot.layoutlib"
+private const val PACKAGE_NAME = "androidx.testutils.paparazzi"
 
 /** Read a system property with [PACKAGE_NAME] prefix, throwing an exception if missing */
 private fun systemProperty(name: String) =
     requireNotNull(System.getProperty("$PACKAGE_NAME.$name")) {
         "System property $PACKAGE_NAME.$name is not set. You may need to apply " +
-            "AndroidXLayoutlibPlugin to your Gradle build."
+            "AndroidXPaparazziPlugin to your Gradle build."
     }
-
-/** Little helper to convert string path to [File] to improve readability */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun String.toFile() = File(this).canonicalFile

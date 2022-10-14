@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot.layoutlib
+package androidx.testutils.paparazzi
 
-import androidx.test.screenshot.layoutlib.ImageDiffer.DiffResult.Similar
+import androidx.testutils.paparazzi.ImageDiffer.DiffResult.Similar
 import java.awt.image.BufferedImage
 
 /**

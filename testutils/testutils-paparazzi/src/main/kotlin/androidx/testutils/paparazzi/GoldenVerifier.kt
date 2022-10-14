@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot.layoutlib
+package androidx.testutils.paparazzi
 
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
