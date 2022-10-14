@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.Type
@@ -46,6 +47,10 @@ fun AnnotatedValue.fromParcelableNameSpec() =
     MemberName(converterNameSpec(), "fromParcelable")
 fun AnnotatedValue.parcelableNameSpec() =
     ClassName(type.packageName, "Parcelable${type.simpleName}")
+fun AnnotatedInterface.clientProxyNameSpec() =
+    ClassName(type.packageName, "${type.simpleName}ClientProxy")
+fun AnnotatedInterface.stubDelegateNameSpec() =
+    ClassName(type.packageName, "${type.simpleName}StubDelegate")
 
 /**
  * Defines the primary constructor of this type with the given list of properties.
