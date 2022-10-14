@@ -164,6 +164,70 @@ public final class SurfaceTextureProvider {
         };
     }
 
+    /**
+     * Creates a {@link SurfaceTextureHolder} that contains a {@link SurfaceTexture} which will
+     * automatically drain frames as new frames arrive.
+     *
+     * @param glExecutor             the executor where the GL codes will run.
+     * @param width                  the width of the SurfaceTexture size
+     * @param height                 the height of the SurfaceTexture size.
+     * @param frameAvailableListener listener to be invoked when there are new frames.
+     */
+    @NonNull
+    public static SurfaceTextureHolder createAutoDrainingSurfaceTexture(
+            @NonNull Executor glExecutor,
+            int width,
+            int height,
+            @NonNull SurfaceTexture.OnFrameAvailableListener frameAvailableListener) {
+        int[] textureIds = new int[1];
+        SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
+        EGLContextParams contextParams = createDummyEGLContext();
+        glExecutor.execute(() -> {
+            EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
+                    contextParams.outputSurface, contextParams.context);
+            GLES20.glGenTextures(1, textureIds, 0);
+            surfaceTexture.setDefaultBufferSize(width, height);
+            surfaceTexture.setOnFrameAvailableListener(it ->
+                    glExecutor.execute(() -> {
+                        it.updateTexImage();
+                        frameAvailableListener.onFrameAvailable(surfaceTexture);
+                    }));
+        });
+
+        return new SurfaceTextureHolder(surfaceTexture, () -> {
+            glExecutor.execute(() -> {
+                surfaceTexture.release();
+                GLES20.glDeleteTextures(1, textureIds, 0);
+                terminateEGLContext(contextParams);
+            });
+        });
+    }
+
+    /**
+     * A holder that contains the {@link SurfaceTexture}. Close() must be called to reclaim the
+     * resource.
+     */
+    public static class SurfaceTextureHolder implements AutoCloseable {
+        private final SurfaceTexture mSurfaceTexture;
+        private final Runnable mCloseRunnable;
+
+        public SurfaceTextureHolder(@NonNull SurfaceTexture surfaceTexture,
+                @NonNull Runnable closeRunnable) {
+            mSurfaceTexture = surfaceTexture;
+            mCloseRunnable = closeRunnable;
+        }
+
+        @NonNull
+        public SurfaceTexture getSurfaceTexture() {
+            return mSurfaceTexture;
+        }
+
+        @Override
+        public void close() throws Exception {
+            mCloseRunnable.run();
+        }
+    }
+
     @NonNull
     private static EGLContextParams createDummyEGLContext() {
         EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
