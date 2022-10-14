@@ -64,6 +64,8 @@ import java.util.Objects;
  * Note that {@link ProfileVerifier} requires {@link Build.VERSION_CODES#P} due to a permission
  * issue: the reference profile folder is not accessible to pre api 28. When calling this api on
  * unsupported api, {@link #getCompilationStatusAsync()} returns
+ * {@link CompilationStatus#RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION}. The same permission issue
+ * exists also on {@link Build.VERSION_CODES#R} so also in that case the api returns
  * {@link CompilationStatus#RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION}.
  */
 public final class ProfileVerifier {
