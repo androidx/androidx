@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot.paparazzi
+package androidx.testutils.paparazzi
 
-import androidx.test.screenshot.layoutlib.ImageDiffer.DiffResult.Different
-import androidx.test.screenshot.layoutlib.ImageDiffer.DiffResult.Similar
-import androidx.test.screenshot.layoutlib.ImageDiffer.PixelPerfect
+import androidx.testutils.paparazzi.ImageDiffer.DiffResult.Different
+import androidx.testutils.paparazzi.ImageDiffer.DiffResult.Similar
+import androidx.testutils.paparazzi.ImageDiffer.PixelPerfect
 import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertEquals
