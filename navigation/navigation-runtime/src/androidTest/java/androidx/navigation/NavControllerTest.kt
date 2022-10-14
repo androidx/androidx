@@ -790,6 +790,40 @@ class NavControllerTest {
         Intents.release()
     }
 
+    @Test
+    fun testNavigateUp_nullArgs() {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("android-app://androidx.navigation.test/nullArgTest/"),
+            ApplicationProvider.getApplicationContext(),
+            TestActivity::class.java
+        )
+
+        Intents.init()
+
+        with(ActivityScenario.launchActivityForResult<TestActivity>(intent)) {
+            withActivity {
+                val navController = navController
+                navController.setGraph(R.navigation.nav_simple)
+
+                val navigator =
+                    navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+
+                assertThat(
+                    navController.currentDestination!!.id
+                ).isEqualTo(R.id.nullArg_test)
+                assertThat(navigator.backStack.size).isEqualTo(1)
+
+                // destination does not have args
+                assertThat(navController.currentDestination!!.arguments).isEmpty()
+                // On navigateUp, null args should not throw
+                assertThat(navController.navigateUp()).isTrue()
+                assertThat(this.isFinishing)
+            }
+        }
+        Intents.release()
+    }
+
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = 17)

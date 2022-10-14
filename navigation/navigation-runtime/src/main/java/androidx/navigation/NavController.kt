@@ -847,7 +847,7 @@ public open class NavController(
                         val matchingDeepLink = _graph!!.matchDeepLink(
                             NavDeepLinkRequest(activity!!.intent)
                         )
-                        if (matchingDeepLink != null) {
+                        if (matchingDeepLink?.matchingArgs != null) {
                             val destinationArgs = matchingDeepLink.destination.addInDefaultArgs(
                                 matchingDeepLink.matchingArgs
                             )
