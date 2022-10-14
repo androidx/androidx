@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apigenerator
+package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.generator.addCode
-import androidx.privacysandbox.tools.core.generator.addControlFlow
-import androidx.privacysandbox.tools.core.generator.addStatement
-import androidx.privacysandbox.tools.core.generator.build
-import androidx.privacysandbox.tools.core.generator.fromParcelableNameSpec
-import androidx.privacysandbox.tools.core.generator.parcelableNameSpec
-import androidx.privacysandbox.tools.core.generator.poetSpec
-import androidx.privacysandbox.tools.core.generator.primaryConstructor
-import androidx.privacysandbox.tools.core.generator.toParcelableNameSpec
-import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -38,13 +28,13 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
 
-internal class ClientProxyTypeGenerator(
+class ClientProxyTypeGenerator(
     private val api: ParsedApi,
     private val service: AnnotatedInterface
 ) {
-    internal val className =
+    val className =
         ClassName(service.type.packageName, "${service.type.simpleName}ClientProxy")
-    internal val remoteBinderClassName =
+    val remoteBinderClassName =
         ClassName(service.type.packageName, "I${service.type.simpleName}")
     private val cancellationSignalClassName =
         ClassName(service.type.packageName, "ICancellationSignal")
