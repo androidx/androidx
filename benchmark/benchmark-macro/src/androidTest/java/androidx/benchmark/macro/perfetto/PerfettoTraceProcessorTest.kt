@@ -18,11 +18,13 @@ package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.perfetto.server.PerfettoApi
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import java.net.ConnectException
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import org.junit.Assert.assertTrue
@@ -125,7 +127,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    public fun validateTraceProcessorBinariesExist() {
+    fun validateTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
@@ -140,14 +142,15 @@ class PerfettoTraceProcessorTest {
     fun runServerShouldHandleStartAndStopServer() {
         assumeTrue(isAbiSupported())
 
-        val perfettoApi = PerfettoApi.create("http://localhost:10555/")
-        fun isRunning(): Boolean =
-            try {
-                perfettoApi.status().execute()
-                true
-            } catch (e: Exception) {
-                false
+        // This method will return true if the server status endpoint returns 200 (that is also
+        // the only status code being returned).
+        fun isRunning(): Boolean = try {
+            with(URL("http://localhost:10555/").openConnection() as HttpURLConnection) {
+                return@with responseCode == 200
             }
+        } catch (e: ConnectException) {
+            false
+        }
 
         // Check server is not running
         assertTrue(!isRunning())
