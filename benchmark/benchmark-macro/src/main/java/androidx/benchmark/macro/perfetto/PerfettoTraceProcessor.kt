@@ -158,7 +158,7 @@ class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
             require(perfettoHttpServer.isRunning()) {
                 "Perfetto trace_shell_process is not running."
             }
-            return@userspaceTrace perfettoHttpServer.executeQuery(query)
+            return@userspaceTrace perfettoHttpServer.query(query)
         }
 
     /**

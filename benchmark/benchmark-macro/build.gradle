@@ -64,8 +64,6 @@ dependencies {
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
-    implementation(libs.retrofit)
-    implementation(libs.retrofitConverterWire)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
