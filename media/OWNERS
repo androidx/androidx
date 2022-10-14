@@ -1,4 +1,6 @@
 # Bug component: 461042
+
+# Media Playback:
 bachinger@google.com
 christosts@google.com
 ibaker@google.com
@@ -6,4 +8,12 @@ michaelkatz@google.com
 rohks@google.com
 tianyifeng@google.com
 tonihei@google.com
-andrewlewis@google.com
+
+# Media Routing:
+adadukin@google.com
+aquilescanta@google.com
+bishoygendy@google.com
+ivanbuper@google.com
+
+# Escalations only:
+andrewlewis@google.com #{LAST_RESORT_SUGGESTION}
