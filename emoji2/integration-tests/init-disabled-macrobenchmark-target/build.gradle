@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.constraintLayout, { transitive = true })
     implementation(project(":arch:core:core-runtime"))
     implementation(project(":appcompat:appcompat"))
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":startup:startup-runtime"))
     implementation(libs.material)
 }
