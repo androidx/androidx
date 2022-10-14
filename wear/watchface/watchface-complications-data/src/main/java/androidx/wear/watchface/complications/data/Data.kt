@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.FloatRange
@@ -35,6 +36,8 @@ internal typealias WireComplicationData = android.support.wearable.complications
 /** The builder for [WireComplicationData]. */
 internal typealias WireComplicationDataBuilder =
     android.support.wearable.complications.ComplicationData.Builder
+
+internal const val TAG = "Data.kt"
 
 /**
  * The policies that control complication persistence.
@@ -3149,200 +3152,210 @@ public class NoPermissionComplicationData internal constructor(
 @OptIn(ComplicationExperimental::class)
 @Suppress("NewApi")
 internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationData? {
-    // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
-    val dataSourceCopy = dataSource
-    val persistencePolicyCopy = persistencePolicy
-    val displayPolicyCopy = displayPolicy
-    return when (type) {
-        NoDataComplicationData.TYPE.toWireComplicationType() -> null
+    try {
+        // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
+        val dataSourceCopy = dataSource
+        val persistencePolicyCopy = persistencePolicy
+        val displayPolicyCopy = displayPolicy
+        return when (type) {
+            NoDataComplicationData.TYPE.toWireComplicationType() -> null
 
-        ShortTextComplicationData.TYPE.toWireComplicationType() -> {
-            ShortTextComplicationData.Builder(
-                shortText!!.toApiComplicationTextPlaceholderAware(),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-        }
-
-        LongTextComplicationData.TYPE.toWireComplicationType() -> {
-            LongTextComplicationData.Builder(
-                longText!!.toApiComplicationTextPlaceholderAware(),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-        }
-
-        RangedValueComplicationData.TYPE.toWireComplicationType() ->
-            RangedValueComplicationData.Builder(
-                value = rangedValue,
-                min = rangedMinValue,
-                max = rangedMaxValue,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                setText(shortText?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                colorRamp?.let {
-                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
-                }
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
-            MonochromaticImageComplicationData(
-                parseIconPlaceholderAware()!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
-                tapAction,
-                parseTimeRange(),
-                this,
-                dataSourceCopy,
-                persistencePolicyCopy,
-                displayPolicyCopy
-            )
-
-        SmallImageComplicationData.TYPE.toWireComplicationType() ->
-            SmallImageComplicationData(
-                parseSmallImagePlaceholderAware()!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
-                tapAction,
-                parseTimeRange(),
-                this,
-                dataSourceCopy,
-                persistencePolicyCopy,
-                displayPolicyCopy
-            )
-
-        PhotoImageComplicationData.TYPE.toWireComplicationType() ->
-            PhotoImageComplicationData(
-                parseLargeImagePlaceholderAware()!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
-                tapAction,
-                parseTimeRange(),
-                this,
-                dataSourceCopy,
-                persistencePolicyCopy,
-                displayPolicyCopy
-            )
-
-        // TODO(b/230102159): We need to build support for placeholder ProtoLayoutComplicationData.
-        ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
-            ProtoLayoutComplicationData.Builder(
-                ambientLayout!!,
-                interactiveLayout!!,
-                layoutResources!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            )
-                .apply {
+            ShortTextComplicationData.TYPE.toWireComplicationType() -> {
+                ShortTextComplicationData.Builder(
+                    shortText!!.toApiComplicationTextPlaceholderAware(),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
                     setDataSource(dataSourceCopy)
                     setPersistencePolicy(persistencePolicyCopy)
                     setDisplayPolicy(displayPolicyCopy)
-                }
-                .build()
+                }.build()
+            }
 
-        ListComplicationData.TYPE.toWireComplicationType() ->
-            ListComplicationData.Builder(
-                listEntries!!.map { it.toApiComplicationData() },
-                ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            )
-                .apply {
+            LongTextComplicationData.TYPE.toWireComplicationType() -> {
+                LongTextComplicationData.Builder(
+                    longText!!.toApiComplicationTextPlaceholderAware(),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
                     setTapAction(tapAction)
                     setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
                     setDataSource(dataSourceCopy)
                     setPersistencePolicy(persistencePolicyCopy)
                     setDisplayPolicy(displayPolicyCopy)
-                }
-                .build()
+                }.build()
+            }
 
-        GoalProgressComplicationData.TYPE.toWireComplicationType() ->
-            GoalProgressComplicationData.Builder(
-                value = rangedValue,
-                targetValue = targetValue,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                setText(shortText?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                colorRamp?.let {
-                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
-                }
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
-            DiscreteRangedValueComplicationData.Builder(
-                value = discreteRangedValue,
-                min = discreteRangedMinValue,
-                max = discreteRangedMaxValue,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                setText(shortText?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        WeightedElementsComplicationData.TYPE.toWireComplicationType() ->
-            WeightedElementsComplicationData.Builder(
-                elements = if (elementWeights!!.isEmpty()) {
-                    WeightedElementsComplicationData.PLACEHOLDER
-                } else {
-                    val elementWeights = this.elementWeights!!
-                    val elementColors = this.elementColors!!
-                    require(elementWeights.size == elementColors.size) {
-                        "elementWeights and elementColors must have the same size"
+            RangedValueComplicationData.TYPE.toWireComplicationType() ->
+                RangedValueComplicationData.Builder(
+                    value = rangedValue,
+                    min = rangedMinValue,
+                    max = rangedMaxValue,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+                    setText(shortText?.toApiComplicationTextPlaceholderAware())
+                    setDataSource(dataSourceCopy)
+                    colorRamp?.let {
+                        setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
                     }
-                    elementWeights.mapIndexed { index, weight ->
-                        WeightedElementsComplicationData.Element(weight, elementColors[index])
-                    }.toList()
-                },
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIconPlaceholderAware())
-                setSmallImage(parseSmallImagePlaceholderAware())
-                setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                setText(shortText?.toApiComplicationTextPlaceholderAware())
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
 
-        else -> null
+            MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
+                MonochromaticImageComplicationData(
+                    parseIconPlaceholderAware()!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+                    tapAction,
+                    parseTimeRange(),
+                    this,
+                    dataSourceCopy,
+                    persistencePolicyCopy,
+                    displayPolicyCopy
+                )
+
+            SmallImageComplicationData.TYPE.toWireComplicationType() ->
+                SmallImageComplicationData(
+                    parseSmallImagePlaceholderAware()!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+                    tapAction,
+                    parseTimeRange(),
+                    this,
+                    dataSourceCopy,
+                    persistencePolicyCopy,
+                    displayPolicyCopy
+                )
+
+            PhotoImageComplicationData.TYPE.toWireComplicationType() ->
+                PhotoImageComplicationData(
+                    parseLargeImagePlaceholderAware()!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+                    tapAction,
+                    parseTimeRange(),
+                    this,
+                    dataSourceCopy,
+                    persistencePolicyCopy,
+                    displayPolicyCopy
+                )
+
+            // TODO(b/230102159): We need to build support for placeholder ProtoLayoutComplicationData.
+            ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
+                ProtoLayoutComplicationData.Builder(
+                    ambientLayout!!,
+                    interactiveLayout!!,
+                    layoutResources!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                )
+                    .apply {
+                        setTapAction(tapAction)
+                        setValidTimeRange(parseTimeRange())
+                        setDataSource(dataSourceCopy)
+                        setPersistencePolicy(persistencePolicyCopy)
+                        setDisplayPolicy(displayPolicyCopy)
+                    }
+                    .build()
+
+            ListComplicationData.TYPE.toWireComplicationType() ->
+                ListComplicationData.Builder(
+                    listEntries!!.map { it.toApiComplicationData() },
+                    ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                )
+                    .apply {
+                        setTapAction(tapAction)
+                        setValidTimeRange(parseTimeRange())
+                        setDataSource(dataSourceCopy)
+                        setPersistencePolicy(persistencePolicyCopy)
+                        setDisplayPolicy(displayPolicyCopy)
+                    }
+                    .build()
+
+            GoalProgressComplicationData.TYPE.toWireComplicationType() ->
+                GoalProgressComplicationData.Builder(
+                    value = rangedValue,
+                    targetValue = targetValue,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+                    setText(shortText?.toApiComplicationTextPlaceholderAware())
+                    setDataSource(dataSourceCopy)
+                    colorRamp?.let {
+                        setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
+                    }
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
+                DiscreteRangedValueComplicationData.Builder(
+                    value = discreteRangedValue,
+                    min = discreteRangedMinValue,
+                    max = discreteRangedMaxValue,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+                    setText(shortText?.toApiComplicationTextPlaceholderAware())
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            WeightedElementsComplicationData.TYPE.toWireComplicationType() ->
+                WeightedElementsComplicationData.Builder(
+                    elements = if (elementWeights!!.isEmpty()) {
+                        WeightedElementsComplicationData.PLACEHOLDER
+                    } else {
+                        val elementWeights = this.elementWeights!!
+                        val elementColors = this.elementColors!!
+                        require(elementWeights.size == elementColors.size) {
+                            "elementWeights and elementColors must have the same size"
+                        }
+                        elementWeights.mapIndexed { index, weight ->
+                            WeightedElementsComplicationData.Element(weight, elementColors[index])
+                        }.toList()
+                    },
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIconPlaceholderAware())
+                    setSmallImage(parseSmallImagePlaceholderAware())
+                    setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+                    setText(shortText?.toApiComplicationTextPlaceholderAware())
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            else -> null
+        }
+    } catch (e: Exception) {
+        Log.e(
+            TAG,
+            "WireComplicationData.toPlaceholderComplicationData failed for " +
+                toStringNoRedaction(),
+            e
+        )
+        throw e
     }
 }
 
@@ -3353,229 +3366,238 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("NewApi")
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
-    // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
-    val dataSourceCopy = dataSource
-    val persistencePolicyCopy = persistencePolicy
-    val displayPolicyCopy = displayPolicy
-    val wireComplicationData = this
-    return when (type) {
-        NoDataComplicationData.TYPE.toWireComplicationType() -> {
-            placeholder?.toPlaceholderComplicationData() ?.let {
-                NoDataComplicationData(it)
-            } ?: NoDataComplicationData()
-        }
-
-        EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()
-
-        NotConfiguredComplicationData.TYPE.toWireComplicationType() ->
-            NotConfiguredComplicationData()
-
-        ShortTextComplicationData.TYPE.toWireComplicationType() ->
-            ShortTextComplicationData.Builder(
-                shortText!!.toApiComplicationText(),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setTitle(shortTitle?.toApiComplicationText())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        LongTextComplicationData.TYPE.toWireComplicationType() ->
-            LongTextComplicationData.Builder(
-                longText!!.toApiComplicationText(),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setTitle(longTitle?.toApiComplicationText())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        RangedValueComplicationData.TYPE.toWireComplicationType() ->
-            RangedValueComplicationData.Builder(
-                value = rangedValue, min = rangedMinValue,
-                max = rangedMaxValue,
-                contentDescription = contentDescription?.toApiComplicationText()
-                    ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setTitle(shortTitle?.toApiComplicationText())
-                setText(shortText?.toApiComplicationText())
-                setCachedWireComplicationData(wireComplicationData)
-                colorRamp?.let {
-                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
-                }
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
-            MonochromaticImageComplicationData.Builder(
-                parseIcon()!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        SmallImageComplicationData.TYPE.toWireComplicationType() ->
-            SmallImageComplicationData.Builder(
-                parseSmallImage()!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        PhotoImageComplicationData.TYPE.toWireComplicationType() ->
-            PhotoImageComplicationData.Builder(
-                largeImage!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
-            ProtoLayoutComplicationData.Builder(
-                ambientLayout!!,
-                interactiveLayout!!,
-                layoutResources!!,
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            )
-                .apply {
-                    setTapAction(tapAction)
-                    setValidTimeRange(parseTimeRange())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
-                }
-                .build()
-
-        ListComplicationData.TYPE.toWireComplicationType() ->
-            ListComplicationData.Builder(
-                listEntries!!.map { it.toApiComplicationData() },
-                ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            )
-                .apply {
-                    setTapAction(tapAction)
-                    setValidTimeRange(parseTimeRange())
-                    setCachedWireComplicationData(wireComplicationData)
-                    setDataSource(dataSourceCopy)
-                    setPersistencePolicy(persistencePolicyCopy)
-                    setDisplayPolicy(displayPolicyCopy)
-                }
-                .build()
-
-        NoPermissionComplicationData.TYPE.toWireComplicationType() ->
-            NoPermissionComplicationData.Builder().apply {
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setTitle(shortTitle?.toApiComplicationText())
-                setText(shortText?.toApiComplicationText())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        GoalProgressComplicationData.TYPE.toWireComplicationType() ->
-            GoalProgressComplicationData.Builder(
-                value = rangedValue,
-                targetValue = targetValue,
-                contentDescription = contentDescription?.toApiComplicationText()
-                    ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setTitle(shortTitle?.toApiComplicationText())
-                setText(shortText?.toApiComplicationText())
-                setCachedWireComplicationData(wireComplicationData)
-                colorRamp?.let {
-                    setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
-                }
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
-            DiscreteRangedValueComplicationData.Builder(
-                value = discreteRangedValue,
-                min = discreteRangedMinValue,
-                max = discreteRangedMaxValue,
-                contentDescription = contentDescription?.toApiComplicationText()
-                    ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setTitle(shortTitle?.toApiComplicationText())
-                setText(shortText?.toApiComplicationText())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-
-        WeightedElementsComplicationData.TYPE.toWireComplicationType() -> {
-            val elementWeights = this.elementWeights!!
-            val elementColors = this.elementColors!!
-            require(elementWeights.size == elementColors.size) {
-                "elementWeights and elementColors must have the same size"
+    try {
+        // Make sure we use the correct dataSource, persistencePolicy & displayPolicy.
+        val dataSourceCopy = dataSource
+        val persistencePolicyCopy = persistencePolicy
+        val displayPolicyCopy = displayPolicy
+        val wireComplicationData = this
+        return when (type) {
+            NoDataComplicationData.TYPE.toWireComplicationType() -> {
+                placeholder?.toPlaceholderComplicationData()?.let {
+                    NoDataComplicationData(it)
+                } ?: NoDataComplicationData()
             }
-            WeightedElementsComplicationData.Builder(
-                elements = elementWeights.mapIndexed { index, weight ->
-                    WeightedElementsComplicationData.Element(weight, elementColors[index])
-                }.toList(),
-                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
-            ).apply {
-                setTapAction(tapAction)
-                setValidTimeRange(parseTimeRange())
-                setMonochromaticImage(parseIcon())
-                setSmallImage(parseSmallImage())
-                setTitle(shortTitle?.toApiComplicationText())
-                setText(shortText?.toApiComplicationText())
-                setCachedWireComplicationData(wireComplicationData)
-                setDataSource(dataSourceCopy)
-                setPersistencePolicy(persistencePolicyCopy)
-                setDisplayPolicy(displayPolicyCopy)
-            }.build()
-        }
 
-        else -> NoDataComplicationData()
+            EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()
+
+            NotConfiguredComplicationData.TYPE.toWireComplicationType() ->
+                NotConfiguredComplicationData()
+
+            ShortTextComplicationData.TYPE.toWireComplicationType() ->
+                ShortTextComplicationData.Builder(
+                    shortText!!.toApiComplicationText(),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            LongTextComplicationData.TYPE.toWireComplicationType() ->
+                LongTextComplicationData.Builder(
+                    longText!!.toApiComplicationText(),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setTitle(longTitle?.toApiComplicationText())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            RangedValueComplicationData.TYPE.toWireComplicationType() ->
+                RangedValueComplicationData.Builder(
+                    value = rangedValue, min = rangedMinValue,
+                    max = rangedMaxValue,
+                    contentDescription = contentDescription?.toApiComplicationText()
+                        ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setText(shortText?.toApiComplicationText())
+                    setCachedWireComplicationData(wireComplicationData)
+                    colorRamp?.let {
+                        setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
+                    }
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
+                MonochromaticImageComplicationData.Builder(
+                    parseIcon()!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            SmallImageComplicationData.TYPE.toWireComplicationType() ->
+                SmallImageComplicationData.Builder(
+                    parseSmallImage()!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            PhotoImageComplicationData.TYPE.toWireComplicationType() ->
+                PhotoImageComplicationData.Builder(
+                    largeImage!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
+                ProtoLayoutComplicationData.Builder(
+                    ambientLayout!!,
+                    interactiveLayout!!,
+                    layoutResources!!,
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                )
+                    .apply {
+                        setTapAction(tapAction)
+                        setValidTimeRange(parseTimeRange())
+                        setCachedWireComplicationData(wireComplicationData)
+                        setDataSource(dataSourceCopy)
+                        setPersistencePolicy(persistencePolicyCopy)
+                        setDisplayPolicy(displayPolicyCopy)
+                    }
+                    .build()
+
+            ListComplicationData.TYPE.toWireComplicationType() ->
+                ListComplicationData.Builder(
+                    listEntries!!.map { it.toApiComplicationData() },
+                    ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                )
+                    .apply {
+                        setTapAction(tapAction)
+                        setValidTimeRange(parseTimeRange())
+                        setCachedWireComplicationData(wireComplicationData)
+                        setDataSource(dataSourceCopy)
+                        setPersistencePolicy(persistencePolicyCopy)
+                        setDisplayPolicy(displayPolicyCopy)
+                    }
+                    .build()
+
+            NoPermissionComplicationData.TYPE.toWireComplicationType() ->
+                NoPermissionComplicationData.Builder().apply {
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setText(shortText?.toApiComplicationText())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            GoalProgressComplicationData.TYPE.toWireComplicationType() ->
+                GoalProgressComplicationData.Builder(
+                    value = rangedValue,
+                    targetValue = targetValue,
+                    contentDescription = contentDescription?.toApiComplicationText()
+                        ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setText(shortText?.toApiComplicationText())
+                    setCachedWireComplicationData(wireComplicationData)
+                    colorRamp?.let {
+                        setColorRamp(ColorRamp(it, isColorRampInterpolated!!))
+                    }
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            DiscreteRangedValueComplicationData.TYPE.toWireComplicationType() ->
+                DiscreteRangedValueComplicationData.Builder(
+                    value = discreteRangedValue,
+                    min = discreteRangedMinValue,
+                    max = discreteRangedMaxValue,
+                    contentDescription = contentDescription?.toApiComplicationText()
+                        ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setText(shortText?.toApiComplicationText())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+
+            WeightedElementsComplicationData.TYPE.toWireComplicationType() -> {
+                val elementWeights = this.elementWeights!!
+                val elementColors = this.elementColors!!
+                require(elementWeights.size == elementColors.size) {
+                    "elementWeights and elementColors must have the same size"
+                }
+                WeightedElementsComplicationData.Builder(
+                    elements = elementWeights.mapIndexed { index, weight ->
+                        WeightedElementsComplicationData.Element(weight, elementColors[index])
+                    }.toList(),
+                    contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+                ).apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setMonochromaticImage(parseIcon())
+                    setSmallImage(parseSmallImage())
+                    setTitle(shortTitle?.toApiComplicationText())
+                    setText(shortText?.toApiComplicationText())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSourceCopy)
+                    setPersistencePolicy(persistencePolicyCopy)
+                    setDisplayPolicy(displayPolicyCopy)
+                }.build()
+            }
+
+            else -> NoDataComplicationData()
+        }
+    } catch (e: Exception) {
+        Log.e(
+            TAG,
+            "WireComplicationData.toApiComplicationData failed for " + toStringNoRedaction(),
+            e
+        )
+        throw e
     }
 }
 
