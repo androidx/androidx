@@ -222,7 +222,7 @@ class InterfaceParserTest {
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
                     "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
-                    "are supported as parameter types."
+                    "or @PrivacySandboxInterface are supported as parameter types."
             )
     }
 
@@ -232,7 +232,7 @@ class InterfaceParserTest {
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
                     "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
-                    "are supported as parameter types."
+                    "or @PrivacySandboxInterface are supported as parameter types."
             )
     }
 
@@ -251,8 +251,9 @@ class InterfaceParserTest {
                 """
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: only primitives and data classes annotated with " +
-                "@PrivacySandboxValue are supported as return types."
+            "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
+                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
+                "supported as return types."
         )
     }
 
@@ -313,6 +314,82 @@ class InterfaceParserTest {
                                 ),
                                 returnType = Types.unit,
                                 isSuspend = false,
+                            ),
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun parseInterface_ok() {
+        val serviceSource =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk {
+                        suspend fun doStuff(request: MyInterface): MyInterface
+                    }
+                """
+            )
+        val interfaceSource =
+            Source.kotlin(
+                "com/mysdk/MyInterface.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
+                    @PrivacySandboxInterface
+                    interface MyInterface {
+                        suspend fun doMoreStuff(x: Int, y: Int): String
+                    }
+                """
+            )
+        assertThat(parseSources(serviceSource, interfaceSource)).isEqualTo(
+            ParsedApi(
+                services = setOf(
+                    AnnotatedInterface(
+                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                        methods = listOf(
+                            Method(
+                                name = "doStuff",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "request",
+                                        type = Type(
+                                            packageName = "com.mysdk",
+                                            simpleName = "MyInterface"),
+                                    )
+                                ),
+                                returnType = Type(
+                                    packageName = "com.mysdk",
+                                    simpleName = "MyInterface"),
+                                isSuspend = true,
+                            ),
+                        )
+                    )
+                ),
+                interfaces = setOf(
+                    AnnotatedInterface(
+                        type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
+                        methods = listOf(
+                            Method(
+                                name = "doMoreStuff",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "x",
+                                        type = Types.int,
+                                    ),
+                                    Parameter(
+                                        name = "y",
+                                        type = Types.int,
+                                    )
+                                ),
+                                returnType = Types.string,
+                                isSuspend = true,
                             ),
                         )
                     )
