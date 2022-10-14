@@ -199,7 +199,7 @@ constructor(
         @Suppress("DocumentExceptions")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return try {
-                modelClass.newInstance()
+                modelClass.getDeclaredConstructor().newInstance()
             } catch (e: InstantiationException) {
                 throw RuntimeException("Cannot create an instance of $modelClass", e)
             } catch (e: IllegalAccessException) {

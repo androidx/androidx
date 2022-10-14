@@ -32,6 +32,7 @@ import androidx.leanback.test.R;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 public class GridActivity extends Activity {
@@ -167,15 +168,15 @@ public class GridActivity extends Activity {
         try {
             if (alignmentClass != null) {
                 mAlignmentProvider = (GridWidgetTest.ItemAlignmentFacetProvider)
-                        Class.forName(alignmentClass).newInstance();
+                        Class.forName(alignmentClass).getDeclaredConstructor().newInstance();
             }
             if (alignmentViewTypeClass != null) {
                 mAlignmentViewTypeProvider = (GridWidgetTest.ItemAlignmentFacetProvider)
-                        Class.forName(alignmentViewTypeClass).newInstance();
+                        Class.forName(alignmentViewTypeClass).getDeclaredConstructor().newInstance();
             }
             if (viewTypeClass != null) {
                 mViewTypeProvider = (GridWidgetTest.ViewTypeProvider)
-                        Class.forName(viewTypeClass).newInstance();
+                        Class.forName(viewTypeClass).getDeclaredConstructor().newInstance();
             }
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
@@ -183,6 +184,10 @@ public class GridActivity extends Activity {
             throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {
             throw new RuntimeException(ex);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
 
         super.onCreate(savedInstanceState);
