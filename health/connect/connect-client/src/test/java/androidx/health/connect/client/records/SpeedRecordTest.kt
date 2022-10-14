@@ -51,14 +51,14 @@ class SpeedRecordTest {
     @Test
     fun sameStartEndTime_validRecord_equals() {
         assertThat(
-            SpeedRecord(
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
-                endZoneOffset = null,
-                samples = listOf()
+                SpeedRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
+                )
             )
-        )
             .isEqualTo(
                 SpeedRecord(
                     startTime = Instant.ofEpochMilli(1234L),

@@ -39,15 +39,16 @@ class RecordAggregationsTest {
         val total =
             aggregate(
                 metric = TotalCaloriesBurnedRecord.ENERGY_TOTAL,
-                records = listOf(
-                    TotalCaloriesBurnedRecord(
-                        energy = 1.kilocalories,
-                        startTime = START_TIME,
-                        startZoneOffset = null,
-                        endTime = END_TIME,
-                        endZoneOffset = null,
+                records =
+                    listOf(
+                        TotalCaloriesBurnedRecord(
+                            energy = 1.kilocalories,
+                            startTime = START_TIME,
+                            startZoneOffset = null,
+                            endTime = END_TIME,
+                            endZoneOffset = null,
+                        )
                     )
-                )
             )
 
         assertEquals(1.kilocalories, total)
@@ -58,13 +59,14 @@ class RecordAggregationsTest {
         val total =
             aggregate(
                 metric = BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL,
-                records = listOf(
-                    BasalMetabolicRateRecord(
-                        basalMetabolicRate = 1.kilocaloriesPerDay,
-                        time = START_TIME,
-                        zoneOffset = null,
-                    )
-                ),
+                records =
+                    listOf(
+                        BasalMetabolicRateRecord(
+                            basalMetabolicRate = 1.kilocaloriesPerDay,
+                            time = START_TIME,
+                            zoneOffset = null,
+                        )
+                    ),
                 fieldName = "bmr",
             )
 
@@ -76,15 +78,16 @@ class RecordAggregationsTest {
         val total =
             aggregate(
                 metric = NutritionRecord.ENERGY_TOTAL,
-                records = listOf(
-                    NutritionRecord(
-                        energy = 1.kilocalories,
-                        startTime = START_TIME,
-                        startZoneOffset = null,
-                        endTime = END_TIME,
-                        endZoneOffset = null,
-                    )
-                ),
+                records =
+                    listOf(
+                        NutritionRecord(
+                            energy = 1.kilocalories,
+                            startTime = START_TIME,
+                            startZoneOffset = null,
+                            endTime = END_TIME,
+                            endZoneOffset = null,
+                        )
+                    ),
             )
 
         assertEquals(1.kilocalories, total)
@@ -95,15 +98,16 @@ class RecordAggregationsTest {
         val total =
             aggregate(
                 metric = NutritionRecord.ENERGY_FROM_FAT_TOTAL,
-                records = listOf(
-                    NutritionRecord(
-                        energyFromFat = 1.kilocalories,
-                        startTime = START_TIME,
-                        startZoneOffset = null,
-                        endTime = END_TIME,
-                        endZoneOffset = null,
-                    )
-                ),
+                records =
+                    listOf(
+                        NutritionRecord(
+                            energyFromFat = 1.kilocalories,
+                            startTime = START_TIME,
+                            startZoneOffset = null,
+                            endTime = END_TIME,
+                            endZoneOffset = null,
+                        )
+                    ),
             )
 
         assertEquals(1.kilocalories, total)
@@ -114,15 +118,16 @@ class RecordAggregationsTest {
         val total =
             aggregate(
                 metric = ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL,
-                records = listOf(
-                    ActiveCaloriesBurnedRecord(
-                        energy = 1.kilocalories,
-                        startTime = START_TIME,
-                        startZoneOffset = null,
-                        endTime = END_TIME,
-                        endZoneOffset = null,
-                    )
-                ),
+                records =
+                    listOf(
+                        ActiveCaloriesBurnedRecord(
+                            energy = 1.kilocalories,
+                            startTime = START_TIME,
+                            startZoneOffset = null,
+                            endTime = END_TIME,
+                            endZoneOffset = null,
+                        )
+                    ),
             )
 
         assertEquals(1.kilocalories, total)

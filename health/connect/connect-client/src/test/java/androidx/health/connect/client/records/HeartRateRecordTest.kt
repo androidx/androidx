@@ -51,14 +51,14 @@ class HeartRateRecordTest {
     @Test
     fun sameStartEndTime_validRecord_equals() {
         assertThat(
-            HeartRateRecord(
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
-                endZoneOffset = null,
-                samples = listOf()
+                HeartRateRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
+                )
             )
-        )
             .isEqualTo(
                 HeartRateRecord(
                     startTime = Instant.ofEpochMilli(1234L),

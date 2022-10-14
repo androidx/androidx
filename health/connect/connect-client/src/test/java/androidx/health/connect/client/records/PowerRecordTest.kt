@@ -51,14 +51,14 @@ class PowerRecordTest {
     @Test
     fun sameStartEndTime_validRecord_equals() {
         assertThat(
-            PowerRecord(
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(1234L),
-                endZoneOffset = null,
-                samples = listOf()
+                PowerRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1234L),
+                    endZoneOffset = null,
+                    samples = listOf()
+                )
             )
-        )
             .isEqualTo(
                 PowerRecord(
                     startTime = Instant.ofEpochMilli(1234L),
