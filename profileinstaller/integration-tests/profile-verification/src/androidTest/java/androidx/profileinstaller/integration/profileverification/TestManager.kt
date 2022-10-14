@@ -23,9 +23,6 @@ import android.util.Log
 import androidx.concurrent.futures.DirectExecutor
 import androidx.profileinstaller.DeviceProfileWriter
 import androidx.profileinstaller.ProfileInstaller
-import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
-import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE
-import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -288,14 +285,6 @@ class WithPackageBlock internal constructor(private val packageName: String) {
     }
 }
 
-val isApi30 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.R }
-
-const val COMPILED = RESULT_CODE_COMPILED_WITH_PROFILE
-const val AWAITING_COMPILATION = RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
-const val NONE = RESULT_CODE_NO_PROFILE
-
-private fun <T> T?.throwIfNull(message: String): T = this ?: throw Exception(message)
-
 private val EMPTY_DIAGNOSTICS: ProfileInstaller.DiagnosticsCallback =
     object : ProfileInstaller.DiagnosticsCallback {
         private val TAG = "ProfileVerifierDiagnosticsCallback"
@@ -307,3 +296,19 @@ private val EMPTY_DIAGNOSTICS: ProfileInstaller.DiagnosticsCallback =
             Log.d(TAG, "onResultReceived: $code")
         }
     }
+
+private fun <T> T?.throwIfNull(message: String): T = this ?: throw Exception(message)
+
+val isApi30 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.R }
+
+const val PACKAGE_NAME_WITH_INITIALIZER =
+    "androidx.profileinstaller.integration.profileverification.target"
+const val PACKAGE_NAME_WITHOUT_INITIALIZER =
+    "androidx.profileinstaller.integration.profileverification.target.no_initializer"
+const val ACTIVITY_NAME = ".SampleActivity"
+const val APK_WITH_INITIALIZER_V1 = "profile-verification-sample-v1-release.apk"
+const val APK_WITH_INITIALIZER_V2 = "profile-verification-sample-v2-release.apk"
+const val APK_WITH_INITIALIZER_V3 = "profile-verification-sample-v3-release.apk"
+const val APK_WITHOUT_INITIALIZER_V1 = "profile-verification-sample-no-initializer-v1-release.apk"
+const val APK_WITHOUT_INITIALIZER_V2 = "profile-verification-sample-no-initializer-v2-release.apk"
+const val APK_WITHOUT_INITIALIZER_V3 = "profile-verification-sample-no-initializer-v3-release.apk"
