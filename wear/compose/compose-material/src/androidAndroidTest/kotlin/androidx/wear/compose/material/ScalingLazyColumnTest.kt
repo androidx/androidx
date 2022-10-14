@@ -215,9 +215,10 @@ public class ScalingLazyColumnTest {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
             // But that size of the Spacer is as expected - it should be half the viewport size
-            // minus half the size of the center item minus the full size of the 0th item
+            // rounded down minus half the size of the center item rounded down minus the full size
+            // of the 0th item
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo(((listSizePx / 2f) - (itemSizePx * 1.5f)).roundToInt())
+                .isEqualTo((listSizePx / 2) - (itemSizePx + itemSizePx / 2))
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp()
@@ -268,9 +269,9 @@ public class ScalingLazyColumnTest {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
             // But that size of the Spacer is as expected, it should be half the viewport size
-            // minus the size of zeroth item in the list
+            // rounded down minus the size of zeroth item in the list
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo((listSizePx / 2f).roundToInt() - itemSizePx)
+                .isEqualTo((listSizePx / 2) - itemSizePx)
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp(endY = top)

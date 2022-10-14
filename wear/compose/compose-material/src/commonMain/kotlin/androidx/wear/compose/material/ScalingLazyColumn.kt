@@ -264,21 +264,6 @@ public class AutoCenteringParams(
     }
 }
 
-internal fun convertToCenterOffset(
-    anchorType: ScalingLazyListAnchorType,
-    itemScrollOffset: Int,
-    viewPortSizeInPx: Int,
-    beforeContentPaddingInPx: Int,
-    itemSizeInPx: Int
-): Int {
-    if (anchorType == ScalingLazyListAnchorType.ItemStart) {
-        return itemScrollOffset - (viewPortSizeInPx / 2) + beforeContentPaddingInPx
-    } else {
-        return itemScrollOffset + (itemSizeInPx / 2) -
-            (viewPortSizeInPx / 2) + beforeContentPaddingInPx
-    }
-}
-
 /**
  * A scrolling scaling/fisheye list component that forms a key part of the Wear Material Design
  * language. Provides scaling and transparency effects to the content items.
