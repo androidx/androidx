@@ -16,6 +16,9 @@
 
 package androidx.profileinstaller.integration.profileverification
 
+import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
+import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE
+import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
 import androidx.profileinstaller.ProfileVersion
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -46,40 +49,40 @@ import org.junit.Test
 class ProfileVerificationTestWithoutProfileInstallerInitializer {
 
     @Before
-    fun setUp() = withPackageName(PACKAGE_NAME) {
+    fun setUp() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
         // Note that this test fails on emulator api 30 (b/251540646)
         assumeTrue(!isApi30)
         uninstall()
     }
 
     @After
-    fun tearDown() = withPackageName(PACKAGE_NAME) {
+    fun tearDown() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
         uninstall()
     }
 
     @Test
-    fun installNewAppWithoutReferenceProfile() = withPackageName(PACKAGE_NAME) {
+    fun installNewAppWithoutReferenceProfile() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
         // Install without reference profile
-        install(apkName = V1_APK, withProfile = false)
+        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(NONE)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
     }
 
     @Test
-    fun installNewAppAndWaitForCompilation() = withPackageName(PACKAGE_NAME) {
+    fun installNewAppAndWaitForCompilation() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
         // Install without reference profile
-        install(apkName = V1_APK, withProfile = false)
+        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
 
         // Start once to check there is no profile
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(NONE)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
@@ -88,7 +91,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check there is no profile
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(NONE)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
@@ -100,7 +103,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check there it's now awaiting compilation
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(AWAITING_COMPILATION)
+            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
             hasReferenceProfile(false)
             hasCurrentProfile(true)
         }
@@ -109,7 +112,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check there it's now awaiting compilation
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(AWAITING_COMPILATION)
+            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
             hasReferenceProfile(false)
             hasCurrentProfile(true)
         }
@@ -121,7 +124,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check profile is compiled
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(COMPILED)
+            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
             hasReferenceProfile(true)
             hasCurrentProfile(false)
         }
@@ -129,137 +132,140 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check profile is compiled
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(COMPILED)
+            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
             hasReferenceProfile(true)
             hasCurrentProfile(false)
         }
     }
 
     @Test
-    fun installAppWithReferenceProfile() = withPackageName(PACKAGE_NAME) {
+    fun installAppWithReferenceProfile() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
         // Install with reference profile
-        install(apkName = V1_APK, withProfile = true)
+        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = true)
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(COMPILED)
+            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
             hasReferenceProfile(true)
             hasCurrentProfile(false)
         }
     }
 
     @Test
-    fun updateFromNoReferenceProfileToReferenceProfile() = withPackageName(PACKAGE_NAME) {
+    fun updateFromNoReferenceProfileToReferenceProfile() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
-        // Install without reference profile
-        install(apkName = V2_APK, withProfile = false)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(NONE)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
-        }
-
-        // Updates adding reference profile
-        install(apkName = V3_APK, withProfile = true)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(COMPILED)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-    }
-
-    @Test
-    fun updateFromReferenceProfileToNoReferenceProfile() = withPackageName(PACKAGE_NAME) {
-
-        // Install with reference profile
-        install(apkName = V1_APK, withProfile = true)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(COMPILED)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-
-        // Updates removing reference profile
-        install(apkName = V2_APK, withProfile = false)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(NONE)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
-        }
-    }
-
-    @Test
-    fun installWithReferenceProfileThenUpdateNoProfileThenUpdateProfileAgain() =
-        withPackageName(PACKAGE_NAME) {
-
-            // Install with reference profile
-            install(apkName = V1_APK, withProfile = true)
+            // Install without reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(COMPILED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
+
+            // Updates adding reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V3, withProfile = true)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
+        }
+
+    @Test
+    fun updateFromReferenceProfileToNoReferenceProfile() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+
+            // Install with reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = true)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
                 hasReferenceProfile(true)
                 hasCurrentProfile(false)
             }
 
             // Updates removing reference profile
-            install(apkName = V2_APK, withProfile = false)
+            install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(NONE)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
+        }
+
+    @Test
+    fun installWithReferenceProfileThenUpdateNoProfileThenUpdateProfileAgain() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+
+            // Install with reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = true)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
+
+            // Updates removing reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
 
             // Reinstall with reference profile
-            install(apkName = V3_APK, withProfile = true)
+            install(apkName = APK_WITHOUT_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(COMPILED)
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
                 hasReferenceProfile(true)
                 hasCurrentProfile(false)
             }
         }
 
     @Test
-    fun forceInstallCurrentProfileThroughBroadcastReceiver() = withPackageName(PACKAGE_NAME) {
+    fun forceInstallCurrentProfileThroughBroadcastReceiver() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
-        // Install without reference profile
-        install(apkName = V1_APK, withProfile = false)
+            // Install without reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
 
-        // Start and assess there is no profile
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(NONE)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
+            // Start and assess there is no profile
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_NO_PROFILE)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
+            stop()
+
+            // Force update through broadcast receiver
+            broadcastProfileInstallAction()
+
+            // Start and assess there is a current profile
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
         }
-        stop()
-
-        // Force update through broadcast receiver
-        broadcastProfileInstallAction()
-
-        // Start and assess there is a current profile
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(AWAITING_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
-        }
-    }
 
     @Test
     fun forceInstallCurrentProfileThroughBroadcastReceiverAndUpdateWithReference() =
-        withPackageName(PACKAGE_NAME) {
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
             // Install without reference profile, start and assess there is no profile
-            install(apkName = V1_APK, withProfile = false)
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(NONE)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -271,39 +277,27 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             // Start again and assess there is a current profile now installed
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(AWAITING_COMPILATION)
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
                 hasReferenceProfile(false)
                 hasCurrentProfile(true)
             }
 
             // Update to v2 and assert that the current profile was uninstalled
-            install(apkName = V2_APK, withProfile = false)
+            install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(NONE)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
 
             // Update to v3 with reference profile and assess this is correctly recognized
-            install(apkName = V3_APK, withProfile = true)
+            install(apkName = APK_WITHOUT_INITIALIZER_V3, withProfile = true)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(COMPILED)
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
                 hasReferenceProfile(true)
                 hasCurrentProfile(false)
             }
         }
-
-    companion object {
-        private const val PACKAGE_NAME =
-            "androidx.profileinstaller.integration.profileverification.target.no_initializer"
-        private const val ACTIVITY_NAME =
-            ".SampleActivity"
-
-        // Note that these version differ only for version code 1..3 to allow update
-        private const val V1_APK = "profile-verification-sample-no-initializer-v1-release.apk"
-        private const val V2_APK = "profile-verification-sample-no-initializer-v2-release.apk"
-        private const val V3_APK = "profile-verification-sample-no-initializer-v3-release.apk"
-    }
 }
