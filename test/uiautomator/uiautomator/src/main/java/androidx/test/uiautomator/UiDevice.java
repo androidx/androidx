@@ -84,7 +84,9 @@ public class UiDevice implements Searchable {
     private final InteractionController mInteractionController;
     private final DisplayManager mDisplayManager;
     private final WaitMixin<UiDevice> mWaitMixin = new WaitMixin<>(this);
-    private final Context mUiContext;
+
+    // Lazily created UI context per display, used to access UI components/configurations.
+    private final Map<Integer, Context> mUiContexts = new HashMap<>();
 
     // Track registered UiWatchers, and whether currently in a UiWatcher execution.
     private final Map<String, UiWatcher> mWatchers = new HashMap<>();
@@ -104,14 +106,6 @@ public class UiDevice implements Searchable {
             AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
             getUiAutomation().setServiceInfo(info);
-        }
-
-        // Create UI context to access UI components for API 31+.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            mUiContext = Api31Impl.createWindowContext(
-                    mInstrumentation.getContext(), getDefaultDisplay());
-        } else {
-            mUiContext = mInstrumentation.getContext();
         }
     }
 
@@ -1099,8 +1093,18 @@ public class UiDevice implements Searchable {
         return mInstrumentation;
     }
 
-    Context getUiContext() {
-        return mUiContext;
+    Context getUiContext(int displayId) {
+        Context context = mUiContexts.get(displayId);
+        if (context == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Display display = mDisplayManager.getDisplay(displayId);
+                context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
+            } else {
+                context = mInstrumentation.getContext();
+            }
+            mUiContexts.put(displayId, context);
+        }
+        return context;
     }
 
     static UiAutomation getUiAutomation(final Instrumentation instrumentation) {

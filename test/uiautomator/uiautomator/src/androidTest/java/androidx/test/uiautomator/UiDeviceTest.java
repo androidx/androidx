@@ -36,6 +36,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -82,8 +83,8 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplaySizeDp() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(Math.round(dm.widthPixels / dm.density), mDevice.getDisplaySizeDp().x);
         assertEquals(Math.round(dm.heightPixels / dm.density), mDevice.getDisplaySizeDp().y);
@@ -97,8 +98,8 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplayWidth() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(dm.widthPixels, mDevice.getDisplayWidth());
     }
@@ -106,8 +107,8 @@ public class UiDeviceTest {
     @Test
     public void testGetDisplayHeight() {
         DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext().getSystemService(
-                Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
+                .getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(dm);
         assertEquals(dm.heightPixels, mDevice.getDisplayHeight());
     }
