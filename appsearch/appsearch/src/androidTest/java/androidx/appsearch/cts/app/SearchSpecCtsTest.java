@@ -22,6 +22,7 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENI
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSpec;
 
 import com.google.common.collect.ImmutableList;
@@ -129,6 +130,27 @@ public class SearchSpecCtsTest {
                 .build();
 
         assertThat(searchSpec.getFilterSchemas()).containsExactly("King");
+    }
+
+    @Test
+    public void testProjectionsForDocumentClass() throws Exception {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addProjectionPathsForDocumentClass(King.class, ImmutableList.of(
+                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")))
+                .build();
+
+        assertThat(searchSpec.getProjections().get("King"))
+                .containsExactly("field1", "field2.subfield2");
+
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addProjectionsForDocumentClass(King.class,
+                        ImmutableList.of("field3", "field4.subfield3"))
+                .build();
+
+        assertThat(searchSpec.getProjections().get("King"))
+                .containsExactly("field3", "field4.subfield3");
     }
 // @exportToFramework:endStrip()
 }
