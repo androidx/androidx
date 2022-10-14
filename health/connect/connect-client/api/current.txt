@@ -296,33 +296,32 @@ package androidx.health.connect.client.records {
   }
 
   public final class CervicalMucusRecord implements androidx.health.connect.client.records.Record {
-    ctor public CervicalMucusRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional String? appearance, optional String? sensation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public String? getAppearance();
+    ctor public CervicalMucusRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional int appearance, optional int sensation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public int getAppearance();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public String? getSensation();
+    method public int getSensation();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? appearance;
+    property public final int appearance;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final String? sensation;
+    property public final int sensation;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final int APPEARANCE_CREAMY = 3; // 0x3
+    field public static final int APPEARANCE_DRY = 1; // 0x1
+    field public static final int APPEARANCE_EGG_WHITE = 5; // 0x5
+    field public static final int APPEARANCE_STICKY = 2; // 0x2
+    field public static final int APPEARANCE_UNKNOWN = 0; // 0x0
+    field public static final int APPEARANCE_UNUSUAL = 6; // 0x6
+    field public static final int APPEARANCE_WATERY = 4; // 0x4
+    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Companion Companion;
+    field public static final int SENSATION_HEAVY = 3; // 0x3
+    field public static final int SENSATION_LIGHT = 1; // 0x1
+    field public static final int SENSATION_MEDIUM = 2; // 0x2
+    field public static final int SENSATION_UNKNOWN = 0; // 0x0
   }
 
-  public static final class CervicalMucusRecord.Appearance {
-    field public static final String CLEAR = "clear";
-    field public static final String CREAMY = "creamy";
-    field public static final String DRY = "dry";
-    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Appearance INSTANCE;
-    field public static final String STICKY = "sticky";
-    field public static final String WATERY = "watery";
-  }
-
-  public static final class CervicalMucusRecord.Sensation {
-    field public static final String HEAVY = "heavy";
-    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Sensation INSTANCE;
-    field public static final String LIGHT = "light";
-    field public static final String MEDIUM = "medium";
+  public static final class CervicalMucusRecord.Companion {
   }
 
   public final class CyclingPedalingCadenceRecord implements androidx.health.connect.client.records.Record {

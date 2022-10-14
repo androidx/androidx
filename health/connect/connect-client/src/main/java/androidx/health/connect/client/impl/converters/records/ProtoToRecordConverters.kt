@@ -28,6 +28,8 @@ import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.APPEARANCE_STRING_TO_INT_MAP
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENSATION_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
@@ -155,8 +157,18 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "CervicalMucus" ->
                 CervicalMucusRecord(
-                    appearance = getEnum("texture"),
-                    sensation = getEnum("amount"),
+                    appearance =
+                        mapEnum(
+                            "texture",
+                            APPEARANCE_STRING_TO_INT_MAP,
+                            CervicalMucusRecord.APPEARANCE_UNKNOWN
+                        ),
+                    sensation =
+                        mapEnum(
+                            "amount",
+                            SENSATION_STRING_TO_INT_MAP,
+                            CervicalMucusRecord.SENSATION_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
