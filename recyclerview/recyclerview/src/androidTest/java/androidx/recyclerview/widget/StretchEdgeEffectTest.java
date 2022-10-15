@@ -668,7 +668,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @Test
-    public void testTopEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+    public void testTopStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
         mActivityRule.runOnUiThread(
                 () -> mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL));
         scrollToPosition(0);
@@ -676,11 +676,11 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         scroll(4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
 
-        assertTrue(mFactory.mTop.mOnReleaseCalled);
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mTop.mOnReleaseCalled);
     }
 
     @Test
-    public void testBottomEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+    public void testBottomStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
         mActivityRule.runOnUiThread(
                 () -> mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL));
         scrollToPosition(NUM_ITEMS - 1);
@@ -688,11 +688,11 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         scroll(-4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
 
-        assertTrue(mFactory.mBottom.mOnReleaseCalled);
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mBottom.mOnReleaseCalled);
     }
 
     @Test
-    public void testLeftEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+    public void testLeftStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
         mActivityRule.runOnUiThread(
                 () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
         scrollToPosition(0);
@@ -700,11 +700,11 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         scroll(-4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
 
-        assertTrue(mFactory.mLeft.mOnReleaseCalled);
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mLeft.mOnReleaseCalled);
     }
 
     @Test
-    public void testRightEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
+    public void testRightStretchEdgeEffectReleasedAfterRotaryEncoderPull() throws Throwable {
         mActivityRule.runOnUiThread(
                 () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
         scrollToPosition(NUM_ITEMS - 1);
@@ -712,7 +712,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         scroll(4, MotionEventCompat.AXIS_SCROLL, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
 
-        assertTrue(mFactory.mRight.mOnReleaseCalled);
+        assertEquals(Build.VERSION.SDK_INT >= 31, mFactory.mRight.mOnReleaseCalled);
     }
 
     /**
