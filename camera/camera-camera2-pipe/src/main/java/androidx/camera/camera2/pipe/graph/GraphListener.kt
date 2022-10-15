@@ -17,14 +17,27 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface GraphListener {
+    /**
+     * Used to indicate that the graph is starting. This is called immediately when a [CameraGraph]
+     * is being started.
+     */
+    fun onGraphStarting() {}
+
     /**
      * Used to indicate that the graph has been initialized and is ready to actively process
      * requests using the provided [GraphRequestProcessor] interface.
      */
     fun onGraphStarted(requestProcessor: GraphRequestProcessor)
+
+    /**
+     * Used to indicate that the graph is stopping. This is called immediately when a [CameraGraph]
+     * is being stopped.
+     */
+    fun onGraphStopping() {}
 
     /**
      * Used to indicate that a previously initialized [GraphRequestProcessor] is no longer

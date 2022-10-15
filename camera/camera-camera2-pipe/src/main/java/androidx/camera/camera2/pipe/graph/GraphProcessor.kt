@@ -23,6 +23,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.config.CameraGraphScope
@@ -113,7 +115,14 @@ internal class GraphProcessorImpl @Inject constructor(
     override val graphState: StateFlow<GraphState>
         get() = _graphState
 
+    override fun onGraphStarting() {
+        debug { "$this onGraphStarting" }
+        _graphState.value = GraphStateStarting
+    }
+
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStarted" }
+        _graphState.value = GraphStateStarted
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -137,6 +146,8 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStopped" }
+        _graphState.value = GraphStateStopped
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
