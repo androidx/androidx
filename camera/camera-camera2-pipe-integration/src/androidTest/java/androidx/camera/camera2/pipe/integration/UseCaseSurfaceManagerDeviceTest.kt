@@ -183,6 +183,7 @@ class UseCaseSurfaceManagerDeviceTest {
             })
         assertThat(surfaceActiveCountDown.await(3, TimeUnit.SECONDS)).isTrue()
         val cameraOpenedUsageCount = testSessionParameters.deferrableSurface.useCount
+        val cameraDisconnectedUsageCount: Int
 
         // Act. Launch Camera2Activity to open the camera, it disconnects the CameraGraph.
         ActivityScenario.launch<Camera2TestActivity>(
@@ -197,13 +198,19 @@ class UseCaseSurfaceManagerDeviceTest {
             it.onActivity { activity -> previewReady = activity.mPreviewReady!! }
             previewReady.waitForIdle()
 
-            assertThat(surfaceInactiveCountDown.await(3, TimeUnit.SECONDS)).isTrue()
-            val cameraClosedUsageCount = testSessionParameters.deferrableSurface.useCount
-
-            // Assert, verify the usage count of the DeferrableSurface
-            assertThat(cameraOpenedUsageCount).isEqualTo(2)
-            assertThat(cameraClosedUsageCount).isEqualTo(1)
+            cameraDisconnectedUsageCount = testSessionParameters.deferrableSurface.useCount
         }
+        // Close the CameraGraph to ensure the usage count does go back down.
+        testUseCaseCamera.useCaseCameraGraphConfig.graph.close()
+        testUseCaseCamera.useCaseSurfaceManager.stopAsync().awaitWithTimeout()
+        assertThat(surfaceInactiveCountDown.await(3, TimeUnit.SECONDS)).isTrue()
+        val cameraClosedUsageCount = testSessionParameters.deferrableSurface.useCount
+
+        // Assert, verify the usage count of the DeferrableSurface
+        assertThat(cameraOpenedUsageCount).isEqualTo(2)
+        // TODO(lnishan): After aosp/2241588, cameraDisconnectedUsageCount should remain at 2
+        assertThat(cameraDisconnectedUsageCount).isGreaterThan(0)
+        assertThat(cameraClosedUsageCount).isEqualTo(1)
     }
 
     private fun createFakeUseCase() = object : FakeUseCase(
