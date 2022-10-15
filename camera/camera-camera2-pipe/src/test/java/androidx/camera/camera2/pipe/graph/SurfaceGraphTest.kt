@@ -19,13 +19,20 @@ package androidx.camera.camera2.pipe.graph
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.testing.FakeCameraController
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -37,7 +44,11 @@ class SurfaceGraphTest {
 
     private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
     private val controller = FakeCameraController()
-    private val surfaceGraph = SurfaceGraph(streamMap, controller)
+    private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
+    private val cameraSurfaceManager = CameraSurfaceManager().also {
+        it.addListener(fakeSurfaceListener)
+    }
+    private val surfaceGraph = SurfaceGraph(streamMap, controller, cameraSurfaceManager)
 
     private val stream1 = streamMap[config.streamConfig1]!!
     private val stream2 = streamMap[config.streamConfig2]!!
@@ -125,5 +136,76 @@ class SurfaceGraphTest {
 
         fakeSurface1A.release()
         fakeSurface1B.release()
+    }
+
+    @Test
+    fun newSurfacesAcquireTokens() {
+        surfaceGraph[stream1.id] = fakeSurface1
+
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+
+    @Test
+    fun replacingSurfacesReleasesPreviousToken() {
+        surfaceGraph[stream1.id] = fakeSurface1
+        surfaceGraph[stream1.id] = fakeSurface2
+
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+
+    @Test
+    fun settingSurfaceToNullReleasesToken() {
+        surfaceGraph[stream1.id] = fakeSurface1
+        surfaceGraph[stream1.id] = null
+
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+    @Test
+    fun settingSurfaceToPreviouslySetSurfaceIsANoOp() {
+        surfaceGraph[stream1.id] = fakeSurface1
+        surfaceGraph[stream1.id] = fakeSurface1
+
+        verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+    @Test
+    fun settingSurfaceToNullThenPreviousSurfaceWillReaquireSurfaceToken() {
+        surfaceGraph[stream1.id] = fakeSurface1
+        surfaceGraph[stream1.id] = null
+        surfaceGraph[stream1.id] = fakeSurface1
+
+        verify(fakeSurfaceListener, times(2)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+
+    @Test
+    fun surfaceGraphDoesNotAllowDuplicateSurfaces() {
+        surfaceGraph[stream1.id] = fakeSurface1
+        assertThrows<Exception> {
+            surfaceGraph[stream2.id] = fakeSurface1
+        }
     }
 }

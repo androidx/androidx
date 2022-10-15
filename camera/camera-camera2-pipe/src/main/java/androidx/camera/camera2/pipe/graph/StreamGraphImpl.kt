@@ -62,7 +62,7 @@ internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 @CameraGraphScope
 internal class StreamGraphImpl @Inject constructor(
     cameraMetadata: CameraMetadata,
-    graphConfig: CameraGraph.Config
+    graphConfig: CameraGraph.Config,
 ) : StreamGraph {
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
