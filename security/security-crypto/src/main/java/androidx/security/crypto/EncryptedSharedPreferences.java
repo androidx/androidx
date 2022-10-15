@@ -318,7 +318,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
                 throw new SecurityException(key + " is a reserved key for the encryption keyset.");
             }
             mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
-            mKeysChanged.remove(key);
+            mKeysChanged.add(key);
             return this;
         }
 
