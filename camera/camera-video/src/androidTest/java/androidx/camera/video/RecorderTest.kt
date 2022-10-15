@@ -52,6 +52,7 @@ import androidx.camera.testing.GarbageCollectionUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.asFlow
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
@@ -578,6 +579,38 @@ class RecorderTest(
     @Test
     fun setNegativeLocation() {
         runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
+    }
+
+    fun stop_withErrorWhenDurationLimitReached() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val durationLimitMs = 3000L
+        val durationTolerance = 50L
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.Builder(file)
+            .setDurationLimit(durationLimitMs)
+            .build()
+
+        val recording = recorder
+            .prepareRecording(context, outputOptions)
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+        // The recording should be finalized after the specified duration limit plus some time
+        // for processing it.
+        verify(videoRecordEventListener, timeout(durationLimitMs + 2000L))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent.Finalize::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+
+        assertThat(captor.value.error).isEqualTo(ERROR_DURATION_LIMIT_REACHED)
+        assertThat(captor.value.recordingStats.recordedDurationNanos)
+            .isAtMost(TimeUnit.MILLISECONDS.toNanos(durationLimitMs + durationTolerance))
+        checkDurationAtMost(Uri.fromFile(file), durationLimitMs)
+
+        recording.stopSafely()
+        file.delete()
     }
 
     @Test
@@ -1243,6 +1276,20 @@ class RecorderTest(
                     .that(lat).isWithin(tolerance).of(location.latitude)
                 assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
                     .that(lon).isWithin(tolerance).of(location.longitude)
+            } finally {
+                release()
+            }
+        }
+    }
+
+    private fun checkDurationAtMost(uri: Uri, duration: Long) {
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                val durationFromFile = extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+
+                assertThat(durationFromFile).isNotNull()
+                assertThat(durationFromFile!!.toLong()).isAtMost(duration)
             } finally {
                 release()
             }
