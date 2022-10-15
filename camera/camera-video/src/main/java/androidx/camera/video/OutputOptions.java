@@ -18,6 +18,7 @@ package androidx.camera.video;
 
 import android.location.Location;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -40,6 +41,9 @@ public abstract class OutputOptions {
     /** Represents an unbound file size. */
     public static final int FILE_SIZE_UNLIMITED = 0;
 
+    /** Represents an unlimited duration. */
+    public static final int DURATION_UNLIMITED = 0;
+
     private final OutputOptionsInternal mOutputOptionsInternal;
 
     OutputOptions(@NonNull OutputOptionsInternal outputOptionsInternal) {
@@ -49,8 +53,9 @@ public abstract class OutputOptions {
     /**
      * Gets the limit for the file size in bytes.
      *
-     * @return the file size limit in bytes.
+     * @return the file size limit in bytes or zero if it's unlimited.
      */
+    @IntRange(from = 0)
     public long getFileSizeLimit() {
         return mOutputOptionsInternal.getFileSizeLimit();
     }
@@ -67,6 +72,16 @@ public abstract class OutputOptions {
     }
 
     /**
+     * Gets the limit for the video duration in milliseconds.
+     *
+     * @return the video duration limit in milliseconds or zero if it's unlimited.
+     */
+    @IntRange(from = 0)
+    public long getDurationLimit() {
+        return mOutputOptionsInternal.getDurationLimit();
+    }
+
+    /**
      * The builder of the {@link OutputOptions}.
      */
     @SuppressWarnings("unchecked") // Cast to type B
@@ -78,16 +93,52 @@ public abstract class OutputOptions {
             mRootInternalBuilder = builder;
             // Apply default value
             mRootInternalBuilder.setFileSizeLimit(FILE_SIZE_UNLIMITED);
+            mRootInternalBuilder.setDurationLimit(DURATION_UNLIMITED);
         }
 
         /**
          * Sets the limit for the file length in bytes.
          *
-         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
+         * <p>When used with {@link Recorder} to generate recording, if the specified file size
+         * limit is reached while the recording is being recorded, the recording will be
+         * finalized with {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
+         *
+         * <p>If not set or set with zero, the file size will be {@linkplain #FILE_SIZE_UNLIMITED
+         * unlimited}. If set with a negative value, an {@link IllegalArgumentException} will be
+         * thrown.
+         *
+         * @param fileSizeLimitBytes the file size limit in bytes.
+         * @return this Builder.
+         * @throws IllegalArgumentException if the specified file size limit is less than zero.
          */
         @NonNull
-        public B setFileSizeLimit(long bytes) {
-            mRootInternalBuilder.setFileSizeLimit(bytes);
+        public B setFileSizeLimit(@IntRange(from = 0) long fileSizeLimitBytes) {
+            Preconditions.checkArgument(fileSizeLimitBytes >= 0, "The specified file size limit "
+                    + "should be greater than zero.");
+            mRootInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
+            return (B) this;
+        }
+
+        /**
+         * Sets the limit for the video duration in milliseconds.
+         *
+         * <p>When used to generate recording with {@link Recorder}, if the specified duration
+         * limit is reached while the recording is being recorded, the recording will be
+         * finalized with {@link VideoRecordEvent.Finalize#ERROR_DURATION_LIMIT_REACHED}.
+         *
+         * <p>If not set or set with zero, the duration will be {@linkplain #DURATION_UNLIMITED
+         * unlimited}. If set with a negative value, an {@link IllegalArgumentException} will be
+         * thrown.
+         *
+         * @param durationLimitMs the video duration limit in milliseconds.
+         * @return this Builder.
+         * @throws IllegalArgumentException if the specified duration limit is less than zero.
+         */
+        @NonNull
+        public B setDurationLimit(@IntRange(from = 0) long durationLimitMs) {
+            Preconditions.checkArgument(durationLimitMs >= 0, "The specified duration limit "
+                    + "should be greater than zero.");
+            mRootInternalBuilder.setDurationLimit(durationLimitMs);
             return (B) this;
         }
 
@@ -129,7 +180,11 @@ public abstract class OutputOptions {
     // A base class of a @AutoValue class
     abstract static class OutputOptionsInternal {
 
+        @IntRange(from = 0)
         abstract long getFileSizeLimit();
+
+        @IntRange(from = 0)
+        abstract long getDurationLimit();
 
         @Nullable
         abstract Location getLocation();
@@ -139,7 +194,10 @@ public abstract class OutputOptions {
         abstract static class Builder<B> {
 
             @NonNull
-            abstract B setFileSizeLimit(long fileSizeLimitBytes);
+            abstract B setFileSizeLimit(@IntRange(from = 0) long fileSizeLimitBytes);
+
+            @NonNull
+            abstract B setDurationLimit(@IntRange(from = 0) long durationLimitMs);
 
             @NonNull
             abstract B setLocation(@Nullable Location location);

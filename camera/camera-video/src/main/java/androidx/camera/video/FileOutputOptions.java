@@ -97,23 +97,6 @@ public final class FileOutputOptions extends OutputOptions {
             mInternalBuilder.setFile(file);
         }
 
-        /**
-         * Sets the limit for the file length in bytes.
-         *
-         * <p>When used to
-         * {@link Recorder#prepareRecording(android.content.Context, FileOutputOptions) generate}
-         * recording, if the specified file size limit is reached while the recording is being
-         * recorded, the recording will be finalized with
-         * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
-         *
-         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
-         */
-        @Override
-        @NonNull
-        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
-            return super.setFileSizeLimit(fileSizeLimitBytes);
-        }
-
         /** Builds the {@link FileOutputOptions} instance. */
         @Override
         @NonNull
@@ -124,17 +107,14 @@ public final class FileOutputOptions extends OutputOptions {
 
     @AutoValue
     abstract static class FileOutputOptionsInternal extends OutputOptions.OutputOptionsInternal {
-
         @NonNull
         abstract File getFile();
 
         @SuppressWarnings("NullableProblems") // Nullable problem in AutoValue generated class
         @AutoValue.Builder
         abstract static class Builder extends OutputOptions.OutputOptionsInternal.Builder<Builder> {
-
             @NonNull
             abstract Builder setFile(@NonNull File file);
-
             @Override
             @NonNull
             abstract FileOutputOptionsInternal build();
