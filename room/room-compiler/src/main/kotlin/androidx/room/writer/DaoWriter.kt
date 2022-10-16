@@ -35,11 +35,11 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.ext.RoomMemberNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
 import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
@@ -355,42 +355,36 @@ class DaoWriter(
             val roomSQLiteQueryVar: String
             val queryParam = method.runtimeQueryParam
             val shouldReleaseQuery: Boolean
-            when {
-                queryParam?.isString() == true -> {
-                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
-                    shouldReleaseQuery = true
-                    addStatement(
-                        "$T $L = $T.acquire($L, 0)",
-                        ROOM_SQL_QUERY.toJavaPoet(),
-                        roomSQLiteQueryVar,
-                        ROOM_SQL_QUERY.toJavaPoet(),
+            if (queryParam?.isSupportQuery() == true) {
+                roomSQLiteQueryVar = queryParam.paramName
+                shouldReleaseQuery = false
+            } else if (queryParam?.isString() == true) {
+                roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                shouldReleaseQuery = true
+                addLocalVariable(
+                    name = roomSQLiteQueryVar,
+                    typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                    assignExpr = XCodeBlock.of(
+                        codeLanguage,
+                        "%M(%L, 0)",
+                        RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                         queryParam.paramName
-                    )
-                }
-                queryParam?.isSupportQuery() == true -> {
-                    shouldReleaseQuery = false
-                    roomSQLiteQueryVar = scope.getTmpVar("_internalQuery")
-                    // move it to a final variable so that the generated code can use it inside
-                    // callback blocks in java 7
-                    addStatement(
-                        "final $T $L = $N",
-                        queryParam.type,
-                        roomSQLiteQueryVar,
-                        queryParam.paramName
-                    )
-                }
-                else -> {
-                    // try to generate compiling code. we would've already reported this error
-                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
-                    shouldReleaseQuery = false
-                    addStatement(
-                        "$T $L = $T.acquire($L, 0)",
-                        ROOM_SQL_QUERY.toJavaPoet(),
-                        roomSQLiteQueryVar,
-                        ROOM_SQL_QUERY.toJavaPoet(),
+                    ),
+                )
+            } else {
+                // try to generate compiling code. we would've already reported this error
+                roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                shouldReleaseQuery = false
+                addLocalVariable(
+                    name = roomSQLiteQueryVar,
+                    typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                    assignExpr = XCodeBlock.of(
+                        codeLanguage,
+                        "%M(%S, 0)",
+                        RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                         "missing query parameter"
-                    )
-                }
+                    ),
+                )
             }
             if (method.returnsValue) {
                 // don't generate code because it will create 1 more error. The original error is

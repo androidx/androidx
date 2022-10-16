@@ -18,10 +18,10 @@ package androidx.room.writer
 
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.Section
@@ -131,8 +131,7 @@ class QueryWriter(
                         assignExpr = XCodeBlock.of(
                             language,
                             "%M(%L, %L)",
-                            RoomTypeNames.ROOM_SQL_QUERY
-                                .companionMember("acquire", isJvmStatic = true),
+                            RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                             outSqlQueryName,
                             argCount
                         )
@@ -152,8 +151,7 @@ class QueryWriter(
                         assignExpr = XCodeBlock.of(
                             language,
                             "%M(%L, %L)",
-                            RoomTypeNames.ROOM_SQL_QUERY
-                                .companionMember("acquire", isJvmStatic = true),
+                            RoomMemberNames.ROOM_SQL_QUERY_ACQUIRE,
                             outSqlQueryName,
                             knownQueryArgsCount
                         )

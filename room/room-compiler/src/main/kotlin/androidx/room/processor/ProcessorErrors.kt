@@ -723,7 +723,7 @@ object ProcessorErrors {
     }
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
-        " Please use ${SupportDbTypeNames.QUERY}."
+        " Please use ${SupportDbTypeNames.QUERY.canonicalName}."
 
     val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
         "@AutoValue.CopyAnnotations."
