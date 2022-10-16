@@ -82,7 +82,7 @@ interface XFunSpec : TargetLanguage {
             name: String,
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
-            isOverridden: Boolean = false
+            isOverride: Boolean = false
         ): Builder {
             return when (language) {
                 CodeLanguage.JAVA -> {
@@ -94,7 +94,7 @@ interface XFunSpec : TargetLanguage {
                             // if (!isOpen) {
                             //    addModifiers(Modifier.FINAL)
                             // }
-                            if (isOverridden) {
+                            if (isOverride) {
                                 addAnnotation(Override::class.java)
                             }
                         }
@@ -108,7 +108,7 @@ interface XFunSpec : TargetLanguage {
                             if (isOpen) {
                                 addModifiers(KModifier.OPEN)
                             }
-                            if (isOverridden) {
+                            if (isOverride) {
                                 addModifiers(KModifier.OVERRIDE)
                             }
                         }

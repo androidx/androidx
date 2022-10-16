@@ -16,6 +16,8 @@
 
 package androidx.room.solver.prepared.binder
 
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
@@ -47,23 +49,23 @@ class CallablePreparedQueryResultBinder private constructor(
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
-        preparedStmtField: String?,
-        dbField: FieldSpec,
+        preparedStmtProperty: XPropertySpec?,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
         val binderScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(returnType.typeName) {
             adapter?.executeAndReturn(
                 binderScope.prepareQueryStmtBlock(),
-                preparedStmtField,
-                dbField,
+                preparedStmtProperty,
+                dbProperty,
                 binderScope
             )
             addCode(binderScope.builder().build())
         }.build()
 
         scope.builder().apply {
-            addStmntBlock(callableImpl, dbField)
+            addStmntBlock(callableImpl, dbProperty.toJavaPoet())
         }
     }
 }

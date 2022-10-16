@@ -98,6 +98,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     };
     this.__preparedStmtOfAgeUserByUid = new SharedSQLiteStatement(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         final String _query = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
         return _query;
@@ -105,6 +106,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     };
     this.__preparedStmtOfAgeUserAll = new SharedSQLiteStatement(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         final String _query = "UPDATE User SET ageColumn = ageColumn + 1";
         return _query;
@@ -367,7 +369,7 @@ public final class UpdateDao_Impl implements UpdateDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
-          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          final Integer _result = _stmt.executeUpdateDelete();
           __db.setTransactionSuccessful();
           return _result;
         } finally {
@@ -386,7 +388,7 @@ public final class UpdateDao_Impl implements UpdateDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
-          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          final Integer _result = _stmt.executeUpdateDelete();
           __db.setTransactionSuccessful();
           return _result;
         } finally {

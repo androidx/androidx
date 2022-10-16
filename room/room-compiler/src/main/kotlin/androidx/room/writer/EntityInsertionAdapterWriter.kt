@@ -76,7 +76,7 @@ class EntityInsertionAdapterWriter private constructor(
                     language = language,
                     name = "createQuery",
                     visibility = VisibilityModifier.PUBLIC,
-                    isOverridden = true
+                    isOverride = true
                 ).apply {
                     returns(String::class.asClassName())
                     val query = buildString {
@@ -106,7 +106,7 @@ class EntityInsertionAdapterWriter private constructor(
                     language = language,
                     name = "bind",
                     visibility = VisibilityModifier.PUBLIC,
-                    isOverridden = true
+                    isOverride = true
                 ).apply {
                     returns(XTypeName.UNIT_VOID)
                     val stmtParam = "statement"

@@ -293,7 +293,7 @@ fun CallableTypeSpec(
             language = language,
             name = "call",
             visibility = VisibilityModifier.PUBLIC,
-            isOverridden = true
+            isOverride = true
         ).apply {
             returns(parameterTypeName)
             callBody()
