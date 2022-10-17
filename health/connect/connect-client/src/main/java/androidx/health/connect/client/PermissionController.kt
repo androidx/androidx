@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.permission.HealthDataRequestPermissions
+import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
 
 /** Interface for operations related to permissions. */
@@ -77,6 +78,24 @@ interface PermissionController {
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
             return HealthDataRequestPermissions(providerPackageName = providerPackageName)
+        }
+
+        /**
+         * Creates an [ActivityResultContract] to request Health permissions.
+         *
+         * @param providerPackageName Optional provider package name to request health permissions
+         * from.
+         *
+         * @see androidx.activity.ComponentActivity.registerForActivityResult
+         * @sample androidx.health.connect.client.samples.RequestPermission
+         */
+        @JvmStatic
+        @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+        fun createRequestPermissionResultContractInternal(
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
+        ): ActivityResultContract<Set<String>, Set<String>> {
+            return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
         }
     }
 }
