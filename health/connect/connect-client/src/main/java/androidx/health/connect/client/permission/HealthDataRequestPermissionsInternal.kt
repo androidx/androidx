@@ -18,15 +18,15 @@ package androidx.health.connect.client.permission
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
-import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
-import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.permission.Permission as ParcelablePermission
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION_REQUEST_PERMISSIONS
-import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_JETPACK
-import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_JETPACK
+import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING
+import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
 
 /**
  * An [ActivityResultContract] to request Health Connect permissions.
@@ -36,21 +36,26 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-internal class HealthDataRequestPermissions(
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+internal class HealthDataRequestPermissionsInternal(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-) : ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>>() {
+) : ActivityResultContract<Set<String>, Set<String>>() {
 
-    override fun createIntent(context: Context, input: Set<HealthPermission>): Intent {
+    override fun createIntent(context: Context, input: Set<String>): Intent {
         require(input.isNotEmpty()) { "At least one permission is required!" }
 
         val protoPermissionList =
             input
                 .asSequence()
-                .map { ParcelablePermission(it.toProtoPermission()) }
+                .map {
+                    ParcelablePermission(
+                        PermissionProto.Permission.newBuilder().setPermission(it).build()
+                    )
+                }
                 .toCollection(ArrayList())
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Requesting ${input.size} permissions.")
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
-            putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_JETPACK, protoPermissionList)
+            putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_STRING, protoPermissionList)
             if (providerPackageName.isNotEmpty()) {
                 setPackage(providerPackageName)
             }
@@ -58,12 +63,12 @@ internal class HealthDataRequestPermissions(
     }
 
     @Suppress("Deprecation")
-    override fun parseResult(resultCode: Int, intent: Intent?): Set<HealthPermission> {
+    override fun parseResult(resultCode: Int, intent: Intent?): Set<String> {
         val grantedPermissions =
             intent
-                ?.getParcelableArrayListExtra<ParcelablePermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
+                ?.getParcelableArrayListExtra<ParcelablePermission>(KEY_GRANTED_PERMISSIONS_STRING)
                 ?.asSequence()
-                ?.map { it.proto.toJetpackPermission() }
+                ?.map { it.proto.permission }
                 ?.toSet()
                 ?: emptySet()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Granted ${grantedPermissions.size} permissions.")
@@ -72,8 +77,8 @@ internal class HealthDataRequestPermissions(
 
     override fun getSynchronousResult(
         context: Context,
-        input: Set<HealthPermission>,
-    ): SynchronousResult<Set<HealthPermission>>? {
+        input: Set<String>,
+    ): SynchronousResult<Set<String>>? {
         return null
     }
 }
