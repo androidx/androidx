@@ -38,8 +38,8 @@ import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.FrameBufferRenderer
-import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.FrameBuffer
+import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
