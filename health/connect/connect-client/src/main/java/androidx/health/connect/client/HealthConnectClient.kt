@@ -365,13 +365,7 @@ interface HealthConnectClient {
          */
         @JvmStatic
         public fun isApiSupported(): Boolean {
-            if (!isSdkVersionSufficient()) {
-                return false
-            }
-            // We will redirect implementations on U or above, which isn't implemented yet.
-            // When developers guard their app with the isSupported check, we can safely know they
-            // will not use Jetpack code that is not upgraded to U.
-            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU
+            return isSdkVersionSufficient()
         }
 
         /**
