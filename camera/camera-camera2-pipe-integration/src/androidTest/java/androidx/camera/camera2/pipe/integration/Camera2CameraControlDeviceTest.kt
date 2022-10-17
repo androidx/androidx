@@ -37,16 +37,20 @@ import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
 import android.hardware.camera2.CaptureRequest.Key
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.hardware.camera2.params.MeteringRectangle
+import android.os.Build
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
@@ -59,6 +63,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -69,8 +75,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -397,6 +401,49 @@ class Camera2CameraControlDeviceTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @Suppress("DEPRECATION")
+    @Test
+    fun canSetPhysicalCameraId() = runBlocking {
+        val physicalCameraIds = CameraUtil.getCameraCharacteristics(
+            cameraSelector.lensFacing!!
+        )!!.physicalCameraIds.toList()
+
+        // Skip the test if the camera is not a logical camera.
+        Assume.assumeTrue(physicalCameraIds.isNotEmpty())
+
+        // Arrange.
+        val physicalCameraId = physicalCameraIds[0]
+        val useCase = ImageAnalysis.Builder().also { imageAnalysisBuilder ->
+            Camera2Interop.Extender(imageAnalysisBuilder).setPhysicalCameraId(
+                physicalCameraId
+            )
+        }.build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(Dispatchers.Default.asExecutor()) {
+                // Fake analyzer, do nothing.
+            }
+        }
+
+        // Act.
+        bindUseCase(useCase)
+
+        // Assert.
+        registerListener().verify(
+            { _, captureResult: FrameInfo ->
+                captureResult.unwrap()!!.let { totalCaptureResult ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        totalCaptureResult.physicalCameraTotalResults.containsKey(
+                            physicalCameraId
+                        )
+                    } else {
+                        totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
+                    }
+                }
+            },
+        )
+    }
+
     private fun getZoom2XCropRegion(): Rect {
         val cameraManager =
             InstrumentationRegistry.getInstrumentation().context.getSystemService(
@@ -443,16 +490,18 @@ class Camera2CameraControlDeviceTest {
         return result
     }
 
-    private fun bindUseCase() {
+    private fun bindUseCase(
+        useCase: UseCase = ImageAnalysis.Builder().build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(Dispatchers.Default.asExecutor()) {
+                // Fake analyzer, do nothing.
+            }
+        }
+    ) {
         camera = CameraUtil.createCameraAndAttachUseCase(
             context,
             cameraSelector,
-            ImageAnalysis.Builder().build().apply {
-                // set analyzer to make it active.
-                setAnalyzer(Dispatchers.Default.asExecutor()) {
-                    // Fake analyzer, do nothing.
-                }
-            },
+            useCase,
         )
         camera2CameraControl = Camera2CameraControl.from(camera.cameraControl)
     }
