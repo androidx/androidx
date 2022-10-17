@@ -13,218 +13,139 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.work.WorkInfo.State
+import java.util.UUID
 
 /**
- * Information about a particular {@link WorkRequest} containing the id of the WorkRequest, its
- * current {@link State}, output, tags, and run attempt count.  Note that output is only available
- * for the terminal states ({@link State#SUCCEEDED} and {@link State#FAILED}).
+ * Information about a particular [WorkRequest] containing the id of the WorkRequest, its
+ * current [State], output, tags, and run attempt count.  Note that output is only available
+ * for the terminal states ([State.SUCCEEDED] and [State.FAILED]).
  */
-
-public final class WorkInfo {
-
-    private @NonNull UUID mId;
-    private @NonNull State mState;
-    private @NonNull Data mOutputData;
-    private @NonNull Set<String> mTags;
-    private @NonNull Data mProgress;
-    private int mRunAttemptCount;
-
-    private final int mGeneration;
+class WorkInfo @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
     /**
-     * @hide
+     * The identifier of the [WorkRequest].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkInfo(
-            @NonNull UUID id,
-            @NonNull State state,
-            @NonNull Data outputData,
-            @NonNull List<String> tags,
-            @NonNull Data progress,
-            int runAttemptCount,
-            int generation) {
-        mId = id;
-        mState = state;
-        mOutputData = outputData;
-        mTags = new HashSet<>(tags);
-        mProgress = progress;
-        mRunAttemptCount = runAttemptCount;
-        mGeneration = generation;
-    }
+    val id: UUID,
+    /**
+     * The current [State] of the [WorkRequest].
+     */
+    val state: State,
+    /**
+     * The output [Data] for the [WorkRequest]. If the WorkRequest is unfinished,
+     * this is always [Data.EMPTY].
+     */
+    val outputData: Data,
+
+    tags: List<String>,
+    /**
+     * The progress [Data] associated with the [WorkRequest].
+     */
+    val progress: Data,
 
     /**
-     * Gets the identifier of the {@link WorkRequest}.
+     * The run attempt count of the [WorkRequest].  Note that for
+     * [PeriodicWorkRequest]s, the run attempt count gets reset between successful runs.
+     */
+    @get:IntRange(from = 0)
+    val runAttemptCount: Int,
+
+    /**
+     * The latest generation of this Worker.
      *
-     * @return The identifier of a {@link WorkRequest}
-     */
-    public @NonNull UUID getId() {
-        return mId;
-    }
-
-    /**
-     * Gets the current {@link State} of the {@link WorkRequest}.
      *
-     * @return The current {@link State} of the {@link WorkRequest}
-     */
-    public @NonNull State getState() {
-        return mState;
-    }
-
-    /**
-     * Gets the output {@link Data} for the {@link WorkRequest}.  If the WorkRequest is unfinished,
-     * this is always {@link Data#EMPTY}.
-     *
-     * @return The output {@link Data} of the {@link WorkRequest}
-     */
-    public @NonNull Data getOutputData() {
-        return mOutputData;
-    }
-
-    /**
-     * Gets the {@link Set} of tags associated with the {@link WorkRequest}.
-     *
-     * @return The {@link Set} of tags associated with the {@link WorkRequest}
-     */
-    public @NonNull Set<String> getTags() {
-        return mTags;
-    }
-
-    /**
-     * Gets the progress {@link Data} associated with the {@link WorkRequest}.
-     *
-     * @return The progress {@link Data} associated with the {@link WorkRequest}
-     */
-    public @NonNull Data getProgress() {
-        return mProgress;
-    }
-
-    /**
-     * Gets the run attempt count of the {@link WorkRequest}.  Note that for
-     * {@link PeriodicWorkRequest}s, the run attempt count gets reset between successful runs.
-     *
-     * @return The run attempt count of the {@link WorkRequest}.
-     */
-    @IntRange(from = 0)
-    public int getRunAttemptCount() {
-        return mRunAttemptCount;
-    }
-
-    /**
-     * Gets the latest generation of this Worker.
-     * <p>
      * A work has multiple generations, if it was updated via
-     * {@link WorkManager#updateWork(WorkRequest)} or
-     * {@link WorkManager#enqueueUniquePeriodicWork(String,
-     * ExistingPeriodicWorkPolicy, PeriodicWorkRequest)} using
-     * {@link ExistingPeriodicWorkPolicy#UPDATE}.
-     * <p>
+     * [WorkManager.updateWork] or
+     * [WorkManager.enqueueUniquePeriodicWork] using
+     * [ExistingPeriodicWorkPolicy.UPDATE].
+     *
+     *
      * If this worker is currently running, it can possibly be of an older generation rather than
      * returned by this function if an update has happened during an execution of this worker.
-     *
-     * @return a generation of this work.
      */
-    public int getGeneration() {
-        return mGeneration;
+    val generation: Int
+) {
+    /**
+     * The [Set] of tags associated with the [WorkRequest].
+     */
+    val tags: Set<String> = HashSet(tags)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val workInfo = other as WorkInfo
+        if (runAttemptCount != workInfo.runAttemptCount) return false
+        if (generation != workInfo.generation) return false
+        if (id != workInfo.id) return false
+        if (state != workInfo.state) return false
+        if (outputData != workInfo.outputData) return false
+        return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        WorkInfo workInfo = (WorkInfo) o;
-
-        if (mRunAttemptCount != workInfo.mRunAttemptCount) return false;
-        if (mGeneration != workInfo.mGeneration) return false;
-        if (!mId.equals(workInfo.mId)) return false;
-        if (mState != workInfo.mState) return false;
-        if (!mOutputData.equals(workInfo.mOutputData)) return false;
-        if (!mTags.equals(workInfo.mTags)) return false;
-        return mProgress.equals(workInfo.mProgress);
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + state.hashCode()
+        result = 31 * result + outputData.hashCode()
+        result = 31 * result + tags.hashCode()
+        result = 31 * result + progress.hashCode()
+        result = 31 * result + runAttemptCount
+        result = 31 * result + generation
+        return result
     }
 
-    @Override
-    public int hashCode() {
-        int result = mId.hashCode();
-        result = 31 * result + mState.hashCode();
-        result = 31 * result + mOutputData.hashCode();
-        result = 31 * result + mTags.hashCode();
-        result = 31 * result + mProgress.hashCode();
-        result = 31 * result + mRunAttemptCount;
-        result = 31 * result + mGeneration;
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "WorkInfo{"
-                +   "mId='" + mId + '\''
-                +   ", mState=" + mState
-                +   ", mOutputData=" + mOutputData
-                +   ", mTags=" + mTags
-                +   ", mProgress=" + mProgress
-                + '}';
+    override fun toString(): String {
+        return ("WorkInfo{mId='$id', mState=$state, " +
+            "mOutputData=$outputData, mTags=$tags, mProgress=$progress}")
     }
 
     /**
-     * The current lifecycle state of a {@link WorkRequest}.
+     * The current lifecycle state of a [WorkRequest].
      */
-    public enum State {
-
+    enum class State {
         /**
-         * Used to indicate that the {@link WorkRequest} is enqueued and eligible to run when its
-         * {@link Constraints} are met and resources are available.
+         * Used to indicate that the [WorkRequest] is enqueued and eligible to run when its
+         * [Constraints] are met and resources are available.
          */
         ENQUEUED,
 
         /**
-         * Used to indicate that the {@link WorkRequest} is currently being executed.
+         * Used to indicate that the [WorkRequest] is currently being executed.
          */
         RUNNING,
 
         /**
-         * Used to indicate that the {@link WorkRequest} has completed in a successful state.  Note
-         * that {@link PeriodicWorkRequest}s will never enter this state (they will simply go back
-         * to {@link #ENQUEUED} and be eligible to run again).
+         * Used to indicate that the [WorkRequest] has completed in a successful state.  Note
+         * that [PeriodicWorkRequest]s will never enter this state (they will simply go back
+         * to [.ENQUEUED] and be eligible to run again).
          */
         SUCCEEDED,
 
         /**
-         * Used to indicate that the {@link WorkRequest} has completed in a failure state.  All
-         * dependent work will also be marked as {@code #FAILED} and will never run.
+         * Used to indicate that the [WorkRequest] has completed in a failure state.  All
+         * dependent work will also be marked as `#FAILED` and will never run.
          */
         FAILED,
 
         /**
-         * Used to indicate that the {@link WorkRequest} is currently blocked because its
+         * Used to indicate that the [WorkRequest] is currently blocked because its
          * prerequisites haven't finished successfully.
          */
         BLOCKED,
 
         /**
-         * Used to indicate that the {@link WorkRequest} has been cancelled and will not execute.
-         * All dependent work will also be marked as {@code #CANCELLED} and will not run.
+         * Used to indicate that the [WorkRequest] has been cancelled and will not execute.
+         * All dependent work will also be marked as `#CANCELLED` and will not run.
          */
         CANCELLED;
 
         /**
-         * Returns {@code true} if this State is considered finished.
-         *
-         * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and * {@link #CANCELLED}
-         *         states
+         * Returns `true` if this State is considered finished:
+         * [.SUCCEEDED], [.FAILED], and * [.CANCELLED]
          */
-        public boolean isFinished() {
-            return (this == SUCCEEDED || this == FAILED || this == CANCELLED);
-        }
+        val isFinished: Boolean
+            get() = this == SUCCEEDED || this == FAILED || this == CANCELLED
     }
 }
