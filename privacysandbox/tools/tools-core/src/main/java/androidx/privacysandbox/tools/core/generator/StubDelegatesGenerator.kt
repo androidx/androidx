@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apicompiler.generator
+package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.generator.AidlGenerator
-import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
-import androidx.privacysandbox.tools.core.generator.SpecNames
-import androidx.privacysandbox.tools.core.generator.addCode
-import androidx.privacysandbox.tools.core.generator.addControlFlow
-import androidx.privacysandbox.tools.core.generator.addStatement
-import androidx.privacysandbox.tools.core.generator.aidlName
-import androidx.privacysandbox.tools.core.generator.build
-import androidx.privacysandbox.tools.core.generator.poetSpec
-import androidx.privacysandbox.tools.core.generator.primaryConstructor
-import androidx.privacysandbox.tools.core.generator.stubDelegateNameSpec
-import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.ParsedApi
