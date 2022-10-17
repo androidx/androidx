@@ -21,6 +21,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.UiContext
+import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
@@ -134,12 +135,21 @@ internal class ExtensionWindowLayoutInfoBackend(
             val context = listenerToContext[callback] ?: return
             val multicastListener = contextToListeners[context] ?: return
             multicastListener.removeListener(callback)
+            listenerToContext.remove(callback)
             if (multicastListener.isEmpty()) {
                 consumerToToken.remove(multicastListener)?.dispose()
-                listenerToContext.remove(callback)
                 contextToListeners.remove(context)
             }
         }
+    }
+
+    /**
+     * Returns {@code true} if all the collections are empty, {@code false} otherwise
+     */
+    @VisibleForTesting
+    fun hasRegisteredListeners(): Boolean {
+        return !(contextToListeners.isEmpty() && listenerToContext.isEmpty() &&
+            consumerToToken.isEmpty())
     }
 
     /**
