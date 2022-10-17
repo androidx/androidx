@@ -79,7 +79,9 @@ public class MultiPointerPredictor implements InkPredictor {
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             KalmanInkPredictor predictor = new KalmanInkPredictor();
             predictor.setPredictionTarget(mPredictionTargetMs);
-            predictor.setReportRate(mReportRateMs);
+            if (mReportRateMs > 0) {
+                predictor.setReportRate(mReportRateMs);
+            }
             predictor.initStrokePrediction(pointerId);
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
@@ -145,12 +147,25 @@ public class MultiPointerPredictor implements InkPredictor {
         }
 
         // Compute minimal history size for every predicted single pointer MotionEvent
+        boolean foundNullPrediction = false;
         int minHistorySize = Integer.MAX_VALUE;
         for (MotionEvent ev : singlePointerEvents) {
+            if (ev == null) {
+                foundNullPrediction = true;
+                break;
+            }
             if (ev.getHistorySize() < minHistorySize) {
                 minHistorySize = ev.getHistorySize();
             }
         }
+
+        if (foundNullPrediction) {
+            for (MotionEvent ev : singlePointerEvents) {
+                ev.recycle();
+            }
+            return null;
+        }
+
         // Take into account the current event of each predicted MotionEvent
         minHistorySize += 1;
 
