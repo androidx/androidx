@@ -723,7 +723,7 @@ class VideoCaptureTest {
         // Assert.
         assertThat(surfaceRequest).isNotNull()
         assertThat(surfaceRequest!!.resolution).isEqualTo(rectToSize(expectedCropRect))
-        assertThat(videoCapture.cameraSettableSurface.cropRect).isEqualTo(expectedCropRect)
+        assertThat(videoCapture.cropRect).isEqualTo(expectedCropRect)
     }
 
     private fun assertSupportedResolutions(
