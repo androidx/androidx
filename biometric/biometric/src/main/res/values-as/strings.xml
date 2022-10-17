@@ -23,7 +23,7 @@
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"কোনো ফিংগাৰপ্ৰিণ্ট যোগ কৰা নহ\'ল।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"এই ডিভাইচটোত ফিংগাৰপ্ৰিণ্ট ছেন্সৰ নাই"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"ব্যৱহাৰকাৰীয়ে ফিংগাৰপ্ৰিণ্টৰ দ্বাৰা বিশ্বাসযোগ্যতা প্ৰমাণীকৰণ কাৰ্য বাতিল কৰিছে।"</string>
-    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"অতি বেছি চেষ্টা অনুগ্ৰহ কৰি পিছত আকৌ চেষ্টা কৰক।"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"অতি বেছি চেষ্টা অনুগ্ৰহ কৰি পাছত আকৌ চেষ্টা কৰক।"</string>
     <string name="default_error_msg" msgid="4776854077120974966">"অজ্ঞাত আসোঁৱাহ"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"বিশ্বাসযোগ্যতা প্ৰমাণীকৰণ ব্যৱহাৰকাৰীয়ে বাতিল কৰিছে।"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"পাছৱৰ্ড ব্যৱহাৰ কৰক"</string>
