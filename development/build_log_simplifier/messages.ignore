@@ -23,10 +23,8 @@ Configuration cache is an incubating feature\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
+# https://youtrack.jetbrains.com/issue/KT-48436
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
-\* iosArm[0-9]+Main
-\* iosSimulatorArm[0-9]+Main
-\* iosX[0-9]+Main
 \* androidAndroidTestDebug
 \* androidAndroidTestRelease
 \* androidTestFixtures
