@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.list
+package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -75,7 +70,7 @@ class LazyListBeyondBoundsTest(param: Param) {
     private val layoutDirection = param.layoutDirection
     private val placedItems = mutableSetOf<Int>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
-    private lateinit var lazyListState: LazyListState
+    private lateinit var lazyListState: TvLazyListState
 
     companion object {
         @JvmStatic
@@ -166,12 +161,13 @@ class LazyListBeyondBoundsTest(param: Param) {
                 )
             }
             item {
-                Box(Modifier
-                    .size(10.toDp())
-                    .onPlaced { placedItems += 5 }
-                    .modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
+                Box(
+                    Modifier
+                        .size(10.toDp())
+                        .onPlaced { placedItems += 5 }
+                        .modifierLocalConsumer {
+                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
+                        }
                 )
             }
             items(5) { index ->
@@ -479,21 +475,21 @@ class LazyListBeyondBoundsTest(param: Param) {
     private fun ComposeContentTestRule.setLazyContent(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: TvLazyListScope.() -> Unit
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                lazyListState = rememberLazyListState(firstVisibleItem)
+                lazyListState = rememberTvLazyListState(firstVisibleItem)
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Before, After ->
-                        LazyRow(
+                        TvLazyRow(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
                             content = content
                         )
                     Above, Below ->
-                        LazyColumn(
+                        TvLazyColumn(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
@@ -508,21 +504,21 @@ class LazyListBeyondBoundsTest(param: Param) {
     private fun ComposeContentTestRule.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: TvLazyListScope.() -> Unit
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                lazyListState = rememberLazyListState(firstVisibleItem)
+                lazyListState = rememberTvLazyListState(firstVisibleItem)
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Before, After ->
-                        LazyColumn(
+                        TvLazyColumn(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
                             content = content
                         )
                     Above, Below ->
-                        LazyRow(
+                        TvLazyRow(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
