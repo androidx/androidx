@@ -41,7 +41,8 @@ interface PermissionController {
      * Filters and returns a subset of permissions granted by the user to the calling app, out of
      * the input permissions set.
      *
-     * @param permissions set of permissions to filter
+     * @param permissions set of permissions to filter. Each permission should be one of the list
+     * defined in [HealthPermission]
      * @return filtered set of granted permissions.
      *
      * @throws android.os.RemoteException For any IPC transportation failures.
