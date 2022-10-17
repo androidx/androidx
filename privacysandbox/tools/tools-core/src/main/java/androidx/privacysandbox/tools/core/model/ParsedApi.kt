@@ -25,4 +25,5 @@ data class ParsedApi(
 ) {
     val valueMap = values.associateBy { it.type }
     val callbackMap = callbacks.associateBy { it.type }
+    val interfaceMap = interfaces.associateBy { it.type }
 }
