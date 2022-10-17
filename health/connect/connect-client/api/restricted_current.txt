@@ -101,9 +101,6 @@ package androidx.health.connect.client.changes {
 
 package androidx.health.connect.client.permission {
 
-  public final class HealthDataRequestPermissionsKt {
-  }
-
   public final class HealthPermission {
     method public static androidx.health.connect.client.permission.HealthPermission createReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
     method public static androidx.health.connect.client.permission.HealthPermission createWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);

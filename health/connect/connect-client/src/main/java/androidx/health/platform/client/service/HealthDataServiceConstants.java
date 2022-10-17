@@ -16,7 +16,6 @@
 
 package androidx.health.platform.client.service;
 
-
 import androidx.annotation.RestrictTo;
 
 /**
@@ -29,8 +28,10 @@ public final class HealthDataServiceConstants {
     public static final String ACTION_REQUEST_PERMISSIONS =
             "androidx.health.ACTION_REQUEST_PERMISSIONS";
     public static final String KEY_GRANTED_PERMISSIONS_JETPACK = "granted_permissions_jetpack";
+    public static final String KEY_GRANTED_PERMISSIONS_STRING = "granted_permissions_string";
     public static final String KEY_REQUESTED_PERMISSIONS_JETPACK = "requested_permissions_jetpack";
-    public static final String KEY_PACKAGE_NAME = "package_name";
+    public static final String KEY_REQUESTED_PERMISSIONS_STRING = "requested_permissions_string";
+
 
     private HealthDataServiceConstants() {}
 }
