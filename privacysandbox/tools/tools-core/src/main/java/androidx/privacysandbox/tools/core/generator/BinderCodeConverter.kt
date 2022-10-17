@@ -72,6 +72,10 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (value != null) {
             return CodeBlock.of("%M(%L)", value.toParcelableNameSpec(), expression)
         }
+        val callback = api.callbackMap[type]
+        if (callback != null) {
+            return CodeBlock.of("%T(%L)", callback.stubDelegateNameSpec(), expression)
+        }
         return CodeBlock.of(expression)
     }
 
