@@ -494,11 +494,19 @@ public abstract class BaseEditorSession internal constructor(
         complicationDataSourceChooserResult: ComplicationDataSourceChooserResult?
     ) {
         synchronized(this) {
-            Log.d(TAG, "onComplicationDataSourceChooserResult")
             val deferredResult = pendingComplicationDataSourceChooserResult
+            if (deferredResult == null) {
+                Log.w(
+                    TAG,
+                    "Ignoring onComplicationDataSourceChooserResult due to null " +
+                        "pendingComplicationDataSourceChooserResult"
+                )
+                return
+            }
+            Log.d(TAG, "onComplicationDataSourceChooserResult")
             pendingComplicationDataSourceChooserResult = null
             deferredResult
-        }!!.complete(complicationDataSourceChooserResult)
+        }.complete(complicationDataSourceChooserResult)
     }
 
     override suspend fun openComplicationDataSourceChooser(
