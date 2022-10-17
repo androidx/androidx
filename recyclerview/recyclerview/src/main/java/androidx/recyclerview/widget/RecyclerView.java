@@ -2132,9 +2132,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
             if (ev != null && !MotionEventCompat.isFromSource(ev, InputDevice.SOURCE_MOUSE)) {
                 pullGlows(ev.getX(), unconsumedX, ev.getY(), unconsumedY);
-                // For rotary encoders, we release the EdgeEffects after they are pulled, to avoid
-                // the effects being stuck pulled.
-                if (MotionEventCompat.isFromSource(ev, InputDevice.SOURCE_ROTARY_ENCODER)) {
+                // For rotary encoders, we release stretch EdgeEffects after they are pulled, to
+                // avoid the effects being stuck pulled.
+                if (Build.VERSION.SDK_INT >= 31
+                        && MotionEventCompat.isFromSource(ev, InputDevice.SOURCE_ROTARY_ENCODER)) {
                     releaseGlows();
                 }
             }
