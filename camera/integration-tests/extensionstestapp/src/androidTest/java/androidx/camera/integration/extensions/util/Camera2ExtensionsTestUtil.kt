@@ -30,6 +30,7 @@ import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.media.Image
 import android.media.ImageReader
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
@@ -37,6 +38,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
@@ -45,9 +47,27 @@ import org.junit.Assume.assumeTrue
 
 @RequiresApi(31)
 object Camera2ExtensionsTestUtil {
-
-    const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val LAB_STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val STRESS_TEST_OPERATION_REPEAT_COUNT = 3
     const val EXTENSION_NOT_FOUND = -1
+
+    /**
+     * Returns whether the target device is excluded for extensions test
+     */
+    @JvmStatic
+    fun isTargetDeviceExcludedForExtensionsTest(): Boolean {
+        // Skips Cuttlefish device since actually it is not a real marketing device which supports
+        // extensions and it will cause pre-submit failures.
+        return !Build.MODEL.contains("Cuttlefish", true)
+    }
+
+    @JvmStatic
+    fun getStressTestRepeatingCount() =
+        if (LabTestRule.isInLabTest()) {
+            LAB_STRESS_TEST_OPERATION_REPEAT_COUNT
+        } else {
+            STRESS_TEST_OPERATION_REPEAT_COUNT
+        }
 
     /**
      * Gets a list of all camera id and extension mode combinations.
@@ -163,7 +183,6 @@ object Camera2ExtensionsTestUtil {
 
         if (verifyOutput) {
             deferredPreviewFrame.await()
-
             val image = takePicture(cameraDevice, extensionSession, imageReader)
             assertThat(image).isNotNull()
             image!!.close()
