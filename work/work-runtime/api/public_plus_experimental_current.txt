@@ -316,6 +316,7 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation);
     method public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();

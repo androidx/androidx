@@ -382,8 +382,8 @@ data class WorkSpec(
             return WorkInfo(
                 UUID.fromString(id),
                 state,
+                HashSet(tags),
                 output,
-                tags,
                 progress,
                 runAttemptCount,
                 generation
