@@ -27,6 +27,7 @@ The following Kotlin source sets were configured but not added to any Kotlin com
 \* iosArm[0-9]+Main
 \* iosSimulatorArm[0-9]+Main
 \* iosX[0-9]+Main
+\* androidAndroidTestDebug
 \* androidAndroidTestRelease
 \* androidTestFixtures
 \* androidTestFixturesDebug
