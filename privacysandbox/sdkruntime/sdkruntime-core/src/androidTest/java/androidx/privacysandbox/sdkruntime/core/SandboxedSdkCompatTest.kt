@@ -1,0 +1,68 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.privacysandbox.sdkruntime.core
+
+import android.app.sdksandbox.SandboxedSdk
+import android.os.Binder
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.toSandboxedSdkCompat
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+class SandboxedSdkCompatTest {
+
+    @Test
+    fun getInterface_returnsBinderPassedToCreate() {
+        val binder = Binder()
+
+        val sandboxedSdkCompat = create(binder)
+
+        assertThat(sandboxedSdkCompat.getInterface())
+            .isSameInstanceAs(binder)
+    }
+
+    @Test
+    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun toSandboxedSdk_whenCreatedFromBinder_returnsSandboxedSdkWithSameBinder() {
+        val binder = Binder()
+
+        val toSandboxedSdkResult = create(binder).toSandboxedSdk()
+
+        assertThat(toSandboxedSdkResult.getInterface())
+            .isSameInstanceAs(binder)
+    }
+
+    @Test
+    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
+    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun toSandboxedSdk_whenCreatedFromSandboxedSdk_returnsSameSandboxedSdk() {
+        val binder = Binder()
+        val sandboxedSdk = SandboxedSdk(binder)
+
+        val toSandboxedSdkResult = toSandboxedSdkCompat(sandboxedSdk).toSandboxedSdk()
+
+        assertThat(toSandboxedSdkResult)
+            .isSameInstanceAs(sandboxedSdk)
+    }
+}
