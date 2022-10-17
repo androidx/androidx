@@ -29,6 +29,8 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
@@ -61,6 +63,10 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraCallbackMap: CameraCallbackMap,
 ) : CameraInfoInternal {
     private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    @OptIn(ExperimentalCamera2Interop::class)
+    internal val camera2CameraInfo: Camera2CameraInfo by lazy {
+        Camera2CameraInfo.create(cameraProperties)
+    }
 
     override fun getCameraId(): String = cameraConfig.cameraId.value
     override fun getLensFacing(): Int? =
