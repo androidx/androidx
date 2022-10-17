@@ -37,6 +37,7 @@ import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 
 import org.junit.Assert;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
+import java.util.ArrayList;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -373,4 +375,93 @@ public class EncryptedFileTest {
         inputStream.close();
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    public void multiThreadFileCreate() throws Exception {
+        final int fileSize = 2 << 14;
+        final int fileCount = 10;
+        ArrayList<File> files = new ArrayList<>();
+        final File directory = mContext.getFilesDir();
+
+        for (int i = 0; i < fileCount; i++) {
+            File file = new File(directory + "/multiThreadFileCreate-file-" + i);
+            file.delete(); // Clear out file from previous run if it exists
+            files.add(file);
+        }
+
+        // Inlining what should just be Assume.assumeTrue(SDK_INT >= M) because AndroidStudio's
+        // static analysis can't understand that.
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+            throw new AssumptionViolatedException("API v23 or higher is required to run this test");
+        }
+
+        final String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<Exception> exceptions = new ArrayList<>();
+
+        // Create a thread for each encrypted file
+        for (File file : files) {
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        EncryptedFile encryptedFile = new EncryptedFile.Builder(
+                                file,
+                                mContext,
+                                masterKeyAlias,
+                                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+                        ).build();
+
+                        try (OutputStream outputStream = encryptedFile.openFileOutput()) {
+                            byte[] buffer = new byte[fileSize];
+                            outputStream.write(buffer, 0, buffer.length);
+                            outputStream.flush();
+                        }
+                    } catch (Exception e) {
+                        synchronized (exceptions) {
+                            exceptions.add(e);
+                        }
+                    }
+                }
+            };
+
+            threads.add(thread);
+        }
+
+        // Start each thread
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        // Wait for each thread to finish
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
+        if (exceptions.size() > 0) {
+            System.err.println(exceptions.size() + " errors were thrown during file encryption");
+
+            for (Exception exception : exceptions) {
+                exception.printStackTrace();
+            }
+
+            System.err.println("Throwing the first exception");
+            throw exceptions.get(0);
+        }
+
+        // Decrypt files serially
+        for (File file : files) {
+            EncryptedFile encryptedFile = new EncryptedFile.Builder(
+                    file,
+                    mContext,
+                    masterKeyAlias,
+                    EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+            ).build();
+
+            try (InputStream inputStream = encryptedFile.openFileInput()) {
+                byte[] buffer = new byte[fileSize];
+                inputStream.read(buffer); // Will throw IOException if decryption fails
+            }
+        }
+    }
 }

@@ -117,6 +117,7 @@ public final class EncryptedFile {
      * Builder class to configure EncryptedFile
      */
     public static final class Builder {
+        private static Object sLock = new Object();
 
         /**
          * Builder for an EncryptedFile.
@@ -194,12 +195,20 @@ public final class EncryptedFile {
         public EncryptedFile build() throws GeneralSecurityException, IOException {
             StreamingAeadConfig.register();
 
-            KeysetHandle streamingAeadKeysetHandle = new AndroidKeysetManager.Builder()
+            AndroidKeysetManager.Builder keysetManagerBuilder = new AndroidKeysetManager.Builder()
                     .withKeyTemplate(mFileEncryptionScheme.getKeyTemplate())
                     .withSharedPref(mContext, mKeysetAlias, mKeysetPrefName)
-                    .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias)
-                    .build().getKeysetHandle();
+                    .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias);
 
+            // Building the keyset manager involves shared pref filesystem operations. To control
+            // access to this global state in multi-threaded contexts we need to ensure mutual
+            // exclusion of the build() function.
+            AndroidKeysetManager androidKeysetManager;
+            synchronized (sLock) {
+                androidKeysetManager = keysetManagerBuilder.build();
+            }
+
+            KeysetHandle streamingAeadKeysetHandle = androidKeysetManager.getKeysetHandle();
             StreamingAead streamingAead =
                     streamingAeadKeysetHandle.getPrimitive(StreamingAead.class);
 
