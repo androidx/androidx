@@ -41,6 +41,11 @@ class BinderCodeConverterTest {
                     properties = listOf()
                 )
             ),
+            callbacks = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "Callback"),
+                )
+            ),
         )
     )
 
@@ -60,6 +65,15 @@ class BinderCodeConverterTest {
                 Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
             ).toString()
         ).isEqualTo("com.mysdk.ValueConverter.fromParcelable(value)")
+    }
+
+    @Test
+    fun convertToModelCode_callback() {
+        assertThat(
+            converter.convertToModelCode(
+                Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
+            ).toString()
+        ).isEqualTo("com.mysdk.CallbackClientProxy(callback)")
     }
 
     @Test

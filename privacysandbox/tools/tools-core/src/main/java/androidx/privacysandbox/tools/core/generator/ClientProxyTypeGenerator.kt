@@ -39,23 +39,24 @@ class ClientProxyTypeGenerator(
         ClassName(service.type.packageName, "ICancellationSignal")
     private val binderCodeConverter = BinderCodeConverter(api)
 
-    fun generate(): TypeSpec = TypeSpec.classBuilder(className).build {
-        addModifiers(KModifier.PRIVATE)
-        addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
-        primaryConstructor(
-            listOf(
-                PropertySpec.builder("remote", remoteBinderClassName)
-                    .addModifiers(KModifier.PRIVATE).build()
+    fun generate(visibilityModifier: KModifier = KModifier.INTERNAL): TypeSpec =
+        TypeSpec.classBuilder(className).build {
+            addModifiers(visibilityModifier)
+            addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
+            primaryConstructor(
+                listOf(
+                    PropertySpec.builder("remote", remoteBinderClassName)
+                        .addModifiers(KModifier.PRIVATE).build()
+                )
             )
-        )
-        addFunctions(service.methods.map { method ->
-            if (method.isSuspend) {
-                generateSuspendProxyMethodImplementation(method)
-            } else {
-                generateProxyMethodImplementation(method)
-            }
-        })
-    }
+            addFunctions(service.methods.map { method ->
+                if (method.isSuspend) {
+                    generateSuspendProxyMethodImplementation(method)
+                } else {
+                    generateProxyMethodImplementation(method)
+                }
+            })
+        }
 
     private fun generateProxyMethodImplementation(method: Method) =
         FunSpec.builder(method.name).build {

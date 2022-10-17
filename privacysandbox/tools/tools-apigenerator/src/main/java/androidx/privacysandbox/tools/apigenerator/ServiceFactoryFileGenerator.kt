@@ -47,7 +47,7 @@ internal class ServiceFactoryFileGenerator(
 
             addFunction(generateFactoryFunction())
 
-            addType(proxyTypeGenerator.generate())
+            addType(proxyTypeGenerator.generate(KModifier.PRIVATE))
         }
 
     private fun generateFactoryFunction() =

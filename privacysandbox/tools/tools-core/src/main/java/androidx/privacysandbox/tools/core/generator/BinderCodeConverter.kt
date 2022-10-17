@@ -41,6 +41,10 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (value != null) {
             return CodeBlock.of("%M(%L)", value.fromParcelableNameSpec(), expression)
         }
+        val callback = api.callbackMap[type]
+        if (callback != null) {
+            return CodeBlock.of("%T(%L)", callback.clientProxyNameSpec(), expression)
+        }
         return CodeBlock.of(expression)
     }
 
@@ -85,6 +89,10 @@ class BinderCodeConverter(private val api: ParsedApi) {
         val value = api.valueMap[type]
         if (value != null) {
             return value.parcelableNameSpec()
+        }
+        val callback = api.callbackMap[type]
+        if (callback != null) {
+            return callback.aidlType().innerType.poetSpec()
         }
         return type.poetSpec()
     }
