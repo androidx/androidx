@@ -80,7 +80,8 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
                 if (!GlanceAppWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
                     return@mapNotNull null
                 }
-                val receiver = receiverClass.newInstance() as GlanceAppWidgetReceiver
+                val receiver = receiverClass.getDeclaredConstructor()
+                    .newInstance() as GlanceAppWidgetReceiver
                 val provider = receiver.glanceAppWidget.javaClass
                 ProviderData(
                     provider = provider,
@@ -112,7 +113,8 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
                                 scope.launch {
                                     manager.requestPinGlanceAppWidget(
                                         receiver = it.receiver,
-                                        preview = it.provider.newInstance(),
+                                        preview = it.provider.getDeclaredConstructor()
+                                            .newInstance(),
                                         previewState = emptyPreferences()
                                     )
                                 }

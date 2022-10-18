@@ -53,7 +53,7 @@ object Room {
             val aClass = Class.forName(
                 fullClassName, true, klass.classLoader
             ) as Class<T>
-            aClass.newInstance()
+            aClass.getDeclaredConstructor().newInstance()
         } catch (e: ClassNotFoundException) {
             throw RuntimeException(
                 "Cannot find implementation for ${klass.canonicalName}. $implName does not " +
