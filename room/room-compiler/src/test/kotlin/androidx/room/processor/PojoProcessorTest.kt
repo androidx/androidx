@@ -2097,15 +2097,17 @@ class PojoProcessorTest {
                 fields["isbn"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn",
                     jvmName = "getIsbn",
                     type = stringType,
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD
                 )
             )
             Truth.assertThat(
                 fields["isbn"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn",
                     jvmName = "isbn",
                     type = stringType,
                     callType = CallType.CONSTRUCTOR
@@ -2116,18 +2118,20 @@ class PojoProcessorTest {
                 fields["isbn2"]?.getter
             ).isEqualTo(
                 FieldGetter(
+                    fieldName = "isbn2",
                     jvmName = "getIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD
                 )
             )
             Truth.assertThat(
                 fields["isbn2"]?.setter
             ).isEqualTo(
                 FieldSetter(
+                    fieldName = "isbn2",
                     jvmName = "setIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.METHOD
+                    callType = CallType.SYNTHETIC_METHOD
                 )
             )
         }

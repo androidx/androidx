@@ -31,6 +31,8 @@ internal class KotlinCodeBlock(
     internal val actual: KCodeBlock
 ) : KotlinLang(), XCodeBlock {
 
+    override fun toString() = actual.toString()
+
     internal class Builder : KotlinLang(), XCodeBlock.Builder {
 
         internal val actual = KCodeBlockBuilder()

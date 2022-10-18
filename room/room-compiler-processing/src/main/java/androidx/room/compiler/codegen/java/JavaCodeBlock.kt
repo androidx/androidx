@@ -30,6 +30,8 @@ internal class JavaCodeBlock(
     internal val actual: JCodeBlock
 ) : JavaLang(), XCodeBlock {
 
+    override fun toString() = actual.toString()
+
     internal class Builder : JavaLang(), XCodeBlock.Builder {
         internal val actual = JCodeBlock.builder()
 

@@ -79,8 +79,10 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     )
                 )
             )
-            assertThat(field.setter, `is`(FieldSetter("setRowId", intType, CallType.METHOD)))
-            assertThat(field.getter, `is`(FieldGetter("getRowId", intType, CallType.METHOD)))
+            assertThat(field.setter,
+                `is`(FieldSetter("rowId", "setRowId", intType, CallType.METHOD)))
+            assertThat(field.getter,
+                `is`(FieldGetter("rowId", "getRowId", intType, CallType.METHOD)))
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
             assertThat(entity.shadowTableName, `is`("MyEntity_content"))
             assertThat(entity.ftsVersion, `is`(FtsVersion.FTS3))
