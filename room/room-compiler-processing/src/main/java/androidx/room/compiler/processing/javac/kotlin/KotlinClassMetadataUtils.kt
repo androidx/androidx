@@ -64,7 +64,8 @@ internal data class KmFunction(
     val typeArguments: List<KmType>,
     override val parameters: List<KmValueParameter>,
     val returnType: KmType,
-    val receiverType: KmType?
+    val receiverType: KmType?,
+    val isPropertyFunction: Boolean = false
 ) : KmExecutable {
     fun isSuspend() = Flag.Function.IS_SUSPEND(flags)
     fun isExtension() = receiverType != null
@@ -319,7 +320,8 @@ private class PropertyReader(
                                 typeArguments = emptyList(),
                                 parameters = listOf(param),
                                 returnType = KM_VOID_TYPE,
-                                receiverType = null
+                                receiverType = null,
+                                isPropertyFunction = true
                             )
                         },
                         getter = getter?.let { getterSignature ->
@@ -331,7 +333,8 @@ private class PropertyReader(
                                 typeArguments = emptyList(),
                                 parameters = emptyList(),
                                 returnType = returnType,
-                                receiverType = null
+                                receiverType = null,
+                                isPropertyFunction = true
                             )
                         }
                     )

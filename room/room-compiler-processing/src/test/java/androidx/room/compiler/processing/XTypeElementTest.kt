@@ -720,14 +720,26 @@ class XTypeElementTest {
             ).map {
                 invocation.processingEnv.requireTypeElement(it)
             }.forEach { subject ->
+                val methods = subject.getDeclaredMethods()
                 assertWithMessage(subject.qualifiedName)
                     .that(
-                        subject.getDeclaredMethods().map {
+                        methods.map {
                             it.jvmName
                         }
                     ).containsExactly(
                         "getMutable", "setMutable", "getImmutable"
                     )
+                methods.forEach {
+                    assertWithMessage("${subject.qualifiedName}.${it.jvmName}()")
+                        .that(it.isKotlinPropertyMethod())
+                        .apply {
+                            if (subject.name.contains("Kotlin")) {
+                                isTrue()
+                            } else {
+                                isFalse()
+                            }
+                        }
+                }
             }
         }
     }

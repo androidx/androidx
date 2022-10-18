@@ -177,4 +177,6 @@ internal class JavacMethodElement(
             env.wrapTypeElement(it)
         }
     }
+
+    override fun isKotlinPropertyMethod() = kotlinMetadata?.isPropertyFunction ?: false
 }

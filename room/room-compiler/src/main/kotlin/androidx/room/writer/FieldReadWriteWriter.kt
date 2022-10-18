@@ -310,51 +310,30 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field! (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field! (not the container pojo)
      * @param stmtParamVar The statement variable
      * @param scope The code generation scope
      */
     private fun bindToStatement(ownerVar: String, stmtParamVar: String, scope: CodeGenScope) {
-        field.statementBinder?.let { binder ->
-            val varName = if (field.getter.callType == CallType.FIELD) {
-                "$ownerVar.${field.name}"
-            } else {
-                "$ownerVar.${field.getter.jvmName}()"
-            }
-            binder.bindToStmt(stmtParamVar, indexVar, varName, scope)
-        }
+        val binder = field.statementBinder ?: return
+        field.getter.writeGetToStatement(
+            ownerVar, stmtParamVar, indexVar, binder, scope
+        )
     }
 
     /**
-     * @param ownerVar The entity / pojo that owns this field. It must own this field (not the
-     * container pojo)
+     * @param ownerVar The entity / pojo variable that owns this field.
+     * It must own this field (not the container pojo)
      * @param cursorVar The cursor variable
      * @param scope The code generation scope
      */
     private fun readFromCursor(ownerVar: String, cursorVar: String, scope: CodeGenScope) {
         fun doRead() {
-            field.cursorValueReader?.let { reader ->
-                scope.builder.apply {
-                    when (field.setter.callType) {
-                        CallType.FIELD -> {
-                            val outFieldName = "$ownerVar.${field.setter.jvmName}"
-                            reader.readFromCursor(outFieldName, cursorVar, indexVar, scope)
-                        }
-                        CallType.METHOD -> {
-                            val tmpField = scope.getTmpVar(
-                                "_tmp${field.name.capitalize(Locale.US)}"
-                            )
-                            addLocalVariable(tmpField, field.setter.type.asTypeName())
-                            reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
-                            addStatement("%L.%L(%L)", ownerVar, field.setter.jvmName, tmpField)
-                        }
-                        CallType.CONSTRUCTOR -> {
-                            // no-op
-                        }
-                    }
-                }
-            }
+            val reader = field.cursorValueReader ?: return
+            field.setter.writeSetFromCursor(
+                ownerVar, cursorVar, indexVar, reader, scope
+            )
         }
         if (alwaysExists) {
             doRead()
