@@ -30,6 +30,8 @@ internal object UnicodeRenderableManager {
 
     private const val VARIATION_SELECTOR = "\uFE0F"
 
+    private const val YAWNING_FACE_EMOJI = "\uD83E\uDD71"
+
     private val paint = TextPaint()
 
     /**
@@ -63,6 +65,13 @@ internal object UnicodeRenderableManager {
     ) = emojiCompatMetaData.metaVersion?.run {
         EmojiCompat.get().getEmojiMatch(emoji, this) > 0
     } ?: (getClosestRenderable(emoji) != null)
+
+    internal fun isEmoji12Supported(
+        emojiCompatMetaData: EmojiPickerView.EmojiCompatMetadata
+    ) =
+        // Yawning face is added in emoji 12 which is the first version starts to support gender
+        // inclusive emojis.
+        isEmojiRenderable(YAWNING_FACE_EMOJI, emojiCompatMetaData)
 
     @VisibleForTesting
     fun getClosestRenderable(emoji: String): String? {

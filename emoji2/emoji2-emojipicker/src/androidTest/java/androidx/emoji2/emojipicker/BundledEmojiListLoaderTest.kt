@@ -17,6 +17,7 @@
 package androidx.emoji2.emojipicker
 
 import android.content.Context
+import androidx.emoji2.emojipicker.utils.FileCache
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -30,15 +31,52 @@ class BundledEmojiListLoaderTest {
     private val emojiCompatMetadata = EmojiPickerView.EmojiCompatMetadata(null, false)
 
     @Test
-    fun testGetCategorizedEmojiData_loaded() {
+    fun testGetCategorizedEmojiData_loaded_writeToCache() {
+        // delete cache dir first
+        val fileCache = FileCache.getInstance(context)
+        fileCache.emojiPickerCacheDir.deleteRecursively()
+        assertFalse(fileCache.emojiPickerCacheDir.exists())
+
         BundledEmojiListLoader.load(context, emojiCompatMetadata)
         assertTrue(BundledEmojiListLoader.categorizedEmojiData.isNotEmpty())
+
+        // emoji_picker/osVersion|appVersion/ folder should be created
+        val propertyFolder = fileCache.emojiPickerCacheDir.listFiles()!![0]
+        assertTrue(propertyFolder!!.isDirectory)
+
+        // Number of cache files should match the size of categorizedEmojiData
+        val cacheFiles = propertyFolder.listFiles()
+        assertTrue(
+            cacheFiles!!.size == BundledEmojiListLoader.categorizedEmojiData.size
+        )
+    }
+
+    @Test
+    fun testGetCategorizedEmojiData_loaded_readFromCache() {
+        // delete cache and load again
+        val fileCache = FileCache.getInstance(context)
+        fileCache.emojiPickerCacheDir.deleteRecursively()
+        BundledEmojiListLoader.load(context, emojiCompatMetadata)
+
+        val cacheFileName = fileCache.emojiPickerCacheDir.listFiles()!![0].listFiles()!![0].name
+        val emptyDefaultValue = listOf<BundledEmojiListLoader.EmojiData>()
+        // Read from cache instead of using default value
+        var output = fileCache.getOrPut(cacheFileName) { emptyDefaultValue }
+        assertTrue(output.isNotEmpty())
+
+        // Remove cache, write default value to cache
+        fileCache.emojiPickerCacheDir.deleteRecursively()
+        output = fileCache.getOrPut(cacheFileName) { emptyDefaultValue }
+        assertTrue(output.isEmpty())
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
     fun testGetEmojiVariantsLookup_loaded() {
+        // delete cache and load again
+        FileCache.getInstance(context).emojiPickerCacheDir.deleteRecursively()
         BundledEmojiListLoader.load(context, emojiCompatMetadata)
+
         // 👃 has variants (👃,👃,👃🏻,👃🏼,👃🏽,👃🏾,👃🏿)
         assertTrue(
             BundledEmojiListLoader
