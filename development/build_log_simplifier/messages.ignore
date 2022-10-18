@@ -230,102 +230,6 @@ WARN: Missing @param tag for parameter `text` of function androidx\.compose\.ui\
 WARN: Missing @param tag for parameter `text` of function androidx\.compose\.ui\.text/AnnotatedString\.Builder/append/\#androidx\.compose\.ui\.text\.AnnotatedString\#kotlin\.Int\#kotlin\.Int/PointingToDeclaration/
 WARNING: link to @throws type Renderer\.GlesException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=If any GL calls fail during initialization\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=Renderer\.GlesException, exceptionAddress=null\)\.`
 WARNING: link to @throws type ServiceStartFailureException does not resolve\. Is it from a package that the containing file does not import\? Is docs inherited to an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name,  e\.g\.`@throws java\.io\.IOException under some conditions\. This was observed in Throws\(root=CustomDocTag\(children=\[P\(children=\[Text\(body=if the watchface dies during startup\., children=\[\], params=\{\}\)\], params=\{\}\)\], params=\{\}, name=MARKDOWN_FILE\), name=ServiceStartFailureException, exceptionAddress=null\)\.`
-# Wire proto generation, task :generateDebugProtos
-Writing .* to \$OUT_DIR/.*/build/generated/source/wire
-# > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :compose:foundation:foundation:androidReleaseSourcesJar
-Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
-# ./gradlew tasks warns as we have warnings present
-You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
-# > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
-\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
-# > Task :emoji2:emoji2-bundled:processDebugManifest
-\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# b/195025261
-To honour the JVM settings for this build a single\-use Daemon process will be forked.*
-# > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
-C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
-C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
-C/C\+\+: Compiling for ARM
-w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
-w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
-# > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
-\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
-public abstract void jvmDelete\(T t\);
-public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
-public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
-public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
-\^
-# Gradle will log if you are not authenticated to upload scans
-A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.
-# Room unresolved type error messages
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\)\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\), androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$openHelperFactory\(androidx\.sqlite\.db\.SupportSQLiteOpenHelper\.Factory\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addMigrations\(kotlin\.Array\(\(androidx\.room\.migration\.Migration\)\)\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addAutoMigrationSpec\(androidx\.room\.migration\.AutoMigrationSpec\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$allowMainThreadQueries\(\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setJournalMode\(androidx\.room\.RoomDatabase\.JournalMode\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setTransactionExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$enableMultiInstanceInvalidation\(\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setMultiInstanceInvalidationServiceIntent\(android\.content\.Intent\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigration\(\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationFrom\(kotlin\.IntArray\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationOnDowngrade\(\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addCallback\(androidx\.room\.RoomDatabase\.Callback\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryCallback\(androidx\.room\.RoomDatabase\.QueryCallback, java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addTypeConverter\(kotlin\.Any\) \(RoomDatabase\.kt:[0-9]+\)
-Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setAutoCloseTimeout\(kotlin\.Long, java\.util\.concurrent\.TimeUnit\) \(RoomDatabase\.kt:[0-9]+\)
-# > Task :compose:ui:ui:compileReleaseKotlin
-w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat\.android\.kt: \([0-9]+, [0-9]+\): Unnecessary non\-null assertion \(!!\) on a non\-null receiver of type LayoutNode
-# When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
-Please wait while Kotlin/Native compiler .* is being installed\.
-Unpack Kotlin/Native compiler to .*
-Download file:\.\./\.\./.*
-Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
-Extracting dependency: .*\.konan/cache.*
-# New memory model does not work with compiler caches yet:
-# https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md#known-bugs
-w: Cached libraries will not be used with experimental memory model
-# > Task :commonizeNativeDistribution
-# Linux builds cannot build mac, hence we get this warning.
-# see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
-# This warning is printed from: https://github.com/JetBrains/kotlin/blob/bc853e45e8982eff74e3263b0197c1af6086615d/native/commonizer/src/org/jetbrains/kotlin/commonizer/konan/LibraryCommonizer.kt#L41
-Warning\: No libraries found for target (macos|ios|ios_simulator)_(arm|x)[0-9]+\. This target will be excluded from commonization\.
-void androidx.tv.foundation.lazy.list.LazyListKt.LazyList(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.list.TvLazyListState, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.tv.foundation.PivotOffsets, androidx.compose.ui.Alignment$Horizontal, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.ui.Alignment$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
-void androidx.tv.foundation.lazy.grid.LazyGridKt.LazyGrid(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.grid.TvLazyGridState, kotlin.jvm.functions.Function2, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, androidx.tv.foundation.PivotOffsets, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
-# > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest
-WARNING:D[0-9]+: Application does not contain `androidx\.tracing\.Trace` as referenced in main\-dex\-list\.
-# > Task :hilt:hilt-compiler:kaptTestKotlin
-Annotation processors discovery from compile classpath is deprecated\.
-Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
-Run the build with '\-\-info' for more details\.
-# AGP warning about API usage we have no control over
-Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
-# > Task :compose:ui:ui:testDebugUnitTest
-OpenJDK 64\-Bit Server VM warning:
-.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-# > Task :concurrent:concurrent-futures:compileTestJava b/242311027
-\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
-thread\.(resume|suspend)\(\);
-2 warnings
-# AGP warning that will go away soon
-WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
-# > Task :graphics:graphics-path:compileDebugKotlin
-w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/path\/Paths\.kt\: \([0-9]+\, [0-9]+\)\: Extension is shadowed by a member\: public open fun iterator\(\)\: PathIterator
-# > Task :core:core-splashscreen:core-splashscreen-samples:lintReportDebug
-Warning: Lint will treat :annotation:annotation as an external dependency and not analyze it\.
-Did you make a typo\? Are you trying to refer to something not visible to users\?
-\* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
 WARN: Sources for .+ is empty
 WARN: Missing @param tag for parameter `iterations` of function androidx\.benchmark\.macro\.junit[0-9]+/BaselineProfileRule/collectBaselineProfile/\#kotlin\.String\#kotlin\.Int\#kotlin\.collections\.List\[kotlin\.String\]\#kotlin\.Function[0-9]+\[androidx\.benchmark\.macro\.MacrobenchmarkScope,kotlin\.Unit\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `priority` of function androidx\.camera\.camera[0-9]+\.interop/CaptureRequestOptions/retrieveOptionWithPriority/\#androidx\.camera\.core\.impl\.Config\.Option<ValueT>\#androidx\.camera\.core\.impl\.Config\.OptionPriority/PointingToDeclaration/
@@ -785,5 +689,101 @@ WARN: Missing @param tag for parameter `renderEffect` of function androidx\.comp
 WARN: Missing @param tag for parameter `clipOp` of function androidx\.compose\.ui\.graphics/Canvas/clipRect/\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#androidx\.compose\.ui\.graphics\.ClipOp/PointingToDeclaration/
 WARN: Missing @param tag for parameter `paint` of function androidx\.compose\.ui\.graphics/Canvas/drawArc/\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Float\#kotlin\.Boolean\#androidx\.compose\.ui\.graphics\.Paint/PointingToDeclaration/
 WARN: Missing @param tag for parameter `operation` of function androidx\.compose\.ui\.graphics/AndroidPath/op/\#androidx\.compose\.ui\.graphics\.Path\#androidx\.compose\.ui\.graphics\.Path\#androidx\.compose\.ui\.graphics\.PathOperation/PointingToDeclaration/
+# Wire proto generation, task :generateDebugProtos
+Writing .* to \$OUT_DIR/.*/build/generated/source/wire
+# > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
+# > Task :compose:foundation:foundation:androidReleaseSourcesJar
+Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# ./gradlew tasks warns as we have warnings present
+You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
+# > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
+# > Task :emoji2:emoji2-bundled:processDebugManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# b/195025261
+To honour the JVM settings for this build a single\-use Daemon process will be forked.*
+# > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
+C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
+C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
+C/C\+\+: Compiling for ARM
+w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
+w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+# > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
+\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+public abstract void jvmDelete\(T t\);
+public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
+public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
+public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
+\^
+# Gradle will log if you are not authenticated to upload scans
+A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.
+# Room unresolved type error messages
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\)\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\), androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$openHelperFactory\(androidx\.sqlite\.db\.SupportSQLiteOpenHelper\.Factory\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addMigrations\(kotlin\.Array\(\(androidx\.room\.migration\.Migration\)\)\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addAutoMigrationSpec\(androidx\.room\.migration\.AutoMigrationSpec\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$allowMainThreadQueries\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setJournalMode\(androidx\.room\.RoomDatabase\.JournalMode\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setTransactionExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$enableMultiInstanceInvalidation\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setMultiInstanceInvalidationServiceIntent\(android\.content\.Intent\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigration\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationFrom\(kotlin\.IntArray\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationOnDowngrade\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addCallback\(androidx\.room\.RoomDatabase\.Callback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryCallback\(androidx\.room\.RoomDatabase\.QueryCallback, java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addTypeConverter\(kotlin\.Any\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setAutoCloseTimeout\(kotlin\.Long, java\.util\.concurrent\.TimeUnit\) \(RoomDatabase\.kt:[0-9]+\)
+# > Task :compose:ui:ui:compileReleaseKotlin
+w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat\.android\.kt: \([0-9]+, [0-9]+\): Unnecessary non\-null assertion \(!!\) on a non\-null receiver of type LayoutNode
+# When konan is downloading a dependency from another file, don't warn about it.
+\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
+Please wait while Kotlin/Native compiler .* is being installed\.
+Unpack Kotlin/Native compiler to .*
+Download file:\.\./\.\./.*
+Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
+Extracting dependency: .*\.konan/cache.*
+# New memory model does not work with compiler caches yet:
+# https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md#known-bugs
+w: Cached libraries will not be used with experimental memory model
+# > Task :commonizeNativeDistribution
+# Linux builds cannot build mac, hence we get this warning.
+# see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
+# This warning is printed from: https://github.com/JetBrains/kotlin/blob/bc853e45e8982eff74e3263b0197c1af6086615d/native/commonizer/src/org/jetbrains/kotlin/commonizer/konan/LibraryCommonizer.kt#L41
+Warning\: No libraries found for target (macos|ios|ios_simulator)_(arm|x)[0-9]+\. This target will be excluded from commonization\.
+void androidx.tv.foundation.lazy.list.LazyListKt.LazyList(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.list.TvLazyListState, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.tv.foundation.PivotOffsets, androidx.compose.ui.Alignment$Horizontal, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.ui.Alignment$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
+void androidx.tv.foundation.lazy.grid.LazyGridKt.LazyGrid(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.grid.TvLazyGridState, kotlin.jvm.functions.Function2, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, androidx.tv.foundation.PivotOffsets, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
+# > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest
+WARNING:D[0-9]+: Application does not contain `androidx\.tracing\.Trace` as referenced in main\-dex\-list\.
+# > Task :hilt:hilt-compiler:kaptTestKotlin
+Annotation processors discovery from compile classpath is deprecated\.
+Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
+Run the build with '\-\-info' for more details\.
+# AGP warning about API usage we have no control over
+Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
+# > Task :compose:ui:ui:testDebugUnitTest
+OpenJDK 64\-Bit Server VM warning:
+.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+# > Task :concurrent:concurrent-futures:compileTestJava b/242311027
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
+thread\.(resume|suspend)\(\);
+2 warnings
+# AGP warning that will go away soon
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
+# > Task :graphics:graphics-path:compileDebugKotlin
+w\: \$SUPPORT\/graphics\/graphics\-path\/src\/main\/java\/androidx\/graphics\/path\/Paths\.kt\: \([0-9]+\, [0-9]+\)\: Extension is shadowed by a member\: public open fun iterator\(\)\: PathIterator
+# > Task :core:core-splashscreen:core-splashscreen-samples:lintReportDebug
+Warning: Lint will treat :annotation:annotation as an external dependency and not analyze it\.
+Did you make a typo\? Are you trying to refer to something not visible to users\?
+\* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
 # > Task :linkDebugTestIosX64 b/253041601
 w: Cached libraries will not be used with std allocator
