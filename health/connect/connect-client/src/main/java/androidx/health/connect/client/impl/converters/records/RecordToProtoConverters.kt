@@ -28,6 +28,8 @@ import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.APPEARANCE_INT_TO_STRING_MAP
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENSATION_INT_TO_STRING_MAP
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
@@ -136,8 +138,12 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("CervicalMucus"))
                 .apply {
-                    appearance?.let { putValues("texture", enumVal(it)) }
-                    sensation?.let { putValues("amount", enumVal(it)) }
+                    enumValFromInt(appearance, APPEARANCE_INT_TO_STRING_MAP)?.let {
+                        putValues("texture", it)
+                    }
+                    enumValFromInt(sensation, SENSATION_INT_TO_STRING_MAP)?.let {
+                        putValues("amount", it)
+                    }
                 }
                 .build()
         is CyclingPedalingCadenceRecord ->
