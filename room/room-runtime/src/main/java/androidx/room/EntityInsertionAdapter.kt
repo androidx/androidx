@@ -38,7 +38,7 @@ abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteS
      * createInsertQuery.
      * @param entity    The entity of type T.
      */
-    protected abstract fun bind(statement: SupportSQLiteStatement?, entity: T)
+    protected abstract fun bind(statement: SupportSQLiteStatement, entity: T)
 
     /**
      * Inserts the entity into the database.

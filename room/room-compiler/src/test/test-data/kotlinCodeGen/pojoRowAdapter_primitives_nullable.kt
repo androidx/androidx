@@ -1,9 +1,11 @@
 import android.database.Cursor
+import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
+import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Byte
@@ -15,6 +17,7 @@ import kotlin.Long
 import kotlin.Short
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -23,8 +26,63 @@ import kotlin.jvm.JvmStatic
 public class MyDao_Impl : MyDao {
     private val __db: RoomDatabase
 
+    private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+
     public constructor(__db: RoomDatabase) {
         this.__db = __db
+        this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+            public override fun createQuery(): String =
+                "INSERT OR ABORT INTO `MyEntity` (`int`,`short`,`byte`,`long`,`char`,`float`,`double`) VALUES (?,?,?,?,?,?,?)"
+
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+                if (entity.int == null) {
+                    statement.bindNull(1)
+                } else {
+                    statement.bindLong(1, entity.int.toLong())
+                }
+                if (entity.short == null) {
+                    statement.bindNull(2)
+                } else {
+                    statement.bindLong(2, entity.short.toLong())
+                }
+                if (entity.byte == null) {
+                    statement.bindNull(3)
+                } else {
+                    statement.bindLong(3, entity.byte.toLong())
+                }
+                if (entity.long == null) {
+                    statement.bindNull(4)
+                } else {
+                    statement.bindLong(4, entity.long)
+                }
+                if (entity.char == null) {
+                    statement.bindNull(5)
+                } else {
+                    statement.bindLong(5, entity.char.toLong())
+                }
+                if (entity.float == null) {
+                    statement.bindNull(6)
+                } else {
+                    statement.bindDouble(6, entity.float.toDouble())
+                }
+                if (entity.double == null) {
+                    statement.bindNull(7)
+                } else {
+                    statement.bindDouble(7, entity.double)
+                }
+            }
+        }
+    }
+
+    public override fun addEntity(item: MyEntity): Unit {
+        __db.assertNotSuspendingTransaction()
+        __db.beginTransaction()
+        try {
+            __insertionAdapterOfMyEntity.insert(item)
+            __db.setTransactionSuccessful()
+        } finally {
+            __db.endTransaction()
+        }
     }
 
     public override fun getEntity(): MyEntity {

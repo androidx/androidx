@@ -41,7 +41,7 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
-import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.SupportDbTypeNames.SQLITE_STMT
 import androidx.room.ext.T
 import androidx.room.ext.W
 import androidx.room.ext.capitalize
@@ -276,7 +276,7 @@ class DaoWriter(
                 builder().apply {
                     addStatement(
                         "final $T $L = $L.acquire()",
-                        SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField.name
+                        SQLITE_STMT.toJavaPoet(), stmtName, preparedStmtField.name
                     )
                 }
                 queryWriter.bindArgs(stmtName, emptyList(), this)
@@ -428,7 +428,7 @@ class DaoWriter(
                 val fields = entities.mapValues {
                     val spec = getOrCreateProperty(InsertionMethodProperty(it.value, onConflict))
                     val impl = EntityInsertionAdapterWriter.create(it.value, onConflict)
-                        .createAnonymous(this@DaoWriter, dbProperty.name)
+                        .createAnonymous(this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -443,7 +443,7 @@ class DaoWriter(
 
     private fun createInsertionMethodBody(
         method: InsertionMethod,
-        insertionAdapters: Map<String, Pair<XPropertySpec, TypeSpec>>
+        insertionAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
     ): XCodeBlock {
         if (insertionAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
@@ -452,7 +452,7 @@ class DaoWriter(
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = insertionAdapters,
-            dbField = dbProperty.toJavaPoet(),
+            dbProperty = dbProperty,
             scope = scope
         )
         return scope.generate()
@@ -538,7 +538,7 @@ class DaoWriter(
                 val fields = entities.mapValues {
                     val spec = getOrCreateProperty(UpsertionAdapterProperty(it.value))
                     val impl = EntityUpsertionAdapterWriter.create(it.value)
-                        .createConcrete(it.value, this@DaoWriter, dbProperty.name)
+                        .createConcrete(it.value, this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
@@ -563,7 +563,7 @@ class DaoWriter(
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = upsertionAdapters,
-            dbField = dbProperty.toJavaPoet(),
+            dbProperty = dbProperty,
             scope = scope
         )
         return scope.generate()
@@ -580,7 +580,7 @@ class DaoWriter(
                 builder().apply {
                     addStatement(
                         "final $T $L = $N.compileStatement($L)",
-                        SupportDbTypeNames.SQLITE_STMT, stmtVar, dbProperty.toJavaPoet(), sqlVar
+                        SQLITE_STMT.toJavaPoet(), stmtVar, dbProperty.toJavaPoet(), sqlVar
                     )
                 }
                 queryWriter.bindArgs(stmtVar, listSizeArgs, this)

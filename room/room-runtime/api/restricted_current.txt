@@ -43,7 +43,7 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityInsertionAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement? statement, T? entity);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T? entity);
     method public final void insert(T? entity);
     method public final void insert(T![] entities);
     method public final void insert(Iterable<? extends T> entities);

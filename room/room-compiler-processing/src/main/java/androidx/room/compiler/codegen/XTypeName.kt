@@ -17,7 +17,16 @@
 package androidx.room.compiler.codegen
 
 import androidx.room.compiler.processing.XNullability
+import com.squareup.kotlinpoet.ARRAY
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR_ARRAY
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT_ARRAY
+import com.squareup.kotlinpoet.INT_ARRAY
+import com.squareup.kotlinpoet.LONG_ARRAY
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.SHORT_ARRAY
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
@@ -45,6 +54,7 @@ open class XTypeName protected constructor(
         get() = java.isPrimitive
 
     open fun copy(nullable: Boolean): XTypeName {
+        // TODO(b/248633751): Handle primitive to boxed when becoming nullable?
         return XTypeName(
             java = java,
             kotlin = kotlin.copy(nullable = nullable),
@@ -79,6 +89,13 @@ open class XTypeName protected constructor(
     }
 
     companion object {
+        /**
+         * A convenience [XTypeName] that represents [Unit] in Kotlin and `void` in Java.
+         */
+        val UNIT_VOID = XTypeName(
+            java = JTypeName.VOID,
+            kotlin = com.squareup.kotlinpoet.UNIT
+        )
         val PRIMITIVE_BOOLEAN = Boolean::class.asPrimitiveTypeName()
         val PRIMITIVE_BYTE = Byte::class.asPrimitiveTypeName()
         val PRIMITIVE_SHORT = Short::class.asPrimitiveTypeName()
@@ -100,6 +117,38 @@ open class XTypeName protected constructor(
             nullability: XNullability = XNullability.NONNULL
         ): XTypeName {
             return XTypeName(java, kotlin, nullability)
+        }
+
+        /**
+         * Gets a [XTypeName] that represents an array.
+         *
+         * If the [componentTypeName] is one of the primitive names, such as [PRIMITIVE_INT], then
+         * the equivalent Kotlin and Java type names are represented, [IntArray] and `int[]`
+         * respectively.
+         */
+        fun getArrayTypeName(componentTypeName: XTypeName): XTypeName {
+            val (java, kotlin) = when (componentTypeName) {
+                PRIMITIVE_BOOLEAN ->
+                    JArrayTypeName.of(JTypeName.BOOLEAN) to BOOLEAN_ARRAY
+                PRIMITIVE_BYTE ->
+                    JArrayTypeName.of(JTypeName.BYTE) to BYTE_ARRAY
+                PRIMITIVE_SHORT ->
+                    JArrayTypeName.of(JTypeName.SHORT) to SHORT_ARRAY
+                PRIMITIVE_INT ->
+                    JArrayTypeName.of(JTypeName.INT) to INT_ARRAY
+                PRIMITIVE_LONG ->
+                    JArrayTypeName.of(JTypeName.LONG) to LONG_ARRAY
+                PRIMITIVE_CHAR ->
+                    JArrayTypeName.of(JTypeName.CHAR) to CHAR_ARRAY
+                PRIMITIVE_FLOAT ->
+                    JArrayTypeName.of(JTypeName.FLOAT) to FLOAT_ARRAY
+                PRIMITIVE_DOUBLE ->
+                    JArrayTypeName.of(JTypeName.DOUBLE) to DOUBLE_ARRAY
+                else ->
+                    JArrayTypeName.of(componentTypeName.java) to
+                        ARRAY.parameterizedBy(componentTypeName.kotlin)
+            }
+            return XTypeName(java, kotlin)
         }
     }
 }

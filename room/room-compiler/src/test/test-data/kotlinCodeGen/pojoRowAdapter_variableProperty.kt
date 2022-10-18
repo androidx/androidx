@@ -1,14 +1,17 @@
 import android.database.Cursor
+import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
+import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -17,8 +20,30 @@ import kotlin.jvm.JvmStatic
 public class MyDao_Impl : MyDao {
     private val __db: RoomDatabase
 
+    private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+
     public constructor(__db: RoomDatabase) {
         this.__db = __db
+        this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+            public override fun createQuery(): String =
+                "INSERT OR ABORT INTO `MyEntity` (`pk`,`variable`) VALUES (?,?)"
+
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+                statement.bindLong(1, entity.pk.toLong())
+                statement.bindLong(2, entity.variable)
+            }
+        }
+    }
+
+    public override fun addEntity(item: MyEntity): Unit {
+        __db.assertNotSuspendingTransaction()
+        __db.beginTransaction()
+        try {
+            __insertionAdapterOfMyEntity.insert(item)
+            __db.setTransactionSuccessful()
+        } finally {
+            __db.endTransaction()
+        }
     }
 
     public override fun getEntity(): MyEntity {

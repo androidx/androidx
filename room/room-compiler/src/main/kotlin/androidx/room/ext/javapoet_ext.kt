@@ -41,8 +41,8 @@ val KClass<*>.arrayTypeName: ArrayTypeName
 
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
-    val SQLITE_STMT: ClassName =
-        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
+    val SQLITE_STMT: XClassName =
+        XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
     val SQLITE_OPEN_HELPER: ClassName =
         ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
