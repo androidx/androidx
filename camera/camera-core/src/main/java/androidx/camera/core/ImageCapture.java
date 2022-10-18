@@ -365,6 +365,9 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
 
+    @Nullable
+    private CameraEffect mCameraEffect;
+
     /**
      * Creates a new image capture use case from the given configuration.
      *
@@ -1937,8 +1940,7 @@ public final class ImageCapture extends UseCase {
         Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, resolution: %s)",
                 cameraId, resolution));
         checkState(mImagePipeline == null);
-        // TODO: set CameraEffect
-        mImagePipeline = new ImagePipeline(config, resolution, null);
+        mImagePipeline = new ImagePipeline(config, resolution, mCameraEffect);
         checkState(mTakePictureManager == null);
         mTakePictureManager = new TakePictureManager(mImageCaptureControl, mImagePipeline);
 
@@ -2057,6 +2059,27 @@ public final class ImageCapture extends UseCase {
     @VisibleForTesting
     boolean isProcessingPipelineEnabled() {
         return mImagePipeline != null && mTakePictureManager != null;
+    }
+
+    /**
+     * @hide
+     */
+    @MainThread
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setEffect(@Nullable CameraEffect cameraEffect) {
+        checkMainThread();
+        mCameraEffect = cameraEffect;
+    }
+
+    /**
+     * @hide
+     */
+    @MainThread
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraEffect getEffect() {
+        checkMainThread();
+        return mCameraEffect;
     }
 
     // ===== New architecture end =====

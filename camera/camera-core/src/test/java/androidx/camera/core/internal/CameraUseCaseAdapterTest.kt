@@ -43,6 +43,7 @@ import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
+import androidx.camera.testing.fakes.GrayscaleImageEffect
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -77,6 +78,7 @@ class CameraUseCaseAdapterTest {
     private lateinit var fakeCamera: FakeCamera
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
+    private val imageEffect = GrayscaleImageEffect()
 
     @Before
     fun setUp() {
@@ -86,7 +88,7 @@ class CameraUseCaseAdapterTest {
         fakeCameraSet.add(fakeCamera)
         surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
-        effects = listOf(FakePreviewEffect(executor, surfaceProcessor))
+        effects = listOf(FakePreviewEffect(executor, surfaceProcessor), imageEffect)
     }
 
     @After
@@ -619,17 +621,24 @@ class CameraUseCaseAdapterTest {
     @Test
     fun updateEffects_effectsAddedAndRemoved() {
         // Arrange.
-        val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val useCases = listOf(preview, imageCapture)
+
         // Act: update use cases with effects.
-        CameraUseCaseAdapter.updateEffects(effects, listOf(preview))
+        CameraUseCaseAdapter.updateEffects(effects, useCases)
         // Assert: preview has processor wrapped with the right executor.
         val previewProcessor = preview.processor as SurfaceProcessorWithExecutor
         assertThat(previewProcessor.processor).isEqualTo(surfaceProcessor)
         assertThat(previewProcessor.executor).isEqualTo(executor)
+        // Assert: imageCapture has the effect set.
+        assertThat(imageCapture.effect).isEqualTo(imageEffect)
+
         // Act: update again with no effects.
-        CameraUseCaseAdapter.updateEffects(listOf(), listOf(preview))
-        // Assert: preview no longer has processors.
+        CameraUseCaseAdapter.updateEffects(listOf(), useCases)
+        // Assert: use cases no longer has effects.
         assertThat(preview.processor).isNull()
+        assertThat(imageCapture.effect).isNull()
     }
 
     private fun createCoexistingRequiredRuleCameraConfig(): CameraConfig {
