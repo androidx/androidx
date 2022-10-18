@@ -93,4 +93,13 @@ class BinderCodeConverterTest {
             ).toString()
         ).isEqualTo("com.mysdk.ValueConverter.toParcelable(value)")
     }
+
+    @Test
+    fun convertToBinderCode_callback() {
+        assertThat(
+            converter.convertToBinderCode(
+                Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
+            ).toString()
+        ).isEqualTo("com.mysdk.CallbackStubDelegate(callback)")
+    }
 }
