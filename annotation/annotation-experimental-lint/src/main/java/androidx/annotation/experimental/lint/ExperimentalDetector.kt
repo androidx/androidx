@@ -49,6 +49,7 @@ import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UArrayAccessExpression
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
@@ -638,16 +639,24 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val elementLabel = when (element) {
             is UMethod -> "'${element.name}'"
             is UClass -> "containing class '${element.name}'"
+            is UAnonymousClass -> "containing anonymous class"
             else -> throw IllegalArgumentException("Unsupported element type")
         }
 
+        // If the element has a modifier list, e.g. not an anonymous class or lambda, then place the
+        // insertion point at the beginning of the modifiers list. This ensures that we don't insert
+        // the annotation in an invalid position, such as after the "public" or "fun" keywords. We
+        // also don't want to place it on the element range itself, since that would place it before
+        // the comments.
+        val elementLocation = context.getLocation(element.modifierList ?: element as UElement)
+
         return fix()
-            .name("Add '$annotation' annotation to $elementLabel")
             .replace()
-            .range(context.getLocation(element as UElement))
+            .name("Add '$annotation' annotation to $elementLabel")
+            .range(elementLocation)
             .beginning()
-            .with("$annotation ")
             .shortenNames()
+            .with("$annotation ")
             .build()
     }
 
