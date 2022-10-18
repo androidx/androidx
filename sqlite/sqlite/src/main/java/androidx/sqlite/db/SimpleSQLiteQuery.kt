@@ -29,7 +29,7 @@ import android.annotation.SuppressLint
 class SimpleSQLiteQuery(
     private val query: String,
     @Suppress("ArrayReturn") // Due to legacy API
-    private val bindArgs: Array<Any?>?
+    private val bindArgs: Array<out Any?>?
     ) : SupportSQLiteQuery {
 
     /**
@@ -66,7 +66,7 @@ class SimpleSQLiteQuery(
         fun bind(
             statement: SupportSQLiteProgram,
             @Suppress("ArrayReturn") // Due to legacy API
-            bindArgs: Array<Any?>?
+            bindArgs: Array<out Any?>?
         ) {
             if (bindArgs == null) {
                 return
