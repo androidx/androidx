@@ -62,7 +62,7 @@ public abstract class InputMerger {
     public static InputMerger fromClassName(@NonNull String className) {
         try {
             Class<?> clazz = Class.forName(className);
-            return (InputMerger) clazz.newInstance();
+            return (InputMerger) clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             Logger.get().error(TAG, "Trouble instantiating + " + className, e);
         }
