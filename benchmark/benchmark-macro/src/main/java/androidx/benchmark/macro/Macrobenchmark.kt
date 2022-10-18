@@ -65,6 +65,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
         false
     }
 
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
     val errors = DeviceInfo.errors +
         // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
         listOfNotNull(
@@ -96,6 +97,38 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
 
                     <!--suppress AndroidElementNotAllowed -->
                     <profileable android:shell="true"/>
+                """.trimIndent()
+            ),
+            conditionalError(
+                hasError = instrumentation.targetContext.packageName !=
+                    instrumentation.context.packageName,
+                id = "NOT-SELF-INSTRUMENTING",
+                summary = "Benchmark manifest is instrumenting separate process",
+                message = """
+                    Macrobenchmark instrumentation target in manifest
+                    ${instrumentation.targetContext.packageName} does not match macrobenchmark
+                    package ${instrumentation.context.packageName}. While macrobenchmarks 'target' a
+                    separate app they measure, they can not declare it as their instrumentation
+                    targetPackage in their manifest. Doing so would cause the macrobenchmark test
+                    app to be loaded into the target application process, which would prevent
+                    macrobenchmark from killing, compiling, or launching the target process.
+
+                    Ensure your macrobenchmark test apk's manifest matches the manifest package, and
+                    instrumentation target package, also called 'self-instrumenting':
+
+                    <manifest
+                        package="com.mymacrobenchpackage" ...>
+                        <instrumentation
+                            android:name="androidx.benchmark.junit4.AndroidBenchmarkRunner"
+                            android:targetPackage="mymacrobenchpackage"/>
+
+                    In gradle library modules, this is the default behavior. In gradle test modules,
+                    specify the experimental self-instrumenting property:
+                    android {
+                        targetProjectPath = ":app"
+                        // Enable the benchmark to run separately from the app process
+                        experimentalProperties["android.experimental.self-instrumenting"] = true
+                    }
                 """.trimIndent()
             )
         ).sortedBy { it.id }
@@ -129,11 +162,11 @@ private fun macrobenchmark(
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
 
-    // skip benchmark if not supported by vm settings
-    compilationMode.assumeSupportedWithVmSettings()
-
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
+
+    // skip benchmark if not supported by vm settings
+    compilationMode.assumeSupportedWithVmSettings()
 
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
