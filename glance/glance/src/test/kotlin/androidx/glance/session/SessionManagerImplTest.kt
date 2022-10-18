@@ -31,6 +31,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -70,6 +71,7 @@ class SessionManagerImplTest {
         WorkManager.getInstance(context).cancelAllWork()
     }
 
+    @Ignore // b/254048913
     @Test
     fun startSession() = runTest {
         assertThat(sessionManager.isSessionRunning(context, key)).isFalse()
@@ -78,6 +80,7 @@ class SessionManagerImplTest {
         assertThat(sessionManager.getSession(key)).isSameInstanceAs(session)
     }
 
+    @Ignore // b/254048913
     @Test
     fun closeSession() = runTest {
         sessionManager.startSession(context, session)
