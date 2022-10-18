@@ -185,7 +185,7 @@ internal class MultiProcessDataStore<T>(
             // It will be triggered by same-process-write as well. Shared memory version check will
             // prevent it from reading again. parameter `path` is relative to the observed directory
             override fun onEvent(event: Int, path: String?) {
-                if ((downstreamFlow.value !is Final) && (path!! == file.name)) {
+                if ((downstreamFlow.value !is Final) && (file.name == path)) {
                     readActor.offer(Message.Read(downstreamFlow.value))
                 }
             }
