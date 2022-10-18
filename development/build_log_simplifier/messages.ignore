@@ -309,33 +309,6 @@ WARNING:D[0-9]+: Application does not contain `androidx\.tracing\.Trace` as refe
 Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
-# > Task :health:health-connect-client:testDebugUnitTest
-WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/.*/shadowapi\-.*\.jar\) to field java\.io\.FileDescriptor\.fd
-WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/.*/shadowapi\-.*\.jar\) to method java\.lang\.Class\.getDeclaredFields0\(boolean\)
-WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers.*
-WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-embeddable/[0-9]+\.[0-9]+\.[0-9]+\-RC/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\-RC\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
-WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-annotation\-processing\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\-Beta\/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\-Beta\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option\,java\.lang\.String\)
-WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\.[0-9]+/shadowapi\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to field java\.io\.FileDescriptor\.fd
-WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
-WARNING: All illegal access operations will be denied in a future release
-# > Task :room:room-compiler-processing-testing:test
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
-WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
-# > Task :room:room-compiler:test
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
-# > Task :room:room-compiler-processing:test
-WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-embeddable/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option[,\.]java\.lang\.String\)
-WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
-# > Task :car:app:app-testing:testDebugUnitTest
-WARNING: Illegal reflective access by org\.robolectric\.interceptors\.AndroidInterceptors\$FileDescriptorInterceptor to field java\.io\.FileDescriptor\.fd
-WARNING: Please consider reporting this to the maintainers of org\.robolectric\.interceptors\.AndroidInterceptors\$FileDescriptorInterceptor
-# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest b/238915109
-WARNING: Illegal reflective access by androidx\.compose\.compiler\.plugins\.kotlin\.ComposeCodegenTestUtilsKt .* to method java\.lang\.ClassLoader\.defineClass.*
-WARNING: Please consider reporting this to the maintainers of androidx\.compose\.compiler\.plugins\.kotlin\.ComposeCodegenTestUtilsKt
-# > Task :buildSrc-tests:test
-WARNING: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper .* to class java\.lang\.ClassLoader
-WARNING: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
 # > Task :compose:ui:ui:testDebugUnitTest
