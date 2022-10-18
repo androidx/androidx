@@ -36,7 +36,7 @@ android {
 dependencies {
 
     implementation(libs.kotlinStdlib)
-    api("androidx.hilt:hilt-navigation:1.0.0")
+    api projectOrArtifact(":hilt:hilt-navigation")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
