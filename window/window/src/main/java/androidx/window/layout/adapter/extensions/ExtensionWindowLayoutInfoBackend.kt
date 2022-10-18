@@ -19,6 +19,7 @@ package androidx.window.layout.adapter.extensions
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
 import androidx.annotation.GuardedBy
+import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.WindowLayoutComponent
@@ -93,12 +94,21 @@ internal class ExtensionWindowLayoutInfoBackend(
             val activity = listenerToActivity[callback] ?: return
             val multicastListener = activityToListeners[activity] ?: return
             multicastListener.removeListener(callback)
+            listenerToActivity.remove(callback)
             if (multicastListener.isEmpty()) {
                 consumerToToken.remove(multicastListener)?.dispose()
-                listenerToActivity.remove(callback)
                 activityToListeners.remove(activity)
             }
         }
+    }
+
+    /**
+     * Returns {@code true} there is any registered listener information, {@code false} otherwise.
+     */
+    @VisibleForTesting
+    fun hasRegisteredListeners(): Boolean {
+        return !(activityToListeners.isEmpty() && listenerToActivity.isEmpty() &&
+            consumerToToken.isEmpty())
     }
 
     /**
