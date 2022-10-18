@@ -15,9 +15,11 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
+import android.adservices.AdServicesVersion
+import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.os.Binder
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import android.os.Build.VERSION_CODES.TIRAMISU
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.toSandboxedSdkCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,6 +31,8 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+// TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+@SuppressLint("NewApi")
 class SandboxedSdkCompatTest {
 
     @Test
@@ -42,9 +46,12 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = TIRAMISU)
     fun toSandboxedSdk_whenCreatedFromBinder_returnsSandboxedSdkWithSameBinder() {
+        if (!isSandboxAvailable()) {
+            return
+        }
+
         val binder = Binder()
 
         val toSandboxedSdkResult = create(binder).toSandboxedSdk()
@@ -54,9 +61,12 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @SdkSuppress(minSdkVersion = TIRAMISU)
     fun toSandboxedSdk_whenCreatedFromSandboxedSdk_returnsSameSandboxedSdk() {
+        if (!isSandboxAvailable()) {
+            return
+        }
+
         val binder = Binder()
         val sandboxedSdk = SandboxedSdk(binder)
 
@@ -64,5 +74,10 @@ class SandboxedSdkCompatTest {
 
         assertThat(toSandboxedSdkResult)
             .isSameInstanceAs(sandboxedSdk)
+    }
+
+    private fun isSandboxAvailable(): Boolean {
+        // TODO(b/249981547) Find a way how to skip test if no sandbox present
+        return AdServicesVersion.API_VERSION >= 2
     }
 }

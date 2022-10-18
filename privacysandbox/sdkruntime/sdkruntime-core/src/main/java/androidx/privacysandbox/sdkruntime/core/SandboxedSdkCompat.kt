@@ -15,12 +15,15 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
+import android.adservices.AdServicesVersion
+import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
+import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.IBinder
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 
 /**
  * Compat wrapper for [SandboxedSdk].
@@ -51,8 +54,9 @@ sealed class SandboxedSdkCompat {
     @DoNotInline
     abstract fun toSandboxedSdk(): SandboxedSdk
 
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
+    // TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresApi(TIRAMISU)
     private class Api33Impl(private val mSandboxedSdk: SandboxedSdk) : SandboxedSdkCompat() {
         constructor(binder: IBinder) : this(createSandboxedSdk(binder))
 
@@ -67,6 +71,12 @@ sealed class SandboxedSdkCompat {
         }
 
         companion object {
+            @DoNotInline
+            fun isSandboxAvailable(): Boolean {
+                return AdServicesVersion.API_VERSION >= 2
+            }
+
+            @DoNotInline
             fun createSandboxedSdk(binder: IBinder): SandboxedSdk {
                 return SandboxedSdk(binder)
             }
@@ -99,10 +109,8 @@ sealed class SandboxedSdkCompat {
          *  @see [SandboxedSdk]
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(binder: IBinder): SandboxedSdkCompat {
-            // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-            return if (BuildCompat.isAtLeastU()) {
+            return if (Build.VERSION.SDK_INT >= TIRAMISU && Api33Impl.isSandboxAvailable()) {
                 Api33Impl(binder)
             } else {
                 CompatImpl(binder)
