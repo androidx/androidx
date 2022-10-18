@@ -56,6 +56,7 @@
          <trusted-key id="08f0aab4d0c1a4bdde340765b341ddb020fcb6ab" group="org.bouncycastle"/>
          <trusted-key id="09a79e1e15a04694" group="org.vafer"/>
          <trusted-key id="0cc641c3a62453ab390066c4a41f13c999945293" group="commons-logging"/>
+         <trusted-key id="0d35d3f60078655126908e8af3d1600878e85a3d" group="io.netty"/>
          <trusted-key id="0d5d634755737a19abbe2930d4da5eab3cd7e958" group="com.google.devtools.ksp"/>
          <trusted-key id="0d8f8561aa7a5dd20bae27043c0a8f4744f37328" group="com.github.ben-manes.caffeine" name="caffeine"/>
          <trusted-key id="0e91c2de43b72bb1" group="org.ec4j.core"/>

@@ -2,15 +2,6 @@
 <issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.camera.integration.camera2.pipe.CameraPipeApplication is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            val elapsedRealtime = Process.getStartElapsedRealtime()"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"/>
-    </issue>
-
-    <issue
         id="PermissionImpliesUnsupportedChromeOsHardware"
         message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera&quot; required=&quot;false&quot;>` tag"
         errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
