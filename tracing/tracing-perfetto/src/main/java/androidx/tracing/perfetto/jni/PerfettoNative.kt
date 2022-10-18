@@ -16,6 +16,8 @@
 package androidx.tracing.perfetto.jni
 
 import androidx.tracing.perfetto.security.SafeLibLoader
+import dalvik.annotation.optimization.CriticalNative
+import dalvik.annotation.optimization.FastNative
 import java.io.File
 
 internal object PerfettoNative {
@@ -25,10 +27,10 @@ internal object PerfettoNative {
     object Metadata {
         const val version = "1.0.0-alpha07"
         val checksums = mapOf(
-            "arm64-v8a" to "abb5fe78f243999cab6fc8ea05e6d0743df3582e7ea4782f5ef2a677d8a0bde7",
-            "armeabi-v7a" to "d40c8487f7bca0917dcd6c0626d179394ef4b28d6a2fed809bc34e8ea15a100e",
-            "x86" to "38e8e5872e2916b993ca5d37894d7973934730bc427af20de4a52f0656a9ce0f",
-            "x86_64" to "ef545e11ceb45bf0eb611d12867bf9b9c5c9361d7e1865f8723a7505d3107ab8",
+            "arm64-v8a" to "3d9fa02a04459e3480f28ae7f3a8ced30f181f02a0e6bc6caf85704faea84857",
+            "armeabi-v7a" to "9eb7bf76a94fce79e682204c9e702c872d15c85f2ebd48de61aa541e7e6de034",
+            "x86" to "6eb72683bf58eeb0175f094d88bc0e00744b1a593dc7eaac9ee15168b1ab9234",
+            "x86_64" to "eabf725464c24c9709d8e2ea073233e5712949bb65aac5c4972528d813b55c74",
         )
     }
 
@@ -36,8 +38,17 @@ internal object PerfettoNative {
 
     fun loadLib(file: File, loader: SafeLibLoader) = loader.loadLib(file, Metadata.checksums)
 
+    @JvmStatic
     external fun nativeRegisterWithPerfetto()
+
+    @FastNative
+    @JvmStatic
     external fun nativeTraceEventBegin(key: Int, traceInfo: String)
+
+    @CriticalNative
+    @JvmStatic
     external fun nativeTraceEventEnd()
+
+    @JvmStatic
     external fun nativeVersion(): String
 }
