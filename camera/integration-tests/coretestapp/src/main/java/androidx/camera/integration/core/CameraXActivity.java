@@ -157,6 +157,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CameraXActivity extends AppCompatActivity {
     private static final String TAG = "CameraXActivity";
     private static final String[] REQUIRED_PERMISSIONS;
+
     static {
         // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
         // granted any more.
@@ -173,6 +174,9 @@ public class CameraXActivity extends AppCompatActivity {
             };
         }
     }
+
+    //Use this activity title when Camera Pipe configuration is used by core test app
+    private static final String APP_TITLE_FOR_CAMERA_PIPE = "CameraPipe Core Test App";
 
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
@@ -647,7 +651,7 @@ public class CameraXActivity extends AppCompatActivity {
                     } else if (outputOptions instanceof FileOutputOptions) {
                         videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
                         MediaScannerConnection.scanFile(this,
-                                new String[] { videoFilePath }, null,
+                                new String[]{videoFilePath}, null,
                                 (path, uri1) -> {
                                     Log.i(TAG, "Scanned " + path + " -> uri= " + uri1);
                                     updateVideoSavedSessionData(uri1);
@@ -1072,6 +1076,11 @@ public class CameraXActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //if different Camera Provider (CameraPipe vs Camera2 was initialized in previous session,
+        //then close this application.
+        closeAppIfCameraProviderMismatch(this.getIntent());
+
         setContentView(R.layout.activity_camera_xmain);
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
@@ -1183,7 +1192,12 @@ public class CameraXActivity extends AppCompatActivity {
                 newIntent.removeExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY);
                 setIntent(newIntent);
             }
+
             if (cameraImplementation != null) {
+                if (cameraImplementation.equalsIgnoreCase(
+                        CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+                    setTitle(APP_TITLE_FOR_CAMERA_PIPE);
+                }
                 CameraXViewModel.configureCameraProvider(
                         cameraImplementation, cameraImplementationNoHistory);
             }
@@ -1214,6 +1228,34 @@ public class CameraXActivity extends AppCompatActivity {
 
         setupPermissions();
     }
+
+    /**
+     * Close current app if CameraProvider from intent of current activity doesn't match with
+     * CameraProvider stored in the CameraXViewModel, because CameraProvider can't be changed
+     * between Camera2 and Camera Pipe while app is running.
+     */
+    private void closeAppIfCameraProviderMismatch(Intent mIntent) {
+        String cameraImplementation = null;
+        Boolean cameraImplementationNoHistory = false;
+        Bundle bundle = mIntent.getExtras();
+        if (bundle != null) {
+            cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            cameraImplementationNoHistory =
+                    bundle.getBoolean(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, false);
+        }
+
+        if (!cameraImplementationNoHistory) {
+            if (!CameraXViewModel.isCameraProviderUnInitializedOrSameAsParameter(
+                    cameraImplementation)) {
+                Toast.makeText(CameraXActivity.this, "Please relaunch "
+                                + "the app to apply new CameraX configuration.",
+                        Toast.LENGTH_LONG).show();
+                finish();
+                System.exit(0);
+            }
+        }
+    }
+
 
     @Override
     public void onDestroy() {
@@ -1410,8 +1452,8 @@ public class CameraXActivity extends AppCompatActivity {
                                 for (String permission : REQUIRED_PERMISSIONS) {
                                     if (!Objects.requireNonNull(result.get(permission))) {
                                         Toast.makeText(getApplicationContext(),
-                                                "Camera permission denied.",
-                                                Toast.LENGTH_SHORT)
+                                                        "Camera permission denied.",
+                                                        Toast.LENGTH_SHORT)
                                                 .show();
                                         finish();
                                         return;
@@ -1596,10 +1638,10 @@ public class CameraXActivity extends AppCompatActivity {
         cameraInfo.getZoomState().removeObservers(this);
         cameraInfo.getZoomState().observe(this,
                 state -> {
-                String str = String.format("%.2fx", state.getZoomRatio());
-                mZoomRatioLabel.setText(str);
-                mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
-            });
+                    String str = String.format("%.2fx", state.getZoomRatio());
+                    mZoomRatioLabel.setText(str);
+                    mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
+                });
     }
 
     private boolean is2XZoomSupported() {
