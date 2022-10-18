@@ -65,6 +65,16 @@ internal fun DataPointOrBuilder.getEnum(key: String): String? {
     return valuesMap[key]?.enumVal
 }
 
+/** Maps a string enum field to public API integers. */
+internal fun DataPointOrBuilder.mapEnum(
+    key: String,
+    stringToIntMap: Map<String, Int>,
+    default: Int
+): Int {
+    val value = getEnum(key) ?: return default
+    return stringToIntMap.getOrDefault(value, default)
+}
+
 internal fun SeriesValueOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =
     valuesMap[key]?.longVal ?: defaultVal
 

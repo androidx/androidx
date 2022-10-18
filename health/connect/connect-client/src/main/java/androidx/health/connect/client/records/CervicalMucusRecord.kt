@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.CervicalMucusRecord.Appearances
 import androidx.health.connect.client.records.CervicalMucusRecord.Sensations
 import androidx.health.connect.client.records.metadata.Metadata
@@ -31,46 +33,64 @@ import java.time.ZoneOffset
 public class CervicalMucusRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
-    /**
-     * The consistency of the user's cervical mucus. Optional field. Allowed values: [Appearance].
-     *
-     * @see Appearance
-     */
-    @property:Appearances public val appearance: String? = null,
-    /**
-     * The feel of the user's cervical mucus. Optional field. Allowed values: [Sensation].
-     *
-     * @see Sensation
-     */
-    @property:Sensations public val sensation: String? = null,
+    /** The consistency of the user's cervical mucus. */
+    @property:Appearances public val appearance: Int = APPEARANCE_UNKNOWN,
+    /** The feel of the user's cervical mucus. */
+    @property:Sensations public val sensation: Int = SENSATION_UNKNOWN,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CervicalMucusRecord) return false
+    companion object {
+        const val APPEARANCE_UNKNOWN = 0
+        const val APPEARANCE_DRY = 1
+        const val APPEARANCE_STICKY = 2
+        const val APPEARANCE_CREAMY = 3
+        const val APPEARANCE_WATERY = 4
+        /** A constant describing clear or egg white like looking cervical mucus. */
+        const val APPEARANCE_EGG_WHITE = 5
+        /** A constant describing an unusual (worth attention) kind of cervical mucus. */
+        const val APPEARANCE_UNUSUAL = 6
 
-        if (appearance != other.appearance) return false
-        if (sensation != other.sensation) return false
-        if (time != other.time) return false
-        if (zoneOffset != other.zoneOffset) return false
-        if (metadata != other.metadata) return false
+        const val SENSATION_UNKNOWN = 0
+        const val SENSATION_LIGHT = 1
+        const val SENSATION_MEDIUM = 2
+        const val SENSATION_HEAVY = 3
 
-        return true
-    }
+        /** Internal mappings useful for interoperability between integers and strings. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val APPEARANCE_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                Appearance.CLEAR to APPEARANCE_EGG_WHITE,
+                Appearance.CREAMY to APPEARANCE_CREAMY,
+                Appearance.DRY to APPEARANCE_DRY,
+                Appearance.STICKY to APPEARANCE_STICKY,
+                Appearance.WATERY to APPEARANCE_WATERY,
+                Appearance.UNUSUAL to APPEARANCE_UNUSUAL
+            )
 
-    override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + appearance.hashCode()
-        result = 31 * result + sensation.hashCode()
-        result = 31 * result + time.hashCode()
-        result = 31 * result + (zoneOffset?.hashCode() ?: 0)
-        result = 31 * result + metadata.hashCode()
-        return result
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val APPEARANCE_INT_TO_STRING_MAP =
+            APPEARANCE_STRING_TO_INT_MAP.entries.associate { it.value to it.key }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val SENSATION_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                Sensation.LIGHT to SENSATION_LIGHT,
+                Sensation.MEDIUM to SENSATION_MEDIUM,
+                Sensation.HEAVY to SENSATION_HEAVY
+            )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val SENSATION_INT_TO_STRING_MAP =
+            SENSATION_STRING_TO_INT_MAP.entries.associate { it.value to it.key }
     }
 
     /** List of supported Cervical Mucus Sensation types on Health Platform. */
-    public object Sensation {
+    internal object Sensation {
         const val LIGHT = "light"
         const val MEDIUM = "medium"
         const val HEAVY = "heavy"
@@ -81,24 +101,18 @@ public class CervicalMucusRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
-        value =
-            [
-                Sensation.LIGHT,
-                Sensation.MEDIUM,
-                Sensation.HEAVY,
-            ]
-    )
+    @IntDef(value = [SENSATION_UNKNOWN, SENSATION_LIGHT, SENSATION_MEDIUM, SENSATION_HEAVY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class Sensations
 
     /** The consistency or appearance of the user's cervical mucus. */
-    public object Appearance {
+    internal object Appearance {
         const val DRY = "dry"
         const val STICKY = "sticky"
         const val CREAMY = "creamy"
         const val WATERY = "watery"
         const val CLEAR = "clear"
+        const val UNUSUAL = "unusual"
     }
 
     /**
@@ -106,16 +120,42 @@ public class CervicalMucusRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                Appearance.DRY,
-                Appearance.STICKY,
-                Appearance.CREAMY,
-                Appearance.WATERY,
-                Appearance.CLEAR,
+                APPEARANCE_UNKNOWN,
+                APPEARANCE_DRY,
+                APPEARANCE_STICKY,
+                APPEARANCE_CREAMY,
+                APPEARANCE_WATERY,
+                APPEARANCE_EGG_WHITE,
+                APPEARANCE_UNUSUAL
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class Appearances
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CervicalMucusRecord
+
+        if (time != other.time) return false
+        if (zoneOffset != other.zoneOffset) return false
+        if (appearance != other.appearance) return false
+        if (sensation != other.sensation) return false
+        if (metadata != other.metadata) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = time.hashCode()
+        result = 31 * result + (zoneOffset?.hashCode() ?: 0)
+        result = 31 * result + appearance
+        result = 31 * result + sensation
+        result = 31 * result + metadata.hashCode()
+        return result
+    }
 }
