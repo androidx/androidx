@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingLegacyMetric
 import androidx.benchmark.macro.StartupTimingMetric
@@ -84,10 +85,11 @@ fun MacrobenchmarkRule.measureStartup(
     startupMode: StartupMode,
     packageName: String,
     iterations: Int = 10,
+    metrics: List<Metric> = getStartupMetrics(),
     setupIntent: Intent.() -> Unit = {}
 ) = measureRepeated(
     packageName = packageName,
-    metrics = getStartupMetrics(),
+    metrics = metrics,
     compilationMode = compilationMode,
     iterations = iterations,
     startupMode = startupMode,

@@ -269,19 +269,38 @@ public class StartupTimingLegacyMetric : Metric() {
 }
 
 /**
- * Captures the time taken by a trace section - a named begin / end pair matching the provided name.
+ * Captures the time taken by named trace section - a named begin / end pair matching the provided
+ * [sectionName].
  *
- * Always selects the first instance of a trace section captured during a measurement.
+ * Select how matching sections are resolved into a duration metric with [mode].
  *
  * @see androidx.tracing.Trace.beginSection
  * @see androidx.tracing.Trace.endSection
  * @see androidx.tracing.trace
  */
-@RequiresApi(29) // Remove once b/182386956 fixed, as app tag may be needed for this to work.
 @ExperimentalMetricApi
 public class TraceSectionMetric(
-    private val sectionName: String
+    private val sectionName: String,
+    private val mode: Mode = Mode.First
 ) : Metric() {
+    enum class Mode {
+        /**
+         * Captures the duration of the first instance of `sectionName` in the trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        First,
+
+        /**
+         * Captures the sum of all instances of `sectionName` in the trace.
+         *
+         * When this mode is used, a measurement of `0` will be reported if the named section
+         * does not appear in the trace
+         */
+        Sum
+    }
+
     internal override fun configure(packageName: String) {
     }
 
@@ -296,16 +315,36 @@ public class TraceSectionMetric(
         captureInfo: CaptureInfo,
         perfettoTraceProcessor: PerfettoTraceProcessor
     ): IterationResult {
-        val slice = perfettoTraceProcessor.querySlices(sectionName).firstOrNull()
-        return if (slice == null) {
-            IterationResult.EMPTY
-        } else IterationResult(
-            singleMetrics = mapOf(
-                sectionName + "Ms" to slice.dur / 1_000_000.0
-            ),
-            sampledMetrics = emptyMap(),
-            timelineRangeNs = slice.ts..slice.endTs
-        )
+        val slices = perfettoTraceProcessor.querySlices(sectionName)
+
+        return when (mode) {
+            Mode.First -> {
+                val slice = slices.firstOrNull()
+                if (slice == null) {
+                    IterationResult.EMPTY
+                } else IterationResult(
+                    singleMetrics = mapOf(
+                        sectionName + "Ms" to slice.dur / 1_000_000.0
+                    ),
+                    sampledMetrics = emptyMap(),
+                    timelineRangeNs = slice.ts..slice.endTs
+                )
+            }
+            Mode.Sum -> {
+                // note, this duration assumes non-reentrant slices
+                val durMs = slices.sumOf { it.dur } / 1_000_000.0
+                IterationResult(
+                    singleMetrics = mapOf(sectionName + "Ms" to durMs),
+                    sampledMetrics = emptyMap(),
+                    timelineRangeNs = if (slices.isEmpty()) {
+                        null
+                    } else {
+                        // parens added to make ktlint happy
+                        (slices.minOf { it.ts })..(slices.maxOf { it.endTs })
+                    }
+                )
+            }
+        }
     }
 }
 
