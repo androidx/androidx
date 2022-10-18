@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.OriginatingElementsHolder
@@ -79,14 +80,19 @@ object FunSpecHelper {
                 // TODO(b/254135327): Revisit with the introduction of a target language.
                 if (resolvedType.isSuspendFunction()) it.dropLast(1) else it
             }.forEachIndexed { index, paramType ->
-                val modifiers = if (isVarArgs && index == resolvedType.parameterTypes.size - 1) {
-                    arrayOf(KModifier.VARARG)
+                val typeName: XTypeName
+                val modifiers: Array<KModifier>
+                // TODO(b/253268357): In Kotlin the vararg is not always the last param
+                if (isVarArgs && index == resolvedType.parameterTypes.size - 1) {
+                    typeName = (paramType as XArrayType).componentType.asTypeName()
+                    modifiers = arrayOf(KModifier.VARARG)
                 } else {
-                    emptyArray()
+                    typeName = paramType.asTypeName()
+                    modifiers = emptyArray()
                 }
                 addParameter(
                     executableElement.parameters[index].name,
-                    paramType.asTypeName().kotlin,
+                    typeName.kotlin,
                     *modifiers
                 )
             }

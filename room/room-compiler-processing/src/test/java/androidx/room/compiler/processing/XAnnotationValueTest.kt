@@ -48,6 +48,7 @@ import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -869,8 +870,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(String::class.asJClassName()))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(String::class.asKClassName()))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(String::class.asKClassName()))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(String::class.asKClassName()))
+                    }
                 }
                 assertThat(annotationValue.hasStringListValue()).isTrue()
                 // Check the list of values
@@ -966,8 +976,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(myEnumJTypeName))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(myEnumKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(myEnumKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(myEnumKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasEnumListValue()).isTrue()
                 // Check the list of values
@@ -1080,8 +1099,17 @@ class XAnnotationValueTest(
                 } else {
                     assertThat(annotationValue.valueType.asTypeName().java)
                         .isEqualTo(JArrayTypeName.of(kClassJTypeName))
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(kClassKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasTypeListValue()).isTrue()
                 // Check the list of values
@@ -1180,8 +1208,17 @@ class XAnnotationValueTest(
                 assertThat(annotationValue.valueType.asTypeName().java)
                     .isEqualTo(JArrayTypeName.of(aJTypeName))
                 if (invocation.isKsp) {
-                    assertThat(annotationValue.valueType.asTypeName().kotlin)
-                        .isEqualTo(ARRAY.parameterizedBy(aKTypeName))
+                    if (sourceKind == SourceKind.KOTLIN &&
+                        annotationValue.name.contains("VarArgs")) {
+                        // Kotlin vararg are producers
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(aKTypeName))
+                            )
+                    } else {
+                        assertThat(annotationValue.valueType.asTypeName().kotlin)
+                            .isEqualTo(ARRAY.parameterizedBy(aKTypeName))
+                    }
                 }
                 assertThat(annotationValue.hasAnnotationListValue()).isTrue()
                 // Check the list of values

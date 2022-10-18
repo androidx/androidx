@@ -22,23 +22,21 @@ import androidx.room.solver.types.StatementValueBinder
 /**
  * Knows how to convert a query parameter into arguments
  */
-class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
-    QueryParameterAdapter(false) {
+class BasicQueryParameterAdapter(
+    private val bindAdapter: StatementValueBinder
+) : QueryParameterAdapter(false) {
     override fun bindToStmt(
         inputVarName: String,
         stmtVarName: String,
         startIndexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
+        scope.builder.apply {
             bindAdapter.bindToStmt(stmtVarName, startIndexVarName, inputVarName, scope)
         }
     }
 
     override fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        throw UnsupportedOperationException(
-            "should not call getArgCount on basic adapters." +
-                "It is always one."
-        )
+        error("Should not call getArgCount on basic adapters, since it only one arg.")
     }
 }
