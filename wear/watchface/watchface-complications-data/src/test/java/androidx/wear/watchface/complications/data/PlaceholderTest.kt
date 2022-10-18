@@ -273,66 +273,6 @@ class PlaceholderTest {
 
     @OptIn(ComplicationExperimental::class)
     @Test
-    fun placeholder_discreteRangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            DiscreteRangedValueComplicationData.Builder(
-                value = DiscreteRangedValueComplicationData.PLACEHOLDER,
-                min = 1,
-                max = 10,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
-
-        assertThat(placeholderRangedValue.value)
-            .isEqualTo(DiscreteRangedValueComplicationData.PLACEHOLDER)
-        assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
-        assertThat(placeholderRangedValue.title).isEqualTo(ComplicationText.PLACEHOLDER)
-        assertThat(placeholderRangedValue.monochromaticImage)
-            .isEqualTo(MonochromaticImage.PLACEHOLDER)
-        assertThat(placeholderRangedValue.smallImage).isEqualTo(SmallImage.PLACEHOLDER)
-        assertThat(placeholderRangedValue.contentDescription!!.getTextAt(resources, Instant.EPOCH))
-            .isEqualTo("description")
-        assertThat(placeholderRangedValue.hasPlaceholderFields()).isTrue()
-    }
-
-    @OptIn(ComplicationExperimental::class)
-    @Test
-    fun normal_discreteRangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            DiscreteRangedValueComplicationData.Builder(
-                value = 7,
-                min = 1,
-                max = 10,
-                contentDescription
-            )
-                .setText(text)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
-
-        assertThat(placeholderRangedValue.text!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            text.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderRangedValue.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            title.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderRangedValue.monochromaticImage).isEqualTo(monochromaticImage)
-        assertThat(placeholderRangedValue.smallImage).isEqualTo(smallImage)
-        assertThat(placeholderRangedValue.value).isEqualTo(7)
-        assertThat(placeholderRangedValue.min).isEqualTo(1)
-        assertThat(placeholderRangedValue.max).isEqualTo(10)
-        assertThat(placeholderRangedValue.hasPlaceholderFields()).isFalse()
-    }
-
-    @OptIn(ComplicationExperimental::class)
-    @Test
     fun placeholder_weightedElements() {
         val placeholderWeightedElements = NoDataComplicationData(
             WeightedElementsComplicationData.Builder(
@@ -391,26 +331,6 @@ class PlaceholderTest {
         assertThat(weightedElements.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("description")
         assertThat(weightedElements.hasPlaceholderFields()).isFalse()
-    }
-
-    @OptIn(ComplicationExperimental::class)
-    @Test
-    fun titleAbsent_discreteRangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            DiscreteRangedValueComplicationData.Builder(
-                value = DiscreteRangedValueComplicationData.PLACEHOLDER,
-                min = 1,
-                max = 10,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as DiscreteRangedValueComplicationData
-
-        assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
-        assertThat(placeholderRangedValue.title).isNull()
-        assertThat(placeholderRangedValue.monochromaticImage).isNull()
-        assertThat(placeholderRangedValue.smallImage).isNull()
     }
 
     @Test
