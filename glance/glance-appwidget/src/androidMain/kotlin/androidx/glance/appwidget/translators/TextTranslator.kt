@@ -151,7 +151,6 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
-        null -> {}
         else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
     }
 }

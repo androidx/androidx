@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.glance.unit.ColorProvider
 
 /**
- * Description of a text style for the [androidx.glance.layout.Text] composable.
+ * Description of a text style for the [androidx.glance.text.Text] composable.
  */
 @Immutable
 class TextStyle(
-    val color: ColorProvider? = null,
+    val color: ColorProvider = TextDefaults.defaultTextColor,
     val fontSize: TextUnit? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
@@ -33,7 +33,7 @@ class TextStyle(
     val textDecoration: TextDecoration? = null,
 ) {
     fun copy(
-        color: ColorProvider? = this.color,
+        color: ColorProvider = this.color,
         fontSize: TextUnit? = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
         fontStyle: FontStyle? = this.fontStyle,

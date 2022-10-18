@@ -18,11 +18,14 @@ package androidx.glance
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.preferences.core.Preferences
+import androidx.glance.color.ColorProviders
+import androidx.glance.color.DynamicThemeColorProviders
 import androidx.glance.state.GlanceStateDefinition
 
 /**
@@ -73,3 +76,11 @@ inline fun <reified T> currentState(): T = LocalState.current.let {
 @Composable
 inline fun <reified T> currentState(key: Preferences.Key<T>): T? =
     currentState<Preferences>()[key]
+
+/**
+ * The colors currently provided by [GlanceTheme]. If no overrides are provided, it will provide a
+ * standard set of Material3 colors, see [DynamicThemeColorProviders]. This should usually be
+ * accessed through [GlanceTheme.colors] rather than directly.
+ */
+internal val LocalColors: ProvidableCompositionLocal<ColorProviders> =
+    staticCompositionLocalOf { DynamicThemeColorProviders }

@@ -63,16 +63,14 @@ internal fun RemoteViews.translateEmittableCheckBox(
             is ResourceCheckableColorProvider -> {
                 setCompoundButtonTintList(checkBoxId, colors.resId)
             }
-        }
+        }.let { }
     } else {
         val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
         textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
         actionTargetId = viewDef.mainViewId
         setViewEnabled(iconId, element.checked)
-        setImageViewColorFilter(
-            iconId,
-            element.colors.checkBox.getColor(translationContext.context, element.checked)
-        )
+        val color = element.colors.checkBox.getColor(translationContext.context, element.checked)
+        setImageViewColorFilter(iconId, color)
     }
 
     setText(
