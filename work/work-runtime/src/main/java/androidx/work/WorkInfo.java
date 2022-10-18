@@ -145,6 +145,7 @@ public final class WorkInfo {
         WorkInfo workInfo = (WorkInfo) o;
 
         if (mRunAttemptCount != workInfo.mRunAttemptCount) return false;
+        if (mGeneration != workInfo.mGeneration) return false;
         if (!mId.equals(workInfo.mId)) return false;
         if (mState != workInfo.mState) return false;
         if (!mOutputData.equals(workInfo.mOutputData)) return false;
@@ -160,6 +161,7 @@ public final class WorkInfo {
         result = 31 * result + mTags.hashCode();
         result = 31 * result + mProgress.hashCode();
         result = 31 * result + mRunAttemptCount;
+        result = 31 * result + mGeneration;
         return result;
     }
 
