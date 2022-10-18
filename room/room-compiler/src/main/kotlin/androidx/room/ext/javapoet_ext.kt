@@ -19,6 +19,7 @@ package androidx.room.ext
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.XTypeName
@@ -385,4 +386,28 @@ fun DoubleArrayLiteral(
         },
         ",$W"
     )
+)
+
+/**
+ * Code of expression for [Collection.size] in Kotlin, and [java.util.Collection.size] for Java.
+ */
+fun CollectionsSizeExprCode(language: CodeLanguage, varName: String) = XCodeBlock.of(
+    language,
+    when (language) {
+        CodeLanguage.JAVA -> "%L.size()" // java.util.Collections.size()
+        CodeLanguage.KOTLIN -> "%L.size" // kotlin.collections.Collection.size
+    },
+    varName
+)
+
+/**
+ * Code of expression for [Array.size] in Kotlin, and `arr.length` for Java.
+ */
+fun ArraySizeExprCode(language: CodeLanguage, varName: String) = XCodeBlock.of(
+    language,
+    when (language) {
+        CodeLanguage.JAVA -> "%L.length" // Just `arr.length`
+        CodeLanguage.KOTLIN -> "%L.size" // kotlin.Array.size and primitives (e.g. IntArray)
+    },
+    varName
 )

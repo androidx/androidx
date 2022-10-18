@@ -215,7 +215,7 @@ class XClassName internal constructor(
  * [XClassName] contains the boxed JavaPoet class name.
  *
  * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List]
- * then the returned [XClassName] the corresponding JavaPoet class name. See:
+ * then the returned [XClassName] contains the corresponding JavaPoet class name. See:
  * https://kotlinlang.org/docs/reference/java-interop.html#mapped-types.
  *
  * When the receiver [KClass] is a Kotlin mutable collection, such as

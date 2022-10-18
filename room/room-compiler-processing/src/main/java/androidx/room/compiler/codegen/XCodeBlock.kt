@@ -72,7 +72,7 @@ interface XCodeBlock : TargetLanguage {
                 typeName: XTypeName,
                 assignExprFormat: String,
                 vararg assignExprArgs: Any
-            ) {
+            ) = apply {
                 addLocalVariable(
                     name = name,
                     typeName = typeName,
@@ -81,10 +81,35 @@ interface XCodeBlock : TargetLanguage {
                 )
             }
 
+            /**
+             * Convenience for-each control flow emitter taking into account the receiver's
+             * [CodeLanguage].
+             *
+             * For Java this will emit: `for (<typeName> <itemVarName> : <iteratorVarName>)`
+             *
+             * For Kotlin this will emit: `for (<itemVarName>: <typeName> in <iteratorVarName>)`
+             */
+            fun Builder.beginForEachControlFlow(
+                itemVarName: String,
+                typeName: XTypeName,
+                iteratorVarName: String
+            ) = apply {
+                when (language) {
+                    CodeLanguage.JAVA -> beginControlFlow(
+                        "for (%T %L : %L)",
+                        typeName, itemVarName, iteratorVarName
+                    )
+                    CodeLanguage.KOTLIN -> beginControlFlow(
+                        "for (%L: %T in %L)",
+                        itemVarName, typeName, iteratorVarName
+                    )
+                }
+            }
+
             fun Builder.apply(
                 javaCodeBuilder: com.squareup.javapoet.CodeBlock.Builder.() -> Unit,
                 kotlinCodeBuilder: com.squareup.kotlinpoet.CodeBlock.Builder.() -> Unit,
-            ): Builder = apply {
+            ) = apply {
                 when (language) {
                     CodeLanguage.JAVA -> {
                         check(this is JavaCodeBlock.Builder)
@@ -161,6 +186,27 @@ interface XCodeBlock : TargetLanguage {
             return when (language) {
                 CodeLanguage.JAVA -> of(language, "%T.class", typeName)
                 CodeLanguage.KOTLIN -> of(language, "%T::class.java", typeName)
+            }
+        }
+
+        /**
+         * Convenience code block of a conditional expression representing a ternary if.
+         *
+         * For Java this will emit: ` <condition> ? <leftExpr> : <rightExpr>)`
+         *
+         * For Kotlin this will emit: `if (<condition>) <leftExpr> else <rightExpr>)`
+         */
+        fun ofTernaryIf(
+            language: CodeLanguage,
+            condition: XCodeBlock,
+            leftExpr: XCodeBlock,
+            rightExpr: XCodeBlock,
+        ): XCodeBlock {
+            return when (language) {
+                CodeLanguage.JAVA ->
+                    of(language, "%L ? %L : %L", condition, leftExpr, rightExpr)
+                CodeLanguage.KOTLIN ->
+                    of(language, "if (%L) %L else %L", condition, leftExpr, rightExpr)
             }
         }
     }

@@ -27,8 +27,7 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
 import androidx.room.testing.context
 import androidx.room.writer.QueryWriter
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -59,14 +58,11 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.String _sql = "SELECT id FROM users";
-                    final $QUERY _stmt = $QUERY.acquire(_sql, 0);
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.String _sql = "SELECT id FROM users";
+                final $QUERY _stmt = $QUERY.acquire(_sql, 0);
+                """.trimIndent()
             )
         }
     }
@@ -94,16 +90,13 @@ class QueryWriterTest {
                 }
                 """.trimIndent()
             }
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
-                    |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
-                    |int _argIndex = 1;
-                    |$expectedStringBind
-                    """.trimMargin()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
+                |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
+                |int _argIndex = 1;
+                |$expectedStringBind
+                """.trimMargin()
             )
         }
     }
@@ -118,18 +111,15 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
-                    final $QUERY _stmt = $QUERY.acquire(_sql, 2);
-                    int _argIndex = 1;
-                    _stmt.bindLong(_argIndex, id1);
-                    _argIndex = 2;
-                    _stmt.bindLong(_argIndex, id2);
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
+                final $QUERY _stmt = $QUERY.acquire(_sql, 2);
+                int _argIndex = 1;
+                _stmt.bindLong(_argIndex, id1);
+                _argIndex = 2;
+                _stmt.bindLong(_argIndex, id2);
+                """.trimIndent()
             )
         }
     }
@@ -144,53 +134,58 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
-                    _stringBuilder.append("SELECT id FROM users WHERE id IN(");
-                    final int _inputSize = ids.length;
-                    ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
-                    _stringBuilder.append(") AND age > ");
-                    _stringBuilder.append("?");
-                    final java.lang.String _sql = _stringBuilder.toString();
-                    final int _argCount = 1 + _inputSize;
-                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
-                    int _argIndex = 1;
-                    for (int _item : ids) {
-                      _stmt.bindLong(_argIndex, _item);
-                      _argIndex ++;
-                    }
-                    _argIndex = 1 + _inputSize;
-                    _stmt.bindLong(_argIndex, time);
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                _stringBuilder.append("SELECT id FROM users WHERE id IN(");
+                final int _inputSize = ids == null ? 1 : ids.length;
+                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                _stringBuilder.append(") AND age > ");
+                _stringBuilder.append("?");
+                final java.lang.String _sql = _stringBuilder.toString();
+                final int _argCount = 1 + _inputSize;
+                final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                int _argIndex = 1;
+                if (ids == null) {
+                  _stmt.bindNull(_argIndex);
+                } else {
+                  for (int _item : ids) {
+                    _stmt.bindLong(_argIndex, _item);
+                    _argIndex++;
+                  }
+                }
+                _argIndex = 1 + _inputSize;
+                _stmt.bindLong(_argIndex, time);
+                """.trimIndent()
             )
         }
     }
 
     val collectionOut = """
-                    final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
-                    _stringBuilder.append("SELECT id FROM users WHERE id IN(");
-                    final int _inputSize = ids.size();
-                    ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
-                    _stringBuilder.append(") AND age > ");
-                    _stringBuilder.append("?");
-                    final java.lang.String _sql = _stringBuilder.toString();
-                    final int _argCount = 1 + _inputSize;
-                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
-                    int _argIndex = 1;
-                    for (java.lang.Integer _item : ids) {
-                      if (_item == null) {
-                        _stmt.bindNull(_argIndex);
-                      } else {
-                        _stmt.bindLong(_argIndex, _item);
-                      }
-                      _argIndex ++;
-                    }
-                    _argIndex = 1 + _inputSize;
-                    _stmt.bindLong(_argIndex, time);
+        final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+        _stringBuilder.append("SELECT id FROM users WHERE id IN(");
+        final int _inputSize = ids == null ? 1 : ids.size();
+        ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(") AND age > ");
+        _stringBuilder.append("?");
+        final java.lang.String _sql = _stringBuilder.toString();
+        final int _argCount = 1 + _inputSize;
+        final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+        int _argIndex = 1;
+        if (ids == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          for (java.lang.Integer _item : ids) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex);
+            } else {
+              _stmt.bindLong(_argIndex, _item);
+            }
+            _argIndex++;
+          }
+        }
+        _argIndex = 1 + _inputSize;
+        _stmt.bindLong(_argIndex, time);
     """.trimIndent()
 
     @Test
@@ -203,7 +198,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -217,7 +212,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -231,7 +226,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim(), `is`(collectionOut))
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -245,18 +240,15 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
-                    final $QUERY _stmt = $QUERY.acquire(_sql, 2);
-                    int _argIndex = 1;
-                    _stmt.bindLong(_argIndex, age);
-                    _argIndex = 2;
-                    _stmt.bindLong(_argIndex, age);
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
+                final $QUERY _stmt = $QUERY.acquire(_sql, 2);
+                int _argIndex = 1;
+                _stmt.bindLong(_argIndex, age);
+                _argIndex = 2;
+                _stmt.bindLong(_argIndex, age);
+                """.trimIndent()
             )
         }
     }
@@ -271,33 +263,34 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
-                    _stringBuilder.append("SELECT id FROM users WHERE age > ");
-                    _stringBuilder.append("?");
-                    _stringBuilder.append(" OR bage > ");
-                    _stringBuilder.append("?");
-                    _stringBuilder.append(" OR fage IN(");
-                    final int _inputSize = ages.length;
-                    ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
-                    _stringBuilder.append(")");
-                    final java.lang.String _sql = _stringBuilder.toString();
-                    final int _argCount = 2 + _inputSize;
-                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
-                    int _argIndex = 1;
-                    _stmt.bindLong(_argIndex, age);
-                    _argIndex = 2;
-                    _stmt.bindLong(_argIndex, age);
-                    _argIndex = 3;
-                    for (int _item : ages) {
-                      _stmt.bindLong(_argIndex, _item);
-                      _argIndex ++;
-                    }
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                _stringBuilder.append("SELECT id FROM users WHERE age > ");
+                _stringBuilder.append("?");
+                _stringBuilder.append(" OR bage > ");
+                _stringBuilder.append("?");
+                _stringBuilder.append(" OR fage IN(");
+                final int _inputSize = ages == null ? 1 : ages.length;
+                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                _stringBuilder.append(")");
+                final java.lang.String _sql = _stringBuilder.toString();
+                final int _argCount = 2 + _inputSize;
+                final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                int _argIndex = 1;
+                _stmt.bindLong(_argIndex, age);
+                _argIndex = 2;
+                _stmt.bindLong(_argIndex, age);
+                _argIndex = 3;
+                if (ages == null) {
+                  _stmt.bindNull(_argIndex);
+                } else {
+                  for (int _item : ages) {
+                    _stmt.bindLong(_argIndex, _item);
+                    _argIndex++;
+                  }
+                }
+                """.trimIndent()
             )
         }
     }
@@ -312,37 +305,42 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(
-                scope.builder().build().toString().trim(),
-                `is`(
-                    """
-                    final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
-                    _stringBuilder.append("SELECT id FROM users WHERE age IN (");
-                    final int _inputSize = ages.length;
-                    ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
-                    _stringBuilder.append(") OR bage > ");
-                    _stringBuilder.append("?");
-                    _stringBuilder.append(" OR fage IN(");
-                    final int _inputSize_1 = ages.length;
-                    ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize_1);
-                    _stringBuilder.append(")");
-                    final java.lang.String _sql = _stringBuilder.toString();
-                    final int _argCount = 1 + _inputSize + _inputSize_1;
-                    final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
-                    int _argIndex = 1;
-                    for (int _item : ages) {
-                      _stmt.bindLong(_argIndex, _item);
-                      _argIndex ++;
-                    }
-                    _argIndex = 1 + _inputSize;
-                    _stmt.bindLong(_argIndex, age);
-                    _argIndex = 2 + _inputSize;
-                    for (int _item_1 : ages) {
-                      _stmt.bindLong(_argIndex, _item_1);
-                      _argIndex ++;
-                    }
-                    """.trimIndent()
-                )
+            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+                """
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                _stringBuilder.append("SELECT id FROM users WHERE age IN (");
+                final int _inputSize = ages == null ? 1 : ages.length;
+                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                _stringBuilder.append(") OR bage > ");
+                _stringBuilder.append("?");
+                _stringBuilder.append(" OR fage IN(");
+                final int _inputSize_1 = ages == null ? 1 : ages.length;
+                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize_1);
+                _stringBuilder.append(")");
+                final java.lang.String _sql = _stringBuilder.toString();
+                final int _argCount = 1 + _inputSize + _inputSize_1;
+                final $QUERY _stmt = $QUERY.acquire(_sql, _argCount);
+                int _argIndex = 1;
+                if (ages == null) {
+                  _stmt.bindNull(_argIndex);
+                } else {
+                  for (int _item : ages) {
+                    _stmt.bindLong(_argIndex, _item);
+                    _argIndex++;
+                  }
+                }
+                _argIndex = 1 + _inputSize;
+                _stmt.bindLong(_argIndex, age);
+                _argIndex = 2 + _inputSize;
+                if (ages == null) {
+                  _stmt.bindNull(_argIndex);
+                } else {
+                  for (int _item_1 : ages) {
+                    _stmt.bindLong(_argIndex, _item_1);
+                    _argIndex++;
+                  }
+                }
+                """.trimIndent()
             )
         }
     }

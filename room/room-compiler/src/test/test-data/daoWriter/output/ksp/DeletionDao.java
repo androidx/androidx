@@ -363,15 +363,19 @@ public final class DeletionDao_Impl implements DeletionDao {
     __db.assertNotSuspendingTransaction();
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("DELETE FROM user where uid IN(");
-    final int _inputSize = uid.length;
+    final int _inputSize = uid == null ? 1 : uid.length;
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
     final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
     int _argIndex = 1;
-    for (int _item : uid) {
-      _stmt.bindLong(_argIndex, _item);
-      _argIndex ++;
+    if (uid == null) {
+      _stmt.bindNull(_argIndex);
+    } else {
+      for (int _item : uid) {
+        _stmt.bindLong(_argIndex, _item);
+        _argIndex++;
+      }
     }
     __db.beginTransaction();
     try {
