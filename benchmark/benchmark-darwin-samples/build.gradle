@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
     id("AndroidXPlugin")
+    id("androidx.benchmark.darwin")
 }
 
 androidXMultiplatform {
@@ -44,6 +45,17 @@ androidXMultiplatform {
             dependsOn(iosArm64Main)
         }
     }
+}
+
+darwinBenchmark {
+    xcodeGenConfigFile = project.rootProject.file(
+            "benchmark/benchmark-darwin-samples-xcode/xcodegen-project.yml"
+    )
+    xcodeProjectName = "benchmark-darwin-samples-xcode"
+    scheme = "testapp-ios"
+    // ios 13, 15.2
+    destination = "id=7F61C467-4E4A-437C-B6EF-026FEEF3904C"
+    xcFrameworkConfig = "AndroidXDarwinSampleBenchmarks"
 }
 
 androidx {

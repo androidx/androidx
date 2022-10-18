@@ -1,6 +1,6 @@
 # XCodeGen for the :benchmark:benchmark-darwin-samples module..
 
-name: benchmark-darwin-sample-xcode
+name: benchmark-darwin-samples-xcode
 targets:
 
   testapp-ios:
@@ -13,19 +13,9 @@ targets:
     scheme:
       testTargets:
         - testapp-ios-benchmarks
-      preActions:
-        - name: build AndroidXDarwinSampleBenchmarks.xcframework
-          basedOnDependencyAnalysis: false
-          settingsTarget: testapp-ios
-          script: |
-            cd ${PROJECT_DIR}/../..
-            ANDROIDX_PROJECTS=KMP ./gradlew :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinSampleBenchmarksReleaseXCFramework \
-                --no-configuration-cache < /dev/null
-          outputFiles:
-            - "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinSampleBenchmarks.xcframework"
       gatherCoverageData: false
     dependencies:
-      - framework: "${PROJECT_DIR}/../../../../out/androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinSampleBenchmarks.xcframework"
+      - framework: "${PROJECT_DIR}/../../../../androidx/benchmark/benchmark-darwin-samples/build/XCFrameworks/release/AndroidXDarwinSampleBenchmarks.xcframework"
     settings:
       PRODUCT_NAME: testapp-ios
 
