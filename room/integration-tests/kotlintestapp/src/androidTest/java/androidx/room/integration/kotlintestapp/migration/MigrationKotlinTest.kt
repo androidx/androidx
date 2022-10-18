@@ -44,7 +44,7 @@ class MigrationKotlinTest {
     )
 
     companion object {
-        val TEST_DB = "migration-test"
+        const val TEST_DB = "migration-test"
     }
 
     abstract class EmptyDb : RoomDatabase()

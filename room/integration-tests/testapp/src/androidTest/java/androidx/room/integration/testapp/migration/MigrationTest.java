@@ -70,11 +70,14 @@ public class MigrationTest {
     public MigrationTestHelper helper;
 
     public MigrationTest() {
-        helper = new MigrationTestHelper(InstrumentationRegistry.getInstrumentation(),
-                MigrationDb.class.getCanonicalName());
+        helper = new MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                MigrationDb.class.getCanonicalName()
+        );
     }
 
     @Test
+    @SuppressWarnings("deprecation") // This test is for verifying the old deprecated constructor
     public void giveBadResource() throws IOException {
         MigrationTestHelper helper = new MigrationTestHelper(
                 InstrumentationRegistry.getInstrumentation(),
