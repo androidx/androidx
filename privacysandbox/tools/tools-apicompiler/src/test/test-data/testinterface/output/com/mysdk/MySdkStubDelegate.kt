@@ -67,4 +67,18 @@ public class MySdkStubDelegate internal constructor(
   public override fun doMoreStuff(): Unit {
     delegate.doMoreStuff()
   }
+
+  public override fun getMyInterface(transactionCallback: IMyInterfaceTransactionCallback): Unit {
+    val job = GlobalScope.launch(Dispatchers.Main) {
+      try {
+        val result = delegate.getMyInterface()
+        transactionCallback.onSuccess(MyInterfaceStubDelegate(result))
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(404, t.message)
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
+  }
 }

@@ -1,6 +1,7 @@
 package com.mysdk
 
 import androidx.privacysandbox.tools.PrivacySandboxCallback
+import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 
@@ -15,6 +16,17 @@ interface MySdk {
     fun setListener(listener: MyCallback)
 
     fun doMoreStuff()
+
+    suspend fun getMyInterface(): MyInterface
+}
+
+@PrivacySandboxInterface
+interface MyInterface {
+    suspend fun doSomething(request: Request): Response
+
+    suspend fun getMyInterface(): MyInterface
+
+    fun doMoreStuff(x: Int)
 }
 
 @PrivacySandboxValue
