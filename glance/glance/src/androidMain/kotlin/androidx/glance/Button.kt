@@ -43,7 +43,7 @@ fun Button(
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null,
-    colors: ButtonColors = DEFAULT_COLORS,
+    colors: ButtonColors = defaultButtonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     var finalModifier = if (enabled) modifier.clickable(onClick) else modifier
@@ -70,7 +70,7 @@ class EmittableButton : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var text: String = ""
     var style: TextStyle? = null
-    var colors: ButtonColors = DEFAULT_COLORS
+    var colors: ButtonColors? = null
     var enabled: Boolean = true
     var maxLines: Int = Int.MAX_VALUE
 
@@ -117,7 +117,8 @@ class ButtonColors(val backgroundColor: ColorProvider, val contentColor: ColorPr
     }
 }
 
-internal val DEFAULT_COLORS = ButtonColors(
-    ColorProvider(R.color.glance_colorPrimary),
-    ColorProvider(R.color.glance_colorOnPrimary)
+@Composable
+internal fun defaultButtonColors() = ButtonColors(
+    GlanceTheme.colors.primary,
+    GlanceTheme.colors.onPrimary
 )

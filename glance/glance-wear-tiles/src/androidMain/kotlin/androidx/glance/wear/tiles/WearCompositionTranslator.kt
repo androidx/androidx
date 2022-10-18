@@ -406,7 +406,7 @@ private fun translateTextStyle(
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.color?.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
+    style.color.let { fontStyleBuilder.setColor(argb(it.getColorAsArgb(context))) }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {

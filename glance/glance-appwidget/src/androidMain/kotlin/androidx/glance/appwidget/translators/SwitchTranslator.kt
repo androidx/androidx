@@ -78,8 +78,12 @@ internal fun RemoteViews.translateEmittableSwitch(
         val trackId = inflateViewStub(translationContext, R.id.switchTrack)
         setViewEnabled(thumbId, element.checked)
         setViewEnabled(trackId, element.checked)
-        setImageViewColorFilter(thumbId, element.colors.thumb.getColor(context, element.checked))
-        setImageViewColorFilter(trackId, element.colors.track.getColor(context, element.checked))
+
+        val thumbColor = element.colors.thumb.getColor(context, element.checked)
+        setImageViewColorFilter(thumbId, thumbColor)
+
+        val trackColor = element.colors.track.getColor(context, element.checked)
+        setImageViewColorFilter(trackId, trackColor)
     }
 
     setText(

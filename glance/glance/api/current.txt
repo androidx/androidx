@@ -73,6 +73,16 @@ package androidx.glance {
   @androidx.glance.GlanceComposable public final class GlanceNodeKt {
   }
 
+  public final class GlanceTheme {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public androidx.glance.color.ColorProviders getColors();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.glance.GlanceComposable public final androidx.glance.color.ColorProviders colors;
+    field public static final androidx.glance.GlanceTheme INSTANCE;
+  }
+
+  public final class GlanceThemeKt {
+    method @androidx.compose.runtime.Composable public static void GlanceTheme(optional androidx.glance.color.ColorProviders colors, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   public final class ImageKt {
     method @androidx.compose.runtime.Composable public static void Image(androidx.glance.ImageProvider provider, String? contentDescription, optional androidx.glance.GlanceModifier modifier, optional int contentScale);
     method public static androidx.glance.ImageProvider ImageProvider(@DrawableRes int resId);
@@ -712,20 +722,27 @@ package androidx.glance.text {
     property public final int Underline;
   }
 
+  public final class TextDefaults {
+    method public androidx.glance.text.TextStyle defaultTextStyle();
+    method public androidx.glance.unit.ColorProvider getDefaultTextColor();
+    property public final androidx.glance.unit.ColorProvider defaultTextColor;
+    field public static final androidx.glance.text.TextDefaults INSTANCE;
+  }
+
   public final class TextKt {
-    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle? style, optional int maxLines);
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle style, optional int maxLines);
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.ColorProvider? color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
-    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider? color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
-    method public androidx.glance.unit.ColorProvider? getColor();
+    ctor public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.glance.unit.ColorProvider getColor();
     method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
     method public androidx.glance.text.FontWeight? getFontWeight();
     method public androidx.glance.text.TextAlign? getTextAlign();
     method public androidx.glance.text.TextDecoration? getTextDecoration();
-    property public final androidx.glance.unit.ColorProvider? color;
+    property public final androidx.glance.unit.ColorProvider color;
     property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;

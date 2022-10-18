@@ -65,7 +65,7 @@ class GlanceRemoteViewsTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        Truth.assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
+        Truth.assertThat(view.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Test
@@ -85,7 +85,7 @@ class GlanceRemoteViewsTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        Truth.assertThat(view.text).isEqualTo("FOUND")
+        Truth.assertThat(view.text.toString()).isEqualTo("FOUND")
     }
 
     @Test
@@ -100,6 +100,6 @@ class GlanceRemoteViewsTest {
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        Truth.assertThat(view.text).isEqualTo("No error thrown")
+        Truth.assertThat(view.text.toString()).isEqualTo("No error thrown")
     }
 }
