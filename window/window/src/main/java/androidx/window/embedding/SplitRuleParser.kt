@@ -24,7 +24,6 @@ import android.content.res.XmlResourceParser
 import android.util.LayoutDirection
 
 import androidx.window.R
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
 
@@ -33,7 +32,6 @@ import org.xmlpull.v1.XmlPullParser
 /**
  * Parses the static split rules defined in XML.
  */
-@ExperimentalWindowApi
 internal class SplitRuleParser {
 
     internal fun parseSplitRules(context: Context, staticRuleResourceId: Int): Set<EmbeddingRule>? {

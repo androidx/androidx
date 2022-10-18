@@ -21,7 +21,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
@@ -31,7 +30,6 @@ import androidx.window.core.ExperimentalWindowApi
  * belong to the same application and are running in the same process. The rules are  always
  * applied only to activities that will be started  after the rules were set.
  */
-@ExperimentalWindowApi
 class SplitPairRule : SplitRule {
 
     /**

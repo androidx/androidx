@@ -17,10 +17,8 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 
 /** Describes a split pair of two containers with activities. */
-@ExperimentalWindowApi
 class SplitInfo internal constructor(
     val primaryActivityStack: ActivityStack,
     val secondaryActivityStack: ActivityStack,

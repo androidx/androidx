@@ -18,11 +18,9 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 // TODO(b/191164045): Move to window-testing or adapt for testing otherwise.
-@ExperimentalWindowApi
 internal interface EmbeddingBackend {
     fun setSplitRules(rules: Set<EmbeddingRule>)
 

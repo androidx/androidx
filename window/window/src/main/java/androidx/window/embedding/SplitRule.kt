@@ -25,7 +25,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import androidx.window.core.ExperimentalWindowApi
 import kotlin.math.min
 
 /**
@@ -36,7 +35,6 @@ import kotlin.math.min
  * belong to the same application and are running in the same process. The rules are always
  * applied only to activities that will be started  after the rules were set.
  */
-@ExperimentalWindowApi
 open class SplitRule internal constructor(
     /**
      * The smallest value of width of the parent window when the split should be used, in pixels.

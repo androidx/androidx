@@ -23,12 +23,10 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Configuration rules for split placeholders.
  */
-@ExperimentalWindowApi
 class SplitPlaceholderRule : SplitRule {
 
     /**

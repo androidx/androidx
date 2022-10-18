@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
-import androidx.window.core.ExperimentalWindowApi;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
 import androidx.window.embedding.EmbeddingRule;
@@ -49,13 +48,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import kotlin.OptIn;
-
 /**
  * Sample showcase of split activity rules. Allows the user to select some split configuration
  * options with checkboxes and launch activities with those options applied.
  */
-@OptIn(markerClass = ExperimentalWindowApi.class)
 public class SplitActivityBase extends AppCompatActivity
         implements CompoundButton.OnCheckedChangeListener {
 

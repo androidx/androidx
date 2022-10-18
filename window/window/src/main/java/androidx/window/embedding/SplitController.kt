@@ -19,7 +19,7 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitController.Companion
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -36,7 +36,6 @@ import kotlin.concurrent.withLock
  * [androidx.startup.Initializer] and [Companion.initialize]. See Jetpack App Startup reference
  * for more information.
  */
-@ExperimentalWindowApi
 class SplitController private constructor() {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend.getInstance()
     private var staticSplitRules: Set<EmbeddingRule> = emptySet()
