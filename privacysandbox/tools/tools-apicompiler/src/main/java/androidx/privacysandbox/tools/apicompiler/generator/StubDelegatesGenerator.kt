@@ -17,17 +17,16 @@
 package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.SpecNames
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.aidlName
 import androidx.privacysandbox.tools.core.generator.build
-import androidx.privacysandbox.tools.core.generator.toParcelableNameSpec
-import androidx.privacysandbox.tools.core.generator.fromParcelableNameSpec
-import androidx.privacysandbox.tools.core.generator.parcelableNameSpec
 import androidx.privacysandbox.tools.core.generator.poetSpec
 import androidx.privacysandbox.tools.core.generator.primaryConstructor
+import androidx.privacysandbox.tools.core.generator.stubDelegateNameSpec
 import androidx.privacysandbox.tools.core.generator.transactionCallbackName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
@@ -47,6 +46,8 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.joinToCode
 
 class StubDelegatesGenerator(private val api: ParsedApi) {
+    private val binderCodeConverter = BinderCodeConverter(api)
+
     companion object {
         private val ATOMIC_BOOLEAN_CLASS = ClassName("java.util.concurrent.atomic", "AtomicBoolean")
     }
@@ -60,7 +61,7 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
     }
 
     private fun generateServiceStubDelegate(service: AnnotatedInterface): FileSpec {
-        val className = service.stubDelegateName()
+        val className = service.stubDelegateNameSpec().simpleName
         val aidlBaseClassName = ClassName(service.type.packageName, service.aidlName(), "Stub")
 
         val classSpec = TypeSpec.classBuilder(className).build {
@@ -104,18 +105,13 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
                             add("val result = ")
                             add(getDelegateCallBlock(method))
                         }
-                        val value = api.valueMap[method.returnType]
-                        when {
-                            value != null -> {
-                                addStatement(
-                                    "transactionCallback.onSuccess(%M(result))",
-                                    value.toParcelableNameSpec()
-                                )
-                            }
-                            method.returnType == Types.unit -> {
-                                addStatement("transactionCallback.onSuccess()")
-                            }
-                            else -> addStatement("transactionCallback.onSuccess(result)")
+                        if (method.returnType == Types.unit) {
+                            addStatement("transactionCallback.onSuccess()")
+                        } else {
+                            addStatement(
+                                "transactionCallback.onSuccess(%L)",
+                                binderCodeConverter.convertToBinderCode(method.returnType, "result")
+                            )
                         }
                     }
                     addControlFlow("catch (t: Throwable)") {
@@ -138,9 +134,7 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
 
     private fun getParameters(method: Method) = buildList {
         addAll(method.parameters.map { parameter ->
-            api.valueMap[parameter.type]?.let { value ->
-                ParameterSpec(parameter.name, value.parcelableNameSpec())
-            } ?: ParameterSpec(parameter.name, parameter.type.poetSpec())
+            ParameterSpec(parameter.name, binderCodeConverter.convertToBinderType(parameter.type))
         })
         if (method.isSuspend) add(
             ParameterSpec(
@@ -153,16 +147,8 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
     }
 
     private fun getDelegateCallBlock(method: Method) = CodeBlock.builder().build {
-        val parameters = method.parameters.map {
-            val value = api.valueMap[it.type]
-            if (value != null) {
-                CodeBlock.of("%M(${it.name})", value.fromParcelableNameSpec())
-            } else {
-                CodeBlock.of(it.name)
-            }
-        }
         add("delegate.${method.name}(")
-        add(parameters.joinToCode())
+        add(method.parameters.map { binderCodeConverter.convertToModelCode(it) }.joinToCode())
         add(")")
     }
 
@@ -201,5 +187,3 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
         return FileSpec.builder(packageName, className).addType(classSpec).build()
     }
 }
-
-internal fun AnnotatedInterface.stubDelegateName() = "${type.simpleName}StubDelegate"

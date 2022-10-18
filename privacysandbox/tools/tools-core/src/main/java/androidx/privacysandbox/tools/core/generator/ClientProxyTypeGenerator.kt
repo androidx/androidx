@@ -32,30 +32,31 @@ class ClientProxyTypeGenerator(
     private val api: ParsedApi,
     private val service: AnnotatedInterface
 ) {
-    val className =
-        ClassName(service.type.packageName, "${service.type.simpleName}ClientProxy")
+    val className = service.clientProxyNameSpec()
     val remoteBinderClassName =
         ClassName(service.type.packageName, "I${service.type.simpleName}")
     private val cancellationSignalClassName =
         ClassName(service.type.packageName, "ICancellationSignal")
+    private val binderCodeConverter = BinderCodeConverter(api)
 
-    fun generate(): TypeSpec = TypeSpec.classBuilder(className).build {
-        addModifiers(KModifier.PRIVATE)
-        addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
-        primaryConstructor(
-            listOf(
-                PropertySpec.builder("remote", remoteBinderClassName)
-                    .addModifiers(KModifier.PRIVATE).build()
+    fun generate(visibilityModifier: KModifier = KModifier.INTERNAL): TypeSpec =
+        TypeSpec.classBuilder(className).build {
+            addModifiers(visibilityModifier)
+            addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
+            primaryConstructor(
+                listOf(
+                    PropertySpec.builder("remote", remoteBinderClassName)
+                        .addModifiers(KModifier.PRIVATE).build()
+                )
             )
-        )
-        addFunctions(service.methods.map { method ->
-            if (method.isSuspend) {
-                generateSuspendProxyMethodImplementation(method)
-            } else {
-                generateProxyMethodImplementation(method)
-            }
-        })
-    }
+            addFunctions(service.methods.map { method ->
+                if (method.isSuspend) {
+                    generateSuspendProxyMethodImplementation(method)
+                } else {
+                    generateProxyMethodImplementation(method)
+                }
+            })
+        }
 
     private fun generateProxyMethodImplementation(method: Method) =
         FunSpec.builder(method.name).build {
@@ -124,25 +125,15 @@ class ClientProxyTypeGenerator(
             }
         }
 
-        val value = api.valueMap[method.returnType]
-        if (value != null) {
-            return CodeBlock.builder().build {
-                addControlFlow(
-                    "override fun onSuccess(result: %T)",
-                    value.parcelableNameSpec()
-                ) {
-                    addStatement("it.resumeWith(Result.success(%M(result)))",
-                        value.fromParcelableNameSpec())
-                }
-            }
-        }
-
         return CodeBlock.builder().build {
             addControlFlow(
                 "override fun onSuccess(result: %T)",
-                method.returnType.poetSpec()
+                binderCodeConverter.convertToBinderType(method.returnType)
             ) {
-                addStatement("it.resumeWith(Result.success(result))")
+                addStatement(
+                    "it.resumeWith(Result.success(%L))",
+                    binderCodeConverter.convertToModelCode(method.returnType, "result")
+                )
             }
         }
     }
@@ -151,11 +142,8 @@ class ClientProxyTypeGenerator(
         method: Method,
         extraParameters: List<CodeBlock> = emptyList(),
     ) = CodeBlock.builder().build {
-        val parameters = method.parameters.map { parameter ->
-            api.valueMap[parameter.type]?.toParcelableNameSpec()?.let { converterFunctionName ->
-                CodeBlock.of("%M(${parameter.name})", converterFunctionName)
-            } ?: CodeBlock.of(parameter.name)
-        } + extraParameters
+        val parameters =
+            method.parameters.map { binderCodeConverter.convertToBinderCode(it) } + extraParameters
         addStatement {
             add("remote.${method.name}(")
             add(parameters.joinToCode())
