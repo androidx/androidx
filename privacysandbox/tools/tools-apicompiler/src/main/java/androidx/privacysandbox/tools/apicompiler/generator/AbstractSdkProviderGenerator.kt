@@ -18,6 +18,7 @@ package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.poetSpec
+import androidx.privacysandbox.tools.core.generator.stubDelegateNameSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
@@ -69,8 +70,9 @@ class AbstractSdkProviderGenerator(private val api: ParsedApi) {
                 "val sdk = ${getCreateServiceFunctionName(api.getOnlyService())}(context!!)"
             )
             addStatement(
-                "return ${SANDBOXED_SDK_CLASS.simpleName}" +
-                    "(${api.getOnlyService().stubDelegateName()}(sdk))"
+                "return %T(%T(sdk))",
+                SANDBOXED_SDK_CLASS,
+                api.getOnlyService().stubDelegateNameSpec()
             )
         }
     }

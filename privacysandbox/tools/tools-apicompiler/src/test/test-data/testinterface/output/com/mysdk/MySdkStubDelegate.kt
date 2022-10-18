@@ -60,6 +60,10 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
+  public override fun setListener(listener: IMyCallback): Unit {
+    delegate.setListener(MyCallbackClientProxy(listener))
+  }
+
   public override fun doMoreStuff(): Unit {
     delegate.doMoreStuff()
   }

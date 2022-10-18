@@ -19,8 +19,8 @@ package androidx.privacysandbox.tools.apicompiler.generator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
-import androidx.privacysandbox.tools.core.generator.converterNameSpec
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.FileSpec
@@ -35,17 +35,14 @@ class SdkCodeGenerator(
     fun generate() {
         generateAidlSources()
         generateValueConverters()
-        AbstractSdkProviderGenerator(api).generate()?.also(::write)
-        StubDelegatesGenerator(api).generate().forEach(::write)
+        generateCallbackProxies()
+        generateAbstractSdkProvider()
+        generateStubDelegates()
     }
 
     private fun generateValueConverters() {
         api.values.forEach { value ->
-            val file = ValueConverterFileGenerator(api, value).generate()
-            codeGenerator.createNewFile(
-                Dependencies(false), value.converterNameSpec().packageName,
-                value.converterNameSpec().simpleName,
-            ).write(file)
+            write(ValueConverterFileGenerator(api, value).generate())
         }
     }
 
@@ -67,6 +64,24 @@ class SdkCodeGenerator(
         } finally {
             workingDir.toFile().deleteRecursively()
         }
+    }
+
+    private fun generateCallbackProxies() {
+        for (callback in api.callbacks) {
+            val classSpec = ClientProxyTypeGenerator(api, callback).generate()
+            write(
+                FileSpec.builder(callback.type.packageName, classSpec.name!!).addType(classSpec)
+                    .build()
+            )
+        }
+    }
+
+    private fun generateAbstractSdkProvider() {
+        AbstractSdkProviderGenerator(api).generate()?.also(::write)
+    }
+
+    private fun generateStubDelegates() {
+        StubDelegatesGenerator(api).generate().forEach(::write)
     }
 
     private fun write(spec: FileSpec) {
