@@ -118,6 +118,7 @@ dependencies {
     docs(project(":core:core-google-shortcuts"))
     docs(project(":core:core-i18n"))
     docs(project(":core:core-ktx"))
+    docs(project(":core:core-location-altitude"))
     docs(project(":core:core-performance"))
     samples(project(":core:core-performance:core-performance-samples"))
     docs(project(":core:core-remoteviews"))
