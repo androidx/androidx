@@ -28,6 +28,7 @@ import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
+import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
@@ -340,31 +341,37 @@ fun macrobenchmarkWithStartupMode(
         userspaceTracingPackage = userspaceTracingPackage,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
+                // Run setup before killing process
+                setupBlock(this)
+
+                // Kill - code below must not wake process!
                 killProcess()
+
                 // Shader caches are stored in the code cache directory. Make sure that
                 // they are cleared every iteration.
                 dropShaderCache()
-                // drop app pages from page cache to ensure it is loaded from disk, from scratch
 
-                // resetAndCompile uses ProfileInstallReceiver to write a skip file.
-                // This is done to reduce the interference from ProfileInstaller,
-                // so long-running benchmarks don't get optimized due to a background dexopt.
-
-                // To restore the state of the process we need to drop app pages so its
-                // loaded from disk, from scratch.
+                // Ensure app's pages are not cached in memory for a true _cold_ start.
                 dropKernelPageCache()
-            } else if (iteration == 0 && startupMode != null) {
-                try {
-                    iteration = null // override to null for warmup, before starting measurements
 
-                    // warmup process by running the measure block once unmeasured
-                    setupBlock(this)
-                    measureBlock()
-                } finally {
-                    iteration = 0
+                // validate process is not running just before returning
+                check(!Shell.isPackageAlive(packageName)) {
+                    "Package $packageName must not be running prior to cold start!"
                 }
+            } else {
+                if (iteration == 0 && startupMode != null) {
+                    try {
+                        iteration = null // override to null for warmup
+
+                        // warmup process by running the measure block once unmeasured
+                        setupBlock(this)
+                        measureBlock()
+                    } finally {
+                        iteration = 0 // resume counting
+                    }
+                }
+                setupBlock(this)
             }
-            setupBlock(this)
         },
         // Don't reuse activities by default in COLD / WARM
         launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
