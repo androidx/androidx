@@ -32,7 +32,7 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
     internal val liveDataSet: MutableSet<LiveData<*>> = Collections.newSetFromMap(IdentityHashMap())
 
     fun <T> create(
-        tableNames: Array<String>,
+        tableNames: Array<out String>,
         inTransaction: Boolean,
         computeFunction: Callable<T>
     ): LiveData<T> {

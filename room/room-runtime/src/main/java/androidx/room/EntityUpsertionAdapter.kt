@@ -70,7 +70,7 @@ class EntityUpsertionAdapter<T>(
      *
      * @param entities array of entities to upsert
      */
-    fun upsert(entities: Array<T>) {
+    fun upsert(entities: Array<out T>) {
         entities.forEach { entity ->
             try {
                 insertionAdapter.insert(entity)
@@ -116,7 +116,7 @@ class EntityUpsertionAdapter<T>(
      * @param entities Entities to upsert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun upsertAndReturnIdsArray(entities: Array<T>): LongArray {
+    fun upsertAndReturnIdsArray(entities: Array<out T>): LongArray {
         return LongArray(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -142,7 +142,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsList(entities: Array<T>): List<Long> {
+    fun upsertAndReturnIdsList(entities: Array<out T>): List<Long> {
         return buildList {
             entities.forEach { entity ->
                 try {
@@ -170,7 +170,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Array<T>): Array<Long> {
+    fun upsertAndReturnIdsArrayBox(entities: Array<out T>): Array<out Long> {
         return Array(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -182,7 +182,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<Long> {
+    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<out Long> {
         val iterator = entities.iterator()
         return Array(entities.size) {
             val entity = iterator.next()

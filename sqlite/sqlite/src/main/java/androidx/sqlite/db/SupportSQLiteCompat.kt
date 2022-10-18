@@ -106,7 +106,7 @@ class SupportSQLiteCompat private constructor() {
         fun rawQueryWithFactory(
             sQLiteDatabase: SQLiteDatabase,
             sql: String,
-            selectionArgs: Array<String?>,
+            selectionArgs: Array<out String?>,
             editTable: String?,
             cancellationSignal: CancellationSignal,
             cursorFactory: CursorFactory
