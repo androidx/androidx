@@ -20,6 +20,7 @@ import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
 import java.io.File
@@ -59,8 +60,12 @@ class PrivacySandboxApiGenerator {
             ValueConverterFileGenerator(sdkApi, it).generate().writeTo(output)
         }
         sdkApi.services.forEach {
-            ServiceInterfaceFileGenerator(it).generate().writeTo(output)
+            InterfaceFileGenerator(it).generate().writeTo(output)
             ServiceFactoryFileGenerator(sdkApi, it).generate().writeTo(output)
+        }
+        sdkApi.callbacks.forEach {
+            InterfaceFileGenerator(it).generate().writeTo(output)
+            StubDelegatesGenerator(sdkApi).generateInterfaceStubDelegate(it).writeTo(output)
         }
     }
 

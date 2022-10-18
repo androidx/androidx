@@ -44,11 +44,11 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
         if (api.services.isEmpty()) {
             return emptyList()
         }
-        return api.services.map(::generateServiceStubDelegate) +
+        return api.services.map(::generateInterfaceStubDelegate) +
             generateTransportCancellationCallback()
     }
 
-    private fun generateServiceStubDelegate(service: AnnotatedInterface): FileSpec {
+    fun generateInterfaceStubDelegate(service: AnnotatedInterface): FileSpec {
         val className = service.stubDelegateNameSpec().simpleName
         val aidlBaseClassName = ClassName(service.type.packageName, service.aidlName(), "Stub")
 
