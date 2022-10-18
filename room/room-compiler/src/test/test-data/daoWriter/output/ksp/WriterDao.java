@@ -29,56 +29,64 @@ public final class WriterDao_Impl implements WriterDao {
         this.__db = __db;
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(1, value.uid);
-                stmt.bindString(2, value.name);
-                stmt.bindString(3, value.getLastName());
-                stmt.bindLong(4, value.age);
+            public void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final User entity) {
+                statement.bindLong(1, entity.uid);
+                statement.bindString(2, entity.name);
+                statement.bindString(3, entity.getLastName());
+                statement.bindLong(4, entity.age);
             }
         };
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "INSERT OR REPLACE INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(1, value.uid);
-                stmt.bindString(2, value.name);
-                stmt.bindString(3, value.getLastName());
-                stmt.bindLong(4, value.age);
+            public void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final User entity) {
+                statement.bindLong(1, entity.uid);
+                statement.bindString(2, entity.name);
+                statement.bindString(3, entity.getLastName());
+                statement.bindLong(4, entity.age);
             }
         };
         this.__insertionAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(1, value.uid);
-                stmt.bindString(2, value.name);
-                stmt.bindString(3, value.getLastName());
-                stmt.bindLong(4, value.age);
+            public void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final User entity) {
+                statement.bindLong(1, entity.uid);
+                statement.bindString(2, entity.name);
+                statement.bindString(3, entity.getLastName());
+                statement.bindLong(4, entity.age);
             }
         };
         this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, Book value) {
-                stmt.bindLong(1, value.bookId);
-                stmt.bindLong(2, value.uid);
+            public void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final Book entity) {
+                statement.bindLong(1, entity.bookId);
+                statement.bindLong(2, entity.uid);
             }
         };
     }

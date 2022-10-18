@@ -42,16 +42,25 @@ class EnumColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         val stringToEnumMethod = stringToEnumMethod(scope)
-        if (scope.language == CodeLanguage.KOTLIN && out.nullability == XNullability.NONNULL) {
-            scope.builder.addStatement(
-                "%L = checkNotNull(%N(%L.getString(%L)))",
-                outVarName, stringToEnumMethod, cursorVarName, indexVarName
-            )
-        } else {
-            scope.builder.addStatement(
-                "%L = %N(%L.getString(%L))",
-                outVarName, stringToEnumMethod, cursorVarName, indexVarName
-            )
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addGetStringStatement() {
+                addStatement(
+                    "%L = %N(%L.getString(%L))",
+                    outVarName,
+                    stringToEnumMethod,
+                    cursorVarName,
+                    indexVarName
+                )
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addGetStringStatement()
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName)
+                    .addStatement("%L = null", outVarName)
+                nextControlFlow("else")
+                    .addGetStringStatement()
+                endControlFlow()
+            }
         }
     }
 
@@ -63,19 +72,19 @@ class EnumColumnTypeAdapter(
     ) {
         val enumToStringMethod = enumToStringMethod(scope)
         scope.builder.apply {
-            if (language == CodeLanguage.KOTLIN && out.nullability == XNullability.NONNULL) {
+            fun XCodeBlock.Builder.addBindStringStatement() {
                 addStatement(
-                    "%L.bindString(%L, checkNotNull(%N(%L)))",
-                    stmtName, indexVarName, enumToStringMethod, valueVarName
+                    "%L.bindString(%L, %N(%L))",
+                    stmtName, indexVarName, enumToStringMethod, valueVarName,
                 )
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addBindStringStatement()
             } else {
                 beginControlFlow("if (%L == null)", valueVarName)
                     .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
                 nextControlFlow("else")
-                    .addStatement(
-                        "%L.bindString(%L, %N(%L))",
-                        stmtName, indexVarName, enumToStringMethod, valueVarName
-                    )
+                addBindStringStatement()
                 endControlFlow()
             }
         }
@@ -85,6 +94,8 @@ class EnumColumnTypeAdapter(
         val funSpec = object : TypeWriter.SharedFunctionSpec(
             out.typeElement!!.name + "_enumToString"
         ) {
+            val paramName = "_value"
+
             override fun getUniqueKey(): String {
                 return "enumToString_" + enumTypeElement.asClassName().toString()
             }
@@ -95,11 +106,6 @@ class EnumColumnTypeAdapter(
                 builder: XFunSpec.Builder
             ) {
                 val body = XCodeBlock.builder(builder.language).apply {
-                    val paramName = "_value"
-                    beginControlFlow("if (%L == null)", paramName).apply {
-                        addStatement("return null")
-                    }
-                    endControlFlow()
                     when (writer.codeLanguage) {
                         // Use a switch control flow
                         CodeLanguage.JAVA -> {
@@ -118,27 +124,25 @@ class EnumColumnTypeAdapter(
                             )
                             endControlFlow()
                         }
-                        // Use a when control flow
+                        // Use a when control flow, note that it is exhaustive and there is no need
+                        // or an `else` case.
                         CodeLanguage.KOTLIN -> {
                             beginControlFlow("return when (%L)", paramName)
                             enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
-                                addStatement("%L -> %S", enumConstantName, enumConstantName)
+                                addStatement(
+                                    "%T.%L -> %S",
+                                    out.asTypeName(), enumConstantName, enumConstantName
+                                )
                             }
-                            addStatement(
-                                "else -> throw %T(%S + %L)",
-                                ILLEGAL_ARG_EXCEPTION,
-                                ENUM_TO_STRING_ERROR_MSG,
-                                paramName
-                            )
                             endControlFlow()
                         }
                     }
                 }.build()
                 builder.apply {
-                    returns(String::class.asClassName().copy(nullable = true))
+                    returns(String::class.asClassName().copy(nullable = false))
                     addParameter(
-                        out.asTypeName().copy(nullable = true),
-                        "_value"
+                        out.asTypeName().copy(nullable = false),
+                        paramName
                     )
                     addCode(body)
                 }
@@ -151,6 +155,8 @@ class EnumColumnTypeAdapter(
         val funSpec = object : TypeWriter.SharedFunctionSpec(
             out.typeElement!!.name + "_stringToEnum"
         ) {
+            val paramName = "_value"
+
             override fun getUniqueKey(): String {
                 return "stringToEnum_" + enumTypeElement.asClassName().toString()
             }
@@ -161,11 +167,6 @@ class EnumColumnTypeAdapter(
                 builder: XFunSpec.Builder
             ) {
                 val body = XCodeBlock.builder(builder.language).apply {
-                    val paramName = "_value"
-                    beginControlFlow("if (%L == null)", paramName).apply {
-                        addStatement("return null")
-                    }
-                    endControlFlow()
                     when (writer.codeLanguage) {
                         // Use a switch control flow
                         CodeLanguage.JAVA -> {
@@ -204,10 +205,10 @@ class EnumColumnTypeAdapter(
                     }
                 }.build()
                 builder.apply {
-                    returns(out.asTypeName().copy(nullable = true))
+                    returns(out.asTypeName().copy(nullable = false))
                     addParameter(
-                        String::class.asClassName().copy(nullable = true),
-                        "_value"
+                        String::class.asClassName().copy(nullable = false),
+                        paramName
                     )
                     addCode(body)
                 }

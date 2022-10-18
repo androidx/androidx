@@ -20,7 +20,7 @@ import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
 import androidx.room.ext.S
-import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.SupportDbTypeNames.SQLITE_STMT
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Fields
@@ -81,7 +81,7 @@ class EntityDeletionAdapterWriter private constructor(
                     val stmtParam = "stmt"
                     addParameter(
                         ParameterSpec.builder(
-                            SupportDbTypeNames.SQLITE_STMT,
+                            SQLITE_STMT.toJavaPoet(),
                             stmtParam
                         ).build()
                     )

@@ -407,8 +407,8 @@ class NullabilityAwareTypeConverterStoreTest {
             invocation.assertCompilationResult {
                 generatedSourceFileWithPath("MyDao_Impl.java").let {
                     // make sure it bounded w/o upcasting to Boolean
-                    it.contains("final int _tmp = TestConverters.composeDays(value.mWorkDays);")
-                    it.contains("stmt.bindLong(2, _tmp);")
+                    it.contains("final int _tmp = TestConverters.composeDays(entity.mWorkDays);")
+                    it.contains("statement.bindLong(2, _tmp);")
                 }
             }
         }

@@ -1,15 +1,18 @@
 import android.database.Cursor
+import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.query
+import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.Class
 import java.lang.IllegalArgumentException
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -18,8 +21,35 @@ import kotlin.jvm.JvmStatic
 public class MyDao_Impl : MyDao {
     private val __db: RoomDatabase
 
+    private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+
     public constructor(__db: RoomDatabase) {
         this.__db = __db
+        this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+            public override fun createQuery(): String =
+                "INSERT OR ABORT INTO `MyEntity` (`pk`,`enum`,`nullableEnum`) VALUES (?,?,?)"
+
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+                statement.bindLong(1, entity.pk.toLong())
+                statement.bindString(2, __Fruit_enumToString(entity.enum))
+                if (entity.nullableEnum == null) {
+                    statement.bindNull(3)
+                } else {
+                    statement.bindString(3, __Fruit_enumToString(entity.nullableEnum))
+                }
+            }
+        }
+    }
+
+    public override fun addEntity(item: MyEntity): Unit {
+        __db.assertNotSuspendingTransaction()
+        __db.beginTransaction()
+        try {
+            __insertionAdapterOfMyEntity.insert(item)
+            __db.setTransactionSuccessful()
+        } finally {
+            __db.endTransaction()
+        }
     }
 
     public override fun getEntity(): MyEntity {
@@ -36,9 +66,13 @@ public class MyDao_Impl : MyDao {
                 val _tmpPk: Int
                 _tmpPk = _cursor.getInt(_cursorIndexOfPk)
                 val _tmpEnum: Fruit
-                _tmpEnum = checkNotNull(__Fruit_stringToEnum(_cursor.getString(_cursorIndexOfEnum)))
+                _tmpEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfEnum))
                 val _tmpNullableEnum: Fruit?
-                _tmpNullableEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfNullableEnum))
+                if (_cursor.isNull(_cursorIndexOfNullableEnum)) {
+                    _tmpNullableEnum = null
+                } else {
+                    _tmpNullableEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfNullableEnum))
+                }
                 _result = MyEntity(_tmpPk,_tmpEnum,_tmpNullableEnum)
             } else {
                 error("Cursor was empty, but expected a single item.")
@@ -50,16 +84,15 @@ public class MyDao_Impl : MyDao {
         }
     }
 
-    private fun __Fruit_stringToEnum(_value: String?): Fruit? {
-        if (_value == null) {
-            return null
-        }
-        return when (_value) {
-            "APPLE" -> Fruit.APPLE
-            "BANANA" -> Fruit.BANANA
-            else -> throw IllegalArgumentException("Can't convert value to enum, unknown value: " +
-                _value)
-        }
+    private fun __Fruit_enumToString(_value: Fruit): String = when (_value) {
+        Fruit.APPLE -> "APPLE"
+        Fruit.BANANA -> "BANANA"
+    }
+
+    private fun __Fruit_stringToEnum(_value: String): Fruit = when (_value) {
+        "APPLE" -> Fruit.APPLE
+        "BANANA" -> Fruit.BANANA
+        else -> throw IllegalArgumentException("Can't convert value to enum, unknown value: " + _value)
     }
 
     public companion object {

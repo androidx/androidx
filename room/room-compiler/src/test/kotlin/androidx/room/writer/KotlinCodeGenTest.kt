@@ -51,6 +51,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -116,6 +119,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -148,6 +154,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -181,6 +190,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -214,6 +226,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -243,6 +258,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -271,6 +289,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -300,6 +321,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -335,6 +359,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -370,6 +397,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity
@@ -407,6 +437,9 @@ class KotlinCodeGenTest {
             interface MyDao {
               @Query("SELECT * FROM MyEntity")
               fun getEntity(): MyEntity
+              
+              @Insert
+              fun addEntity(item: MyEntity)
             }
 
             @Entity

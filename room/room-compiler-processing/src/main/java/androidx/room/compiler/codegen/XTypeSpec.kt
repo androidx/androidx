@@ -111,7 +111,7 @@ interface XTypeSpec : TargetLanguage {
                 CodeLanguage.JAVA -> JavaTypeSpec.Builder(
                     className = null,
                     actual = JTypeSpec.anonymousClassBuilder(
-                        XCodeBlock.of(language, argsFormat, args).let {
+                        XCodeBlock.of(language, argsFormat, *args).let {
                             check(it is JavaCodeBlock)
                             it.actual
                         }
@@ -122,7 +122,7 @@ interface XTypeSpec : TargetLanguage {
                     actual = KTypeSpec.anonymousClassBuilder().apply {
                         if (args.isNotEmpty()) {
                             addSuperclassConstructorParameter(
-                                XCodeBlock.of(language, argsFormat, args).let {
+                                XCodeBlock.of(language, argsFormat, *args).let {
                                     check(it is KotlinCodeBlock)
                                     it.actual
                                 }
@@ -147,4 +147,11 @@ interface XTypeSpec : TargetLanguage {
             }
         }
     }
+}
+
+// TODO(b/127483380): Temporary API for XPoet migration.
+// @Deprecated("Temporary API for XPoet migration.")
+fun XTypeSpec.toJavaPoet(): JTypeSpec {
+    check(this is JavaTypeSpec)
+    return this.actual
 }
