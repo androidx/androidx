@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl
 
 import android.content.Context
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
@@ -71,10 +72,20 @@ public class ServiceBackedPassiveMonitoringClient(
     ): ListenableFuture<Void> {
         return executeWithVersionCheck(
             { remoteService, resultFuture ->
-                remoteService.registerPassiveListenerService(
-                    PassiveListenerServiceRegistrationRequest(packageName, service.name, config),
-                    StatusCallback(resultFuture)
-                )
+                if (config.isValidPassiveGoal()) {
+                    remoteService.registerPassiveListenerService(
+                        PassiveListenerServiceRegistrationRequest(
+                            packageName,
+                            service.name,
+                            config
+                        ),
+                        StatusCallback(resultFuture)
+                    )
+                } else {
+                    resultFuture.setException(
+                        RemoteException("DataType for the requested passive goal is not tracked")
+                    )
+                }
             },
             /* minApiVersion= */ 4
         )
@@ -100,11 +111,17 @@ public class ServiceBackedPassiveMonitoringClient(
             PassiveListenerCallbackCache.INSTANCE.getOrCreate(packageName, executor, callback)
         val future =
             registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
-                service.registerPassiveListenerCallback(
-                    PassiveListenerCallbackRegistrationRequest(packageName, config),
-                    callbackStub,
-                    StatusCallback(result)
-                )
+                if (config.isValidPassiveGoal()) {
+                    service.registerPassiveListenerCallback(
+                        PassiveListenerCallbackRegistrationRequest(packageName, config),
+                        callbackStub,
+                        StatusCallback(result)
+                    )
+                } else {
+                    result.setException(
+                        RemoteException("DataType for the requested passive goal is not tracked")
+                    )
+                }
             }
         Futures.addCallback(
             future,
