@@ -16,6 +16,22 @@
 
 package androidx.room;
 
+import android.os.CancellationSignal
+import java.util.concurrent.Callable
+
+@Suppress("UNUSED_PARAMETER")
 public class CoroutinesRoom {
 
+    public companion object {
+
+        @JvmStatic
+        public suspend fun <R> execute(
+            db: RoomDatabase,
+            inTransaction: Boolean,
+            cancellationSignal: CancellationSignal?,
+            callable: Callable<R>
+        ): R {
+            TODO()
+        }
+    }
 }
