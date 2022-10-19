@@ -17,15 +17,24 @@ interface MySdk {
 
     fun doMoreStuff()
 
-    suspend fun getMyInterface(): MyInterface
+    suspend fun getMyInterface(input: MyInterface): MyInterface
+
+    fun mutateMySecondInterface(input: MySecondInterface)
 }
 
 @PrivacySandboxInterface
 interface MyInterface {
     suspend fun doSomething(request: Request): Response
 
-    suspend fun getMyInterface(): MyInterface
+    suspend fun getMyInterface(input: MyInterface): MyInterface
 
+    suspend fun getMySecondInterface(input: MySecondInterface): MySecondInterface
+
+    fun doMoreStuff(x: Int)
+}
+
+@PrivacySandboxInterface
+interface MySecondInterface {
     fun doMoreStuff(x: Int)
 }
 
