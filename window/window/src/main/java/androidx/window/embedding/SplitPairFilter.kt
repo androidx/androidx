@@ -26,8 +26,10 @@ import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
 
 /**
- * Filter used to find if a pair of activities should be put in a split. Applied to the base /
- * primary activity and an intent starting a secondary activity.
+ * Filter for [SplitPairRule] and used to find if a pair of activities should be put in a split.
+ * It is used when a new activity is started from the primary activity.
+ * If the filter matches the primary [Activity.getComponentName] and the new started activity
+ * [Intent], it matches the [SplitPairRule] that holds this filter.
  */
 class SplitPairFilter(
     /**
@@ -59,6 +61,9 @@ class SplitPairFilter(
     private val secondaryActivityInfo: ActivityComponentInfo
         get() = ActivityComponentInfo(secondaryActivityName)
 
+    /**
+     * Returns `true` if this [SplitPairFilter] matches [primaryActivity] and [secondaryActivity].
+     */
     fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
         // Check if the activity component names match
         var match = areComponentsMatching(primaryActivity.componentName, primaryActivityName) &&
@@ -79,6 +84,10 @@ class SplitPairFilter(
         return match
     }
 
+    /**
+     * Returns `true` if this [SplitPairFilter] matches the [primaryActivity] and the
+     * [secondaryActivityIntent]
+     */
     fun matchesActivityIntentPair(
         primaryActivity: Activity,
         secondaryActivityIntent: Intent
