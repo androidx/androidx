@@ -67,7 +67,7 @@ internal class InnerNodeCoordinator(
     override var lookaheadDelegate: LookaheadDelegate? =
         if (layoutNode.lookaheadRoot != null) LookaheadDelegateImpl() else null
 
-    private inner class LookaheadDelegateImpl : LookaheadDelegate(this) {
+    private inner class LookaheadDelegateImpl : LookaheadDelegate(this@InnerNodeCoordinator) {
 
         // Lookahead measure
         override fun measure(constraints: Constraints): Placeable =

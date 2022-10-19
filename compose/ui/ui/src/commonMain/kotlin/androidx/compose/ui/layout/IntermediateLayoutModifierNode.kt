@@ -286,11 +286,13 @@ internal class IntermediateLayoutModifierNode(
             width: Int,
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
+            rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
         ) = object : MeasureResult {
             override val width = width
             override val height = height
             override val alignmentLines = alignmentLines
+            override val rulers = rulers
             override fun placeChildren() {
                 coordinator!!.placementScope.placementBlock()
             }

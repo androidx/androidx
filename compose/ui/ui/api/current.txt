@@ -2107,6 +2107,10 @@ package androidx.compose.ui.layout {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
   }
 
+  public final class HorizontalRuler extends androidx.compose.ui.layout.Ruler {
+    ctor public HorizontalRuler();
+  }
+
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface IntermediateMeasureScope extends androidx.compose.ui.layout.LookaheadScope kotlinx.coroutines.CoroutineScope androidx.compose.ui.layout.MeasureScope {
     method public long getLookaheadSize();
     property public abstract long lookaheadSize;
@@ -2243,15 +2247,21 @@ package androidx.compose.ui.layout {
   public interface MeasureResult {
     method public java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> getAlignmentLines();
     method public int getHeight();
+    method public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? getRulers();
     method public int getWidth();
     method public void placeChildren();
     property public abstract java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines;
     property public abstract int height;
+    property public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers;
     property public abstract int width;
   }
 
-  @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
+  @androidx.compose.ui.layout.MeasureScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
     method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+  }
+
+  @kotlin.DslMarker public @interface MeasureScopeMarker {
   }
 
   public interface Measured {
@@ -2346,6 +2356,7 @@ package androidx.compose.ui.layout {
 
   @androidx.compose.ui.layout.PlacementScopeMarker public abstract static class Placeable.PlacementScope {
     ctor public Placeable.PlacementScope();
+    method public float current(androidx.compose.ui.layout.Ruler, float defaultValue);
     method public androidx.compose.ui.layout.LayoutCoordinates? getCoordinates();
     method protected abstract androidx.compose.ui.unit.LayoutDirection getParentLayoutDirection();
     method protected abstract int getParentWidth();
@@ -2371,6 +2382,16 @@ package androidx.compose.ui.layout {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface RemeasurementModifier extends androidx.compose.ui.Modifier.Element {
     method public void onRemeasurementAvailable(androidx.compose.ui.layout.Remeasurement remeasurement);
+  }
+
+  public abstract sealed class Ruler {
+  }
+
+  @androidx.compose.ui.layout.MeasureScopeMarker public interface RulerScope extends androidx.compose.ui.unit.Density {
+    method public androidx.compose.ui.layout.LayoutCoordinates getCoordinates();
+    method public infix void provides(androidx.compose.ui.layout.Ruler, float value);
+    method public infix void providesRelative(androidx.compose.ui.layout.VerticalRuler, float value);
+    property public abstract androidx.compose.ui.layout.LayoutCoordinates coordinates;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScaleFactor {
@@ -2443,6 +2464,10 @@ package androidx.compose.ui.layout {
 
   public final class VerticalAlignmentLine extends androidx.compose.ui.layout.AlignmentLine {
     ctor public VerticalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
+  }
+
+  public final class VerticalRuler extends androidx.compose.ui.layout.Ruler {
+    ctor public VerticalRuler();
   }
 
 }
