@@ -227,6 +227,7 @@ testExtJunit = { module = "androidx.test.ext:junit", version.ref = "androidxTest
 testExtJunitKtx = { module = "androidx.test.ext:junit-ktx", version.ref = "androidxTestExtJunit" }
 testExtTruth = { module = "androidx.test.ext:truth", version.ref = "androidxTestExtTruth" }
 testMonitor = { module = "androidx.test:monitor", version.ref = "androidxTestMonitor" }
+testParameterInjector = { module = "com.google.testparameterinjector:test-parameter-injector", version = "1.9" }
 testRules = { module = "androidx.test:rules", version.ref = "androidxTestRules" }
 testRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }

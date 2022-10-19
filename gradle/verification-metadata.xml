@@ -65,7 +65,10 @@
          <trusted-key id="10ae8966a146e8be" group="com.google.crypto.tink"/>
          <trusted-key id="1188b69f6d6259ca" group="com.google.accompanist"/>
          <trusted-key id="11b581967f079a30a3e93140d57506cd188fd842" group="com.google.api.grpc"/>
-         <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382" group="org.snakeyaml"/>
+         <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382">
+            <trusting group="org.snakeyaml"/>
+            <trusting group="org.yaml" name="snakeyaml"/>
+         </trusted-key>
          <trusted-key id="12d16069219c90212a974d119ae296fd02e9f65b" group="org.apache.commons" name="commons-math3"/>
          <trusted-key id="13ac2213964abe1d1c147c0e1939a2520bab1d90" group="org.freemarker" name="freemarker"/>
          <trusted-key id="147b691a19097624902f4ea9689cbe64f4bc997f" group="^org[.]mockito($|([.].*))" regex="true"/>
@@ -73,6 +76,7 @@
          <trusted-key id="1597ab231b7add7e14b1d9c43f00db67ae236e2e" group="org.conscrypt"/>
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob"/>
          <trusted-key id="1861c322c56014b2" group="commons-lang"/>
+         <trusted-key id="187366a3ffe6bf8f94b9136a9987b20c8f6a3064" group="com.google.protobuf"/>
          <trusted-key id="190d5a957ff22273e601f7a7c92c5fec70161c62" group="org.codehaus.mojo"/>
          <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638" group="org.checkerframework"/>
          <trusted-key id="1b2718089ce964b8" group="com.thoughtworks.qdox"/>
@@ -339,7 +343,7 @@
          <trusted-key id="a33a0b49a4c1ab590b0a4ddc1364c5e2df3e99c5" group="org.reactivestreams"/>
          <trusted-key id="a40e24b5b408dbd5" group="org.robolectric"/>
          <trusted-key id="a413f67d71beec23add0ce0acb43338e060cf9fa">
-            <trusting group="com.google.code.findbugs" name="jsr305" version="2.0.2"/>
+            <trusting group="com.google.code.findbugs" name="jsr305"/>
             <trusting group="org.jacoco"/>
          </trusted-key>
          <trusted-key id="a4fd709cc4b0515f2e6af04e218fa0f6a941a037" group="com.github.kevinstern" name="software-and-algorithms"/>
@@ -452,6 +456,7 @@
          </trusted-key>
          <trusted-key id="e7dc75fc24fb3c8dfe8086ad3d5839a2262cbbfb" group="org.jetbrains.kotlinx"/>
          <trusted-key id="e85aed155021af8a6c6b7a4a7c7d8456294423ba" group="org.objenesis"/>
+         <trusted-key id="e8bf633b386b7ddcf1e1a9b3358a4abae72947c2" group="com.google.testparameterinjector"/>
          <trusted-key id="ea0b70b5050192c98cfa7e4f3f36885c24df4b75" group="org.mozilla" name="rhino"/>
          <trusted-key id="ea23db1360d9029481e7f2efecdfea3cb4493b94" group="jline" name="jline"/>
          <trusted-key id="eaa526b91dd83ba3e1b9636fa730529ca355a63e" group="org.ccil.cowan.tagsoup" name="tagsoup"/>
