@@ -22,6 +22,8 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
@@ -57,8 +59,7 @@ object SupportDbTypeNames {
         ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
     val SQLITE_OPEN_HELPER_CONFIG: ClassName =
         ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
-    val QUERY: ClassName =
-        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
+    val QUERY = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {
@@ -252,6 +253,13 @@ object KotlinTypeNames {
     val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
     val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
+}
+
+object RoomMemberNames {
+    val CURSOR_UTIL_GET_COLUMN_INDEX =
+        RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
+    val ROOM_SQL_QUERY_ACQUIRE =
+        RoomTypeNames.ROOM_SQL_QUERY.companionMember("acquire", isJvmStatic = true)
 }
 
 val DEFERRED_TYPES = listOf(

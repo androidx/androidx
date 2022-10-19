@@ -649,6 +649,34 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun rawQuery() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.sqlite.db.SupportSQLiteQuery
+
+            @Dao
+            interface MyDao {
+              @RawQuery(observedEntities = [MyEntity::class])
+              fun getEntity(sql: SupportSQLiteQuery): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

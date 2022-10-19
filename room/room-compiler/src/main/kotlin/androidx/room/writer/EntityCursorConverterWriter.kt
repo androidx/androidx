@@ -21,7 +21,7 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
@@ -62,8 +62,8 @@ class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedFunctio
                     typeName = XTypeName.PRIMITIVE_INT,
                     assignExpr = XCodeBlock.of(
                         language,
-                        "%T.getColumnIndex(%N, %S)",
-                        CURSOR_UTIL,
+                        "%M(%N, %S)",
+                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
                         cursorParamName,
                         it.columnName
                     )
