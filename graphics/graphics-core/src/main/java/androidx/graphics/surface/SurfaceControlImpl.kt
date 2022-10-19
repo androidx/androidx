@@ -194,6 +194,7 @@ internal interface SurfaceControlImpl {
          * @param listener [TransactionCommittedListener] instance that is invoked when the
          * transaction has been committed.
          */
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener

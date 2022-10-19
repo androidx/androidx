@@ -90,14 +90,18 @@ class GLFrontBufferedRendererTest {
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
-                transaction.addTransactionCommittedListener(
-                    Executors.newSingleThreadExecutor(),
-                    object : SurfaceControlCompat.TransactionCommittedListener {
-                        override fun onTransactionCommitted() {
-                            renderLatch.countDown()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
                         }
-                    }
-                )
+                    )
+                } else {
+                    renderLatch.countDown()
+                }
             }
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
@@ -173,13 +177,17 @@ class GLFrontBufferedRendererTest {
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
-                transaction.addTransactionCommittedListener(
-                    Executors.newSingleThreadExecutor(),
-                    object : SurfaceControlCompat.TransactionCommittedListener {
-                        override fun onTransactionCommitted() {
-                            renderLatch.countDown()
-                        }
-                    })
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
             }
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
@@ -422,13 +430,17 @@ class GLFrontBufferedRendererTest {
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
-                transaction.addTransactionCommittedListener(
-                    Executors.newSingleThreadExecutor(),
-                    object : SurfaceControlCompat.TransactionCommittedListener {
-                        override fun onTransactionCommitted() {
-                            renderLatch.countDown()
-                        }
-                    })
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
             }
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null

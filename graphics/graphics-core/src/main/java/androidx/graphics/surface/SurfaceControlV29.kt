@@ -23,8 +23,11 @@ import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOWN_TRANSFORM
 import androidx.graphics.lowlatency.SyncFenceImpl
 import androidx.graphics.lowlatency.SyncFenceV19
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
+import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
 import androidx.hardware.SyncFence
 import java.util.concurrent.Executor
 
@@ -83,12 +86,31 @@ internal class SurfaceControlV29 internal constructor(
      */
     class Transaction : SurfaceControlImpl.Transaction {
         private val transaction = SurfaceControlWrapper.Transaction()
-        private val uncommittedBufferCallbackMap = HashMap<SurfaceControlImpl, (() -> Unit)?>()
+        private val uncommittedBufferCallbackMap = HashMap<SurfaceControlImpl, BufferData?>()
+        private val pendingSetTransformCalls = HashMap<SurfaceControlImpl, Int>()
+
+        /**
+         * Class to wrap metadata around setBuffer calls. This is used to appropriately call
+         * the release callbacks as well as configure the buffer transform for older API levels
+         */
+        private class BufferData(
+            val width: Int,
+            val height: Int,
+            val releaseCallback: (() -> Unit)?
+        )
 
         /**
          * See [SurfaceControlWrapper.Transaction.commit]
          */
         override fun commit() {
+            setPendingBufferTransform()
+            updateReleaseCallbacks()
+            uncommittedBufferCallbackMap.clear()
+            pendingSetTransformCalls.clear()
+            transaction.commit()
+        }
+
+        private fun updateReleaseCallbacks() {
             // store prev committed callbacks so we only need 1 onComplete callback
             val callbackInvokeList = mutableListOf<(() -> Unit)>()
 
@@ -98,7 +120,8 @@ internal class SurfaceControlV29 internal constructor(
                     currActiveBufferReleaseCallback?.let { callbackInvokeList.add(it) }
 
                     // add as new active buffer callback
-                    currActiveBufferReleaseCallback = uncommittedBufferCallbackMap[surfaceControl]
+                    currActiveBufferReleaseCallback =
+                        uncommittedBufferCallbackMap[surfaceControl]?.releaseCallback
                 }
             }
 
@@ -112,9 +135,38 @@ internal class SurfaceControlV29 internal constructor(
 
                 this.addTransactionCompletedListener(callbackListener)
             }
+        }
 
-            uncommittedBufferCallbackMap.clear()
-            transaction.commit()
+        private fun setPendingBufferTransform() {
+            for (surfaceControl in pendingSetTransformCalls.keys) {
+                uncommittedBufferCallbackMap[surfaceControl]?.let {
+                    val transformation = pendingSetTransformCalls.getOrDefault(
+                        surfaceControl,
+                        UNKNOWN_TRANSFORM
+                    )
+                    if (transformation != UNKNOWN_TRANSFORM) {
+                        val dstWidth: Int
+                        val dstHeight: Int
+                        if (transformation == BUFFER_TRANSFORM_ROTATE_90 ||
+                            transformation == BUFFER_TRANSFORM_ROTATE_270
+                        ) {
+                            dstWidth = it.height
+                            dstHeight = it.width
+                        } else {
+                            dstWidth = it.width
+                            dstHeight = it.height
+                        }
+                        transaction.setGeometry(
+                            surfaceControl.asWrapperSurfaceControl(),
+                            it.width,
+                            it.height,
+                            dstWidth,
+                            dstHeight,
+                            transformation
+                        )
+                    }
+                }
+            }
         }
 
         /**
@@ -152,7 +204,12 @@ internal class SurfaceControlV29 internal constructor(
             releaseCallback: (() -> Unit)?
         ): SurfaceControlImpl.Transaction {
             // we have a previous mapping in the same transaction, invoke callback
-            uncommittedBufferCallbackMap.put(surfaceControl, releaseCallback)?.invoke()
+            val data = BufferData(
+                width = buffer.width,
+                height = buffer.height,
+                releaseCallback = releaseCallback
+            )
+            uncommittedBufferCallbackMap.put(surfaceControl, data)?.releaseCallback?.invoke()
 
             // Ensure if we have a null value, we default to the default value for SyncFence
             // argument to prevent null pointer dereference
@@ -276,12 +333,18 @@ internal class SurfaceControlV29 internal constructor(
         /**
          * See [SurfaceControlWrapper.Transaction.setBufferTransform]
          */
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
             @SurfaceControlCompat.Companion.BufferTransform transformation: Int
         ): Transaction {
-            transaction.setBufferTransform(surfaceControl.asWrapperSurfaceControl(), transformation)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                transaction.setBufferTransform(
+                    surfaceControl.asWrapperSurfaceControl(),
+                    transformation
+                )
+            } else {
+                pendingSetTransformCalls[surfaceControl] = transformation
+            }
             return this
         }
 

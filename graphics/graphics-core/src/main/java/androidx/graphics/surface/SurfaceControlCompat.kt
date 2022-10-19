@@ -325,6 +325,7 @@ class SurfaceControlCompat internal constructor(
          * transaction has been committed.
          */
         @Suppress("PairedRegistration")
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener

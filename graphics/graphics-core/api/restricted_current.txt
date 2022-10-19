@@ -278,7 +278,7 @@ package androidx.graphics.surface {
 
   public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
     ctor public SurfaceControlCompat.Transaction();
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
     method public void close();
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);

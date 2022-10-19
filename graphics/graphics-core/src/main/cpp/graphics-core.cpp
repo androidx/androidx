@@ -484,3 +484,20 @@ Java_androidx_graphics_lowlatency_BufferTransformHintResolver_00024Companion_get
     __system_property_get("ro.surface_flinger.primary_display_orientation", name);
     return (*env).NewStringUTF(name);
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetGeometry(JNIEnv *env, jobject thiz,
+                                                                       jlong surfaceTransaction,
+                                                                       jlong surfaceControl,
+                                                                       jint bufferWidth,
+                                                                       jint bufferHeight,
+                                                                       jint dstWidth,
+                                                                       jint dstHeight,
+                                                                       jint transformation) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+    auto src = ARect{0, 0, bufferWidth, bufferHeight};
+    auto dest = ARect{0, 0, dstWidth, dstHeight};
+    ASurfaceTransaction_setGeometry(st, sc, src, dest, transformation);
+}
