@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application>
-        <uses-library android:name="android.test.runner"/>
-        <activity android:name="androidx.emoji2.emojipicker.EmojiPickerViewTestActivity"/>
-        <activity android:name="androidx.emoji2.emojipicker.EmojiViewTestActivity" />
-    </application>
-</manifest>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportHeight="24"
+    android:viewportWidth="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14.4,6L14,4H5v17h2v-7h5.6l0.4,2h7V6H14.4z"/>
+</vector>
