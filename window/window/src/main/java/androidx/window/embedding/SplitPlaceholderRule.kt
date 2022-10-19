@@ -17,14 +17,11 @@
 package androidx.window.embedding
 
 import android.content.Intent
-import android.util.LayoutDirection
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
-import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 
 /**
  * Configuration rules for split placeholders.
@@ -56,33 +53,6 @@ class SplitPlaceholderRule : SplitRule {
      * @see SplitRule.FinishBehavior
      */
     val finishPrimaryWithPlaceholder: FinishBehavior
-
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.SplitPlaceholderRule.Builder")
-    )
-    constructor(
-        filters: Set<ActivityFilter>,
-        placeholderIntent: Intent,
-        isSticky: Boolean,
-        finishPrimaryWithPlaceholder: Int = ALWAYS.value,
-        @IntRange(from = 0) minWidth: Int = 0,
-        @IntRange(from = 0) minSmallestWidth: Int = 0,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @IntRange(from = 0, to = 3) layoutDirection: Int = LayoutDirection.LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
-        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
-        checkArgument(finishPrimaryWithPlaceholder != NEVER.value,
-            "NEVER is not a valid configuration for SplitPlaceholderRule. " +
-                "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
-        this.filters = filters.toSet()
-        this.placeholderIntent = placeholderIntent
-        this.isSticky = isSticky
-        this.finishPrimaryWithPlaceholder = getFinishBehaviorFromValue(finishPrimaryWithPlaceholder)
-    }
 
     internal constructor(
         tag: String? = null,
@@ -173,17 +143,12 @@ class SplitPlaceholderRule : SplitRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return SplitPlaceholderRule(
-            tag,
-            newSet.toSet(),
-            placeholderIntent,
-            isSticky,
-            finishPrimaryWithPlaceholder,
-            minWidth,
-            minHeight,
-            minSmallestWidth,
-            defaultSplitAttributes,
-        )
+        return Builder(newSet.toSet(), placeholderIntent, minWidth, minHeight, minSmallestWidth)
+            .setTag(tag)
+            .setSticky(isSticky)
+            .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
+            .setDefaultSplitAttributes(defaultSplitAttributes)
+            .build()
     }
 
     override fun equals(other: Any?): Boolean {
