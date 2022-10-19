@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -260,6 +261,17 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             }
 
             // TODO: Copy CameraEventCallback (used for extension)
+
+            // Copy extended Camera2 configurations
+            val extendedConfig = MutableOptionsBundle.create().apply {
+                camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->
+                    insertOption(
+                        SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                        physicalCameraId
+                    )
+                }
+            }
+            builder.addImplementationOptions(extendedConfig)
 
             // Copy extension keys
             builder.addImplementationOptions(camera2Config.captureRequestOptions)

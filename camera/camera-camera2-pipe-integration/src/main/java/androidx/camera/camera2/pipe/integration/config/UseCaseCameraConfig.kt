@@ -20,12 +20,14 @@ package androidx.camera.camera2.pipe.integration.config
 
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -83,16 +85,22 @@ class UseCaseCameraConfig(
         // TODO: This may need to combine outputs that are (or will) share the same output
         //  imageReader or surface.
         val sessionConfigAdapter = SessionConfigAdapter(useCases)
-        sessionConfigAdapter.getValidSessionConfigOrNull()?.surfaces?.forEach {
-            val outputConfig = CameraStream.Config.create(
-                size = it.prescribedSize,
-                format = StreamFormat(it.prescribedStreamFormat),
-                camera = cameraConfig.cameraId
-            )
-            streamConfigMap[outputConfig] = it
-            Log.debug {
-                "Prepare config for: $it " +
-                    "(${it.prescribedSize}, ${it.prescribedStreamFormat})"
+        sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
+            sessionConfig.surfaces.forEach { deferrableSurface ->
+                val outputConfig = CameraStream.Config.create(
+                    size = deferrableSurface.prescribedSize,
+                    format = StreamFormat(deferrableSurface.prescribedStreamFormat),
+                    camera = CameraId(
+                        sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(
+                            cameraConfig.cameraId.value
+                        )!!
+                    )
+                )
+                streamConfigMap[outputConfig] = deferrableSurface
+                Log.debug {
+                    "Prepare config for: $deferrableSurface (${deferrableSurface.prescribedSize}," +
+                        " ${deferrableSurface.prescribedStreamFormat})"
+                }
             }
         }
 

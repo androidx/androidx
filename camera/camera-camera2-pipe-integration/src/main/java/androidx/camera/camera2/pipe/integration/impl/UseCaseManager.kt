@@ -23,6 +23,8 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import javax.inject.Inject
@@ -55,6 +57,7 @@ import kotlinx.coroutines.joinAll
  *  both "attached" and "active". This means we should have a camera opened, a capture session with
  *  the streams created and have capture requests submitting.
  */
+@OptIn(ExperimentalCamera2Interop::class)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class UseCaseManager @Inject constructor(
@@ -62,6 +65,7 @@ class UseCaseManager @Inject constructor(
     private val builder: UseCaseCameraComponent.Builder,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
+    private val camera2CameraControl: Camera2CameraControl,
     cameraProperties: CameraProperties
 ) {
     private val lock = Any()
@@ -80,6 +84,8 @@ class UseCaseManager @Inject constructor(
         get() = _activeComponent?.getUseCaseCamera()
 
     private val closingCameraJobs = mutableListOf<Job>()
+
+    private val allControls = controls.toMutableSet().apply { add(camera2CameraControl) }
 
     /**
      * This attaches the specified [useCases] to the current set of attached use cases. When any
@@ -222,7 +228,7 @@ class UseCaseManager @Inject constructor(
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
-            for (control in controls) {
+            for (control in allControls) {
                 control.useCaseCamera = null
                 control.reset()
             }
@@ -231,7 +237,7 @@ class UseCaseManager @Inject constructor(
 
         // Create and configure the new camera component.
         _activeComponent = builder.config(UseCaseCameraConfig(useCases)).build()
-        for (control in controls) {
+        for (control in allControls) {
             control.useCaseCamera = camera
         }
 

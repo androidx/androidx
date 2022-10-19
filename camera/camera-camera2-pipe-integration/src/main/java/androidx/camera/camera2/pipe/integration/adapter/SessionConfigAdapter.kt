@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
@@ -80,6 +81,12 @@ class SessionConfigAdapter(
                     SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
                 )
             }
+        }
+    }
+
+    companion object {
+        fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
+            return Camera2ImplConfig(implementationOptions)
         }
     }
 }
