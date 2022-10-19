@@ -155,13 +155,16 @@ public fun Picker(
                             drawContent()
                             val visibleItems =
                                 state.scalingLazyListState.layoutInfo.visibleItemsInfo
-                            val centerItem =
-                                visibleItems.find { info ->
-                                    info.index == state.scalingLazyListState.centerItemIndex
-                                } ?: visibleItems[visibleItems.size / 2]
-                            val shimHeight = (size.height - centerItem.unadjustedSize.toFloat() -
-                                separation.toPx()) / 2.0f
-                            drawShim(gradientColor, shimHeight)
+                            if (visibleItems.isNotEmpty()) {
+                                val centerItem =
+                                    visibleItems.find { info ->
+                                        info.index == state.scalingLazyListState.centerItemIndex
+                                    } ?: visibleItems[visibleItems.size / 2]
+                                val shimHeight =
+                                    (size.height - centerItem.unadjustedSize.toFloat() -
+                                        separation.toPx()) / 2.0f
+                                drawShim(gradientColor, shimHeight)
+                            }
                         }
                         // b/223386180 - add padding when drawing rectangles to
                         // prevent jitter on screen.
