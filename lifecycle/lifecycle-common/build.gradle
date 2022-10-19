@@ -15,14 +15,17 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("java-library")
+    id("kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
