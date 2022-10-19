@@ -75,6 +75,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     };
     this.__preparedStmtOfDeleteByUid = new SharedSQLiteStatement(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM user where uid = ?";
         return _query;
@@ -82,6 +83,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     };
     this.__preparedStmtOfDeleteEverything = new SharedSQLiteStatement(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM user";
         return _query;
@@ -311,7 +313,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
-          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          final Integer _result = _stmt.executeUpdateDelete();
           __db.setTransactionSuccessful();
           return _result;
         } finally {
@@ -332,7 +334,7 @@ public final class DeletionDao_Impl implements DeletionDao {
         _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
-          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          final Integer _result = _stmt.executeUpdateDelete();
           __db.setTransactionSuccessful();
           return _result;
         } finally {

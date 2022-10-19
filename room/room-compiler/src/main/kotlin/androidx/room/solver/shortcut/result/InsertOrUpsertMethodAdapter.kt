@@ -27,7 +27,6 @@ import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
-import androidx.room.ext.KotlinTypeNames
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -217,7 +216,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
                 } else if (methodReturnType == ReturnType.VOID_OBJECT) {
                     addStatement("return null")
                 } else if (methodReturnType == ReturnType.UNIT && language == CodeLanguage.JAVA) {
-                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
+                    addStatement("return %T.INSTANCE", Unit::class.asClassName())
                 }
             }
             nextControlFlow("finally").apply {

@@ -606,6 +606,49 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun preparedQueryAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("INSERT INTO MyEntity (id) VALUES (:id)")
+              fun insertEntity(id: Long)
+
+              @Query("INSERT INTO MyEntity (id) VALUES (:id)")
+              fun insertEntityReturnLong(id: Long): Long
+
+              @Query("UPDATE MyEntity SET text = :text")
+              fun updateEntity(text: String)
+
+              @Query("UPDATE MyEntity SET text = :text WHERE id = :id")
+              fun updateEntityReturnInt(id: Long, text: String): Int
+
+              @Query("DELETE FROM MyEntity")
+              fun deleteEntity()
+
+              @Query("DELETE FROM MyEntity")
+              fun deleteEntityReturnInt(): Int
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val id: Long,
+                val text: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }
