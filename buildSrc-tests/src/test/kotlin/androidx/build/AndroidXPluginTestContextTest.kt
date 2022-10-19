@@ -20,6 +20,7 @@ import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.gradle.testkit.runner.internal.DefaultBuildResult
 import org.junit.AssumptionViolatedException
+import org.junit.Ignore
 import org.junit.Test
 
 class AndroidXPluginTestContextTest {
@@ -30,6 +31,7 @@ class AndroidXPluginTestContextTest {
         }
     }
 
+    @Ignore // b/254339684
     @Test
     fun betterDebuggingForClasspathIssues() = pluginTest {
         thrown {
@@ -50,6 +52,7 @@ class AndroidXPluginTestContextTest {
         return buildResult("java.lang.ClassNotFoundException: $className")
     }
 
+    @Ignore // b/254339684
     @Test
     fun betterDebuggingForClasspathIssuesWhenThrowing() = pluginTest {
         thrown {
