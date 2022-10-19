@@ -20,11 +20,18 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraComponentBuilder
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asExecutor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -32,6 +39,19 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class UseCaseManagerTest {
+    private val useCaseThreads by lazy {
+        val dispatcher = Dispatchers.Default
+        val cameraScope = CoroutineScope(
+            Job() +
+                dispatcher
+        )
+
+        UseCaseThreads(
+            cameraScope,
+            dispatcher.asExecutor(),
+            dispatcher
+        )
+    }
 
     @Test
     fun enabledUseCasesEmpty_whenUseCaseAttachedOnly() {
@@ -152,11 +172,17 @@ class UseCaseManagerTest {
         assertThat(enabledUseCases).isEmpty()
     }
 
+    @OptIn(ExperimentalCamera2Interop::class)
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun createUseCaseManager() = UseCaseManager(
         cameraConfig = CameraConfig(CameraId("0")),
         builder = FakeUseCaseCameraComponentBuilder(),
         controls = HashSet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
-        cameraProperties = FakeCameraProperties()
+        cameraProperties = FakeCameraProperties(),
+        camera2CameraControl = Camera2CameraControl.create(
+            FakeCamera2CameraControlCompat(),
+            useCaseThreads,
+            ComboRequestListener()
+        )
     )
 }

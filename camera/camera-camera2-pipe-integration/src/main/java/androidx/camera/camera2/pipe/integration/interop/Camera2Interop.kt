@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.impl.DEVICE_STATE_CALLBACK_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_CAPTURE_CALLBACK_OPTION
+import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_STATE_CALLBACK_OPTION
 import androidx.camera.camera2.pipe.integration.impl.TEMPLATE_TYPE_OPTION
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
@@ -196,10 +197,10 @@ class Camera2Interop private constructor() {
          * @param cameraId The desired camera ID.
          * @return The current Extender.
          */
-
         @RequiresApi(28)
         fun setPhysicalCameraId(@Suppress("UNUSED_PARAMETER") cameraId: String): Extender<T> {
-            TODO()
+            baseBuilder.mutableConfig.insertOption(SESSION_PHYSICAL_CAMERA_ID_OPTION, cameraId)
+            return this
         }
     }
 }
