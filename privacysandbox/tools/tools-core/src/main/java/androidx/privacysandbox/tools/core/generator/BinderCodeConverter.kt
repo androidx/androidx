@@ -76,6 +76,10 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (callback != null) {
             return CodeBlock.of("%T(%L)", callback.stubDelegateNameSpec(), expression)
         }
+        val sandboxInterface = api.interfaceMap[type]
+        if (sandboxInterface != null) {
+            return CodeBlock.of("%T(%L)", sandboxInterface.stubDelegateNameSpec(), expression)
+        }
         return CodeBlock.of(expression)
     }
 
@@ -97,6 +101,10 @@ class BinderCodeConverter(private val api: ParsedApi) {
         val callback = api.callbackMap[type]
         if (callback != null) {
             return callback.aidlType().innerType.poetSpec()
+        }
+        val sandboxInterface = api.interfaceMap[type]
+        if (sandboxInterface != null) {
+            return sandboxInterface.aidlType().innerType.poetSpec()
         }
         return type.poetSpec()
     }

@@ -45,12 +45,14 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
             return emptyList()
         }
         return api.services.map(::generateInterfaceStubDelegate) +
+            api.interfaces.map(::generateInterfaceStubDelegate) +
             generateTransportCancellationCallback()
     }
 
-    fun generateInterfaceStubDelegate(service: AnnotatedInterface): FileSpec {
-        val className = service.stubDelegateNameSpec().simpleName
-        val aidlBaseClassName = ClassName(service.type.packageName, service.aidlName(), "Stub")
+    fun generateInterfaceStubDelegate(annotatedInterface: AnnotatedInterface): FileSpec {
+        val className = annotatedInterface.stubDelegateNameSpec().simpleName
+        val aidlBaseClassName =
+            ClassName(annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub")
 
         val classSpec = TypeSpec.classBuilder(className).build {
             superclass(aidlBaseClassName)
@@ -59,15 +61,15 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
                 listOf(
                     PropertySpec.builder(
                         "delegate",
-                        service.type.poetSpec(),
+                        annotatedInterface.type.poetSpec(),
                     ).addModifiers(KModifier.PRIVATE).build()
                 ), KModifier.INTERNAL
             )
 
-            addFunctions(service.methods.map(::toFunSpec))
+            addFunctions(annotatedInterface.methods.map(::toFunSpec))
         }
 
-        return FileSpec.builder(service.type.packageName, className).build {
+        return FileSpec.builder(annotatedInterface.type.packageName, className).build {
             addType(classSpec)
         }
     }
@@ -122,7 +124,10 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
 
     private fun getParameters(method: Method) = buildList {
         addAll(method.parameters.map { parameter ->
-            ParameterSpec(parameter.name, binderCodeConverter.convertToBinderType(parameter.type))
+            ParameterSpec(
+                parameter.name,
+                binderCodeConverter.convertToBinderType(parameter.type)
+            )
         })
         if (method.isSuspend) add(
             ParameterSpec(
