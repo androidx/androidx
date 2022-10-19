@@ -5,7 +5,7 @@ import kotlin.Int
 import kotlin.Unit
 
 public class SdkCallbackStubDelegate internal constructor(
-  private val `delegate`: SdkCallback,
+  public val `delegate`: SdkCallback,
 ) : ISdkCallback.Stub() {
   public override fun onEmptyEvent(): Unit {
     delegate.onEmptyEvent()
