@@ -421,8 +421,9 @@ public class UiObject2 implements Searchable {
 
     /** Clicks on this object. */
     public void click() {
-        Log.v(TAG, String.format("click(center=%s)", getVisibleCenter()));
-        mGestureController.performGesture(Gestures.click(getVisibleCenter(), getDisplayId()));
+        Point center = getVisibleCenter();
+        Log.v(TAG, String.format("click(center=%s)", center));
+        mGestureController.performGesture(Gestures.click(center, getDisplayId()));
     }
 
     /**
@@ -439,10 +440,9 @@ public class UiObject2 implements Searchable {
 
     /** Performs a click on this object that lasts for {@code duration} milliseconds. */
     public void click(long duration) {
-        Log.v(TAG, String.format("click(center=%s,duration=%d)",
-                getVisibleCenter(), duration));
-        mGestureController.performGesture(
-                Gestures.click(getVisibleCenter(), duration, getDisplayId()));
+        Point center = getVisibleCenter();
+        Log.v(TAG, String.format("click(center=%s,duration=%d)", center, duration));
+        mGestureController.performGesture(Gestures.click(center, duration, getDisplayId()));
     }
 
     /**
@@ -461,10 +461,10 @@ public class UiObject2 implements Searchable {
 
     /** Clicks on this object, and waits for the given condition to become true. */
     public <U> U clickAndWait(@NonNull EventCondition<U> condition, long timeout) {
-        Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)",
-                getVisibleCenter(), timeout));
+        Point center = getVisibleCenter();
+        Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)", center, timeout));
         return mGestureController.performGestureAndWait(condition, timeout,
-                Gestures.click(getVisibleCenter(), getDisplayId()));
+                Gestures.click(center, getDisplayId()));
     }
 
     /**
@@ -503,17 +503,16 @@ public class UiObject2 implements Searchable {
         if (speed < 0) {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
-        Log.v(TAG, String.format("drag(start=%s,dest=%s,speed=%d)",
-                getVisibleCenter(), dest, speed));
-        mGestureController.performGesture(
-                Gestures.drag(getVisibleCenter(), dest, speed, getDisplayId()));
+        Point center = getVisibleCenter();
+        Log.v(TAG, String.format("drag(start=%s,dest=%s,speed=%d)", center, dest, speed));
+        mGestureController.performGesture(Gestures.drag(center, dest, speed, getDisplayId()));
     }
 
     /** Performs a long click on this object. */
     public void longClick() {
-        Log.v(TAG, String.format("longClick(center=%s)",
-                getVisibleCenter()));
-        mGestureController.performGesture(Gestures.longClick(getVisibleCenter(), getDisplayId()));
+        Point center = getVisibleCenter();
+        Log.v(TAG, String.format("longClick(center=%s)", center));
+        mGestureController.performGesture(Gestures.longClick(center, getDisplayId()));
     }
 
     /**
@@ -538,10 +537,11 @@ public class UiObject2 implements Searchable {
         if (speed < 0) {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
+        Rect bounds = getVisibleBoundsForGestures();
         Log.v(TAG, String.format("pinchClose(bounds=%s,percent=%f,speed=%d)",
-                getVisibleBoundsForGestures(), percent, speed));
+                bounds, percent, speed));
         mGestureController.performGesture(
-                Gestures.pinchClose(getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
+                Gestures.pinchClose(bounds, percent, speed, getDisplayId()));
     }
 
     /**
@@ -566,10 +566,11 @@ public class UiObject2 implements Searchable {
         if (speed < 0) {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
+        Rect bounds = getVisibleBoundsForGestures();
         Log.v(TAG, String.format("pinchOpen(bounds=%s,percent=%f,speed=%d)",
-                getVisibleBoundsForGestures(), percent, speed));
+                bounds, percent, speed));
         mGestureController.performGesture(
-                Gestures.pinchOpen(getVisibleBoundsForGestures(), percent, speed, getDisplayId()));
+                Gestures.pinchOpen(bounds, percent, speed, getDisplayId()));
     }
 
     /**
