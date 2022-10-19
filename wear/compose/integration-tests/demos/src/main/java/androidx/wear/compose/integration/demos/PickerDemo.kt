@@ -266,7 +266,8 @@ public fun TimePickerWith12HourClock(
     )
     val periodState = rememberPickerState(
         initialNumberOfOptions = 2,
-        initiallySelectedOption = time[ChronoField.AMPM_OF_DAY]
+        initiallySelectedOption = time[ChronoField.AMPM_OF_DAY],
+        repeatItems = false
     )
     val hoursContentDescription by remember {
         derivedStateOf { "${hourState.selectedOption + 1} hours" }

@@ -334,6 +334,7 @@ internal fun calculateScaleAndAlpha(
  * allow for content padding in order to determine the adjusted position of the item within the
  * viewport in order to correctly calculate the scaling to apply.
  * @param viewportHeightPx the height of the viewport in pixels
+ * @param viewportCenterLinePx the center line of the viewport in pixels
  * @param scalingParams the scaling params to use for determining the scaled size of the item
  * @param beforeContentPaddingPx the number of pixels of padding before the first item
  * @param anchorType the type of pivot to use for the center item when calculating position and
@@ -347,6 +348,7 @@ internal fun calculateItemInfo(
     item: LazyListItemInfo,
     verticalAdjustment: Int,
     viewportHeightPx: Int,
+    viewportCenterLinePx: Int,
     scalingParams: ScalingParams,
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
@@ -372,14 +374,14 @@ internal fun calculateItemInfo(
     val offset = convertToCenterOffset(
         anchorType = anchorType,
         itemScrollOffset = scaledItemTop,
-        viewPortSizeInPx = viewportHeightPx,
+        viewportCenterLinePx = viewportCenterLinePx,
         beforeContentPaddingInPx = beforeContentPaddingPx,
         itemSizeInPx = scaledHeight
     )
     val unadjustedOffset = convertToCenterOffset(
         anchorType = anchorType,
         itemScrollOffset = item.offset,
-        viewPortSizeInPx = viewportHeightPx,
+        viewportCenterLinePx = viewportCenterLinePx,
         beforeContentPaddingInPx = beforeContentPaddingPx,
         itemSizeInPx = item.size
     )
@@ -445,6 +447,33 @@ internal data class ScaleAndAlpha(
     companion object {
         internal val noScaling = ScaleAndAlpha(1.0f, 1.0f)
     }
+}
+
+/**
+ * Calculate the offset from the viewport center line of the Start|Center of an items unadjusted
+ * or scaled size. The for items with an height that is an odd number and that have
+ * ScalingLazyListAnchorType.Center the offset will be rounded down. E.g. An item which is 19 pixels
+ * in height will have a center offset of 9 pixes.
+ *
+ * @param anchorType the anchor type of the ScalingLazyColumn
+ * @param itemScrollOffset the LazyListItemInfo offset of the item
+ * @param viewportCenterLinePx the value to use as the center line of the viewport
+ * @param beforeContentPaddingInPx any content padding that has been applied before the contents
+ * @param itemSizeInPx the size of the item
+ */
+internal fun convertToCenterOffset(
+    anchorType: ScalingLazyListAnchorType,
+    itemScrollOffset: Int,
+    viewportCenterLinePx: Int,
+    beforeContentPaddingInPx: Int,
+    itemSizeInPx: Int
+): Int {
+    return itemScrollOffset - viewportCenterLinePx + beforeContentPaddingInPx +
+        if (anchorType == ScalingLazyListAnchorType.ItemStart) {
+            0
+        } else {
+            itemSizeInPx / 2
+        }
 }
 
 /**
