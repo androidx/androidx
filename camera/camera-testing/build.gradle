@@ -47,11 +47,23 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {
     defaultConfig {
         externalNativeBuild {
+            multiDexEnabled = true
             cmake {
                 cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"

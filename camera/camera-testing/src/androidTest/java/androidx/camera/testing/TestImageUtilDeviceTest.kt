@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.testing
-
 import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Color.BLUE
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.graphics.Color.YELLOW
 import android.graphics.Rect
-import android.os.Build
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
-
 /**
  * Unit tests for [TestImageUtil]
  */
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class TestImageUtilTest {
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
+
+class TestImageUtilDeviceTest {
 
     companion object {
         private const val WIDTH = 640
