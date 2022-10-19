@@ -20,6 +20,7 @@ import androidx.build.AndroidXSelfTestProject.Companion.cubaneKmpProject
 import androidx.build.AndroidXSelfTestProject.Companion.cubaneProject
 import net.saff.checkmark.Checkmark.Companion.check
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 
 class AndroidXRootPluginTest {
@@ -49,6 +50,7 @@ class AndroidXRootPluginTest {
         }
     }
 
+    @Ignore // b/254339684
     @Test
     fun unzipSourcesWithCubane() = pluginTest {
         setupDocsProjects(cubaneProject)
