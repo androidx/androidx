@@ -1,14 +1,20 @@
 #!/bin/bash
 
 function usage() {
-  echo "usage: $0 <gradle_arguments>"
+  echo "usage: $0 [--skip-if-empty] <gradle_arguments>"
   echo
   echo "Runs the ktlint Gradle task with the provided gradle_arguments, if any of the files to check with .kt(s). Specify files to check using --file=<path> arguments."
+  echo
+  echo "--skip-if-empty: don't output a usage error if no arguments are provided"
   exit 1
 }
 
 if [ "$1" == "" ]; then
   usage
+fi
+
+if [ "$1" == "--skip-if-empty" ]; then
+  shift
 fi
 
 PROJECT_ROOT=$(dirname "$0")/..
