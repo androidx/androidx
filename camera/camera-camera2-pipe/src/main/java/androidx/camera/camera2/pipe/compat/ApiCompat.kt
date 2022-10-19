@@ -311,4 +311,21 @@ internal object Api33Compat {
     fun setMirrorMode(outputConfig: OutputConfiguration, mirrorMode: Int) {
         outputConfig.mirrorMode = mirrorMode
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getMirrorMode(outputConfig: OutputConfiguration): Int {
+        return outputConfig.mirrorMode
+    }
+    @JvmStatic
+    @DoNotInline
+    fun setTimestampBase(outputConfig: OutputConfiguration, timestampBase: Int) {
+        outputConfig.timestampBase = timestampBase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getTimestampBase(outputConfig: OutputConfiguration): Int {
+        return outputConfig.timestampBase
+    }
 }

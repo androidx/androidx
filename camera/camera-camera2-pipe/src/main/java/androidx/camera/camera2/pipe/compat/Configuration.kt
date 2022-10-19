@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
+import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.Log
@@ -137,6 +138,7 @@ internal class AndroidOutputConfiguration(
             surface: Surface?,
             outputType: OutputType = OutputType.SURFACE,
             mirrorMode: MirrorMode? = null,
+            timestampBase: TimestampBase? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -205,6 +207,19 @@ internal class AndroidOutputConfiguration(
                             "${Build.VERSION.SDK_INT}. This may result in unexpected behavior. " +
                             "Requested $mirrorMode"
                         }
+                    }
+                }
+            }
+
+            if (timestampBase != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setTimestampBase(configuration, timestampBase.value)
+                } else {
+                    if (timestampBase != TimestampBase.TIMESTAMP_BASE_DEFAULT) {
+                        Log.info { "The timestamp base on API ${Build.VERSION.SDK_INT} will " +
+                            "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
+                            " adjusts timestamps based on the output target. " +
+                            "Requested $timestampBase" }
                     }
                 }
             }
