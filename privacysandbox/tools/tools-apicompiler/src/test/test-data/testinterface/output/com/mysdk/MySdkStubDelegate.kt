@@ -10,7 +10,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 public class MySdkStubDelegate internal constructor(
-  private val `delegate`: MySdk,
+  public val `delegate`: MySdk,
 ) : IMySdk.Stub() {
   public override fun doStuff(
     x: Int,
@@ -68,10 +68,11 @@ public class MySdkStubDelegate internal constructor(
     delegate.doMoreStuff()
   }
 
-  public override fun getMyInterface(transactionCallback: IMyInterfaceTransactionCallback): Unit {
+  public override fun getMyInterface(input: IMyInterface,
+      transactionCallback: IMyInterfaceTransactionCallback): Unit {
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
-        val result = delegate.getMyInterface()
+        val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
         transactionCallback.onSuccess(MyInterfaceStubDelegate(result))
       }
       catch (t: Throwable) {
@@ -80,5 +81,9 @@ public class MySdkStubDelegate internal constructor(
     }
     val cancellationSignal = TransportCancellationCallback() { job.cancel() }
     transactionCallback.onCancellable(cancellationSignal)
+  }
+
+  public override fun mutateMySecondInterface(input: IMySecondInterface): Unit {
+    delegate.mutateMySecondInterface((input as MySecondInterfaceStubDelegate).delegate)
   }
 }

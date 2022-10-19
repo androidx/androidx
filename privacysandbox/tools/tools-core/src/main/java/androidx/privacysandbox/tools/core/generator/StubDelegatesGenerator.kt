@@ -62,7 +62,7 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
                     PropertySpec.builder(
                         "delegate",
                         annotatedInterface.type.poetSpec(),
-                    ).addModifiers(KModifier.PRIVATE).build()
+                    ).addModifiers(KModifier.PUBLIC).build()
                 ), KModifier.INTERNAL
             )
 

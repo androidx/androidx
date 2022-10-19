@@ -45,6 +45,11 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (callback != null) {
             return CodeBlock.of("%T(%L)", callback.clientProxyNameSpec(), expression)
         }
+        val sandboxInterface = api.interfaceMap[type]
+        if (sandboxInterface != null) {
+            return CodeBlock.of(
+                "(%L as %T).delegate", expression, sandboxInterface.stubDelegateNameSpec())
+        }
         return CodeBlock.of(expression)
     }
 
