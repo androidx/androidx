@@ -665,9 +665,8 @@ public final class ComplexDao_Impl extends ComplexDao {
 
     @Override
     public User getUserViaRawQuery(final SupportSQLiteQuery rawQuery) {
-        final SupportSQLiteQuery _internalQuery = rawQuery;
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _internalQuery, false, null);
+        final Cursor _cursor = DBUtil.query(__db, rawQuery, false, null);
         try {
             final User _result;
             if (_cursor.moveToFirst()) {

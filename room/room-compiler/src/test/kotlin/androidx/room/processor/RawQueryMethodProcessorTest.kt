@@ -57,7 +57,7 @@ class RawQueryMethodProcessorTest {
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
@@ -96,7 +96,7 @@ class RawQueryMethodProcessorTest {
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
@@ -119,7 +119,7 @@ class RawQueryMethodProcessorTest {
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
@@ -197,7 +197,7 @@ class RawQueryMethodProcessorTest {
                 `is`(
                     RawQueryMethod.RuntimeQueryParameter(
                         paramName = "query",
-                        type = SupportDbTypeNames.QUERY
+                        typeName = SupportDbTypeNames.QUERY
                     )
                 )
             )
