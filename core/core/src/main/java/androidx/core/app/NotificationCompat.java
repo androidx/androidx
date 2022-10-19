@@ -4225,9 +4225,7 @@ public class NotificationCompat {
              * where the platform doesn't support the MIME type, the original text provided in the
              * constructor will be used.
              *
-             * @param dataMimeType The MIME type of the content. See
-             * <a href="{@docRoot}notifications/messaging.html"> for the list of supported MIME
-             * types on Android and Android Wear.
+             * @param dataMimeType The MIME type of the content
              * @param dataUri The uri containing the content whose type is given by the MIME type.
              * <p class="note">
              * <ol>
@@ -5929,7 +5927,7 @@ public class NotificationCompat {
     /**
      * Helper class to add wearable extensions to notifications.
      * <p class="note"> See
-     * <a href="{@docRoot}wear/notifications/creating.html">Creating Notifications
+     * <a href="{@docRoot}training/wearables/notifications">Creating Notifications
      * for Android Wear</a> for more information on how to use this class.
      * <p>
      * To create a notification with wearable extensions:
@@ -6853,7 +6851,7 @@ public class NotificationCompat {
          * Sets the dismissal id for this notification. If a notification is posted with a
          * dismissal id, then when that notification is canceled, notifications on other wearables
          * and the paired Android phone having that same dismissal id will also be canceled. See
-         * <a href="{@docRoot}wear/notifications/index.html">Adding Wearable Features to
+         * <a href="{@docRoot}training/wearables/notifications/bridger">Adding Wearable Features to
          * Notifications</a> for more information.
          * @param dismissalId the dismissal id of the notification.
          * @return this object for method chaining
@@ -6874,8 +6872,8 @@ public class NotificationCompat {
         /**
          * Sets a bridge tag for this notification. A bridge tag can be set for notifications
          * posted from a phone to provide finer-grained control on what notifications are bridged
-         * to wearables. See <a href="{@docRoot}wear/notifications/index.html">Adding Wearable
-         * Features to Notifications</a> for more information.
+         * to wearables. See <a href="{@docRoot}training/wearables/notifications/bridger">Adding
+         * Wearable Features to Notifications</a> for more information.
          * @param bridgeTag the bridge tag of the notification.
          * @return this object for method chaining
          */
