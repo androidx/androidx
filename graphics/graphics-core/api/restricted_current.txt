@@ -45,8 +45,8 @@ package androidx.graphics.lowlatency {
 
   public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, java.util.Collection<? extends T> params);
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, T? param);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, T? param);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 

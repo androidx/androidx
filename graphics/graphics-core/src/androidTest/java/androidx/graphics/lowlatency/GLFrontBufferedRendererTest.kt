@@ -62,27 +62,26 @@ class GLFrontBufferedRendererTest {
         }
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -146,27 +145,26 @@ class GLFrontBufferedRendererTest {
 
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -293,13 +291,14 @@ class GLFrontBufferedRendererTest {
             var red = 1f
             var blue = 0f
 
-            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(red, 0.0f, blue, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                 val tmp = red
@@ -309,14 +308,12 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(
-                    0,
-                    0,
-                    FrontBufferedRendererTestActivity.WIDTH,
-                    FrontBufferedRendererTestActivity.HEIGHT
-                )
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             }
@@ -349,36 +346,41 @@ class GLFrontBufferedRendererTest {
             Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
             return
         }
-        val mMVPMatrix = FloatArray(16)
+        val mOrthoMatrix = FloatArray(16)
+        val mProjectionMatrix = FloatArray(16)
         val mLines = FloatArray(4)
         val mLineRenderer = LineRenderer()
         val screenWidth = FrontBufferedRendererTestActivity.WIDTH
-        val screenHeight = FrontBufferedRendererTestActivity.HEIGHT
 
         val renderLatch = CountDownLatch(1)
         val firstDrawLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: Any) {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
                 mLineRenderer.initialize()
-                GLES20.glViewport(0, 0, screenWidth, screenHeight)
-
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 Matrix.orthoM(
-                    mMVPMatrix,
+                    mOrthoMatrix,
                     0,
                     0f,
-                    screenWidth.toFloat(),
+                    bufferWidth.toFloat(),
                     0f,
-                    screenHeight.toFloat(),
+                    bufferHeight.toFloat(),
                     -1f,
                     1f
                 )
-
                 mLines[0] = screenWidth / 4 + (param as Float)
                 mLines[1] = 0f
                 mLines[2] = screenWidth / 4 + param
                 mLines[3] = 100f
 
-                mLineRenderer.drawLines(mMVPMatrix, mLines)
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                mLineRenderer.drawLines(mProjectionMatrix, mLines)
                 assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
                 firstDrawLatch.countDown()
                 mLineRenderer.release()
@@ -386,28 +388,31 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
                 params: Collection<Any>
             ) {
                 mLineRenderer.initialize()
-                GLES20.glViewport(0, 0, screenWidth, screenHeight)
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 Matrix.orthoM(
-                    mMVPMatrix,
+                    mOrthoMatrix,
                     0,
                     0f,
-                    screenWidth.toFloat(),
+                    bufferWidth.toFloat(),
                     0f,
-                    screenHeight.toFloat(),
+                    bufferHeight.toFloat(),
                     -1f,
                     1f
                 )
-
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
                 for (param in params) {
                     mLines[0] = screenWidth / 4 + (param as Float)
                     mLines[1] = 0f
                     mLines[2] = screenWidth / 4 + param
                     mLines[3] = 100f
 
-                    mLineRenderer.drawLines(mMVPMatrix, mLines)
+                    mLineRenderer.drawLines(mProjectionMatrix, mLines)
                     assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
                 }
                 mLineRenderer.release()

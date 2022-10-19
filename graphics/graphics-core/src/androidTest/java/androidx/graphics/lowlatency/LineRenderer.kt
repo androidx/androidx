@@ -88,9 +88,14 @@ class LineRenderer {
         }
     }
 
-    fun drawLines(mvpMatrix: FloatArray, lines: FloatArray, color: Int = Color.RED) {
+    fun drawLines(
+        mvpMatrix: FloatArray,
+        lines: FloatArray,
+        color: Int = Color.RED,
+        lineWidth: Float = 10f
+    ) {
         GLES20.glUseProgram(mGlProgram)
-        GLES20.glLineWidth(10.0f)
+        GLES20.glLineWidth(lineWidth)
         GLES20.glEnableVertexAttribArray(mPositionHandle)
         mColorArray[0] = Color.red(color).toFloat()
         mColorArray[1] = Color.green(color).toFloat()
