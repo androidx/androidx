@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.compat.Api33Compat
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -77,8 +78,10 @@ public class CameraStream internal constructor(
                 camera: CameraId? = null,
                 outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE,
                 mirrorMode: OutputStream.MirrorMode? = null,
+                timestampBase: OutputStream.TimestampBase? = null
             ): Config = create(
-                OutputStream.Config.create(size, format, camera, outputType, mirrorMode)
+                OutputStream.Config
+                    .create(size, format, camera, outputType, mirrorMode, timestampBase)
             )
 
             /**
@@ -120,6 +123,7 @@ public interface OutputStream {
     public val format: StreamFormat
     public val camera: CameraId
     public val mirrorMode: MirrorMode?
+    public val timestampBase: TimestampBase?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -130,6 +134,7 @@ public interface OutputStream {
         public val format: StreamFormat,
         public val camera: CameraId?,
         public val mirrorMode: MirrorMode?,
+        public val timestampBase: TimestampBase?,
     ) {
         companion object {
             fun create(
@@ -138,19 +143,20 @@ public interface OutputStream {
                 camera: CameraId? = null,
                 outputType: OutputType = OutputType.SURFACE,
                 mirrorMode: MirrorMode? = null,
+                timestampBase: TimestampBase? = null,
             ): Config =
                 if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
-                    LazyOutputConfig(size, format, camera, outputType, mirrorMode)
+                    LazyOutputConfig(size, format, camera, outputType, mirrorMode, timestampBase)
                 } else {
                     check(outputType == OutputType.SURFACE)
-                    SimpleOutputConfig(size, format, camera, mirrorMode)
+                    SimpleOutputConfig(size, format, camera, mirrorMode, timestampBase)
                 }
 
             /** Create a stream configuration from an externally created [OutputConfiguration] */
-            @RequiresApi(24)
+            @RequiresApi(33)
             fun external(
                 size: Size,
                 format: StreamFormat,
@@ -169,7 +175,8 @@ public interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             mirrorMode: MirrorMode?,
-        ) : Config(size, format, camera, mirrorMode)
+            timestampBase: TimestampBase?,
+        ) : Config(size, format, camera, mirrorMode, timestampBase)
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is running.
@@ -185,7 +192,8 @@ public interface OutputStream {
             camera: CameraId?,
             internal val outputType: OutputType,
             mirrorMode: MirrorMode?,
-        ) : Config(size, format, camera, mirrorMode)
+            timestampBase: TimestampBase?,
+        ) : Config(size, format, camera, mirrorMode, timestampBase)
 
         /**
          * Used to define an output that comes from an externally managed OutputConfiguration object.
@@ -195,12 +203,14 @@ public interface OutputStream {
          * - Assumes [OutputConfiguration] surfaces will not be added / removed / changed.
          * - If the CameraCaptureSession must be recreated, the [OutputConfiguration] will be reused.
          */
+        @RequiresApi(33)
         internal class ExternalOutputConfig(
             size: Size,
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-        ) : Config(size, format, camera, null)
+        ) : Config(size, format, camera, MirrorMode(Api33Compat.getMirrorMode(output)),
+            TimestampBase(Api33Compat.getTimestampBase(output)))
     }
 
     enum class OutputType {
@@ -218,12 +228,30 @@ public interface OutputStream {
      * See the documentation on [OutputConfiguration.setMirrorMode] for more details.
      */
     @JvmInline
-    value class MirrorMode private constructor(val value: Int) {
+    value class MirrorMode(val value: Int) {
         companion object {
             val MIRROR_MODE_AUTO = MirrorMode(0)
             val MIRROR_MODE_NONE = MirrorMode(1)
             val MIRROR_MODE_H = MirrorMode(2)
             val MIRROR_MODE_V = MirrorMode(3)
+        }
+    }
+
+    /**
+     * Adds the ability to define the timestamp base of the OutputStream.
+     * [TIMESTAMP_BASE_DEFAULT] is the default timestamp base, with which the
+     * camera device adjusts timestamps based on the output target.
+     *
+     * See the documentation on [OutputConfiguration.setTimestampBase] for more details.
+     */
+    @JvmInline
+    value class TimestampBase(val value: Int) {
+        companion object {
+            val TIMESTAMP_BASE_DEFAULT = TimestampBase(0)
+            val TIMESTAMP_BASE_SENSOR = TimestampBase(1)
+            val TIMESTAMP_BASE_MONOTONIC = TimestampBase(2)
+            val TIMESTAMP_BASE_REALTIME = TimestampBase(3)
+            val TIMESTAMP_BASE_CHOREOGRAPHER_SYNCED = TimestampBase(4)
         }
     }
 }

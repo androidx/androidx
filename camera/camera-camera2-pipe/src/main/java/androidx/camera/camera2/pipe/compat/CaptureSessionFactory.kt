@@ -324,6 +324,7 @@ internal fun buildOutputConfigurations(
                 size = outputConfig.size,
                 outputType = outputConfig.deferredOutputType!!,
                 mirrorMode = outputConfig.mirrorMode,
+                timestampBase = outputConfig.timestampBase,
                 surfaceSharing = outputConfig.surfaceSharing,
                 surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
                 physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
@@ -352,6 +353,7 @@ internal fun buildOutputConfigurations(
         val output = AndroidOutputConfiguration.create(
             outputSurfaces.first(),
             mirrorMode = outputConfig.mirrorMode,
+            timestampBase = outputConfig.timestampBase,
             size = outputConfig.size,
             surfaceSharing = outputConfig.surfaceSharing,
             surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
