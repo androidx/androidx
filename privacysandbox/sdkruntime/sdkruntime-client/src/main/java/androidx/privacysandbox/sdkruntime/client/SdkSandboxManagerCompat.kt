@@ -15,16 +15,17 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
+import android.adservices.AdServicesVersion
+import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
-import androidx.core.os.CancellationSignal
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_SANDBOX_DISABLED
@@ -68,14 +69,12 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
     }
 
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
-    private class Api33Impl(private val mSdkSandboxManager: SdkSandboxManager) :
-        PlatformApi {
-        constructor(context: Context) : this(
-            context.getSystemService<SdkSandboxManager>(
-                SdkSandboxManager::class.java
-            )
+    // TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresApi(TIRAMISU)
+    private class Api33Impl(context: Context) : PlatformApi {
+        private val mSdkSandboxManager = context.getSystemService(
+            SdkSandboxManager::class.java
         )
 
         @DoNotInline
@@ -96,16 +95,19 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
             params: Bundle
         ): SandboxedSdk {
             return suspendCancellableCoroutine { continuation ->
-
-                val canceller = CancellationSignal()
-                continuation.invokeOnCancellation { canceller.cancel() }
-
                 mSdkSandboxManager.loadSdk(
                     sdkName,
                     params,
                     Runnable::run,
                     continuation.asOutcomeReceiver()
                 )
+            }
+        }
+
+        companion object {
+            @DoNotInline
+            fun isSandboxAvailable(): Boolean {
+                return AdServicesVersion.API_VERSION >= 2
             }
         }
     }
@@ -129,14 +131,14 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
          *  @return SdkSandboxManagerCompat object.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun obtain(context: Context): SdkSandboxManagerCompat {
-            // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-            return if (BuildCompat.isAtLeastU()) {
-                SdkSandboxManagerCompat(Api33Impl(context))
-            } else {
-                SdkSandboxManagerCompat(FailImpl())
-            }
+            val platformApi =
+                if (Build.VERSION.SDK_INT >= TIRAMISU && Api33Impl.isSandboxAvailable()) {
+                    Api33Impl(context)
+                } else {
+                    FailImpl()
+                }
+            return SdkSandboxManagerCompat(platformApi)
         }
     }
 }
