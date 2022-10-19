@@ -646,7 +646,7 @@ private fun ScalingLazyColumnItemWrapper(
         modifier = Modifier.graphicsLayer {
             val reverseLayout = state.reverseLayout.value!!
             val anchorType = state.anchorType.value!!
-            val items = state.layoutInfo.visibleItemsInfo
+            val items = state.layoutInfo.internalVisibleItemInfo()
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha

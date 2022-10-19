@@ -118,7 +118,7 @@ class ScalingLazyListState constructor(
             gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
             anchorType.value == null || reverseLayout.value == null ||
             beforeContentPaddingPx.value == null || autoCentering.value == null ||
-            autoCentering.value == null || layoutInfo.visibleItemsInfo.isEmpty()
+            autoCentering.value == null || layoutInfo.internalVisibleItemInfo().isEmpty()
         ) {
             0
         } else {
@@ -131,7 +131,7 @@ class ScalingLazyListState constructor(
             gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
             anchorType.value == null || reverseLayout.value == null ||
             beforeContentPaddingPx.value == null || autoCentering.value == null ||
-            layoutInfo.visibleItemsInfo.isEmpty()
+            layoutInfo.internalVisibleItemInfo().isEmpty()
         ) {
             0
         } else {
@@ -319,7 +319,7 @@ class ScalingLazyListState constructor(
                 }
 
             DefaultScalingLazyListLayoutInfo(
-                visibleItemsInfo = visibleItemsInfo,
+                internalVisibleItemsInfo = visibleItemsInfo,
                 totalItemsCount = totalItemsCount,
                 viewportStartOffset = lazyListState.layoutInfo.viewportStartOffset +
                     extraPaddingPx.value!!,
@@ -341,7 +341,7 @@ class ScalingLazyListState constructor(
                 afterAutoCenteringPadding = calculateBottomAutoCenteringPaddingPx(visibleItemsInfo,
                     totalItemsCount),
                 readyForInitialScroll = readyForInitialScroll,
-                initialized = initialized.value
+                initialized = initialized.value,
             )
         }
     }
@@ -694,3 +694,6 @@ private object EmptyScalingLazyListLayoutInfo : ScalingLazyListLayoutInfo {
     override val beforeAutoCenteringPadding = 0
     override val afterAutoCenteringPadding = 0
 }
+
+internal fun ScalingLazyListLayoutInfo.internalVisibleItemInfo() =
+    (this as? DefaultScalingLazyListLayoutInfo)?.internalVisibleItemsInfo ?: emptyList()
