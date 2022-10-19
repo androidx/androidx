@@ -20,6 +20,7 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
@@ -41,7 +42,7 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
-import androidx.room.ext.SupportDbTypeNames.SQLITE_STMT
+import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.W
 import androidx.room.ext.capitalize
@@ -254,7 +255,7 @@ class DaoWriter(
             val fieldSpec = getOrCreateProperty(PreparedStatementProperty(method))
             val queryWriter = QueryWriter(method)
             val fieldImpl = PreparedStatementWriter(queryWriter)
-                .createAnonymous(this@DaoWriter, dbProperty.toJavaPoet())
+                .createAnonymous(this@DaoWriter, dbProperty)
             val methodBody =
                 createPreparedQueryMethodBody(method, fieldSpec, queryWriter)
             PreparedStmtQuery(
@@ -273,17 +274,17 @@ class DaoWriter(
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
                 val stmtName = getTmpVar("_stmt")
-                builder().apply {
-                    addStatement(
-                        "final $T $L = $L.acquire()",
-                        SQLITE_STMT.toJavaPoet(), stmtName, preparedStmtField.name
-                    )
-                }
+                builder.addLocalVal(
+                    stmtName,
+                    SupportDbTypeNames.SQLITE_STMT,
+                    "%N.acquire()",
+                    preparedStmtField
+                )
                 queryWriter.bindArgs(stmtName, emptyList(), this)
                 stmtName
             },
-            preparedStmtField = preparedStmtField.name,
-            dbField = dbProperty.toJavaPoet(),
+            preparedStmtProperty = preparedStmtField,
+            dbProperty = dbProperty,
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)
@@ -577,17 +578,18 @@ class DaoWriter(
                 val sqlVar = getTmpVar("_sql")
                 val stmtVar = getTmpVar("_stmt")
                 val listSizeArgs = queryWriter.prepareQuery(sqlVar, this)
-                builder().apply {
-                    addStatement(
-                        "final $T $L = $N.compileStatement($L)",
-                        SQLITE_STMT.toJavaPoet(), stmtVar, dbProperty.toJavaPoet(), sqlVar
-                    )
-                }
+                builder.addLocalVal(
+                    stmtVar,
+                    SupportDbTypeNames.SQLITE_STMT,
+                    "%N.compileStatement(%L)",
+                    dbProperty,
+                    sqlVar
+                )
                 queryWriter.bindArgs(stmtVar, listSizeArgs, this)
                 stmtVar
             },
-            preparedStmtField = null,
-            dbField = dbProperty.toJavaPoet(),
+            preparedStmtProperty = null,
+            dbProperty = dbProperty,
             scope = scope
         )
         return scope.builder.build()

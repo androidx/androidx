@@ -102,7 +102,7 @@ class AutoMigrationWriter(
             language = codeLanguage,
             name = "migrate",
             visibility = VisibilityModifier.PUBLIC,
-            isOverridden = true,
+            isOverride = true,
         ).apply {
                 addParameter(
                     typeName = SupportDbTypeNames.DB.toXClassName(),
