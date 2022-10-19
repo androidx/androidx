@@ -46,11 +46,14 @@ class PrivacySandboxKspCompilerTest {
             )
         ).also {
             it.generatesExactlySources(
+                "com/mysdk/IMyInterface.java",
                 "com/mysdk/IMySdk.java",
                 "com/mysdk/ICancellationSignal.java",
+                "com/mysdk/IMyInterfaceTransactionCallback.java",
                 "com/mysdk/IStringTransactionCallback.java",
                 "com/mysdk/IUnitTransactionCallback.java",
                 "com/mysdk/AbstractSandboxedSdkProvider.kt",
+                "com/mysdk/MyInterfaceStubDelegate.kt",
                 "com/mysdk/MySdkStubDelegate.kt",
                 "com/mysdk/TransportCancellationCallback.kt",
                 "com/mysdk/ResponseConverter.kt",
