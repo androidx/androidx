@@ -19,7 +19,6 @@ package androidx.camera.core.imagecapture
 import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Matrix
 import android.graphics.Rect
-import android.os.Build
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.WIDTH
@@ -28,23 +27,22 @@ import androidx.camera.testing.ExifUtil.createExif
 import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Unit tests for [JpegBytes2CroppedBitmap].
+ * Instrumented tests for [JpegBytes2CroppedBitmap].
  */
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class Bitmap2JpegBytesTest {
 
     private val operation = Bitmap2JpegBytes()
-
     @Test
     fun process_verifyOutput() {
         // Arrange.
