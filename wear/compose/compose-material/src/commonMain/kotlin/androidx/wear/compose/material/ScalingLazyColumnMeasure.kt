@@ -399,7 +399,7 @@ internal fun calculateItemInfo(
 }
 
 internal class DefaultScalingLazyListLayoutInfo(
-    override val visibleItemsInfo: List<ScalingLazyListItemInfo>,
+    internal val internalVisibleItemsInfo: List<ScalingLazyListItemInfo>,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val totalItemsCount: Int,
@@ -418,8 +418,13 @@ internal class DefaultScalingLazyListLayoutInfo(
     internal val readyForInitialScroll: Boolean,
     // Flag to indicate that initialization is complete and initial scroll index and offset have
     // been set.
-    internal val initialized: Boolean
-) : ScalingLazyListLayoutInfo
+    internal val initialized: Boolean,
+) : ScalingLazyListLayoutInfo {
+    override val visibleItemsInfo: List<ScalingLazyListItemInfo>
+        // Do not report visible items until initialization is complete and the items are
+        // actually visible and correctly positioned.
+        get() = if (initialized) internalVisibleItemsInfo else emptyList()
+}
 
 internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
