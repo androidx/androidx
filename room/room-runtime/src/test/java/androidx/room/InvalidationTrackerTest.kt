@@ -37,6 +37,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.fail
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -177,6 +178,7 @@ class InvalidationTrackerTest {
         drainTasks()
     }
 
+    @Ignore // b/253058904
     @Test
     fun refreshCheckTasks() {
         whenever(mRoomDatabase.query(any<SimpleSQLiteQuery>(), isNull())).thenReturn(mock<Cursor>())
