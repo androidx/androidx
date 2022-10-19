@@ -53,7 +53,7 @@ public abstract class OutputOptions {
     /**
      * Gets the limit for the file size in bytes.
      *
-     * @return the file size limit in bytes or zero if it's unlimited.
+     * @return the file size limit in bytes or {@link #FILE_SIZE_UNLIMITED} if it's unlimited.
      */
     @IntRange(from = 0)
     public long getFileSizeLimit() {
@@ -64,7 +64,7 @@ public abstract class OutputOptions {
      * Returns a {@link Location} object representing the geographic location where the video was
      * recorded.
      *
-     * @return The location object or {@code null} if no location was set.
+     * @return the location object or {@code null} if no location was set.
      */
     @Nullable
     public Location getLocation() {
@@ -74,11 +74,12 @@ public abstract class OutputOptions {
     /**
      * Gets the limit for the video duration in milliseconds.
      *
-     * @return the video duration limit in milliseconds or zero if it's unlimited.
+     * @return the video duration limit in milliseconds or {@link #DURATION_UNLIMITED} if it's
+     * unlimited.
      */
     @IntRange(from = 0)
-    public long getDurationLimit() {
-        return mOutputOptionsInternal.getDurationLimit();
+    public long getDurationLimitMillis() {
+        return mOutputOptionsInternal.getDurationLimitMillis();
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class OutputOptions {
             mRootInternalBuilder = builder;
             // Apply default value
             mRootInternalBuilder.setFileSizeLimit(FILE_SIZE_UNLIMITED);
-            mRootInternalBuilder.setDurationLimit(DURATION_UNLIMITED);
+            mRootInternalBuilder.setDurationLimitMillis(DURATION_UNLIMITED);
         }
 
         /**
@@ -109,12 +110,12 @@ public abstract class OutputOptions {
          *
          * @param fileSizeLimitBytes the file size limit in bytes.
          * @return this Builder.
-         * @throws IllegalArgumentException if the specified file size limit is less than zero.
+         * @throws IllegalArgumentException if the specified file size limit is negative.
          */
         @NonNull
         public B setFileSizeLimit(@IntRange(from = 0) long fileSizeLimitBytes) {
             Preconditions.checkArgument(fileSizeLimitBytes >= 0, "The specified file size limit "
-                    + "should be greater than zero.");
+                    + "can't be negative.");
             mRootInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
             return (B) this;
         }
@@ -130,15 +131,15 @@ public abstract class OutputOptions {
          * unlimited}. If set with a negative value, an {@link IllegalArgumentException} will be
          * thrown.
          *
-         * @param durationLimitMs the video duration limit in milliseconds.
+         * @param durationLimitMillis the video duration limit in milliseconds.
          * @return this Builder.
-         * @throws IllegalArgumentException if the specified duration limit is less than zero.
+         * @throws IllegalArgumentException if the specified duration limit is negative.
          */
         @NonNull
-        public B setDurationLimit(@IntRange(from = 0) long durationLimitMs) {
-            Preconditions.checkArgument(durationLimitMs >= 0, "The specified duration limit "
-                    + "should be greater than zero.");
-            mRootInternalBuilder.setDurationLimit(durationLimitMs);
+        public B setDurationLimitMillis(@IntRange(from = 0) long durationLimitMillis) {
+            Preconditions.checkArgument(durationLimitMillis >= 0, "The specified duration limit "
+                    + "can't be negative.");
+            mRootInternalBuilder.setDurationLimitMillis(durationLimitMillis);
             return (B) this;
         }
 
@@ -154,7 +155,8 @@ public abstract class OutputOptions {
          * value is {@code null}.
          *
          * @throws IllegalArgumentException if the latitude of the location is not in the range
-         * [-90, 90] or the longitude of the location is not in the range [-180, 180].
+         * {@code [-90, 90]} or the longitude of the location is not in the range {@code [-180,
+         * 180]}.
          */
         @NonNull
         public B setLocation(@Nullable Location location) {
@@ -184,7 +186,7 @@ public abstract class OutputOptions {
         abstract long getFileSizeLimit();
 
         @IntRange(from = 0)
-        abstract long getDurationLimit();
+        abstract long getDurationLimitMillis();
 
         @Nullable
         abstract Location getLocation();
@@ -197,7 +199,7 @@ public abstract class OutputOptions {
             abstract B setFileSizeLimit(@IntRange(from = 0) long fileSizeLimitBytes);
 
             @NonNull
-            abstract B setDurationLimit(@IntRange(from = 0) long durationLimitMs);
+            abstract B setDurationLimitMillis(@IntRange(from = 0) long durationLimitMillis);
 
             @NonNull
             abstract B setLocation(@Nullable Location location);
