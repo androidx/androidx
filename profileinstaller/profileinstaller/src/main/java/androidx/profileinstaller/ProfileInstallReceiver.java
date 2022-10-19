@@ -53,6 +53,7 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
      */
     public static final @NonNull String ACTION_SAVE_PROFILE =
             "androidx.profileinstaller.action.SAVE_PROFILE";
+
     /**
      * This is an action constant which requests that {@link ProfileInstaller} manipulate the
      * skip file used during profile installation. This is only useful when the app is being
@@ -60,6 +61,13 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
      */
     public static final @NonNull String ACTION_SKIP_FILE =
             "androidx.profileinstaller.action.SKIP_FILE";
+
+    /**
+     * This is an action that triggers actions required for stable benchmarking from an external
+     * tool on user builds, such as clearing the code cache, or triggering garbage collection.
+     */
+    public static final @NonNull String ACTION_BENCHMARK_OPERATION =
+            "androidx.profileinstaller.action.BENCHMARK_OPERATION";
 
     /**
      * This is the key in the {@link Bundle} of extras, which provides additional information on
@@ -75,6 +83,18 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
      * The value that requests that a skip file be deleted.
      */
     private static final @NonNull String EXTRA_SKIP_FILE_OPERATION_DELETE = "DELETE_SKIP_FILE";
+
+    /**
+     * This is the key in the {@link Bundle} of extras, which provides additional information on
+     * the operation to be performed.
+     */
+    private static final @NonNull String EXTRA_BENCHMARK_OPERATION = "EXTRA_BENCHMARK_OPERATION";
+
+    /**
+     * The value that requests the shader cache be dropped.
+     */
+    private static final @NonNull String EXTRA_BENCHMARK_OPERATION_DROP_SHADER_CACHE =
+            "DROP_SHADER_CACHE";
 
     @Override
     public void onReceive(@NonNull Context context, @Nullable Intent intent) {
@@ -96,6 +116,20 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
             }
         } else if (ACTION_SAVE_PROFILE.equals(action)) {
             saveProfile(new ResultDiagnostics());
+        } else if (ACTION_BENCHMARK_OPERATION.equals(action)) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                String operation = extras.getString(EXTRA_BENCHMARK_OPERATION);
+                ResultDiagnostics diagnostics = new ResultDiagnostics();
+                if (EXTRA_BENCHMARK_OPERATION_DROP_SHADER_CACHE.equals(operation)) {
+                    BenchmarkOperation.dropShaderCache(context, diagnostics);
+                } else {
+                    diagnostics.onResultReceived(
+                            ProfileInstaller.RESULT_BENCHMARK_OPERATION_UNKNOWN,
+                            null
+                    );
+                }
+            }
         }
     }
 

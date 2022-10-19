@@ -171,4 +171,50 @@ internal object ProfileInstallBroadcast {
             }
         }
     }
+
+    private fun benchmarkOperation(packageName: String, operation: String): String? {
+        Log.d(TAG, "Profile Installer - Benchmark Operation: $operation")
+        // Redefining constants here, because these are only defined in the latest alpha for
+        // ProfileInstaller.
+        // Use an explicit broadcast given the app was force-stopped.
+        val action = "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+        val operationKey = "EXTRA_BENCHMARK_OPERATION"
+        val extras = "$operationKey $operation"
+        val result = Shell.executeCommand(
+            "am broadcast -a $action -e $extras $packageName/$receiverName"
+        )
+            .substringAfter("Broadcast completed: result=")
+            .trim()
+            .toIntOrNull()
+        return when (result) {
+            null, 0, 16 /* BENCHMARK_OPERATION_UNKNOWN */ -> {
+                // 0 is returned by the platform by default, and also if no broadcast receiver
+                // receives the broadcast.
+
+                // NOTE: may need to update this over time for different versions,
+                // based on operation string
+                "The $operation broadcast was not received. " +
+                    "This most likely means that the `androidx.profileinstaller` library " +
+                    "used by the target apk is old. Please use `1.3.0-alpha02` or newer. " +
+                    "For more information refer to the release notes at " +
+                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
+            }
+            15 -> { // RESULT_BENCHMARK_OPERATION_FAILURE
+                "The $operation broadcast failed."
+            }
+            14 -> { // RESULT_BENCHMARK_OPERATION_SUCCESS
+                null // success!
+            }
+            else -> {
+                throw RuntimeException(
+                    "unrecognized ProfileInstaller result code: $result"
+                )
+            }
+        }
+    }
+
+    fun dropShaderCache(packageName: String): String? = benchmarkOperation(
+        packageName,
+        "DROP_SHADER_CACHE"
+    )
 }
