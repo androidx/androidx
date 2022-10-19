@@ -63,12 +63,7 @@ class SplitPlaceholderRule : SplitRule {
     @SplitPlaceholderFinishBehavior
     val finishPrimaryWithPlaceholder: Int
 
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.SplitPlaceholderRule.Builder")
-    )
-    constructor(
+    internal constructor(
         filters: Set<ActivityFilter>,
         placeholderIntent: Intent,
         isSticky: Boolean,
@@ -142,7 +137,6 @@ class SplitPlaceholderRule : SplitRule {
         fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
             apply { this.layoutDir = layoutDir }
 
-        @Suppress("DEPRECATION")
         fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
             finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDir)
     }
@@ -155,17 +149,12 @@ class SplitPlaceholderRule : SplitRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
-        return SplitPlaceholderRule(
-            newSet.toSet(),
-            placeholderIntent,
-            isSticky,
-            finishPrimaryWithPlaceholder,
-            minWidth,
-            minSmallestWidth,
-            splitRatio,
-            layoutDirection
-        )
+        return Builder(newSet.toSet(), placeholderIntent, minWidth, minSmallestWidth)
+            .setSticky(isSticky)
+            .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
+            .setSplitRatio(splitRatio)
+            .setLayoutDir(layoutDirection)
+            .build()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -156,17 +156,13 @@ internal class SplitRuleParser {
             clearTop =
                 getBoolean(R.styleable.SplitPairRule_clearTop, false)
         }
-        @Suppress("DEPRECATION")
-        return SplitPairRule(
-            emptySet(),
-            finishPrimaryWithSecondary,
-            finishSecondaryWithPrimary,
-            clearTop,
-            minWidth,
-            minSmallestWidth,
-            ratio,
-            layoutDir
-        )
+        return SplitPairRule.Builder(emptySet(), minWidth, minSmallestWidth)
+            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
+            .setClearTop(clearTop)
+            .setSplitRatio(ratio)
+            .setLayoutDir(layoutDir)
+            .build()
     }
 
     private fun parseSplitPlaceholderRule(
@@ -219,17 +215,16 @@ internal class SplitRuleParser {
             placeholderActivityIntentName
         )
 
-        @Suppress("DEPRECATION")
-        return SplitPlaceholderRule(
+        return SplitPlaceholderRule.Builder(
             emptySet(),
             Intent().setComponent(placeholderActivityClassName),
-            stickyPlaceholder,
-            finishPrimaryWithPlaceholder,
             minWidth,
-            minSmallestWidth,
-            ratio,
-            layoutDir
-        )
+            minSmallestWidth
+        ).setSticky(stickyPlaceholder)
+            .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
+            .setSplitRatio(ratio)
+            .setLayoutDir(layoutDir)
+            .build()
     }
 
     private fun parseSplitPairFilter(

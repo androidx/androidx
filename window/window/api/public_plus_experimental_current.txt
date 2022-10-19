@@ -89,7 +89,6 @@ package androidx.window.embedding {
   }
 
   public final class SplitPairRule extends androidx.window.embedding.SplitRule {
-    ctor @Deprecated public SplitPairRule(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, optional int finishPrimaryWithSecondary, optional int finishSecondaryWithPrimary, optional boolean clearTop, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDir);
     method public boolean getClearTop();
     method public java.util.Set<androidx.window.embedding.SplitPairFilter> getFilters();
     method public int getFinishPrimaryWithSecondary();
@@ -111,7 +110,6 @@ package androidx.window.embedding {
   }
 
   public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
-    ctor @Deprecated public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int finishPrimaryWithPlaceholder, optional @IntRange(from=0L) int minWidth, optional @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDirection);
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
     method public int getFinishPrimaryWithPlaceholder();
     method public android.content.Intent getPlaceholderIntent();
