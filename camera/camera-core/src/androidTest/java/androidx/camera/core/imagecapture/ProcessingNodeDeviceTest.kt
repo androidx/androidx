@@ -18,20 +18,26 @@ package androidx.camera.core.imagecapture
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeByteArray
+import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
+import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
+import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.InternalImageProcessor
+import androidx.camera.testing.ExifUtil
+import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
@@ -70,6 +76,21 @@ class ProcessingNodeDeviceTest {
     @Test
     fun processYuvInputOnDisk_getsJpegOutput() = runBlocking {
         processYuvAndVerifyOutputSize(OUTPUT_FILE_OPTIONS)
+    }
+
+    @Test
+    fun processImageEqualsCropSize_croppingNotInvoked() = runBlocking {
+        cropRectEqualsImageRect_croppingNotInvoked(OUTPUT_FILE_OPTIONS)
+    }
+
+    @Test
+    fun processInMemoryInputPacket_callbackInvoked() = runBlocking {
+        inMemoryInputPacket_callbackInvoked(null)
+    }
+
+    @Test
+    fun processSaveJpegOnDisk_verifyOutput() = runBlocking {
+        saveJpegOnDisk_verifyOutput(OUTPUT_FILE_OPTIONS)
     }
 
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
@@ -136,5 +157,114 @@ class ProcessingNodeDeviceTest {
             val filePath = takePictureCallback.getOnDiskResult().savedUri!!.path!!
             BitmapFactory.decodeFile(filePath)
         }
+    }
+
+    private suspend fun cropRectEqualsImageRect_croppingNotInvoked(
+        outputFileOptions: OutputFileOptions?
+    ) {
+        // Arrange: create a request with no cropping
+        val node = ProcessingNode(mainThreadExecutor())
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        node.transform(nodeIn)
+        val takePictureCallback = FakeTakePictureCallback()
+
+        val processingRequest = ProcessingRequest(
+            { listOf() },
+            outputFileOptions,
+            Rect(0, 0, WIDTH, HEIGHT),
+            0,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            takePictureCallback
+        )
+        val imageIn = createJpegFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            createJpegBytes(WIDTH, HEIGHT)
+        )
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
+        // Act and return.
+        nodeIn.edge.accept(input)
+        val filePath = takePictureCallback.getOnDiskResult().savedUri!!.path!!
+
+        // Assert: restored image is not cropped.
+        val restoredBitmap = BitmapFactory.decodeFile(filePath)
+
+        // Assert: restored image is not cropped.
+        assertThat(
+            getAverageDiff(
+                createBitmap(WIDTH, HEIGHT),
+                restoredBitmap
+            )
+        ).isEqualTo(0)
+    }
+
+    private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
+        // Arrange.
+        val node = ProcessingNode(mainThreadExecutor())
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        node.transform(nodeIn)
+        val takePictureCallback = FakeTakePictureCallback()
+
+        val processingRequest = ProcessingRequest(
+            { listOf() },
+            outputFileOptions,
+            Rect(0, 0, WIDTH, HEIGHT),
+            0,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            takePictureCallback
+        )
+        val imageIn = createJpegFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            createJpegBytes(WIDTH, HEIGHT)
+        )
+        // Act.
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
+        // Act and return.
+        nodeIn.edge.accept(input)
+        // Assert: the output image is identical to the input.
+        val imageOut = takePictureCallback.getInMemoryResult()
+        val restoredJpeg = jpegImageToJpegByteArray(imageOut)
+
+        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg)).isEqualTo(0)
+        assertThat(imageOut.imageInfo.timestamp).isEqualTo(TIMESTAMP)
+    }
+
+    private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
+        // Arrange: create a on-disk processing request.
+        val node = ProcessingNode(mainThreadExecutor())
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        node.transform(nodeIn)
+        val takePictureCallback = FakeTakePictureCallback()
+        val jpegBytes = ExifUtil.updateExif(createJpegBytes(640, 480)) {
+            it.description = EXIF_DESCRIPTION
+        }
+        val imageIn = createJpegFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            jpegBytes
+        )
+        val processingRequest = ProcessingRequest(
+            { listOf() },
+            outputFileOptions,
+            CROP_RECT,
+            0,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            takePictureCallback
+        )
+        val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
+
+        // Act: send input to the edge and wait for the saved URI
+        nodeIn.edge.accept(input)
+        val filePath = takePictureCallback.getOnDiskResult().savedUri!!.path!!
+
+        // Assert: image content is cropped correctly
+        val bitmap = BitmapFactory.decodeFile(filePath)
+
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), Color.BLUE)).isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), Color.YELLOW)).isEqualTo(0)
+        // Assert: Exif info is saved correctly.
+        val exif = Exif.createFromFileString(filePath)
+        assertThat(exif.description).isEqualTo(EXIF_DESCRIPTION)
     }
 }
