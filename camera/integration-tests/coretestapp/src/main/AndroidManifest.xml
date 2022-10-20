@@ -21,7 +21,7 @@ limitations under the License.
             android:name=".CameraXActivity"
             android:exported="true"
             android:label="Camera Core Test App"
-            android:taskAffinity="androidx.camera.integration.core.CameraXActivity" >
+            android:taskAffinity="androidx.camera.integration.core.CameraXActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,13 +52,12 @@ limitations under the License.
             </intent-filter>
         </activity>
     </application>
+
     <uses-feature android:glEsVersion="0x00020000" />
     <uses-feature android:name="android.hardware.camera" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>
