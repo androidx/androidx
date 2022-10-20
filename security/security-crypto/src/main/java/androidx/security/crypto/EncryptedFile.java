@@ -45,15 +45,37 @@ import java.security.GeneralSecurityException;
 
 /**
  * Class used to create and read encrypted files.
+ * <br />
+ * <br />
+ * <b>WARNING</b>: The encrypted file should not be backed up with Auto Backup. When restoring the
+ * file it is likely the key used to encrypt it will no longer be present. You should exclude all
+ * <code>EncryptedFile</code>s from backup using
+ * <a href="https://developer.android.com/guide/topics/data/autobackup#IncludingFiles">backup rules</a>.
+ * Be aware that if you are not explicitly calling <code>setKeysetPrefName()</code> there is also a
+ * silently-created default preferences file created at
+ * <pre>
+ *     ApplicationProvider
+ *          .getApplicationContext()
+ *          .getFilesDir()
+ *          .getParent() + "/shared_prefs/__androidx_security_crypto_encrypted_file_pref__"
+ * </pre>
+ *
+ * This preferences file (or any others created with a custom specified location) also should be
+ * excluded from backups.
+ * <br />
+ * <br />
+ * Basic use of the class:
  *
  * <pre>
- *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+ *  MasterKey masterKey = new MasterKey.Builder(context)
+ *      .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+ *      .build();
  *
  *  File file = new File(context.getFilesDir(), "secret_data");
  *  EncryptedFile encryptedFile = EncryptedFile.Builder(
- *      file,
  *      context,
- *      masterKeyAlias,
+ *      file,
+ *      masterKey,
  *      EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
  *  ).build();
  *
