@@ -50,6 +50,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.util.ArrayList;
 
@@ -121,6 +122,11 @@ public class EncryptedFileTest {
 
         keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS);
         mMasterKey = new MasterKey.Builder(mContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
+
+        keyStore.deleteEntry(EncryptedFileTest.SECOND_MASTER_KEY_ALIAS);
+        mSecondMasterKey = new MasterKey.Builder(mContext, SECOND_MASTER_KEY_ALIAS)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build();
     }
@@ -347,6 +353,44 @@ public class EncryptedFileTest {
                 Context.MODE_PRIVATE);
         boolean containsKeyset = sharedPreferences.contains("CustomKEYALIAS");
         assertTrue("Keyset should have existed.", containsKeyset);
+    }
+
+    @Test(expected = InvalidKeyException.class)
+    public void testTwoMasterKeys() throws Exception {
+        new EncryptedFile.Builder(
+                mContext,
+                new File(mContext.getFilesDir(), TestFileName.ENCRYPTED_FILE_1.toString()),
+                mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+
+        // This will fail because implicitly we are decrypting the keyset created for mMasterKey
+        // with this new mSecondMasterKey
+        new EncryptedFile.Builder(
+                mContext,
+                new File(mContext.getFilesDir(), TestFileName.ENCRYPTED_FILE_2.toString()),
+                mSecondMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+    }
+
+    @Test
+    public void testTwoMasterKeysAndTwoKeysets() throws Exception {
+        new EncryptedFile.Builder(
+                mContext,
+                new File(mContext.getFilesDir(), TestFileName.ENCRYPTED_FILE_1.toString()),
+                mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+
+        // This should succeed because mSecondMasterKey gets its own keyset
+        new EncryptedFile.Builder(
+                mContext,
+                new File(mContext.getFilesDir(), TestFileName.ENCRYPTED_FILE_2.toString()),
+                mSecondMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .setKeysetAlias("second_keyset")
+                .build();
     }
 
     @SuppressWarnings("deprecation")
