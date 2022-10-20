@@ -499,6 +499,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
             return mId;
         }
 
+        @Nullable
         public static EncryptedType fromId(int id) {
             switch (id) {
                 case 0:
@@ -518,69 +519,73 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         }
     }
 
-    private Object getDecryptedObject(String key) {
+    private Object getDecryptedObject(String key) throws SecurityException {
         if (isReservedKey(key)) {
             throw new SecurityException(key + " is a reserved key for the encryption keyset.");
         }
         if (key == null) {
             key = NULL_VALUE;
         }
-        Object returnValue = null;
+
         try {
             String encryptedKey = encryptKey(key);
             String encryptedValue = mSharedPreferences.getString(encryptedKey, null);
-            if (encryptedValue != null) {
-                byte[] cipherText = Base64.decode(encryptedValue, Base64.DEFAULT);
-                byte[] value = mValueAead.decrypt(cipherText, encryptedKey.getBytes(UTF_8));
-                ByteBuffer buffer = ByteBuffer.wrap(value);
-                buffer.position(0);
-                int typeId = buffer.getInt();
-                EncryptedType type = EncryptedType.fromId(typeId);
-                switch (type) {
-                    case STRING:
-                        int stringLength = buffer.getInt();
-                        ByteBuffer stringSlice = buffer.slice();
-                        buffer.limit(stringLength);
-                        String stringValue = UTF_8.decode(stringSlice).toString();
-                        if (stringValue.equals(NULL_VALUE)) {
-                            returnValue = null;
-                        } else {
-                            returnValue = stringValue;
-                        }
-                        break;
-                    case INT:
-                        returnValue = buffer.getInt();
-                        break;
-                    case LONG:
-                        returnValue = buffer.getLong();
-                        break;
-                    case FLOAT:
-                        returnValue = buffer.getFloat();
-                        break;
-                    case BOOLEAN:
-                        returnValue = buffer.get() != (byte) 0;
-                        break;
-                    case STRING_SET:
-                        ArraySet<String> stringSet = new ArraySet<>();
-                        while (buffer.hasRemaining()) {
-                            int subStringLength = buffer.getInt();
-                            ByteBuffer subStringSlice = buffer.slice();
-                            subStringSlice.limit(subStringLength);
-                            buffer.position(buffer.position() + subStringLength);
-                            stringSet.add(UTF_8.decode(subStringSlice).toString());
-                        }
-                        if (stringSet.size() == 1 && NULL_VALUE.equals(stringSet.valueAt(0))) {
-                            returnValue = null;
-                        } else {
-                            returnValue = stringSet;
-                        }
-                        break;
-                }
+            if (encryptedValue == null) {
+                return null;
+            }
+
+            byte[] cipherText = Base64.decode(encryptedValue, Base64.DEFAULT);
+            byte[] value = mValueAead.decrypt(cipherText, encryptedKey.getBytes(UTF_8));
+            ByteBuffer buffer = ByteBuffer.wrap(value);
+            buffer.position(0);
+            int typeId = buffer.getInt();
+            EncryptedType type = EncryptedType.fromId(typeId);
+            if (type == null) {
+                throw new SecurityException("Unknown type ID for encrypted pref value: " + typeId);
+            }
+
+            switch (type) {
+                case STRING:
+                    int stringLength = buffer.getInt();
+                    ByteBuffer stringSlice = buffer.slice();
+                    buffer.limit(stringLength);
+
+                    String stringValue = UTF_8.decode(stringSlice).toString();
+                    if (stringValue.equals(NULL_VALUE)) {
+                        return null;
+                    }
+
+                    return stringValue;
+                case INT:
+                    return buffer.getInt();
+                case LONG:
+                    return buffer.getLong();
+                case FLOAT:
+                    return buffer.getFloat();
+                case BOOLEAN:
+                    return buffer.get() != (byte) 0;
+                case STRING_SET:
+                    ArraySet<String> stringSet = new ArraySet<>();
+
+                    while (buffer.hasRemaining()) {
+                        int subStringLength = buffer.getInt();
+                        ByteBuffer subStringSlice = buffer.slice();
+                        subStringSlice.limit(subStringLength);
+                        buffer.position(buffer.position() + subStringLength);
+                        stringSet.add(UTF_8.decode(subStringSlice).toString());
+                    }
+
+                    if (stringSet.size() == 1 && NULL_VALUE.equals(stringSet.valueAt(0))) {
+                        return null;
+                    }
+
+                    return stringSet;
+                default:
+                    throw new SecurityException("Unhandled type for encrypted pref value: " + type);
             }
         } catch (GeneralSecurityException ex) {
             throw new SecurityException("Could not decrypt value. " + ex.getMessage(), ex);
         }
-        return returnValue;
     }
 
     String encryptKey(String key) {
