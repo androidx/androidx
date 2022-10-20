@@ -43,7 +43,7 @@ import perfetto.protos.StatusResult
  * is based on the python one of the official repo:
  * https://github.com/google/perfetto/blob/master/python/perfetto/trace_processor/http.py
  */
-internal class PerfettoHttpServer(private val port: Int) {
+internal class PerfettoHttpServer {
 
     companion object {
         private const val HTTP_ADDRESS = "http://localhost"
@@ -72,8 +72,8 @@ internal class PerfettoHttpServer(private val port: Int) {
             if (instance != null) {
                 return@synchronized instance
             }
-            val script =
-                """echo pid:$$ ; exec ${PerfettoTraceProcessor.shellPath} -D --http-port "$@" """
+            val script = "echo pid:$$ ; exec ${PerfettoTraceProcessor.shellPath} -D" +
+                " --http-port \"${PerfettoTraceProcessor.PORT}\" "
             instance = Shell.createShellScript(script)
             shellScript = instance
             instance
@@ -95,7 +95,7 @@ internal class PerfettoHttpServer(private val port: Int) {
      *
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
-    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer port $port") {
+    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
             return@userspaceTrace
@@ -116,7 +116,7 @@ internal class PerfettoHttpServer(private val port: Int) {
             )
         }
 
-        val shellScript = getOrCreateShellScript().start(port.toString())
+        val shellScript = getOrCreateShellScript().start()
 
         processId = shellScript
             .stdOutLineSequence()
@@ -145,19 +145,19 @@ internal class PerfettoHttpServer(private val port: Int) {
     /**
      * Stops the server killing the associated process
      */
-    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer port $port") {
+    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer") {
         if (processId == null) {
             Log.w(TAG, "Tried to stop trace shell processor http server without starting it.")
             return@userspaceTrace
         }
-        Shell.executeCommand("kill -TERM $processId")
+        Shell.executeScriptSilent("kill -TERM $processId")
         Log.i(TAG, "Perfetto trace processor shell server stopped (pid=$processId).")
     }
 
     /**
      * Returns true whether the server is running, false otherwise.
      */
-    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning port $port") {
+    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning") {
         return@userspaceTrace try {
             val statusResult = status()
             return@userspaceTrace statusResult.api_version != null && statusResult.api_version > 0
@@ -243,7 +243,10 @@ internal class PerfettoHttpServer(private val port: Int) {
         encodeBlock: ((OutputStream) -> Unit)?,
         decodeBlock: ((InputStream) -> T)
     ): T {
-        with(URL("$HTTP_ADDRESS:$port$url").openConnection() as HttpURLConnection) {
+        with(
+            URL("$HTTP_ADDRESS:${PerfettoTraceProcessor.PORT}$url")
+                .openConnection() as HttpURLConnection
+        ) {
             requestMethod = method
             readTimeout = READ_TIMEOUT_SECONDS
             setRequestProperty("Content-Type", contentType)

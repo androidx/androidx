@@ -41,7 +41,7 @@ class PerfettoTraceProcessorTest {
     fun shellPath() {
         assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
-        val out = Shell.executeCommand("$shellPath --version")
+        val out = Shell.executeScriptCaptureStdout("$shellPath --version")
         assertTrue(
             "expect to get Perfetto version string, saw: $out",
             out.contains("Perfetto v")
@@ -145,7 +145,8 @@ class PerfettoTraceProcessorTest {
         // This method will return true if the server status endpoint returns 200 (that is also
         // the only status code being returned).
         fun isRunning(): Boolean = try {
-            with(URL("http://localhost:10555/").openConnection() as HttpURLConnection) {
+            val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
+            with(url.openConnection() as HttpURLConnection) {
                 return@with responseCode == 200
             }
         } catch (e: ConnectException) {
@@ -155,7 +156,7 @@ class PerfettoTraceProcessorTest {
         // Check server is not running
         assertTrue(!isRunning())
 
-        PerfettoTraceProcessor.runServer(httpServerPort = 10555) {
+        PerfettoTraceProcessor.runServer {
 
             // Check server is running
             assertTrue(isRunning())

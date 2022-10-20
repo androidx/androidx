@@ -218,7 +218,9 @@ class MacrobenchmarkScopeTest {
     private fun validateShaderCache(empty: Boolean, packageName: String) {
         val path = MacrobenchmarkScope.getShaderCachePath(packageName)
         println("validating shader path $path")
-        val fileCount = Shell.executeScript("find $path -type f | wc -l").trim().toInt()
+        val fileCount = Shell.executeScriptCaptureStdout("find $path -type f | wc -l")
+            .trim()
+            .toInt()
         if (empty) {
             assertEquals(0, fileCount)
         } else {
