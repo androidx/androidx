@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
 
     <issue
         id="NewApi"
@@ -408,7 +408,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 28 (current min is 19): `android.graphics.drawable.Icon#getType`"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
         errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) firstBuiltIcon).getType());"
         errorLine2="                                                                   ~~~~~~~">
         <location
@@ -417,7 +417,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 28 (current min is 19): `android.graphics.drawable.Icon#getType`"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
         errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) rebuiltIcon).getType());"
         errorLine2="                                                                ~~~~~~~">
         <location
@@ -458,6 +458,24 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getChannels`"
+        errorLine1="            assertEquals(0, resultOne.getChannels().size());"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationManagerCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getChannels`"
+        errorLine1="            assertEquals(0, resultTwo.getChannels().size());"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationManagerCompatTest.java"/>
     </issue>
 
     <issue
@@ -696,29 +714,11 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Action.SEMANTIC_ACTION_NONE, Action.SEMANTIC_ACTION_REPLY, Action.SEMANTIC_ACTION_MARK_AS_READ, Action.SEMANTIC_ACTION_MARK_AS_UNREAD, Action.SEMANTIC_ACTION_DELETE, Action.SEMANTIC_ACTION_ARCHIVE, Action.SEMANTIC_ACTION_MUTE, Action.SEMANTIC_ACTION_UNMUTE, Action.SEMANTIC_ACTION_THUMBS_UP, Action.SEMANTIC_ACTION_THUMBS_DOWN, Action.SEMANTIC_ACTION_CALL"
-        errorLine1="                actionBuilder.setSemanticAction(action.getSemanticAction());"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
         message="Must be one of: Callback.DISPATCH_MODE_STOP, Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE"
         errorLine1="                super(compat.getDispatchMode());"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    requestRelaunchActivityMethod.invoke(activityThread,"
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/androidx/core/app/ActivityRecreator.java"/>
     </issue>
 
     <issue
