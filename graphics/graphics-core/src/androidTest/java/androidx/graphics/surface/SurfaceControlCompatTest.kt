@@ -1636,9 +1636,8 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_identity() {
-        val listener = TransactionOnCommitListener()
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(
                 Lifecycle.State.CREATED
@@ -1662,7 +1661,6 @@ class SurfaceControlCompatTest {
                         )
 
                         SurfaceControlCompat.Transaction()
-                            .addTransactionCommittedListener(executor!!, listener)
                             .setBuffer(scCompat, buffer)
                             .setVisibility(scCompat, true)
                             .setBufferTransform(
@@ -1677,7 +1675,6 @@ class SurfaceControlCompatTest {
             }
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
             SurfaceControlUtils.validateOutput { bitmap ->
                 val coord = intArrayOf(0, 0)
                 it.mSurfaceView.getLocationOnScreen(coord)
@@ -1699,9 +1696,8 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_singleTransform() {
-        val listener = TransactionOnCommitListener()
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(
                 Lifecycle.State.CREATED
@@ -1725,7 +1721,6 @@ class SurfaceControlCompatTest {
                         )
 
                         SurfaceControlCompat.Transaction()
-                            .addTransactionCommittedListener(executor!!, listener)
                             .setBuffer(scCompat, buffer)
                             .setVisibility(scCompat, true)
                             .setBufferTransform(
@@ -1740,7 +1735,6 @@ class SurfaceControlCompatTest {
             }
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
             SurfaceControlUtils.validateOutput { bitmap ->
                 val coord = intArrayOf(0, 0)
                 it.mSurfaceView.getLocationOnScreen(coord)
