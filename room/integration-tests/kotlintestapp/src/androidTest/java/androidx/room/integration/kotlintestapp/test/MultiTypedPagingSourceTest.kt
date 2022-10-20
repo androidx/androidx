@@ -47,7 +47,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -115,20 +114,20 @@ class MultiTypedPagingSourceTest(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
+
             // now access to the end of the list, it should load everything as we disabled jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(items.size - 1)
+                assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             }
-            assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
     }
 
     @Test
-    @Ignore("b/233214547")
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
@@ -153,14 +152,16 @@ class MultiTypedPagingSourceTest(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(40)
+                assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             }
-            assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
+
             // now access to the beginning of the list, it should load everything as we don't
             // support jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(0)
+                assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             }
-            assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
+
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -191,8 +192,8 @@ class MultiTypedPagingSourceTest(
             // now trigger a prepend
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
         }
     }
 
@@ -303,16 +304,16 @@ class MultiTypedPagingSourceTest(
                 (0 until 10).forEach {
                     itemStore.get(it)
                 }
-            }
-            // now ensure all of them are loaded
-            // only waiting for 9 items because because the 10th item and onwards are nulls from
-            // placeholders
-            (0 until 9).forEach {
-                assertThat(
-                    itemStore.awaitItem(it)
-                ).isEqualTo(
-                    items[60 + it]
-                )
+                // now ensure all of them are loaded
+                // only waiting for 9 items because because the 10th item and onwards are nulls from
+                // placeholders
+                (0 until 9).forEach {
+                    assertThat(
+                        itemStore.awaitItem(it)
+                    ).isEqualTo(
+                        items[60 + it]
+                    )
+                }
             }
 
             // Runs the original invalidationTracker.refreshRunnable.
@@ -391,7 +392,9 @@ class MultiTypedPagingSourceTest(
             assertThat(expectError.message).isEqualTo("didn't complete in expected time")
 
             // and stale PagingSource would return item 70 instead of item 10
-            assertThat(itemStore.awaitItem(10)).isEqualTo(items[70])
+            withContext(Dispatchers.Main) {
+                assertThat(itemStore.awaitItem(10)).isEqualTo(items[70])
+            }
             assertFalse(pagingSources[0].invalid)
 
             // prepend again
@@ -459,14 +462,14 @@ class MultiTypedPagingSourceTest(
                 (0 until 10).forEach {
                     itemStore.get(it)
                 }
-            }
-            // now ensure all of them are loaded
-            (0 until 10).forEach {
-                assertThat(
-                    itemStore.awaitItem(it)
-                ).isEqualTo(
-                    items[80 + it]
-                )
+                // now ensure all of them are loaded
+                (0 until 10).forEach {
+                    assertThat(
+                        itemStore.awaitItem(it)
+                    ).isEqualTo(
+                        items[80 + it]
+                    )
+                }
             }
 
             // Runs the original invalidationTracker.refreshRunnable.
@@ -592,13 +595,13 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(20)
+                assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             }
-            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
             // now access to the end of the list, it should load everything as we disabled jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(items.size - 1)
+                assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             }
-            assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -629,14 +632,14 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(40)
+                assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             }
-            assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
             // now access to the beginning of the list, it should load everything as we don't
             // support jumping
             withContext(Dispatchers.Main) {
                 itemStore.get(0)
+                assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             }
-            assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
         }
@@ -665,9 +668,10 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(15)
+                // item 15 is offset by 5 = 20
+                assertThat(itemStore.awaitItem(15)).isEqualTo(items[20])
             }
-            // item 15 is offset by 5 = 20
-            assertThat(itemStore.awaitItem(15)).isEqualTo(items[20])
+
             // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 30
             // itemStore.get(50) should now become invalid
             val expectedException = assertFailsWith<IndexOutOfBoundsException> {
@@ -706,9 +710,10 @@ class MultiTypedPagingSourceTestWithRawQuery(
             // now access more items that should trigger loading more
             withContext(Dispatchers.Main) {
                 itemStore.get(15)
+                // item 15 is offset by 50 because of `WHERE id > 49` arg
+                assertThat(itemStore.awaitItem(15)).isEqualTo(items[65])
             }
-            // item 15 is offset by 50 because of `WHERE id > 49` arg
-            assertThat(itemStore.awaitItem(15)).isEqualTo(items[65])
+
             // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 20
             val expectedException = assertFailsWith<IndexOutOfBoundsException> {
                 withContext(Dispatchers.Main) {
