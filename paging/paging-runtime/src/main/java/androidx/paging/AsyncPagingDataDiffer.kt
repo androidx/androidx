@@ -18,6 +18,7 @@ package androidx.paging
 
 import android.util.Log
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.REFRESH
@@ -293,6 +294,7 @@ constructor(
      * @param index Index of item to get, must be >= 0, and < [itemCount]
      * @return The item, or `null`, if a `null` placeholder is at the specified position.
      */
+    @MainThread
     fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem = true
@@ -309,6 +311,7 @@ constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
+    @MainThread
     fun peek(@IntRange(from = 0) index: Int): T? {
         return differBase.peek(index)
     }
