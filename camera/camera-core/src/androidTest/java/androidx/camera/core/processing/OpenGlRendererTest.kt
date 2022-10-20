@@ -42,7 +42,6 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -94,6 +93,8 @@ class OpenGlRendererTest {
     private lateinit var glRenderer: OpenGlRenderer
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
+    private val surfacesToRelease = mutableListOf<Surface>()
+    private val surfaceTexturesToRelease = mutableListOf<SurfaceTexture>()
 
     @Before
     fun setUp() {
@@ -109,6 +110,12 @@ class OpenGlRendererTest {
         }
         if (::renderOutput.isInitialized) {
             renderOutput.release()
+        }
+        for (surface in surfacesToRelease) {
+            surface.release()
+        }
+        for (surfaceTexture in surfaceTexturesToRelease) {
+            surfaceTexture.release()
         }
         if (::glRenderer.isInitialized) {
             withContext(glDispatcher) {
@@ -129,10 +136,10 @@ class OpenGlRendererTest {
     }
 
     @Test
-    fun setOutputSurfaceWithoutInit_throwException(): Unit = runBlocking(glDispatcher) {
+    fun registerOutputSurfaceWithoutInit_throwException(): Unit = runBlocking(glDispatcher) {
         createOpenGlRenderer()
         assertThrows(IllegalStateException::class.java) {
-            glRenderer.setOutputSurface(mock(Surface::class.java))
+            glRenderer.registerOutputSurface(createAutoReleaseSurface())
         }
     }
 
@@ -140,7 +147,15 @@ class OpenGlRendererTest {
     fun renderWithoutInit_throwException(): Unit = runBlocking(glDispatcher) {
         createOpenGlRenderer()
         assertThrows(IllegalStateException::class.java) {
-            glRenderer.render(123L, IDENTITY_MATRIX)
+            glRenderer.render(123L, IDENTITY_MATRIX, createAutoReleaseSurface())
+        }
+    }
+
+    @Test
+    fun unregisterOutputSurfaceWithoutInit_throwException(): Unit = runBlocking(glDispatcher) {
+        createOpenGlRenderer()
+        assertThrows(IllegalStateException::class.java) {
+            glRenderer.unregisterOutputSurface(createAutoReleaseSurface())
         }
     }
 
@@ -159,10 +174,10 @@ class OpenGlRendererTest {
     }
 
     @Test
-    fun setOutputSurfaceOnNonGlThread_throwException(): Unit = runBlocking {
+    fun registerOnNonGlThread_throwException(): Unit = runBlocking {
         createOpenGlRendererAndInit()
         assertThrows(IllegalStateException::class.java) {
-            glRenderer.setOutputSurface(mock(Surface::class.java))
+            glRenderer.registerOutputSurface(createAutoReleaseSurface())
         }
     }
 
@@ -170,7 +185,15 @@ class OpenGlRendererTest {
     fun renderOnNonGlThread_throwException(): Unit = runBlocking {
         createOpenGlRendererAndInit()
         assertThrows(IllegalStateException::class.java) {
-            glRenderer.render(123L, IDENTITY_MATRIX)
+            glRenderer.render(123L, IDENTITY_MATRIX, createAutoReleaseSurface())
+        }
+    }
+
+    @Test
+    fun unregisterOnNonGlThread_throwException(): Unit = runBlocking {
+        createOpenGlRendererAndInit()
+        assertThrows(IllegalStateException::class.java) {
+            glRenderer.unregisterOutputSurface(createAutoReleaseSurface())
         }
     }
 
@@ -255,6 +278,21 @@ class OpenGlRendererTest {
         testRender(OutputType.SURFACE_TEXTURE, createCustomShaderProvider())
     }
 
+    @Test
+    fun unregisterOutputSurface(): Unit = runBlocking(glDispatcher) {
+        // Arrange.
+        createOpenGlRendererAndInit()
+
+        // Prepare output
+        val outputSurface = createAutoReleaseSurface()
+
+        // Assert.
+        glRenderer.registerOutputSurface(outputSurface)
+        assertThat(glRenderer.mOutputSurfaceMap[outputSurface]).isNotNull()
+        glRenderer.unregisterOutputSurface(outputSurface)
+        assertThat(glRenderer.mOutputSurfaceMap[outputSurface]).isNull()
+    }
+
     private suspend fun testRender(
         outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
@@ -275,12 +313,13 @@ class OpenGlRendererTest {
 
         // Prepare output
         renderOutput = RenderOutput.createRenderOutput(outputType)
+        val outputSurface = renderOutput.surface
 
         // Bridge input to output
+        glRenderer.registerOutputSurface(outputSurface)
         surfaceTexture.setOnFrameAvailableListener({
             it.updateTexImage()
-            glRenderer.setOutputSurface(renderOutput.surface)
-            glRenderer.render(0L, IDENTITY_MATRIX)
+            glRenderer.render(0L, IDENTITY_MATRIX, outputSurface)
         }, glHandler)
 
         // Assert.
@@ -326,6 +365,16 @@ class OpenGlRendererTest {
 
     private fun createOpenGlRenderer() {
         glRenderer = OpenGlRenderer()
+    }
+
+    private fun createAutoReleaseSurface(): Surface {
+        val surfaceTexture = SurfaceTexture(0)
+        surfaceTexture.setDefaultBufferSize(WIDTH, HEIGHT)
+        surfaceTexturesToRelease.add(surfaceTexture)
+        val surface = Surface(surfaceTexture)
+        surfacesToRelease.add(surface)
+
+        return surface
     }
 
     private fun openCameraAndSetRepeating(surface: Surface) {

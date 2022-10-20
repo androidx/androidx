@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.util.Size;
@@ -39,6 +41,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -57,9 +60,6 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @SuppressWarnings("WeakerAccess")
     final SurfaceRequestCallback mSurfaceRequestCallback = new SurfaceRequestCallback();
 
-    @Nullable
-    private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
-
     SurfaceViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
         super(parent, previewTransform);
@@ -68,13 +68,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @Override
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
-        mResolution = surfaceRequest.getResolution();
-        mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
-        initializePreview();
-        surfaceRequest.addRequestCancellationListener(
-                ContextCompat.getMainExecutor(mSurfaceView.getContext()),
-                this::notifySurfaceNotInUse);
-        mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
+        if (!shouldReusePreview(mSurfaceView, mResolution, surfaceRequest)) {
+            mResolution = surfaceRequest.getResolution();
+            initializePreview();
+        }
+        if (onSurfaceNotInUseListener != null) {
+            surfaceRequest.addRequestCancellationListener(
+                    ContextCompat.getMainExecutor(mSurfaceView.getContext()),
+                    onSurfaceNotInUseListener::onSurfaceNotInUse);
+        }
+        mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest,
+                onSurfaceNotInUseListener));
     }
 
     @Override
@@ -104,14 +108,6 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @Override
     void onDetachedFromWindow() {
         // Do nothing currently.
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void notifySurfaceNotInUse() {
-        if (mOnSurfaceNotInUseListener != null) {
-            mOnSurfaceNotInUseListener.onSurfaceNotInUse();
-            mOnSurfaceNotInUseListener = null;
-        }
     }
 
     /**
@@ -164,6 +160,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Nullable
         private SurfaceRequest mSurfaceRequest;
 
+        @Nullable
+        private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
+
         // The cached size of the current Surface.
         // Guarded by the UI thread.
         @Nullable
@@ -177,11 +176,13 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
          * the Surface matches the target size.
          */
         @UiThread
-        void setSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
+        void setSurfaceRequest(@NonNull SurfaceRequest surfaceRequest,
+                @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
             // Cancel the previous request, if any
             cancelPreviousRequest();
 
             mSurfaceRequest = surfaceRequest;
+            mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
             Size targetSize = surfaceRequest.getResolution();
             mTargetSize = targetSize;
             mWasSurfaceProvided = false;
@@ -204,12 +205,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             final Surface surface = mSurfaceView.getHolder().getSurface();
             if (canProvideSurface()) {
                 Logger.d(TAG, "Surface set on Preview.");
-                mSurfaceRequest.provideSurface(surface,
+
+                final OnSurfaceNotInUseListener listener = mOnSurfaceNotInUseListener;
+                requireNonNull(mSurfaceRequest).provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                         (result) -> {
                             Logger.d(TAG, "Safe to release surface.");
-                            notifySurfaceNotInUse();
-                        });
+                            if (listener != null) {
+                                listener.onSurfaceNotInUse();
+                            }
+                        }
+                );
                 mWasSurfaceProvided = true;
                 onSurfaceProvided();
                 return true;
@@ -218,8 +224,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         private boolean canProvideSurface() {
-            return !mWasSurfaceProvided && mSurfaceRequest != null && mTargetSize != null
-                    && mTargetSize.equals(mCurrentSurfaceSize);
+            return !mWasSurfaceProvided && mSurfaceRequest != null && Objects.equals(mTargetSize,
+                    mCurrentSurfaceSize);
         }
 
         @UiThread
@@ -269,6 +275,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             // Reset state
             mWasSurfaceProvided = false;
             mSurfaceRequest = null;
+            mOnSurfaceNotInUseListener = null;
             mCurrentSurfaceSize = null;
             mTargetSize = null;
         }
@@ -300,5 +307,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 @NonNull PixelCopy.OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
             PixelCopy.request(source, dest, listener, handler);
         }
+    }
+
+    private static boolean shouldReusePreview(@Nullable SurfaceView surfaceView,
+            @Nullable Size resolution, @NonNull SurfaceRequest surfaceRequest) {
+        boolean isSameResolution = Objects.equals(resolution, surfaceRequest.getResolution());
+        return surfaceView != null && isSameResolution;
     }
 }
