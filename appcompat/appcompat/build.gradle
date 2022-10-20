@@ -54,7 +54,7 @@ dependencies {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
     })
-    androidTestImplementation(project(":recyclerview:recyclerview"))
+    androidTestImplementation(projectOrArtifact(":recyclerview:recyclerview"))
     androidTestImplementation(libs.multidex)
 
     testImplementation(libs.kotlinStdlib)
