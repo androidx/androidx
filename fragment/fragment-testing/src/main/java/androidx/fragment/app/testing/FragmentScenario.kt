@@ -94,8 +94,8 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -116,8 +116,8 @@ public inline fun <reified F : Fragment> launchFragment(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment.
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -146,8 +146,8 @@ public inline fun <reified F : Fragment> launchFragment(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragmentInContainer(
@@ -169,8 +169,8 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
- * @param initialState the initial [Lifecycle.State]. This must be one of
- * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
+ * @param initialState the initial [Lifecycle.State]. Passing in
+ * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment. This is a
  * simplification of the [FragmentFactory] interface for cases where only a single class
  * needs a custom constructor called.
@@ -304,9 +304,7 @@ public class FragmentScenario<F : Fragment> private constructor(
      * Moves Fragment state to a new state.
      *
      *  If a new state and current state are the same, this method does nothing. It accepts
-     * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED],
-     * [RESUMED][Lifecycle.State.RESUMED], and [DESTROYED][Lifecycle.State.DESTROYED].
-     * [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state.
+     * all [Lifecycle.State]s. [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state.
      * You cannot move to any other state after the Fragment reaches that state.
      *
      * This method cannot be called from the main thread.
@@ -463,9 +461,8 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentClass a fragment class to instantiate
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
-         * @param initialState The initial [Lifecycle.State]. This must be one of
-         * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED], and
-         * [RESUMED][Lifecycle.State.RESUMED].
+         * @param initialState The initial [Lifecycle.State]. Passing in
+         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads
@@ -545,9 +542,8 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentClass a fragment class to instantiate
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
-         * @param initialState The initial [Lifecycle.State]. This must be one of
-         * [CREATED][Lifecycle.State.CREATED], [STARTED][Lifecycle.State.STARTED], and
-         * [RESUMED][Lifecycle.State.RESUMED].
+         * @param initialState The initial [Lifecycle.State]. Passing in
+         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads
