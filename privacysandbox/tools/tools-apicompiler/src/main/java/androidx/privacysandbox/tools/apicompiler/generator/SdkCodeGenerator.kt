@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
-import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
@@ -24,12 +24,15 @@ import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.FileSpec
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
+import kotlin.io.path.extension
+import kotlin.io.path.nameWithoutExtension
 
 class SdkCodeGenerator(
     private val codeGenerator: CodeGenerator,
@@ -47,6 +50,7 @@ class SdkCodeGenerator(
         generateStubDelegates()
         generateValueConverters()
         generateCallbackProxies()
+        generateToolMetadata()
     }
 
     private fun generateAidlSources() {
@@ -92,6 +96,15 @@ class SdkCodeGenerator(
         val basePackageName = api.getOnlyService().type.packageName
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
         api.callbacks.map(clientProxyGenerator::generate).forEach(::write)
+    }
+
+    private fun generateToolMetadata() {
+        codeGenerator.createNewFile(
+            Dependencies(false),
+            Metadata.filePath.parent.toString(),
+            Metadata.filePath.nameWithoutExtension,
+            Metadata.filePath.extension,
+        ).use { Metadata.toolMetadata.writeTo(it) }
     }
 
     private fun write(spec: FileSpec) {

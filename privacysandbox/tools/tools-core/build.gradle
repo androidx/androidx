@@ -22,11 +22,13 @@ import androidx.build.SdkHelperKt
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("com.google.protobuf")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation(libs.kotlinPoet)
+    api(libs.protobufLite)
+    api(libs.kotlinPoet)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -45,6 +47,21 @@ dependencies {
                 .withPathSensitivity(PathSensitivity.NAME_ONLY)
         doFirst {
             systemProperty "aidl_compiler_path", aidlCompilerPath
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
         }
     }
 }
