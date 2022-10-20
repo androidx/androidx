@@ -36,7 +36,7 @@ internal interface ParentRenderLayer<T> {
      * avoid unnecessary GPU composition for the purposes of rotating buffer content to
      * match display orientation
      */
-    fun getBufferTransformHint(): Int = UNKNOWN_TRANSFORM
+    fun getBufferTransformHint(): Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
 
     /**
      * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided
@@ -123,12 +123,5 @@ internal interface ParentRenderLayer<T> {
          * rendering to front and double buffered layers
          */
         fun getFrameBufferPool(): FrameBufferPool?
-    }
-
-    companion object {
-        /**
-         * Flag indicating that the current suggested buffer transform is unknown
-         */
-        val UNKNOWN_TRANSFORM = -1
     }
 }

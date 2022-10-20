@@ -50,7 +50,7 @@ internal class BufferTransformer() {
                 SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
             SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY ->
                 SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
-            else -> ParentRenderLayer.UNKNOWN_TRANSFORM // Return unknown transform
+            else -> BufferTransformHintResolver.UNKNOWN_TRANSFORM // Return unknown transform
         }
 
     /**

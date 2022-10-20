@@ -543,7 +543,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                             syncFenceCompat
                         )
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
-                    if (transformHint != ParentRenderLayer.UNKNOWN_TRANSFORM) {
+                    if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                         transaction.setBufferTransform(
                             frontBufferedLayerSurfaceControl,
                             inverseTransform
