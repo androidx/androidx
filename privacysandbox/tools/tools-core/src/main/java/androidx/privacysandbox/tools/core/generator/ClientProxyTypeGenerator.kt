@@ -18,9 +18,9 @@ package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
-import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
@@ -29,44 +29,47 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
 
 class ClientProxyTypeGenerator(
-    private val api: ParsedApi,
-    private val service: AnnotatedInterface
+    private val basePackageName: String,
+    private val binderCodeConverter: BinderCodeConverter
 ) {
-    val className = service.clientProxyNameSpec()
-    val remoteBinderClassName =
-        ClassName(service.type.packageName, "I${service.type.simpleName}")
     private val cancellationSignalClassName =
-        ClassName(service.type.packageName, "ICancellationSignal")
-    private val binderCodeConverter = BinderCodeConverter(api)
+        ClassName(basePackageName, "ICancellationSignal")
 
-    fun generate(visibilityModifier: KModifier = KModifier.INTERNAL): TypeSpec =
-        TypeSpec.classBuilder(className).build {
-            addModifiers(visibilityModifier)
-            addSuperinterface(ClassName(service.type.packageName, service.type.simpleName))
+    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
+        val className = annotatedInterface.clientProxyNameSpec().simpleName
+        val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetSpec()
+
+        val classSpec = TypeSpec.classBuilder(className).build {
+            addSuperinterface(annotatedInterface.type.poetSpec())
+
             primaryConstructor(
                 listOf(
                     PropertySpec.builder("remote", remoteBinderClassName)
                         .addModifiers(KModifier.PRIVATE).build()
                 )
             )
-            addFunctions(service.methods.map { method ->
-                if (method.isSuspend) {
-                    generateSuspendProxyMethodImplementation(method)
-                } else {
-                    generateProxyMethodImplementation(method)
-                }
-            })
+
+            addFunctions(annotatedInterface.methods.map(::toFunSpec))
         }
 
-    private fun generateProxyMethodImplementation(method: Method) =
-        FunSpec.builder(method.name).build {
-            addModifiers(KModifier.OVERRIDE)
-            addParameters(method.parameters.map { it.poetSpec() })
+        return FileSpec.builder(annotatedInterface.type.packageName, className).build {
+            addCommonSettings()
 
-            addCode(generateRemoteCall(method))
+            // TODO(b/254660742): Only add these when needed
+            addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
+            addImport("kotlin.coroutines", "resume")
+            addImport("kotlin.coroutines", "resumeWithException")
+
+            addType(classSpec)
         }
+    }
 
-    private fun generateSuspendProxyMethodImplementation(method: Method) =
+    private fun toFunSpec(method: Method): FunSpec {
+        if (method.isSuspend) return toSuspendFunSpec(method)
+        return toNonSuspendFunSpec(method)
+    }
+
+    private fun toSuspendFunSpec(method: Method) =
         FunSpec.builder(method.name).build {
             addModifiers(KModifier.OVERRIDE)
             addModifiers(KModifier.SUSPEND)
@@ -87,9 +90,17 @@ class ClientProxyTypeGenerator(
             }
         }
 
+    private fun toNonSuspendFunSpec(method: Method) =
+        FunSpec.builder(method.name).build {
+            addModifiers(KModifier.OVERRIDE)
+            addParameters(method.parameters.map { it.poetSpec() })
+
+            addCode(generateRemoteCall(method))
+        }
+
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(
-            service.type.packageName,
+            basePackageName,
             method.returnType.transactionCallbackName(),
             "Stub"
         )

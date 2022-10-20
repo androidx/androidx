@@ -26,15 +26,15 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
-internal class InterfaceFileGenerator(private val annotatedInterface: AnnotatedInterface) {
+internal class InterfaceFileGenerator() {
 
-    fun generate(): FileSpec {
-        val annotatedInterface =
+    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
+        val annotatedInterfaceType =
             TypeSpec.interfaceBuilder(annotatedInterface.type.poetSpec()).build {
                 addFunctions(annotatedInterface.methods.map(::generateInterfaceMethod))
             }
 
-        return FileSpec.get(this.annotatedInterface.type.packageName, annotatedInterface)
+        return FileSpec.get(annotatedInterface.type.packageName, annotatedInterfaceType)
             .toBuilder().build {
             addCommonSettings()
         }

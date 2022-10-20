@@ -1,17 +1,18 @@
 package com.mysdk
 
 import com.mysdk.ResponseConverter.toParcelable
-import kotlin.Int
-import kotlin.Unit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
-internal class MyCallbackClientProxy(
-  private val remote: IMyCallback,
+public class MyCallbackClientProxy(
+    private val remote: IMyCallback,
 ) : MyCallback {
-  public override fun onComplete(response: Response): Unit {
-    remote.onComplete(toParcelable(response))
-  }
+    public override fun onComplete(response: Response): Unit {
+        remote.onComplete(toParcelable(response))
+    }
 
-  public override fun onClick(x: Int, y: Int): Unit {
-    remote.onClick(x, y)
-  }
+    public override fun onClick(x: Int, y: Int): Unit {
+        remote.onClick(x, y)
+    }
 }
