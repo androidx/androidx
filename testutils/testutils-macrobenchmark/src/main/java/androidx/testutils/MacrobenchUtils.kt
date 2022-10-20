@@ -28,12 +28,9 @@ import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
 /**
- * Basic, always-usable compilation modes, when baseline profiles aren't available.
- *
- * Over time, it's expected very few macrobenchmarks will reference this directly, as more libraries
- * gain baseline profiles.
+ * Compilation modes to sweep over for jetpack internal macrobenchmarks
  */
-val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
     // other modes aren't supported
     listOf(CompilationMode.Full())
 } else {
@@ -44,6 +41,12 @@ val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
             baselineProfileMode = BaselineProfileMode.Disable,
             warmupIterations = 3
         ),
+        /* For simplicity we use `Partial()`, which will only install baseline profiles if
+         * available, which would not be useful for macrobenchmarks that don't include baseline
+         * profiles. However baseline profiles are expected to make their way into essentially every
+         * jetpack macrobenchmark over time.
+         */
+        CompilationMode.Partial(),
         CompilationMode.Full()
     )
 }
@@ -57,19 +60,6 @@ val STARTUP_MODES = listOf(
     // but not in Jetpack CI (b/204572406)
     !(Build.VERSION.SDK_INT == 23 && it == StartupMode.HOT && Build.DEVICE == "angler")
 }
-
-/**
- * Default compilation modes to test for all AndroidX macrobenchmarks.
- *
- * Baseline profiles are only supported from Nougat (API 24),
- * currently through Android 12 (API 31)
- */
-@Suppress("ConvertTwoComparisonsToRangeCheck") // lint doesn't understand range checks
-val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT <= 31) {
-    listOf(CompilationMode.Partial())
-} else {
-    emptyList()
-} + BASIC_COMPILATION_MODES
 
 /**
  * Temporary, while transitioning to new metrics
