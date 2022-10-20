@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
 import androidx.core.os.BuildCompat
-import androidx.core.os.CancellationSignal
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -74,9 +73,6 @@ abstract class TopicsManager internal constructor() {
                 Runnable::run,
                 continuation.asOutcomeReceiver()
             )
-            continuation.invokeOnCancellation {
-                CancellationSignal().cancel()
-            }
         }
 
         private fun convertRequest(

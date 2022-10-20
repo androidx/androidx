@@ -1,4 +1,23 @@
 // Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.java.measurement {
+
+  public abstract class MeasurementManagerFutures {
+    method @DoNotInline public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> deleteRegistrationsAsync(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest deletionRequest);
+    method public static final androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures? from(android.content.Context context);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState> getMeasurementApiStatusAsync();
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerSourceAsync(android.net.Uri attributionSource, android.view.InputEvent? inputEvent);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerTriggerAsync(android.net.Uri trigger);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerWebSourceAsync(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> registerWebTriggerAsync(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures.Companion Companion;
+  }
+
+  public static final class MeasurementManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures? from(android.content.Context context);
+  }
+
+}
+
 package androidx.privacysandbox.ads.adservices.java.topics {
 
   public abstract class TopicsManagerFutures {
