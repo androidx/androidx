@@ -787,3 +787,9 @@ Did you make a typo\? Are you trying to refer to something not visible to users\
 \* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :annotation:annotation\. to enable lint to analyze those sources\.
 # > Task :linkDebugTestIosX64 b/253041601
 w: Cached libraries will not be used with std allocator
+# cinterop warnings we have no control over.
+objc\[.*\]: Class .*
+# KMP messages on successful XCFramework builds.
+xcframework successfully .*
+# iOS benchmark invocation
+/usr/bin/xcodebuild

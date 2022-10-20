@@ -49,11 +49,10 @@ abstract class DarwinBenchmarkResultsTask @Inject constructor(
         val xcResultFile = xcResultPath.get().asFile
         val parser = XcResultParser(xcResultFile) { args ->
             val output = ByteArrayOutputStream()
-            val result = execOperations.exec { spec ->
+            execOperations.exec { spec ->
                 spec.commandLine = args
                 spec.standardOutput = output
             }
-            result.assertNormalExitValue()
             output.use {
                 val input = ByteArrayInputStream(output.toByteArray())
                 input.use {
