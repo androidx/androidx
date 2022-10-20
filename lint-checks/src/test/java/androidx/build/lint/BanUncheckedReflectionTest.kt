@@ -20,6 +20,7 @@ package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.RestrictTo
 import com.android.tools.lint.checks.infrastructure.TestMode
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,6 +32,7 @@ class BanUncheckedReflectionTest : AbstractLintDetectorTest(
     stubs = arrayOf(Stubs.ChecksSdkIntAtLeast),
 ) {
 
+    @Ignore("b/251883059")
     @Test
     fun `Detection of unchecked reflection in real-world Java sources`() {
         val input = arrayOf(
@@ -56,6 +58,7 @@ src/androidx/sample/core/app/ActivityRecreator.java:265: Error: Calling Method.i
         check(*input).expect(expected)
     }
 
+    @Ignore("b/251883059")
     @Test
     fun `Detection of unchecked reflection in real-world Kotlin sources`() {
         val input = arrayOf(
