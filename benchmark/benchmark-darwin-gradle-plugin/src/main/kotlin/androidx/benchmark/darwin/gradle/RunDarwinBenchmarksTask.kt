@@ -63,9 +63,7 @@ abstract class RunDarwinBenchmarksTask @Inject constructor(
             "-resultBundlePath", xcResultFile.absolutePath,
         )
         logger.info("Command : ${args.joinToString(" ")}")
-        execOperations.exec { spec ->
-            spec.commandLine = args
-        }
+        execOperations.executeQuietly(args)
     }
 
     private fun requireXcodeBuild() {
