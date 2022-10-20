@@ -133,6 +133,7 @@ public class AsyncWatchFaceInitTest {
         ),
         WatchUiState(false, 0),
         UserStyle(emptyMap()).toWireFormat(),
+        null,
         null
     )
 
