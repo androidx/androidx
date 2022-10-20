@@ -16,14 +16,14 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
-import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addCommonSettings
 import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.addStatement
+import androidx.privacysandbox.tools.core.generator.aidlInterfaceNameSpec
 import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.clientProxyNameSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
-import androidx.privacysandbox.tools.core.model.ParsedApi
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -32,25 +32,18 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.joinToCode
 
-internal class ServiceFactoryFileGenerator(
-    api: ParsedApi,
-    private val service: AnnotatedInterface
-) {
-    private val proxyTypeGenerator = ClientProxyTypeGenerator(api, service)
-
-    fun generate(): FileSpec =
+internal class ServiceFactoryFileGenerator() {
+    fun generate(service: AnnotatedInterface): FileSpec =
         FileSpec.builder(service.type.packageName, "${service.type.simpleName}Factory").build {
             addCommonSettings()
             addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
             addImport("kotlin.coroutines", "resume")
             addImport("kotlin.coroutines", "resumeWithException")
 
-            addFunction(generateFactoryFunction())
-
-            addType(proxyTypeGenerator.generate(KModifier.PRIVATE))
+            addFunction(generateFactoryFunction(service))
         }
 
-    private fun generateFactoryFunction() =
+    private fun generateFactoryFunction(service: AnnotatedInterface) =
         FunSpec.builder("create${service.type.simpleName}").build {
             addModifiers(KModifier.SUSPEND)
             addParameter(ParameterSpec("context", AndroidClassNames.context))
@@ -73,8 +66,7 @@ internal class ServiceFactoryFileGenerator(
                         ) {
                             addStatement(
                                 "it.resume(%T(%T.Stub.asInterface(result.getInterface())))",
-                                proxyTypeGenerator.className,
-                                proxyTypeGenerator.remoteBinderClassName
+                                service.clientProxyNameSpec(), service.aidlInterfaceNameSpec()
                             )
                         }
                         addControlFlow(

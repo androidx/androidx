@@ -19,9 +19,12 @@ package androidx.privacysandbox.tools.apicompiler.generator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
+import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.FileSpec
@@ -33,18 +36,17 @@ class SdkCodeGenerator(
     private val api: ParsedApi,
     private val aidlCompilerPath: Path,
 ) {
+    private val binderCodeConverter = BinderCodeConverter(api)
+
     fun generate() {
+        if (api.services.isEmpty()) {
+            return
+        }
         generateAidlSources()
-        generateValueConverters()
-        generateCallbackProxies()
         generateAbstractSdkProvider()
         generateStubDelegates()
-    }
-
-    private fun generateValueConverters() {
-        api.values.forEach { value ->
-            write(ValueConverterFileGenerator(api, value).generate())
-        }
+        generateValueConverters()
+        generateCallbackProxies()
     }
 
     private fun generateAidlSources() {
@@ -67,22 +69,29 @@ class SdkCodeGenerator(
         }
     }
 
-    private fun generateCallbackProxies() {
-        for (callback in api.callbacks) {
-            val classSpec = ClientProxyTypeGenerator(api, callback).generate()
-            write(
-                FileSpec.builder(callback.type.packageName, classSpec.name!!).addType(classSpec)
-                    .build()
-            )
-        }
-    }
-
     private fun generateAbstractSdkProvider() {
         AbstractSdkProviderGenerator(api).generate()?.also(::write)
     }
 
     private fun generateStubDelegates() {
-        StubDelegatesGenerator(api).generate().forEach(::write)
+        val basePackageName = api.getOnlyService().type.packageName
+        val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
+        api.services.map(stubDelegateGenerator::generate).forEach(::write)
+        api.interfaces.map(stubDelegateGenerator::generate).forEach(::write)
+
+        val transportCancellationGenerator = TransportCancellationGenerator(basePackageName)
+        transportCancellationGenerator.generate().also(::write)
+    }
+
+    private fun generateValueConverters() {
+        val valueConverterFileGenerator = ValueConverterFileGenerator(api)
+        api.values.map(valueConverterFileGenerator::generate).forEach(::write)
+    }
+
+    private fun generateCallbackProxies() {
+        val basePackageName = api.getOnlyService().type.packageName
+        val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
+        api.callbacks.map(clientProxyGenerator::generate).forEach(::write)
     }
 
     private fun write(spec: FileSpec) {

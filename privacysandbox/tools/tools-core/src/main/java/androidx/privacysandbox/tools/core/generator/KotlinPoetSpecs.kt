@@ -51,6 +51,8 @@ fun AnnotatedInterface.clientProxyNameSpec() =
     ClassName(type.packageName, "${type.simpleName}ClientProxy")
 fun AnnotatedInterface.stubDelegateNameSpec() =
     ClassName(type.packageName, "${type.simpleName}StubDelegate")
+fun AnnotatedInterface.aidlInterfaceNameSpec() =
+    ClassName(type.packageName, aidlType().innerType.simpleName)
 
 /**
  * Defines the primary constructor of this type with the given list of properties.
