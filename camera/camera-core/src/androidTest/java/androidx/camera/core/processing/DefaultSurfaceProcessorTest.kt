@@ -17,6 +17,7 @@
 package androidx.camera.core.processing
 
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
@@ -46,7 +47,6 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -92,6 +92,8 @@ class DefaultSurfaceProcessorTest {
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
+    private val surfacesToRelease = mutableListOf<Surface>()
+    private val surfaceTexturesToRelease = mutableListOf<SurfaceTexture>()
     private val fakeCamera = FakeCamera()
 
     @After
@@ -101,6 +103,12 @@ class DefaultSurfaceProcessorTest {
         }
         if (::renderOutput.isInitialized) {
             renderOutput.release()
+        }
+        for (surface in surfacesToRelease) {
+            surface.release()
+        }
+        for (surfaceTexture in surfaceTexturesToRelease) {
+            surfaceTexture.release()
         }
         if (::surfaceProcessor.isInitialized) {
             surfaceProcessor.release()
@@ -301,7 +309,7 @@ class DefaultSurfaceProcessorTest {
         }
     }
 
-    private fun createSurfaceOutput(surface: Surface = mock(Surface::class.java)) =
+    private fun createSurfaceOutput(surface: Surface = createAutoReleaseSurface()) =
         SurfaceOutputImpl(
             surface,
             CameraEffect.PREVIEW,
@@ -334,6 +342,16 @@ class DefaultSurfaceProcessorTest {
                 fragCoordsVarName ?: correctFragCoordsVarName
             )
         }
+    }
+
+    private fun createAutoReleaseSurface(): Surface {
+        val surfaceTexture = SurfaceTexture(0)
+        surfaceTexture.setDefaultBufferSize(WIDTH, HEIGHT)
+        surfaceTexturesToRelease.add(surfaceTexture)
+        val surface = Surface(surfaceTexture)
+        surfacesToRelease.add(surface)
+
+        return surface
     }
 
     private fun DefaultSurfaceProcessor.idle() {

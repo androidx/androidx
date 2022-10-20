@@ -236,9 +236,11 @@ public final class PreviewView extends FrameLayout {
                         redrawPreview();
                     });
 
-            mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
-                    ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
-                    : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
+            if (!shouldReuseImplementation(mImplementation, surfaceRequest, mImplementationMode)) {
+                mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
+                        ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
+                        : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
+            }
 
             PreviewStreamStateObserver streamStateObserver =
                     new PreviewStreamStateObserver(camera.getCameraInfoInternal(),
@@ -660,6 +662,13 @@ public final class PreviewView extends FrameLayout {
         if (mCameraController != null) {
             mCameraController.updatePreviewViewTransform(getOutputTransform());
         }
+    }
+
+    @VisibleForTesting
+    static boolean shouldReuseImplementation(@Nullable PreviewViewImplementation implementation,
+            @NonNull SurfaceRequest surfaceRequest, @NonNull ImplementationMode mode) {
+        return implementation instanceof SurfaceViewImplementation && !shouldUseTextureView(
+                surfaceRequest, mode);
     }
 
     // Synthetic access

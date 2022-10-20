@@ -503,16 +503,7 @@ class PreviewViewDeviceTest(
     fun usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         instrumentation.runOnMainSync {
             Assume.assumeTrue(Build.VERSION.SDK_INT > 24)
-            Assume.assumeTrue(
-                DeviceQuirks.get(
-                    SurfaceViewNotCroppedByParentQuirk::class.java
-                ) == null
-            )
-            Assume.assumeTrue(
-                DeviceQuirks.get(
-                    SurfaceViewStretchedQuirk::class.java
-                ) == null
-            )
+            Assume.assumeFalse(hasSurfaceViewQuirk())
             val cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2)
             val previewView = PreviewView(context)
             setContentView(previewView)
@@ -537,6 +528,52 @@ class PreviewViewDeviceTest(
             Truth.assertThat(previewView.mImplementation).isInstanceOf(
                 TextureViewImplementation::class.java
             )
+        }
+    }
+
+    @Test
+    fun reuseImpl_whenImplModeIsSurfaceView_andSurfaceRequestCompatibleWithSurfaceView() {
+        instrumentation.runOnMainSync {
+            // Arrange.
+            Assume.assumeTrue(Build.VERSION.SDK_INT > 24)
+            Assume.assumeFalse(hasSurfaceViewQuirk())
+            val cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2)
+            val previewView = PreviewView(context)
+            setContentView(previewView)
+
+            // Act.
+            previewView.implementationMode = ImplementationMode.PERFORMANCE
+            val surfaceProvider = previewView.surfaceProvider
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo))
+            val previousImplementation = previewView.mImplementation
+            assertThat(previousImplementation).isInstanceOf(SurfaceViewImplementation::class.java)
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo))
+
+            // Assert.
+            val newImplementation = previewView.mImplementation
+            assertThat(newImplementation).isEqualTo(previousImplementation)
+        }
+    }
+
+    @Test
+    fun notReuseImpl_whenImplIsTextureView() {
+        instrumentation.runOnMainSync {
+            // Arrange.
+            val cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2)
+            val previewView = PreviewView(context)
+            setContentView(previewView)
+
+            // Act.
+            previewView.implementationMode = ImplementationMode.COMPATIBLE
+            val surfaceProvider = previewView.surfaceProvider
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo))
+            val previousImplementation = previewView.mImplementation
+            assertThat(previousImplementation).isInstanceOf(TextureViewImplementation::class.java)
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo))
+
+            // Assert.
+            val newImplementation = previewView.mImplementation
+            assertThat(newImplementation).isNotEqualTo(previousImplementation)
         }
     }
 
@@ -1066,6 +1103,12 @@ class PreviewViewDeviceTest(
             )
         }
         instrumentation.waitForIdleSync()
+    }
+
+    private fun hasSurfaceViewQuirk(): Boolean {
+        return DeviceQuirks.get(SurfaceViewStretchedQuirk::class.java) != null || DeviceQuirks.get(
+            SurfaceViewNotCroppedByParentQuirk::class.java
+        ) != null
     }
 
     /**
