@@ -61,7 +61,6 @@ import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeSpec
-import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import java.util.Arrays
 import java.util.Collections
 import java.util.Locale
@@ -232,13 +231,7 @@ class DaoWriter(
         ).apply {
             returns(
                 List::class.asClassName().parametrizedBy(
-                    Class::class.asClassName().parametrizedBy(
-                        // TODO(b/249984508): Create XTypeName factory for type variable names
-                        XTypeName(
-                            java = JWildcardTypeName.subtypeOf(Object::class.java),
-                            kotlin = com.squareup.kotlinpoet.STAR
-                        )
-                    )
+                    Class::class.asClassName().parametrizedBy(XTypeName.ANY_WILDCARD)
                 )
             )
             addCode(body)
@@ -300,9 +293,9 @@ class DaoWriter(
         method.methodBinder.executeAndReturn(
             returnType = method.returnType,
             parameterNames = method.parameterNames,
-            daoName = dao.typeName.toJavaPoet(),
-            daoImplName = dao.implTypeName.toJavaPoet(),
-            dbField = dbProperty.toJavaPoet(),
+            daoName = dao.typeName,
+            daoImplName = dao.implTypeName,
+            dbProperty = dbProperty,
             scope = scope
         )
         return overrideWithoutAnnotations(method.element, declaredDao)

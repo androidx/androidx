@@ -39,7 +39,8 @@ public final class ComplexDao_Impl extends ComplexDao {
     public boolean transactionMethod(final int i, final String s, final long l) {
         __db.beginTransaction();
         try {
-            boolean _result = ComplexDao_Impl.super.transactionMethod(i, s, l);
+            final boolean _result;
+            _result = ComplexDao_Impl.super.transactionMethod(i, s, l);
             __db.setTransactionSuccessful();
             return _result;
         } finally {

@@ -65,7 +65,7 @@ object SupportDbTypeNames {
 object RoomTypeNames {
     val STRING_UTIL: XClassName = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
     val ROOM_DB: XClassName = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
-    val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
+    val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: XClassName =
         XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
@@ -247,7 +247,7 @@ object RoomCoroutinesTypeNames {
 
 object KotlinTypeNames {
     val UNIT = ClassName.get("kotlin", "Unit")
-    val CONTINUATION = ClassName.get("kotlin.coroutines", "Continuation")
+    val CONTINUATION = XClassName.get("kotlin.coroutines", "Continuation")
     val COROUTINE_SCOPE = ClassName.get("kotlinx.coroutines", "CoroutineScope")
     val CHANNEL = ClassName.get("kotlinx.coroutines.channels", "Channel")
     val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
@@ -260,6 +260,8 @@ object RoomMemberNames {
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
     val ROOM_SQL_QUERY_ACQUIRE =
         RoomTypeNames.ROOM_SQL_QUERY.companionMember("acquire", isJvmStatic = true)
+    val ROOM_DATABASE_WITH_TRANSACTION =
+        RoomTypeNames.ROOM_DB_KT.packageMember("withTransaction")
 }
 
 val DEFERRED_TYPES = listOf(
@@ -332,29 +334,29 @@ fun CallableTypeSpecBuilder(
     )
 }
 
-fun Function1TypeSpecBuilder(
-    parameterTypeName: TypeName,
+fun Function1TypeSpec(
+    language: CodeLanguage,
+    parameterTypeName: XTypeName,
     parameterName: String,
-    returnTypeName: TypeName,
-    callBody: MethodSpec.Builder.() -> Unit
-) = TypeSpec.anonymousClassBuilder("").apply {
+    returnTypeName: XTypeName,
+    callBody: XFunSpec.Builder.() -> Unit
+) = XTypeSpec.anonymousClassBuilder(language, "").apply {
     superclass(
-        ParameterizedTypeName.get(
-            Function1::class.typeName,
-            parameterTypeName,
-            returnTypeName
-        )
+        Function1::class.asClassName().parametrizedBy(parameterTypeName, returnTypeName)
     )
-    addMethod(
-        MethodSpec.methodBuilder("invoke").apply {
+    addFunction(
+        XFunSpec.builder(
+            language = language,
+            name = "invoke",
+            visibility = VisibilityModifier.PUBLIC,
+            isOverride = true
+        ).apply {
             addParameter(parameterTypeName, parameterName)
             returns(returnTypeName)
-            addModifiers(Modifier.PUBLIC)
-            addAnnotation(Override::class.java)
             callBody()
         }.build()
     )
-}
+}.build()
 
 /**
  * Generates a 2D array literal where the value at `i`,`j` will be produced by `valueProducer.
