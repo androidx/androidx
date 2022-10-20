@@ -48,7 +48,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Container for complication data of all types.
@@ -88,8 +93,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             TYPE_LARGE_IMAGE,
             TYPE_NO_PERMISSION,
             TYPE_NO_DATA,
-            TYPE_PROTO_LAYOUT,
-            TYPE_LIST
+            EXP_TYPE_PROTO_LAYOUT,
+            EXP_TYPE_LIST
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -225,11 +230,13 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int TYPE_NO_PERMISSION = 9;
 
+    // The following types are experimental, and they have negative IDs.
+
     /** Type that specifies a proto layout based complication. */
-    public static final int TYPE_PROTO_LAYOUT = 11;
+    public static final int EXP_TYPE_PROTO_LAYOUT = -11;
 
     /** Type that specifies a list of complication values. E.g. to support linear 3. */
-    public static final int TYPE_LIST = 12;
+    public static final int EXP_TYPE_LIST = -12;
 
     /**
      * Type used for complications which indicate progress towards a goal. The value may be
@@ -243,7 +250,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * text</i> fields are optional for this type, but at least one must be defined. The watch face
      * may choose which of these fields to display, if any.
      */
-    public static final int TYPE_GOAL_PROGRESS = 13;
+    public static final int EXP_TYPE_GOAL_PROGRESS = -13;
 
     /**
      * Type used for complications to display a series of weighted values e.g. in a pie chart. The
@@ -256,7 +263,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * text</i> fields are optional for this type, but at least one must be defined. The watch face
      * may choose which of these fields to display, if any.
      */
-    public static final int TYPE_WEIGHTED_ELEMENTS = 14;
+    public static final int EXP_TYPE_WEIGHTED_ELEMENTS = -14;
 
     /** @hide */
     @IntDef({IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON})
@@ -282,21 +289,13 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int IMAGE_STYLE_ICON = 2;
 
-    private static final String FIELD_COLOR_RAMP = "COLOR_RAMP";
-    private static final String FIELD_COLOR_RAMP_INTERPOLATED = "COLOR_RAMP_INTERPOLATED";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
     private static final String FIELD_DISPLAY_POLICY = "DISPLAY_POLICY";
-    private static final String FIELD_ELEMENT_BACKGROUND_COLOR = "ELEMENT_BACKGROUND_COLOR";
-    private static final String FIELD_ELEMENT_COLORS = "ELEMENT_COLORS";
-    private static final String FIELD_ELEMENT_WEIGHTS = "ELEMENT_WEIGHTS";
     private static final String FIELD_END_TIME = "END_TIME";
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
     private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
     private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
-    private static final String FIELD_LIST_ENTRIES = "LIST_ENTRIES";
-    private static final String FIELD_LIST_ENTRY_TYPE = "LIST_ENTRY_TYPE";
-    private static final String FIELD_LIST_STYLE_HINT = "LIST_STYLE_HINT";
     private static final String FIELD_LONG_TITLE = "LONG_TITLE";
     private static final String FIELD_LONG_TEXT = "LONG_TEXT";
     private static final String FIELD_MAX_VALUE = "MAX_VALUE";
@@ -304,16 +303,12 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_PERSISTENCE_POLICY = "PERSISTENCE_POLICY";
     private static final String FIELD_PLACEHOLDER_FIELDS = "PLACEHOLDER_FIELDS";
     private static final String FIELD_PLACEHOLDER_TYPE = "PLACEHOLDER_TYPE";
-    private static final String FIELD_PROTO_LAYOUT_AMBIENT = "FIELD_PROTO_LAYOUT_AMBIENT";
-    private static final String FIELD_PROTO_LAYOUT_INTERACTIVE = "FIELD_PROTO_LAYOUT_INTERACTIVE";
-    private static final String FIELD_PROTO_LAYOUT_RESOURCES = "FIELD_PROTO_LAYOUT_RESOURCES";
     private static final String FIELD_SMALL_IMAGE = "SMALL_IMAGE";
     private static final String FIELD_SMALL_IMAGE_BURN_IN_PROTECTION =
             "SMALL_IMAGE_BURN_IN_PROTECTION";
     private static final String FIELD_SHORT_TITLE = "SHORT_TITLE";
     private static final String FIELD_SHORT_TEXT = "SHORT_TEXT";
     private static final String FIELD_START_TIME = "START_TIME";
-    private static final String FIELD_TARGET_VALUE = "TARGET_VALUE";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
     private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
@@ -323,191 +318,221 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_VALUE = "VALUE";
     private static final String FIELD_VALUE_TYPE = "VALUE_TYPE";
 
+    // Experimental fields, these are subject to change without notice.
+    private static final String EXP_FIELD_COLOR_RAMP = "EXP_COLOR_RAMP";
+    private static final String EXP_FIELD_COLOR_RAMP_INTERPOLATED = "EXP_COLOR_RAMP_INTERPOLATED";
+    private static final String EXP_FIELD_ELEMENT_BACKGROUND_COLOR = "EXP_ELEMENT_BACKGROUND_COLOR";
+    private static final String EXP_FIELD_ELEMENT_COLORS = "EXP_ELEMENT_COLORS";
+    private static final String EXP_FIELD_ELEMENT_WEIGHTS = "EXP_ELEMENT_WEIGHTS";
+    private static final String EXP_FIELD_LIST_ENTRIES = "EXP_LIST_ENTRIES";
+    private static final String EXP_FIELD_LIST_ENTRY_TYPE = "EXP_LIST_ENTRY_TYPE";
+    private static final String EXP_FIELD_LIST_STYLE_HINT = "EXP_LIST_STYLE_HINT";
+    private static final String EXP_FIELD_PROTO_LAYOUT_AMBIENT = "EXP_FIELD_PROTO_LAYOUT_AMBIENT";
+    private static final String EXP_FIELD_PROTO_LAYOUT_INTERACTIVE =
+            "EXP_FIELD_PROTO_LAYOUT_INTERACTIVE";
+    private static final String EXP_FIELD_PROTO_LAYOUT_RESOURCES =
+            "EXP_FIELD_PROTO_LAYOUT_RESOURCES";
+    private static final String EXP_FIELD_TARGET_VALUE = "EXP_TARGET_VALUE";
+
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
 
+    // The set of valid types.
+    private static final Set<Integer> VALID_TYPES = validTypes();
+
+    private static Set<Integer> validTypes() {
+        HashSet<Integer> set = new HashSet<>();
+        set.add(TYPE_NOT_CONFIGURED);
+        set.add(TYPE_EMPTY);
+        set.add(TYPE_SHORT_TEXT);
+        set.add(TYPE_LONG_TEXT);
+        set.add(TYPE_RANGED_VALUE);
+        set.add(TYPE_ICON);
+        set.add(TYPE_SMALL_IMAGE);
+        set.add(TYPE_LARGE_IMAGE);
+        set.add(TYPE_NO_PERMISSION);
+        set.add(TYPE_NO_DATA);
+        set.add(EXP_TYPE_PROTO_LAYOUT);
+        set.add(EXP_TYPE_LIST);
+        set.add(EXP_TYPE_GOAL_PROGRESS);
+        set.add(EXP_TYPE_WEIGHTED_ELEMENTS);
+        return set;
+    }
+
     // Used for validation. REQUIRED_FIELDS[i] is an array containing all the fields which must be
     // populated for @ComplicationType i.
-    private static final String[][] REQUIRED_FIELDS = {
-            null,
-            {}, // NOT_CONFIGURED
-            {}, // EMPTY
-            {FIELD_SHORT_TEXT}, // SHORT_TEXT
-            {FIELD_LONG_TEXT}, // LONG_TEXT
-            {FIELD_VALUE, FIELD_MIN_VALUE, FIELD_MAX_VALUE}, // RANGED_VALUE
-            {FIELD_ICON}, // ICON
-            {FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE}, // SMALL_IMAGE
-            {FIELD_LARGE_IMAGE}, // LARGE_IMAGE
-            {}, // TYPE_NO_PERMISSION
-            {}, // TYPE_NO_DATA
-            { // TYPE_PROTO_LAYOUT
-                    FIELD_PROTO_LAYOUT_AMBIENT,
-                    FIELD_PROTO_LAYOUT_INTERACTIVE,
-                    FIELD_PROTO_LAYOUT_RESOURCES
-            },
-            {FIELD_LIST_ENTRIES}, // TYPE_LIST
-            {FIELD_VALUE, FIELD_TARGET_VALUE}, // GOAL_PROGRESS
-            {  // TYPE_WEIGHTED_ELEMENTS
-                    FIELD_ELEMENT_WEIGHTS,
-                    FIELD_ELEMENT_COLORS,
-                    FIELD_ELEMENT_BACKGROUND_COLOR
-            }
-    };
+    private static final Map<Integer, String[]> REQUIRED_FIELDS = requiredFieldsMap();
+
+    private static Map<Integer, String[]> requiredFieldsMap() {
+        HashMap<Integer, String[]> map = new HashMap<>();
+        map.put(TYPE_NOT_CONFIGURED, new String[0]);
+        map.put(TYPE_EMPTY, new String[0]);
+        map.put(TYPE_SHORT_TEXT, new String[]{FIELD_SHORT_TEXT});
+        map.put(TYPE_LONG_TEXT, new String[]{FIELD_LONG_TEXT});
+        map.put(TYPE_RANGED_VALUE, new String[]{FIELD_VALUE, FIELD_MIN_VALUE, FIELD_MAX_VALUE});
+        map.put(TYPE_ICON, new String[]{FIELD_ICON});
+        map.put(TYPE_SMALL_IMAGE, new String[]{FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE});
+        map.put(TYPE_LARGE_IMAGE, new String[]{FIELD_LARGE_IMAGE});
+        map.put(TYPE_NO_PERMISSION, new String[0]);
+        map.put(TYPE_NO_DATA, new String[0]);
+        map.put(EXP_TYPE_PROTO_LAYOUT, new String[]{EXP_FIELD_PROTO_LAYOUT_AMBIENT,
+                EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
+                EXP_FIELD_PROTO_LAYOUT_RESOURCES});
+        map.put(EXP_TYPE_LIST, new String[]{EXP_FIELD_LIST_ENTRIES});
+        map.put(EXP_TYPE_GOAL_PROGRESS, new String[]{FIELD_VALUE, EXP_FIELD_TARGET_VALUE});
+        map.put(EXP_TYPE_WEIGHTED_ELEMENTS, new String[]{EXP_FIELD_ELEMENT_WEIGHTS,
+                EXP_FIELD_ELEMENT_COLORS,
+                EXP_FIELD_ELEMENT_BACKGROUND_COLOR});
+        return map;
+    }
 
     // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
     // valid but not required for type i.
-    private static final String[][] OPTIONAL_FIELDS = {
-            null,
-            {}, // NOT_CONFIGURED
-            {}, // EMPTY
-            {
-                    FIELD_SHORT_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // SHORT_TEXT
-            {
-                    FIELD_LONG_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // LONG_TEXT
-            {
-                    FIELD_SHORT_TEXT,
-                    FIELD_SHORT_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_COLOR_RAMP,
-                    FIELD_COLOR_RAMP_INTERPOLATED,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY,
-                    FIELD_VALUE_TYPE
-            }, // RANGED_VALUE
-            {
-                    FIELD_TAP_ACTION,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // ICON
-            {
-                    FIELD_TAP_ACTION,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // SMALL_IMAGE
-            {
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // LARGE_IMAGE
-            {
-                    FIELD_SHORT_TEXT,
-                    FIELD_SHORT_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // TYPE_NO_PERMISSION
-            {  // TYPE_NO_DATA
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_LARGE_IMAGE,
-                    FIELD_LONG_TEXT,
-                    FIELD_LONG_TITLE,
-                    FIELD_MAX_VALUE,
-                    FIELD_MIN_VALUE,
-                    FIELD_PLACEHOLDER_FIELDS,
-                    FIELD_PLACEHOLDER_TYPE,
-                    FIELD_SHORT_TEXT,
-                    FIELD_SHORT_TITLE,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_TAP_ACTION,
-                    FIELD_VALUE,
-                    FIELD_VALUE_TYPE,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            },
-            {
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // TYPE_PROTO_LAYOUT
-            {
-                    FIELD_TAP_ACTION,
-                    FIELD_LIST_STYLE_HINT,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // TYPE_LIST
-            {
-                    FIELD_SHORT_TEXT,
-                    FIELD_SHORT_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_COLOR_RAMP,
-                    FIELD_COLOR_RAMP_INTERPOLATED,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }, // TYPE_GOAL_PROGRESS
-            {
-                    FIELD_SHORT_TEXT,
-                    FIELD_SHORT_TITLE,
-                    FIELD_ICON,
-                    FIELD_ICON_BURN_IN_PROTECTION,
-                    FIELD_SMALL_IMAGE,
-                    FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    FIELD_IMAGE_STYLE,
-                    FIELD_TAP_ACTION,
-                    FIELD_CONTENT_DESCRIPTION,
-                    FIELD_DATA_SOURCE,
-                    FIELD_PERSISTENCE_POLICY,
-                    FIELD_DISPLAY_POLICY
-            }  // TYPE_WEIGHTED_ELEMENTS
-    };
+    private static final Map<Integer, String[]> OPTIONAL_FIELDS = optionalFieldsMap();
+
+    private static Map<Integer, String[]> optionalFieldsMap() {
+        HashMap<Integer, String[]> map = new HashMap<>();
+        map.put(TYPE_NOT_CONFIGURED, new String[0]);
+        map.put(TYPE_EMPTY, new String[0]);
+        map.put(TYPE_SHORT_TEXT, new String[]{
+                FIELD_SHORT_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(TYPE_LONG_TEXT, new String[]{
+                FIELD_LONG_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(TYPE_RANGED_VALUE, new String[]{
+                FIELD_SHORT_TEXT,
+                FIELD_SHORT_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                EXP_FIELD_COLOR_RAMP,
+                EXP_FIELD_COLOR_RAMP_INTERPOLATED,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY,
+                FIELD_VALUE_TYPE});
+        map.put(TYPE_ICON, new String[]{
+                FIELD_TAP_ACTION,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(TYPE_SMALL_IMAGE, new String[]{
+                FIELD_TAP_ACTION,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(TYPE_LARGE_IMAGE, new String[]{
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(TYPE_NO_PERMISSION, new String[]{
+                FIELD_SHORT_TEXT,
+                FIELD_SHORT_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY
+        });
+        map.put(TYPE_NO_DATA, new String[]{
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_LARGE_IMAGE,
+                FIELD_LONG_TEXT,
+                FIELD_LONG_TITLE,
+                FIELD_MAX_VALUE,
+                FIELD_MIN_VALUE,
+                FIELD_PLACEHOLDER_FIELDS,
+                FIELD_PLACEHOLDER_TYPE,
+                FIELD_SHORT_TEXT,
+                FIELD_SHORT_TITLE,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_TAP_ACTION,
+                FIELD_VALUE,
+                FIELD_VALUE_TYPE,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY
+        });
+        map.put(EXP_TYPE_PROTO_LAYOUT, new String[]{
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(EXP_TYPE_LIST, new String[]{
+                FIELD_TAP_ACTION,
+                EXP_FIELD_LIST_STYLE_HINT,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(EXP_TYPE_GOAL_PROGRESS, new String[]{
+                FIELD_SHORT_TEXT,
+                FIELD_SHORT_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                EXP_FIELD_COLOR_RAMP,
+                EXP_FIELD_COLOR_RAMP_INTERPOLATED,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        map.put(EXP_TYPE_WEIGHTED_ELEMENTS, new String[]{
+                FIELD_SHORT_TEXT,
+                FIELD_SHORT_TITLE,
+                FIELD_ICON,
+                FIELD_ICON_BURN_IN_PROTECTION,
+                FIELD_SMALL_IMAGE,
+                FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_IMAGE_STYLE,
+                FIELD_TAP_ACTION,
+                FIELD_CONTENT_DESCRIPTION,
+                FIELD_DATA_SOURCE,
+                FIELD_PERSISTENCE_POLICY,
+                FIELD_DISPLAY_POLICY});
+        return map;
+    }
 
     @NonNull
     public static final Creator<ComplicationData> CREATOR =
@@ -615,10 +640,10 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getRangedMaxValue());
             }
-            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
+            if (isFieldValidForType(EXP_FIELD_TARGET_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getTargetValue());
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
+            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP, type)) {
                 int[] colors = mComplicationData.getColorRamp();
                 if (colors != null) {
                     oos.writeBoolean(true);
@@ -630,7 +655,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP_INTERPOLATED, type)) {
                 Boolean isColorRampSmoothShaded = mComplicationData.isColorRampInterpolated();
                 if (isColorRampSmoothShaded != null) {
                     oos.writeBoolean(true);
@@ -639,7 +664,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_WEIGHTS, type)) {
                 float[] weights = mComplicationData.getElementWeights();
                 if (weights != null) {
                     oos.writeBoolean(true);
@@ -651,7 +676,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_COLORS, type)) {
                 int[] colors = mComplicationData.getElementColors();
                 if (colors != null) {
                     oos.writeBoolean(true);
@@ -663,7 +688,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
                 oos.writeInt(mComplicationData.getElementBackgroundColor());
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
@@ -672,11 +697,11 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
-            oos.writeInt(mComplicationData.mFields.getInt(FIELD_LIST_ENTRY_TYPE));
-            if (isFieldValidForType(FIELD_LIST_STYLE_HINT, type)) {
+            oos.writeInt(mComplicationData.mFields.getInt(EXP_FIELD_LIST_ENTRY_TYPE));
+            if (isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type)) {
                 oos.writeInt(mComplicationData.getListStyleHint());
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
                 byte[] bytes = mComplicationData.getInteractiveLayout();
                 if (bytes == null) {
                     oos.writeInt(0);
@@ -685,7 +710,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.write(bytes);
                 }
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
                 byte[] bytes = mComplicationData.getAmbientLayout();
                 if (bytes == null) {
                     oos.writeInt(0);
@@ -694,7 +719,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.write(bytes);
                 }
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
                 byte[] bytes = mComplicationData.getLayoutResources();
                 if (bytes == null) {
                     oos.writeInt(0);
@@ -817,38 +842,38 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
-                fields.putFloat(FIELD_TARGET_VALUE, ois.readFloat());
+            if (isFieldValidForType(EXP_FIELD_TARGET_VALUE, type)) {
+                fields.putFloat(EXP_FIELD_TARGET_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
+            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
                 int numColors = ois.readInt();
                 int[] colors = new int[numColors];
                 for (int i = 0; i < numColors; ++i) {
                     colors[i] = ois.readInt();
                 }
-                fields.putIntArray(FIELD_COLOR_RAMP, colors);
+                fields.putIntArray(EXP_FIELD_COLOR_RAMP, colors);
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
-                fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
+            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
+                fields.putBoolean(EXP_FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
             }
-            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
                 int numWeights = ois.readInt();
                 float[] weights = new float[numWeights];
                 for (int i = 0; i < numWeights; ++i) {
                     weights[i] = ois.readFloat();
                 }
-                fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, weights);
+                fields.putFloatArray(EXP_FIELD_ELEMENT_WEIGHTS, weights);
             }
-            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
                 int numColors = ois.readInt();
                 int[] colors = new int[numColors];
                 for (int i = 0; i < numColors; ++i) {
                     colors[i] = ois.readInt();
                 }
-                fields.putIntArray(FIELD_ELEMENT_COLORS, colors);
+                fields.putIntArray(EXP_FIELD_ELEMENT_COLORS, colors);
             }
-            if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
-                fields.putInt(FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt());
+            if (isFieldValidForType(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+                fields.putInt(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt());
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
                 fields.putLong(FIELD_START_TIME, ois.readLong());
@@ -858,33 +883,33 @@ public final class ComplicationData implements Parcelable, Serializable {
             }
             int listEntryType = ois.readInt();
             if (listEntryType != 0) {
-                fields.putInt(FIELD_LIST_ENTRY_TYPE, listEntryType);
+                fields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, listEntryType);
             }
-            if (isFieldValidForType(FIELD_LIST_STYLE_HINT, type)) {
-                fields.putInt(FIELD_LIST_STYLE_HINT, ois.readInt());
+            if (isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type)) {
+                fields.putInt(EXP_FIELD_LIST_STYLE_HINT, ois.readInt());
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
                 int length = ois.readInt();
                 if (length > 0) {
                     byte[] protoLayout = new byte[length];
                     ois.readFully(protoLayout);
-                    fields.putByteArray(FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
+                    fields.putByteArray(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
                 }
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
                 int length = ois.readInt();
                 if (length > 0) {
                     byte[] ambientProtoLayout = new byte[length];
                     ois.readFully(ambientProtoLayout);
-                    fields.putByteArray(FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
+                    fields.putByteArray(EXP_FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
                 }
             }
-            if (isFieldValidForType(FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+            if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
                 int length = ois.readInt();
                 if (length > 0) {
                     byte[] protoLayoutResources = new byte[length];
                     ois.readFully(protoLayoutResources);
-                    fields.putByteArray(FIELD_PROTO_LAYOUT_RESOURCES, protoLayoutResources);
+                    fields.putByteArray(EXP_FIELD_PROTO_LAYOUT_RESOURCES, protoLayoutResources);
                 }
             }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
@@ -920,7 +945,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     entry.readObject(ois);
                     parcels[i] = entry.mComplicationData.mFields;
                 }
-                fields.putParcelableArray(FIELD_LIST_ENTRIES, parcels);
+                fields.putParcelableArray(EXP_FIELD_LIST_ENTRIES, parcels);
             }
 
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
@@ -1099,7 +1124,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     @Nullable
     @SuppressWarnings("deprecation")
     public List<ComplicationData> getListEntries() {
-        Parcelable[] bundles = mFields.getParcelableArray(FIELD_LIST_ENTRIES);
+        Parcelable[] bundles = mFields.getParcelableArray(EXP_FIELD_LIST_ENTRIES);
         if (bundles == null) {
             return null;
         }
@@ -1107,7 +1132,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         for (Parcelable parcelable : bundles) {
             Bundle bundle = (Bundle) parcelable;
             bundle.setClassLoader(getClass().getClassLoader());
-            entries.add(new ComplicationData(bundle.getInt(FIELD_LIST_ENTRY_TYPE), bundle));
+            entries.add(new ComplicationData(bundle.getInt(EXP_FIELD_LIST_ENTRY_TYPE), bundle));
         }
         return entries;
     }
@@ -1228,7 +1253,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public boolean hasTargetValue() {
         try {
-            return isFieldValidForType(FIELD_TARGET_VALUE, mType);
+            return isFieldValidForType(EXP_FIELD_TARGET_VALUE, mType);
         } catch (BadParcelableException e) {
             return false;
         }
@@ -1237,26 +1262,26 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns the <i>value</i> field for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_GOAL_PROGRESS}.
+     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_GOAL_PROGRESS}.
      * Otherwise returns zero.
      */
     public float getTargetValue() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_TARGET_VALUE, mType);
-        return mFields.getFloat(FIELD_TARGET_VALUE);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_TARGET_VALUE, mType);
+        return mFields.getFloat(EXP_FIELD_TARGET_VALUE);
     }
 
     /**
      * Returns the colors for the progress bar.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
-     * {@link #TYPE_GOAL_PROGRESS}.
+     * {@link #EXP_TYPE_GOAL_PROGRESS}.
      */
     @ColorInt
     @Nullable
     public int[] getColorRamp() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP, mType);
-        if (mFields.containsKey(FIELD_COLOR_RAMP)) {
-            return mFields.getIntArray(FIELD_COLOR_RAMP);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_COLOR_RAMP, mType);
+        if (mFields.containsKey(EXP_FIELD_COLOR_RAMP)) {
+            return mFields.getIntArray(EXP_FIELD_COLOR_RAMP);
         }
         return null;
     }
@@ -1265,16 +1290,16 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns either a boolean where: true means the color ramp colors should be smoothly
      * interpolatded; false means the color ramp should be rendered in equal sized blocks of
      * solid color; null means this value wasn't set, i.e. the complication is not of type
-     * {@link #TYPE_RANGED_VALUE} or {@link #TYPE_GOAL_PROGRESS}.
+     * {@link #TYPE_RANGED_VALUE} or {@link #EXP_TYPE_GOAL_PROGRESS}.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
-     * {@link #TYPE_GOAL_PROGRESS}.
+     * {@link #EXP_TYPE_GOAL_PROGRESS}.
      */
     @Nullable
     public Boolean isColorRampInterpolated() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP_INTERPOLATED, mType);
-        if (mFields.containsKey(FIELD_COLOR_RAMP_INTERPOLATED)) {
-            return mFields.getBoolean(FIELD_COLOR_RAMP_INTERPOLATED);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_COLOR_RAMP_INTERPOLATED, mType);
+        if (mFields.containsKey(EXP_FIELD_COLOR_RAMP_INTERPOLATED)) {
+            return mFields.getBoolean(EXP_FIELD_COLOR_RAMP_INTERPOLATED);
         }
         return null;
     }
@@ -1658,37 +1683,37 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns the element weights for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns null.
      */
     @Nullable
     public float[] getElementWeights() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_WEIGHTS, mType);
-        return mFields.getFloatArray(FIELD_ELEMENT_WEIGHTS);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_WEIGHTS, mType);
+        return mFields.getFloatArray(EXP_FIELD_ELEMENT_WEIGHTS);
     }
 
     /**
      * Returns the element colors for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns null.
      */
     @Nullable
     public int[] getElementColors() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_COLORS, mType);
-        return mFields.getIntArray(FIELD_ELEMENT_COLORS);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_COLORS, mType);
+        return mFields.getIntArray(EXP_FIELD_ELEMENT_COLORS);
     }
 
     /**
      * Returns the background color to use between elements for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns 0.
      */
     @ColorInt
     public int getElementBackgroundColor() {
-        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_BACKGROUND_COLOR, mType);
-        return mFields.getInt(FIELD_ELEMENT_BACKGROUND_COLOR);
+        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, mType);
+        return mFields.getInt(EXP_FIELD_ELEMENT_BACKGROUND_COLOR);
     }
 
     /**
@@ -1709,30 +1734,30 @@ public final class ComplicationData implements Parcelable, Serializable {
     /** Returns the bytes of the proto layout. */
     @Nullable
     public byte[] getInteractiveLayout() {
-        return mFields.getByteArray(FIELD_PROTO_LAYOUT_INTERACTIVE);
+        return mFields.getByteArray(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE);
     }
 
     /**
      * Returns the list style hint.
      *
-     * <p>Valid only if the type of this complication data is {@link #TYPE_LIST}. Otherwise returns
-     * zero.
+     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_LIST}. Otherwise
+     * returns zero.
      */
     public int getListStyleHint() {
-        checkFieldValidForType(FIELD_LIST_STYLE_HINT, mType);
-        return mFields.getInt(FIELD_LIST_STYLE_HINT);
+        checkFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, mType);
+        return mFields.getInt(EXP_FIELD_LIST_STYLE_HINT);
     }
 
     /** Returns the bytes of the ambient proto layout. */
     @Nullable
     public byte[] getAmbientLayout() {
-        return mFields.getByteArray(FIELD_PROTO_LAYOUT_AMBIENT);
+        return mFields.getByteArray(EXP_FIELD_PROTO_LAYOUT_AMBIENT);
     }
 
     /** Returns the bytes of the proto layout resources. */
     @Nullable
     public byte[] getLayoutResources() {
-        return mFields.getByteArray(FIELD_PROTO_LAYOUT_RESOURCES);
+        return mFields.getByteArray(EXP_FIELD_PROTO_LAYOUT_RESOURCES);
     }
 
     /** Return's the complication's [ComplicationCachePolicy]. */
@@ -1785,12 +1810,16 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     static boolean isFieldValidForType(String field, @ComplicationType int type) {
-        for (String requiredField : REQUIRED_FIELDS[type]) {
+        String[] requiredFields = REQUIRED_FIELDS.get(type);
+        if (requiredFields == null) {
+            return false;
+        }
+        for (String requiredField : requiredFields) {
             if (requiredField.equals(field)) {
                 return true;
             }
         }
-        for (String optionalField : OPTIONAL_FIELDS[type]) {
+        for (String optionalField : Objects.requireNonNull(OPTIONAL_FIELDS.get(type))) {
             if (optionalField.equals(field)) {
                 return true;
             }
@@ -1799,7 +1828,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     private static boolean isTypeSupported(int type) {
-        return 1 <= type && type <= REQUIRED_FIELDS.length;
+        return VALID_TYPES.contains(type);
     }
 
     /**
@@ -1949,13 +1978,13 @@ public final class ComplicationData implements Parcelable, Serializable {
 
         /**
          * Sets the <i>value</i> field. This is required for the {@link #TYPE_RANGED_VALUE} type,
-         * and the {@link #TYPE_GOAL_PROGRESS} type. For {@link #TYPE_RANGED_VALUE} value must be
-         * in the range [min .. max] for {@link #TYPE_GOAL_PROGRESS} value must be >= 0 and may be
-         * greater than target value.
+         * and the {@link #EXP_TYPE_GOAL_PROGRESS} type. For {@link #TYPE_RANGED_VALUE} value must
+         * be in the range [min .. max] for {@link #EXP_TYPE_GOAL_PROGRESS} value must be >= and may
+         * be greater than target value.
          *
-         * <p>Both the {@link #TYPE_RANGED_VALUE} complication and the {@link #TYPE_GOAL_PROGRESS}
-         * complication visually present a single value, which is usually a percentage. E.g. you
-         * have completed 70% of today's  target of 10000 steps.
+         * <p>Both the {@link #TYPE_RANGED_VALUE} complication and the
+         * {@link #EXP_TYPE_GOAL_PROGRESS} complication visually present a single value, which is
+         * usually a percentage. E.g. you have completed 70% of today's  target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -2010,10 +2039,10 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
 
         /**
-         * Sets the <i>targetValue</i> field. This is required for the {@link #TYPE_GOAL_PROGRESS}
-         * type, and is not valid for any other type. A {@link #TYPE_GOAL_PROGRESS} complication
-         * visually presents a single value, which is usually a percentage. E.g. you
-         * have completed 70% of today's target of 10000 steps.
+         * Sets the <i>targetValue</i> field. This is required for the
+         * {@link #EXP_TYPE_GOAL_PROGRESS} type, and is not valid for any other type. A
+         * {@link #EXP_TYPE_GOAL_PROGRESS} complication visually presents a single value, which
+         * is usually a percentage. E.g. you have completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -2021,7 +2050,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setTargetValue(float targetValue) {
-            putFloatField(FIELD_TARGET_VALUE, targetValue);
+            putFloatField(EXP_FIELD_TARGET_VALUE, targetValue);
             return this;
         }
 
@@ -2218,13 +2247,13 @@ public final class ComplicationData implements Parcelable, Serializable {
         /**
          * Sets the list style hint
          *
-         * <p>Valid only if the type of this complication data is {@link #TYPE_LIST}. Otherwise
+         * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_LIST}. Otherwise
          * returns
          * zero.
          */
         @NonNull
         public Builder setListStyleHint(int listStyleHint) {
-            putIntField(FIELD_LIST_STYLE_HINT, listStyleHint);
+            putIntField(EXP_FIELD_LIST_STYLE_HINT, listStyleHint);
             return this;
         }
 
@@ -2315,7 +2344,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setAmbientLayout(@NonNull byte[] ambientProtoLayout) {
-            putByteArrayField(FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_AMBIENT, ambientProtoLayout);
             return this;
         }
 
@@ -2326,7 +2355,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setInteractiveLayout(@NonNull byte[] protoLayout) {
-            putByteArrayField(FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, protoLayout);
             return this;
         }
 
@@ -2337,7 +2366,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setLayoutResources(@NonNull byte[] resources) {
-            putByteArrayField(FIELD_PROTO_LAYOUT_RESOURCES, resources);
+            putByteArrayField(EXP_FIELD_PROTO_LAYOUT_RESOURCES, resources);
             return this;
         }
 
@@ -2348,7 +2377,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setColorRamp(@Nullable int[] colorRamp) {
-            putOrRemoveField(FIELD_COLOR_RAMP, colorRamp);
+            putOrRemoveField(EXP_FIELD_COLOR_RAMP, colorRamp);
             return this;
         }
 
@@ -2360,7 +2389,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setColorRampIsSmoothShaded(@Nullable Boolean isSmoothShaded) {
-            putOrRemoveField(FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded);
+            putOrRemoveField(EXP_FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded);
             return this;
         }
 
@@ -2373,14 +2402,14 @@ public final class ComplicationData implements Parcelable, Serializable {
         public Builder setListEntryCollection(
                 @Nullable Collection<ComplicationData> timelineEntries) {
             if (timelineEntries == null) {
-                mFields.remove(FIELD_LIST_ENTRIES);
+                mFields.remove(EXP_FIELD_LIST_ENTRIES);
             } else {
                 mFields.putParcelableArray(
-                        FIELD_LIST_ENTRIES,
+                        EXP_FIELD_LIST_ENTRIES,
                         timelineEntries.stream()
                                 .map(
                                         e -> {
-                                            e.mFields.putInt(FIELD_LIST_ENTRY_TYPE, e.mType);
+                                            e.mFields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, e.mType);
                                             return e.mFields;
                                         })
                                 .toArray(Parcelable[]::new));
@@ -2395,7 +2424,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementWeights(@Nullable float[] elementWeights) {
-            putOrRemoveField(FIELD_ELEMENT_WEIGHTS, elementWeights);
+            putOrRemoveField(EXP_FIELD_ELEMENT_WEIGHTS, elementWeights);
             return this;
         }
 
@@ -2406,7 +2435,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementColors(@Nullable int[] elementColors) {
-            putOrRemoveField(FIELD_ELEMENT_COLORS, elementColors);
+            putOrRemoveField(EXP_FIELD_ELEMENT_COLORS, elementColors);
             return this;
         }
 
@@ -2417,7 +2446,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementBackgroundColor(@ColorInt int elementBackgroundColor) {
-            putOrRemoveField(FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor);
+            putOrRemoveField(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor);
             return this;
         }
 
@@ -2431,7 +2460,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         @SuppressLint("SyntheticAccessor")
         public ComplicationData build() {
             // Validate.
-            for (String requiredField : REQUIRED_FIELDS[mType]) {
+            for (String requiredField : Objects.requireNonNull(REQUIRED_FIELDS.get(mType))) {
                 if (!mFields.containsKey(requiredField)) {
                     throw new IllegalStateException(
                             "Field " + requiredField + " is required for type " + mType);
