@@ -23,13 +23,13 @@ import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.EXTENSION_NOT_FOUND
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.findNextEffectMode
 import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
@@ -48,9 +48,6 @@ class Camera2ExtensionsSwitchModeStressTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
-
     companion object {
         @ClassRule
         @JvmField
@@ -64,12 +61,16 @@ class Camera2ExtensionsSwitchModeStressTest(
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-    @LabTestRule.LabTestOnly
+    @Before
+    fun setUp() {
+        assumeTrue(Camera2ExtensionsTestUtil.isTargetDeviceExcludedForExtensionsTest())
+    }
+
     @Test
     fun switchModes(): Unit = runBlocking {
         val nextMode = findNextEffectMode(context, cameraId, extensionMode)
         assumeTrue(nextMode != EXTENSION_NOT_FOUND)
-        repeat(Camera2ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT) {
+        repeat(Camera2ExtensionsTestUtil.getStressTestRepeatingCount()) {
             Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession(
                 cameraManager,
                 cameraId,
