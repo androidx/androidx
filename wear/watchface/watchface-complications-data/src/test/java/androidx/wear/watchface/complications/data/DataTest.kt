@@ -564,7 +564,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
@@ -637,7 +637,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setIcon(monochromaticImageIcon)
@@ -796,7 +796,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.GRAY)
@@ -884,7 +884,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.TRANSPARENT)
@@ -1261,7 +1261,7 @@ public class AsWireComplicationDataTest {
 
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_LIST)
                     .setListEntryCollection(
                         listOf(
                             WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
@@ -1616,7 +1616,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                             .setRangedValue(GoalProgressComplicationData.PLACEHOLDER)
                             .setTargetValue(10000f)
                             .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
@@ -1705,7 +1705,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                             .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                             .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setElementBackgroundColor(Color.GRAY)
@@ -2185,7 +2185,7 @@ public class FromWireComplicationDataTest {
     @Test
     public fun goalProgressComplicationData() {
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                 .setRangedValue(1200f)
                 .setTargetValue(10000f)
                 .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2203,7 +2203,7 @@ public class FromWireComplicationDataTest {
     @Test
     public fun weightedElementsComplicationData() {
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                 .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                 .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                 .setElementBackgroundColor(Color.DKGRAY)
@@ -2279,7 +2279,7 @@ public class FromWireComplicationDataTest {
         val resources = ByteArray(3)
 
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_PROTO_LAYOUT)
                 .setAmbientLayout(ambientLayout)
                 .setInteractiveLayout(interactiveLayout)
                 .setLayoutResources(resources)
@@ -2305,7 +2305,7 @@ public class FromWireComplicationDataTest {
             .build()
 
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_LIST)
                 .setListEntryCollection(listOf(wireShortText, wireRangedValue))
                 .setListStyleHint(
                     ListComplicationData.StyleHint.RowOfColumns.ordinal
@@ -2400,7 +2400,7 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                         .setRangedValue(1200f)
                         .setTargetValue(10000f)
                         .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2427,7 +2427,7 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                         .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                         .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                         .setElementBackgroundColor(Color.DKGRAY)
@@ -2499,7 +2499,7 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_PROTO_LAYOUT)
                         .setAmbientLayout(ambientLayout)
                         .setInteractiveLayout(interactiveLayout)
                         .setLayoutResources(resources)
@@ -2533,7 +2533,7 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_LIST)
                         .setListEntryCollection(listOf(wireShortText, wireRangedValue))
                         .setListStyleHint(
                             ListComplicationData.StyleHint.RowOfColumns.ordinal
@@ -2962,7 +2962,7 @@ public class ValidTimeRangeTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2993,7 +2993,7 @@ public class ValidTimeRangeTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.TRANSPARENT)
@@ -3082,7 +3082,7 @@ public class ValidTimeRangeTest {
 
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_PROTO_LAYOUT)
                     .setAmbientLayout(ambientLayout)
                     .setInteractiveLayout(interactiveLayout)
                     .setLayoutResources(resources)
@@ -3137,7 +3137,7 @@ public class ValidTimeRangeTest {
 
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_LIST)
                     .setListEntryCollection(listOf(wireShortText, wireRangedValue))
                     .setListStyleHint(
                         ListComplicationData.StyleHint.RowOfColumns.ordinal
@@ -3243,7 +3243,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
                             .setRangedValue(1200f)
                             .setTargetValue(10000f)
                             .setShortTitle(WireComplicationText.plainText("steps"))
@@ -3281,7 +3281,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
                             .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                             .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setElementBackgroundColor(Color.TRANSPARENT)
@@ -3387,7 +3387,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_PROTO_LAYOUT)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_PROTO_LAYOUT)
                             .setAmbientLayout(ambientLayout)
                             .setInteractiveLayout(interactiveLayout)
                             .setLayoutResources(resources)
@@ -3446,7 +3446,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.TYPE_LIST)
+                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_LIST)
                             .setListEntryCollection(listOf(wireShortText, wireRangedValue))
                             .setListStyleHint(
                                 ListComplicationData.StyleHint.RowOfColumns.ordinal
@@ -3571,7 +3571,7 @@ public class RedactionTest {
                 "persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
-            "ComplicationData{mType=13, mFields=REDACTED}"
+            "ComplicationData{mType=-13, mFields=REDACTED}"
         )
     }
 

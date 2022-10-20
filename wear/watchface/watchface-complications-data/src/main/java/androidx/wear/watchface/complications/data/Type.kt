@@ -38,14 +38,13 @@ public enum class ComplicationType(private val wireType: Int) {
     NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
 
     @ComplicationExperimental
-    PROTO_LAYOUT(WireComplicationData.TYPE_PROTO_LAYOUT),
+    PROTO_LAYOUT(WireComplicationData.EXP_TYPE_PROTO_LAYOUT),
     @ComplicationExperimental
-    GOAL_PROGRESS(WireComplicationData.TYPE_GOAL_PROGRESS),
+    GOAL_PROGRESS(WireComplicationData.EXP_TYPE_GOAL_PROGRESS),
     @ComplicationExperimental
-    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS),
-
+    WEIGHTED_ELEMENTS(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS),
     @ComplicationExperimental
-    LIST(WireComplicationData.TYPE_LIST);
+    LIST(WireComplicationData.EXP_TYPE_LIST);
 
     /**
      * Converts this value to the integer value used for serialization.
