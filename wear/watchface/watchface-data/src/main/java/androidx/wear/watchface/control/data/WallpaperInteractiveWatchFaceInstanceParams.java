@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control.data;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -66,6 +67,11 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     @NonNull
     UserStyleWireFormat mUserStyle;
 
+    /** Reserved field */
+    @ParcelField(5)
+    @Nullable
+    ComponentName mAuxiliaryComponentName;
+
     /** The initial state of the complications if known, or null otherwise. */
     @ParcelField(100)
     @Nullable
@@ -80,12 +86,14 @@ public class WallpaperInteractiveWatchFaceInstanceParams
             @NonNull DeviceConfig deviceConfig,
             @NonNull WatchUiState watchUiState,
             @NonNull UserStyleWireFormat userStyle,
-            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats,
+            @Nullable ComponentName auxiliaryComponentName) {
         mInstanceId = instanceId;
         mDeviceConfig = deviceConfig;
         mWatchUiState = watchUiState;
         mUserStyle = userStyle;
         mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
+        mAuxiliaryComponentName = auxiliaryComponentName;
     }
 
     @NonNull

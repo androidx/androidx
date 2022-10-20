@@ -197,6 +197,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyleWireFormat(emptyMap()),
+                        null,
                         null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
