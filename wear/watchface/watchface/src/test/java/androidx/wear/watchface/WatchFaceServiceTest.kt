@@ -1750,6 +1750,7 @@ public class WatchFaceServiceTest {
                         watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
+                null,
                 null
             )
         )
@@ -1781,6 +1782,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
+                null,
                 null
             )
         )
@@ -1835,6 +1837,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
+                null,
                 null
             )
         )
@@ -1855,6 +1858,7 @@ public class WatchFaceServiceTest {
                 DeviceConfig(true, false, 0, 0),
                 WatchUiState(false, 0),
                 UserStyle(mapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
+                null,
                 null
             )
         )
@@ -2269,6 +2273,7 @@ public class WatchFaceServiceTest {
                     watchHandStyleSetting to gothicStyleOption
                 )
             ).toWireFormat(),
+            null,
             null
         )
 
@@ -2299,6 +2304,7 @@ public class WatchFaceServiceTest {
                     watchHandStyleSetting to gothicStyleOption
                 )
             ).toWireFormat(),
+            null,
             null
         )
 
@@ -2423,7 +2429,8 @@ public class WatchFaceServiceTest {
                         schema.getDefaultUserStyle().toMutableUserStyle().apply {
                             set(complicationsStyleSetting, leftOnlyComplicationsOption)
                         }.toUserStyle().toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -2709,6 +2716,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -2761,6 +2769,7 @@ public class WatchFaceServiceTest {
             DeviceConfig(false, false, 0, 0),
             WatchUiState(false, 0),
             UserStyle(emptyMap()).toWireFormat(),
+            null,
             null
         )
         initWallpaperInteractiveWatchFaceInstance(
@@ -2892,6 +2901,7 @@ public class WatchFaceServiceTest {
             DeviceConfig(false, false, 0, 0),
             WatchUiState(false, 0),
             UserStyle(emptyMap()).toWireFormat(),
+            null,
             null
         )
         initWallpaperInteractiveWatchFaceInstance(
@@ -3014,6 +3024,7 @@ public class WatchFaceServiceTest {
             DeviceConfig(false, false, 0, 0),
             WatchUiState(false, 0),
             UserStyle(emptyMap()).toWireFormat(),
+            null,
             null
         )
         initWallpaperInteractiveWatchFaceInstance(
@@ -3184,6 +3195,7 @@ public class WatchFaceServiceTest {
                         watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
+                null,
                 null
             ),
             choreographer
@@ -3232,6 +3244,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3298,6 +3311,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3344,6 +3358,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3370,6 +3385,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3404,6 +3420,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3490,6 +3507,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(true, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3534,6 +3552,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3572,6 +3591,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
+                null,
                 null
             )
         )
@@ -3630,7 +3650,8 @@ public class WatchFaceServiceTest {
                             .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
-                )
+                ),
+                null
             )
         )
 
@@ -3687,6 +3708,7 @@ public class WatchFaceServiceTest {
                         watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
+                null,
                 null
             ),
             choreographer
@@ -3741,6 +3763,7 @@ public class WatchFaceServiceTest {
                         watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
+                null,
                 null
             ),
             choreographer
@@ -3778,7 +3801,8 @@ public class WatchFaceServiceTest {
                             .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
-                )
+                ),
+                null
             )
         )
 
@@ -3857,7 +3881,8 @@ public class WatchFaceServiceTest {
                             .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
                             .build()
                     )
-                )
+                ),
+                null
             )
         )
 
@@ -4012,7 +4037,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4063,7 +4089,8 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
-                emptyList()
+                emptyList(),
+                null
             ),
             preAndroidR = true
         )
@@ -4093,7 +4120,8 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
-                emptyList()
+                emptyList(),
+                null
             ),
             preAndroidR = false
         )
@@ -4124,7 +4152,8 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
-                emptyList()
+                emptyList(),
+                null
             )
         )
 
@@ -4214,6 +4243,7 @@ public class WatchFaceServiceTest {
                             watchHandStyleSetting to gothicStyleOption
                         )
                     ).toWireFormat(),
+                    null,
                     null
                 )
             )
@@ -4259,6 +4289,7 @@ public class WatchFaceServiceTest {
                     ),
                     WatchUiState(false, 0),
                     UserStyle(hashMapOf(watchHandStyleSetting to gothicStyleOption)).toWireFormat(),
+                    null,
                     null
                 )
             )
@@ -4288,7 +4319,8 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
-                emptyList()
+                emptyList(),
+                null
             )
         )
 
@@ -4389,7 +4421,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4527,7 +4560,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4657,7 +4691,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4759,7 +4794,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4808,7 +4844,8 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
-                emptyList()
+                emptyList(),
+                null
             )
         )
 
@@ -4879,7 +4916,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -4955,6 +4993,7 @@ public class WatchFaceServiceTest {
                         watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
+                null,
                 null
             ),
             choreographer
@@ -5023,6 +5062,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             ),
             choreographer
@@ -5217,6 +5257,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -5257,6 +5298,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -5392,7 +5434,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -5462,7 +5505,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -5532,7 +5576,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -5609,7 +5654,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -5707,6 +5753,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
@@ -5795,7 +5842,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -5912,7 +5960,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -6035,7 +6084,8 @@ public class WatchFaceServiceTest {
                         ),
                         WatchUiState(false, 0),
                         UserStyle(emptyMap()).toWireFormat(),
-                        emptyList()
+                        emptyList(),
+                        null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -6163,6 +6213,7 @@ public class WatchFaceServiceTest {
                 ),
                 WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
+                null,
                 null
             )
         )
