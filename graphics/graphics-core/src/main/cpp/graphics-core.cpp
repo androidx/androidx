@@ -30,6 +30,7 @@
 #include <android/hardware_buffer_jni.h>
 #include <android/log.h>
 #include <android/sync.h>
+#include <sys/system_properties.h>
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
@@ -473,4 +474,13 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferTransform(JN
     auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
     auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
     ASurfaceTransaction_setBufferTransform(st, sc, transformation);
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_androidx_graphics_lowlatency_BufferTransformHintResolver_00024Companion_getDisplayOrientation(
+        JNIEnv *env, jobject thiz) {
+    char name[PROP_VALUE_MAX];
+    __system_property_get("ro.surface_flinger.primary_display_orientation", name);
+    return (*env).NewStringUTF(name);
 }

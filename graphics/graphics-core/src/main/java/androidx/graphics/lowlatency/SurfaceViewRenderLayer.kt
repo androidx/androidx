@@ -16,11 +16,11 @@
 
 package androidx.graphics.lowlatency
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
@@ -43,12 +43,10 @@ internal class SurfaceViewRenderLayer<T>(
     private var mParentSurfaceControl: SurfaceControlCompat? = null
     private val mBufferTransform = BufferTransformer()
 
+    private val mTransformResolver = BufferTransformHintResolver()
+
     override fun getBufferTransformHint(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
-            return TransformHintHelper.resolveBufferTransformHint(surfaceView)
-        } else {
-            -1
-        }
+        return mTransformResolver.getBufferTransformHint(surfaceView)
     }
 
     override fun buildReparentTransaction(
@@ -67,8 +65,8 @@ internal class SurfaceViewRenderLayer<T>(
         renderer: GLRenderer,
         renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
-        var transformHint = ParentRenderLayer.UNKNOWN_TRANSFORM
-        var inverse = ParentRenderLayer.UNKNOWN_TRANSFORM
+        var transformHint = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+        var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
         val frameBufferRenderer = FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
 
@@ -87,6 +85,7 @@ internal class SurfaceViewRenderLayer<T>(
                     )
                 }
 
+                @SuppressLint("WrongConstant")
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                 override fun onDrawComplete(
                     frameBuffer: FrameBuffer,
@@ -109,7 +108,7 @@ internal class SurfaceViewRenderLayer<T>(
                             .setBuffer(sc, frameBuffer.hardwareBuffer, syncFenceCompat) {
                                 mLayerCallback?.getFrameBufferPool()?.release(frameBuffer)
                             }
-                        if (transformHint != ParentRenderLayer.UNKNOWN_TRANSFORM) {
+                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                             transaction.setBufferTransform(sc, inverse)
                         }
 
@@ -182,20 +181,5 @@ internal class SurfaceViewRenderLayer<T>(
 
     internal companion object {
         internal const val TAG = "SurfaceViewRenderLayer"
-    }
-}
-
-/**
- * Helper class to avoid class verification errors
- */
-
-@RequiresApi(Build.VERSION_CODES.S_V2)
-internal class TransformHintHelper private constructor() {
-
-    companion object {
-        @RequiresApi(Build.VERSION_CODES.S_V2)
-        @androidx.annotation.DoNotInline
-        fun resolveBufferTransformHint(view: View): Int =
-            view.rootSurfaceControl?.bufferTransformHint ?: 0
     }
 }
