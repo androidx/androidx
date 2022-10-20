@@ -34,10 +34,12 @@ def macEnabled = KmpPlatformsKt.enableMac(project)
 androidXMultiplatform {
     android()
 
-    def xcf = new XCFrameworkConfig(project, "AndroidXCollectionBenchmarks")
+    // XCFrameworkConfig must match module name
+    def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
     ios {
         binaries.framework {
-            baseName = "AndroidXCollectionBenchmarks"
+            // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
+            baseName = "AndroidXDarwinBenchmarks"
             // https://youtrack.jetbrains.com/issue/KT-48552
             embedBitcode = BitcodeEmbeddingMode.DISABLE
             export(project(":benchmark:benchmark-darwin"))
@@ -81,7 +83,6 @@ androidXMultiplatform {
             }
         }
 
-
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -108,6 +109,20 @@ androidx {
     mavenGroup = LibraryGroups.COLLECTIONS
     inceptionYear = "2022"
     description = "AndroidX Collections Benchmarks (Android / iOS)"
+}
+
+if (macEnabled) {
+    apply plugin: "androidx.benchmark.darwin"
+    darwinBenchmark {
+        xcodeGenConfigFile = project.rootProject.file(
+                "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
+        )
+        xcodeProjectName = "collection-benchmark-ios"
+        scheme = "testapp-ios"
+        // ios 13, 15.2
+        destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+        xcFrameworkConfig = "AndroidXDarwinBenchmarks"
+    }
 }
 
 android {
