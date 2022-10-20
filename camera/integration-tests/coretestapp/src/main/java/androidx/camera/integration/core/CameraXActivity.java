@@ -1276,7 +1276,6 @@ public class CameraXActivity extends AppCompatActivity {
      *
      * @param calledBySelf flag indicates if this is a recursive call.
      */
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     void tryBindUseCases(boolean calledBySelf) {
         boolean isViewFinderReady = mViewFinder.getWidth() != 0 && mViewFinder.getHeight() != 0;
         boolean isCameraReady = mCameraProvider != null;
@@ -1312,10 +1311,7 @@ public class CameraXActivity extends AppCompatActivity {
             // camera id.
             if (mCurrentCameraSelector == mLaunchingCameraIdSelector
                     && mLaunchingCameraLensFacing == UNKNOWN_LENS_FACING) {
-                Camera2CameraInfo camera2CameraInfo =
-                        Camera2CameraInfo.from(mCamera.getCameraInfo());
-                mLaunchingCameraLensFacing = camera2CameraInfo.getCameraCharacteristic(
-                        CameraCharacteristics.LENS_FACING);
+                mLaunchingCameraLensFacing = getLensFacing(mCamera.getCameraInfo());
             }
             List<UseCase> useCases = buildUseCases();
             mCamera = bindToLifecycleSafely(useCases);
@@ -1989,10 +1985,9 @@ public class CameraXActivity extends AppCompatActivity {
         return new CameraSelector.Builder().addCameraFilter(new CameraFilter() {
             @NonNull
             @Override
-            @OptIn(markerClass = ExperimentalCamera2Interop.class)
             public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
                 for (CameraInfo cameraInfo : cameraInfos) {
-                    if (cameraId.equals(Camera2CameraInfo.from(cameraInfo).getCameraId())) {
+                    if (Objects.equals(cameraId, getCameraId(cameraInfo))) {
                         return Collections.singletonList(cameraInfo);
                     }
                 }
@@ -2000,5 +1995,54 @@ public class CameraXActivity extends AppCompatActivity {
                 throw new IllegalArgumentException("No camera can be find for id: " + cameraId);
             }
         }).build();
+    }
+
+    private static int getLensFacing(@NonNull CameraInfo cameraInfo) {
+        try {
+            return getCamera2LensFacing(cameraInfo);
+        } catch (IllegalArgumentException e) {
+            return getCamera2PipeLensFacing(cameraInfo);
+        }
+    }
+
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    private static int getCamera2LensFacing(@NonNull CameraInfo cameraInfo) {
+        Integer lensFacing = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
+                    CameraCharacteristics.LENS_FACING);
+
+        return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
+    }
+
+    @OptIn(markerClass =
+            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
+    private static int getCamera2PipeLensFacing(@NonNull CameraInfo cameraInfo) {
+        Integer lensFacing =
+                androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(
+                        cameraInfo).getCameraCharacteristic(CameraCharacteristics.LENS_FACING);
+
+        return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
+    }
+
+    @NonNull
+    private static String getCameraId(@NonNull CameraInfo cameraInfo) {
+        try {
+            return getCamera2CameraId(cameraInfo);
+        } catch (IllegalArgumentException e) {
+            return getCameraPipeCameraId(cameraInfo);
+        }
+    }
+
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @NonNull
+    private static String getCamera2CameraId(@NonNull CameraInfo cameraInfo) {
+        return Camera2CameraInfo.from(cameraInfo).getCameraId();
+    }
+
+    @OptIn(markerClass =
+            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
+    @NonNull
+    private static String getCameraPipeCameraId(@NonNull CameraInfo cameraInfo) {
+        return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(
+                cameraInfo).getCameraId();
     }
 }
