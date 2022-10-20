@@ -65,9 +65,7 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
             "--project",
             outputFile.parent
         )
-        execOperations.exec { spec ->
-            spec.commandLine = args
-        }
+        execOperations.executeQuietly(args)
         require(outputFile.exists()) {
             "Project $projectName must match the `name` declaration in $yamlFile"
         }
