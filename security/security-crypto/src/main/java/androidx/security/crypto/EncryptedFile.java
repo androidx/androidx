@@ -316,6 +316,8 @@ public final class EncryptedFile {
 
         private final InputStream mEncryptedInputStream;
 
+        private final Object mLock = new Object();
+
         EncryptedFileInputStream(FileDescriptor descriptor,
                 InputStream encryptedInputStream) {
             super(descriptor);
@@ -359,13 +361,17 @@ public final class EncryptedFile {
         }
 
         @Override
-        public synchronized void mark(int readlimit) {
-            mEncryptedInputStream.mark(readlimit);
+        public void mark(int readLimit) {
+            synchronized (mLock) {
+                mEncryptedInputStream.mark(readLimit);
+            }
         }
 
         @Override
-        public synchronized void reset() throws IOException {
-            mEncryptedInputStream.reset();
+        public void reset() throws IOException {
+            synchronized (mLock) {
+                mEncryptedInputStream.reset();
+            }
         }
 
         @Override
