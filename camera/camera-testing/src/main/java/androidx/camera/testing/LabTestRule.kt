@@ -78,7 +78,7 @@ class LabTestRule : TestRule {
             // Only test in CameraX lab environment and throw AssumptionViolatedException if not
             // in the lab environment. The loggable tag will be set when running the CameraX
             // daily testing.
-            assumeTrue(Log.isLoggable("MH", Log.DEBUG))
+            assumeTrue(isInLabTest())
             statement.evaluate()
         }
     }
@@ -117,6 +117,13 @@ class LabTestRule : TestRule {
             LabTestRearCameraStatement(base)
         } else {
             base
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun isInLabTest(): Boolean {
+            return Log.isLoggable("MH", Log.DEBUG)
         }
     }
 }

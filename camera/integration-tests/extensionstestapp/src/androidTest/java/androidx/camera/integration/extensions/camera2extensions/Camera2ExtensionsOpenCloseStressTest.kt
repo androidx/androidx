@@ -20,15 +20,15 @@ import android.content.Context
 import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession
 import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
@@ -47,8 +47,6 @@ class Camera2ExtensionsOpenCloseStressTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
     companion object {
         @ClassRule
         @JvmField val stressTest = StressTestRule()
@@ -61,10 +59,13 @@ class Camera2ExtensionsOpenCloseStressTest(
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-    @LabTestRule.LabTestOnly
+    @Before
+    fun setUp() {
+        assumeTrue(Camera2ExtensionsTestUtil.isTargetDeviceExcludedForExtensionsTest())
+    }
     @Test
     fun openCloseExtensionSession(): Unit = runBlocking {
-        repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+        repeat(Camera2ExtensionsTestUtil.getStressTestRepeatingCount()) {
             assertCanOpenExtensionsSession(cameraManager, cameraId, extensionMode)
         }
 

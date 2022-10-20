@@ -53,6 +53,7 @@ import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCam
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -271,15 +272,13 @@ object CameraXExtensionsTestUtil {
         return activityScenario
     }
 
-    /**
-     * Large stress test repeat count to run the test
-     */
-    const val LARGE_STRESS_TEST_REPEAT_COUNT = 1
-
-    /**
-     * Stress test repeat count to run the test
-     */
-    const val STRESS_TEST_REPEAT_COUNT = 2
+    @JvmStatic
+    fun getStressTestRepeatingCount() =
+        if (LabTestRule.isInLabTest()) {
+            LAB_STRESS_TEST_OPERATION_REPEAT_COUNT
+        } else {
+            STRESS_TEST_OPERATION_REPEAT_COUNT
+        }
 
     /**
      * Stress test target testing operation count.
@@ -295,7 +294,8 @@ object CameraXExtensionsTestUtil {
      * </ul>
      *
      */
-    const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val LAB_STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val STRESS_TEST_OPERATION_REPEAT_COUNT = 3
 
     /**
      * Constant to specify that the verification target is [Preview].
