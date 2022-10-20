@@ -41,6 +41,7 @@
 
         <activity android:name="androidx.graphics.lowlatency.SampleInkViewActivity"
             android:label="GLFrontBufferRenderer Sample"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

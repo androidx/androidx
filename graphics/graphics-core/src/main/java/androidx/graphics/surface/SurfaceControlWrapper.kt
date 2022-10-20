@@ -63,6 +63,16 @@ internal class JniBindings {
             acquireFieldFd: SyncFence
         )
 
+        external fun nSetGeometry(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            bufferWidth: Int,
+            bufferHeight: Int,
+            dstWidth: Int,
+            dstHeight: Int,
+            transformation: Int
+        )
+
         external fun nSetVisibility(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -545,6 +555,26 @@ internal class SurfaceControlWrapper internal constructor(
             JniBindings.nSetBufferTransform(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
+                transformation
+            )
+            return this
+        }
+
+        fun setGeometry(
+            surfaceControl: SurfaceControlWrapper,
+            width: Int,
+            height: Int,
+            dstWidth: Int,
+            dstHeight: Int,
+            transformation: Int
+        ): Transaction {
+            JniBindings.nSetGeometry(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                width,
+                height,
+                dstWidth,
+                dstHeight,
                 transformation
             )
             return this
