@@ -29,23 +29,24 @@ import com.squareup.kotlinpoet.joinToCode
  * Generates a file that defines a converter for an SDK defined value and its AIDL parcelable
  * counterpart.
  */
-class ValueConverterFileGenerator(private val api: ParsedApi, private val value: AnnotatedValue) {
+class ValueConverterFileGenerator(private val api: ParsedApi) {
 
-    fun generate() =
+    fun generate(value: AnnotatedValue) =
         FileSpec.builder(
             value.converterNameSpec().packageName,
             value.converterNameSpec().simpleName
         ).build {
             addCommonSettings()
-            addType(generateConverter())
+            addType(generateConverter(value))
         }
 
-    private fun generateConverter() = TypeSpec.objectBuilder(value.converterNameSpec()).build {
-        addFunction(generateFromParcelable())
-        addFunction(generateToParcelable())
+    private fun generateConverter(value: AnnotatedValue) =
+        TypeSpec.objectBuilder(value.converterNameSpec()).build {
+        addFunction(generateFromParcelable(value))
+        addFunction(generateToParcelable(value))
     }
 
-    private fun generateToParcelable() =
+    private fun generateToParcelable(value: AnnotatedValue) =
         FunSpec.builder(value.toParcelableNameSpec().simpleName).build {
             addParameter("annotatedValue", value.type.poetSpec())
             returns(value.parcelableNameSpec())
@@ -66,7 +67,7 @@ class ValueConverterFileGenerator(private val api: ParsedApi, private val value:
             }
         }
 
-    private fun generateFromParcelable() =
+    private fun generateFromParcelable(value: AnnotatedValue) =
         FunSpec.builder(value.fromParcelableNameSpec().simpleName).build {
             addParameter("parcelable", value.parcelableNameSpec())
             returns(value.type.poetSpec())

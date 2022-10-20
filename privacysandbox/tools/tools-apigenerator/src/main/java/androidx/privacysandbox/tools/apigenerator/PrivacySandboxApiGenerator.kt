@@ -20,9 +20,12 @@ import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
+import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
+import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
+import androidx.privacysandbox.tools.core.model.getOnlyService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -52,28 +55,35 @@ class PrivacySandboxApiGenerator {
         }
 
         val output = outputDirectory.toFile()
-        val sdkApi = ApiStubParser.parse(sdkInterfaceDescriptors)
-        generateBinders(sdkApi, AidlCompiler(aidlCompiler), output)
+        val api = ApiStubParser.parse(sdkInterfaceDescriptors)
 
-        sdkApi.values.forEach {
-            ValueFileGenerator(it).generate().writeTo(output)
-            ValueConverterFileGenerator(sdkApi, it).generate().writeTo(output)
-        }
-        sdkApi.services.forEach {
-            InterfaceFileGenerator(it).generate().writeTo(output)
-            ServiceFactoryFileGenerator(sdkApi, it).generate().writeTo(output)
-        }
-        sdkApi.callbacks.forEach {
-            InterfaceFileGenerator(it).generate().writeTo(output)
-            StubDelegatesGenerator(sdkApi).generateInterfaceStubDelegate(it).writeTo(output)
-        }
+        val basePackageName = api.getOnlyService().type.packageName
+        val binderCodeConverter = BinderCodeConverter(api)
+        val interfaceFileGenerator = InterfaceFileGenerator()
+
+        generateBinders(api, AidlCompiler(aidlCompiler), output)
+        generateStubDelegates(
+            api,
+            basePackageName,
+            binderCodeConverter,
+            interfaceFileGenerator,
+            output
+        )
+        generateClientProxies(
+            api,
+            basePackageName,
+            binderCodeConverter,
+            interfaceFileGenerator,
+            output
+        )
+        generateValueConverters(api, output)
     }
 
-    private fun generateBinders(sdkApi: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
+    private fun generateBinders(api: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
         val aidlWorkingDir = output.resolve("tmp-aidl").also { it.mkdir() }
         try {
             val generatedFiles =
-                AidlGenerator.generate(aidlCompiler, sdkApi, aidlWorkingDir.toPath())
+                AidlGenerator.generate(aidlCompiler, api, aidlWorkingDir.toPath())
             generatedFiles.forEach {
                 val relativePath = aidlWorkingDir.toPath().relativize(it.file.toPath())
                 val source = it.file.toPath()
@@ -83,6 +93,45 @@ class PrivacySandboxApiGenerator {
             }
         } finally {
             aidlWorkingDir.deleteRecursively()
+        }
+    }
+
+    private fun generateStubDelegates(
+        api: ParsedApi,
+        basePackageName: String,
+        binderCodeConverter: BinderCodeConverter,
+        interfaceFileGenerator: InterfaceFileGenerator,
+        output: File
+    ) {
+        val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
+        api.callbacks.forEach {
+            interfaceFileGenerator.generate(it).writeTo(output)
+            stubDelegateGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateClientProxies(
+        api: ParsedApi,
+        basePackageName: String,
+        binderCodeConverter: BinderCodeConverter,
+        interfaceFileGenerator: InterfaceFileGenerator,
+        output: File
+    ) {
+        val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
+        val serviceFactoryFileGenerator = ServiceFactoryFileGenerator()
+        api.services.forEach {
+            interfaceFileGenerator.generate(it).writeTo(output)
+            clientProxyGenerator.generate(it).writeTo(output)
+            serviceFactoryFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun generateValueConverters(api: ParsedApi, output: File) {
+        val valueFileGenerator = ValueFileGenerator()
+        val valueConverterFileGenerator = ValueConverterFileGenerator(api)
+        api.values.forEach {
+            valueFileGenerator.generate(it).writeTo(output)
+            valueConverterFileGenerator.generate(it).writeTo(output)
         }
     }
 }

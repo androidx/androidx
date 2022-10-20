@@ -18,41 +18,27 @@ package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
-import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Types
-import androidx.privacysandbox.tools.core.model.getOnlyService
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.joinToCode
 
-class StubDelegatesGenerator(private val api: ParsedApi) {
-    private val binderCodeConverter = BinderCodeConverter(api)
+class StubDelegatesGenerator(
+    private val basePackageName: String,
+    private val binderCodeConverter: BinderCodeConverter
+) {
 
-    companion object {
-        private val ATOMIC_BOOLEAN_CLASS = ClassName("java.util.concurrent.atomic", "AtomicBoolean")
-    }
-
-    fun generate(): List<FileSpec> {
-        if (api.services.isEmpty()) {
-            return emptyList()
-        }
-        return api.services.map(::generateInterfaceStubDelegate) +
-            api.interfaces.map(::generateInterfaceStubDelegate) +
-            generateTransportCancellationCallback()
-    }
-
-    fun generateInterfaceStubDelegate(annotatedInterface: AnnotatedInterface): FileSpec {
+    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val className = annotatedInterface.stubDelegateNameSpec().simpleName
-        val aidlBaseClassName =
-            ClassName(annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub")
+        val aidlBaseClassName = ClassName(
+            annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub"
+        )
 
         val classSpec = TypeSpec.classBuilder(className).build {
             superclass(aidlBaseClassName)
@@ -132,7 +118,7 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
         if (method.isSuspend) add(
             ParameterSpec(
                 "transactionCallback", ClassName(
-                    api.getOnlyService().type.packageName,
+                    basePackageName,
                     method.returnType.transactionCallbackName()
                 )
             )
@@ -143,40 +129,5 @@ class StubDelegatesGenerator(private val api: ParsedApi) {
         add("delegate.${method.name}(")
         add(method.parameters.map { binderCodeConverter.convertToModelCode(it) }.joinToCode())
         add(")")
-    }
-
-    private fun generateTransportCancellationCallback(): FileSpec {
-        val packageName = api.getOnlyService().type.packageName
-        val className = "TransportCancellationCallback"
-        val cancellationSignalStubName =
-            ClassName(packageName, AidlGenerator.cancellationSignalName, "Stub")
-
-        val classSpec = TypeSpec.classBuilder(className).build {
-            superclass(cancellationSignalStubName)
-            addModifiers(KModifier.INTERNAL)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "onCancel",
-                        LambdaTypeName.get(returnType = Unit::class.asTypeName()),
-                    ).addModifiers(KModifier.PRIVATE).build()
-                ), KModifier.INTERNAL
-            )
-            addProperty(
-                PropertySpec.builder(
-                    "hasCancelled", ATOMIC_BOOLEAN_CLASS, KModifier.PRIVATE
-                ).initializer("%T(false)", ATOMIC_BOOLEAN_CLASS).build()
-            )
-            addFunction(FunSpec.builder("cancel").build {
-                addModifiers(KModifier.OVERRIDE)
-                addCode {
-                    addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
-                        addStatement("onCancel()")
-                    }
-                }
-            })
-        }
-
-        return FileSpec.builder(packageName, className).addType(classSpec).build()
     }
 }
