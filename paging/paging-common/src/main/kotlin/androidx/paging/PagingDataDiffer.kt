@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -262,6 +263,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
+    @MainThread
     public operator fun get(@IntRange(from = 0) index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
@@ -278,6 +280,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
+    @MainThread
     public fun peek(@IntRange(from = 0) index: Int): T? {
         return presenter.get(index)
     }
