@@ -78,10 +78,18 @@ public class CameraStream internal constructor(
                 camera: CameraId? = null,
                 outputType: OutputStream.OutputType = OutputStream.OutputType.SURFACE,
                 mirrorMode: OutputStream.MirrorMode? = null,
-                timestampBase: OutputStream.TimestampBase? = null
+                timestampBase: OutputStream.TimestampBase? = null,
+                dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
             ): Config = create(
-                OutputStream.Config
-                    .create(size, format, camera, outputType, mirrorMode, timestampBase)
+                OutputStream.Config.create(
+                    size,
+                    format,
+                    camera,
+                    outputType,
+                    mirrorMode,
+                    timestampBase,
+                    dynamicRangeProfile
+                )
             )
 
             /**
@@ -124,6 +132,7 @@ public interface OutputStream {
     public val camera: CameraId
     public val mirrorMode: MirrorMode?
     public val timestampBase: TimestampBase?
+    public val dynamicRangeProfile: DynamicRangeProfile?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -135,6 +144,7 @@ public interface OutputStream {
         public val camera: CameraId?,
         public val mirrorMode: MirrorMode?,
         public val timestampBase: TimestampBase?,
+        public val dynamicRangeProfile: DynamicRangeProfile?,
     ) {
         companion object {
             fun create(
@@ -144,15 +154,31 @@ public interface OutputStream {
                 outputType: OutputType = OutputType.SURFACE,
                 mirrorMode: MirrorMode? = null,
                 timestampBase: TimestampBase? = null,
+                dynamicRangeProfile: DynamicRangeProfile? = null,
             ): Config =
                 if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
-                    LazyOutputConfig(size, format, camera, outputType, mirrorMode, timestampBase)
+                    LazyOutputConfig(
+                        size,
+                        format,
+                        camera,
+                        outputType,
+                        mirrorMode,
+                        timestampBase,
+                        dynamicRangeProfile
+                    )
                 } else {
                     check(outputType == OutputType.SURFACE)
-                    SimpleOutputConfig(size, format, camera, mirrorMode, timestampBase)
+                    SimpleOutputConfig(
+                        size,
+                        format,
+                        camera,
+                        mirrorMode,
+                        timestampBase,
+                        dynamicRangeProfile
+                    )
                 }
 
             /** Create a stream configuration from an externally created [OutputConfiguration] */
@@ -176,7 +202,8 @@ public interface OutputStream {
             camera: CameraId?,
             mirrorMode: MirrorMode?,
             timestampBase: TimestampBase?,
-        ) : Config(size, format, camera, mirrorMode, timestampBase)
+            dynamicRangeProfile: DynamicRangeProfile?,
+        ) : Config(size, format, camera, mirrorMode, timestampBase, dynamicRangeProfile)
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is running.
@@ -193,7 +220,8 @@ public interface OutputStream {
             internal val outputType: OutputType,
             mirrorMode: MirrorMode?,
             timestampBase: TimestampBase?,
-        ) : Config(size, format, camera, mirrorMode, timestampBase)
+            dynamicRangeProfile: DynamicRangeProfile?,
+        ) : Config(size, format, camera, mirrorMode, timestampBase, dynamicRangeProfile)
 
         /**
          * Used to define an output that comes from an externally managed OutputConfiguration object.
@@ -209,8 +237,14 @@ public interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-        ) : Config(size, format, camera, MirrorMode(Api33Compat.getMirrorMode(output)),
-            TimestampBase(Api33Compat.getTimestampBase(output)))
+        ) : Config(
+                size,
+                format,
+                camera,
+                MirrorMode(Api33Compat.getMirrorMode(output)),
+                TimestampBase(Api33Compat.getTimestampBase(output)),
+                DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output))
+            )
     }
 
     enum class OutputType {
@@ -252,6 +286,32 @@ public interface OutputStream {
             val TIMESTAMP_BASE_MONOTONIC = TimestampBase(2)
             val TIMESTAMP_BASE_REALTIME = TimestampBase(3)
             val TIMESTAMP_BASE_CHOREOGRAPHER_SYNCED = TimestampBase(4)
+        }
+    }
+
+    /**
+     * Adds the ability to define the dynamic range profile of the OutputStream.
+     * [STANDARD] is the default dynamic range profile for the camera device, with which
+     * the camera device uses an 8-bit standard profile.
+     *
+     * See the documentation on [OutputConfiguration.setDynamicRangeProfile] for more details.
+     */
+    @JvmInline
+    value class DynamicRangeProfile(val value: Long) {
+        companion object {
+            val STANDARD = DynamicRangeProfile(1)
+            val HLG10 = DynamicRangeProfile(2)
+            val HDR10 = DynamicRangeProfile(4)
+            val HDR10_PLUS = DynamicRangeProfile(8)
+            val DOLBY_VISION_10B_HDR_REF = DynamicRangeProfile(16)
+            val DOLBY_VISION_10B_HDR_REF_PO = DynamicRangeProfile(32)
+            val DOLBY_VISION_10B_HDR_OEM = DynamicRangeProfile(64)
+            val DOLBY_VISION_10B_HDR_OEM_PO = DynamicRangeProfile(128)
+            val DOLBY_VISION_8B_HDR_REF = DynamicRangeProfile(256)
+            val DOLBY_VISION_8B_HDR_REF_PO = DynamicRangeProfile(512)
+            val DOLBY_VISION_8B_HDR_OEM = DynamicRangeProfile(1024)
+            val DOLBY_VISION_8B_HDR_OEM_PO = DynamicRangeProfile(2048)
+            val PUBLIC_MAX = DynamicRangeProfile(4096)
         }
     }
 }
