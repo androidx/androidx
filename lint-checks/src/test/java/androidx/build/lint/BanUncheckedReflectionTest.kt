@@ -178,4 +178,27 @@ No warnings.
 
         check(*input).expectClean()
     }
+
+    @Test
+    fun `Checked reflection using Kotlin range check`() {
+        val input = arrayOf(
+            kotlin("""
+                package androidx.foo
+
+                import android.os.Build
+
+                fun forceEnablePlatformTracing() {
+                    if (Build.VERSION.SDK_INT in 18..28) {
+                        val method = android.os.Trace::class.java.getMethod(
+                            "setAppTracingAllowed",
+                            Boolean::class.javaPrimitiveType
+                        )
+                        method.invoke(null, true)
+                    }
+                }
+            """.trimIndent())
+        )
+
+        check(*input).expectClean()
+    }
 }
