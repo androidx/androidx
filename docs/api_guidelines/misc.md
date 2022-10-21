@@ -246,6 +246,53 @@ Java visibilty should be set as appropriate for the code in question (`private`,
 For more, read the section in
 [Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#no-public-typedefs)
 
+#### `*current.txt` File Explanation {#currenttxt}
+
+In this example, `1.3.0-beta02.txt` is just used for an example. This will match
+the current library version.
+
+<table>
+    <tr>
+        <td><code>api/current.txt</code></td>
+        <td>All public APIs.</td>
+    </tr>
+    <tr>
+        <td><code>api/1.3.0-beta02.txt</code></td>
+        <td>All public APIs available in version <code>1.3.0-beta02</code>.
+        Used to enforce compatibility in later versions.  This file is only
+        generated during Beta.</td>
+    </tr>
+    <tr>
+        <td><code>api/public_plus_experimental_current.txt </code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and all
+        experimental/<code>RequiresOptIn</code> APIs.
+        </td>
+    </tr>
+    <tr>
+        <td><code>api/public_plus_experimental_1.3.0-beta03.txt</code></td>
+        <td>Superset of all public APIs (<code>api/1.3.0-beta02.txt.txt</code>) and all
+        experimental/RequiresOptIn APIs, as available in version
+        <code>1.3.0-beta02.txt</code>.  Only generated during Beta.</td>
+    <tr>
+        <td><code>api/restricted_current.txt</code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and
+        all <code>RestrictTo</code> APIs that require compatibility across
+        versions.
+        <p/>Specifically, includes <code>@RestrictTo(LIBRARY_GROUP)</code> and
+        <code>@RestrictTo(LIBRARY_GROUP_PREFIX)</code>.</td>
+    </tr>
+    <tr>
+        <td><code>api/restricted_1.3.0-beta02.txt.txt</code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and
+        all <code>RestrictTo</code> APIs that require compatibility across
+        versions, as available in version <code>1.3.0-beta02.txt</code>.
+        <p/>
+        Specifically, includes <code>@RestrictTo(LIBRARY_GROUP)</code> and
+        <code>@RestrictTo(LIBRARY_GROUP_PREFIX)</code>. This file is only
+        generated during Beta.</td>
+    </tr>
+</table>
+
 ## Constructors {#constructors}
 
 ### View constructors {#view-constructors}
