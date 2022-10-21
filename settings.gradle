@@ -182,6 +182,8 @@ boolean isMultiplatformEnabled() {
 //
 /////////////////////////////
 
+// If you add a new BuildType, you probably also want to
+// update ProjectSubsetsTest.kt to verify that dependencies in that subset resolve successfully
 enum BuildType {
     MAIN,
     COMPOSE,
