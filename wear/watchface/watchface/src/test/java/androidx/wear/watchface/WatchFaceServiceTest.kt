@@ -4071,6 +4071,7 @@ public class WatchFaceServiceTest {
         ).isEqualTo("Example")
 
         assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
+        engineWrapper.onDestroy()
     }
 
     @Test

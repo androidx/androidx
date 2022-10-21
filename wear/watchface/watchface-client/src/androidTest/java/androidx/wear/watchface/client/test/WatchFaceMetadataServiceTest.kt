@@ -134,6 +134,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("NewApi")
     public fun getComplicationSlotMetadataMap() {
         val service = createWatchFaceMetadataClient(exampleWatchFaceComponentName)
         val complicationSlotMetadataMap = service.getComplicationSlotMetadataMap()
@@ -156,6 +157,8 @@ public class WatchFaceMetadataServiceTest {
         ).isEqualTo(ComplicationType.SHORT_TEXT)
         Truth.assertThat(leftComplicationMetadata.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
@@ -181,6 +184,8 @@ public class WatchFaceMetadataServiceTest {
         ).isEqualTo(ComplicationType.SHORT_TEXT)
         Truth.assertThat(rightComplicationMetadata.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,

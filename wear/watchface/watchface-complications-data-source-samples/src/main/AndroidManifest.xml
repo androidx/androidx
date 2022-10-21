@@ -100,6 +100,82 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.ColorRampDataSourceService"
+            android:label="@string/color_ramp_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.NonInterpolatedColorRampDataSourceService"
+            android:label="@string/color_ramp2_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.GoalProgressDataSourceService"
+            android:label="@string/goal_progress_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="GOAL_PROGRESS"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.WeightedElementDataSourceService"
+            android:label="@string/weighted_elements_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="WEIGHTED_ELEMENTS"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
         <service android:name=".ConfigurableDataSourceService"
             android:label="@string/configurable_data_source_name"
             android:exported="true"

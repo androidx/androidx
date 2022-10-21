@@ -518,6 +518,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         canvasComplicationFactory,
         listOf(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
@@ -540,6 +542,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         canvasComplicationFactory,
         listOf(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
@@ -560,6 +564,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     private val upperAndLowerComplicationTypes = listOf(
         ComplicationType.LONG_TEXT,
         ComplicationType.RANGED_VALUE,
+        ComplicationType.GOAL_PROGRESS,
+        ComplicationType.WEIGHTED_ELEMENTS,
         ComplicationType.SHORT_TEXT,
         ComplicationType.MONOCHROMATIC_IMAGE,
         ComplicationType.SMALL_IMAGE

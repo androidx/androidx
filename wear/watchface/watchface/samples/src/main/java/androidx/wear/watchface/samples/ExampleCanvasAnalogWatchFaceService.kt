@@ -314,6 +314,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             canvasComplicationFactory,
             listOf(
                 ComplicationType.RANGED_VALUE,
+                ComplicationType.GOAL_PROGRESS,
+                ComplicationType.WEIGHTED_ELEMENTS,
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,
@@ -335,6 +337,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             canvasComplicationFactory,
             listOf(
                 ComplicationType.RANGED_VALUE,
+                ComplicationType.GOAL_PROGRESS,
+                ComplicationType.WEIGHTED_ELEMENTS,
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,

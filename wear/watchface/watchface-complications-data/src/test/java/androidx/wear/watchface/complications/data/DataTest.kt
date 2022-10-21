@@ -398,7 +398,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData() {
         val data = RangedValueComplicationData.Builder(
@@ -467,7 +466,6 @@ public class AsWireComplicationDataTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData_withImages() {
         val data = RangedValueComplicationData.Builder(
@@ -551,7 +549,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData_with_ColorRamp() {
         val data = GoalProgressComplicationData.Builder(
@@ -564,7 +561,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
@@ -622,7 +619,6 @@ public class AsWireComplicationDataTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData_with_ColorRamp_and_Images() {
         val data = GoalProgressComplicationData.Builder(
@@ -637,7 +633,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setIcon(monochromaticImageIcon)
@@ -706,7 +702,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData_with_ColorRamp() {
         val data = RangedValueComplicationData.Builder(
@@ -779,7 +774,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData() {
         val data = WeightedElementsComplicationData.Builder(
@@ -796,7 +790,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.GRAY)
@@ -866,7 +860,6 @@ public class AsWireComplicationDataTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData_withImages() {
         val data = WeightedElementsComplicationData.Builder(
@@ -884,7 +877,7 @@ public class AsWireComplicationDataTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.TRANSPARENT)
@@ -1380,7 +1373,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_rangedValue() {
         val data = NoDataComplicationData(
@@ -1465,7 +1457,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_goalProgress() {
         val data = NoDataComplicationData(
@@ -1483,7 +1474,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                             .setRangedValue(GoalProgressComplicationData.PLACEHOLDER)
                             .setTargetValue(10000f)
                             .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
@@ -1551,7 +1542,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_weightedElements() {
         val data = NoDataComplicationData(
@@ -1572,7 +1562,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                             .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                             .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setElementBackgroundColor(Color.GRAY)
@@ -1644,7 +1634,6 @@ public class AsWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_rangedValue_with_ColorRange() {
         val data = NoDataComplicationData(
@@ -2014,7 +2003,6 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData() {
         assertRoundtrip(
@@ -2031,7 +2019,6 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData_drawSegmented() {
         assertRoundtrip(
@@ -2048,11 +2035,10 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData() {
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+            WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                 .setRangedValue(1200f)
                 .setTargetValue(10000f)
                 .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2066,11 +2052,10 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData() {
         assertRoundtrip(
-            WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+            WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                 .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                 .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                 .setElementBackgroundColor(Color.DKGRAY)
@@ -2186,7 +2171,6 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_rangedValue() {
         val icon = Icon.createWithContentUri("someuri")
@@ -2214,14 +2198,13 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_goalProgress() {
         val icon = Icon.createWithContentUri("someuri")
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                         .setRangedValue(1200f)
                         .setTargetValue(10000f)
                         .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2242,13 +2225,12 @@ public class FromWireComplicationDataTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_weightedElementsComplicationData() {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                 .setPlaceholder(
-                    WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                    WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                         .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                         .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                         .setElementBackgroundColor(Color.DKGRAY)
@@ -2359,10 +2341,10 @@ public class TapActionTest {
         ).isEqualTo(mPendingIntent)
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData() {
         assertThat(
+            @Suppress("NewApi")
             GoalProgressComplicationData.Builder(
                 value = 1200f, targetValue = 10000f,
                 contentDescription = "content description".complicationText
@@ -2374,10 +2356,10 @@ public class TapActionTest {
         ).isEqualTo(mPendingIntent)
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData() {
         assertThat(
+            @Suppress("NewApi")
             WeightedElementsComplicationData.Builder(
                 listOf(
                     WeightedElementsComplicationData.Element(0.5f, Color.RED),
@@ -2481,10 +2463,10 @@ public class RoundtripTapActionTest {
         ).isEqualTo(mPendingIntent)
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData() {
         assertThat(
+            @Suppress("NewApi")
             GoalProgressComplicationData.Builder(
                 value = 1200f, targetValue = 10000f,
                 contentDescription = "content description".complicationText
@@ -2496,10 +2478,10 @@ public class RoundtripTapActionTest {
         ).isEqualTo(mPendingIntent)
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData() {
         assertThat(
+            @Suppress("NewApi")
             WeightedElementsComplicationData.Builder(
                 listOf(
                     WeightedElementsComplicationData.Element(0.5f, Color.RED),
@@ -2608,7 +2590,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun rangedValueComplicationData() {
         val data = RangedValueComplicationData.Builder(
@@ -2634,7 +2615,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun goalProgressComplicationData() {
         val data = GoalProgressComplicationData.Builder(
@@ -2647,7 +2627,7 @@ public class ValidTimeRangeTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                     .setRangedValue(1200f)
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2662,7 +2642,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun weightedElementsComplicationData() {
         val data = WeightedElementsComplicationData.Builder(
@@ -2678,7 +2657,7 @@ public class ValidTimeRangeTest {
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                     .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                     .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setElementBackgroundColor(Color.TRANSPARENT)
@@ -2793,7 +2772,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_rangedValue() {
         val data = NoDataComplicationData(
@@ -2826,7 +2804,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_goalProgress() {
         val data = NoDataComplicationData(
@@ -2842,7 +2819,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_GOAL_PROGRESS)
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                             .setRangedValue(1200f)
                             .setTargetValue(10000f)
                             .setShortTitle(WireComplicationText.plainText("steps"))
@@ -2861,7 +2838,6 @@ public class ValidTimeRangeTest {
             )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
     public fun noDataComplicationData_weightedElements() {
         val data = NoDataComplicationData(
@@ -2880,7 +2856,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA)
                     .setPlaceholder(
-                        WireComplicationDataBuilder(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS)
+                        WireComplicationDataBuilder(WireComplicationData.TYPE_WEIGHTED_ELEMENTS)
                             .setElementWeights(floatArrayOf(0.5f, 1f, 2f))
                             .setElementColors(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setElementBackgroundColor(Color.TRANSPARENT)
@@ -3055,8 +3031,8 @@ public class RedactionTest {
         )
     }
 
-    @OptIn(ComplicationExperimental::class)
     @Test
+    @Suppress("NewApi")
     fun goalProgress() {
         val data = GoalProgressComplicationData.Builder(
             value = 1200f, targetValue = 10000f,
@@ -3077,7 +3053,7 @@ public class RedactionTest {
                 "persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
-            "ComplicationData{mType=-13, mFields=REDACTED}"
+            "ComplicationData{mType=13, mFields=REDACTED}"
         )
     }
 
