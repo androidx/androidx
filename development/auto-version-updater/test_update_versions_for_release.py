@@ -137,18 +137,38 @@ class TestVersionUpdates(unittest.TestCase):
         self.assertFalse(should_update_artifact_version_in_library_versions_toml(
             "1.1.0-alpha01", "1.0.0-alpha01", "work-runtime"))
 
-        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.0.0-beta04", "1.1.0-alpha02", "tracing-perfetto"))
-        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.0.0-beta04", "1.3.0-alpha01", "tracing-perfetto"))
         self.assertFalse(should_update_artifact_version_in_library_versions_toml(
             "1.0.0-beta04", "1.0.0-alpha01", "tracing-perfetto"))
-        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto"))
-        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-binary"))
-        self.assertFalse(should_update_artifact_version_in_library_versions_toml(
+        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-common"))
+
+    def test_get_library_constants_in_library_versions_toml(self):
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.foo", "foo"),
+            ("FOO", "FOO"))
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.foo.bar", "bar-qux"),
+            ("FOO_BAR", "BAR_QUX"))
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.foo", "foo-ktx"),
+            ("FOO", "FOO_KTX"))
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.compose.runtime", "runtime"),
+            ("COMPOSE", "RUNTIME"))
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.compose.runtime", "runtime-tracing"),
+            ("COMPOSE_RUNTIME_TRACING", "COMPOSE_RUNTIME_TRACING"))
+        self.assertEqual(
+            get_library_constants_in_library_versions_toml("androidx.compose.material3", "material3"),
+            ("COMPOSE_MATERIAL3", "MATERIAL3"))
 
 
 class TestFileParsing(unittest.TestCase):
