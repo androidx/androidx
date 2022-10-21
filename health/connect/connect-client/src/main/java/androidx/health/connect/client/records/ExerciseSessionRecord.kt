@@ -85,18 +85,18 @@ public class ExerciseSessionRecord(
 
     companion object {
         /**
-         * Metric identifier to retrieve the total active time from
+         * Metric identifier to retrieve the total exercise time from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ACTIVE_TIME_TOTAL: AggregateMetric<Duration> =
+        val EXERCISE_DURATION_TOTAL: AggregateMetric<Duration> =
             AggregateMetric.durationMetric(
                 dataTypeName = "ActiveTime",
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = "time",
             )
-        // Active time requires computing total time from ExerciseEvent/Session and is not a
-        // straightforward Duration aggregation.
+        // Exercise duration time requires computing total time from ExerciseEvent/Session and not
+        // a straightforward Duration aggregation.
     }
 
     /** List of supported exercise type on Health Platform. */
