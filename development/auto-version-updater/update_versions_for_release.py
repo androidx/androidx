@@ -245,6 +245,29 @@ def increment_version_within_minor_version(version):
     return new_version
 
 
+def get_library_constants_in_library_versions_toml(group_id, artifact_id):
+    """Gets the constants for a library in libraryversions.toml.
+
+    Args:
+        group_id: group_id of the existing library
+        artifact_id: artifact_id of the existing library
+
+    Returns:
+        A touple of the group_id constant and the artifact_id constant
+    """
+    group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
+    artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
+    # Special case Compose because it uses the same version variable.
+    if (group_id_variable_name.startswith("COMPOSE") and
+        group_id_variable_name != "COMPOSE_MATERIAL3"):
+            group_id_variable_name = "COMPOSE"
+    # Special case Compose runtime tracing
+    if group_id == "androidx.compose.runtime" and artifact_id == "runtime-tracing":
+        group_id_variable_name = "COMPOSE_RUNTIME_TRACING"
+        artifact_id_variable_name = "COMPOSE_RUNTIME_TRACING"
+    return (group_id_variable_name, artifact_id_variable_name)
+
+
 def update_versions_in_library_versions_toml(group_id, artifact_id, old_version):
     """Updates the versions in the libraryversions.toml file.
 
@@ -259,13 +282,9 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
     Returns:
         True if the version was updated, false otherwise.
     """
-    group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
-    artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
+    (group_id_variable_name, artifact_id_variable_name
+    ) = get_library_constants_in_library_versions_toml(group_id, artifact_id)
     new_version = increment_version(old_version)
-    # Special case Compose because it uses the same version variable.
-    if (group_id_variable_name.startswith("COMPOSE") and
-        group_id_variable_name != "COMPOSE_MATERIAL3"):
-            group_id_variable_name = "COMPOSE"
 
     # Open toml file
     library_versions = toml.load(LIBRARY_VERSIONS_FP)
