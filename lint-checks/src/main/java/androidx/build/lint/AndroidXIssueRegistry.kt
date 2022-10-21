@@ -66,7 +66,6 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 CameraXQuirksClassDetector.ISSUE,
                 NullabilityAnnotationsDetector.ISSUE,
                 IgnoreClassLevelDetector.ISSUE,
-                ExperimentalPropertyAnnotationDetector.ISSUE,
             )
         }
     }
