@@ -16,7 +16,7 @@
 
 package androidx.tv.foundation.lazy
 
-import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo.Interval
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo.Interval
 import androidx.tv.foundation.lazy.list.TvLazyListState
 
 /**
@@ -47,10 +48,23 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
     state: TvLazyListState,
     beyondBoundsInfo: LazyListBeyondBoundsInfo,
     reverseLayout: Boolean,
+    orientation: Orientation
 ): Modifier {
     val layoutDirection = LocalLayoutDirection.current
-    return this then remember(state, beyondBoundsInfo, reverseLayout, layoutDirection) {
-        LazyListBeyondBoundsModifierLocal(state, beyondBoundsInfo, reverseLayout, layoutDirection)
+    return this then remember(
+        state,
+        beyondBoundsInfo,
+        reverseLayout,
+        layoutDirection,
+        orientation
+    ) {
+        LazyListBeyondBoundsModifierLocal(
+            state,
+            beyondBoundsInfo,
+            reverseLayout,
+            layoutDirection,
+            orientation
+        )
     }
 }
 
@@ -58,7 +72,8 @@ private class LazyListBeyondBoundsModifierLocal(
     private val state: TvLazyListState,
     private val beyondBoundsInfo: LazyListBeyondBoundsInfo,
     private val reverseLayout: Boolean,
-    private val layoutDirection: LayoutDirection
+    private val layoutDirection: LayoutDirection,
+    private val orientation: Orientation
 ) : ModifierLocalProvider<BeyondBoundsLayout?>, BeyondBoundsLayout {
     override val key: ProvidableModifierLocal<BeyondBoundsLayout?>
         get() = ModifierLocalBeyondBoundsLayout
@@ -126,6 +141,7 @@ private class LazyListBeyondBoundsModifierLocal(
     private fun Interval.hasMoreContent(direction: BeyondBoundsLayout.LayoutDirection): Boolean {
         fun hasMoreItemsBefore() = start > 0
         fun hasMoreItemsAfter() = end < state.layoutInfo.totalItemsCount - 1
+        if (direction.isOppositeToOrientation()) return false
         return when (direction) {
             Before -> hasMoreItemsBefore()
             After -> hasMoreItemsAfter()
@@ -139,6 +155,15 @@ private class LazyListBeyondBoundsModifierLocal(
                 Ltr -> if (reverseLayout) hasMoreItemsBefore() else hasMoreItemsAfter()
                 Rtl -> if (reverseLayout) hasMoreItemsAfter() else hasMoreItemsBefore()
             }
+            else -> unsupportedDirection()
+        }
+    }
+
+    private fun BeyondBoundsLayout.LayoutDirection.isOppositeToOrientation(): Boolean {
+        return when (this) {
+            Above, Below -> orientation == Orientation.Horizontal
+            Left, Right -> orientation == Orientation.Vertical
+            Before, After -> false
             else -> unsupportedDirection()
         }
     }
