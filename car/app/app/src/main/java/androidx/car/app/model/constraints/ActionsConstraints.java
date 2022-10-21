@@ -25,6 +25,8 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.CarText;
@@ -138,6 +140,15 @@ public final class ActionsConstraints {
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)
+                    .build();
+
+    /** Constraints for TabTemplate. */
+    @NonNull
+    @ExperimentalCarApi
+    @RequiresCarApi(6)
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_TABS =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addRequiredActionType(Action.TYPE_APP_ICON)
                     .build();
 
     private final int mMaxActions;
