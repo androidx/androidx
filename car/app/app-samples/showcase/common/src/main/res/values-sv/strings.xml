@@ -305,6 +305,22 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Uppdateringar tillåtet i bakåtåtgärder."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Test av aktivera/inaktivera har aktiverats"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Test av aktivera/inaktivera har inaktiverats"</string>
+    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
+    <skip />
+    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
+    <skip />
+    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
+    <skip />
+    <!-- no translation found for decoration_test_title (8450127046762442244) -->
+    <skip />
+    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
+    <skip />
+    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
+    <skip />
+    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
+    <skip />
+    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demor för övriga mallar"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Visa demor"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demor för mallayouter"</string>
