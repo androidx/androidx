@@ -1,3 +1,0 @@
-#!/bin/bash
-
-xcodegen --spec xcodegen-project.yml
