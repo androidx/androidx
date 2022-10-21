@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class DaoPrimitiveTest {
+class DaoBoxedPrimitiveDelegateTest {
 
     @Entity(tableName = "longFoo")
     data class LongFoo(@PrimaryKey val id: Long, val description: String)
@@ -49,36 +49,15 @@ class DaoPrimitiveTest {
 
         fun getItem(id: Key): Value?
 
+        fun getItemWithDescription(id: Key, desc: String): Value?
+
         fun delete(id: Key)
 
         fun getFirstItemId(): Key
     }
 
-    /* Interface with non-generics and generics */
-    interface LongBaseDao<Long, Value> {
-
-        fun getItem(id: Long): Value?
-
-        fun delete(id: Long)
-
-        @Query("select id from longFoo limit 1")
-        fun getFirstItemId(): Long
-    }
-
-    /* Interface with non-generics and generics */
-    interface StringBaseDao<String, Value> {
-
-        fun getItem(id: String): Value?
-
-        fun delete(id: String)
-
-        @Query("select id from stringFoo limit 1")
-        fun getFirstItemId(): String
-    }
-
-    interface ByteArrayBaseDao<ByteArray, Value> {
-        @Query("select id from byteArrayFoo limit 1")
-        fun getByteArray(): Array<ByteArray>
+    interface ByteArrayBaseDao<T> {
+        fun getByteArray(): T
     }
 
     // Foo interfaces that are using the base
@@ -88,6 +67,9 @@ class DaoPrimitiveTest {
 
         @Query("select * from longFoo where id=:id")
         override fun getItem(id: Long): LongFoo?
+
+        @Query("select * from longFoo where id=:id AND description=:desc")
+        override fun getItemWithDescription(id: Long, desc: String): LongFoo?
 
         @Query("delete from longFoo where id=:id")
         override fun delete(id: Long)
@@ -105,6 +87,9 @@ class DaoPrimitiveTest {
         @Query("select * from stringFoo where id=:id")
         override fun getItem(id: String): StringFoo?
 
+        @Query("select * from stringFoo where id=:id AND description=:desc")
+        override fun getItemWithDescription(id: String, desc: String): StringFoo?
+
         @Query("delete from stringFoo where id=:id")
         override fun delete(id: String)
 
@@ -116,13 +101,13 @@ class DaoPrimitiveTest {
     }
 
     @Dao
-    interface ByteArrayFooDao : ByteArrayBaseDao<ByteArray, String> {
+    interface ByteArrayFooDao : ByteArrayBaseDao<ByteArray> {
 
         @Insert
         fun insert(item: ByteArrayFoo)
 
         @Query("select id from byteArrayFoo limit 1")
-        override fun getByteArray(): Array<ByteArray>
+        override fun getByteArray(): ByteArray
     }
 
     @Database(
@@ -181,6 +166,6 @@ class DaoPrimitiveTest {
         ).build()
         val foo = ByteArrayFoo(ByteArray(16), "Elif")
         db.byteArrayFooDao().insert(foo)
-        assertThat(db.byteArrayFooDao().getByteArray()).isEqualTo(arrayOf(ByteArray(16)))
+        assertThat(db.byteArrayFooDao().getByteArray()).isEqualTo(ByteArray(16))
     }
 }

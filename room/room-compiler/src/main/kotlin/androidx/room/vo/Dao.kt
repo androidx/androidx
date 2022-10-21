@@ -31,7 +31,7 @@ data class Dao(
     val updateMethods: List<UpdateMethod>,
     val upsertionMethods: List<UpsertionMethod>,
     val transactionMethods: List<TransactionMethod>,
-    val delegatingMethods: List<KotlinBoxedPrimitiveMethodDelegate>,
+    val kotlinBoxedPrimitiveMethodDelegates: List<KotlinBoxedPrimitiveMethodDelegate>,
     val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
     val constructorParamType: XTypeName?
 ) {
