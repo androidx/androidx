@@ -58,6 +58,9 @@ public sealed interface ScalingLazyListItemInfo {
      * For [ScalingLazyListAnchorType.ItemStart] if is the offset
      * between the start (edge) of the item and the center-line of the viewport, for normal layout
      * this will be the top edge of the item, for reverseLayout it will be the bottom edge.
+     *
+     * A positive value indicates that the item's anchor point is below the viewport center-line, a
+     * negative value indicates that the item anchor point is above the viewport center-line.
      */
     val offset: Int
 

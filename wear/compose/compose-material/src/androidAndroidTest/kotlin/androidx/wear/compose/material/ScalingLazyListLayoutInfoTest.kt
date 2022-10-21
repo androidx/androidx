@@ -98,6 +98,49 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
+    fun centerItemIndexIsCorrectAfterScrolling() {
+        lateinit var state: ScalingLazyListState
+        var itemSpacingPx: Int = -1
+        val itemSpacingDp = 20.dp
+        var scope: CoroutineScope? = null
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            itemSpacingPx = with(LocalDensity.current) { itemSpacingDp.roundToPx() }
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + itemSpacingDp * 2.5f
+                ),
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
+                autoCentering = AutoCenteringParams()
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.runOnIdle {
+            assertThat(state.centerItemIndex).isEqualTo(1)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 3, spacing = itemSpacingPx)
+        }
+
+        // Scroll so that the center item is just above the center line and check that it is still
+        // the correct center item
+        val scrollDistance = (itemSizePx / 2) + 1
+        scope!!.launch {
+            state.animateScrollBy(scrollDistance.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.centerItemIndex).isEqualTo(1)
+            assertThat(state.centerItemScrollOffset).isEqualTo(scrollDistance)
+        }
+    }
+
+    @Test
     fun orientationIsCorrect() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
