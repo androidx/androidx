@@ -47,8 +47,17 @@ information provided on Google Play.
 | Status   | Description                                                       |
 | -------- | ----------------------------------------------------------------- |
 | New      | The default for public bugs. Waiting for someone to validate,     |
-:          : reproduce, or otherwise confirm that this is actionable.          :
-| Assigned | Pending action from the assignee. May be reassigned.              |
+:          : reproduce, or otherwise confirm that this is actionable. Bugs in  :
+:          : this state can be either Untriaged or Triaged. Untriaged state    :
+:          : refers to a status where an issue has been filed against our      :
+:          : team, but the team/person responsible for fixing the issue has    :
+:          : not looked at it yet. Triaged state refers to a status where an   :
+:          : issue filed against the team has been reviewed by the             :
+:          : team/person, and they have accurately updated the priority of the :
+:          : issue.                                                            :
+| Assigned | In this state, the issue is ready to be added to an iteration     |
+:          : with a level of certainty that it will be completed within the    :
+:          : upcoming team iteration. Issues here should be >=P3               :
 | Accepted | Actively being worked on by the assignee. Do not reassign.        |
 | Fixed    | Fixed in the development branch. Do not re-open unless the fix is |
 :          : reverted.                                                         :
