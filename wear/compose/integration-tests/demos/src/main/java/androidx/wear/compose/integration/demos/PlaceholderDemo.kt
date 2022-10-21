@@ -415,7 +415,10 @@ fun ChipWithOverlaidPlaceholder(
                 null
             },
             enabled = true,
-            colors = colors
+            colors = PlaceholderDefaults.placeholderChipColors(
+                originalChipColors = colors,
+                placeholderState = chipPlaceholderState
+            )
         )
         if (! chipPlaceholderState.isShowContent) {
             Chip(
