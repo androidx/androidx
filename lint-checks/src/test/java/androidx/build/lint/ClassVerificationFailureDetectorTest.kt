@@ -21,7 +21,6 @@ package androidx.build.lint
 import androidx.build.lint.Stubs.Companion.DoNotInline
 import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -187,7 +186,6 @@ src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a
         check(*input).expect(expected)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe void-type method reference in Java source`() {
         val input = arrayOf(
@@ -201,13 +199,13 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 -             view.setBackgroundTintList(new ColorStateList(null, null));
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -37 +37
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
@@ -220,7 +218,6 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
         check(*input).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe constructor reference in Java source`() {
         val input = arrayOf(
@@ -234,13 +231,13 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 -             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
 +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
 @@ -38 +38
-+ @annotation.RequiresApi(30)
++ @androidx.annotation.RequiresApi(30)
 + static class Api30Impl {
 +     private Api30Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
 +         return new AccessibilityNodeInfo(root, virtualDescendantId);
 +     }
@@ -253,7 +250,6 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
         check(*input).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe static method reference in Java source`() {
         val input = arrayOf(
@@ -267,13 +263,13 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 -             return View.generateViewId();
 +             return Api17Impl.generateViewId();
 @@ -37 +37
-+ @annotation.RequiresApi(17)
++ @androidx.annotation.RequiresApi(17)
 + static class Api17Impl {
 +     private Api17Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static int generateViewId() {
 +         return View.generateViewId();
 +     }
@@ -286,7 +282,6 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
         check(*input).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe generic-type method reference in Java source`() {
         val input = arrayOf(
@@ -300,13 +295,13 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 -             return context.getSystemService(serviceClass);
 +             return Api23Impl.getSystemService(context, serviceClass);
 @@ -38 +38
-+ @annotation.RequiresApi(23)
++ @androidx.annotation.RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static <T> T getSystemService(Context context, java.lang.Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
@@ -352,7 +347,6 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         check(*input).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix unsafe reference in Java source when the fix code already exists`() {
         val input = arrayOf(
@@ -383,7 +377,7 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 45: Extract
 +         Api21Impl.getOutline(drawable, null);
 @@ -58 +58
 -     }
-+     @annotation.DoNotInline
++     @DoNotInline
 + static void getOutline(Drawable drawable, android.graphics.Outline outline) {
 +     drawable.getOutline(outline);
 @@ -60 +62
@@ -395,7 +389,6 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingFix.java line 45: Extract
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("Ignored until the fix for b/241573146 is in the current version of studio")
     @Test
     fun `Detection and auto-fix for qualified expressions (issue 205026874)`() {
         val input = arrayOf(
@@ -495,7 +488,6 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 40: Extract
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix for unsafe method call on this`() {
         val input = arrayOf(
@@ -522,13 +514,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inn
 -             getClipToPadding();
 +             Api21Impl.getClipToPadding(this);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -540,13 +532,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 48: Extract to static inn
 -             this.getClipToPadding();
 +             Api21Impl.getClipToPadding(this);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -558,13 +550,13 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inn
 -             super.getClipToPadding();
 +             Api21Impl.getClipToPadding(super);
 @@ -60 +60
-+ @annotation.RequiresApi(21)
++ @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static boolean getClipToPadding(ViewGroup viewGroup) {
 +         return viewGroup.getClipToPadding();
 +     }
@@ -577,7 +569,6 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inn
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/251883059")
     @Test
     fun `Auto-fix for unsafe method call on cast object (issue 206111383)`() {
         val input = arrayOf(
@@ -598,13 +589,13 @@ Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inn
 -             ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
 +             Api28Impl.getSafeInsetTop((DisplayCutout) secretDisplayCutout);
 @@ -35 +35
-+ @annotation.RequiresApi(28)
++ @androidx.annotation.RequiresApi(28)
 + static class Api28Impl {
 +     private Api28Impl() {
 +         // This class is not instantiable.
 +     }
 +
-+     @annotation.DoNotInline
++     @androidx.annotation.DoNotInline
 +     static int getSafeInsetTop(DisplayCutout displayCutout) {
 +         return displayCutout.getSafeInsetTop();
 +     }
