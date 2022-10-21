@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -114,7 +113,7 @@ public class PlaceholderState internal constructor(
         placeholderStage == PlaceholderStage.WipeOff
     }
 
-     /**
+    /**
      * The width of the gradient to use for the placeholder shimmer and wipe-off effects
      */
     internal val gradientWidth: Float by derivedStateOf {
@@ -309,7 +308,7 @@ public object PlaceholderDefaults {
     ): ChipColors {
         return if (! placeholderState.isShowContent) {
             ChipDefaults.chipColors(
-                backgroundPainter = PainterWithBrushOverlay(
+                backgroundPainter = PlaceholderBackgroundPainter(
                     painter = originalChipColors.background(enabled = true).value,
                     placeholderState = placeholderState,
                     color = color
@@ -318,7 +317,7 @@ public object PlaceholderDefaults {
                 secondaryContentColor = originalChipColors
                     .secondaryContentColor(enabled = true).value,
                 iconColor = originalChipColors.iconColor(enabled = true).value,
-                disabledBackgroundPainter = PainterWithBrushOverlay(
+                disabledBackgroundPainter = PlaceholderBackgroundPainter(
                     painter = originalChipColors.background(enabled = false).value,
                     placeholderState = placeholderState,
                     color = color
@@ -352,18 +351,23 @@ public object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colors.surface,
     ): ChipColors {
-        return placeholderChipColors(
-            placeholderState = placeholderState,
-            color = color,
-            originalChipColors = ChipDefaults.chipColors(
-                backgroundColor = Color.Transparent,
-                contentColor = Color.Transparent,
-                secondaryContentColor = Color.Transparent,
-                iconColor = Color.Transparent,
-                disabledBackgroundColor = Color.Transparent,
-                disabledContentColor = Color.Transparent,
-                disabledSecondaryContentColor = Color.Transparent,
-                disabledIconColor = Color.Transparent)
+        return ChipDefaults.chipColors(
+            backgroundPainter = PlaceholderBackgroundPainter(
+                painter = null,
+                placeholderState = placeholderState,
+                color = color
+            ),
+            contentColor = Color.Transparent,
+            secondaryContentColor = Color.Transparent,
+            iconColor = Color.Transparent,
+            disabledBackgroundPainter = PlaceholderBackgroundPainter(
+                painter = null,
+                placeholderState = placeholderState,
+                color = color
+            ),
+            disabledContentColor = Color.Transparent,
+            disabledSecondaryContentColor = Color.Transparent,
+            disabledIconColor = Color.Transparent,
         )
     }
 
@@ -385,7 +389,7 @@ public object PlaceholderDefaults {
         color: Color = MaterialTheme.colors.surface,
     ): Painter {
         return if (! placeholderState.isShowContent) {
-            PainterWithBrushOverlay(
+            PlaceholderBackgroundPainter(
                 painter = painter,
                 placeholderState = placeholderState,
                 color = color
@@ -409,8 +413,8 @@ public object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colors.surface,
     ): Painter {
-        return PainterWithBrushOverlay(
-            painter = ColorPainter(Color.Transparent),
+        return PlaceholderBackgroundPainter(
+            painter = null,
             placeholderState = placeholderState,
             color = color
         )
@@ -477,43 +481,49 @@ private fun wipeOffBrush(
 }
 
 /**
- * A painter which takes wraps another [Painter] and takes a [Brush] which
- * is used to create an effect over the [Painter] such as a shim or a placeholder effect.
+ * A painter which wraps an optional [Painter] and is used to create an effect over the [Painter]
+ * such as a solid placeholder color or a placeholder wipe off effect.
  */
 @ExperimentalWearMaterialApi
-internal class PainterWithBrushOverlay(
-    val painter: Painter,
+internal class PlaceholderBackgroundPainter(
+    val painter: Painter?,
     private val placeholderState: PlaceholderState,
     val color: Color,
     private var alpha: Float = 1.0f
 ) : Painter() {
-
-    private var colorFilter: ColorFilter? = null
-
     override fun DrawScope.onDraw() {
         val offset = Offset(
             this.center.x - (this.size.width / 2f),
             this.center.y - (this.size.height / 2f)
         )
-        val brush = when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder -> {
-                SolidColor(color)
-            }
+        // Due to anti aliasing we can not use a SolidColor brush over the top of the background
+        // painter without seeing some background color bleeding through. As a result we use
+        // the colorFilter to tint the normal background painter instead - b/253667329
+        val (brush, colorFilter) = when (placeholderState.placeholderStage) {
             PlaceholderStage.WipeOff -> {
                 wipeOffBrush(
                     color,
                     offset,
                     placeholderState
-                )
+                ) to null
+            }
+            PlaceholderStage.ShowPlaceholder -> {
+                if (painter == null) {
+                    SolidColor(color) to null
+                } else {
+                    null to ColorFilter.tint(color = color)
+                }
             }
             // For the ShowContent case
             else -> {
-                null
+                null to null
             }
         }
 
         val size = this.size
-        with(painter) { draw(size = size, alpha = alpha, colorFilter = colorFilter) }
+        if (painter != null) {
+            with(painter) { draw(size = size, alpha = alpha, colorFilter = colorFilter) }
+        }
         if (brush != null) {
             drawRect(brush = brush, alpha = alpha, colorFilter = colorFilter)
         }
@@ -522,21 +532,22 @@ internal class PainterWithBrushOverlay(
     override fun applyAlpha(alpha: Float): Boolean = true.also { this.alpha = alpha }
 
     override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
-        this.colorFilter = colorFilter
-        return true
+        // This is not a generic painter that we want to be configurable from the outside.
+        // We need to control the colorFilter to do the painting over of normal background color
+        // to avoid anti-aliasing
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as PainterWithBrushOverlay
+        other as PlaceholderBackgroundPainter
 
         if (painter != other.painter) return false
         if (placeholderState != other.placeholderState) return false
         if (color != other.color) return false
         if (alpha != other.alpha) return false
-        if (colorFilter != other.colorFilter) return false
         if (intrinsicSize != other.intrinsicSize) return false
 
         return true
@@ -547,21 +558,20 @@ internal class PainterWithBrushOverlay(
         result = 31 * result + placeholderState.hashCode()
         result = 31 * result + color.hashCode()
         result = 31 * result + alpha.hashCode()
-        result = 31 * result + (colorFilter?.hashCode() ?: 0)
         result = 31 * result + intrinsicSize.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "PainterWithBrushOverlay(painter=$painter, placeholderState=$placeholderState, " +
-            "color=$color, alpha=$alpha, " +
-            "colorFilter=$colorFilter, intrinsicSize=$intrinsicSize)"
+        return "PlaceholderBackgroundPainter(painter=$painter, " +
+            "placeholderState=$placeholderState, color=$color, alpha=$alpha, " +
+            "intrinsicSize=$intrinsicSize)"
     }
 
     /**
      * Size of the combined painter, return Unspecified to allow us to fill the available space
      */
-    override val intrinsicSize: Size = painter.intrinsicSize
+    override val intrinsicSize: Size = painter?.intrinsicSize ?: Size.Unspecified
 }
 
 private abstract class AbstractPlaceholderModifier(
@@ -593,10 +603,6 @@ private abstract class AbstractPlaceholderModifier(
                 drawOutline(brush)
             }
         }
-    }
-
-    private fun ContentDrawScope.drawRect(brush: Brush) {
-        drawRect(brush = brush, alpha = alpha)
     }
 
     private fun ContentDrawScope.drawOutline(brush: Brush) {
