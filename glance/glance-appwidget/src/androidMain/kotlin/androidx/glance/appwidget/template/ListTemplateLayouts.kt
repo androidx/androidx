@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.background
@@ -35,7 +36,6 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 
@@ -106,5 +106,5 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
 @Composable
 private fun createTopLevelModifier(): GlanceModifier {
     return GlanceModifier.fillMaxSize().padding(16.dp)
-        .background(LocalTemplateColors.current.primaryContainer)
+        .background(GlanceTheme.colors.primaryContainer)
 }

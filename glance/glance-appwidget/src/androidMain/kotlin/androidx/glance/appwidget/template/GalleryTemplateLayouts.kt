@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.cornerRadius
@@ -41,7 +42,6 @@ import androidx.glance.layout.width
 import androidx.glance.template.AspectRatio
 import androidx.glance.template.GalleryTemplateData
 import androidx.glance.template.ImageSize
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 import kotlin.math.ceil
@@ -144,7 +144,7 @@ private fun createTopLevelModifier(
 ): GlanceModifier {
     var modifier = GlanceModifier
         .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
-        .background(LocalTemplateColors.current.primaryContainer)
+        .background(GlanceTheme.colors.primaryContainer)
     if (isImmersive && data.mainImageBlock.images.isNotEmpty()) {
         val mainImage = data.mainImageBlock.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)
@@ -155,7 +155,7 @@ private fun createTopLevelModifier(
 
 @Composable
 private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).cornerRadius(16.dp)
-    .background(LocalTemplateColors.current.primaryContainer)
+    .background(GlanceTheme.colors.primaryContainer)
 
 @Composable
 private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {
