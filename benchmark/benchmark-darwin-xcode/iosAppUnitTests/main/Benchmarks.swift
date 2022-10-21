@@ -16,18 +16,18 @@
 
 import Foundation
 import XCTest
-import AndroidXCollectionBenchmarks
+import AndroidXDarwinBenchmarks
 
 class BenchmarkTest: XCTestCase {
     var testCase: TestCase? = nil
-
     override func setUpWithError() throws {
         testCase!.setUp()
     }
 
     override class var defaultTestSuite: XCTestSuite {
         let suite = XCTestSuite(forTestCaseClass: BenchmarkTest.self)
-        for testCase in TestCasesKt.all {
+        let testCases = TestCases.shared.benchmarkTests()
+        for testCase in testCases {
             let test = BenchmarkTest(selector: #selector(runBenchmark))
             test.testCase = testCase
             suite.addTest(test)
