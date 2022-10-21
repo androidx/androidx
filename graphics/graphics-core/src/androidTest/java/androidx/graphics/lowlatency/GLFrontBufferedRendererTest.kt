@@ -347,7 +347,7 @@ class GLFrontBufferedRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testFrontBufferedLayerPersistence() {
+    fun testDoubleBufferedContentsNotPersisted() {
         if (!deviceSupportsNativeAndroidFence()) {
             // If the Android device does not support the corresponding extensions to create
             // a file descriptor from an EGLSync object then skip the test
@@ -474,7 +474,7 @@ class GLFrontBufferedRendererTest {
             SurfaceControlUtils.validateOutput { bitmap ->
                 (bitmap.getPixel(
                     coords[0] + width / 4, coords[1] + height / 2
-                ) == Color.RED) &&
+                ) == Color.BLACK) &&
                     (bitmap.getPixel(
                         coords[0] + 3 * width / 4,
                         coords[1] + height / 2

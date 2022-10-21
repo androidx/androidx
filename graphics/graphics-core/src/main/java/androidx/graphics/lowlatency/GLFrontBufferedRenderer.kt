@@ -31,7 +31,6 @@ import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
-import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -133,8 +132,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             release(true)
         }
 
-        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T> =
-            mParentBufferParamQueue
+        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T>? =
+            mSegments.poll()
 
         override fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat? =
             mFrontBufferedLayerSurfaceControl
@@ -147,7 +146,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * Queue of parameters to be consumed in [Callback.onDrawFrontBufferedLayer] with the parameter
      * provided in [renderFrontBufferedLayer]
      */
-    private val mFrontBufferQueueParams = ConcurrentLinkedQueue<T>()
+    private val mActiveSegment = ParamQueue<T>()
 
     /**
      * Collection of parameters to be consumed in [Callback.onDoubleBufferedLayerRenderComplete]
@@ -156,7 +155,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * this collection is cleared and new parameters are added to it with consecutive calls to
      * [renderFrontBufferedLayer].
      */
-    private val mParentBufferParamQueue = Collections.synchronizedList(ArrayList<T>())
+    private val mSegments = ConcurrentLinkedQueue<MutableCollection<T>>()
 
     /**
      * [FrameBuffer] used for rendering into the front buffered layer. This buffer is persisted
@@ -357,8 +356,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
-            mFrontBufferQueueParams.add(param)
-            mParentBufferParamQueue.add(param)
+            mActiveSegment.add(param)
             mFrontBufferedRenderTarget?.requestRender()
         } else {
             Log.w(
@@ -389,7 +387,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun commit() {
         if (isValid()) {
-            mFrontBufferQueueParams.clear()
+            mSegments.add(mActiveSegment.release())
             mDoubleBufferedLayerRenderTarget?.requestRender()
             mFrontBufferedLayerRenderer?.clear()
         } else {
@@ -508,24 +506,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
                 @WorkerThread
                 override fun onDraw(eglManager: EGLManager) {
-                    try {
-                        // Explicitly call remove in order to delineate between scenarios where
-                        // no parameters are provided and the consumer explicitly supports nullable
-                        // parameters.
-                        // If poll was used instead, we would not be able to determine if the nullable
-                        // parameter was because there were no items in the queue or the consumer
-                        // explicitly provided null as a placeholder
+                    mActiveSegment.next { param ->
                         mCallback.onDrawFrontBufferedLayer(
                             eglManager,
                             mBufferTransform.glWidth,
                             mBufferTransform.glHeight,
                             mBufferTransform.transform,
-                            mFrontBufferQueueParams.remove()
+                            param
                         )
-                    } catch (_: NoSuchElementException) {
-                        // Skip rendering if we have been told to render but we do not have parameters
-                        // Because the call to render to the front buffer takes in a parameter we should
-                        // not run into this scenario.
                     }
                 }
 
@@ -564,8 +552,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     private fun clearParamQueues() {
-        mFrontBufferQueueParams.clear()
-        mParentBufferParamQueue.clear()
+        mActiveSegment.clear()
+        mSegments.clear()
     }
 
     /**
