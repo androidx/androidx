@@ -123,3 +123,34 @@ Compose Macrobenchmark Examples:
 Note: Compose macrobenchmarks are generally duplicated with View system
 counterparts, defined in `:benchmark:integration-tests:macrobenchmark-target`.
 This is how we compare performance of the two systems.
+
+### Setup checklist
+
+<table>
+    <tr>
+      <td><strong>Did you setup...</strong></td>
+      <td><strong>Required setup</strong></td>
+    </tr>
+    <tr>
+        <td>Two modules in settings.gradle</td>
+        <td>Both the macrobenchmark and target must be defined in sibling
+          modules</td>
+    </tr>
+    <tr>
+        <td>The module name for the benchmark (test) module</td>
+        <td>It must match /.*:integration-tests:.*macrobenchmark/</td>
+    </tr>
+    <tr>
+        <td>The module name for the target (integration app) module</td>
+        <td>It must match /.*:integration-tests:.*macrobenchmark-target</td>
+    </tr>
+    <tr>
+        <td>Register the modules in AffectedModuleDetector.kt</td>
+        <td>It must link the modules (see docs above)</td>
+    </tr>
+    <tr>
+        <td>Name the test class in a discoverable way</td>
+        <td>Test classes should have standalone names for easy discovery in the
+          web UI. E.g EmojiStartupTest instead of StartupTest.</td>
+    </tr>
+</table>
