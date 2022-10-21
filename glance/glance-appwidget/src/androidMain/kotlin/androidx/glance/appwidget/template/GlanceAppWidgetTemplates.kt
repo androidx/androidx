@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
@@ -40,7 +41,6 @@ import androidx.glance.template.ActionBlock
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
 import androidx.glance.template.ImageSize
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
@@ -87,7 +87,7 @@ internal fun AppWidgetTemplateHeader(
                 text = header.text,
                 style = TextStyle(
                     fontSize = size,
-                    color = LocalTemplateColors.current.onSurface
+                    color = GlanceTheme.colors.onSurface
                 ),
                 maxLines = 1
             )
@@ -119,12 +119,12 @@ internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
 internal fun AppWidgetTextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
-    Column() {
+    Column {
         textList.forEachIndexed { index, item ->
             val size = textSize(item.type, DisplaySize.fromDpSize(LocalSize.current))
             Text(
                 item.text,
-                style = TextStyle(fontSize = size, color = LocalTemplateColors.current.onSurface),
+                style = TextStyle(fontSize = size, color = GlanceTheme.colors.onSurface),
                 maxLines = maxLines(item.type)
             )
             if (index < textList.size - 1) {
@@ -145,7 +145,6 @@ internal fun AppWidgetTemplateButton(
     button: TemplateButton,
     glanceModifier: GlanceModifier = GlanceModifier
 ) {
-    val colors = LocalTemplateColors.current
     when (button) {
         is TemplateImageButton -> {
             // TODO: Specify sizing for image button
@@ -160,7 +159,7 @@ internal fun AppWidgetTemplateButton(
             Button(
                 text = button.text,
                 onClick = button.action,
-                style = TextStyle(color = colors.onPrimary),
+                style = TextStyle(color = GlanceTheme.colors.onPrimary),
                 modifier = glanceModifier
             )
         }

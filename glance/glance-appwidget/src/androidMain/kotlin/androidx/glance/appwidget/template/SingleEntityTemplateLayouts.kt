@@ -19,6 +19,7 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -32,7 +33,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateMode
@@ -152,7 +152,7 @@ private fun createTopLevelModifier(
 ): GlanceModifier {
     var modifier = GlanceModifier
         .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
-        .background(LocalTemplateColors.current.primaryContainer)
+        .background(GlanceTheme.colors.primaryContainer)
     if (isImmersive && data.imageBlock?.images?.isNotEmpty() == true) {
         val mainImage = data.imageBlock!!.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)

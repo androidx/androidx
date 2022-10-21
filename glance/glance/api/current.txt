@@ -467,9 +467,7 @@ package androidx.glance.template {
   }
 
   public final class CompositionLocalsKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> getLocalTemplateColors();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> getLocalTemplateMode();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> LocalTemplateColors;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> LocalTemplateMode;
   }
 

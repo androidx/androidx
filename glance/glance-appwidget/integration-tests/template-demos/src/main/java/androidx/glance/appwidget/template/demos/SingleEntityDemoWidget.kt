@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.GlanceId
+import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.GlanceAppWidget
@@ -48,45 +49,47 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
 
     @Composable
     override fun TemplateContent() {
-        SingleEntityTemplate(
-            SingleEntityTemplateData(
-                headerBlock = HeaderBlock(
-                    text = TemplateText("Single Entity Demo", TextType.Title),
-                    icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.ic_widgets),
-                        "Header icon"
-                    ),
-                ),
-                textBlock = TextBlock(
-                    text1 = TemplateText(
-                        getTitle(currentState<Preferences>()[ToggleKey] == true), TextType.Title
-                    ),
-                    text2 = TemplateText("Subtitle", TextType.Label),
-                    text3 = TemplateText(
-                        "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                        TextType.Body
-                    ),
-                    priority = 0,
-                ),
-                imageBlock = ImageBlock(
-                    images = listOf(
-                        TemplateImageWithDescription(
-                            ImageProvider(R.drawable.palm_leaf),
-                            "Compose image"
-                        )
-                    ),
-                    priority = 1,
-                ),
-                actionBlock = ActionBlock(
-                    actionButtons = listOf(
-                        TemplateTextButton(
-                            actionRunCallback<SEButtonAction>(),
-                            "Toggle title"
+        GlanceTheme {
+            SingleEntityTemplate(
+                SingleEntityTemplateData(
+                    headerBlock = HeaderBlock(
+                        text = TemplateText("Single Entity Demo", TextType.Title),
+                        icon = TemplateImageWithDescription(
+                            ImageProvider(R.drawable.ic_widgets),
+                            "Header icon"
                         ),
                     ),
-                ),
+                    textBlock = TextBlock(
+                        text1 = TemplateText(
+                            getTitle(currentState<Preferences>()[ToggleKey] == true), TextType.Title
+                        ),
+                        text2 = TemplateText("Subtitle", TextType.Label),
+                        text3 = TemplateText(
+                            "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                            TextType.Body
+                        ),
+                        priority = 0,
+                    ),
+                    imageBlock = ImageBlock(
+                        images = listOf(
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.palm_leaf),
+                                "Compose image"
+                            )
+                        ),
+                        priority = 1,
+                    ),
+                    actionBlock = ActionBlock(
+                        actionButtons = listOf(
+                            TemplateTextButton(
+                                actionRunCallback<SEButtonAction>(),
+                                "Toggle title"
+                            ),
+                        ),
+                    ),
+                )
             )
-        )
+        }
     }
 }
 
