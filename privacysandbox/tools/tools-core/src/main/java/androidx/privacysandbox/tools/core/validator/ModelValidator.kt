@@ -31,10 +31,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
     private fun validate(): ValidationResult {
         validateSingleService()
         validateNonSuspendFunctionsReturnUnit()
-        validateParameterAndReturnValueTypes()
+        validateServiceAndInterfaceMethods()
         validateValuePropertyTypes()
-        callbackMethodsAreFireAndForget()
-        callbacksDontReceiveCallbacks()
+        validateCallbackMethods()
         return ValidationResult(errors)
     }
 
@@ -61,7 +60,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
         }
     }
 
-    private fun validateParameterAndReturnValueTypes() {
+    private fun validateServiceAndInterfaceMethods() {
         val allowedParameterTypes =
             (api.values.map(AnnotatedValue::type) +
                 api.callbacks.map(AnnotatedInterface::type) +
@@ -111,27 +110,24 @@ class ModelValidator private constructor(val api: ParsedApi) {
         }
     }
 
-    private fun callbackMethodsAreFireAndForget() {
+    private fun validateCallbackMethods() {
+        val allowedParameterTypes =
+            (api.values.map(AnnotatedValue::type) +
+                Types.primitiveTypes).toSet()
+
         for (callback in api.callbacks) {
             for (method in callback.methods) {
+                if (method.parameters.any { !allowedParameterTypes.contains(it.type) }) {
+                    errors.add(
+                        "Error in ${callback.type.qualifiedName}.${method.name}: " +
+                            "only primitives and data classes annotated with " +
+                            "@PrivacySandboxValue are supported as callback parameter types."
+                    )
+                }
                 if (method.returnType != Types.unit || method.isSuspend) {
                     errors.add(
                         "Error in ${callback.type.qualifiedName}.${method.name}: callback " +
                             "methods should be non-suspending and have no return values."
-                    )
-                }
-            }
-        }
-    }
-
-    private fun callbacksDontReceiveCallbacks() {
-        val callbackTypes = api.callbacks.map { it.type }.toSet()
-        for (callback in api.callbacks) {
-            for (method in callback.methods) {
-                if (method.parameters.any { callbackTypes.contains(it.type) }) {
-                    errors.add(
-                        "Error in ${callback.type.qualifiedName}.${method.name}: callback " +
-                            "methods cannot receive other callbacks as arguments."
                     )
                 }
             }

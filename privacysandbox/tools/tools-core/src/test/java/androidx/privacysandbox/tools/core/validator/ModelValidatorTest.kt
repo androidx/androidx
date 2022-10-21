@@ -332,8 +332,43 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: callback methods cannot receive other " +
-                "callbacks as arguments."
+            "Error in com.mysdk.MySdkCallback.foo: only primitives and data classes annotated " +
+                "with @PrivacySandboxValue are supported as callback parameter types."
+        )
+    }
+
+    @Test
+    fun callbackReceivingInterface_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
+            ),
+            callbacks = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
+                    methods = listOf(
+                        Method(
+                            name = "foo",
+                            parameters = listOf(
+                                Parameter("otherCallback", Type("com.mysdk", "MySdkInterface"))
+                            ),
+                            returnType = Types.unit,
+                            isSuspend = false,
+                        ),
+                    )
+                )
+            ),
+            interfaces = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdkInterface"),
+                    )
+                )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.MySdkCallback.foo: only primitives and data classes annotated " +
+                "with @PrivacySandboxValue are supported as callback parameter types."
         )
     }
 }
