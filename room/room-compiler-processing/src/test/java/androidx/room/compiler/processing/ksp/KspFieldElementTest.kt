@@ -108,6 +108,8 @@ class KspFieldElementTest {
                         protected Long javaProtected;
                         Long javaPackage;
                         private Long javaPrivate;
+                        public final long javaFinalPublic = 0;
+                        public static final long javaStaticFinalPublic = 0;
                     }
                     """.trimIndent()
                 ),
@@ -115,7 +117,9 @@ class KspFieldElementTest {
                     "javaPublic" to listOf(PUBLIC),
                     "javaProtected" to listOf(PROTECTED),
                     "javaPackage" to emptyList(),
-                    "javaPrivate" to listOf(PRIVATE)
+                    "javaPrivate" to listOf(PRIVATE),
+                    "javaFinalPublic" to listOf(PUBLIC, FINAL),
+                    "javaStaticFinalPublic" to listOf(PUBLIC, FINAL)
                 )
             )
         )
