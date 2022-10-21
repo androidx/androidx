@@ -5,7 +5,7 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 public class SdkServiceClientProxy(
-    private val remote: ISdkService,
+    public val remote: ISdkService,
 ) : SdkService {
     public override suspend fun registerCallback(callback: SdkCallback): Unit =
             suspendCancellableCoroutine {

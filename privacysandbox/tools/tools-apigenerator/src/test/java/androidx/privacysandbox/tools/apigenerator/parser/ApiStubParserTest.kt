@@ -40,12 +40,18 @@ class ApiStubParserTest {
             "com/mysdk/TestSandboxSdk.kt", """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
                     @PrivacySandboxService
                     interface MySdk {
                       fun doSomething(magicNumber: Int, awesomeString: String)
                       suspend fun getPayload(request: PayloadRequest): PayloadResponse
+                      suspend fun getInterface(): MyInterface
+                    }
+                    @PrivacySandboxInterface
+                    interface MyInterface {
+                      suspend fun getMorePayload(request: PayloadRequest): PayloadResponse
                     }
                     @PrivacySandboxValue
                     data class PayloadType(val size: Long, val appId: String)
@@ -96,6 +102,12 @@ class ApiStubParserTest {
                         isSuspend = false,
                     ),
                     Method(
+                        name = "getInterface",
+                        parameters = listOf(),
+                        returnType = Type("com.mysdk", "MyInterface"),
+                        isSuspend = true,
+                    ),
+                    Method(
                         name = "getPayload",
                         parameters = listOf(
                             Parameter(
@@ -108,7 +120,23 @@ class ApiStubParserTest {
                     )
                 )
             )
-
+        val expectedInterface =
+            AnnotatedInterface(
+                type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
+                methods = listOf(
+                    Method(
+                        name = "getMorePayload",
+                        parameters = listOf(
+                            Parameter(
+                                "request",
+                                expectedPayloadRequest.type
+                            )
+                        ),
+                        returnType = expectedPayloadResponse.type,
+                        isSuspend = true,
+                    )
+                )
+            )
         val expectedCallback = AnnotatedInterface(
             type = Type(packageName = "com.mysdk", simpleName = "CustomCallback"),
                 methods = listOf(
@@ -134,6 +162,7 @@ class ApiStubParserTest {
             expectedPayloadResponse,
         )
         assertThat(actualApi.callbacks).containsExactly(expectedCallback)
+        assertThat(actualApi.interfaces).containsExactly(expectedInterface)
     }
 
     @Test

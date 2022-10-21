@@ -1,32 +1,29 @@
-package com.sdkwithvalues
+package com.sdk
 
-import com.sdkwithvalues.SdkRequestConverter.toParcelable
-import com.sdkwithvalues.SdkResponseConverter.fromParcelable
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-public class SdkInterfaceClientProxy(
-    public val remote: ISdkInterface,
-) : SdkInterface {
-    public override suspend fun exampleMethod(request: SdkRequest): SdkResponse =
-            suspendCancellableCoroutine {
+public class MySdkClientProxy(
+    public val remote: IMySdk,
+) : MySdk {
+    public override suspend fun getInterface(): MyInterface = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
-        val transactionCallback = object: ISdkResponseTransactionCallback.Stub() {
+        val transactionCallback = object: IMyInterfaceTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
                 if (it.isCancelled) {
                     cancellationSignal.cancel()
                 }
                 mCancellationSignal = cancellationSignal
             }
-            override fun onSuccess(result: ParcelableSdkResponse) {
-                it.resumeWith(Result.success(fromParcelable(result)))
+            override fun onSuccess(result: IMyInterface) {
+                it.resumeWith(Result.success(MyInterfaceClientProxy(result)))
             }
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 it.resumeWithException(RuntimeException(errorMessage))
             }
         }
-        remote.exampleMethod(toParcelable(request), transactionCallback)
+        remote.getInterface(transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }

@@ -5,7 +5,7 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 public class TestSandboxSdkClientProxy(
-    private val remote: ITestSandboxSdk,
+    public val remote: ITestSandboxSdk,
 ) : TestSandboxSdk {
     public override suspend fun doSomethingAsync(
         first: Int,
