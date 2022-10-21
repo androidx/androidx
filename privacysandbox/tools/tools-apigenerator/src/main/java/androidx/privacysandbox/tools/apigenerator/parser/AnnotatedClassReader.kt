@@ -21,7 +21,6 @@ import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import java.nio.file.Path
-import java.util.zip.ZipInputStream
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
@@ -46,7 +45,10 @@ internal object AnnotatedClassReader {
         val values = mutableSetOf<KmClass>()
         val callbacks = mutableSetOf<KmClass>()
         val interfaces = mutableSetOf<KmClass>()
-        readClassNodes(stubClassPath).forEach { classNode ->
+        stubClassPath.toFile().walk()
+            .filter { it.extension == "class" }
+            .map { toClassNode(it.readBytes()) }
+            .forEach { classNode ->
             if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
                 services.add(parseKotlinMetadata(classNode))
             }
@@ -67,15 +69,6 @@ internal object AnnotatedClassReader {
             interfaces = interfaces.toSet()
         )
     }
-
-    private fun readClassNodes(stubClassPath: Path): List<ClassNode> =
-        ZipInputStream(stubClassPath.toFile().inputStream()).use { input ->
-            generateSequence { input.nextEntry }
-                .filter { it.name.endsWith(".class") }
-                .map {
-                    toClassNode(input.readAllBytes())
-                }.toList()
-        }
 
     private fun toClassNode(classContents: ByteArray): ClassNode {
         val reader = ClassReader(classContents)

@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
-import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
@@ -25,12 +25,21 @@ import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
+import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
+import com.google.protobuf.InvalidProtocolBufferException
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
+import java.util.zip.ZipInputStream
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
+import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
+import kotlin.io.path.moveTo
+import kotlin.io.path.outputStream
+import kotlin.io.path.readBytes
 
 /** Generate source files for communicating with an SDK running in the Privacy Sandbox. */
 class PrivacySandboxApiGenerator {
@@ -54,8 +63,8 @@ class PrivacySandboxApiGenerator {
             "$outputDirectory is not a valid output path."
         }
 
+        val api = unzipDescriptorsFileAndParseStubs(sdkInterfaceDescriptors, outputDirectory)
         val output = outputDirectory.toFile()
-        val api = ApiStubParser.parse(sdkInterfaceDescriptors)
 
         val basePackageName = api.getOnlyService().type.packageName
         val binderCodeConverter = BinderCodeConverter(api)
@@ -89,8 +98,8 @@ class PrivacySandboxApiGenerator {
                 val relativePath = aidlWorkingDir.toPath().relativize(it.file.toPath())
                 val source = it.file.toPath()
                 val dest = output.toPath().resolve(relativePath)
-                dest.toFile().parentFile.mkdirs()
-                Files.move(source, dest)
+                dest.parent.createDirectories()
+                source.moveTo(dest)
             }
         } finally {
             aidlWorkingDir.deleteRecursively()
@@ -139,6 +148,49 @@ class PrivacySandboxApiGenerator {
         api.values.forEach {
             valueFileGenerator.generate(it).writeTo(output)
             valueConverterFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
+    private fun unzipDescriptorsFileAndParseStubs(
+        sdkInterfaceDescriptors: Path,
+        outputDirectory: Path,
+    ): ParsedApi {
+        val workingDirectory = outputDirectory.resolve("tmp-descriptors").createDirectories()
+        try {
+            ZipInputStream(sdkInterfaceDescriptors.inputStream()).use { input ->
+                generateSequence { input.nextEntry }
+                    .forEach { zipEntry ->
+                        val destination = workingDirectory.resolve(zipEntry.name)
+                        check(destination.startsWith(workingDirectory))
+                        destination.parent?.createDirectories()
+                        destination.createFile()
+                        input.copyTo(destination.outputStream())
+                    }
+            }
+
+            ensureValidMetadata(workingDirectory.resolve(Metadata.filePath))
+            return ApiStubParser.parse(workingDirectory)
+        } finally {
+            workingDirectory.toFile().deleteRecursively()
+        }
+    }
+
+    private fun ensureValidMetadata(metadataFile: Path) {
+        require(metadataFile.exists()) {
+            "Missing tool metadata in SDK API descriptor."
+        }
+
+        val metadata = try {
+            ToolMetadata.parseFrom(metadataFile.readBytes())
+        } catch (e: InvalidProtocolBufferException) {
+            throw IllegalArgumentException("Invalid Privacy Sandbox tool metadata.", e)
+        }
+
+        val sdkCodeGenerationVersion = metadata.codeGenerationVersion
+        val consumerVersion = Metadata.toolMetadata.codeGenerationVersion
+        require(sdkCodeGenerationVersion <= consumerVersion) {
+            "SDK uses incompatible Privacy Sandbox tooling " +
+                "(version $sdkCodeGenerationVersion). Current version is $consumerVersion."
         }
     }
 }

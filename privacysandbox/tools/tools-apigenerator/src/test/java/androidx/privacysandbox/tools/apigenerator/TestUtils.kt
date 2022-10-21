@@ -21,11 +21,31 @@ import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompile
 import androidx.room.compiler.processing.util.Source
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
+import kotlin.io.path.writeBytes
 
-fun compileIntoInterfaceDescriptorsJar(vararg sources: Source): Path {
+/**
+ * Compiles the given [sources] and creates a packaged SDK API descriptors jar.
+ *
+ * @param descriptorResources map of extra resources that will be added to descriptors jar keyed by
+ *      their relative path.
+ */
+fun compileIntoInterfaceDescriptorsJar(
+    sources: List<Source>,
+    descriptorResources: Map<Path, ByteArray> = mapOf(),
+): Path {
     val tempDir = createTempDirectory("compile").also { it.toFile().deleteOnExit() }
     val result = assertCompiles(sources.toList())
     val sdkInterfaceDescriptors = tempDir.resolve("sdk-interface-descriptors.jar")
+    val outputClasspath = result.outputClasspath.first().toPath()
+    descriptorResources.forEach { (relativePath, contents) ->
+        outputClasspath.resolve(relativePath).apply {
+            parent?.createDirectories()
+            createFile()
+            writeBytes(contents)
+        }
+    }
     PrivacySandboxApiPackager().packageSdkDescriptors(
         result.outputClasspath.first().toPath(), sdkInterfaceDescriptors
     )

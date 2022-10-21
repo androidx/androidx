@@ -37,13 +37,11 @@ internal object ApiStubParser {
     /**
      * Parses the API annotated by a Privacy Sandbox SDK from its compiled classes.
      *
-     * @param sdkInterfaceDescriptors Path to SDK interface descriptors. This should be a jar
-     *      file with a set of compiled SDK classes and at least one of them should be a valid
-     *      Kotlin interface annotated with @PrivacySandboxService.
+     * @param sdkStubsClasspath root directory of SDK classpath.
      */
-    internal fun parse(sdkInterfaceDescriptors: Path): ParsedApi {
+    internal fun parse(sdkStubsClasspath: Path): ParsedApi {
         val (services, values, callbacks, interfaces) =
-            AnnotatedClassReader.readAnnotatedClasses(sdkInterfaceDescriptors)
+            AnnotatedClassReader.readAnnotatedClasses(sdkStubsClasspath)
         if (services.isEmpty()) throw PrivacySandboxParsingException(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
         )
