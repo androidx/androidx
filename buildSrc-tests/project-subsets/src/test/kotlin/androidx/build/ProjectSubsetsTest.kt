@@ -64,6 +64,21 @@ public class ProjectSubsetsTest {
         validateSubset("glance")
     }
 
+    @Test
+    fun testSubsetTools() {
+        validateSubset("tools")
+    }
+
+    @Test
+    fun testSubsetKmp() {
+        validateSubset("kmp")
+    }
+
+    @Test
+    fun testSubsetNative() {
+        validateSubset("native")
+    }
+
     /**
      * Validates a specific project subset
      */
