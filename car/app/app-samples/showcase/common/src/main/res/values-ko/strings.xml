@@ -305,6 +305,22 @@
     <string name="additional_data_text" msgid="2846223398214158872">"뒤로 작업에서 업데이트가 허용되었습니다."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"전환 테스트 사용 설정됨"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"전환 테스트 사용 중지됨"</string>
+    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
+    <skip />
+    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
+    <skip />
+    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
+    <skip />
+    <!-- no translation found for decoration_test_title (8450127046762442244) -->
+    <skip />
+    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
+    <skip />
+    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
+    <skip />
+    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
+    <skip />
+    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"기타 템플릿 데모"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"쇼케이스 데모"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"템플릿 레이아웃 데모"</string>
