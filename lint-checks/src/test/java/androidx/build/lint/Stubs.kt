@@ -299,6 +299,16 @@ public annotation class DeprecatedSinceApi(
 )
             """
         )
+
+        val JvmDefaultWithCompatibility = TestFiles.kotlin(
+            """
+package kotlin.jvm
+
+@Retention(AnnotationRetention.SOURCE)
+@Target(AnnotationTarget.CLASS)
+annotation class JvmDefaultWithCompatibility
+            """.trimIndent()
+        )
         /* ktlint-enable max-line-length */
     }
 }
