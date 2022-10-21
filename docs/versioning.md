@@ -380,3 +380,30 @@ will start at version `1.1.0-alpha01` instead of `1.0.0-alpha01`.
 
 If your `androidx.foo:foo-bar` module was in version `1.0.0-alpha06`, then the
 Kotlin extension module would start in version `1.0.0-alpha06`.
+
+## FAQ
+
+### When does an alpha ship?
+
+For public releases, an alpha ships when the library lead believes it is ready.
+Generally, these occur during the batched bi-weekly (every 2 weeks) release
+because all tip-of-tree dependencies will need to be released too.
+
+### Are there restrictions on when or how often an alpha can ship?
+
+Nope.
+
+### Can alpha work (ex. for the next Minor release) occur in the primary development branch during beta API lockdown?
+
+No. This is by design. Focus should be spent on improving the Beta version and
+adding documentation/samples/blog posts for usage!
+
+### Is there an API freeze window between alpha and beta while API surface is reviewed and tests are added, but before the beta is released?
+
+Yes. If any new APIs are added in this window, the beta release will be blocked
+until API review is complete and addressed.
+
+### How often can a beta release?
+
+As often as needed, however, releases outside of the bi-weekly (every 2 weeks)
+release will need to get approval from the TPM (natnaelbelay@).
