@@ -35,7 +35,9 @@ public class BodyTemperatureRecord(
      *
      * @see BodyTemperatureMeasurementLocation
      */
-    @property:BodyTemperatureMeasurementLocations public val measurementLocation: String? = null,
+    @property:BodyTemperatureMeasurementLocations
+    public val measurementLocation: Int =
+        BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
@@ -60,7 +62,7 @@ public class BodyTemperatureRecord(
      */
     override fun hashCode(): Int {
         var result = temperature.hashCode()
-        result = 31 * result + (measurementLocation?.hashCode() ?: 0)
+        result = 31 * result + measurementLocation
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
