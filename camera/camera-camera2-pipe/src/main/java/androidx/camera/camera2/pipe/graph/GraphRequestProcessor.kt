@@ -51,7 +51,7 @@ public class GraphRequestProcessor private constructor(
     }
 
     private val debugId = graphRequestProcessorIds.incrementAndGet()
-    private val active = atomic(false)
+    private val closed = atomic(false)
     @GuardedBy("activeCaptureSequences")
     private val activeCaptureSequences = mutableListOf<CaptureSequence<*>>()
     private val activeBurstListener = object : CaptureSequence.CaptureSequenceListener {
@@ -100,7 +100,8 @@ public class GraphRequestProcessor private constructor(
     }
 
     internal fun close() {
-        if (active.compareAndSet(expect = false, update = true)) {
+        Log.warn { "Closing $this" }
+        if (closed.compareAndSet(expect = false, update = true)) {
             captureSequenceProcessor.close()
         }
     }
@@ -113,7 +114,8 @@ public class GraphRequestProcessor private constructor(
         listeners: List<Request.Listener>,
     ): Boolean {
         // Reject incoming requests if this instance has been stopped or closed.
-        if (active.value) {
+        if (closed.value) {
+            Log.warn { "Rejecting requests $requests: Request processor is closed." }
             return false
         }
 
@@ -128,10 +130,18 @@ public class GraphRequestProcessor private constructor(
         )
 
         // Reject incoming requests if this instance has been stopped or closed.
-        if (captureSequence == null || active.value) {
+        if (captureSequence == null) {
+            Log.warn { "Rejecting requests $requests: Could not create the capture sequence." }
 
             // We do not need to invoke the sequenceCompleteListener since it has not been added to
             // the list of activeCaptureSequences yet.
+            return false
+        }
+
+        // Re-check again and reject requests if this instance has been closed or stopped.
+        // This is an optimization since building the captureSequence can take non-zero time.
+        if (closed.value) {
+            Log.warn { "Rejecting requests $requests: Request processor is closed." }
             return false
         }
 
@@ -159,7 +169,7 @@ public class GraphRequestProcessor private constructor(
             // been designed to minimize the number of synchronized calls.
             val result = synchronized(lock = captureSequence) {
                 // Check closed state right before submitting.
-                if (active.value) {
+                if (closed.value) {
                     Log.warn { "Did not submit $captureSequence, $this was closed!" }
                     return false
                 }
