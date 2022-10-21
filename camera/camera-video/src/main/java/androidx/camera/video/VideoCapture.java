@@ -318,7 +318,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mNode = createNodeIfNeeded(finalSelectedResolution);
         mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
@@ -365,14 +364,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
-
-        if (mNode != null) {
-            mNode.release();
-            mNode = null;
-        }
-
-        mVideoEncoderInfo = null;
-        mCropRect = null;
     }
 
     /**
@@ -513,6 +504,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
         Rect cropRect = requireNonNull(getCropRect(resolution));
         Timebase timebase;
+        mNode = createNodeIfNeeded(isCropNeeded(cropRect, resolution));
         if (mNode != null) {
             MediaSpec mediaSpec = requireNonNull(getMediaSpec());
             timebase = camera.getCameraInfoInternal().getTimebase();
@@ -534,6 +526,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SettableSurface appSurface = outputEdge.getSurfaces().get(0);
             mSurfaceRequest = appSurface.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraSurface;
+            cameraSurface.getTerminationFuture().addListener(() -> {
+                // If camera surface is the latest one, it means this pipeline can be abandoned.
+                // Clear the pipeline in order to trigger the surface complete event to appSurface.
+                if (cameraSurface == mDeferrableSurface) {
+                    clearPipeline();
+                }
+            }, CameraXExecutors.mainThreadExecutor());
         } else {
             mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
@@ -573,7 +572,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
         }
-
+        if (mNode != null) {
+            mNode.release();
+            mNode = null;
+        }
+        mVideoEncoderInfo = null;
+        mCropRect = null;
         mSurfaceRequest = null;
         mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
     }
@@ -717,9 +721,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceProcessorNode createNodeIfNeeded(@NonNull Size resolution) {
-        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK
-                || isCropNeeded(requireNonNull(getCropRect(resolution)), resolution)) {
+    private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded) {
+        if (mSurfaceProcessor != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     APPLY_CROP_ROTATE_AND_MIRRORING,
