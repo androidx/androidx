@@ -260,9 +260,9 @@ files, you can run `./studiow --clean main <project subset>` or `./studiow
 >     make sure that "Do not build Gradle task list during Gradle sync" is
 >     unchecked. (Note that unchecking this can reduce Studio's performance)
 
-### Enabling Compose @Preview annotation previews
+### Enabling Compose `@Preview` annotation previews
 
-Add the following dependencies to your project's `build.gradle`
+Add the following dependencies to your project's `build.gradle`:
 
 ```groovy
 dependencies {
@@ -271,7 +271,7 @@ dependencies {
 }
 ```
 
-then
+Then,
 [use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
 
 ## Making changes {#changes}
