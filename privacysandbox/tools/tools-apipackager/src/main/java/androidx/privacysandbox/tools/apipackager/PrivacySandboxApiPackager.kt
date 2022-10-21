@@ -23,6 +23,9 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
+import androidx.privacysandbox.tools.core.Metadata
+import kotlin.io.path.extension
+import kotlin.io.path.inputStream
 
 class PrivacySandboxApiPackager {
 
@@ -55,14 +58,24 @@ class PrivacySandboxApiPackager {
 
         ZipOutputStream(outputFile.outputStream()).use { zipOutputStream ->
             sdkClasspath.toFile().walk()
-                .filter { it.extension == "class" }
-                .filter { hasPrivacySandboxAnnotation(it) }
-                .forEach { classFile ->
-                    val zipEntry = ZipEntry(sdkClasspath.relativize(classFile.toPath()).toString())
+                .map { it.toPath() }
+                .filter { shouldKeepFile(sdkClasspath, it) }
+                .forEach { file ->
+                    val zipEntry = ZipEntry(sdkClasspath.relativize(file).toString())
                     zipOutputStream.putNextEntry(zipEntry)
-                    classFile.inputStream().copyTo(zipOutputStream)
+                    file.inputStream().copyTo(zipOutputStream)
                     zipOutputStream.closeEntry()
                 }
         }
+    }
+
+    private fun shouldKeepFile(sdkClasspath: Path, filePath: Path): Boolean {
+        if (sdkClasspath.relativize(filePath) == Metadata.filePath) {
+            return true
+        }
+        if (filePath.extension == "class" && hasPrivacySandboxAnnotation(filePath)) {
+            return true
+        }
+        return false
     }
 }

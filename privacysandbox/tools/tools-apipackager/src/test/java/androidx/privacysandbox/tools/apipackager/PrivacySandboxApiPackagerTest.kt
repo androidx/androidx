@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.tools.apipackager
 
+import androidx.privacysandbox.tools.core.Metadata
+import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.compileAll
 import androidx.room.compiler.processing.util.Source
@@ -26,7 +28,10 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipInputStream
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
+import kotlin.io.path.inputStream
+import kotlin.io.path.outputStream
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -116,6 +121,38 @@ class PrivacySandboxApiPackagerTest {
             )
         assertThat(compileWithExtraClasspath(appSource, packagedSdkClasspath)).succeeds()
     }
+    @Test
+    fun sdkClasspathWithMetadataFile_isKeptInDescriptor() {
+        val metadata = ToolMetadata.newBuilder()
+            .setCodeGenerationVersion(42)
+            .build()
+        val source = Source.kotlin(
+            "com/mysdk/Valid.kt", """
+            |package com.mysdk
+            |interface Valid
+        """.trimMargin()
+        )
+        val sdkClasspath = compileAll(listOf(source), includePrivacySandboxPlatformSources = false)
+            .outputClasspath.first().toPath()
+
+        val metadataPath = sdkClasspath.resolve(Metadata.filePath).also {
+            it.parent.createDirectories()
+            it.createFile()
+        }
+        metadata.writeTo(metadataPath.outputStream())
+
+        val sdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")
+        PrivacySandboxApiPackager().packageSdkDescriptors(sdkClasspath, sdkDescriptor)
+        val packagedMetadata =
+            ZipInputStream(sdkDescriptor.inputStream()).use { input ->
+            generateSequence { input.nextEntry }
+                .filter { it.name == Metadata.filePath.toString() }
+                .map { ToolMetadata.parseFrom(input.readAllBytes()) }
+                .toList()
+        }
+
+        assertThat(packagedMetadata).containsExactly(metadata)
+    }
 
     @Test
     fun sdkClasspathDoesNotExist_throwException() {
@@ -162,9 +199,9 @@ class PrivacySandboxApiPackagerTest {
         }
     }
 
-    /** Compiles the given source files and returns a classpath with the results. */
-    private fun compileAndReturnUnzippedPackagedClasspath(vararg sources: Source): File {
-        val result = compileAll(sources.toList(), includePrivacySandboxPlatformSources = false)
+    /** Compiles the given source file and returns a classpath with the results. */
+    private fun compileAndReturnUnzippedPackagedClasspath(source: Source): File {
+        val result = compileAll(listOf(source), includePrivacySandboxPlatformSources = false)
         assertThat(result).succeeds()
         assertThat(result.outputClasspath).hasSize(1)
 
@@ -173,7 +210,7 @@ class PrivacySandboxApiPackagerTest {
         PrivacySandboxApiPackager().packageSdkDescriptors(originalClasspath, descriptors)
 
         val outputDir = makeTestDirectory().toFile()
-        ZipInputStream(descriptors.toFile().inputStream()).use { input ->
+        ZipInputStream(descriptors.inputStream()).use { input ->
             generateSequence { input.nextEntry }
                 .forEach {
                     val file: File = outputDir.resolve(it.name)
