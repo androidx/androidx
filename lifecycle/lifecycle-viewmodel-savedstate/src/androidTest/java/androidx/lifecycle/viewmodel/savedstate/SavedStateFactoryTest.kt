@@ -119,7 +119,7 @@ class SavedStateFactoryTest {
         try {
             vm[MyAndroidViewModel::class.java]
             fail("Creating an AndroidViewModel should fail when no Application is provided")
-        } catch (e: NoSuchMethodException) {
+        } catch (e: RuntimeException) {
             // Exception message varies across platform versions, just make sure it's thrown.
         }
         assertThat(vm[MyViewModel::class.java].handle).isNotNull()
