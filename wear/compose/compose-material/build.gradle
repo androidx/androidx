@@ -29,16 +29,16 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 
 dependencies {
 
-    api("androidx.compose.foundation:foundation:1.3.0-rc01")
-    api("androidx.compose.ui:ui:1.3.0-rc01")
-    api("androidx.compose.ui:ui-text:1.3.0-rc01")
-    api("androidx.compose.runtime:runtime:1.3.0-rc01")
+    api("androidx.compose.foundation:foundation:1.3.0")
+    api("androidx.compose.ui:ui:1.3.0")
+    api("androidx.compose.ui:ui-text:1.3.0")
+    api("androidx.compose.runtime:runtime:1.3.0")
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.animation:animation:1.3.0-rc01")
-    implementation("androidx.compose.material:material:1.3.0-rc01")
-    implementation("androidx.compose.material:material-ripple:1.3.0-rc01")
-    implementation("androidx.compose.ui:ui-util:1.3.0-rc01")
+    implementation("androidx.compose.animation:animation:1.3.0")
+    implementation("androidx.compose.material:material:1.3.0")
+    implementation("androidx.compose.material:material-ripple:1.3.0")
+    implementation("androidx.compose.ui:ui-util:1.3.0")
     implementation(project(":wear:compose:compose-foundation"))
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
@@ -54,7 +54,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
 
-    samples("androidx.wear.compose:compose-material-samples:1.1.0-beta01")
+    samples(project(":wear:compose:compose-material-samples"))
 }
 
 android {
