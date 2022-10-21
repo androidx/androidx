@@ -32,6 +32,7 @@ import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.Executors
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
@@ -80,6 +81,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                transaction.addTransactionCommittedListener(mExecutor, mCommittedListener)
+            } else {
+                clearFrontBuffer()
+            }
             mFrontBufferSyncStrategy.isVisible = false
             callback.onDoubleBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
@@ -98,6 +104,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 transaction
             )
         }
+    }
+
+    private val mExecutor = Executors.newSingleThreadExecutor()
+
+    private val mCommittedListener = object : SurfaceControlCompat.TransactionCommittedListener {
+        override fun onTransactionCommitted() {
+            clearFrontBuffer()
+        }
+    }
+
+    internal fun clearFrontBuffer() {
+        mFrontBufferedLayerRenderer?.clear()
+        mFrontBufferedRenderTarget?.requestRender()
     }
 
     /**
@@ -389,7 +408,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         if (isValid()) {
             mSegments.add(mActiveSegment.release())
             mDoubleBufferedLayerRenderTarget?.requestRender()
-            mFrontBufferedLayerRenderer?.clear()
         } else {
             Log.w(
                 TAG, "Attempt to render to the double buffered layer when " +
@@ -463,6 +481,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         mFrontBufferedLayerSurfaceControl = null
         mParentRenderLayer.setParentLayerCallbacks(null)
+        mExecutor.shutdown()
         mIsReleased = true
     }
 
