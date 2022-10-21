@@ -58,6 +58,8 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 -   Avoid proprietary services or closed-source libraries for core
     functionality, and instead provide integration points that allow a developer
     to choose between a variety of services as the backing implementation
+-   Comply with AndroidX checks and policies such as API tracking and style
+    checks
 -   See [Integrating proprietary components](open_source.md) for guidance on
     using closed-source and proprietary libraries and services
 
