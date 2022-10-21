@@ -74,14 +74,15 @@ fun ScalingLazyColumnDetail() {
         }
         items(20, key = { ix -> ix }) { ix ->
             val item = state.layoutInfo.visibleItemsInfo.find { i -> i.index == ix + 1 }
-            var description = "$ix"
+            var description = ""
             if (item != null) {
-                val unScaledSize = (item.size / item.scale).roundToInt()
                 val itemStart = item.offset - item.size / 2f + halfScreenHeightPx
                 val itemEnd = itemStart + item.size
-                description = description + ": Start:${itemStart.roundToInt()} " +
-                    "End:${itemEnd.roundToInt()} Size:${item.size}/${unScaledSize}px " +
-                    "Scale:${item.scale}"
+                description +=
+                    "I:${item.index}/${item.offset}: Start:${itemStart.roundToInt()} " +
+                        "End:${itemEnd.roundToInt()} USize:${item.unadjustedSize}px " +
+                        "Scale:${String.format("%.2f", item.scale)} CI:${state.centerItemIndex}/" +
+                        "${state.centerItemScrollOffset}"
             }
             Chip(
                 onClick = {},

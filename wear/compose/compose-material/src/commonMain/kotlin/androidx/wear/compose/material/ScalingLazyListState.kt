@@ -143,6 +143,10 @@ class ScalingLazyListState constructor(
      * The offset of the item closest to the viewport center. Depending on the
      * [ScalingLazyListAnchorType] of the [ScalingLazyColumn] the offset will be relative to either
      * the items Edge or Center.
+     *
+     * A positive value indicates that the center item's anchor point is above the viewport
+     * center-line, a negative value indicates that the center item anchor point is below the
+     * viewport center-line.
      */
     public val centerItemScrollOffset: Int
         get() =
@@ -355,7 +359,7 @@ class ScalingLazyListState constructor(
             val item = lazyListState.layoutInfo.visibleItemsInfo[i]
             if (! discardAutoCenteringListItem(item)) {
                 val rawItemStart = item.offset - verticalAdjustment
-                val rawItemEnd = rawItemStart + item.size
+                val rawItemEnd = rawItemStart + item.size + gapBetweenItemsPx.value!! / 2f
                 result = i
                 if (rawItemEnd > viewportCenterLinePx()) {
                     break
