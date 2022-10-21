@@ -36,7 +36,6 @@ import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.android.tools.lint.detector.api.SourceSetType
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.getLongAttribute
 import com.android.tools.lint.detector.api.VersionChecks
 import com.android.tools.lint.detector.api.VersionChecks.Companion.REQUIRES_API_ANNOTATION
@@ -422,7 +421,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Builtin R8 desugaring, such as rewriting compare calls (see b/36390874)
             if (owner.startsWith("java.") &&
-                DesugaredMethodLookup.isDesugared(owner, name, desc, SourceSetType.MAIN)) {
+                DesugaredMethodLookup.isDesugared(owner, name, desc, context.sourceSetType)) {
                 return
             }
 
