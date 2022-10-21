@@ -21,7 +21,6 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.apply
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.XPropertySpec
@@ -33,8 +32,6 @@ import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.isVoid
-import androidx.room.ext.L
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
@@ -43,11 +40,10 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
 import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.T
-import androidx.room.ext.W
 import androidx.room.ext.capitalize
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
+import androidx.room.solver.KotlinBoxedPrimitiveMethodDelegateBinder
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
@@ -162,12 +158,13 @@ class DaoWriter(
             dao.rawQueryMethods.forEach {
                 addFunction(createRawQueryMethod(it))
             }
-            dao.kotlinDefaultMethodDelegates.forEach {
-                addFunction(createDefaultMethodDelegate(it))
-            }
-
-            dao.delegatingMethods.forEach {
-                addFunction(createDelegatingMethod(it))
+            if (codeLanguage == CodeLanguage.JAVA) {
+                dao.kotlinDefaultMethodDelegates.forEach {
+                    addFunction(createDefaultImplMethodDelegate(it))
+                }
+                dao.kotlinBoxedPrimitiveMethodDelegates.forEach {
+                    addFunction(createBoxedPrimitiveBridgeMethodDelegate(it))
+                }
             }
             // Keep this the last one to be generated because used custom converters will
             // register fields with a payload which we collect in dao to report used
@@ -606,13 +603,12 @@ class DaoWriter(
     }
 
     // TODO(b/251459654): Handle @JvmOverloads in delegating functions with Kotlin codegen.
-    private fun createDefaultMethodDelegate(method: KotlinDefaultMethodDelegate): XFunSpec {
+    private fun createDefaultImplMethodDelegate(method: KotlinDefaultMethodDelegate): XFunSpec {
         val scope = CodeGenScope(this)
         return overrideWithoutAnnotations(method.element, declaredDao).apply {
-            // TODO(danysantiago): Revisit this in Kotlin codegen
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
-                daoName = dao.typeName.toJavaPoet(),
-                daoImplName = dao.implTypeName.toJavaPoet(),
+                daoName = dao.typeName,
+                daoImplName = dao.implTypeName,
                 methodName = method.element.jvmName,
                 returnType = method.element.returnType,
                 parameterNames = method.element.parameters.map { it.name },
@@ -622,37 +618,21 @@ class DaoWriter(
         }.build()
     }
 
-    // TODO(b/127483380): Reconsider the need of delegating method in KotlinPoet.
-    private fun createDelegatingMethod(method: KotlinBoxedPrimitiveMethodDelegate): XFunSpec {
-        val body = XCodeBlock.builder(codeLanguage).apply(
-            javaCodeBuilder = {
-                val args = method.concreteMethod.parameters.map {
-                    val paramTypename = it.type.typeName
-                    if (paramTypename.isBoxedPrimitive()) {
-                        CodeBlock.of("$L", paramTypename, it.name.toString())
-                    } else {
-                        CodeBlock.of("($T) $L", paramTypename.unbox(), it.name.toString())
-                    }
-                }
-                if (method.element.returnType.isVoid()) {
-                    addStatement(
-                        "$L($L)",
-                        method.element.jvmName,
-                        CodeBlock.join(args, ",$W")
-                    )
-                } else {
-                    addStatement(
-                        "return $L($L)",
-                        method.element.jvmName,
-                        CodeBlock.join(args, ",$W")
-                    )
-                }
-            },
-            kotlinCodeBuilder = { TODO("Kotlin codegen not yet implemented!") }
-        ).build()
-        return overrideWithoutAnnotations(method.element, declaredDao)
-            .addCode(body)
-            .build()
+    private fun createBoxedPrimitiveBridgeMethodDelegate(
+        method: KotlinBoxedPrimitiveMethodDelegate
+    ): XFunSpec {
+        val scope = CodeGenScope(this)
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
+            KotlinBoxedPrimitiveMethodDelegateBinder.execute(
+                methodName = method.element.jvmName,
+                returnType = method.element.returnType,
+                parameters = method.concreteMethod.parameters.map {
+                    it.type.asTypeName() to it.name
+                },
+                scope = scope
+            )
+            addCode(scope.generate())
+        }.build()
     }
 
     private fun overrideWithoutAnnotations(

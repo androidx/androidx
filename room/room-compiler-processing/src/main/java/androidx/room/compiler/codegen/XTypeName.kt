@@ -278,5 +278,8 @@ private fun getPrimitiveJTypeName(klass: Class<*>): JTypeName = when (klass) {
     else -> error("Can't get JTypeName from java.lang.Class: $klass")
 }
 
+fun XTypeName.box() = XTypeName(java.box(), kotlin)
+fun XTypeName.unbox() = XTypeName(java.unbox(), kotlin.copy(nullable = false), XNullability.NONNULL)
+
 fun XTypeName.toJavaPoet(): JTypeName = this.java
 fun XClassName.toJavaPoet(): JClassName = this.java

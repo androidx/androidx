@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,24 @@
 package androidx.room.solver
 
 import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.unbox
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isVoid
-import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
-import androidx.room.vo.KotlinDefaultMethodDelegate
+import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 
 /**
- * Method binder that delegates to concrete DAO function in a Kotlin interface, specifically to
- * a function where the implementation is in the DefaultImpl Kotlin generated class.
+ * Method binder that delegates to a sibling DAO function in a Kotlin interface or abstract class
+ * and specifically to a sibling function with unboxed primitive parameters.
  *
- * @see [KotlinDefaultMethodDelegate]
+ * @see [KotlinBoxedPrimitiveMethodDelegate]
  */
-object KotlinDefaultMethodDelegateBinder {
-    fun executeAndReturn(
-        daoName: XClassName,
-        daoImplName: XClassName,
+object KotlinBoxedPrimitiveMethodDelegateBinder {
+
+    fun execute(
         methodName: String,
         returnType: XType,
-        parameterNames: List<String>,
+        parameters: List<Pair<XTypeName, String>>,
         scope: CodeGenScope
     ) {
         check(scope.language == CodeLanguage.JAVA)
@@ -45,16 +44,23 @@ object KotlinDefaultMethodDelegateBinder {
                 if (!returnType.isVoid()) {
                     append("return ")
                 }
-                append("%T.%L.%L(%T.this")
-                params.add(daoName)
-                params.add(DEFAULT_IMPLS_CLASS_NAME)
+                append("%L(")
                 params.add(methodName)
-                params.add(daoImplName)
-                parameterNames.forEach {
-                    append(", %L")
-                    params.add(it)
+                parameters.forEachIndexed { i, (typeName, name) ->
+                    if (typeName.isPrimitive) {
+                        append("(%T) %L")
+                        params.add(typeName.unbox())
+                        params.add(name)
+                    } else {
+                        append("%L")
+                        params.add(name)
+                    }
+                    if (i < parameters.size - 1) {
+                        append(", ")
+                    }
                 }
                 append(")")
+                emptyList<String>().joinToString()
             }
             addStatement(format, *params.toTypedArray())
         }

@@ -22,10 +22,15 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import loadTestSource
+import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Test
+import org.junit.runner.RunWith
 
 // Dany's Kotlin codegen test playground (and tests too)
+@RunWith(TestParameterInjector::class)
 class KotlinCodeGenTest {
 
     val databaseSrc = Source.kotlin(
@@ -677,6 +682,79 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun delegatingFunctions_defaultImplBridge(
+        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
+        jvmDefaultMode: JvmDefaultMode
+    ) {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.sqlite.db.SupportSQLiteQuery
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+  
+              fun implemented() {
+                TODO("")
+              }
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName),
+            jvmDefaultMode = jvmDefaultMode
+        )
+    }
+
+    @Test
+    fun delegatingFunctions_boxedPrimitiveBridge() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.sqlite.db.SupportSQLiteQuery
+
+            interface BaseDao<T> {
+                fun getEntity(id: T): MyEntity
+
+                fun insertEntity(id: T): T
+            }
+
+            @Dao
+            interface MyDao : BaseDao<Long> {
+              @Query("SELECT * FROM MyEntity WHERE pk = :id")
+              override fun getEntity(id: Long): MyEntity
+
+              @Query("INSERT INTO MyEntity (pk) VALUES (:id)")
+              override fun insertEntity(id: Long): Long
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName),
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }
@@ -684,11 +762,13 @@ class KotlinCodeGenTest {
     private fun runTest(
         sources: List<Source>,
         expectedFilePath: String,
+        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DEFAULT,
         handler: (XTestInvocation) -> Unit = { }
     ) {
         runKspTest(
             sources = sources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
         ) {
             val databaseFqn = "androidx.room.Database"
             DatabaseProcessingStep().process(
