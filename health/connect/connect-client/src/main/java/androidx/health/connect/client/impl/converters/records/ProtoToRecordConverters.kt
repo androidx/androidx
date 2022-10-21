@@ -425,7 +425,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "ActivitySession" ->
                 ExerciseSessionRecord(
-                    exerciseType = getEnum("activityType") ?: "",
+                    exerciseType =
+                        mapEnum(
+                            "activityType",
+                            ExerciseSessionRecord.EXERCISE_TYPE_STRING_TO_INT_MAP,
+                            ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+                        ),
                     title = getString("title"),
                     notes = getString("notes"),
                     startTime = startTime,
@@ -525,7 +530,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "Repetitions" ->
                 ExerciseRepetitionsRecord(
                     count = getLong("count"),
-                    type = getEnum("type") ?: "",
+                    type =
+                        mapEnum(
+                            "type",
+                            ExerciseRepetitionsRecord.REPETITION_TYPE_STRING_TO_INT_MAP,
+                            ExerciseRepetitionsRecord.REPETITION_TYPE_UNKNOWN
+                        ),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -544,7 +554,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "SleepStage" ->
                 SleepStageRecord(
-                    stage = getEnum("stage") ?: "",
+                    stage =
+                        mapEnum(
+                            "stage",
+                            SleepStageRecord.STAGE_TYPE_STRING_TO_INT_MAP,
+                            SleepStageRecord.STAGE_TYPE_UNKNOWN
+                        ),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

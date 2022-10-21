@@ -64,6 +64,7 @@ import androidx.health.connect.client.records.SeriesRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_INT_TO_STRING_MAP
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -312,7 +313,13 @@ fun Record.toProto(): DataProto.DataPoint =
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
                 .apply {
-                    putValues("activityType", enumVal(exerciseType))
+                    val exerciseType =
+                        enumValFromInt(
+                            exerciseType,
+                            ExerciseSessionRecord.EXERCISE_TYPE_INT_TO_STRING_MAP
+                        )
+                            ?: enumVal("workout")
+                    putValues("activityType", exerciseType)
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
@@ -476,7 +483,11 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("Repetitions"))
                 .apply {
                     putValues("count", longVal(count))
-                    putValues("type", enumVal(type))
+                    enumValFromInt(
+                            type,
+                            ExerciseRepetitionsRecord.REPETITION_TYPE_INT_TO_STRING_MAP
+                        )
+                        ?.let { putValues("type", it) }
                 }
                 .build()
         is SleepSessionRecord ->
@@ -490,7 +501,11 @@ fun Record.toProto(): DataProto.DataPoint =
         is SleepStageRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepStage"))
-                .apply { putValues("stage", enumVal(stage)) }
+                .apply {
+                    enumValFromInt(stage, STAGE_TYPE_INT_TO_STRING_MAP)?.let {
+                        putValues("stage", it)
+                    }
+                }
                 .build()
         is StepsRecord ->
             intervalProto()
