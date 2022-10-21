@@ -77,9 +77,16 @@ sealed class KspHasModifiers(
             // while being open for overrides (e.g. `open val x = ...`), and it can also have a
             // non-final backing field while being closed for overrides (e.g. `var x = ...`).
             is KSPropertyDeclaration -> {
-                // Here we consider all vals are final, and all vars are not final, even
-                // lateinit vars.
-                !declaration.isMutable
+                if (declaration.origin == Origin.JAVA) {
+                    // Fallback to modifiers check as
+                    // KSPropertyDeclarationJavaImpl.isMutable is always true:
+                    // https://github.com/google/ksp/issues/1153
+                    declaration.modifiers.contains(Modifier.FINAL)
+                } else {
+                    // Here we consider all vals are final, and all vars are not final, even
+                    // lateinit vars.
+                    !declaration.isMutable
+                }
             }
             // Although parameters in Kotlin are vals in source, they're not marked
             // final in bytecode.
