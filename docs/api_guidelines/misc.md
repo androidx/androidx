@@ -795,3 +795,39 @@ interface is `@RequiresOptIn` or was never released in a stable library version.
 One way to handle this task is to search the API `.txt` file from the latest
 release for `default` or `optional` and add the annotation by hand, then look
 for public sub-interfaces and add the annotation there as well.
+
+## Proguard configuration
+
+Proguard configurations allow libraries to specify how post-processing tools
+like optimizers and shrinkers should operate on library bytecode. Note that
+while Proguard is the name of a specific tool, a Proguard configuration may be
+read by R8 or any number of other post-processing tools.
+
+NOTE Jetpack libraries **must not** run Proguard on their release artifacts. Do
+not specify `minifyEnabled`, `shrinkResources`, or `proguardFiles` in your build
+configuration.
+
+### Bundling with a library
+
+**Android libraries (AARs)** can bundle consumer-facing Proguard rules using the
+`consumerProguardFiles` (*not* `proguardFiles`) field in their `build.gradle`
+file's `defaultConfig`:
+
+```
+android {
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+```
+
+Libraries *do not* need to specify this field on `buildTypes.all`.
+
+**Java-only libraries (JARs)** can bundle consumer-facing Proguard rules by
+placing the file under the `META-INF` resources directory. The file **must** be
+named using the library's unique Maven coordinate to avoid build-time merging
+issues:
+
+```
+<project>/src/main/resources/META-INF/proguard/androidx.core_core.pro
+```
