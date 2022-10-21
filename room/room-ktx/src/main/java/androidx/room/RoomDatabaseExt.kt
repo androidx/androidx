@@ -18,18 +18,24 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asContextElement
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 /**
  * Calls the specified suspending [block] in a database transaction. The transaction will be
@@ -135,6 +141,7 @@ private suspend fun Executor.acquireTransactionThread(controlJob: Job): Continua
         }
     }
 }
+
 /**
  * A [CoroutineContext.Element] that indicates there is an on-going database transaction.
  *
@@ -171,5 +178,64 @@ internal class TransactionElement(
             // Cancel the job that controls the transaction thread, causing it to be released.
             transactionThreadControlJob.cancel()
         }
+    }
+}
+
+/**
+ * Creates a [Flow] that listens for changes in the database via the [InvalidationTracker] and emits
+ * sets of the tables that were invalidated.
+ *
+ * The Flow will emit at least one value, a set of all the tables registered for observation to
+ * kick-start the stream unless [emitInitialState] is set to `false`.
+ *
+ * If one of the tables to observe does not exist in the database, this Flow throws an
+ * [IllegalArgumentException] during collection.
+ *
+ * The returned Flow can be used to create a stream that reacts to changes in the database:
+ * ```
+ * fun getArtistTours(from: Date, to: Date): Flow<Map<Artist, TourState>> {
+ *   return db.invalidationTrackerFlow("Artist").map { _ ->
+ *     val artists = artistsDao.getAllArtists()
+ *     val tours = tourService.fetchStates(artists.map { it.id })
+ *     associateTours(artists, tours, from, to)
+ *   }
+ * }
+ * ```
+ *
+ * @param tables The name of the tables or views to observe.
+ * @param emitInitialState Set to `false` if no initial emission is desired. Default value is
+ *                         `true`.
+ */
+public fun RoomDatabase.invalidationTrackerFlow(
+    vararg tables: String,
+    emitInitialState: Boolean = true
+): Flow<Set<String>> = callbackFlow {
+    // Flag to ignore invalidation until the initial state is sent.
+    val ignoreInvalidation = AtomicBoolean(emitInitialState)
+    val observer = object : InvalidationTracker.Observer(tables) {
+        override fun onInvalidated(tables: Set<String>) {
+            if (ignoreInvalidation.get()) {
+                return
+            }
+            trySend(tables)
+        }
+    }
+    val queryContext =
+        coroutineContext[TransactionElement]?.transactionDispatcher ?: getQueryDispatcher()
+    val job = launch(queryContext) {
+        invalidationTracker.addObserver(observer)
+        try {
+            if (emitInitialState) {
+                // Initial invalidation of all tables, to kick-start the flow
+                trySend(tables.toSet())
+            }
+            ignoreInvalidation.set(false)
+            awaitCancellation()
+        } finally {
+            invalidationTracker.removeObserver(observer)
+        }
+    }
+    awaitClose {
+        job.cancel()
     }
 }
