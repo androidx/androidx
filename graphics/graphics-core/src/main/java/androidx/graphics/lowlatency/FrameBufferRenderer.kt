@@ -22,12 +22,15 @@ import android.opengl.EGLConfig
 import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
+import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import java.util.concurrent.atomic.AtomicBoolean
+import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
+import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 
 /**
  * [GLRenderer.RenderCallback] implementation that renders content into a frame buffer object
@@ -66,7 +69,12 @@ class FrameBufferRenderer(
                 frameBufferRendererCallbacks.onDraw(eglManager)
             }
 
-            syncFenceCompat = syncStrategy.createSyncFence(egl)
+            syncFenceCompat = if (eglManager.supportsNativeAndroidFence()) {
+                syncStrategy.createSyncFence(egl)
+            } else {
+                Log.w(TAG, "Device does not support creation of native fences")
+                null
+            }
 
             // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
@@ -75,6 +83,10 @@ class FrameBufferRenderer(
             syncFenceCompat?.close()
         }
     }
+
+    private fun EGLManager.supportsNativeAndroidFence(): Boolean =
+        isExtensionSupported(EGL_KHR_FENCE_SYNC) &&
+            isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
 
     /**
      * Callbacks invoked to render content leveraging a [FrameBufferRenderer]
@@ -108,6 +120,10 @@ class FrameBufferRenderer(
          * is done in [onDraw] and reflected within the given frameBuffer.
          */
         fun onDrawComplete(frameBuffer: FrameBuffer, syncFenceCompat: SyncFenceCompat?)
+    }
+
+    private companion object {
+        private const val TAG = "FrameBufferRenderer"
     }
 }
 
