@@ -30,26 +30,40 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  *
  * @see [LoadSdkException]
  */
-class LoadSdkCompatException @JvmOverloads internal constructor(
-    @field:LoadSdkErrorCode @get:LoadSdkErrorCode
-    @param:LoadSdkErrorCode val loadSdkErrorCode: Int,
-    message: String?,
-    cause: Throwable?,
-    val extraInformation: Bundle = Bundle()
-) : Exception(message, cause) {
+class LoadSdkCompatException : Exception {
+
+    @field:LoadSdkErrorCode
+    @get:LoadSdkErrorCode
+    val loadSdkErrorCode: Int
+
+    val extraInformation: Bundle
+
+    /** @suppress */
+    @RestrictTo(LIBRARY_GROUP)
+    @JvmOverloads
+    constructor(
+        @LoadSdkErrorCode loadSdkErrorCode: Int,
+        message: String?,
+        cause: Throwable?,
+        extraInformation: Bundle = Bundle()
+    ) : super(message, cause) {
+        this.loadSdkErrorCode = loadSdkErrorCode
+        this.extraInformation = extraInformation
+    }
+
+    /** @suppress */
+    @RestrictTo(LIBRARY_GROUP)
+    constructor(
+        @LoadSdkErrorCode loadSdkErrorCode: Int,
+        message: String?
+    ) : this(loadSdkErrorCode, message, cause = null)
 
     constructor(
         cause: Throwable,
         extraInfo: Bundle
     ) : this(LOAD_SDK_SDK_DEFINED_ERROR, "", cause, extraInfo)
 
-    @RestrictTo(LIBRARY_GROUP)
-    constructor(
-        @LoadSdkErrorCode loadSdkErrorCode: Int,
-        message: String?
-    ) : this(loadSdkErrorCode, message, /*cause=*/null)
-
-    /** @hide */
+    /** @suppress */
     @IntDef(
         SDK_SANDBOX_PROCESS_NOT_AVAILABLE,
         LOAD_SDK_NOT_FOUND,
