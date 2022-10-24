@@ -51,7 +51,7 @@ interface IHealthDataService {
    * API version of the AIDL interface. Should be incremented every time a new
    * method is added.
    */
-  const int CURRENT_API_VERSION = 4;
+  const int CURRENT_API_VERSION = 5;
 
   const int MIN_API_VERSION = 1;
 
