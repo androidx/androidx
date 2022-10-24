@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.media.Image;
 import android.os.Build;
 import android.util.Size;
 
@@ -157,11 +158,26 @@ public abstract class Packet<T> {
     public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
             @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform,
             @NonNull CameraCaptureResult cameraCaptureResult) {
+        return of(data, exif, new Size(data.getWidth(), data.getHeight()), cropRect,
+                rotationDegrees, sensorToBufferTransform, cameraCaptureResult);
+    }
+
+    /**
+     * Creates {@link ImageProxy} based {@link Packet} with overridden image size.
+     *
+     * <p>When the image is rotated in the HAL, the size of the {@link Image} class do not
+     * match the image content. We might need to override it with the correct value. The size of
+     * the {@link Image} class always matches the {@link android.view.Surface} size.
+     */
+    @NonNull
+    public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
+            @NonNull Size size, @NonNull Rect cropRect, int rotationDegrees,
+            @NonNull Matrix sensorToBufferTransform,
+            @NonNull CameraCaptureResult cameraCaptureResult) {
         if (data.getFormat() == JPEG) {
             checkNotNull(exif, "JPEG image must have Exif.");
         }
-        return new AutoValue_Packet<>(data, exif, data.getFormat(),
-                new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
+        return new AutoValue_Packet<>(data, exif, data.getFormat(), size, cropRect, rotationDegrees,
                 sensorToBufferTransform, cameraCaptureResult);
     }
 

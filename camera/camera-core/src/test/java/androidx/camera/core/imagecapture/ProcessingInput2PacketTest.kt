@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
 import android.graphics.ImageFormat.YUV_420_888
-import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
@@ -114,10 +113,10 @@ class ProcessingInput2PacketTest {
         val processingRequest = ProcessingRequest(
             { listOf() },
             OUTPUT_FILE_OPTIONS,
-            Rect(240, 0, HEIGHT, WIDTH),
+            CROP_RECT,
             90,
             /*jpegQuality=*/100,
-            Matrix().also { it.setScale(-1F, 1F, 240F, 320F) },
+            SENSOR_TO_BUFFER,
             FakeTakePictureCallback()
         )
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
@@ -129,15 +128,13 @@ class ProcessingInput2PacketTest {
         // Rotation is 0 because exif rotation is 0
         assertThat(output.rotationDegrees).isEqualTo(0)
         // The crop rect is rotated 90 degrees.
-        assertThat(output.cropRect).isEqualTo(CROP_RECT)
-        assertThat(output.size).isEqualTo(Size(WIDTH, HEIGHT))
+        assertThat(output.cropRect).isEqualTo(Rect(0, 0, 240, WIDTH))
+        assertThat(output.size).isEqualTo(Size(HEIGHT, WIDTH))
         // Assert: the new transform will be SENSOR_TO_BUFFER (mirroring) + the 90 HAL rotation.
-        // The top-left corner is mapped to bottom-left, and the top-right corner is mapped to
-        // bottom-right.
-        val topCorners = floatArrayOf(0F, 0F, HEIGHT.toFloat(), 0F)
+        val topCorners = floatArrayOf(0F, HEIGHT.toFloat(), WIDTH.toFloat(), HEIGHT.toFloat())
         output.sensorToBufferTransform.mapPoints(topCorners)
         assertThat(topCorners).usingTolerance(1E-4).containsExactly(
-            floatArrayOf(WIDTH.toFloat(), HEIGHT.toFloat(), WIDTH.toFloat(), 0F)
+            floatArrayOf(0F, WIDTH.toFloat(), 0F, 0F)
         )
     }
 

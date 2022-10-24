@@ -25,22 +25,23 @@ import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.core.util.Preconditions.checkNotNull;
-import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.util.Size;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
+import androidx.camera.core.internal.compat.quirk.ImageCaptureRotationOptionQuirk;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
 
@@ -73,36 +74,55 @@ final class ProcessingInput2Packet implements
                 throw new ImageCaptureException(ERROR_FILE_IO, "Failed to extract EXIF data.", e);
             }
         }
-
-        CameraCaptureResult cameraCaptureResult =
-                ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
-        // Default metadata based on UseCase config.
-        Rect cropRect = request.getCropRect();
-        Matrix sensorToBuffer = request.getSensorToBufferTransform();
-        int rotationDegrees = request.getRotationDegrees();
-
-        // Update metadata if the rotation is sent to the HAL.
         if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
-            checkNotNull(exif, "The image must have JPEG exif.");
-            // If the image's size does not match the Exif size, it might be a vendor bug.
-            // Consider adding it to ImageCaptureRotationOptionQuirk.
-            checkState(isSizeMatch(exif, image), "Exif size does not match image size.");
-
-            Matrix halTransform = getHalTransform(request.getRotationDegrees(),
-                    new Size(exif.getWidth(), exif.getHeight()), exif.getRotation());
-            cropRect = getUpdatedCropRect(request.getCropRect(), halTransform);
-            sensorToBuffer = getUpdatedTransform(
-                    request.getSensorToBufferTransform(), halTransform);
-            rotationDegrees = exif.getRotation();
+            checkNotNull(exif, "JPEG image must have exif.");
+            return createPacketWithHalRotation(request, exif, image);
         }
-
-        return Packet.of(image, exif, cropRect, rotationDegrees, sensorToBuffer,
-                cameraCaptureResult);
+        return createPacket(request, exif, image);
     }
 
+    private static Packet<ImageProxy> createPacket(@NonNull ProcessingRequest request,
+            @Nullable Exif exif, @NonNull ImageProxy image) {
+        return Packet.of(image, exif, request.getCropRect(), request.getRotationDegrees(),
+                request.getSensorToBufferTransform(), getCameraCaptureResult(image));
+    }
 
-    private static boolean isSizeMatch(@NonNull Exif exif, @NonNull ImageProxy image) {
-        return exif.getWidth() == image.getWidth() && exif.getHeight() == image.getHeight();
+    /**
+     * Creates {@link Packet} with possible HAL rotation.
+     *
+     * <p>When {@link CaptureRequest#JPEG_ORIENTATION} is set, it's possible that the HAL might
+     * rotate the image in memory. We need to update the metadata to match the rotated image.
+     *
+     * <p>This method is based on the assumptions that: 1) the image width/height always match
+     * the Surface size, and 2) the exif rotation is correct. Anything else, e.g. the Exif
+     * width/height, cannot be trusted.
+     *
+     * <p>If the Exif rotation is incorrect, we need to add the device to
+     * {@link ImageCaptureRotationOptionQuirk} and disable this code path.
+     */
+    private static Packet<ImageProxy> createPacketWithHalRotation(
+            @NonNull ProcessingRequest request, @NonNull Exif exif, @NonNull ImageProxy image) {
+        Size surfaceSize = new Size(image.getWidth(), image.getHeight());
+
+        // Clock-wise rotation performed by the HAL.
+        int halRotationDegrees = request.getRotationDegrees() - exif.getRotation();
+
+        Size imageSize = getRotatedSize(halRotationDegrees, surfaceSize);
+
+        // The transformation performed by the HAL.
+        Matrix halTransform = getRectToRect(
+                new RectF(0, 0, surfaceSize.getWidth(), surfaceSize.getHeight()),
+                new RectF(0, 0, imageSize.getWidth(), imageSize.getHeight()),
+                halRotationDegrees);
+
+        return Packet.of(image, exif, imageSize,
+                getUpdatedCropRect(request.getCropRect(), halTransform), exif.getRotation(),
+                getUpdatedTransform(request.getSensorToBufferTransform(), halTransform),
+                getCameraCaptureResult(image));
+    }
+
+    private static CameraCaptureResult getCameraCaptureResult(@NonNull ImageProxy image) {
+        return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
     }
 
     /**
@@ -123,26 +143,15 @@ final class ProcessingInput2Packet implements
     private static Rect getUpdatedCropRect(@NonNull Rect cropRect, @NonNull Matrix halTransform) {
         RectF rectF = new RectF(cropRect);
         halTransform.mapRect(rectF);
+        rectF.sort();
         Rect rect = new Rect();
         rectF.round(rect);
         return rect;
     }
 
-    /**
-     * Calculates the transformation applied by the HAL.
-     */
-    @NonNull
-    private static Matrix getHalTransform(
-            @IntRange(from = 0, to = 359) int requestRotationDegrees,
-            @NonNull Size imageSize,
-            @IntRange(from = 0, to = 359) int exifRotationDegrees) {
-        int halRotationDegrees = requestRotationDegrees - exifRotationDegrees;
-        Size surfaceSize = is90or270(within360(halRotationDegrees))
-                ? new Size(/*width=*/imageSize.getHeight(), /*height=*/imageSize.getWidth()) :
-                imageSize;
-        return getRectToRect(
-                new RectF(0, 0, surfaceSize.getWidth(), surfaceSize.getHeight()),
-                new RectF(0, 0, imageSize.getWidth(), imageSize.getHeight()),
-                halRotationDegrees);
+    private static Size getRotatedSize(int rotationDegrees, Size size) {
+        return is90or270(within360(rotationDegrees))
+                ? new Size(/*width=*/size.getHeight(), /*height=*/size.getWidth()) :
+                size;
     }
 }
