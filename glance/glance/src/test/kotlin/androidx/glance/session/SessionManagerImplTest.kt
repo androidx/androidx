@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.suspendCoroutine
@@ -31,7 +32,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -69,9 +69,11 @@ class SessionManagerImplTest {
     @After
     fun cleanUp() {
         WorkManager.getInstance(context).cancelAllWork()
+        // TODO(b/242026176): remove this once WorkManager allows closing the test
+        // database.
+        WorkManagerImpl.getInstance(context).workDatabase.close()
     }
 
-    @Ignore // b/254048913
     @Test
     fun startSession() = runTest {
         assertThat(sessionManager.isSessionRunning(context, key)).isFalse()
@@ -80,7 +82,6 @@ class SessionManagerImplTest {
         assertThat(sessionManager.getSession(key)).isSameInstanceAs(session)
     }
 
-    @Ignore // b/254048913
     @Test
     fun closeSession() = runTest {
         sessionManager.startSession(context, session)
