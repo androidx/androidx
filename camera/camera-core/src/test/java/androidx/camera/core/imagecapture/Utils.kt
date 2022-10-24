@@ -51,6 +51,7 @@ object Utils {
     internal const val TIMESTAMP = 9999L
     internal val SENSOR_TO_BUFFER = Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
     internal val SIZE = Size(WIDTH, HEIGHT)
+    // The crop rect is the lower half of the image.
     internal val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
     internal val FULL_RECT = Rect(0, 0, WIDTH, HEIGHT)
     internal val TEMP_FILE = File.createTempFile(
