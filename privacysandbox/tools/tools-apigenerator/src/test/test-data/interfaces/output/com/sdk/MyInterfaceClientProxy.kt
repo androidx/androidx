@@ -1,34 +1,37 @@
-package com.sdkwithvalues
+package com.sdk
 
-import com.sdkwithvalues.SdkRequestConverter.toParcelable
-import com.sdkwithvalues.SdkResponseConverter.fromParcelable
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-public class SdkInterfaceClientProxy(
-    public val remote: ISdkInterface,
-) : SdkInterface {
-    public override suspend fun exampleMethod(request: SdkRequest): SdkResponse =
-            suspendCancellableCoroutine {
+public class MyInterfaceClientProxy(
+    public val remote: IMyInterface,
+) : MyInterface {
+    public override suspend fun add(x: Int, y: Int): Int = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
-        val transactionCallback = object: ISdkResponseTransactionCallback.Stub() {
+        val transactionCallback = object: IIntTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
                 if (it.isCancelled) {
                     cancellationSignal.cancel()
                 }
                 mCancellationSignal = cancellationSignal
             }
-            override fun onSuccess(result: ParcelableSdkResponse) {
-                it.resumeWith(Result.success(fromParcelable(result)))
+            override fun onSuccess(result: Int) {
+                it.resumeWith(Result.success(result))
             }
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 it.resumeWithException(RuntimeException(errorMessage))
             }
         }
-        remote.exampleMethod(toParcelable(request), transactionCallback)
+        remote.add(x, y, transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }
+    }
+
+    public override fun doSomething(firstInterface: MyInterface,
+            secondInterface: MySecondInterface): Unit {
+        remote.doSomething((firstInterface as MyInterfaceClientProxy).remote, (secondInterface as
+                MySecondInterfaceClientProxy).remote)
     }
 }

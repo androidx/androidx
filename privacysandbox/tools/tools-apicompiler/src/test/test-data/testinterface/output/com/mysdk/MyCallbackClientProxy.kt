@@ -6,7 +6,7 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 public class MyCallbackClientProxy(
-    private val remote: IMyCallback,
+    public val remote: IMyCallback,
 ) : MyCallback {
     public override fun onComplete(response: Response): Unit {
         remote.onComplete(toParcelable(response))
