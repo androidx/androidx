@@ -21,7 +21,6 @@ import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.template.GalleryTemplate
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
@@ -82,7 +81,6 @@ class LargeImageGalleryReceiver : GlanceAppWidgetReceiver() {
  * It is overridable by gallery image aspect ratio, image size, and main blocks ordering.
  */
 abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
-    override val sizeMode = SizeMode.Exact
 
     @Composable
     internal fun GalleryTemplateContent(
