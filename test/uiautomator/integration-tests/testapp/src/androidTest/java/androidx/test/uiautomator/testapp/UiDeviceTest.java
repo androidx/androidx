@@ -43,7 +43,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -387,53 +386,23 @@ public class UiDeviceTest extends BaseTest {
         assertTrue(mDevice.isNaturalOrientation());
     }
 
-    @Test
-    public void testDumpWindowHierarchy_withString() throws Exception {
-        launchTestActivity(MainActivity.class);
-        File outFile = mTmpDir.newFile();
-        mDevice.dumpWindowHierarchy(outFile.getAbsolutePath());
+    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
 
-        // Verify that a valid XML file was generated and that node attributes are correct.
-        Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
-        validateMainActivityXml(xml);
-    }
+    public void testDumpWindowHierarchy_withString() {}
+
+    public void testDumpWindowHierarchy_withFile() {} // already added
+
+    public void testDumpWindowHierarchy_withOutputStream() {}
+    */
 
     @Test
-    public void testDumpWindowHierarchy_withFile() throws Exception {
+    public void testDumpWindowHierarchy() throws Exception {
         launchTestActivity(MainActivity.class);
         File outFile = mTmpDir.newFile();
         mDevice.dumpWindowHierarchy(outFile);
 
         // Verify that a valid XML file was generated and that node attributes are correct.
         Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
-        validateMainActivityXml(xml);
-    }
-
-    @Test
-    public void testDumpWindowHierarchy_withOutputStream() throws Exception {
-        launchTestActivity(MainActivity.class);
-        File outFile = mTmpDir.newFile();
-        FileOutputStream outStream = new FileOutputStream(outFile);
-        mDevice.dumpWindowHierarchy(outStream);
-
-        Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
-        validateMainActivityXml(xml);
-    }
-
-    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testWaitForWindowUpdate() {}
-
-    public void testTakeScreenshot() {} // already added
-
-    public void testTakeScreenshot_withScaleAndQuality() {} // already added
-
-    public void testGetLauncherPackageName() {}
-
-    public void testExecuteShellCommand() {} // already added
-    */
-
-    private static void validateMainActivityXml(Document xml) throws Exception {
         Element element = (Element) XPathFactory.newInstance().newXPath()
                 .compile("//hierarchy//*/node[@resource-id='" + TEST_APP + ":id/button']")
                 .evaluate(xml, XPathConstants.NODE);
@@ -457,4 +426,17 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("true", element.getAttribute("visible-to-user"));
         assertNotNull(element.getAttribute("bounds"));
     }
+
+    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+
+    public void testWaitForWindowUpdate() {}
+
+    public void testTakeScreenshot() {} // already added
+
+    public void testTakeScreenshot_withScaleAndQuality() {} // already added
+
+    public void testGetLauncherPackageName() {}
+
+    public void testExecuteShellCommand() {} // already added
+    */
 }
