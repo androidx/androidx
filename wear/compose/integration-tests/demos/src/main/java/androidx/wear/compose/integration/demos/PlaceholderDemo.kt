@@ -371,7 +371,8 @@ fun ChipWithOverlaidPlaceholder(
 
     Box {
         Chip(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth(),
             onClick = onClick,
             label = {
                 Text(
@@ -463,7 +464,7 @@ fun ChipWithOverlaidPlaceholder(
                 },
                 enabled = true,
                 colors = PlaceholderDefaults.placeholderChipColors(
-                    placeholderState = chipPlaceholderState,
+                    placeholderState = chipPlaceholderState
                 )
             )
         }
@@ -609,7 +610,7 @@ fun CardWithOverlaidPlaceholder(
                         MaterialTheme.shapes.large
                     ),
                 backgroundPainter = PlaceholderDefaults.placeholderBackgroundBrush(
-                    placeholderState = cardPlaceholderState,
+                    placeholderState = cardPlaceholderState
                 )
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
