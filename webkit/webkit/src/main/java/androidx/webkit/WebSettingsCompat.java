@@ -695,10 +695,6 @@ public class WebSettingsCompat {
         }
     }
 
-    private static WebSettingsAdapter getAdapter(WebSettings settings) {
-        return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
-    }
-
     /**
      * Get the currently configured allow-list of origins, which is guaranteed to receive the
      * {@code X-Requested-With} HTTP header on requests from the {@link WebView} owning the passed
@@ -706,12 +702,14 @@ public class WebSettingsCompat {
      * <p>
      * Any origin <em>not</em> on this allow-list may not receive the header, depending on the
      * current installed WebView provider.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
      * @return The configured set of allow-listed origins.
      * @see #setRequestedWithHeaderOriginAllowList(WebSettings, Set)
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
@@ -738,14 +736,13 @@ public class WebSettingsCompat {
      * the deprecated header, but it should not be used to identify the webview to first-party
      * servers under the control of the app developer.
      * <p>
-     * The format of the allow-list follows the origin rules of
+     * The format of the strings in the allow-list follows the origin rules of
      * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
      * @param allowList Set of origins to allow-list.
      * @throws IllegalArgumentException if the allow-list contains a malformed origin.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setRequestedWithHeaderOriginAllowList(@NonNull WebSettings settings,
@@ -757,6 +754,10 @@ public class WebSettingsCompat {
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+    }
+
+    private static WebSettingsAdapter getAdapter(WebSettings settings) {
+        return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }
 }
 
