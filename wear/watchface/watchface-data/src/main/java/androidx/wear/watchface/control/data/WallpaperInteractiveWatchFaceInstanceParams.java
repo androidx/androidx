@@ -67,15 +67,15 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     @NonNull
     UserStyleWireFormat mUserStyle;
 
-    /** Reserved field */
-    @ParcelField(5)
-    @Nullable
-    ComponentName mAuxiliaryComponentName;
-
     /** The initial state of the complications if known, or null otherwise. */
     @ParcelField(100)
     @Nullable
     List<IdAndComplicationDataWireFormat> mIdAndComplicationDataWireFormats;
+
+    /** Reserved field */
+    @ParcelField(101)
+    @Nullable
+    ComponentName mAuxiliaryComponentName;
 
     /** Used by VersionedParcelable. */
     WallpaperInteractiveWatchFaceInstanceParams() {
