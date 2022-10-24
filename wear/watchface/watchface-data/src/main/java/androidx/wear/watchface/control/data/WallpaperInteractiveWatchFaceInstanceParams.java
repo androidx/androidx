@@ -75,7 +75,12 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     /** Reserved field */
     @ParcelField(101)
     @Nullable
-    ComponentName mAuxiliaryComponentName;
+    String mAuxiliaryComponentClassName;
+
+    /** Reserved field */
+    @ParcelField(102)
+    @Nullable
+    String mAuxiliaryComponentPackageName;
 
     /** Used by VersionedParcelable. */
     WallpaperInteractiveWatchFaceInstanceParams() {
@@ -93,7 +98,10 @@ public class WallpaperInteractiveWatchFaceInstanceParams
         mWatchUiState = watchUiState;
         mUserStyle = userStyle;
         mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
-        mAuxiliaryComponentName = auxiliaryComponentName;
+        if (auxiliaryComponentName != null) {
+            mAuxiliaryComponentClassName = auxiliaryComponentName.getClassName();
+            mAuxiliaryComponentPackageName = auxiliaryComponentName.getPackageName();
+        }
     }
 
     @NonNull
