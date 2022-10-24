@@ -16,8 +16,11 @@
 
 package androidx.benchmark.macro
 
+import androidx.benchmark.DeviceInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,5 +39,16 @@ class BaselineProfilesTest {
         val filtered = filterProfileRulesToTargetP(profile)
         assertEquals(filtered.lines().size, 1)
         assertEquals("Landroidx/Foo/Bar;", filtered)
+    }
+
+    @Test
+    fun deviceSpecifier() {
+        if (DeviceInfo.isEmulator) {
+            assertEquals(deviceSpecifier, "-e ")
+        } else {
+            assertTrue(deviceSpecifier.startsWith("-s "), "observed $deviceSpecifier")
+            assertTrue(deviceSpecifier.endsWith(" "), "observed $deviceSpecifier")
+            assertNotEquals(deviceSpecifier, "-s  ")
+        }
     }
 }

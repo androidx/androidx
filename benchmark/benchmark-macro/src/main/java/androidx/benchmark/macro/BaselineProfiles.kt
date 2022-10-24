@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
@@ -285,7 +286,7 @@ private fun summaryRecord(record: Summary): String {
         .append(
             """
                 To copy the profile use:
-                adb pull "${record.profilePath}" .
+                adb pull $deviceSpecifier"${record.profilePath}" .
             """.trimIndent()
         )
 
@@ -296,11 +297,29 @@ private fun summaryRecord(record: Summary): String {
             .append(
                 """
                     To copy the startup profile use:
-                    adb pull "${record.startupProfilePath}" .
+                    adb pull $deviceSpecifier"${record.startupProfilePath}" .
                 """.trimIndent()
             )
     }
     return summary.toString()
+}
+
+/**
+ * adb device specifier, blank if can't be defined. Includes right side space.
+ */
+internal val deviceSpecifier by lazy {
+    if (DeviceInfo.isEmulator) {
+        // emulators have serials that aren't usable via ADB -s,
+        // so we just specify emulator and hope there's only one
+        "-e "
+    } else {
+        val getpropOutput = Shell.executeScriptWithStderr("getprop ro.serialno")
+        if (getpropOutput.stdout.isBlank() || getpropOutput.stderr.isNotBlank()) {
+            "" // failed to get serial
+        } else {
+            "-s ${getpropOutput.stdout.trim()} "
+        }
+    }
 }
 
 private data class Summary(
