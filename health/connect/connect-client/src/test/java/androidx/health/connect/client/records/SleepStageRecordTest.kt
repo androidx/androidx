@@ -19,6 +19,7 @@ package androidx.health.connect.client.records
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +35,7 @@ class SleepStageRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    stage = SleepStageRecord.StageType.AWAKE,
+                    stage = SleepStageRecord.STAGE_TYPE_AWAKE,
                 )
             )
             .isEqualTo(
@@ -43,7 +44,7 @@ class SleepStageRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    stage = SleepStageRecord.StageType.AWAKE,
+                    stage = SleepStageRecord.STAGE_TYPE_AWAKE,
                 )
             )
     }
@@ -56,8 +57,25 @@ class SleepStageRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                stage = SleepStageRecord.StageType.AWAKE,
+                stage = SleepStageRecord.STAGE_TYPE_AWAKE,
             )
         }
+    }
+
+    @Test
+    fun allSleepStageRecord_hasMapping() {
+        val allEnums =
+            SleepStageRecord.Companion::class
+                .members
+                .asSequence()
+                .filter { it -> it.name.startsWith("STAGE_TYPE") && !it.name.endsWith("UNKNOWN") }
+                .filter { it -> it.returnType == typeOf<Int>() }
+                .map { it -> it.call(ExerciseSessionRecord.Companion) }
+                .toHashSet()
+
+        assertThat(SleepStageRecord.STAGE_TYPE_STRING_TO_INT_MAP.values)
+            .containsExactlyElementsIn(allEnums)
+        assertThat(SleepStageRecord.STAGE_TYPE_INT_TO_STRING_MAP.keys)
+            .containsExactlyElementsIn(allEnums)
     }
 }

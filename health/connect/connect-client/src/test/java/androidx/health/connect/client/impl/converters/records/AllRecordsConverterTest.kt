@@ -34,8 +34,9 @@ import androidx.health.connect.client.records.ExerciseEventRecord
 import androidx.health.connect.client.records.ExerciseEventRecord.EventType
 import androidx.health.connect.client.records.ExerciseLapRecord
 import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord.Companion.REPETITION_TYPE_JUMPING_JACK
 import androidx.health.connect.client.records.ExerciseSessionRecord
-import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseType
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BACK_EXTENSION
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
@@ -64,7 +65,7 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
-import androidx.health.connect.client.records.SleepStageRecord.StageType
+import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_AWAKE
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -744,7 +745,7 @@ class AllRecordsConverterTest {
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
-                exerciseType = ExerciseType.BACK_EXTENSION,
+                exerciseType = EXERCISE_TYPE_BACK_EXTENSION,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -886,7 +887,7 @@ class AllRecordsConverterTest {
         val data =
             ExerciseRepetitionsRecord(
                 count = 1,
-                type = ExerciseType.JUMPING_JACK,
+                type = REPETITION_TYPE_JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -919,7 +920,7 @@ class AllRecordsConverterTest {
     fun testSleepStage() {
         val data =
             SleepStageRecord(
-                stage = StageType.AWAKE,
+                stage = STAGE_TYPE_AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

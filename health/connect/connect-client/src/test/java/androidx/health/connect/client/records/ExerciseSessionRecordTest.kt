@@ -19,6 +19,7 @@ package androidx.health.connect.client.records
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +35,7 @@ class ExerciseSessionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                    exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
                     title = "title",
                     notes = "notes",
                 )
@@ -45,7 +46,7 @@ class ExerciseSessionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                    exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
                     title = "title",
                     notes = "notes",
                 )
@@ -60,10 +61,27 @@ class ExerciseSessionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                exerciseType = ExerciseSessionRecord.ExerciseType.EXERCISE_CLASS,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
                 title = "title",
                 notes = "notes",
             )
         }
+    }
+
+    @Test
+    fun allExerciseTypeEnums_hasMapping() {
+        val allEnums =
+            ExerciseSessionRecord.Companion::class
+                .members
+                .asSequence()
+                .filter { it -> it.name.startsWith("EXERCISE_TYPE") }
+                .filter { it -> it.returnType == typeOf<Int>() }
+                .map { it -> it.call(ExerciseSessionRecord.Companion) }
+                .toHashSet()
+
+        assertThat(ExerciseSessionRecord.EXERCISE_TYPE_STRING_TO_INT_MAP.values)
+            .containsExactlyElementsIn(allEnums)
+        assertThat(ExerciseSessionRecord.EXERCISE_TYPE_INT_TO_STRING_MAP.keys)
+            .containsExactlyElementsIn(allEnums)
     }
 }
