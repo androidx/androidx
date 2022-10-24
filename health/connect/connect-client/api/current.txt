@@ -502,8 +502,8 @@ package androidx.health.connect.client.records {
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     property public final String? title;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> ACTIVE_TIME_TOTAL;
     field public static final androidx.health.connect.client.records.ExerciseSessionRecord.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> EXERCISE_DURATION_TOTAL;
   }
 
   public static final class ExerciseSessionRecord.Companion {
