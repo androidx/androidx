@@ -241,17 +241,11 @@ class PlaceholderTest {
                 expectedShimmerColor
             )
 
-        // Move the start of the next placeholder animation loop and them advance the clock 200
-        // milliseconds (PLACEHOLDER_PROGRESSION_DURATION_MS / 4) to show the shimmer.
-        //
-        // We choose (PLACEHOLDER_PROGRESSION_DURATION_MS / 4) as this should put the center of the
-        // shimmer gradiant at the top left (0,0) of the screen and as we have placed the component
-        // at the top of the screen this should ensure we have some shimmer gradiant cast over the
-        // component regardless of the screen size/shape. So should work for round, square or
-        // rectangular screens.
+        // Move the start of the next placeholder animation loop and them advance the clock 267
+        // milliseconds (PLACEHOLDER_PROGRESSION_DURATION_MS / 3) to show the shimmer.
         placeholderState.moveToStartOfNextAnimationLoop()
         placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_PROGRESSION_DURATION_MS / 4,
+            PLACEHOLDER_PROGRESSION_DURATION_MS / 3,
             PlaceholderStage.ShowPlaceholder
         )
 
@@ -349,7 +343,7 @@ class PlaceholderTest {
         // Move forward by 25% of the wipe-off and confirm that no wipe-off has happened yet due
         // to our offset
         placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_PROGRESSION_DURATION_MS / 4,
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS / 4,
             PlaceholderStage.WipeOff
         )
 
