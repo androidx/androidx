@@ -83,6 +83,7 @@ public class SleepStageRecord(
                 "light" to STAGE_TYPE_LIGHT,
                 "deep" to STAGE_TYPE_DEEP,
                 "rem" to STAGE_TYPE_REM,
+                "unknown" to STAGE_TYPE_UNKNOWN
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
