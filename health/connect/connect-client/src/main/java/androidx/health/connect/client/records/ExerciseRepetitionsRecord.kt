@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -29,12 +29,8 @@ public class ExerciseRepetitionsRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
-    /**
-     * Type of exercise being repeated. Required field. Allowed values: [ExerciseType].
-     *
-     * @see ExerciseType
-     */
-    @property:ExerciseTypes public val type: String,
+    /** Type of exercise being repeated. Required field. */
+    @property:RepetitionTypes public val type: Int,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
@@ -60,8 +56,7 @@ public class ExerciseRepetitionsRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + count.hashCode()
+        var result = count.hashCode()
         result = 31 * result + type.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
@@ -70,38 +65,79 @@ public class ExerciseRepetitionsRecord(
         return result
     }
 
-    /** Exercise types supported by [ExerciseRepetitionsRecord]. */
-    public object ExerciseType {
-        const val ARM_CURL = "arm_curl"
-        const val BACK_EXTENSION = "back_extension"
-        const val BALL_SLAM = "ball_slam"
-        const val BENCH_PRESS = "bench_press"
-        const val BURPEE = "burpee"
-        const val CRUNCH = "crunch"
-        const val DEADLIFT = "deadlift"
-        const val DOUBLE_ARM_TRICEPS_EXTENSION = "double_arm_triceps_extension"
-        const val DUMBBELL_ROW = "dumbbell_row"
-        const val FRONT_RAISE = "front_raise"
-        const val HIP_THRUST = "hip_thrust"
-        const val HULA_HOOP = "hula_hoop"
-        const val JUMPING_JACK = "jumping_jack"
-        const val JUMP_ROPE = "jump_rope"
-        const val KETTLEBELL_SWING = "kettlebell_swing"
-        const val LATERAL_RAISE = "lateral_raise"
-        const val LAT_PULL_DOWN = "lat_pull_down"
-        const val LEG_CURL = "leg_curl"
-        const val LEG_EXTENSION = "leg_extension"
-        const val LEG_PRESS = "leg_press"
-        const val LEG_RAISE = "leg_raise"
-        const val LUNGE = "lunge"
-        const val MOUNTAIN_CLIMBER = "mountain_climber"
-        const val PLANK = "plank"
-        const val PULL_UP = "pull_up"
-        const val PUNCH = "punch"
-        const val SHOULDER_PRESS = "shoulder_press"
-        const val SINGLE_ARM_TRICEPS_EXTENSION = "single_arm_triceps_extension"
-        const val SIT_UP = "sit_up"
-        const val SQUAT = "squat"
+    companion object {
+        const val REPETITION_TYPE_UNKNOWN = 0
+        const val REPETITION_TYPE_ARM_CURL = 1
+        const val REPETITION_TYPE_BACK_EXTENSION = 2
+        const val REPETITION_TYPE_BALL_SLAM = 3
+        const val REPETITION_TYPE_BENCH_PRESS = 4
+        const val REPETITION_TYPE_BURPEE = 5
+        const val REPETITION_TYPE_CRUNCH = 6
+        const val REPETITION_TYPE_DEADLIFT = 7
+        const val REPETITION_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION = 8
+        const val REPETITION_TYPE_DUMBBELL_ROW = 9
+        const val REPETITION_TYPE_FRONT_RAISE = 10
+        const val REPETITION_TYPE_HIP_THRUST = 11
+        const val REPETITION_TYPE_HULA_HOOP = 12
+        const val REPETITION_TYPE_JUMPING_JACK = 13
+        const val REPETITION_TYPE_JUMP_ROPE = 14
+        const val REPETITION_TYPE_KETTLEBELL_SWING = 15
+        const val REPETITION_TYPE_LATERAL_RAISE = 16
+        const val REPETITION_TYPE_LAT_PULL_DOWN = 17
+        const val REPETITION_TYPE_LEG_CURL = 18
+        const val REPETITION_TYPE_LEG_EXTENSION = 19
+        const val REPETITION_TYPE_LEG_PRESS = 20
+        const val REPETITION_TYPE_LEG_RAISE = 21
+        const val REPETITION_TYPE_LUNGE = 22
+        const val REPETITION_TYPE_MOUNTAIN_CLIMBER = 23
+        const val REPETITION_TYPE_PLANK = 24
+        const val REPETITION_TYPE_PULL_UP = 25
+        const val REPETITION_TYPE_PUNCH = 26
+        const val REPETITION_TYPE_SHOULDER_PRESS = 27
+        const val REPETITION_TYPE_SINGLE_ARM_TRICEPS_EXTENSION = 28
+        const val REPETITION_TYPE_SIT_UP = 29
+        const val REPETITION_TYPE_SQUAT = 30
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val REPETITION_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                "arm_curl" to REPETITION_TYPE_ARM_CURL,
+                "back_extension" to REPETITION_TYPE_BACK_EXTENSION,
+                "ball_slam" to REPETITION_TYPE_BALL_SLAM,
+                "bench_press" to REPETITION_TYPE_BENCH_PRESS,
+                "burpee" to REPETITION_TYPE_BURPEE,
+                "crunch" to REPETITION_TYPE_CRUNCH,
+                "deadlift" to REPETITION_TYPE_DEADLIFT,
+                "double_arm_triceps_extension" to REPETITION_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION,
+                "dumbbell_row" to REPETITION_TYPE_DUMBBELL_ROW,
+                "front_raise" to REPETITION_TYPE_FRONT_RAISE,
+                "hip_thrust" to REPETITION_TYPE_HIP_THRUST,
+                "hula_hoop" to REPETITION_TYPE_HULA_HOOP,
+                "jumping_jack" to REPETITION_TYPE_JUMPING_JACK,
+                "jump_rope" to REPETITION_TYPE_JUMP_ROPE,
+                "kettlebell_swing" to REPETITION_TYPE_KETTLEBELL_SWING,
+                "lateral_raise" to REPETITION_TYPE_LATERAL_RAISE,
+                "lat_pull_down" to REPETITION_TYPE_LAT_PULL_DOWN,
+                "leg_curl" to REPETITION_TYPE_LEG_CURL,
+                "leg_extension" to REPETITION_TYPE_LEG_EXTENSION,
+                "leg_press" to REPETITION_TYPE_LEG_PRESS,
+                "leg_raise" to REPETITION_TYPE_LEG_RAISE,
+                "lunge" to REPETITION_TYPE_LUNGE,
+                "mountain_climber" to REPETITION_TYPE_MOUNTAIN_CLIMBER,
+                "plank" to REPETITION_TYPE_PLANK,
+                "pull_up" to REPETITION_TYPE_PULL_UP,
+                "punch" to REPETITION_TYPE_PUNCH,
+                "shoulder_press" to REPETITION_TYPE_SHOULDER_PRESS,
+                "single_arm_triceps_extension" to REPETITION_TYPE_SINGLE_ARM_TRICEPS_EXTENSION,
+                "sit_up" to REPETITION_TYPE_SIT_UP,
+                "squat" to REPETITION_TYPE_SQUAT,
+            )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val REPETITION_TYPE_INT_TO_STRING_MAP =
+            REPETITION_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
     /**
@@ -109,41 +145,41 @@ public class ExerciseRepetitionsRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                ExerciseType.ARM_CURL,
-                ExerciseType.BACK_EXTENSION,
-                ExerciseType.BALL_SLAM,
-                ExerciseType.BENCH_PRESS,
-                ExerciseType.BURPEE,
-                ExerciseType.CRUNCH,
-                ExerciseType.DEADLIFT,
-                ExerciseType.DOUBLE_ARM_TRICEPS_EXTENSION,
-                ExerciseType.DUMBBELL_ROW,
-                ExerciseType.FRONT_RAISE,
-                ExerciseType.HIP_THRUST,
-                ExerciseType.HULA_HOOP,
-                ExerciseType.JUMPING_JACK,
-                ExerciseType.JUMP_ROPE,
-                ExerciseType.KETTLEBELL_SWING,
-                ExerciseType.LATERAL_RAISE,
-                ExerciseType.LAT_PULL_DOWN,
-                ExerciseType.LEG_CURL,
-                ExerciseType.LEG_EXTENSION,
-                ExerciseType.LEG_PRESS,
-                ExerciseType.LEG_RAISE,
-                ExerciseType.LUNGE,
-                ExerciseType.MOUNTAIN_CLIMBER,
-                ExerciseType.PLANK,
-                ExerciseType.PULL_UP,
-                ExerciseType.PUNCH,
-                ExerciseType.SHOULDER_PRESS,
-                ExerciseType.SINGLE_ARM_TRICEPS_EXTENSION,
-                ExerciseType.SIT_UP,
-                ExerciseType.SQUAT
+                REPETITION_TYPE_ARM_CURL,
+                REPETITION_TYPE_BACK_EXTENSION,
+                REPETITION_TYPE_BALL_SLAM,
+                REPETITION_TYPE_BENCH_PRESS,
+                REPETITION_TYPE_BURPEE,
+                REPETITION_TYPE_CRUNCH,
+                REPETITION_TYPE_DEADLIFT,
+                REPETITION_TYPE_DOUBLE_ARM_TRICEPS_EXTENSION,
+                REPETITION_TYPE_DUMBBELL_ROW,
+                REPETITION_TYPE_FRONT_RAISE,
+                REPETITION_TYPE_HIP_THRUST,
+                REPETITION_TYPE_HULA_HOOP,
+                REPETITION_TYPE_JUMPING_JACK,
+                REPETITION_TYPE_JUMP_ROPE,
+                REPETITION_TYPE_KETTLEBELL_SWING,
+                REPETITION_TYPE_LATERAL_RAISE,
+                REPETITION_TYPE_LAT_PULL_DOWN,
+                REPETITION_TYPE_LEG_CURL,
+                REPETITION_TYPE_LEG_EXTENSION,
+                REPETITION_TYPE_LEG_PRESS,
+                REPETITION_TYPE_LEG_RAISE,
+                REPETITION_TYPE_LUNGE,
+                REPETITION_TYPE_MOUNTAIN_CLIMBER,
+                REPETITION_TYPE_PLANK,
+                REPETITION_TYPE_PULL_UP,
+                REPETITION_TYPE_PUNCH,
+                REPETITION_TYPE_SHOULDER_PRESS,
+                REPETITION_TYPE_SINGLE_ARM_TRICEPS_EXTENSION,
+                REPETITION_TYPE_SIT_UP,
+                REPETITION_TYPE_SQUAT,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class ExerciseTypes
+    annotation class RepetitionTypes
 }

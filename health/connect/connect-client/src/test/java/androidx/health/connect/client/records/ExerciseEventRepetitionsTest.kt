@@ -19,6 +19,7 @@ package androidx.health.connect.client.records
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +36,7 @@ class ExerciseEventRepetitionsTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     count = 10,
-                    type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
+                    type = ExerciseRepetitionsRecord.REPETITION_TYPE_ARM_CURL,
                 )
             )
             .isEqualTo(
@@ -45,7 +46,7 @@ class ExerciseEventRepetitionsTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     count = 10,
-                    type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
+                    type = ExerciseRepetitionsRecord.REPETITION_TYPE_ARM_CURL,
                 )
             )
     }
@@ -59,8 +60,27 @@ class ExerciseEventRepetitionsTest {
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
                 count = 10,
-                type = ExerciseRepetitionsRecord.ExerciseType.ARM_CURL,
+                type = ExerciseRepetitionsRecord.REPETITION_TYPE_ARM_CURL,
             )
         }
+    }
+
+    @Test
+    fun allRepetitions_hasMapping() {
+        val allEnums =
+            ExerciseRepetitionsRecord.Companion::class
+                .members
+                .asSequence()
+                .filter { it ->
+                    it.name.startsWith("REPETITION_TYPE") && !it.name.endsWith("UNKNOWN")
+                }
+                .filter { it -> it.returnType == typeOf<Int>() }
+                .map { it -> it.call(ExerciseSessionRecord.Companion) }
+                .toHashSet()
+
+        assertThat(ExerciseRepetitionsRecord.REPETITION_TYPE_STRING_TO_INT_MAP.values)
+            .containsExactlyElementsIn(allEnums)
+        assertThat(ExerciseRepetitionsRecord.REPETITION_TYPE_INT_TO_STRING_MAP.keys)
+            .containsExactlyElementsIn(allEnums)
     }
 }

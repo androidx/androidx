@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -31,12 +31,8 @@ public class SleepStageRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
-    /**
-     * Type of sleep stage. Required field. Allowed values: [StageType].
-     *
-     * @see StageType
-     */
-    @property:StageTypes public val stage: String,
+    /** Type of sleep stage. Required field. */
+    @property:StageTypes public val stage: Int,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
@@ -68,15 +64,31 @@ public class SleepStageRecord(
         return result
     }
 
-    /** Type of sleep stage. */
-    public object StageType {
-        const val UNKNOWN = "unknown"
-        const val AWAKE = "awake"
-        const val SLEEPING = "sleeping"
-        const val OUT_OF_BED = "out_of_bed"
-        const val LIGHT = "light"
-        const val DEEP = "deep"
-        const val REM = "rem"
+    companion object {
+        const val STAGE_TYPE_UNKNOWN = 0
+        const val STAGE_TYPE_AWAKE = 1
+        const val STAGE_TYPE_SLEEPING = 2
+        const val STAGE_TYPE_OUT_OF_BED = 3
+        const val STAGE_TYPE_LIGHT = 4
+        const val STAGE_TYPE_DEEP = 5
+        const val STAGE_TYPE_REM = 6
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val STAGE_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                "awake" to STAGE_TYPE_AWAKE,
+                "sleeping" to STAGE_TYPE_SLEEPING,
+                "out_of_bed" to STAGE_TYPE_OUT_OF_BED,
+                "light" to STAGE_TYPE_LIGHT,
+                "deep" to STAGE_TYPE_DEEP,
+                "rem" to STAGE_TYPE_REM,
+            )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val STAGE_TYPE_INT_TO_STRING_MAP =
+            STAGE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
     /**
@@ -84,16 +96,16 @@ public class SleepStageRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                StageType.UNKNOWN,
-                StageType.AWAKE,
-                StageType.SLEEPING,
-                StageType.OUT_OF_BED,
-                StageType.LIGHT,
-                StageType.DEEP,
-                StageType.REM,
+                STAGE_TYPE_UNKNOWN,
+                STAGE_TYPE_AWAKE,
+                STAGE_TYPE_SLEEPING,
+                STAGE_TYPE_OUT_OF_BED,
+                STAGE_TYPE_LIGHT,
+                STAGE_TYPE_DEEP,
+                STAGE_TYPE_REM,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
