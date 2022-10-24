@@ -62,6 +62,7 @@ class PrivacySandboxApiGenerator {
         val interfaceFileGenerator = InterfaceFileGenerator()
 
         generateBinders(api, AidlCompiler(aidlCompiler), output)
+        generateServiceFactory(api, output)
         generateStubDelegates(
             api,
             basePackageName,
@@ -96,6 +97,13 @@ class PrivacySandboxApiGenerator {
         }
     }
 
+    private fun generateServiceFactory(api: ParsedApi, output: File) {
+        val serviceFactoryFileGenerator = ServiceFactoryFileGenerator()
+        api.services.forEach {
+            serviceFactoryFileGenerator.generate(it).writeTo(output)
+        }
+    }
+
     private fun generateStubDelegates(
         api: ParsedApi,
         basePackageName: String,
@@ -118,11 +126,10 @@ class PrivacySandboxApiGenerator {
         output: File
     ) {
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
-        val serviceFactoryFileGenerator = ServiceFactoryFileGenerator()
-        api.services.forEach {
+        val annotatedInterfaces = api.services + api.interfaces
+        annotatedInterfaces.forEach {
             interfaceFileGenerator.generate(it).writeTo(output)
             clientProxyGenerator.generate(it).writeTo(output)
-            serviceFactoryFileGenerator.generate(it).writeTo(output)
         }
     }
 

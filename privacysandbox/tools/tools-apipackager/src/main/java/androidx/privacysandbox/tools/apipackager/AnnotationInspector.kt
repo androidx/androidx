@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.apipackager
 
 import androidx.privacysandbox.tools.PrivacySandboxCallback
+import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import java.io.File
@@ -29,6 +30,7 @@ import org.objectweb.asm.Type
 internal object AnnotationInspector {
     private val privacySandboxAnnotations = setOf(
         PrivacySandboxCallback::class,
+        PrivacySandboxInterface::class,
         PrivacySandboxService::class,
         PrivacySandboxValue::class,
     )

@@ -45,7 +45,7 @@ class ClientProxyTypeGenerator(
             primaryConstructor(
                 listOf(
                     PropertySpec.builder("remote", remoteBinderClassName)
-                        .addModifiers(KModifier.PRIVATE).build()
+                        .addModifiers(KModifier.PUBLIC).build()
                 )
             )
 
@@ -143,7 +143,7 @@ class ClientProxyTypeGenerator(
             ) {
                 addStatement(
                     "it.resumeWith(Result.success(%L))",
-                    binderCodeConverter.convertToModelCode(method.returnType, "result")
+                    binderCodeConverter.convertToModelCodeInClient(method.returnType, "result")
                 )
             }
         }
@@ -154,7 +154,8 @@ class ClientProxyTypeGenerator(
         extraParameters: List<CodeBlock> = emptyList(),
     ) = CodeBlock.builder().build {
         val parameters =
-            method.parameters.map { binderCodeConverter.convertToBinderCode(it) } + extraParameters
+            method.parameters.map { binderCodeConverter.convertToBinderCodeInClient(it) } +
+                extraParameters
         addStatement {
             add("remote.${method.name}(")
             add(parameters.joinToCode())

@@ -52,7 +52,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToModelCode_primitive() {
         assertThat(
-            converter.convertToModelCode(
+            converter.convertToModelCodeInClient(
                 Types.int, expression = "5"
             ).toString()
         ).isEqualTo("5")
@@ -61,7 +61,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToModelCode_value() {
         assertThat(
-            converter.convertToModelCode(
+            converter.convertToModelCodeInClient(
                 Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
             ).toString()
         ).isEqualTo("com.mysdk.ValueConverter.fromParcelable(value)")
@@ -70,7 +70,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToModelCode_callback() {
         assertThat(
-            converter.convertToModelCode(
+            converter.convertToModelCodeInClient(
                 Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
             ).toString()
         ).isEqualTo("com.mysdk.CallbackClientProxy(callback)")
@@ -79,7 +79,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToBinderCode_primitive() {
         assertThat(
-            converter.convertToBinderCode(
+            converter.convertToBinderCodeInServer(
                 Types.int, expression = "5"
             ).toString()
         ).isEqualTo("5")
@@ -88,7 +88,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToBinderCode_value() {
         assertThat(
-            converter.convertToBinderCode(
+            converter.convertToBinderCodeInServer(
                 Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
             ).toString()
         ).isEqualTo("com.mysdk.ValueConverter.toParcelable(value)")
@@ -97,7 +97,7 @@ class BinderCodeConverterTest {
     @Test
     fun convertToBinderCode_callback() {
         assertThat(
-            converter.convertToBinderCode(
+            converter.convertToBinderCodeInServer(
                 Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
             ).toString()
         ).isEqualTo("com.mysdk.CallbackStubDelegate(callback)")
