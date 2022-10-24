@@ -15,6 +15,8 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -58,6 +60,23 @@ import kotlinx.coroutines.isActive
  * that needs to be displayed in a component is not yet available, e.g. it is loading
  * asynchronously.
  *
+ * A [PlaceholderState] should be created for each component that has placeholder data. The
+ * state is used to coordinate all of the different placeholder effects and animations.
+ *
+ * Placeholder has a number of different effects designed to work together.
+ * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
+ * can be multiple placeholders in a component.
+ * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
+ * placeholders. There should only be one placeholderShimmer for each component.
+ *
+ * Background placeholder effects are used to mask the background of components like chips and cards
+ * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
+ * [PlaceholderDefaults.placeholderBackgroundBrush] and
+ * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
+ * background.
+ *
+ * Once all of the components content is loaded the shimmer will stop and a wipe off animation will
+ * remove the placeholders.
  */
 @ExperimentalWearMaterialApi
 @Stable
@@ -94,13 +113,39 @@ public class PlaceholderState internal constructor(
     }
 
     /**
-     * The current value of the placeholder visual effect gradient progression. The progression
-     * is a 45 degree angle sweep across the whole screen running from outside of the Top|Left of
-     * the screen to Bottom|Right used as the anchor for shimmer and wipe-off gradient effects.
+     * The current value of the placeholder wipe-off visual effect gradient progression. The
+     * progression is a 45 degree angle sweep across the whole screen running from outside of the
+     * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
      *
      * The progression represents the x and y coordinates in pixels of the Top|Left part of the
-     * gradient that flows across the screen. The progression will start at -gradientWidth and
-     * progress to the maximum screen dimension (max of height/width to create a 45 degree angle).
+     * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
+     * of height/width to create a 45 degree angle) * 1.5f and progress to the
+     * maximumScreenDimension * 1.5f.
+     *
+     * The time taken for this progression to reach the edge of visible screen is
+     * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
+     */
+    internal val placeholderWipeOffProgression: Float by derivedStateOf {
+        val absoluteProgression =
+            (frameMillis.value.mod(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
+                PLACEHOLDER_PROGRESSION_DURATION_MS).toFloat() /
+                PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
+        val progression =
+            lerp(-maxScreenDimension * 1.5f, maxScreenDimension * 1.5f, absoluteProgression)
+        progression
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression. The
+     * progression is a 45 degree angle sweep across the whole screen running from outside of the
+     * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
+     *
+     * The progression represents the x and y coordinates in pixels of the Top|Left part of the
+     * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
+     * of height/width to create a 45 degree angle) * 1.5f and progress to the
+     * maximumScreenDimension * 1.5f.
+     *
+     * The time taken for this progression is [PLACEHOLDER_PROGRESSION_DURATION_MS]
      */
     @ExperimentalWearMaterialApi
     public val placeholderProgression: Float by derivedStateOf {
@@ -108,8 +153,9 @@ public class PlaceholderState internal constructor(
             (frameMillis.value.mod(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
                 PLACEHOLDER_PROGRESSION_DURATION_MS).toFloat() /
                 PLACEHOLDER_PROGRESSION_DURATION_MS)
-        val progression = lerp(-maxScreenDimension, maxScreenDimension, absoluteProgression)
-        progression
+        val progression =
+            lerp(-maxScreenDimension * 1.5f, maxScreenDimension * 1.5f, absoluteProgression)
+        progressionInterpolator.transform(progression)
     }
 
     /**
@@ -163,14 +209,34 @@ public class PlaceholderState internal constructor(
     internal val frameMillis = mutableStateOf(0L)
 
     private var startOfNextPlaceholderAnimation = 0L
+
+    private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.5f, 1f)
 }
 
 /**
  * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
  * animations run [PlaceholderState.startPlaceholderAnimation].
  *
- * @param isContentReady a lambda to determine whether all of the data/content has been loaded
- * and is ready to be displayed.
+ *  A [PlaceholderState] should be created for each component that has placeholder data. The
+ * state is used to coordinate all of the different placeholder effects and animations.
+ *
+ * Placeholder has a number of different effects designed to work together.
+ * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
+ * can be multiple placeholders in a component.
+ * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
+ * placeholders. There should only be one placeholderShimmer for each component.
+ *
+ * Background placeholder effects are used to mask the background of components like chips and cards
+ * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
+ * [PlaceholderDefaults.placeholderBackgroundBrush] and
+ * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
+ * background.
+ *
+ * Once all of the components content is loaded, [isContentReady] is `true` the shimmer will stop
+ * and a wipe off animation will remove the placeholders to reveal the content.
+ *
+ * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
+ * given component and is ready to be displayed.
  */
 @ExperimentalWearMaterialApi
 @Composable
@@ -485,12 +551,14 @@ private fun wipeOffBrush(
             color
         ),
         start = Offset(
-            x = placeholderState.placeholderProgression - offset.x,
-            y = placeholderState.placeholderProgression - offset.y
+            x = placeholderState.placeholderWipeOffProgression - offset.x,
+            y = placeholderState.placeholderWipeOffProgression - offset.y
         ),
         end = Offset(
-            x = placeholderState.placeholderProgression - offset.x + placeholderState.gradientWidth,
-            y = placeholderState.placeholderProgression - offset.y + placeholderState.gradientWidth
+            x = placeholderState.placeholderWipeOffProgression -
+                offset.x + placeholderState.gradientWidth,
+            y = placeholderState.placeholderWipeOffProgression -
+                offset.y + placeholderState.gradientWidth
         )
     )
 }
@@ -726,6 +794,7 @@ private class PlaceholderShimmerModifier constructor(
 }
 
 internal const val PLACEHOLDER_PROGRESSION_DURATION_MS = 800L
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 250L
 internal const val PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS = 800L
 internal const val PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS =
     PLACEHOLDER_PROGRESSION_DURATION_MS + PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS
