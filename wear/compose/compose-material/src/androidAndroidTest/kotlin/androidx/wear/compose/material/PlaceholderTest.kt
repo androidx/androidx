@@ -21,15 +21,19 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import org.junit.Rule
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
 
 class PlaceholderTest {
     @get:Rule
@@ -281,6 +285,90 @@ class PlaceholderTest {
             .assertDoesNotContainColor(
                 expectedShimmerColor
             )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Test
+    fun wipeoff_takes_background_offset_into_account() {
+        var contentReady = false
+        lateinit var placeholderState: PlaceholderState
+        var expectedBackgroundColor = Color.Transparent
+        var expectedBackgroundPlaceholderColor: Color = Color.Transparent
+        rule.setContentWithTheme {
+            placeholderState = rememberPlaceholderState {
+                contentReady
+            }
+            val maxScreenDimensionPx = with(LocalDensity.current) {
+                Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
+            }
+            // Set the offset to be 50% of the screen
+            placeholderState.backgroundOffset =
+                Offset(maxScreenDimensionPx / 2f, maxScreenDimensionPx / 2f)
+            expectedBackgroundColor = MaterialTheme.colors.primary
+            expectedBackgroundPlaceholderColor = MaterialTheme.colors.surface
+
+            Chip(
+                modifier = Modifier
+                    .testTag("test-item")
+                    .fillMaxWidth(),
+                content = {},
+                onClick = {},
+                colors = PlaceholderDefaults.placeholderChipColors(
+                    originalChipColors = ChipDefaults.primaryChipColors(),
+                    placeholderState = placeholderState,
+                ),
+                border = ChipDefaults.chipBorder()
+            )
+        }
+
+        placeholderState.initializeTestFrameMillis()
+
+        // Check the background color is correct
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(expectedBackgroundPlaceholderColor, 80f)
+        // Check that there is primary color showing
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertDoesNotContainColor(
+                expectedBackgroundColor
+            )
+
+        // Prepare to start to wipe off and show contents.
+        contentReady = true
+
+        placeholderState
+            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.WipeOff)
+
+        // Check that placeholder background is still visible
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(expectedBackgroundPlaceholderColor, 80f)
+
+        // Move forward by 25% of the wipe-off and confirm that no wipe-off has happened yet due
+        // to our offset
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_PROGRESSION_DURATION_MS / 4,
+            PlaceholderStage.WipeOff
+        )
+
+        // Check that placeholder background is still visible
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(expectedBackgroundPlaceholderColor, 80f)
+
+        // Now move the end of the wipe-off and confirm that the proper chip background is visible
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_PROGRESSION_DURATION_MS -
+                (PLACEHOLDER_PROGRESSION_DURATION_MS / 4),
+            PlaceholderStage.WipeOff
+        )
+
+        // Check that normal chip background is now visible
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(expectedBackgroundColor, 80f)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

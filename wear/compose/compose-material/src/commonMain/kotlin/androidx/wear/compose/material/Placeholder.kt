@@ -65,6 +65,21 @@ public class PlaceholderState internal constructor(
     private val isContentReady: () -> Boolean,
     private val maxScreenDimension: Float,
 ) {
+
+    /**
+     * The offset to apply for any background placeholder animations. This is the global offset of
+     * the component which is having its background painted with
+     * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush],
+     * [PlaceholderDefaults.placeholderBackgroundBrush] or
+     * [PlaceholderDefaults.placeholderChipColors].
+     *
+     * The offset values should be retrieved with [OnGloballyPositionedModifier].
+     *
+     * The offset is used to coordinate placeholder effects such as wipe-off between the difference
+     * placeholder layers.
+     */
+    internal var backgroundOffset: Offset = Offset.Zero
+
     /**
      * Start the animation of the placeholder state.
      */
@@ -416,7 +431,7 @@ public object PlaceholderDefaults {
         return PlaceholderBackgroundPainter(
             painter = null,
             placeholderState = placeholderState,
-            color = color
+            color = color,
         )
     }
 }
@@ -492,10 +507,6 @@ internal class PlaceholderBackgroundPainter(
     private var alpha: Float = 1.0f
 ) : Painter() {
     override fun DrawScope.onDraw() {
-        val offset = Offset(
-            this.center.x - (this.size.width / 2f),
-            this.center.y - (this.size.height / 2f)
-        )
         // Due to anti aliasing we can not use a SolidColor brush over the top of the background
         // painter without seeing some background color bleeding through. As a result we use
         // the colorFilter to tint the normal background painter instead - b/253667329
@@ -503,7 +514,7 @@ internal class PlaceholderBackgroundPainter(
             PlaceholderStage.WipeOff -> {
                 wipeOffBrush(
                     color,
-                    offset,
+                    placeholderState.backgroundOffset,
                     placeholderState
                 ) to null
             }
@@ -667,6 +678,10 @@ private class PlaceholderShimmerModifier constructor(
     alpha: Float = 1.0f,
     val shape: Shape
 ) : AbstractPlaceholderModifier(alpha, shape) {
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        placeholderState.backgroundOffset = coordinates.positionInRoot()
+        super.onGloballyPositioned(coordinates)
+    }
     override fun generateBrush(offset: Offset): Brush? {
         return if (placeholderState.placeholderStage == PlaceholderStage.ShowPlaceholder) {
             Brush.linearGradient(
