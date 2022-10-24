@@ -184,10 +184,10 @@ time, and it can be
 allows you to explore all of the source code in the repository. Links to this
 URL may be shared on the public issue tracked and other external sites.
 
+### Custom search engine for `androidx-main` {#custom-search-engine}
+
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
-
-### Custom search engine for `androidx-main` {#custom-search-engine}
 
 1.  Open `chrome://settings/searchEngines`
 1.  Click the `Add` button
