@@ -21,9 +21,6 @@ package androidx.constraintlayout.compose {
   @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract class BaseKeyFrameScope {
     method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E? initialValue, optional String? nameOverride);
     method protected final <T> kotlin.properties.ObservableProperty<T> addOnPropertyChange(T? initialValue, optional String? nameOverride);
-    method public final void addToContainer(androidx.constraintlayout.core.parser.CLContainer container);
-    method protected final java.util.Map<java.lang.String,java.lang.Object> getUserAttributes();
-    property protected final java.util.Map<java.lang.String,java.lang.Object> userAttributes;
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public class BaseKeyFramesScope {
@@ -649,7 +646,15 @@ package androidx.constraintlayout.compose {
     method public androidx.constraintlayout.compose.ConstraintSetRef constraintSet(optional String? name, optional androidx.constraintlayout.compose.ConstraintSetRef? extendConstraintSet, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> constraintSetContent);
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
     method public void customColor(androidx.constraintlayout.compose.ConstrainScope, String name, long value);
+    method public void customColor(androidx.constraintlayout.compose.KeyAttributeScope, String name, long value);
+    method public void customDistance(androidx.constraintlayout.compose.ConstrainScope, String name, float value);
+    method public void customDistance(androidx.constraintlayout.compose.KeyAttributeScope, String name, float value);
     method public void customFloat(androidx.constraintlayout.compose.ConstrainScope, String name, float value);
+    method public void customFloat(androidx.constraintlayout.compose.KeyAttributeScope, String name, float value);
+    method public void customFontSize(androidx.constraintlayout.compose.ConstrainScope, String name, long value);
+    method public void customFontSize(androidx.constraintlayout.compose.KeyAttributeScope, String name, long value);
+    method public void customInt(androidx.constraintlayout.compose.ConstrainScope, String name, int value);
+    method public void customInt(androidx.constraintlayout.compose.KeyAttributeScope, String name, int value);
     method public void defaultTransition(androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, optional kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
     method public void transition(optional String? name, androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
   }
