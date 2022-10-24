@@ -22,6 +22,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeMin
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeS
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -88,7 +90,7 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
         Row(modifier = GlanceModifier.fillMaxWidth()) {
             data.textBlock?.let { AppWidgetTextSection(textList(it.text1, it.text2)) }
             // TODO(b/247613894): Fix for multiple actions
-            if (LocalSize.current.width > 100.dp) {
+            if (LocalSize.current.width > sizeMin) {
                 data.actionBlock?.let {
                     Spacer(modifier = GlanceModifier.width(16.dp))
                     Spacer(modifier = GlanceModifier.defaultWeight())
@@ -111,13 +113,11 @@ private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
             }
             Spacer(modifier = GlanceModifier.defaultWeight())
 
-            // TODO(b/247613894): Extract size constraints as template constants
             data.textBlock?.let {
-                val body = if (LocalSize.current.height > 150.dp) it.text3 else null
+                val body = if (LocalSize.current.height >= sizeS) it.text3 else null
                 AppWidgetTextSection(textList(it.text1, it.text2, body))
             }
-            // TODO(b/247613894): Extract threshold sizes as constants
-            if (LocalSize.current.height > 30.dp) {
+            if (LocalSize.current.height > sizeMin) {
                 data.actionBlock?.let {
                     Spacer(modifier = GlanceModifier.height(16.dp))
                     ActionBlockTemplate(it)

@@ -27,6 +27,7 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeMin
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -160,12 +161,17 @@ private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).
 @Composable
 private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {
     Column(modifier = modifier) {
-        HeaderBlockTemplate(data.header)
-        // TODO(b/247613894): Spacing should be conditional
-        Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+        data.header?.let {
+            HeaderBlockTemplate(data.header)
+            Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+        }
         TextBlockTemplate(data.mainTextBlock)
-        Spacer(modifier = GlanceModifier.height(16.dp))
-        ActionBlockTemplate(data.mainActionBlock)
+        data.mainActionBlock?.let {
+            if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+                ActionBlockTemplate(data.mainActionBlock)
+            }
+        }
     }
 }
 
