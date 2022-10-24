@@ -1054,9 +1054,8 @@ public final class CaptureSessionTest {
         CameraCaptureResult result1 = captureResultCaptor.getValue();
         assertThat(result1).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult1 = ((Camera2CameraCaptureResult) result1).getCaptureResult();
-        assertThat(
-                captureResult1.getRequest().get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+        assertThat(captureResult1.getRequest().get(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(0);
         // The onDisableSession should not been invoked.
         verify(mTestParameters0.mTestCameraEventCallback.mDisableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -1074,9 +1073,8 @@ public final class CaptureSessionTest {
         CameraCaptureResult result2 = captureResultCaptor.getValue();
         assertThat(result2).isInstanceOf(Camera2CameraCaptureResult.class);
         CaptureResult captureResult2 = ((Camera2CameraCaptureResult) result2).getCaptureResult();
-        assertThat(
-                captureResult2.getRequest().get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
+        assertThat(captureResult2.getRequest().get(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(0);
         // The onEnableSession should not been invoked in close().
         verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -1616,26 +1614,24 @@ public final class CaptureSessionTest {
 
         @Override
         public CaptureConfig onInitSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0, null);
         }
 
         @Override
         public CaptureConfig onEnableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW, mEnableCallback);
+            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0,
+                    mEnableCallback);
         }
 
         @Override
         public CaptureConfig onRepeating() {
-            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW, null);
+            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0, null);
         }
 
         @Override
         public CaptureConfig onDisableSession() {
-            return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM, mDisableCallback);
+            return getCaptureConfig(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
+                    0, mDisableCallback);
         }
     }
 
