@@ -51,4 +51,20 @@ class PermissionControllerTest {
         Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
         Truth.assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
     }
+
+    @Test
+    fun createIntentTest_permissionStrings() {
+        val requestPermissionContract =
+            PermissionController.createRequestPermissionResultContractInternal(
+                PROVIDER_PACKAGE_NAME
+            )
+        val intent =
+            requestPermissionContract.createIntent(
+                context,
+                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
+            )
+
+        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        Truth.assertThat(intent.`package`).isEqualTo(PROVIDER_PACKAGE_NAME)
+    }
 }
