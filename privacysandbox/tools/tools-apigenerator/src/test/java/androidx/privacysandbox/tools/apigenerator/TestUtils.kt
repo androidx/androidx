@@ -19,6 +19,7 @@ package androidx.privacysandbox.tools.apigenerator
 import androidx.privacysandbox.tools.apipackager.PrivacySandboxApiPackager
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -38,7 +39,7 @@ fun compileIntoInterfaceDescriptorsJar(
     val tempDir = createTempDirectory("compile").also { it.toFile().deleteOnExit() }
     val result = assertCompiles(sources.toList())
     val sdkInterfaceDescriptors = tempDir.resolve("sdk-interface-descriptors.jar")
-    val outputClasspath = result.outputClasspath.first().toPath()
+    val outputClasspath = mergedClasspath(result)
     descriptorResources.forEach { (relativePath, contents) ->
         outputClasspath.resolve(relativePath).apply {
             parent?.createDirectories()
@@ -47,7 +48,23 @@ fun compileIntoInterfaceDescriptorsJar(
         }
     }
     PrivacySandboxApiPackager().packageSdkDescriptors(
-        result.outputClasspath.first().toPath(), sdkInterfaceDescriptors
+        outputClasspath, sdkInterfaceDescriptors
     )
     return sdkInterfaceDescriptors
+}
+
+/**
+ * Merges all class paths from a compilation result into a single one.
+ *
+ * Room's compilation library returns different class paths for Kotlin and Java, so we need to
+ * merge them for tests that depend on the two. This is a naive implementation that simply
+ * overwrites classes that appear in multiple class paths.
+ */
+fun mergedClasspath(compilationResult: TestCompilationResult): Path {
+    val outputClasspath = createTempDirectory("classpath").also { it.toFile().deleteOnExit() }
+    compilationResult.outputClasspath
+        .forEach { classpath ->
+            classpath.copyRecursively(outputClasspath.toFile(), overwrite = true)
+        }
+    return outputClasspath
 }

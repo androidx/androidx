@@ -131,11 +131,9 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
     add("\n»")
 }
 
-fun CodeBlock.Companion.statement(builderBlock: CodeBlock.Builder.() -> Unit) =
-    builder().build { addStatement(builderBlock) }
-
 object SpecNames {
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
     val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
     val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
+    val iBinderClassName = ClassName("android.os", "IBinder")
 }
