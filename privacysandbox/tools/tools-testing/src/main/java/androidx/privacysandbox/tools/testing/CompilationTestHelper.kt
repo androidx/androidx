@@ -61,6 +61,9 @@ object CompilationTestHelper {
     fun assertThat(result: TestCompilationResult) = CompilationResultSubject(result)
 }
 
+val TestCompilationResult.resourceOutputDir: File
+    get() = outputClasspath.first().parentFile.resolve("ksp-compiler/resourceOutputDir")
+
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun succeeds() {
         assertWithMessage(
