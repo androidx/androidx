@@ -26,8 +26,9 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
+import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
@@ -139,6 +140,7 @@ internal class AndroidOutputConfiguration(
             outputType: OutputType = OutputType.SURFACE,
             mirrorMode: MirrorMode? = null,
             timestampBase: TimestampBase? = null,
+            dynamicRangeProfile: DynamicRangeProfile? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -220,6 +222,20 @@ internal class AndroidOutputConfiguration(
                             "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
                             " adjusts timestamps based on the output target. " +
                             "Requested $timestampBase" }
+                    }
+                }
+            }
+
+            if (dynamicRangeProfile != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setDynamicRangeProfile(configuration, dynamicRangeProfile.value)
+                } else {
+                    if (dynamicRangeProfile != DynamicRangeProfile.STANDARD) {
+                        Log.warn {
+                            "Cannot set dynamicRangeProfile to a non-default value on API " +
+                                "${Build.VERSION.SDK_INT}. This may result in unexpected " +
+                                "behavior. Requested $dynamicRangeProfile"
+                        }
                     }
                 }
             }

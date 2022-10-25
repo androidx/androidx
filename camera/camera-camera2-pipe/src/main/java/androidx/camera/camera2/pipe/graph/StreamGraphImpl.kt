@@ -121,6 +121,7 @@ internal class StreamGraphImpl @Inject constructor(
                     },
                     mirrorMode = output.mirrorMode,
                     timestampBase = output.timestampBase,
+                    dynamicRangeProfile = output.dynamicRangeProfile,
                     externalOutputConfig =
                     (output as? OutputStream.Config.ExternalOutputConfig)?.output
                 )
@@ -143,7 +144,8 @@ internal class StreamGraphImpl @Inject constructor(
                     outputConfig.format,
                     outputConfig.camera,
                     outputConfig.mirrorMode,
-                    outputConfig.timestampBase
+                    outputConfig.timestampBase,
+                    outputConfig.dynamicRangeProfile,
                 )
                 outputStream
             }
@@ -181,6 +183,7 @@ internal class StreamGraphImpl @Inject constructor(
         val deferredOutputType: OutputStream.OutputType?,
         val mirrorMode: OutputStream.MirrorMode?,
         val timestampBase: OutputStream.TimestampBase?,
+        val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
@@ -199,6 +202,7 @@ internal class StreamGraphImpl @Inject constructor(
         override val camera: CameraId,
         override val mirrorMode: OutputStream.MirrorMode?,
         override val timestampBase: OutputStream.TimestampBase?,
+        override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
     ) : OutputStream {
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()
