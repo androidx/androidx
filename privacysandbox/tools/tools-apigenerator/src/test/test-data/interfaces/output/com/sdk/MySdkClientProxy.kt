@@ -1,7 +1,6 @@
 package com.sdk
 
 import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
-import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 

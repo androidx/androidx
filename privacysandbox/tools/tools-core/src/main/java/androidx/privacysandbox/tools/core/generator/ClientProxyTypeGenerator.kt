@@ -17,6 +17,8 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.generator.AidlGenerator.Companion.throwableParcelName
+import androidx.privacysandbox.tools.core.generator.SpecNames.resumeWithExceptionMethod
+import androidx.privacysandbox.tools.core.generator.SpecNames.suspendCancellableCoroutineMethod
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import com.squareup.kotlinpoet.ClassName
@@ -24,7 +26,6 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
@@ -55,12 +56,6 @@ class ClientProxyTypeGenerator(
 
         return FileSpec.builder(annotatedInterface.type.packageName, className).build {
             addCommonSettings()
-
-            // TODO(b/254660742): Only add these when needed
-            addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
-            addImport("kotlin.coroutines", "resume")
-            addImport("kotlin.coroutines", "resumeWithException")
-
             addType(classSpec)
         }
     }
@@ -78,7 +73,7 @@ class ClientProxyTypeGenerator(
             returns(method.returnType.poetSpec())
 
             addCode {
-                addControlFlow("return suspendCancellableCoroutine") {
+                addControlFlow("return %M", suspendCancellableCoroutineMethod) {
                     addStatement("var mCancellationSignal: %T? = null", cancellationSignalClassName)
 
                     add(generateTransactionCallbackObject(method))
@@ -125,7 +120,7 @@ class ClientProxyTypeGenerator(
             ) {
                 addStatement(
                     "it.%M(%M(throwableParcel))",
-                    MemberName("kotlin.coroutines", "resumeWithException"),
+                    resumeWithExceptionMethod,
                     ThrowableParcelConverterFileGenerator.fromThrowableParcelNameSpec(
                         basePackageName
                     )

@@ -41,16 +41,22 @@ fun Type.poetSpec() = ClassName(packageName, simpleName)
 
 fun AnnotatedValue.converterNameSpec() =
     ClassName(type.packageName, "${type.simpleName}Converter")
+
 fun AnnotatedValue.toParcelableNameSpec() =
     MemberName(converterNameSpec(), "toParcelable")
+
 fun AnnotatedValue.fromParcelableNameSpec() =
     MemberName(converterNameSpec(), "fromParcelable")
+
 fun AnnotatedValue.parcelableNameSpec() =
     ClassName(type.packageName, "Parcelable${type.simpleName}")
+
 fun AnnotatedInterface.clientProxyNameSpec() =
     ClassName(type.packageName, "${type.simpleName}ClientProxy")
+
 fun AnnotatedInterface.stubDelegateNameSpec() =
     ClassName(type.packageName, "${type.simpleName}StubDelegate")
+
 fun AnnotatedInterface.aidlInterfaceNameSpec() =
     ClassName(type.packageName, aidlType().innerType.simpleName)
 
@@ -138,5 +144,9 @@ object SpecNames {
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
     val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
     val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
+    val suspendCancellableCoroutineMethod =
+        MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
+    val resumeWithExceptionMethod =
+        MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
     val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
 }
