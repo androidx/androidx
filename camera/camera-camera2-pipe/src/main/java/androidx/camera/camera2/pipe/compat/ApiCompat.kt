@@ -308,6 +308,18 @@ internal object Api28Compat {
 internal object Api33Compat {
     @JvmStatic
     @DoNotInline
+    fun setDynamicRangeProfile(outputConfig: OutputConfiguration, dynamicRangeProfile: Long) {
+        outputConfig.dynamicRangeProfile = dynamicRangeProfile
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getDynamicRangeProfile(outputConfig: OutputConfiguration): Long {
+        return outputConfig.dynamicRangeProfile
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun setMirrorMode(outputConfig: OutputConfiguration, mirrorMode: Int) {
         outputConfig.mirrorMode = mirrorMode
     }
@@ -317,6 +329,7 @@ internal object Api33Compat {
     fun getMirrorMode(outputConfig: OutputConfiguration): Int {
         return outputConfig.mirrorMode
     }
+
     @JvmStatic
     @DoNotInline
     fun setTimestampBase(outputConfig: OutputConfiguration, timestampBase: Int) {
