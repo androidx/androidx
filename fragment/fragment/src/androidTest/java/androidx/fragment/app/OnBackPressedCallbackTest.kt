@@ -29,6 +29,7 @@ import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -167,6 +168,7 @@ class OnBackPressedCallbackTest {
         }
     }
 
+    @Ignore // b/250870927
     @Test
     fun testBackPressFinishesActivityAfterFragmentPop() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
