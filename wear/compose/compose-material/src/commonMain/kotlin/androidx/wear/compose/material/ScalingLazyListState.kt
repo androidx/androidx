@@ -403,6 +403,11 @@ class ScalingLazyListState constructor(
         lazyListState.scroll(scrollPriority = scrollPriority, block = block)
     }
 
+    override val canScrollForward: Boolean
+        get() = lazyListState.canScrollForward
+
+    override val canScrollBackward: Boolean
+        get() = lazyListState.canScrollBackward
     /**
      * Instantly brings the item at [index] to the center of the viewport and positions it based on
      * the [anchorType] and applies the [scrollOffset] pixels.

@@ -154,6 +154,8 @@ package androidx.tv.foundation.lazy.grid {
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
     property public final int firstVisibleItemScrollOffset;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
@@ -267,6 +269,8 @@ package androidx.tv.foundation.lazy.list {
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
     property public final int firstVisibleItemScrollOffset;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;

@@ -304,6 +304,8 @@ package androidx.wear.compose.material {
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void setNumberOfOptions(int);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
     property public boolean isScrollInProgress;
     property public final int numberOfOptions;
     property public final boolean repeatItems;
@@ -520,6 +522,8 @@ package androidx.wear.compose.material {
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
     property public final int centerItemIndex;
     property public final int centerItemScrollOffset;
     property public boolean isScrollInProgress;
