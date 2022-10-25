@@ -208,8 +208,7 @@ class UseCaseSurfaceManagerDeviceTest {
 
         // Assert, verify the usage count of the DeferrableSurface
         assertThat(cameraOpenedUsageCount).isEqualTo(2)
-        // TODO(lnishan): After aosp/2241588, cameraDisconnectedUsageCount should remain at 2
-        assertThat(cameraDisconnectedUsageCount).isGreaterThan(0)
+        assertThat(cameraDisconnectedUsageCount).isEqualTo(2)
         assertThat(cameraClosedUsageCount).isEqualTo(1)
     }
 
