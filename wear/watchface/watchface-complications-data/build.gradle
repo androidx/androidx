@@ -33,7 +33,6 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.wear.tiles:tiles:1.1.0-alpha08")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
