@@ -324,9 +324,14 @@ public fun rememberPickerState(
     initialNumberOfOptions: Int,
     initiallySelectedOption: Int = 0,
     repeatItems: Boolean = true
-): PickerState = rememberSaveable(saver = PickerState.Saver) {
-    PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
-}
+): PickerState = rememberSaveable(
+        initialNumberOfOptions,
+        initiallySelectedOption,
+        repeatItems,
+        saver = PickerState.Saver
+    ) {
+        PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
+    }
 
 /**
  * A state object that can be hoisted to observe item selection.
@@ -428,7 +433,6 @@ public class PickerState constructor(
                 )
             },
             restore = { saved ->
-                @Suppress("UNCHECKED_CAST")
                 PickerState(
                     initialNumberOfOptions = saved[0] as Int,
                     initiallySelectedOption = saved[1] as Int,
