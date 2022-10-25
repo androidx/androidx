@@ -38,13 +38,9 @@ public enum class ComplicationType(private val wireType: Int) {
     NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
 
     @ComplicationExperimental
-    PROTO_LAYOUT(WireComplicationData.EXP_TYPE_PROTO_LAYOUT),
-    @ComplicationExperimental
     GOAL_PROGRESS(WireComplicationData.EXP_TYPE_GOAL_PROGRESS),
     @ComplicationExperimental
-    WEIGHTED_ELEMENTS(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS),
-    @ComplicationExperimental
-    LIST(WireComplicationData.EXP_TYPE_LIST);
+    WEIGHTED_ELEMENTS(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS);
 
     /**
      * Converts this value to the integer value used for serialization.
@@ -81,10 +77,8 @@ public enum class ComplicationType(private val wireType: Int) {
                 SMALL_IMAGE.wireType -> SMALL_IMAGE
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
-                PROTO_LAYOUT.wireType -> PROTO_LAYOUT
                 GOAL_PROGRESS.wireType -> GOAL_PROGRESS
                 WEIGHTED_ELEMENTS.wireType -> WEIGHTED_ELEMENTS
-                LIST.wireType -> LIST
                 else -> EMPTY
             }
 
