@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -37,6 +38,7 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -182,12 +184,14 @@ class StartupTimingMetricTest {
     @LargeTest
     @Test
     fun startupInAppNav_immediate() {
+        assumeFalse(DeviceInfo.isEmulator) // TODO(b/255754739): address failures on Cuttlefish
         validateStartup_fullyDrawn(delayMs = 0, useInAppNav = true)
     }
 
     @LargeTest
     @Test
     fun startupInAppNav_fullyDrawn() {
+        assumeFalse(DeviceInfo.isEmulator) // TODO(b/255754739): address failures on Cuttlefish
         validateStartup_fullyDrawn(delayMs = 100, useInAppNav = true)
     }
 
