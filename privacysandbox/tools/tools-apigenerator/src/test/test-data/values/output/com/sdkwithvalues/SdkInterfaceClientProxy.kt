@@ -1,5 +1,6 @@
 package com.sdkwithvalues
 
+import com.sdkwithvalues.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import com.sdkwithvalues.SdkRequestConverter.toParcelable
 import com.sdkwithvalues.SdkResponseConverter.fromParcelable
 import kotlin.coroutines.resume
@@ -22,8 +23,8 @@ public class SdkInterfaceClientProxy(
             override fun onSuccess(result: ParcelableSdkResponse) {
                 it.resumeWith(Result.success(fromParcelable(result)))
             }
-            override fun onFailure(errorCode: Int, errorMessage: String) {
-                it.resumeWithException(RuntimeException(errorMessage))
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
         remote.exampleMethod(toParcelable(request), transactionCallback)

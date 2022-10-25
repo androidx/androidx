@@ -1,5 +1,7 @@
 package com.mysdk
 
+import com.mysdk.PrivacySandboxThrowableParcelConverter
+import com.mysdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -23,8 +25,8 @@ public class TestSandboxSdkClientProxy(
             override fun onSuccess(result: Boolean) {
                 it.resumeWith(Result.success(result))
             }
-            override fun onFailure(errorCode: Int, errorMessage: String) {
-                it.resumeWithException(RuntimeException(errorMessage))
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
         remote.doSomethingAsync(first, second, third, transactionCallback)
@@ -77,8 +79,8 @@ public class TestSandboxSdkClientProxy(
             override fun onSuccess() {
                 it.resumeWith(Result.success(Unit))
             }
-            override fun onFailure(errorCode: Int, errorMessage: String) {
-                it.resumeWithException(RuntimeException(errorMessage))
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
         remote.receiveAndReturnNothingAsync(transactionCallback)

@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompile
 import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -49,7 +50,7 @@ abstract class BaseApiGeneratorTest {
 
     @Test
     fun generatedApi_compiles() {
-      assertCompiles(generatedSources)
+        assertCompiles(generatedSources)
     }
 
     @Test
@@ -62,7 +63,10 @@ abstract class BaseApiGeneratorTest {
 
         val outputSourceMap = generatedSources.associateBy(Source::relativePath)
         for (expected in expectedSources) {
-            assertThat(outputSourceMap[expected.relativePath]?.contents)
+            assertWithMessage(
+                "Contents of generated file %s don't match goldens.",
+                expected.relativePath
+            ).that(outputSourceMap[expected.relativePath]?.contents)
                 .isEqualTo(expected.contents)
         }
     }

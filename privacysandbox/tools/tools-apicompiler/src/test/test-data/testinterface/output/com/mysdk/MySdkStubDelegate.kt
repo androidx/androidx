@@ -1,5 +1,7 @@
 package com.mysdk
 
+import com.mysdk.PrivacySandboxThrowableParcelConverter
+import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import com.mysdk.RequestConverter
 import com.mysdk.RequestConverter.fromParcelable
 import com.mysdk.ResponseConverter.toParcelable
@@ -23,7 +25,7 @@ public class MySdkStubDelegate internal constructor(
         transactionCallback.onSuccess(result)
       }
       catch (t: Throwable) {
-        transactionCallback.onFailure(404, t.message)
+        transactionCallback.onFailure(toThrowableParcel(t))
       }
     }
     val cancellationSignal = TransportCancellationCallback() { job.cancel() }
@@ -38,7 +40,7 @@ public class MySdkStubDelegate internal constructor(
         transactionCallback.onSuccess(toParcelable(result))
       }
       catch (t: Throwable) {
-        transactionCallback.onFailure(404, t.message)
+        transactionCallback.onFailure(toThrowableParcel(t))
       }
     }
     val cancellationSignal = TransportCancellationCallback() { job.cancel() }
@@ -53,7 +55,7 @@ public class MySdkStubDelegate internal constructor(
         transactionCallback.onSuccess()
       }
       catch (t: Throwable) {
-        transactionCallback.onFailure(404, t.message)
+        transactionCallback.onFailure(toThrowableParcel(t))
       }
     }
     val cancellationSignal = TransportCancellationCallback() { job.cancel() }
@@ -76,7 +78,7 @@ public class MySdkStubDelegate internal constructor(
         transactionCallback.onSuccess(MyInterfaceStubDelegate(result))
       }
       catch (t: Throwable) {
-        transactionCallback.onFailure(404, t.message)
+        transactionCallback.onFailure(toThrowableParcel(t))
       }
     }
     val cancellationSignal = TransportCancellationCallback() { job.cancel() }

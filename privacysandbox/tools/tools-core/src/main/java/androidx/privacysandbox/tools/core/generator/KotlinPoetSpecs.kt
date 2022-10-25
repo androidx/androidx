@@ -137,5 +137,6 @@ fun CodeBlock.Companion.statement(builderBlock: CodeBlock.Builder.() -> Unit) =
 object SpecNames {
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
     val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
+    val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
     val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
 }

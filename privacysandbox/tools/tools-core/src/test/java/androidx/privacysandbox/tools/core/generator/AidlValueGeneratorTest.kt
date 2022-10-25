@@ -96,6 +96,8 @@ class AidlValueGeneratorTest {
                 "com.mysdk" to "IUnitTransactionCallback",
                 "com.mysdk" to "IOuterValueTransactionCallback",
                 "com.mysdk" to "ICancellationSignal",
+                "com.mysdk" to "PrivacySandboxThrowableParcel",
+                "com.mysdk" to "ParcelableStackFrame",
             )
 
         val outputTestDataDir = File("src/test/test-data/aidlvaluegeneratortest/output")

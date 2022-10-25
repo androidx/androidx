@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.AidlGenerator.Companion.throwableParcelName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import com.squareup.kotlinpoet.ClassName
@@ -118,10 +119,16 @@ class ClientProxyTypeGenerator(
 
             add(generateTransactionCallbackOnSuccess(method))
 
-            addControlFlow("override fun onFailure(errorCode: Int, errorMessage: String)") {
+            addControlFlow(
+                "override fun onFailure(throwableParcel: %T)",
+                ClassName(basePackageName, throwableParcelName)
+            ) {
                 addStatement(
-                    "it.%M(RuntimeException(errorMessage))",
-                    MemberName("kotlin.coroutines", "resumeWithException")
+                    "it.%M(%M(throwableParcel))",
+                    MemberName("kotlin.coroutines", "resumeWithException"),
+                    ThrowableParcelConverterFileGenerator.fromThrowableParcelNameSpec(
+                        basePackageName
+                    )
                 )
             }
         }
