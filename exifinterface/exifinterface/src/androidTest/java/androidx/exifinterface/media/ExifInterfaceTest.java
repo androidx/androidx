@@ -1452,9 +1452,17 @@ public class ExifInterfaceTest {
      * Asserts that {@code expectedImageFile} and {@code actualImageFile} can be decoded by
      * {@link BitmapFactory} and the results have the same width, height and MIME type.
      *
+     * <p>The assertion is skipped if the test is running on an API level where
+     * {@link BitmapFactory} is known not to support the image format of {@code expectedImageFile}
+     * (as determined by file extension).
+     *
      * <p>This does not check the image itself for similarity/equality.
      */
     private void assertBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
+        if (Build.VERSION.SDK_INT < 16 && expectedImageFile.getName().endsWith("webp")) {
+            // BitmapFactory can't parse WebP files on API levels before 16: b/254571189
+            return;
+        }
         BitmapFactory.Options expectedOptions = new BitmapFactory.Options();
         Bitmap expectedBitmap = Objects.requireNonNull(
                 decodeBitmap(expectedImageFile, expectedOptions));
