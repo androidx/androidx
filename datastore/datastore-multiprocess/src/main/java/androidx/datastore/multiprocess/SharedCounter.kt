@@ -75,11 +75,15 @@ internal class SharedCounter private constructor(
 
         internal fun create(enableMlock: Boolean = true, produceFile: () -> File): SharedCounter {
             val file = produceFile()
-            return ParcelFileDescriptor.open(
-                file,
-                ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
-            ).use {
-                createCounterFromFd(it, enableMlock)
+            var pfd: ParcelFileDescriptor? = null
+            try {
+                pfd = ParcelFileDescriptor.open(
+                    file,
+                    ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+                )
+                return createCounterFromFd(pfd, enableMlock)
+            } finally {
+                pfd?.close()
             }
         }
     }

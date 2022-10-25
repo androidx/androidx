@@ -27,6 +27,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.channels.FileLock
 import java.util.concurrent.Semaphore
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
@@ -139,6 +140,8 @@ internal class MultiProcessDataStore<T>(
     private val VERSION_SUFFIX = ".version"
     private val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
         "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
+    // TODO(b/255419657): update the shared lock IOException handling logic
+    private val LOCK_ERROR_MESSAGE = "fcntl failed: EAGAIN"
     private val INVALID_VERSION = -1
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
@@ -527,11 +530,14 @@ internal class MultiProcessDataStore<T>(
         // semaphore to make the best use of coroutine
         ThreadLock.acquire(threadLockSemaphore).use {
             FileOutputStream(lockFile).use { lockFileStream ->
-                lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
-                    .use { _ ->
-                        val data = block()
-                        return Data(data, data.hashCode(), sharedCounter.getValue())
-                    }
+                var lock: FileLock? = null
+                try {
+                    lock = lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
+                    val data = block()
+                    return Data(data, data.hashCode(), sharedCounter.getValue())
+                } finally {
+                    lock?.release()
+                }
             }
         }
     }
@@ -544,10 +550,30 @@ internal class MultiProcessDataStore<T>(
                 return block(false)
             }
             FileInputStream(lockFile).use { lockFileStream ->
-                lockFileStream.getChannel().tryLock(0L, Long.MAX_VALUE, /* shared= */ true)
-                    .use { lock ->
-                        return block(lock != null)
+                var lock: FileLock? = null
+                try {
+                    try {
+                        lock = lockFileStream.getChannel().tryLock(
+                            /* position= */ 0L,
+                            /* size= */ Long.MAX_VALUE,
+                            /* shared= */ true)
+                    } catch (ex: IOException) {
+                        // TODO(b/255419657): Update the shared lock IOException handling logic for
+                        // KMM.
+
+                        // Some platforms / OS do not support shared lock and convert shared lock
+                        // requests to exclusive lock requests. If the lock can't be acquired, it
+                        // will throw an IOException with EAGAIN error, instead of returning null as
+                        // specified in {@link FileChannel#tryLock}. We only continue if the error
+                        // message is EAGAIN, otherwise just throw it.
+                        if (ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) {
+                            throw ex
+                        }
                     }
+                    return block(lock != null)
+                } finally {
+                    lock?.release()
+                }
             }
         }
     }
