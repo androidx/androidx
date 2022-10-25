@@ -16,15 +16,11 @@
 
 package androidx.datastore.preferences.core
 
-import kotlinx.coroutines.CoroutineDispatcher
+import androidx.datastore.core.okio.OkioSerializer
 
-internal expect fun <K, V> immutableMap(map: Map<K, V>): Map<K, V>
-internal expect fun <T> immutableCopyOfSet(set: Set<T>): Set<T>
-
-internal expect fun ioDispatcher(): CoroutineDispatcher
-
-internal expect class AtomicBoolean {
-    constructor(initialValue: Boolean)
-    fun set(value: Boolean)
-    fun get(): Boolean
-}
+/**
+ * Proto based serializer for Preferences. Can be used to manually create
+ * [DataStore][androidx.datastore.core.DataStore] using the
+ * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
+ */
+expect object PreferencesSerializer : OkioSerializer<Preferences>

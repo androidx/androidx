@@ -53,11 +53,11 @@ actual object PreferenceDataStoreFactory {
         produceFile: () -> Path
     ): DataStore<Preferences> {
         val delegate = create(
-            storage = OkioStorage(FileSystem.SYSTEM, PreferencesSerializationSerializer) {
+            storage = OkioStorage(FileSystem.SYSTEM, PreferencesSerializer) {
                 val file = produceFile()
-                check(file.name.endsWith(".${PreferencesSerializationSerializer.fileExtension}")) {
+                check(file.name.endsWith(".${PreferencesSerializer.fileExtension}")) {
                     "File extension for file: $file does not match required extension for" +
-                        " Preferences file: ${PreferencesSerializationSerializer.fileExtension}"
+                        " Preferences file: ${PreferencesSerializer.fileExtension}"
                 }
                 file
             },
