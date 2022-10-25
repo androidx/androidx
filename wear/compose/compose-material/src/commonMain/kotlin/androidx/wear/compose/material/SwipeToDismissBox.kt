@@ -16,15 +16,15 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,11 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,12 +52,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import kotlin.math.PI
+import androidx.compose.ui.util.lerp
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 
@@ -101,7 +100,7 @@ public fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
     backgroundScrimColor: Color = MaterialTheme.colors.background,
-    contentScrimColor: Color = contentColorFor(backgroundScrimColor),
+    contentScrimColor: Color = MaterialTheme.colors.background,
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     hasBackground: Boolean = true,
@@ -118,61 +117,78 @@ public fun SwipeToDismissBox(
                 state = state.swipeableState,
                 enabled = hasBackground,
                 anchors = anchors(maxWidth),
-                thresholds = { _, _ -> FractionalThreshold(SwipeThreshold) },
+                thresholds = { _, _ -> FractionalThreshold(SWIPE_THRESHOLD) },
                 resistance = ResistanceConfig(
                     basis = maxWidth,
-                    factorAtMin = TotalResistance,
-                    factorAtMax = TotalResistance,
+                    factorAtMin = TOTAL_RESISTANCE,
+                    factorAtMax = TOTAL_RESISTANCE,
                 ),
                 orientation = Orientation.Horizontal,
             )
     ) {
-        val dismissAnimatable = remember { Animatable(0f) }
+        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
+
+        var squeezeMode by remember {
+            mutableStateOf(true)
+        }
 
         LaunchedEffect(state.isAnimationRunning) {
             if (state.targetValue == SwipeToDismissValue.Dismissed) {
-                dismissAnimatable.animateTo(1f, SpringSpec())
-            } else {
-                // because SwipeToDismiss remains alive, it worth resetting animation to 0
-                // when [targetValue] becomes [Original] again
-                dismissAnimatable.snapTo(0f)
+                squeezeMode = false
             }
         }
 
-        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
+        LaunchedEffect(state.targetValue) {
+            if (!squeezeMode && state.targetValue == SwipeToDismissValue.Default) {
+                squeezeMode = true
+            }
+        }
+
         val isRound = isRoundDevice()
         val modifiers by remember(isRound, backgroundScrimColor) {
             derivedStateOf {
-                val squeezeMotion =
-                    SqueezeMotion(state.swipeableState.offset.value.roundToInt(), maxWidth)
+                val progress = (state.swipeableState.offset.value / maxWidth).coerceIn(0f, 1f)
+                val scale = lerp(SCALE_MAX, SCALE_MIN, progress).coerceIn(SCALE_MIN, SCALE_MAX)
+                val squeezeOffset = max(0f, (1f - scale) * maxWidth / 2f)
+                val slideOffset = lerp(squeezeOffset, maxWidth, max(0f, progress - 0.7f) / 0.3f)
+
+                val translationX = if (squeezeMode) squeezeOffset else slideOffset
+
+                val backgroundAlpha =
+                    lerp(
+                        MAX_BACKGROUND_SCRIM_ALPHA,
+                        MIN_BACKGROUND_SCRIM_ALPHA,
+                        BACKGROUND_SCRIM_EASING.transform(progress)
+                    )
+                val contentScrimAlpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
 
                 Modifiers(
-                    contentForeground =
-                    Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
+                    contentForeground = Modifier
                         .fillMaxSize()
-                        .scale(squeezeMotion.scale(dismissAnimatable.value))
+                        .graphicsLayer(
+                            translationX = translationX,
+                            scaleX = scale,
+                            scaleY = scale,
+                        )
                         .then(
-                            if (isRound && squeezeMotion.contentOffset > 0) {
+                            if (isRound && translationX > 0) {
                                 Modifier.clip(CircleShape)
                             } else {
                                 Modifier
                             }
                         )
-                        .alpha(1 - dismissAnimatable.value)
                         .background(backgroundScrimColor),
                     scrimForeground =
-                    Modifier.background(
-                        contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
-                    ).fillMaxSize(),
-                    scrimBackground =
-                    Modifier.matchParentSize()
+                    Modifier
                         .background(
-                            backgroundScrimColor
-                                .copy(
-                                    alpha = squeezeMotion.backgroundScrimAlpha(
-                                        dismissAnimatable.value
-                                    )
-                                )
+                            contentScrimColor.copy(alpha = contentScrimAlpha)
+                        )
+                        .fillMaxSize(),
+                    scrimBackground =
+                    Modifier
+                        .matchParentSize()
+                        .background(
+                            backgroundScrimColor.copy(alpha = backgroundAlpha)
                         )
                 )
             }
@@ -313,9 +329,9 @@ public class SwipeToDismissBoxState(
         get() = swipeableState.isAnimationRunning
 
     internal fun edgeNestedScrollConnection(
-        swipeState: State<SwipeState>
+        edgeSwipeState: State<EdgeSwipeState>
     ): NestedScrollConnection =
-        swipeableState.edgeNestedScrollConnection(swipeState)
+        swipeableState.edgeNestedScrollConnection(edgeSwipeState)
 
     /**
      * Set the state without any animation and suspend until it's set
@@ -326,14 +342,14 @@ public class SwipeToDismissBoxState(
 
     private companion object {
         private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
-            swipeState: State<SwipeState>
+            edgeSwipeState: State<EdgeSwipeState>
         ): NestedScrollConnection =
             object : NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
                     // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss
                     // drag and consume everything
-                    return if (swipeState.value == SwipeState.SwipingToDismiss &&
+                    return if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss &&
                         source == NestedScrollSource.Drag
                     ) {
                         performDrag(delta)
@@ -352,8 +368,8 @@ public class SwipeToDismissBoxState(
                 override suspend fun onPreFling(available: Velocity): Velocity {
                     val toFling = available.x
                     // Consumes fling by SwipeToDismiss
-                    return if (swipeState.value == SwipeState.SwipingToDismiss ||
-                        swipeState.value == SwipeState.SwipeToDismissInProgress
+                    return if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss ||
+                        edgeSwipeState.value == EdgeSwipeState.SwipeToDismissInProgress
                     ) {
                         performFling(velocity = toFling)
                         available
@@ -386,7 +402,7 @@ public class SwipeToDismissBoxState(
  */
 @Composable
 public fun rememberSwipeToDismissBoxState(
-    animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ): SwipeToDismissBoxState {
     return remember(animationSpec, confirmStateChange) {
@@ -474,10 +490,10 @@ public fun Modifier.edgeSwipeToDismiss(
         }
     ) {
         // Tracks the current swipe status
-        val swipeState = remember { mutableStateOf(SwipeState.WaitingForTouch) }
+        val edgeSwipeState = remember { mutableStateOf(EdgeSwipeState.WaitingForTouch) }
         val nestedScrollConnection =
             remember(swipeToDismissBoxState) {
-                swipeToDismissBoxState.edgeNestedScrollConnection(swipeState)
+                swipeToDismissBoxState.edgeNestedScrollConnection(edgeSwipeState)
             }
 
         val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
@@ -492,21 +508,21 @@ public fun Modifier.edgeSwipeToDismiss(
                             // the next touch. If it lands to the left of the first, we consider
                             // it as a swipe left and set the state to SwipingToPage. Otherwise,
                             // set the state to SwipingToDismiss
-                            when (swipeState.value) {
-                                SwipeState.SwipeToDismissInProgress,
-                                SwipeState.WaitingForTouch -> {
-                                    swipeState.value =
+                            when (edgeSwipeState.value) {
+                                EdgeSwipeState.SwipeToDismissInProgress,
+                                EdgeSwipeState.WaitingForTouch -> {
+                                    edgeSwipeState.value =
                                         if (change.position.x < edgeWidth.toPx())
-                                            SwipeState.EdgeClickedWaitingForDirection
+                                            EdgeSwipeState.EdgeClickedWaitingForDirection
                                         else
-                                            SwipeState.SwipingToPage
+                                            EdgeSwipeState.SwipingToPage
                                 }
-                                SwipeState.EdgeClickedWaitingForDirection -> {
-                                    swipeState.value =
+                                EdgeSwipeState.EdgeClickedWaitingForDirection -> {
+                                    edgeSwipeState.value =
                                         if (change.position.x < change.previousPosition.x)
-                                            SwipeState.SwipingToPage
+                                            EdgeSwipeState.SwipingToPage
                                         else
-                                            SwipeState.SwipingToDismiss
+                                            EdgeSwipeState.SwipingToDismiss
                                 }
                                 else -> {} // Do nothing
                             }
@@ -514,11 +530,11 @@ public fun Modifier.edgeSwipeToDismiss(
                             // or to SwipeToDismissInProgress if current
                             // state is SwipingToDismiss
                             if (change.changedToUp()) {
-                                swipeState.value =
-                                    if (swipeState.value == SwipeState.SwipingToDismiss)
-                                        SwipeState.SwipeToDismissInProgress
+                                edgeSwipeState.value =
+                                    if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss)
+                                        EdgeSwipeState.SwipeToDismissInProgress
                                     else
-                                        SwipeState.WaitingForTouch
+                                        EdgeSwipeState.WaitingForTouch
                             }
                         }
                     }
@@ -532,7 +548,7 @@ public fun Modifier.edgeSwipeToDismiss(
 /**
  * An enum which represents a current state of swipe action.
  */
-internal enum class SwipeState {
+internal enum class EdgeSwipeState {
     // Waiting for touch, edge was not touched before.
     WaitingForTouch,
 
@@ -551,70 +567,6 @@ internal enum class SwipeState {
 }
 
 /**
- * A class which is responsible for squeezing animation and all computations related to it
- */
-private class SqueezeMotion(
-    private val offsetPx: Int,
-    private val maxWidth: Float
-) {
-    private val scaleDelta = 0.2f
-    private val dismissScaleDelta = 0.05f
-    private val offsetFactor = scaleDelta / 2
-    private val contentScrimMaxAlpha = 0.07f
-    private val backgroundScrimMinAlpha = 0.65f
-
-    private val progress = calculateProgress(offsetPx.toFloat(), maxWidth)
-
-    /**
-     * [scale] can change from 1 to 1-[scaleDelta] - [dismissScaleDelta]
-     * As [progress] goes from 0 to 1 and [finalAnimationProgress] from 0 to 1,
-     * [scale] decreases accordingly up to a 1 - [scaleDelta] - [dismissScaleDelta]
-     */
-    fun scale(finalAnimationProgress: Float): Float =
-        (1.0 - progress * scaleDelta - finalAnimationProgress * dismissScaleDelta).toFloat()
-
-    /**
-     * As [progress] goes from 0 to 1, [contentOffset] changes from 0 to maxWidth
-     * mutiplied by [offsetFactor].
-     * If [offsetPx] negative ( <= 0) it remains the same.
-     * This helps to have a resistance animation if page is swiped to the opposite
-     * direction.
-     */
-    val contentOffset: Int
-        get() = if (offsetPx > 0)
-            (maxWidth * progress * offsetFactor).toInt()
-        else
-            offsetPx
-
-    /**
-     * As [progress] goes from 0 to 1, [contentScrimAlpha] changes from 0%
-     * to [contentScrimMaxAlpha].
-     */
-    val contentScrimAlpha: Float
-        get() = contentScrimMaxAlpha * progress
-
-    /**
-     * As [progress] goes from 0 to 1, [backgroundScrimAlpha] is decreasing from 100% to
-     * [backgroundScrimMinAlpha] value. [finalAnimationProgress] makes background completely
-     * transparent by changing its value from [backgroundScrimMinAlpha] to 0.
-     */
-    fun backgroundScrimAlpha(finalAnimationProgress: Float): Float =
-        1 - (1 - backgroundScrimMinAlpha) * progress -
-            backgroundScrimMinAlpha * finalAnimationProgress
-
-    /**
-     *  Computes a progress, which is in range from 0 to 1. As offset value changes from 0 to basis,
-     * the progress changes by sin function
-     */
-    private fun calculateProgress(
-        offset: Float,
-        basis: Float
-    ): Float = if (offset > 0)
-        sin((offset / basis).coerceIn(-1f, 1f) * PI.toFloat() / 2)
-    else 0f
-}
-
-/**
  * Class to enable calculating group of modifiers in a single, memoised block.
  */
 private data class Modifiers(
@@ -630,5 +582,13 @@ private fun anchors(maxWidth: Float): Map<Float, SwipeToDismissValue> =
         maxWidth to SwipeToDismissValue.Dismissed
     )
 
-private val SwipeThreshold = 0.5f
-private val TotalResistance = 1000f
+private const val SWIPE_THRESHOLD = 0.5f
+private const val TOTAL_RESISTANCE = 1000f
+private const val SCALE_MAX = 1f
+private const val SCALE_MIN = 0.7f
+private const val MAX_CONTENT_SCRIM_ALPHA = 0.3f
+private const val MAX_BACKGROUND_SCRIM_ALPHA = 0.75f
+private const val MIN_BACKGROUND_SCRIM_ALPHA = 0f
+private val BACKGROUND_SCRIM_EASING = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+private val SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC =
+    TweenSpec<Float>(200, 0, LinearOutSlowInEasing)
