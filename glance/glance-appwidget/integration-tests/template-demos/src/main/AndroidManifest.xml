@@ -45,7 +45,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
@@ -59,7 +59,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
@@ -73,7 +73,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
