@@ -27,5 +27,5 @@ public class StartupFeatures {
     }
 
     // ProcessGlobalConfig#setDataDirectorySuffix(String)
-    public static final String SET_DATA_DIRECTORY_SUFFIX =  "SET_DATA_DIRECTORY_SUFFIX";
+    public static final String SET_DATA_DIRECTORY_SUFFIX =  "SET_DATA_DIRECTORY_SUFFIX:DEV";
 }

@@ -123,7 +123,9 @@
         <activity
             android:name=".GetVariationsHeaderActivity"
             android:exported="true" />
-        <activity android:name=".ProcessGlobalConfigActivity"
+        <activity
+            android:name=".ProcessGlobalConfigActivity"
+            android:process=":processGlobalConfigTest"
             android:exported="true" />
         <activity
             android:name=".RequestedWithHeaderActivity"

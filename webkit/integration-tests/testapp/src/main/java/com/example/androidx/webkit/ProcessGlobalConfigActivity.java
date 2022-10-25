@@ -35,14 +35,19 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (WebViewFeature.isStartupFeatureSupported(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+        setTitle(R.string.process_global_config_activity_title);
+        WebkitHelpers.appendWebViewVersionToTitle(this);
+
+        if (!WebViewFeature.isStartupFeatureSupported(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
                 this)) {
-            ProcessGlobalConfig.createInstance()
-                    .setDataDirectorySuffix("per_process_webview_data_0", this)
-                    .apply();
+            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
+            return;
         }
-        WebView wv = new WebView(this);
-        setContentView(wv);
+        ProcessGlobalConfig.createInstance()
+                .setDataDirectorySuffix("per_process_webview_data_0", this)
+                .apply();
+        setContentView(R.layout.activity_process_global_config);
+        WebView wv = findViewById(R.id.process_global_config_webview);
         wv.setWebViewClient(new WebViewClient());
         wv.loadUrl("www.google.com");
     }
