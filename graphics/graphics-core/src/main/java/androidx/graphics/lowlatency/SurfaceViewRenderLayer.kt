@@ -67,6 +67,7 @@ internal class SurfaceViewRenderLayer<T>(
     ): GLRenderer.RenderTarget {
         var transformHint = BufferTransformHintResolver.UNKNOWN_TRANSFORM
         var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+        var params: Collection<T>? = null
         val frameBufferRenderer = FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
 
@@ -75,7 +76,6 @@ internal class SurfaceViewRenderLayer<T>(
                         ?: throw IllegalArgumentException("No FrameBufferPool available")
 
                 override fun onDraw(eglManager: EGLManager) {
-                    val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
                     renderLayerCallback.onDrawDoubleBufferedLayer(
                         eglManager,
                         mBufferTransform.glWidth,
@@ -149,17 +149,25 @@ internal class SurfaceViewRenderLayer<T>(
                 mLayerCallback?.onLayerDestroyed()
             }
         })
-        val renderTarget = renderer.attach(surfaceView, frameBufferRenderer)
+        val parentFrameBufferRenderer = WrapperFrameBufferRenderer<T>(frameBufferRenderer) {
+            params = mLayerCallback?.obtainDoubleBufferedLayerParams()
+            params != null
+        }
+        val renderTarget = renderer.attach(surfaceView, parentFrameBufferRenderer)
         mRenderTarget = renderTarget
         mFrameBufferRenderer = frameBufferRenderer
         return renderTarget
     }
 
-    internal fun createDoubleBufferedSurfaceControl(): SurfaceControlCompat =
-        SurfaceControlCompat.Builder()
+    internal fun createDoubleBufferedSurfaceControl(): SurfaceControlCompat {
+        val surfaceControl = SurfaceControlCompat.Builder()
             .setParent(surfaceView)
             .setName("DoubleBufferedLayer")
             .build()
+        // SurfaceControl is not visible by default so make it visible right after creation
+        SurfaceControlCompat.Transaction().setVisibility(surfaceControl, true).commit()
+        return surfaceControl
+    }
 
     override fun setParentLayerCallbacks(callback: ParentRenderLayer.Callback<T>?) {
         mLayerCallback = callback
