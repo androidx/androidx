@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
@@ -50,6 +51,8 @@ class CameraInternalAdapter @Inject constructor(
     private val threads: UseCaseThreads,
 ) : CameraInternal {
     private val cameraId = config.cameraId
+    private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
+        CameraConfigs.emptyConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
     private val cameraState = LiveDataObservable<CameraInternal.State>()
 
@@ -102,6 +105,14 @@ class CameraInternalAdapter @Inject constructor(
 
     override fun onUseCaseInactive(useCase: UseCase) {
         useCaseManager.deactivate(useCase)
+    }
+
+    override fun getExtendedConfig(): androidx.camera.core.impl.CameraConfig {
+        return coreCameraConfig
+    }
+
+    override fun setExtendedConfig(cameraConfig: androidx.camera.core.impl.CameraConfig?) {
+        coreCameraConfig = cameraConfig ?: CameraConfigs.emptyConfig()
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId>"
