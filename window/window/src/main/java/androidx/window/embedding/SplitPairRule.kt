@@ -61,12 +61,7 @@ class SplitPairRule : SplitRule {
      */
     val clearTop: Boolean
 
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.SplitPairRule.Builder")
-    )
-    constructor(
+    internal constructor(
         filters: Set<SplitPairFilter>,
         @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
         @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
@@ -144,7 +139,6 @@ class SplitPairRule : SplitRule {
         fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
             apply { this.layoutDir = layoutDir }
 
-        @Suppress("DEPRECATION")
         fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
             clearTop, minWidth, minSmallestWidth, splitRatio, layoutDir)
     }
@@ -157,17 +151,13 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        @Suppress("DEPRECATION")
-        return SplitPairRule(
-            newSet.toSet(),
-            finishPrimaryWithSecondary,
-            finishSecondaryWithPrimary,
-            clearTop,
-            minWidth,
-            minSmallestWidth,
-            splitRatio,
-            layoutDirection
-        )
+        return Builder(newSet.toSet(), minWidth, minSmallestWidth)
+            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
+            .setClearTop(clearTop)
+            .setSplitRatio(splitRatio)
+            .setLayoutDir(layoutDirection)
+            .build()
     }
 
     override fun equals(other: Any?): Boolean {
