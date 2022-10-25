@@ -180,17 +180,15 @@ internal class SplitRuleParser {
 
             val defaultAttrs = SplitAttributes.buildSplitAttributesFromValue(ratio, layoutDir)
 
-            SplitPairRule(
-                tag,
-                emptySet(),
-                getFinishBehaviorFromValue(finishPrimaryWithSecondary),
-                getFinishBehaviorFromValue(finishSecondaryWithPrimary),
-                clearTop,
-                minWidth,
-                minHeight,
-                minSmallestWidth,
-                defaultAttrs,
-            )
+            SplitPairRule.Builder(emptySet(), minWidth, minHeight, minSmallestWidth)
+                .setTag(tag)
+                .setFinishPrimaryWithSecondary(
+                    getFinishBehaviorFromValue(finishPrimaryWithSecondary))
+                .setFinishSecondaryWithPrimary(
+                    getFinishBehaviorFromValue(finishSecondaryWithPrimary))
+                .setClearTop(clearTop)
+                .setDefaultSplitAttributes(defaultAttrs)
+                .build()
         }
 
     // TODO(b/207494880): Support DefaultAttributes in XML format
@@ -266,17 +264,18 @@ internal class SplitRuleParser {
                 placeholderActivityIntentName
             )
 
-            SplitPlaceholderRule(
-                tag,
+            SplitPlaceholderRule.Builder(
                 emptySet(),
                 Intent().setComponent(placeholderActivityClassName),
-                stickyPlaceholder,
-                getFinishBehaviorFromValue(finishPrimaryWithPlaceholder),
                 minWidth,
                 minHeight,
-                minSmallestWidth,
-                defaultAttrs,
-            )
+                minSmallestWidth
+            ).setTag(tag)
+                .setSticky(stickyPlaceholder)
+                .setFinishPrimaryWithPlaceholder(
+                    getFinishBehaviorFromValue(finishPrimaryWithPlaceholder))
+                .setDefaultSplitAttributes(defaultAttrs)
+                .build()
         }
 
     private fun parseSplitPairFilter(

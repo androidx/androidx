@@ -16,14 +16,10 @@
 
 package androidx.window.embedding
 
-import android.util.LayoutDirection
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
-import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
@@ -61,30 +57,6 @@ class SplitPairRule : SplitRule {
      * split is created using this rule. Otherwise the new secondary will appear on top by default.
      */
     val clearTop: Boolean
-
-    // TODO(b/229656253): Reduce visibility to remove from public API.
-    @Deprecated(
-        message = "Visibility of the constructor will be reduced.",
-        replaceWith = ReplaceWith("androidx.window.embedding.SplitPairRule.Builder")
-    )
-    constructor(
-        filters: Set<SplitPairFilter>,
-        finishPrimaryWithSecondary: Int = NEVER.value,
-        finishSecondaryWithPrimary: Int = ALWAYS.value,
-        clearTop: Boolean = false,
-        @IntRange(from = 0) minWidth: Int,
-        @IntRange(from = 0) minSmallestWidth: Int,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        layoutDir: Int = LayoutDirection.LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDir) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
-        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
-        this.filters = filters.toSet()
-        this.clearTop = clearTop
-        this.finishPrimaryWithSecondary = getFinishBehaviorFromValue(finishPrimaryWithSecondary)
-        this.finishSecondaryWithPrimary = getFinishBehaviorFromValue(finishSecondaryWithPrimary)
-    }
 
     internal constructor(
         tag: String? = null,
@@ -180,17 +152,13 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return SplitPairRule(
-            tag,
-            newSet.toSet(),
-            finishPrimaryWithSecondary,
-            finishSecondaryWithPrimary,
-            clearTop,
-            minWidth,
-            minHeight,
-            minSmallestWidth,
-            defaultSplitAttributes,
-        )
+        return Builder(newSet.toSet(), minWidth, minHeight, minSmallestWidth)
+            .setTag(tag)
+            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
+            .setClearTop(clearTop)
+            .setDefaultSplitAttributes(defaultSplitAttributes)
+            .build()
     }
 
     override fun equals(other: Any?): Boolean {
