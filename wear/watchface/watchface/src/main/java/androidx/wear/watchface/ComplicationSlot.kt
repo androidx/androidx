@@ -374,7 +374,7 @@ public class ComplicationSlot
     @ComplicationSlotBoundsType public val boundsType: Int,
     bounds: ComplicationSlotBounds,
     public val canvasComplicationFactory: CanvasComplicationFactory,
-    supportedTypes: List<ComplicationType>,
+    public val supportedTypes: List<ComplicationType>,
     defaultPolicy: DefaultComplicationDataSourcePolicy,
     defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
@@ -860,12 +860,6 @@ public class ComplicationSlot
             field = value
             enabledDirty = true
         }
-
-    /** The types of complicationSlots the complication supports. Must be non-empty. */
-
-    public val supportedTypes: List<ComplicationType> = supportedTypes
-        @UiThread // TODO(b/229727216): Remove this annotation.
-        get
 
     internal var defaultDataSourcePolicyDirty = true
 
