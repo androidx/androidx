@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
@@ -141,6 +142,7 @@ internal class AndroidOutputConfiguration(
             mirrorMode: MirrorMode? = null,
             timestampBase: TimestampBase? = null,
             dynamicRangeProfile: DynamicRangeProfile? = null,
+            streamUseCase: StreamUseCase? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -237,6 +239,12 @@ internal class AndroidOutputConfiguration(
                                 "behavior. Requested $dynamicRangeProfile"
                         }
                     }
+                }
+            }
+
+            if (streamUseCase != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
                 }
             }
 
