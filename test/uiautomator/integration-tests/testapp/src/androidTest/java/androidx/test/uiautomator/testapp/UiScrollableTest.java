@@ -143,10 +143,10 @@ public class UiScrollableTest extends BaseTest {
         UiScrollable relativeLayout = new UiScrollable(
                 new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
         UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/from_top_15000"));
+                + "/bottom_text"));
 
         assertFalse(target.exists());
-        assertTrue(relativeLayout.scrollDescriptionIntoView("This is 15000px from the top"));
+        assertTrue(relativeLayout.scrollDescriptionIntoView("This is the bottom"));
         assertTrue(target.exists());
         assertFalse(relativeLayout.scrollDescriptionIntoView("This is non-existent"));
     }
@@ -158,7 +158,7 @@ public class UiScrollableTest extends BaseTest {
         UiScrollable relativeLayout = new UiScrollable(
                 new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
         UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/from_top_15000"));
+                + "/bottom_text"));
         UiObject nonExistentTarget = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/not_exist"));
 
@@ -174,7 +174,7 @@ public class UiScrollableTest extends BaseTest {
 
         UiScrollable relativeLayout = new UiScrollable(
                 new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
-        UiSelector target = new UiSelector().resourceId(TEST_APP + ":id/from_top_15000");
+        UiSelector target = new UiSelector().resourceId(TEST_APP + ":id/bottom_text");
         UiSelector nonExistentTarget = new UiSelector().resourceId(TEST_APP + ":id/not_exist");
 
         assertFalse(mDevice.findObject(target).exists());
@@ -190,7 +190,7 @@ public class UiScrollableTest extends BaseTest {
         UiScrollable relativeLayout = new UiScrollable(
                 new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
         UiObject target = mDevice.findObject(
-                new UiSelector().resourceId(TEST_APP + ":id/from_top_15000"));
+                new UiSelector().resourceId(TEST_APP + ":id/bottom_text"));
 
         assertTrue(relativeLayout.scrollIntoView(target));
         assertTrue(relativeLayout.ensureFullyVisible(target));
@@ -206,10 +206,10 @@ public class UiScrollableTest extends BaseTest {
         UiScrollable relativeLayout = new UiScrollable(
                 new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
         UiObject target = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/from_top_15000"));
+                + "/bottom_text"));
 
         assertFalse(target.exists());
-        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertTrue(relativeLayout.scrollTextIntoView("This is the bottom"));
         assertTrue(target.exists());
         assertFalse(relativeLayout.scrollTextIntoView("This is non-existent"));
     }
@@ -305,7 +305,7 @@ public class UiScrollableTest extends BaseTest {
         UiObject topText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/top_text"));
 
-        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertTrue(relativeLayout.scrollTextIntoView("This is the bottom"));
         assertFalse(topText.exists());
         assertTrue(relativeLayout.scrollToBeginning(20, 50));
         assertTrue(topText.exists());
@@ -320,7 +320,7 @@ public class UiScrollableTest extends BaseTest {
         UiObject topText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/top_text"));
 
-        assertTrue(relativeLayout.scrollTextIntoView("This is 15000px from the top"));
+        assertTrue(relativeLayout.scrollTextIntoView("This is the bottom"));
         assertFalse(topText.exists());
         assertTrue(relativeLayout.scrollToBeginning(20));
         assertTrue(topText.exists());
@@ -353,7 +353,6 @@ public class UiScrollableTest extends BaseTest {
 
     @Test
     public void testScrollToEnd() throws Exception {
-        launchTestActivity(VerticalScrollTestActivity.class);
         launchTestActivity(VerticalScrollTestActivity.class);
 
         UiScrollable relativeLayout = new UiScrollable(
