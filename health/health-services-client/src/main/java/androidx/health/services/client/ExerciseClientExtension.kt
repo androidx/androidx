@@ -25,6 +25,7 @@ import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.data.ExerciseState
 import androidx.health.services.client.data.ExerciseType
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
 
@@ -248,3 +249,19 @@ public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
  */
 @kotlin.jvm.Throws(android.os.RemoteException::class)
 public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().await()
+
+/**
+ * Updates the configurable exercise type attributes for the current exercise.
+ *
+ * This can be used to update the configurable attributes for the ongoing exercise, as defined
+ * in [ExerciseTypeConfig].
+ *
+ * @param exerciseTypeConfig a configuration containing the new values for the configurable
+ * attributes
+ *
+ * @throws [android.os.RemoteException] if Health Service fails to process the call
+ */
+@kotlin.jvm.Throws(android.os.RemoteException::class)
+public suspend fun ExerciseClient.updateExerciseTypeConfig(
+    exerciseTypeConfig: ExerciseTypeConfig
+) = updateExerciseTypeConfigAsync(exerciseTypeConfig).await()

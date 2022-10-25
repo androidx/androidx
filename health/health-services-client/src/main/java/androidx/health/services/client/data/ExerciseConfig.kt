@@ -39,9 +39,11 @@ import androidx.health.services.client.proto.DataProto
  * on-going exercise which can be used to pre-populate a new exercise.
  * @property swimmingPoolLengthMeters length (in meters) of the swimming pool, or 0 if not relevant to
  * this exercise
+ * @property exerciseTypeConfig [ExerciseTypeConfig] containing attributes which may be
+ * modified after the exercise has started
  */
 @Suppress("ParcelCreator")
-class ExerciseConfig(
+class ExerciseConfig @JvmOverloads constructor(
     val exerciseType: ExerciseType,
     val dataTypes: Set<DataType<*, *>>,
     val isAutoPauseAndResumeEnabled: Boolean,
@@ -49,6 +51,7 @@ class ExerciseConfig(
     val exerciseGoals: List<ExerciseGoal<*>> = listOf(),
     val exerciseParams: Bundle = Bundle(),
     @FloatRange(from = 0.0) val swimmingPoolLengthMeters: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED,
+    val exerciseTypeConfig: ExerciseTypeConfig? = null
 ) {
 
     internal constructor(
@@ -65,7 +68,10 @@ class ExerciseConfig(
           proto.swimmingPoolLength
         } else {
           SWIMMING_POOL_LENGTH_UNSPECIFIED
-        }
+        },
+        if (proto.hasExerciseTypeConfig()) {
+            ExerciseTypeConfig(proto.exerciseTypeConfig)
+        } else null
     )
 
     init {
@@ -98,6 +104,7 @@ class ExerciseConfig(
         private var exerciseGoals: List<ExerciseGoal<*>> = emptyList()
         private var exerciseParams: Bundle = Bundle.EMPTY
         private var swimmingPoolLength: Float = SWIMMING_POOL_LENGTH_UNSPECIFIED
+        private var exerciseTypeConfig: ExerciseTypeConfig? = null
 
         /**
          * Sets the requested [DataType]s that should be tracked during this exercise. If not
@@ -171,9 +178,20 @@ class ExerciseConfig(
 
         /** Sets the swimming pool length (in m). */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setSwimmingPoolLengthMeters(swimmingPoolLength: Float): Builder {
+        fun setSwimmingPoolLengthMeters(swimmingPoolLength: Float): Builder {
           this.swimmingPoolLength = swimmingPoolLength
           return this
+        }
+
+        /**
+         * Sets the [ExerciseTypeConfig] which are configurable attributes for the ongoing exercise.
+         *
+         * @param exerciseTypeConfig [ExerciseTypeConfig] specifying active exercise type
+         * configurations
+         */
+        fun setExerciseTypeConfig(exerciseTypeConfig: ExerciseTypeConfig?): Builder {
+            this.exerciseTypeConfig = exerciseTypeConfig
+            return this
         }
 
         /** Returns the built [ExerciseConfig]. */
@@ -185,7 +203,8 @@ class ExerciseConfig(
                 isGpsEnabled,
                 exerciseGoals,
                 exerciseParams,
-                swimmingPoolLength
+                swimmingPoolLength,
+                exerciseTypeConfig
             )
         }
     }
@@ -197,19 +216,24 @@ class ExerciseConfig(
             "isAutoPauseAndResumeEnabled=$isAutoPauseAndResumeEnabled, " +
             "isGpsEnabled=$isGpsEnabled, " +
             "exerciseGoals=$exerciseGoals, " +
-            "swimmingPoolLengthMeters=$swimmingPoolLengthMeters)"
+            "swimmingPoolLengthMeters=$swimmingPoolLengthMeters, " +
+            "exerciseTypeConfig=$exerciseTypeConfig)"
 
-    internal fun toProto(): DataProto.ExerciseConfig =
-        DataProto.ExerciseConfig.newBuilder()
-            .setExerciseType(exerciseType.toProto())
-            .addAllDataTypes(dataTypes.filter { !it.isAggregate }.map { it.proto })
-            .addAllAggregateDataTypes(dataTypes.filter { it.isAggregate }.map { it.proto })
-            .setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled)
-            .setIsGpsUsageEnabled(isGpsEnabled)
-            .addAllExerciseGoals(exerciseGoals.map { it.proto })
-            .setExerciseParams(BundlesUtil.toProto(exerciseParams))
-            .setSwimmingPoolLength(swimmingPoolLengthMeters)
-            .build()
+   internal fun toProto(): DataProto.ExerciseConfig {
+       val builder = DataProto.ExerciseConfig.newBuilder()
+           .setExerciseType(exerciseType.toProto())
+           .addAllDataTypes(dataTypes.filter { !it.isAggregate }.map { it.proto })
+           .addAllAggregateDataTypes(dataTypes.filter { it.isAggregate }.map { it.proto })
+           .setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled)
+           .setIsGpsUsageEnabled(isGpsEnabled)
+           .addAllExerciseGoals(exerciseGoals.map { it.proto })
+           .setExerciseParams(BundlesUtil.toProto(exerciseParams))
+           .setSwimmingPoolLength(swimmingPoolLengthMeters)
+       if (exerciseTypeConfig != null) {
+           builder.exerciseTypeConfig = exerciseTypeConfig.toProto()
+       }
+       return builder.build()
+   }
 
     companion object {
         /**

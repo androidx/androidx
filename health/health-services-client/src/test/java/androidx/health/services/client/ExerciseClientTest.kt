@@ -34,7 +34,9 @@ import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseTrackedStatus
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseTypeCapabilities
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate
+import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.IExerciseApiService
 import androidx.health.services.client.impl.IExerciseUpdateListener
@@ -51,6 +53,7 @@ import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import androidx.health.services.client.impl.response.AvailabilityResponse
 import androidx.health.services.client.impl.response.ExerciseCapabilitiesResponse
 import androidx.health.services.client.impl.response.ExerciseInfoResponse
@@ -644,6 +647,23 @@ class ExerciseClientTest {
             .isEqualTo(passiveMonitoringCapabilities.toString())
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun updateExerciseTypeConfigForActiveExercise() = runTest {
+        service.exerciseConfig = ExerciseConfig.builder(ExerciseType.GOLF).build()
+        val exerciseTypeConfig =
+            ExerciseTypeConfig.createGolfExerciseTypeConfig(GolfShotTrackingPlaceInfo.FAIRWAY)
+        val request =
+            UpdateExerciseTypeConfigRequest(
+                CLIENT_CONFIGURATION.servicePackageName, exerciseTypeConfig
+            )
+        val statusCallback = IStatusCallback.Default()
+
+        service.updateExerciseTypeConfigForActiveExercise(request, statusCallback)
+
+        Truth.assertThat(service.exerciseConfig?.exerciseTypeConfig).isEqualTo(exerciseTypeConfig)
+    }
+
     class FakeExerciseUpdateCallback : ExerciseUpdateCallback {
         val availabilities = mutableMapOf<DataType<*, *>, Availability>()
         val registrationFailureThrowables = mutableListOf<Throwable>()
@@ -853,6 +873,18 @@ class ExerciseClientTest {
         override fun flushExercise(request: FlushRequest, statusCallback: IStatusCallback?) {
             registerFlushRequests += request
             statusCallbackAction.invoke(statusCallback)
+        }
+
+        override fun updateExerciseTypeConfigForActiveExercise(
+            updateExerciseTypeConfigRequest: UpdateExerciseTypeConfigRequest,
+            statuscallback: IStatusCallback
+        ) {
+            val newExerciseTypeConfig = updateExerciseTypeConfigRequest.exerciseTypeConfig
+            val newExerciseConfig =
+                ExerciseConfig.builder(
+                    exerciseConfig!!.exerciseType
+                ).setExerciseTypeConfig(newExerciseTypeConfig).build()
+            this.exerciseConfig = newExerciseConfig
         }
 
         fun setException() {
