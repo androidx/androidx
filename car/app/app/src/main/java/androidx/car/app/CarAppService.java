@@ -136,6 +136,14 @@ public abstract class CarAppService extends Service {
     @ExperimentalCarApi
     public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
 
+    /**
+     * Used to declare that this app is a messaging app in the manifest.
+     *
+     * <p> This app can be used to send and receive short-form chat messages (IM/SMS).
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_MESSAGING_APP = "androidx.car.app.category.MESSAGING";
+
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
     @NonNull
