@@ -28,19 +28,33 @@ import kotlin.coroutines.suspendCoroutine
  */
 class FakeTakePictureCallback : TakePictureCallback {
 
-    private lateinit var inMemoryResultCont: Continuation<ImageProxy>
-    private lateinit var onDiskResultCont: Continuation<OutputFileResults>
+    private var inMemoryResult: ImageProxy? = null
+    private var inMemoryResultCont: Continuation<ImageProxy>? = null
+    private var onDiskResult: OutputFileResults? = null
+    private var onDiskResultCont: Continuation<OutputFileResults>? = null
 
     override fun onImageCaptured() {
         TODO("Not yet implemented")
     }
 
     override fun onFinalResult(outputFileResults: OutputFileResults) {
-        onDiskResultCont.resume(outputFileResults)
+        val cont = onDiskResultCont
+        if (cont != null) {
+            cont.resume(outputFileResults)
+            onDiskResultCont = null
+        } else {
+            onDiskResult = outputFileResults
+        }
     }
 
     override fun onFinalResult(imageProxy: ImageProxy) {
-        inMemoryResultCont.resume(imageProxy)
+        val cont = inMemoryResultCont
+        if (cont != null) {
+            cont.resume(imageProxy)
+            inMemoryResultCont = null
+        } else {
+            inMemoryResult = imageProxy
+        }
     }
 
     override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {
@@ -56,10 +70,18 @@ class FakeTakePictureCallback : TakePictureCallback {
     }
 
     internal suspend fun getInMemoryResult() = suspendCoroutine { cont ->
-        inMemoryResultCont = cont
+        if (inMemoryResult != null) {
+            cont.resume(inMemoryResult!!)
+        } else {
+            inMemoryResultCont = cont
+        }
     }
 
     internal suspend fun getOnDiskResult() = suspendCoroutine { cont ->
-        onDiskResultCont = cont
+        if (onDiskResult != null) {
+            cont.resume(onDiskResult!!)
+        } else {
+            onDiskResultCont = cont
+        }
     }
 }
