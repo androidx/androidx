@@ -16,86 +16,32 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
-import androidx.privacysandbox.tools.core.generator.addCode
+import androidx.privacysandbox.tools.core.generator.SpecNames.iBinderClassName
 import androidx.privacysandbox.tools.core.generator.addCommonSettings
-import androidx.privacysandbox.tools.core.generator.addControlFlow
-import androidx.privacysandbox.tools.core.generator.addStatement
 import androidx.privacysandbox.tools.core.generator.aidlInterfaceNameSpec
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.clientProxyNameSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.joinToCode
 
-internal class ServiceFactoryFileGenerator() {
+internal class ServiceFactoryFileGenerator {
+
     fun generate(service: AnnotatedInterface): FileSpec =
         FileSpec.builder(service.type.packageName, "${service.type.simpleName}Factory").build {
             addCommonSettings()
-            addImport("kotlinx.coroutines", "suspendCancellableCoroutine")
-            addImport("kotlin.coroutines", "resume")
-            addImport("kotlin.coroutines", "resumeWithException")
-
             addFunction(generateFactoryFunction(service))
         }
 
     private fun generateFactoryFunction(service: AnnotatedInterface) =
-        FunSpec.builder("create${service.type.simpleName}").build {
-            addModifiers(KModifier.SUSPEND)
-            addParameter(ParameterSpec("context", AndroidClassNames.context))
+        FunSpec.builder("wrapTo${service.type.simpleName}").build {
+            addParameter(ParameterSpec("binder", iBinderClassName))
             returns(ClassName(service.type.packageName, service.type.simpleName))
-
-            addCode {
-                addControlFlow("return suspendCancellableCoroutine") {
-                    addStatement(
-                        "val sdkSandboxManager = context.getSystemService(%T::class.java)",
-                        AndroidClassNames.sandboxManager
-                    )
-                    addControlFlow(
-                        "val outcomeReceiver = object: %T<%T, %T>",
-                        AndroidClassNames.outcomeReceiver,
-                        AndroidClassNames.sandboxedSdk,
-                        AndroidClassNames.loadSdkException
-                    ) {
-                        addControlFlow(
-                            "override fun onResult(result: %T)", AndroidClassNames.sandboxedSdk
-                        ) {
-                            addStatement(
-                                "it.resume(%T(%T.Stub.asInterface(result.getInterface())))",
-                                service.clientProxyNameSpec(), service.aidlInterfaceNameSpec()
-                            )
-                        }
-                        addControlFlow(
-                            "override fun onError(error: %T)", AndroidClassNames.loadSdkException
-                        ) {
-                            addStatement("it.resumeWithException(error)")
-                        }
-                    }
-                    val loadSdkParameters = listOf(
-                        CodeBlock.of("%S", service.type.packageName),
-                        CodeBlock.of("%T.EMPTY", AndroidClassNames.bundle),
-                        CodeBlock.of("Runnable::run"),
-                        CodeBlock.of("outcomeReceiver"),
-                    )
-                    addStatement {
-                        add("sdkSandboxManager.loadSdk(")
-                        add(loadSdkParameters.joinToCode())
-                        add(")")
-                    }
-                }
-            }
+            addStatement(
+                "return %T(%T.Stub.asInterface(binder))",
+                service.clientProxyNameSpec(), service.aidlInterfaceNameSpec()
+            )
         }
-}
-
-private object AndroidClassNames {
-    val context = ClassName("android.content", "Context")
-    val bundle = ClassName("android.os", "Bundle")
-    val outcomeReceiver = ClassName("android.os", "OutcomeReceiver")
-    val sandboxManager = ClassName("android.app.sdksandbox", "SdkSandboxManager")
-    val sandboxedSdk = ClassName("android.app.sdksandbox", "SandboxedSdk")
-    val loadSdkException = ClassName("android.app.sdksandbox", "LoadSdkException")
 }

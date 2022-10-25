@@ -17,10 +17,10 @@
 package androidx.privacysandbox.tools.testing
 
 import androidx.room.compiler.processing.util.DiagnosticLocation
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -135,71 +135,66 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
 // PrivacySandbox platform APIs are not available in AndroidX prebuilts nor are they stable, so
 // while that's the case we use fake stubs to run our compilation tests.
 val syntheticPrivacySandboxSources = listOf(
-    Source.java(
-        "android.app.sdksandbox.SdkSandboxManager", """
-        |package android.app.sdksandbox;
+    Source.kotlin(
+        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt", """
+        |package androidx.privacysandbox.sdkruntime.core
         |
-        |import android.os.Bundle;
-        |import android.os.OutcomeReceiver;
-        |import java.util.concurrent.Executor;
+        |import android.os.IBinder
         |
-        |public final class SdkSandboxManager {
-        |    public void loadSdk(
-        |        String sdkName,
-        |        Bundle params,
-        |        Executor executor,
-        |        OutcomeReceiver<SandboxedSdk, LoadSdkException> receiver) {}
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdk", """
-        |package android.app.sdksandbox;
+        |sealed class SandboxedSdkCompat {
+        |    abstract fun getInterface(): IBinder?
         |
-        |import android.os.IBinder;
-        |
-        |public final class SandboxedSdk {
-        |    public SandboxedSdk(IBinder sdkInterface) {}
-        |    public IBinder getInterface() { return null; }
-        |}
-        |""".trimMargin()
-    ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdkProvider", """
-        |package android.app.sdksandbox;
-        |
-        |import android.content.Context;
-        |import android.os.Bundle;
-        |import android.view.View;
-        |
-        |public abstract class SandboxedSdkProvider {
-        |    public abstract SandboxedSdk onLoadSdk(Bundle params) throws LoadSdkException;
-        |    public abstract View getView(
-        |            Context windowContext, Bundle params, int width, int height);
-        |    public final Context getContext() {
-        |        return null;
-        |    }
-        |    public abstract void onDataReceived(
-        |            Bundle data, DataReceivedCallback callback);
-        |    public interface DataReceivedCallback {
-        |        void onDataReceivedSuccess(Bundle params);
-        |        void onDataReceivedError(String errorMessage);
+        |    companion object {
+        |        fun create(binder: IBinder): SandboxedSdkCompat = throw RuntimeException("Stub!")
         |    }
         |}
         |""".trimMargin()
     ),
-    Source.java(
-        "android.app.sdksandbox.LoadSdkException", """
-        |package android.app.sdksandbox;
+    Source.kotlin(
+        "androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt", """
+        |package androidx.privacysandbox.sdkruntime.client
         |
-        |public final class LoadSdkException extends Exception {}
+        |import android.content.Context
+        |import android.os.Bundle
+        |import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+        |
+        |class SdkSandboxManagerCompat private constructor() {
+        |    suspend fun loadSdk(
+        |        sdkName: String,
+        |        params: Bundle,
+        |    ): SandboxedSdkCompat = throw RuntimeException("Stub!")
+        |
+        |    companion object {
+        |        fun obtain(context: Context): SdkSandboxManagerCompat =
+        |            throw RuntimeException("Stub!")
+        |    }
+        |}
         |""".trimMargin()
     ),
-    Source.java(
-        "android.app.sdksandbox.SandboxedSdkContext", """
-        |package android.app.sdksandbox;
+    Source.kotlin(
+        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkProviderCompat.kt", """
+        |package androidx.privacysandbox.sdkruntime.core
         |
-        |public final class SandboxedSdkContext {}
+        |import android.content.Context
+        |import android.os.Bundle
+        |import android.view.View
+        |
+        |abstract class SandboxedSdkProviderCompat {
+        |   var context: Context? = null
+        |       private set
+        |   fun attachContext(context: Context): Unit = throw RuntimeException("Stub!")
+        |
+        |   abstract fun onLoadSdk(params: Bundle): SandboxedSdkCompat
+        |
+        |   open fun beforeUnloadSdk() {}
+        |
+        |   abstract fun getView(
+        |       windowContext: Context,
+        |       params: Bundle,
+        |       width: Int,
+        |       height: Int
+        |   ): View
+        |}
         |""".trimMargin()
-    ),
+    )
 )

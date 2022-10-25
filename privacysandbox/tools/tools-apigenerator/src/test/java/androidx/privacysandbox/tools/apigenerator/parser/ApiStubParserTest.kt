@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
+import androidx.privacysandbox.tools.apigenerator.mergedClasspath
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
@@ -24,7 +25,7 @@ import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
-import androidx.privacysandbox.tools.testing.CompilationTestHelper
+import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -364,7 +365,7 @@ class ApiStubParserTest {
     }
 
     private fun compileAndParseApi(vararg sources: Source): ParsedApi {
-        val result = CompilationTestHelper.assertCompiles(sources.toList())
-        return ApiStubParser.parse(result.outputClasspath.first().toPath())
+        val classpath = mergedClasspath(assertCompiles(sources.toList()))
+        return ApiStubParser.parse(classpath)
     }
 }

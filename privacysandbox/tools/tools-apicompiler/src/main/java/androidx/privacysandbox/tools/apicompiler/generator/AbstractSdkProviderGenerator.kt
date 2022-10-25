@@ -26,16 +26,23 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.TypeSpec
 
 class AbstractSdkProviderGenerator(private val api: ParsedApi) {
     companion object {
-        private val SANDBOXED_SDK_PROVIDER_CLASS =
-            ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
-        private val DATA_RECEIVED_CALLBACK_CLASS =
-            ClassName("android.app.sdksandbox", "SandboxedSdkProvider", "DataReceivedCallback")
-        private val SANDBOXED_SDK_CLASS =
-            ClassName("android.app.sdksandbox", "SandboxedSdk")
+        private val SANDBOXED_SDK_PROVIDER_CLASS_NAME =
+            ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkProviderCompat")
+        private val SANDBOXED_SDK_CLASS_NAME =
+            ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkCompat")
+        private val SANDBOXED_SDK_CREATE_MEMBER_NAME =
+            MemberName(
+                ClassName(
+                    SANDBOXED_SDK_CLASS_NAME.packageName,
+                    SANDBOXED_SDK_CLASS_NAME.simpleName,
+                    "Companion"
+                ), "create"
+            )
         private val CONTEXT_CLASS = ClassName("android.content", "Context")
         private val BUNDLE_CLASS = ClassName("android.os", "Bundle")
         private val VIEW_CLASS = ClassName("android.view", "View")
@@ -49,11 +56,10 @@ class AbstractSdkProviderGenerator(private val api: ParsedApi) {
         val className = "AbstractSandboxedSdkProvider"
         val classSpec =
             TypeSpec.classBuilder(className)
-                .superclass(SANDBOXED_SDK_PROVIDER_CLASS)
+                .superclass(SANDBOXED_SDK_PROVIDER_CLASS_NAME)
                 .addModifiers(KModifier.ABSTRACT)
                 .addFunction(generateOnLoadSdkFunction())
                 .addFunction(generateGetViewFunction())
-                .addFunction(generateOnDataReceivedFunction())
                 .addFunction(generateCreateServiceFunction(api.getOnlyService()))
 
         return FileSpec.builder(packageName, className)
@@ -65,13 +71,13 @@ class AbstractSdkProviderGenerator(private val api: ParsedApi) {
         return FunSpec.builder("onLoadSdk").build {
             addModifiers(KModifier.OVERRIDE)
             addParameter("params", BUNDLE_CLASS)
-            returns(SANDBOXED_SDK_CLASS)
+            returns(SANDBOXED_SDK_CLASS_NAME)
             addStatement(
                 "val sdk = ${getCreateServiceFunctionName(api.getOnlyService())}(context!!)"
             )
             addStatement(
-                "return %T(%T(sdk))",
-                SANDBOXED_SDK_CLASS,
+                "return %M(%T(sdk))",
+                SANDBOXED_SDK_CREATE_MEMBER_NAME,
                 api.getOnlyService().stubDelegateNameSpec()
             )
         }
@@ -94,14 +100,6 @@ class AbstractSdkProviderGenerator(private val api: ParsedApi) {
             .addModifiers(KModifier.ABSTRACT, KModifier.PROTECTED)
             .addParameter("context", CONTEXT_CLASS)
             .returns(service.type.poetSpec())
-            .build()
-    }
-
-    private fun generateOnDataReceivedFunction(): FunSpec {
-        return FunSpec.builder("onDataReceived")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("data", BUNDLE_CLASS)
-            .addParameter("callback", DATA_RECEIVED_CALLBACK_CLASS)
             .build()
     }
 
