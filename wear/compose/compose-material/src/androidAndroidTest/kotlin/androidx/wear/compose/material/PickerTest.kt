@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
@@ -500,6 +501,7 @@ class PickerTest {
         assertThat(state.selectedOption).isNotEqualTo(initialOption)
     }
 
+    @Test
     fun scrolls_from_non_canonical_option_works() {
         lateinit var scope: CoroutineScope
         val pickerDriver = PickerDriver(separationSign = 1)
@@ -532,6 +534,27 @@ class PickerTest {
         rule.waitForIdle()
 
         pickerDriver.verifyCenterItemIsCentered()
+    }
+
+    @Test
+    fun rememberPickerState_updates_after_new_inputs() {
+        val numberOfOptions = 10
+        lateinit var selectedOption: MutableState<Int>
+        rule.setContent {
+            selectedOption = remember { mutableStateOf(1) }
+            val pickerState = rememberPickerState(
+                initialNumberOfOptions = numberOfOptions,
+                initiallySelectedOption = selectedOption.value
+            )
+            Text(text = "${pickerState.selectedOption}")
+        }
+
+        // Update selected option to a new value - should also update the PickerState instance,
+        // and then recompose with the new value in the Text element.
+        selectedOption.value = 2
+        rule.waitForIdle()
+
+        rule.onNodeWithText("2").assertExists()
     }
 
     private fun scroll_snaps(
