@@ -68,7 +68,7 @@ class SleepStageRecordTest {
             SleepStageRecord.Companion::class
                 .members
                 .asSequence()
-                .filter { it -> it.name.startsWith("STAGE_TYPE") && !it.name.endsWith("UNKNOWN") }
+                .filter { it -> it.name.startsWith("STAGE_TYPE") }
                 .filter { it -> it.returnType == typeOf<Int>() }
                 .map { it -> it.call(ExerciseSessionRecord.Companion) }
                 .toHashSet()
