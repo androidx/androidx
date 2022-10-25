@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.asmCommons)
 
     implementation project(path: ':privacysandbox:tools:tools')
+    implementation project(path: ':privacysandbox:tools:tools-core')
 
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))

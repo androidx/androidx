@@ -16,12 +16,15 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
+import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.compileAll
 import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
+import androidx.privacysandbox.tools.testing.resourceOutputDir
+import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
-import androidx.room.compiler.processing.util.Source
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Files
 import org.junit.Test
@@ -86,6 +89,41 @@ class PrivacySandboxKspCompilerTest {
                 )
             )
         ).generatesExactlySources()
+    }
+    @Test
+    fun generatesMetadataFile() {
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
+                    package com.mysdk
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    @PrivacySandboxService
+                    interface MySdk {
+                        fun doStuff(x: Int, y: Int)
+                    }
+                """
+            )
+        val provider = PrivacySandboxKspCompiler.Provider()
+        val compilationResult =
+            compileAll(
+                listOf(source),
+                symbolProcessorProviders = listOf(provider),
+                processorOptions = getProcessorOptions(),
+            )
+        assertThat(compilationResult).succeeds()
+
+        val resourceMap = compilationResult.resourceOutputDir.walk()
+            .filter { it.isFile }
+            .map { it.toRelativeString(compilationResult.resourceOutputDir) to it.readBytes() }
+            .toMap()
+        val expectedMetadataRelativePath = "META-INF/privacysandbox/tool-metadata.pb"
+        assertThat(resourceMap).containsKey(expectedMetadataRelativePath)
+        assertThat(ToolMetadata.parseFrom(resourceMap[expectedMetadataRelativePath]))
+            .isEqualTo(
+                ToolMetadata.newBuilder()
+                    .setCodeGenerationVersion(1)
+                    .build())
     }
 
     @Test
