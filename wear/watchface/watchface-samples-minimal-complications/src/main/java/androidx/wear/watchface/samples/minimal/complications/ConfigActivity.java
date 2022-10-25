@@ -18,8 +18,6 @@ package androidx.wear.watchface.samples.minimal.complications;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.FlowLiveDataConversions;
 import androidx.wear.watchface.complications.ComplicationDataSourceInfo;
 import androidx.wear.watchface.complications.data.ComplicationData;
@@ -35,21 +34,12 @@ import androidx.wear.watchface.editor.ListenableEditorSession;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
 
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
     private static final String TAG = "ConfigActivity";
-
-    private Executor mMainExecutor = new Executor() {
-        private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(Runnable runnable) {
-            mHandler.post(runnable);
-        }
-    };
 
     private TextView mComplicationProviderName;
     private ImageView mComplicationPreview;
@@ -59,16 +49,22 @@ public class ConfigActivity extends ComponentActivity {
     private ListenableEditorSession mEditorSession;
 
     public ConfigActivity() {
-        addCallback(
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this),
-                new BaseFutureCallback<ListenableEditorSession>(
-                        this, TAG, "listenableCreateOnWatchEditingSession") {
-                    @Override
-                    public void onSuccess(ListenableEditorSession editorSession) {
-                        super.onSuccess(editorSession);
-                        setEditorSession(editorSession);
-                    }
-                });
+        ListenableFuture<ListenableEditorSession> editorSessionFuture =
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
+        editorSessionFuture.addListener(() -> {
+            ListenableEditorSession editorSession;
+            try {
+                editorSession = editorSessionFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (editorSession == null) {
+                return;
+            }
+            mEditorSession = editorSession;
+            observeComplications();
+        }, ContextCompat.getMainExecutor(this));
     }
 
     @Override
@@ -88,8 +84,7 @@ public class ConfigActivity extends ComponentActivity {
         }
     }
 
-    private void setEditorSession(ListenableEditorSession editorSession) {
-        ConfigActivity.this.mEditorSession = editorSession;
+    private void observeComplications() {
         FlowLiveDataConversions.asLiveData(mEditorSession.getComplicationsDataSourceInfo()).observe(
                 this,
                 complicationDataSourceInfoMap -> {
@@ -138,16 +133,13 @@ public class ConfigActivity extends ComponentActivity {
         mEditorSession
                 .listenableOpenComplicationDataSourceChooser(
                         WatchFaceService.getComplicationId(getResources())
-                ).addListener(() -> { /* Empty on purpose. */ }, mMainExecutor);
+                ).addListener(() -> { /* Empty on purpose. */ },
+                        ContextCompat.getMainExecutor(this));
     }
 
     @Override
     protected void onDestroy() {
         finish();
         super.onDestroy();
-    }
-
-    private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
-        FutureCallback.addCallback(future, callback, mMainExecutor);
     }
 }
