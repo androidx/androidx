@@ -59,6 +59,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
         private val mMVPMatrix = FloatArray(16)
         private val mProjection = FloatArray(16)
 
+        private val mSceneParams = ArrayList<FloatArray>()
+
         override fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
             bufferWidth: Int,
@@ -98,6 +100,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             params: Collection<FloatArray>
         ) {
             GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+            GLES20.glClearColor(0f, 0f, 0f, 0f)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             Matrix.orthoM(
                 mMVPMatrix,
                 0,
@@ -109,7 +113,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 1f
             )
             Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
-            for (line in params) {
+            mSceneParams.addAll(params)
+            for (line in mSceneParams) {
                 obtainRenderer().drawLines(mProjection, line, Color.BLUE, 20f)
             }
         }

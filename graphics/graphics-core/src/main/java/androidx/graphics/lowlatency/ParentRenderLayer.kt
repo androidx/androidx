@@ -104,12 +104,14 @@ internal interface ParentRenderLayer<T> {
 
         /**
          * Callback invoked by the [ParentRenderLayer] to query the parameters since the last
-         * render to the dry layer. This includes all parameters to each request to render content
-         * to the front buffered layer since the last time the dry layer was re-rendered.
+         * render to the multi-buffered layer. This includes all parameters to each request to
+         * render content to the front buffered layer since the last time the dry layer was
+         * re-rendered.
          * This is useful for recreating the entire scene when front buffered layer contents are to
          * be committed, that is the entire scene is re-rendered into the double buffered layer.
+         * This can return null if all the double buffered params have already been queried.
          */
-        fun obtainDoubleBufferedLayerParams(): MutableCollection<T>
+        fun obtainDoubleBufferedLayerParams(): MutableCollection<T>?
 
         /**
          * Obtain a handle to the front buffered layer [SurfaceControlCompat] to be used in
