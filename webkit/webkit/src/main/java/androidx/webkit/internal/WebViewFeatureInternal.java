@@ -383,9 +383,9 @@ public class WebViewFeatureInternal {
      * This feature covers
      * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
      */
-    public static final StartupApiFeature.P SET_DATA_DIRECTORY_SUFFIX =
-            new StartupApiFeature.P(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
-                    StartupFeatures.SET_DATA_DIRECTORY_SUFFIX);
+    public static final StartupApiFeature.P STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
+            new StartupApiFeature.P(WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
+                    StartupFeatures.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX);
 
     /**
      * This feature covers

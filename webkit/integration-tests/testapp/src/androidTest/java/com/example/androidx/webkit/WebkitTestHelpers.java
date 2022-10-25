@@ -139,7 +139,7 @@ public final class WebkitTestHelpers {
             @WebViewFeature.WebViewStartupFeature String featureName,
             Context context) {
         final String msg = "This device does not have the feature '" +  featureName + "'";
-        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(featureName, context);
+        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(context, featureName);
         Assume.assumeTrue(msg, hasFeature);
     }
 
@@ -155,7 +155,7 @@ public final class WebkitTestHelpers {
     public static void assumeStartupFeatureNotAvailable(
             @WebViewFeature.WebViewStartupFeature String featureName, Context context) {
         final String msg = "This device has the feature '" +  featureName + "'";
-        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(featureName, context);
+        final boolean hasFeature = WebViewFeature.isStartupFeatureSupported(context, featureName);
         Assume.assumeFalse(msg, hasFeature);
     }
 
