@@ -15,6 +15,7 @@
          <trust group="com.google.android.gms"/> <!-- b/215442095 -->
          <trust group="com.google.android.datatransport"/> <!-- b/215442095 -->
          <trust group="com.google.android.material"/> <!-- b/216192082 -->
+         <trust group="com.google.android.play"/> <!-- b/255621183 -->
          <trust group="com.google.firebase"/> <!-- b/223907608 -->
          <trust group="com.google.mlkit"/> <!-- b/223907608 -->
          <trust file=".*kotlin-native-prebuilt-macos-.*" regex="true"/> <!-- b/228184608 -->
