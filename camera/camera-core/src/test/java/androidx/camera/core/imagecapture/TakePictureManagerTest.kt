@@ -54,14 +54,36 @@ class TakePictureManagerTest {
     }
 
     @Test
-    fun abortRequests_receiveErrorCallback() {
+    fun abortPostProcessingRequests_receiveErrorCallback() {
+        // Arrange: setup a request that is captured but not processed.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request)
+        val processingRequest = imagePipeline.getProcessingRequest(request)
+        processingRequest.onImageCaptured()
+        shadowOf(getMainLooper()).idle()
+        // Verify the "captured, not processed" status.
+        assertThat(takePictureManager.hasCapturingRequest()).isFalse()
+        assertThat(takePictureManager.incompleteRequests[0].captureFuture.isDone).isTrue()
+        assertThat(takePictureManager.incompleteRequests[0].completeFuture.isDone).isFalse()
+
+        // Act: abort all requests.
+        takePictureManager.abortRequests()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the user has received a CAMERA_CLOSED error.
+        assertThat((request.exceptionReceived as ImageCaptureException).imageCaptureError)
+            .isEqualTo(ERROR_CAMERA_CLOSED)
+    }
+
+    @Test
+    fun abortNewRequests_receiveErrorCallback() {
         // Arrange: send 2 request.
         val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         takePictureManager.offerRequest(request1)
         takePictureManager.offerRequest(request2)
 
-        // Act: ab the manage and finish the 1st request.
+        // Act: abort the manager and finish the 1st request.
         takePictureManager.abortRequests()
         // Camera returns the image, but it should be ignored.
         val processingRequest = imagePipeline.getProcessingRequest(request1)
@@ -156,7 +178,7 @@ class TakePictureManagerTest {
 
         // Assert.
         assertThat(request.exceptionReceived!!).isEqualTo(cause)
-        assertThat(takePictureManager.hasInFlightRequest()).isFalse()
+        assertThat(takePictureManager.hasCapturingRequest()).isFalse()
     }
 
     @Test
@@ -173,7 +195,7 @@ class TakePictureManagerTest {
         // Assert.
         assertThat(request.exceptionReceived!!.imageCaptureError).isEqualTo(ERROR_CAPTURE_FAILED)
         assertThat(request.exceptionReceived!!.cause).isEqualTo(cause)
-        assertThat(takePictureManager.hasInFlightRequest()).isFalse()
+        assertThat(takePictureManager.hasCapturingRequest()).isFalse()
     }
 
     @Test

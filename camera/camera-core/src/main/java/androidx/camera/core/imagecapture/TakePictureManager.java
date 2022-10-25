@@ -44,7 +44,9 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 /**
  * Manages {@link ImageCapture#takePicture} calls.
@@ -71,10 +73,12 @@ public class TakePictureManager implements OnImageCloseListener {
     final ImagePipeline mImagePipeline;
     final ImageCaptureControl mImageCaptureControl;
 
-    // The current request being processed by camera. Null if the camera is idle.
-    @VisibleForTesting
+    // The current request being processed by the camera. Only one request can be processed by
+    // the camera at the same time. Null if the camera is idle.
     @Nullable
-    RequestWithCallback mInFlightRequest;
+    private RequestWithCallback mCapturingRequest;
+    // The current requests that have not received a result or an error.
+    private final List<RequestWithCallback> mIncompleteRequests;
 
     // Once paused, the class waits until the class is resumed to handle new requests.
     boolean mPaused = false;
@@ -91,6 +95,7 @@ public class TakePictureManager implements OnImageCloseListener {
         mImageCaptureControl = imageCaptureControl;
         mImagePipeline = imagePipeline;
         mImagePipeline.setOnImageCloseListener(this);
+        mIncompleteRequests = new ArrayList<>();
     }
 
     /**
@@ -142,10 +147,11 @@ public class TakePictureManager implements OnImageCloseListener {
         mNewRequests.clear();
 
         // Abort the in-flight request after clearing the pending requests.
-        if (mInFlightRequest != null) {
-            // TODO: optimize the performance by aborting early in CaptureNode and BundlingNode
-            mInFlightRequest.abort(exception);
+        for (RequestWithCallback request : mIncompleteRequests) {
+            // TODO: optimize the performance by not processing aborted requests.
+            request.abort(exception);
         }
+        mIncompleteRequests.clear();
     }
 
     /**
@@ -155,7 +161,7 @@ public class TakePictureManager implements OnImageCloseListener {
     void issueNextRequest() {
         checkMainThread();
         Log.d(TAG, "Issue the next TakePictureRequest.");
-        if (hasInFlightRequest()) {
+        if (hasCapturingRequest()) {
             Log.d(TAG, "There is already a request in-flight.");
             return;
         }
@@ -174,7 +180,7 @@ public class TakePictureManager implements OnImageCloseListener {
         }
 
         RequestWithCallback requestWithCallback = new RequestWithCallback(request);
-        trackCurrentRequest(requestWithCallback);
+        trackCurrentRequests(requestWithCallback);
 
         // Send requests.
         Pair<CameraRequest, ProcessingRequest> requests =
@@ -187,12 +193,20 @@ public class TakePictureManager implements OnImageCloseListener {
     /**
      * Waits for the request to finish before issuing the next.
      */
-    private void trackCurrentRequest(@NonNull RequestWithCallback requestWithCallback) {
-        checkState(!hasInFlightRequest());
-        mInFlightRequest = requestWithCallback;
-        mInFlightRequest.getCaptureFuture().addListener(() -> {
-            mInFlightRequest = null;
+    private void trackCurrentRequests(@NonNull RequestWithCallback requestWithCallback) {
+        checkState(!hasCapturingRequest());
+        mCapturingRequest = requestWithCallback;
+
+        // Waits for the capture to finish before issuing the next.
+        mCapturingRequest.getCaptureFuture().addListener(() -> {
+            mCapturingRequest = null;
             issueNextRequest();
+        }, directExecutor());
+
+        // Track all incomplete requests so we can abort them when UseCase is detached.
+        mIncompleteRequests.add(requestWithCallback);
+        requestWithCallback.getCompleteFuture().addListener(() -> {
+            mIncompleteRequests.remove(requestWithCallback);
         }, directExecutor());
     }
 
@@ -232,8 +246,13 @@ public class TakePictureManager implements OnImageCloseListener {
     }
 
     @VisibleForTesting
-    boolean hasInFlightRequest() {
-        return mInFlightRequest != null;
+    boolean hasCapturingRequest() {
+        return mCapturingRequest != null;
+    }
+
+    @VisibleForTesting
+    List<RequestWithCallback> getIncompleteRequests() {
+        return mIncompleteRequests;
     }
 
     @Override
