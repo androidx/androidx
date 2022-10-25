@@ -26,9 +26,10 @@ import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
 
 /**
- * Filter for [ActivityRule] that checks for component name match. Allows a wildcard symbol in the
- * end or instead of the package name, and a wildcard symbol in the end or instead of the class
- * name.
+ * Filter for [ActivityRule] and [SplitPlaceholderRule] that checks for component name match when
+ * a new activity is started. If the filter matches the started activity [Intent], the activity will
+ * then apply the rule based on the match result. This filter allows a wildcard symbol in the end or
+ * instead of the package name, and a wildcard symbol in the end or instead of the class name.
  */
 class ActivityFilter internal constructor(
     /**
@@ -89,6 +90,7 @@ class ActivityFilter internal constructor(
         ) { "Wildcard in class name is only allowed at the end." }
     }
 
+    /** Returns `true` if the [ActivityFilter] matches this [intent]. */
     fun matchesIntent(intent: Intent): Boolean {
         val match = if (!isIntentMatching(intent, activityComponentInfo)) {
                 false
@@ -105,6 +107,7 @@ class ActivityFilter internal constructor(
         return match
     }
 
+    /** Returns `true` if the [ActivityFilter] matches this [activity]. */
     fun matchesActivity(activity: Activity): Boolean {
         val match =
             isActivityOrIntentMatching(activity, activityComponentInfo) &&
@@ -119,10 +122,14 @@ class ActivityFilter internal constructor(
         return match
     }
 
+    /** Returns `true` if the [ActivityFilter] matches the [Class.getName]. */
     fun <T : Activity> matchesClassName(clazz: Class<T>): Boolean {
         return activityComponentInfo.className == clazz.name
     }
 
+    /**
+     * Returns `true` if the [ActivityFilter] matches the [Class.getName] or includes wildcard (`*`)
+     */
     fun <T : Activity> matchesClassNameOrWildCard(clazz: Class<T>?): Boolean {
         return clazz?.let(::matchesClassName) ?: activityComponentInfo.className.contains("*")
     }
