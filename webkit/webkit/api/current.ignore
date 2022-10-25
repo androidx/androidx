@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderOriginAllowList():
+    Added method androidx.webkit.ServiceWorkerWebSettingsCompat.getRequestedWithHeaderOriginAllowList()
+AddedAbstractMethod: androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderOriginAllowList(java.util.Set<java.lang.String>):
+    Added method androidx.webkit.ServiceWorkerWebSettingsCompat.setRequestedWithHeaderOriginAllowList(java.util.Set<java.lang.String>)

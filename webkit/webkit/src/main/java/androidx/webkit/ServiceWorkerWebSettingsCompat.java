@@ -184,13 +184,14 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * <p>
      * Any origin <em>not</em> on this allow-list may not receive the header, depending on the
      * current installed WebView provider.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
      * @return The configured set of allow-listed origins.
      * @see #setRequestedWithHeaderOriginAllowList(Set)
      * @see WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
@@ -209,15 +210,13 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * the deprecated header, but it should not be used to identify the webview to first-party
      * servers under the control of the app developer.
      * <p>
-     * The format of the allow-list follows the origin rules of
+     * The format of the strings in the allow-list follows the origin rules of
      * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
      * @param allowList Set of origins to allow-list.
      * @see WebSettingsCompat#setRequestedWithHeaderOriginAllowList(WebSettings, Set)
      * @throws IllegalArgumentException if the allow-list contains a malformed origin.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList);
