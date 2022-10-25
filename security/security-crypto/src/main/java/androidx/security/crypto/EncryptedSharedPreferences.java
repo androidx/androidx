@@ -51,14 +51,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An implementation of {@link SharedPreferences} that encrypts keys and values.
+ * <br />
+ * <br />
+ * <b>WARNING</b>: The preference file should not be backed up with Auto Backup. When restoring the
+ * file it is likely the key used to encrypt it will no longer be present. You should exclude all
+ * <code>EncryptedSharedPreference</code>s from backup using
+ * <a href="https://developer.android.com/guide/topics/data/autobackup#IncludingFiles">backup rules</a>.
+ * <br />
+ * <br />
+ * Basic use of the class:
  *
  * <pre>
- *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+ *  MasterKey masterKey = new MasterKey.Builder(context)
+ *      .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+ *      .build();
  *
  *  SharedPreferences sharedPreferences = EncryptedSharedPreferences.create(
- *      "secret_shared_prefs",
- *      masterKeyAlias,
  *      context,
+ *      "secret_shared_prefs",
+ *      masterKey,
  *      EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
  *      EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
  *  );
