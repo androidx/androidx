@@ -16,5 +16,12 @@
 
 package androidx.credentials
 
-/** Base class for a credential with which the user consented to authenticate to the app. */
-abstract class Credential
+import android.os.Bundle
+
+/**
+ * Base class for a credential with which the user consented to authenticate to the app.
+ *
+ * @property type the credential type determined by the credential-type-specific subclass
+ * @property data the credential data in the [Bundle] format.
+ */
+open class Credential(val type: String, val data: Bundle)

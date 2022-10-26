@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * A request to save the user password credential with their password provider.
  *
@@ -28,9 +31,29 @@ package androidx.credentials
 class CreatePasswordRequest constructor(
     val id: String,
     val password: String,
-) : CreateCredentialRequest() {
+) : CreateCredentialRequest(
+    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    toBundle(id, password),
+    false,
+) {
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
+    }
+
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
+
+        @JvmStatic
+        internal fun toBundle(id: String, password: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_ID, id)
+            bundle.putString(BUNDLE_KEY_PASSWORD, password)
+            return bundle
+        }
     }
 }

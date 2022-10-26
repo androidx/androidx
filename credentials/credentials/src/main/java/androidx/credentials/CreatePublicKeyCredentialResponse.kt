@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * A response of a public key credential (passkey) flow.
  *
@@ -28,10 +31,27 @@ package androidx.credentials
  */
 class CreatePublicKeyCredentialResponse(
     val registrationResponseJson: String
-) : CreateCredentialResponse() {
+) : CreateCredentialResponse(
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    toBundle(registrationResponseJson)
+) {
 
     init {
         require(registrationResponseJson.isNotEmpty()) { "registrationResponseJson must not be " +
             "empty" }
+    }
+
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_REGISTRATION_RESPONSE_JSON =
+            "androidx.credentials.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON"
+
+        @JvmStatic
+        internal fun toBundle(registrationResponseJson: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_REGISTRATION_RESPONSE_JSON, registrationResponseJson)
+            return bundle
+        }
     }
 }

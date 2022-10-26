@@ -1,4 +1,4 @@
-package androidx.credentials/*
+/*
  * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,11 @@ package androidx.credentials/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package androidx.credentials
+
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 
 /**
  * A request to get passkeys from the user's public key credential provider.
@@ -30,4 +35,23 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     requestJson: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true,
-) : GetPublicKeyCredentialBaseOption(requestJson)
+) : GetPublicKeyCredentialBaseOption(
+    requestJson,
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    toBundle(requestJson, allowHybrid),
+    false
+) {
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+
+        @JvmStatic
+        internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
+            return bundle
+        }
+    }
+}
