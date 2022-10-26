@@ -17,6 +17,8 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -38,6 +40,7 @@ import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.padding
+import androidx.glance.material.ColorProviders
 import androidx.glance.material3.ColorProviders
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -47,14 +50,22 @@ import androidx.glance.unit.ColorProvider
  * A demo showing how to construct a widget with [GlanceTheme]. It will use Material 3 colors and
  * when supported, it will use the dynamic color theme.
  */
-class DefaultColorsAppWidget(val useSystemM3Theme: Boolean) : GlanceAppWidget() {
+class DefaultColorsAppWidget(private val theme: DemoColorScheme.Scheme) : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
-        val colors = if (useSystemM3Theme) GlanceTheme.colors else ColorProviders(
-            light = DemoColorScheme.LightColors,
-            dark = DemoColorScheme.DarkColors
-        )
+        val colors = when (theme) {
+            DemoColorScheme.Scheme.SystemM3 -> GlanceTheme.colors
+            DemoColorScheme.Scheme.CustomM3 -> ColorProviders(
+                light = DemoColorScheme.LightColors,
+                dark = DemoColorScheme.DarkColors
+            )
+
+            DemoColorScheme.Scheme.CustomM2 -> ColorProviders(
+                light = DemoColorScheme.SampleM2ColorsLight,
+                dark = DemoColorScheme.SampleM2ColorsDark
+            )
+        }
 
         GlanceTheme(colors) {
             Column(
@@ -63,7 +74,7 @@ class DefaultColorsAppWidget(val useSystemM3Theme: Boolean) : GlanceAppWidget() 
                     .background(GlanceTheme.colors.background)
             ) {
                 Button(
-                    text = "Change Theme",
+                    text = "Theme: $currentScheme",
                     onClick = actionRunCallback<ChangeThemeCallback>(),
                     modifier = GlanceModifier.padding(2.dp)
                 )
@@ -147,21 +158,25 @@ class ChangeThemeCallback : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        useSystemM3Theme = !useSystemM3Theme
-        DefaultColorsAppWidget(useSystemM3Theme).update(context, glanceId)
+        colorSchemeIndex = (colorSchemeIndex + 1) % DemoColorScheme.Scheme.values().size
+        DefaultColorsAppWidget(currentScheme).update(context, glanceId)
     }
 }
 
-private var useSystemM3Theme = false
+private var colorSchemeIndex = 0
+private val currentScheme: DemoColorScheme.Scheme
+    get() = DemoColorScheme.Scheme.values()[colorSchemeIndex]
 
 class DefaultColorsAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget = DefaultColorsAppWidget(useSystemM3Theme)
+    override val glanceAppWidget = DefaultColorsAppWidget(currentScheme)
 }
 
 /**
  * Color scheme generated using https://m3.material.io/theme-builder#/custom
  */
 object DemoColorScheme {
+    enum class Scheme { SystemM3, CustomM3, CustomM2 }
+
     val md_theme_light_primary = Color(0xFF026E00)
     val md_theme_light_onPrimary = Color(0xFFFFFFFF)
     val md_theme_light_primaryContainer = Color(0xFF77FF61)
@@ -280,5 +295,40 @@ object DemoColorScheme {
         inverseOnSurface = md_theme_dark_inverseOnSurface,
         inversePrimary = md_theme_dark_inversePrimary,
         surfaceTint = md_theme_dark_surfaceTint,
+    )
+
+    // Palette based on Jetchat
+    private val Yellow400 = Color(0xFFF6E547)
+    private val Yellow700 = Color(0xFFF3B711)
+    private val Yellow800 = Color(0xFFF29F05)
+    private val Blue200 = Color(0xFF9DA3FA)
+    private val Blue400 = Color(0xFF4860F7)
+    private val Blue500 = Color(0xFF0540F2)
+    private val Blue800 = Color(0xFF001CCF)
+    private val Red300 = Color(0xFFEA6D7E)
+    private val Red800 = Color(0xFFD00036)
+
+    val SampleM2ColorsDark = darkColors(
+        primary = Blue200,
+        primaryVariant = Blue400,
+        onPrimary = Color.Black,
+        secondary = Yellow400,
+        onSecondary = Color.Black,
+        onSurface = Color.White,
+        onBackground = Color.White,
+        error = Red300,
+        onError = Color.Black
+    )
+    val SampleM2ColorsLight = lightColors(
+        primary = Blue500,
+        primaryVariant = Blue800,
+        onPrimary = Color.White,
+        secondary = Yellow700,
+        secondaryVariant = Yellow800,
+        onSecondary = Color.Black,
+        onSurface = Color.Black,
+        onBackground = Color.Black,
+        error = Red800,
+        onError = Color.White
     )
 }

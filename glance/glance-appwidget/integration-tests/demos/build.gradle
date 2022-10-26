@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
+    implementation(project(":glance:glance-material"))
     implementation(project(":glance:glance-material3"))
     implementation("androidx.activity:activity:1.4.0")
     implementation("androidx.activity:activity-compose:1.4.0")
