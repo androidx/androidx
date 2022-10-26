@@ -203,9 +203,9 @@ public class UiObject2Test extends BaseTest {
         // Get the same textView object via different methods.
         UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
         UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
-        assertTrue(textView1.equals(textView2));
+        assertEquals(textView1, textView2);
         UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
-        assertFalse(textView1.equals(linearLayout));
+        assertNotEquals(textView1, linearLayout);
     }
 
     @Test
@@ -598,22 +598,15 @@ public class UiObject2Test extends BaseTest {
         launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
-        // Scroll down to bottom (20000px) in increments of 5000px.
+        // Scroll down to bottom where is two-screen-height distant from the top.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
         scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+
         Rect bounds = scrollView.getVisibleBounds();
-        float percent = 5_000f / (bounds.height() - 2 * SCROLL_MARGIN);
-        // Scroll to an element 5000px from the top.
+        float percent =
+                (float) (mDevice.getDisplayHeight() * 2 / (bounds.height() - 2 * SCROLL_MARGIN));
         scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_5000")));
-        // Scroll to an element 10000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_10000")));
-        // Scroll to an element 15000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_15000")));
-        // Scroll to the bottom element 20000px from the top.
-        scrollView.scroll(Direction.DOWN, percent);
+
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
