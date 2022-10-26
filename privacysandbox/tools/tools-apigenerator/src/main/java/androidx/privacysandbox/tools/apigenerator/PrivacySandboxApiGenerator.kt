@@ -17,7 +17,6 @@
 package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
-import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
@@ -30,8 +29,6 @@ import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
-import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
-import com.google.protobuf.InvalidProtocolBufferException
 import java.io.File
 import java.nio.file.Path
 import java.util.zip.ZipInputStream
@@ -42,7 +39,6 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
 import kotlin.io.path.moveTo
 import kotlin.io.path.outputStream
-import kotlin.io.path.readBytes
 
 /** Generate source files for communicating with an SDK running in the Privacy Sandbox. */
 class PrivacySandboxApiGenerator {
@@ -172,29 +168,9 @@ class PrivacySandboxApiGenerator {
                     }
             }
 
-            ensureValidMetadata(workingDirectory.resolve(Metadata.filePath))
             return ApiStubParser.parse(workingDirectory)
         } finally {
             workingDirectory.toFile().deleteRecursively()
-        }
-    }
-
-    private fun ensureValidMetadata(metadataFile: Path) {
-        require(metadataFile.exists()) {
-            "Missing tool metadata in SDK API descriptor."
-        }
-
-        val metadata = try {
-            ToolMetadata.parseFrom(metadataFile.readBytes())
-        } catch (e: InvalidProtocolBufferException) {
-            throw IllegalArgumentException("Invalid Privacy Sandbox tool metadata.", e)
-        }
-
-        val sdkCodeGenerationVersion = metadata.codeGenerationVersion
-        val consumerVersion = Metadata.toolMetadata.codeGenerationVersion
-        require(sdkCodeGenerationVersion <= consumerVersion) {
-            "SDK uses incompatible Privacy Sandbox tooling " +
-                "(version $sdkCodeGenerationVersion). Current version is $consumerVersion."
         }
     }
 
