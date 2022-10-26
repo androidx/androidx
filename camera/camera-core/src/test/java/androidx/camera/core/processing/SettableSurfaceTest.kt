@@ -72,7 +72,7 @@ class SettableSurfaceTest {
         settableSurface = SettableSurface(
             CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             Matrix(), true, Rect(), 0, false
-        )
+        ) {}
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
     }

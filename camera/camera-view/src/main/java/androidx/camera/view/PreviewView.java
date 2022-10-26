@@ -1006,8 +1006,10 @@ public final class PreviewView extends FrameLayout {
         if (mImplementation instanceof TextureViewImplementation) {
             matrix.postConcat(getMatrix());
         } else {
-            Logger.w(TAG, "PreviewView needs to be in COMPATIBLE mode for the transform"
-                    + " to work correctly.");
+            if (!getMatrix().isIdentity()) {
+                Logger.w(TAG, "PreviewView needs to be in COMPATIBLE mode for the transform"
+                        + " to work correctly.");
+            }
         }
 
         return new OutputTransform(matrix, new Size(surfaceCropRect.width(),

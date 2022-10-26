@@ -228,8 +228,12 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
+
+        // TODO: Can be improved by only restarting part of the pipeline when using the
+        //  CaptureProcessor. e.g. only update the output Surface (between Processor/App), and
+        //  still use the same input Surface (between Camera/Processor). It's just simpler for now.
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                isRGBA8888SurfaceRequired);
+                isRGBA8888SurfaceRequired, this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (mSurfaceProvider != null) {
@@ -319,7 +323,8 @@ public final class Preview extends UseCase {
                 /*hasEmbeddedTransform=*/true,
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
-                /*mirroring=*/false);
+                /*mirroring=*/false,
+                this::notifyReset);
         SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
         SurfaceEdge outputEdge = mNode.transform(inputEdge);
         SettableSurface appSurface = outputEdge.getSurfaces().get(0);

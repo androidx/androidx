@@ -497,6 +497,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Threads.checkMainThread();
         CameraInternal camera = Preconditions.checkNotNull(getCamera());
 
+        // Currently, VideoCapture uses StreamInfo to handle requests for surface, so
+        // handleInvalidate() is not used. But if a different approach is asked in the future,
+        // handleInvalidate() can be used as an alternative.
+        Runnable onSurfaceInvalidated = this::notifyReset;
+
         // TODO(b/229410005): The expected FPS range will need to come from the camera rather
         //  than what is requested in the config. For now we use the default range of (30, 30)
         //  for behavioral consistency.
@@ -520,7 +525,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     /*hasEmbeddedTransform=*/true,
                     mCropRect,
                     getRelativeRotation(camera),
-                    /*mirroring=*/false);
+                    /*mirroring=*/false,
+                    onSurfaceInvalidated);
             SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
             SurfaceEdge outputEdge = mNode.transform(inputEdge);
             SettableSurface appSurface = outputEdge.getSurfaces().get(0);
@@ -534,7 +540,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 }
             }, CameraXExecutors.mainThreadExecutor());
         } else {
-            mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange);
+            mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange,
+                    onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
             // When camera buffers from a REALTIME device are passed directly to a video encoder
             // from the camera, automatic compensation is done to account for differing timebases
