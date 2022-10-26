@@ -30,6 +30,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
+import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -52,7 +53,6 @@ import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimes
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
-import androidx.camera.video.internal.compat.quirk.MediaCodecDoesNotSendEos;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
@@ -202,11 +202,10 @@ public class EncoderImpl implements Encoder {
     Long mLastDataStopTimestamp = null;
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     Future<?> mStopTimeoutFuture = null;
-    @Nullable
-    private MediaCodecCallback mMediaCodecCallback;
 
     private boolean mIsFlushedAfterEndOfStream = false;
     private boolean mSourceStoppedSignalled = false;
+    boolean mMediaCodecEosSignalled = false;
 
     final EncoderFinder mEncoderFinder = new EncoderFinder();
 
@@ -277,13 +276,13 @@ public class EncoderImpl implements Encoder {
         mMediaCodec.reset();
         mIsFlushedAfterEndOfStream = false;
         mSourceStoppedSignalled = false;
+        mMediaCodecEosSignalled = false;
         mPendingCodecStop = false;
         if (mStopTimeoutFuture != null) {
             mStopTimeoutFuture.cancel(true);
             mStopTimeoutFuture = null;
         }
-        mMediaCodecCallback = new MediaCodecCallback();
-        mMediaCodec.setCallback(mMediaCodecCallback);
+        mMediaCodec.setCallback(new MediaCodecCallback());
         mMediaCodec.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
         if (mEncoderInput instanceof SurfaceInput) {
@@ -516,15 +515,13 @@ public class EncoderImpl implements Encoder {
             Futures.successfulAsList(futures).addListener(this::signalEndOfInputStream,
                     mEncoderExecutor);
         } else if (mEncoderInput instanceof SurfaceInput) {
-            if (DeviceQuirks.get(MediaCodecDoesNotSendEos.class) != null) {
-                requireNonNull(mMediaCodecCallback).onOutputBufferAvailable(mMediaCodec,
-                        FAKE_BUFFER_INDEX, createFakeEosBufferInfo());
-            } else {
-                try {
-                    mMediaCodec.signalEndOfInputStream();
-                } catch (MediaCodec.CodecException e) {
-                    handleEncodeError(e);
-                }
+            try {
+                mMediaCodec.signalEndOfInputStream();
+                // On some devices, MediaCodec#signalEndOfInputStream() doesn't work.
+                // See b/255209101.
+                mMediaCodecEosSignalled = true;
+            } catch (MediaCodec.CodecException e) {
+                handleEncodeError(e);
             }
         }
     }
@@ -891,7 +888,7 @@ public class EncoderImpl implements Encoder {
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @ExecutedBy("mEncoderExecutor")
-    long getAdjustedTimeUs(@NonNull MediaCodec.BufferInfo bufferInfo) {
+    long getAdjustedTimeUs(@NonNull BufferInfo bufferInfo) {
         long adjustedTimeUs;
         if (mTotalPausedDurationUs > 0L) {
             adjustedTimeUs = bufferInfo.presentationTimeUs - mTotalPausedDurationUs;
@@ -953,13 +950,6 @@ public class EncoderImpl implements Encoder {
         }
     }
 
-    @NonNull
-    private MediaCodec.BufferInfo createFakeEosBufferInfo() {
-        MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-        bufferInfo.set(0, 0, generatePresentationTimeUs(), MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        return bufferInfo;
-    }
-
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @ExecutedBy("mEncoderExecutor")
     void matchAcquisitionsAndFreeBufferIndexes() {
@@ -997,12 +987,12 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
-    static boolean isKeyFrame(@NonNull MediaCodec.BufferInfo bufferInfo) {
+    static boolean isKeyFrame(@NonNull BufferInfo bufferInfo) {
         return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
-    static boolean isEndOfStream(@NonNull MediaCodec.BufferInfo bufferInfo) {
+    static boolean hasEndOfStreamFlag(@NonNull BufferInfo bufferInfo) {
         return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
     }
 
@@ -1021,7 +1011,7 @@ public class EncoderImpl implements Encoder {
          * The last sent presentation time of BufferInfo. The value could be adjusted by total
          * pause duration.
          */
-        private long mLastSentPresentationTimeUs = 0L;
+        private long mLastSentAdjustedTimeUs = 0L;
         private boolean mIsOutputBufferInPauseState = false;
         private boolean mIsKeyFrameRequired = false;
 
@@ -1065,7 +1055,7 @@ public class EncoderImpl implements Encoder {
 
         @Override
         public void onOutputBufferAvailable(@NonNull MediaCodec mediaCodec, int index,
-                @NonNull MediaCodec.BufferInfo bufferInfo) {
+                @NonNull BufferInfo bufferInfo) {
             mEncoderExecutor.execute(() -> {
                 switch (mState) {
                     case STARTED:
@@ -1099,22 +1089,11 @@ public class EncoderImpl implements Encoder {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
                             }
-                            long adjustedTimeUs = getAdjustedTimeUs(bufferInfo);
-                            if (bufferInfo.presentationTimeUs != adjustedTimeUs) {
-                                // If adjusted time <= last sent time, the buffer should have been
-                                // detected and dropped in checkBufferInfo().
-                                Preconditions.checkState(
-                                        adjustedTimeUs > mLastSentPresentationTimeUs);
-                                bufferInfo.presentationTimeUs = adjustedTimeUs;
-                                if (DEBUG) {
-                                    Logger.d(mTag, "Adjust bufferInfo.presentationTimeUs to "
-                                            + DebugUtils.readableUs(adjustedTimeUs));
-                                }
-                            }
-                            mLastSentPresentationTimeUs = bufferInfo.presentationTimeUs;
+                            BufferInfo outBufferInfo = resolveOutputBufferInfo(bufferInfo);
+                            mLastSentAdjustedTimeUs = outBufferInfo.presentationTimeUs;
                             try {
                                 EncodedDataImpl encodedData = new EncodedDataImpl(mediaCodec, index,
-                                        bufferInfo);
+                                        outBufferInfo);
                                 sendEncodedData(encodedData, encoderCallback, executor);
                             } catch (MediaCodec.CodecException e) {
                                 handleEncodeError(e);
@@ -1160,6 +1139,26 @@ public class EncoderImpl implements Encoder {
         }
 
         @ExecutedBy("mEncoderExecutor")
+        @NonNull
+        private BufferInfo resolveOutputBufferInfo(@NonNull BufferInfo bufferInfo) {
+            long adjustedTimeUs = getAdjustedTimeUs(bufferInfo);
+            if (bufferInfo.presentationTimeUs == adjustedTimeUs) {
+                return bufferInfo;
+            }
+
+            // If adjusted time <= last sent time, the buffer should have been detected and
+            // dropped in checkBufferInfo().
+            Preconditions.checkState(adjustedTimeUs > mLastSentAdjustedTimeUs);
+            if (DEBUG) {
+                Logger.d(mTag, "Adjust bufferInfo.presentationTimeUs to "
+                        + DebugUtils.readableUs(adjustedTimeUs));
+            }
+            BufferInfo newBufferInfo = new BufferInfo();
+            newBufferInfo.set(bufferInfo.offset, bufferInfo.size, adjustedTimeUs, bufferInfo.flags);
+            return newBufferInfo;
+        }
+
+        @ExecutedBy("mEncoderExecutor")
         private void sendEncodedData(@NonNull EncodedDataImpl encodedData,
                 @NonNull EncoderCallback callback, @NonNull Executor executor) {
             mEncodedDataSet.add(encodedData);
@@ -1191,12 +1190,12 @@ public class EncoderImpl implements Encoder {
         }
 
         /**
-         * Checks the {@link android.media.MediaCodec.BufferInfo} and updates related states.
+         * Checks the {@link BufferInfo} and updates related states.
          *
          * @return {@code true} if the buffer is valid, otherwise {@code false}.
          */
         @ExecutedBy("mEncoderExecutor")
-        private boolean checkBufferInfo(@NonNull MediaCodec.BufferInfo bufferInfo) {
+        private boolean checkBufferInfo(@NonNull BufferInfo bufferInfo) {
             if (mHasEndData) {
                 Logger.d(mTag, "Drop buffer by already reach end of stream.");
                 return false;
@@ -1251,7 +1250,7 @@ public class EncoderImpl implements Encoder {
             }
 
             // We should check if the adjusted time is valid. see b/189114207.
-            if (getAdjustedTimeUs(bufferInfo) <= mLastSentPresentationTimeUs) {
+            if (getAdjustedTimeUs(bufferInfo) <= mLastSentAdjustedTimeUs) {
                 Logger.d(mTag, "Drop buffer by adjusted time is less than the last sent time.");
                 if (mIsVideoEncoder && isKeyFrame(bufferInfo)) {
                     mIsKeyFrameRequired = true;
@@ -1275,10 +1274,21 @@ public class EncoderImpl implements Encoder {
             return true;
         }
 
+        @ExecutedBy("mEncoderExecutor")
+        private boolean isEndOfStream(@NonNull BufferInfo bufferInfo) {
+            return hasEndOfStreamFlag(bufferInfo) || isEosSignalledAndStopTimeReached(bufferInfo);
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        private boolean isEosSignalledAndStopTimeReached(@NonNull BufferInfo bufferInfo) {
+            return mMediaCodecEosSignalled
+                    && bufferInfo.presentationTimeUs > mStartStopTimeRangeUs.getUpper();
+        }
+
         @SuppressWarnings("StatementWithEmptyBody") // to better organize the logic and comments
         @ExecutedBy("mEncoderExecutor")
         private boolean updatePauseRangeStateAndCheckIfBufferPaused(
-                @NonNull MediaCodec.BufferInfo bufferInfo) {
+                @NonNull BufferInfo bufferInfo) {
             updateTotalPausedDuration(bufferInfo.presentationTimeUs);
             boolean isInPauseRange = isInPauseRange(bufferInfo.presentationTimeUs);
             if (!mIsOutputBufferInPauseState && isInPauseRange) {
