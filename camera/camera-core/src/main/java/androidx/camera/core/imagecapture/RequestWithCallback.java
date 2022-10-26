@@ -67,15 +67,6 @@ class RequestWithCallback implements TakePictureCallback {
                 });
     }
 
-    /**
-     * Increments the retry counter of the underlying {@link TakePictureRequest}.
-     */
-    @MainThread
-    void incrementRetryCounter() {
-        checkMainThread();
-        mTakePictureRequest.incrementRetryCounter();
-    }
-
     @MainThread
     @Override
     public void onImageCaptured() {
@@ -151,12 +142,25 @@ class RequestWithCallback implements TakePictureCallback {
     }
 
     @MainThread
-    void abort(@NonNull ImageCaptureException imageCaptureException) {
+    void abortAndSendErrorToApp(@NonNull ImageCaptureException imageCaptureException) {
+        checkMainThread();
+        abort();
+        onFailure(imageCaptureException);
+    }
+
+    @MainThread
+    void abortSilentlyAndRetry() {
+        checkMainThread();
+        abort();
+        mRetryControl.retryRequest(mTakePictureRequest);
+    }
+
+    @MainThread
+    private void abort() {
         checkMainThread();
         mIsAborted = true;
         mCaptureCompleter.set(null);
         mCompleteCompleter.set(null);
-        onFailure(imageCaptureException);
     }
 
     /**

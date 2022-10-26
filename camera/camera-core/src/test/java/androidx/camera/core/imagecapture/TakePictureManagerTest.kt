@@ -56,6 +56,7 @@ class TakePictureManagerTest {
 
     @Test
     fun pause_inFlightRequestRetried() {
+        // Arrange: create 2 requests and offer them to the manager.
         imageCaptureControl.shouldUsePendingResult = true
         val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
@@ -63,11 +64,11 @@ class TakePictureManagerTest {
         takePictureManager.offerRequest(request2)
         assertThat(takePictureManager.mNewRequests).containsExactly(request2)
 
+        // Act: pause the manager.
         takePictureManager.pause()
-        assertThat(request1.remainingRetries).isEqualTo(1)
-        imageCaptureControl.pendingResultCompleter.setException(exception)
         shadowOf(getMainLooper()).idle()
 
+        // Assert: the in-flight request is retried.
         assertThat(takePictureManager.mNewRequests).containsExactly(request1, request2).inOrder()
         assertThat(request1.remainingRetries).isEqualTo(0)
     }
