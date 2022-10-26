@@ -185,7 +185,6 @@ class SplitPairRule : SplitRule {
 
     override fun toString(): String =
         "${SplitPairRule::class.java.simpleName}{" +
-            "defaultSplitAttributes=$defaultSplitAttributes" +
             "tag=$tag" +
             ", defaultSplitAttributes=$defaultSplitAttributes" +
             ", minWidth=$minWidth" +

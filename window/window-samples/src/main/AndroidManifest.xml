@@ -182,6 +182,28 @@
             android:taskAffinity="androidx.window.sample.split_pip">
         </activity>
 
+        <!-- The demo App to show how to change the current split layout with the current device and
+         window states -->
+
+        <activity
+            android:name=".embedding.SplitDeviceStateActivityA"
+            android:exported="true"
+            android:label="Split on Device State"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_device_state_activity_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitDeviceStateActivityB"
+            android:exported="true"
+            android:label="Split on Device State B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_device_state_activity_affinity">
+        </activity>
+
         <!-- ActivityEmbedding Initializer -->
 
         <provider android:name="androidx.startup.InitializationProvider"
