@@ -228,7 +228,21 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testSubText", NotificationCompat.getSubText(n));
     }
 
-    @FlakyTest(bugId = 190533219)
+    @SdkSuppress(maxSdkVersion = 15)
+    @Test
+    public void testActionsUnsupported() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+        Notification nWith = builder.addAction(0, "testAction", null).build();
+        // Version prior to API 16 do not support Actions.
+        assertEquals(0, NotificationCompat.getActionCount(nWith));
+        NotificationCompat.Action action = NotificationCompat.getAction(nWith, 0);
+        assertNull(action);
+
+        Notification nWithout = builder.clearActions().build();
+        assertEquals(0, NotificationCompat.getActionCount(nWithout));
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testActions() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
