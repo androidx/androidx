@@ -20,34 +20,24 @@ import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSettin
 import static androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.wear.watchface.editor.ListenableEditorSession;
 import androidx.wear.watchface.style.MutableUserStyle;
 import androidx.wear.watchface.style.UserStyleSetting;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
 
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
     private static final String TAG = "ConfigActivity";
-
-    private final Executor mMainExecutor = new Executor() {
-        private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(Runnable runnable) {
-            mHandler.post(runnable);
-        }
-    };
 
     private TextView mStyleValue;
     private final UserStyleSetting.Id mTimeStyleId = new UserStyleSetting.Id("TimeStyle");
@@ -56,17 +46,22 @@ public class ConfigActivity extends ComponentActivity {
     private ListenableEditorSession mEditorSession;
 
     public ConfigActivity() {
-        addCallback(
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this),
-                new BaseFutureCallback<ListenableEditorSession>(
-                        this, TAG, "listenableCreateOnWatchEditingSession") {
-                    @Override
-                    public void onSuccess(ListenableEditorSession editorSession) {
-                        super.onSuccess(editorSession);
-                        mEditorSession = editorSession;
-                        updateStyleValue();
-                    }
-                });
+        ListenableFuture<ListenableEditorSession> editorSessionFuture =
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
+        editorSessionFuture.addListener(() -> {
+            ListenableEditorSession editorSession;
+            try {
+                editorSession = editorSessionFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (editorSession == null) {
+                return;
+            }
+            mEditorSession = editorSession;
+            updateStyleValue();
+        }, ContextCompat.getMainExecutor(this));
     }
 
     @Override
@@ -123,9 +118,5 @@ public class ConfigActivity extends ComponentActivity {
         ListOption option =
                 (ListOption) mEditorSession.getUserStyle().getValue().get(mTimeStyleId);
         mStyleValue.setText(option.getDisplayName());
-    }
-
-    private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
-        FutureCallback.addCallback(future, callback, mMainExecutor);
     }
 }
