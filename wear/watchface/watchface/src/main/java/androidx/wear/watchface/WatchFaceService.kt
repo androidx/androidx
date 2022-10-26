@@ -2662,7 +2662,10 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("WatchFaceEngine:")
             writer.increaseIndent()
             when {
-                wslFlow.iWatchFaceServiceInitialized() -> writer.println("WSL style init flow")
+                wslFlow.iWatchFaceServiceInitialized() -> {
+                    writer.println("WSL style init flow")
+                    writer.println("watchFaceInitStarted=${wslFlow.watchFaceInitStarted}")
+                }
                 this.watchFaceCreatedOrPending() -> writer.println("Androidx style init flow")
                 isPreAndroidR() -> writer.println("Expecting WSL style init")
                 else -> writer.println("Expecting androidx style style init")
@@ -2681,7 +2684,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
             writer.println("createdBy=$createdBy")
-            writer.println("watchFaceInitStarted=$wslFlow.watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
             writer.println(
                 "systemViewOfContentDescriptionLabelsIsStale=" +

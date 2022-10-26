@@ -4826,7 +4826,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun dump() {
+    public fun dump_androidXFlow() {
         // Advance time a little so timestamps are not zero
         looperTimeMillis = 1000
 
@@ -4878,6 +4878,24 @@ public class WatchFaceServiceTest {
         assertThat(dump).contains("screenBounds=Rect(0, 0 - 100, 100)")
         assertThat(dump).contains("interactiveDrawModeUpdateDelayMillis=16")
         assertThat(dump).contains("watchFaceLayers=BASE, COMPLICATIONS, COMPLICATIONS_OVERLAY")
+        assertThat(dump).doesNotContain("watchFaceInitStarted=")
+    }
+
+    @Test
+    public fun dump_wslFlow() {
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        val writer = StringWriter()
+        val indentingPrintWriter = IndentingPrintWriter(writer)
+
+        engineWrapper.dump(indentingPrintWriter)
+
+        val dump = writer.toString()
+        assertThat(dump).contains("watchFaceInitStarted=true")
     }
 
     @Test
