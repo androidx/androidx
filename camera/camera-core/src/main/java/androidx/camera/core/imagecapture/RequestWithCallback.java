@@ -42,6 +42,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 class RequestWithCallback implements TakePictureCallback {
 
     private final TakePictureRequest mTakePictureRequest;
+    private final TakePictureRequest.RetryControl mRetryControl;
     private final ListenableFuture<Void> mCaptureFuture;
     private final ListenableFuture<Void> mCompleteFuture;
     private CallbackToFutureAdapter.Completer<Void> mCaptureCompleter;
@@ -50,8 +51,10 @@ class RequestWithCallback implements TakePictureCallback {
     // propagating callbacks to the app.
     private boolean mIsAborted = false;
 
-    RequestWithCallback(@NonNull TakePictureRequest takePictureRequest) {
+    RequestWithCallback(@NonNull TakePictureRequest takePictureRequest,
+            @NonNull TakePictureRequest.RetryControl retryControl) {
         mTakePictureRequest = takePictureRequest;
+        mRetryControl = retryControl;
         mCaptureFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCaptureCompleter = completer;
@@ -62,6 +65,15 @@ class RequestWithCallback implements TakePictureCallback {
                     mCompleteCompleter = completer;
                     return "RequestCompleteFuture";
                 });
+    }
+
+    /**
+     * Increments the retry counter of the underlying {@link TakePictureRequest}.
+     */
+    @MainThread
+    void incrementRetryCounter() {
+        checkMainThread();
+        mTakePictureRequest.incrementRetryCounter();
     }
 
     @MainThread
@@ -103,7 +115,6 @@ class RequestWithCallback implements TakePictureCallback {
         mTakePictureRequest.onResult(imageProxy);
     }
 
-
     @MainThread
     @Override
     public void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
@@ -130,11 +141,13 @@ class RequestWithCallback implements TakePictureCallback {
             // Fail silently if the request has been aborted.
             return;
         }
+        if (mTakePictureRequest.decrementRetryCounter()) {
+            mRetryControl.retryRequest(mTakePictureRequest);
+        } else {
+            onFailure(imageCaptureException);
+        }
         markComplete();
         mCaptureCompleter.set(null);
-
-        // TODO(b/242683221): Add retry logic.
-        onFailure(imageCaptureException);
     }
 
     @MainThread
@@ -142,6 +155,7 @@ class RequestWithCallback implements TakePictureCallback {
         checkMainThread();
         mIsAborted = true;
         mCaptureCompleter.set(null);
+        mCompleteCompleter.set(null);
         onFailure(imageCaptureException);
     }
 
