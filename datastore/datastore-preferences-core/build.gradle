@@ -29,7 +29,9 @@ plugins {
 def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    jvm()
+    jvm() {
+        withJava()
+    }
     mac()
     linux()
     ios()
