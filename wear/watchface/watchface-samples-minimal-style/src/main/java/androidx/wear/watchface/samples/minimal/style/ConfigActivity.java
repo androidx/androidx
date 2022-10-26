@@ -45,29 +45,11 @@ public class ConfigActivity extends ComponentActivity {
     @Nullable
     private ListenableEditorSession mEditorSession;
 
-    public ConfigActivity() {
-        ListenableFuture<ListenableEditorSession> editorSessionFuture =
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
-        editorSessionFuture.addListener(() -> {
-            ListenableEditorSession editorSession;
-            try {
-                editorSession = editorSessionFuture.get();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
-            if (editorSession == null) {
-                return;
-            }
-            mEditorSession = editorSession;
-            updateStyleValue();
-        }, ContextCompat.getMainExecutor(this));
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
+        listenForEditorSession();
 
         mStyleValue = findViewById(R.id.style_value);
 
@@ -84,6 +66,25 @@ public class ConfigActivity extends ComponentActivity {
     protected void onDestroy() {
         finish();
         super.onDestroy();
+    }
+
+    private void listenForEditorSession() {
+        ListenableFuture<ListenableEditorSession> editorSessionFuture =
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
+        editorSessionFuture.addListener(() -> {
+            ListenableEditorSession editorSession;
+            try {
+                editorSession = editorSessionFuture.get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            if (editorSession == null) {
+                return;
+            }
+            mEditorSession = editorSession;
+            updateStyleValue();
+        }, ContextCompat.getMainExecutor(this));
     }
 
     private void changeStyle() {

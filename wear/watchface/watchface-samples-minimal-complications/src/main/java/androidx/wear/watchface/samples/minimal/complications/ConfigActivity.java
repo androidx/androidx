@@ -48,7 +48,31 @@ public class ConfigActivity extends ComponentActivity {
     @Nullable
     private ListenableEditorSession mEditorSession;
 
-    public ConfigActivity() {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.config_activity_layout);
+        listenForEditorSession();
+
+        mComplicationProviderName = findViewById(R.id.complication_provider_name);
+        mComplicationPreview = findViewById(R.id.complication_preview);
+        mComplicationPreviewDrawable = new ComplicationDrawable(this);
+
+        findViewById(R.id.complication_change).setOnClickListener((view) -> changeComplication());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mComplicationPreview.setOnClickListener((view) -> changeComplication());
+        } else {
+            mComplicationPreview.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        finish();
+        super.onDestroy();
+    }
+
+    private void listenForEditorSession() {
         ListenableFuture<ListenableEditorSession> editorSessionFuture =
                 ListenableEditorSession.listenableCreateOnWatchEditorSession(this);
         editorSessionFuture.addListener(() -> {
@@ -65,23 +89,6 @@ public class ConfigActivity extends ComponentActivity {
             mEditorSession = editorSession;
             observeComplications();
         }, ContextCompat.getMainExecutor(this));
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.config_activity_layout);
-
-        mComplicationProviderName = findViewById(R.id.complication_provider_name);
-        mComplicationPreview = findViewById(R.id.complication_preview);
-        mComplicationPreviewDrawable = new ComplicationDrawable(this);
-
-        findViewById(R.id.complication_change).setOnClickListener((view) -> changeComplication());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mComplicationPreview.setOnClickListener((view) -> changeComplication());
-        } else {
-            mComplicationPreview.setVisibility(View.GONE);
-        }
     }
 
     private void observeComplications() {
@@ -135,11 +142,5 @@ public class ConfigActivity extends ComponentActivity {
                         WatchFaceService.getComplicationId(getResources())
                 ).addListener(() -> { /* Empty on purpose. */ },
                         ContextCompat.getMainExecutor(this));
-    }
-
-    @Override
-    protected void onDestroy() {
-        finish();
-        super.onDestroy();
     }
 }
