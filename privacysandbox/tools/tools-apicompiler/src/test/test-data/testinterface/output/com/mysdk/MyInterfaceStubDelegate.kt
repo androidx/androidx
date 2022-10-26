@@ -6,6 +6,7 @@ import com.mysdk.RequestConverter.fromParcelable
 import com.mysdk.ResponseConverter.toParcelable
 import kotlin.Int
 import kotlin.Unit
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ public class MyInterfaceStubDelegate internal constructor(
 ) : IMyInterface.Stub() {
   public override fun doSomething(request: ParcelableRequest,
       transactionCallback: IResponseTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.doSomething(fromParcelable(request))
@@ -30,6 +32,7 @@ public class MyInterfaceStubDelegate internal constructor(
 
   public override fun getMyInterface(input: IMyInterface,
       transactionCallback: IMyInterfaceTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
@@ -45,6 +48,7 @@ public class MyInterfaceStubDelegate internal constructor(
 
   public override fun getMySecondInterface(input: IMySecondInterface,
       transactionCallback: IMySecondInterfaceTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.getMySecondInterface((input as

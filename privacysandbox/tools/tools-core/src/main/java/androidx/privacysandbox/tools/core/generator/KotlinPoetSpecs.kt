@@ -139,6 +139,7 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
 
 object SpecNames {
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
+    val delicateCoroutinesApiClass = ClassName("kotlinx.coroutines", "DelicateCoroutinesApi")
     val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
     val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
     val suspendCancellableCoroutineMethod =

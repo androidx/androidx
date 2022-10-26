@@ -7,6 +7,7 @@ import com.mysdk.RequestConverter.fromParcelable
 import com.mysdk.ResponseConverter.toParcelable
 import kotlin.Int
 import kotlin.Unit
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ public class MySdkStubDelegate internal constructor(
     y: Int,
     transactionCallback: IStringTransactionCallback,
   ): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.doStuff(x, y)
@@ -34,6 +36,7 @@ public class MySdkStubDelegate internal constructor(
 
   public override fun handleRequest(request: ParcelableRequest,
       transactionCallback: IResponseTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.handleRequest(fromParcelable(request))
@@ -49,9 +52,10 @@ public class MySdkStubDelegate internal constructor(
 
   public override fun logRequest(request: ParcelableRequest,
       transactionCallback: IUnitTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
-        val result = delegate.logRequest(fromParcelable(request))
+        delegate.logRequest(fromParcelable(request))
         transactionCallback.onSuccess()
       }
       catch (t: Throwable) {
@@ -72,6 +76,7 @@ public class MySdkStubDelegate internal constructor(
 
   public override fun getMyInterface(input: IMyInterface,
       transactionCallback: IMyInterfaceTransactionCallback): Unit {
+    @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
