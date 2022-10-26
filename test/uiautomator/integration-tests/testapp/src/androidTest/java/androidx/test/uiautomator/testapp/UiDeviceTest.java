@@ -43,6 +43,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -386,29 +387,63 @@ public class UiDeviceTest extends BaseTest {
         assertTrue(mDevice.isNaturalOrientation());
     }
 
-    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
+    @Test
+    public void testDumpWindowHierarchy_withString() throws Exception {
+        launchTestActivity(MainActivity.class);
+        File outFile = mTmpDir.newFile();
+        mDevice.dumpWindowHierarchy(outFile.getAbsolutePath());
 
-    public void testWakeUp() {}
-
-    public void testIsScreenOn() {}
-
-    public void testSleep() {}
-
-    public void testDumpWindowHierarchy_withString() {}
-
-    public void testDumpWindowHierarchy_withFile() {} // already added
-
-    public void testDumpWindowHierarchy_withOutputStream() {}
-    */
+        // Verify that a valid XML file was generated and that node attributes are correct.
+        Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
+        validateMainActivityXml(xml);
+    }
 
     @Test
-    public void testDumpWindowHierarchy() throws Exception {
+    public void testDumpWindowHierarchy_withFile() throws Exception {
         launchTestActivity(MainActivity.class);
         File outFile = mTmpDir.newFile();
         mDevice.dumpWindowHierarchy(outFile);
 
         // Verify that a valid XML file was generated and that node attributes are correct.
         Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
+        validateMainActivityXml(xml);
+    }
+
+    @Test
+    public void testDumpWindowHierarchy_withOutputStream() throws Exception {
+        launchTestActivity(MainActivity.class);
+        File outFile = mTmpDir.newFile();
+        FileOutputStream outStream = new FileOutputStream(outFile);
+        mDevice.dumpWindowHierarchy(outStream);
+
+        Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(outFile);
+        validateMainActivityXml(xml);
+    }
+
+    @Test
+    public void testWaitForWindowUpdate() {
+        launchTestActivity(WaitTestActivity.class);
+
+        // Returns false when the current window doesn't have the specified package name.
+        assertFalse(mDevice.waitForWindowUpdate("non-existent package name", 1_000));
+
+        UiObject2 text1 = mDevice.findObject(By.res(TEST_APP, "text_1"));
+
+        // Returns true when change happens in the current window within the timeout.
+        text1.click();
+        assertTrue(mDevice.waitForWindowUpdate(PACKAGE_NAME, 5_000));
+
+        // Returns false when no change happens in the current window within the timeout.
+        text1.click();
+        assertFalse(mDevice.waitForWindowUpdate(PACKAGE_NAME, 1_000));
+    }
+
+    @Test
+    public void testGetLauncherPackageName() {
+        assertTrue(mDevice.wait(Until.hasObject(By.pkg(mDevice.getLauncherPackageName())), 5_000));
+    }
+
+    private static void validateMainActivityXml(Document xml) throws Exception {
         Element element = (Element) XPathFactory.newInstance().newXPath()
                 .compile("//hierarchy//*/node[@resource-id='" + TEST_APP + ":id/button']")
                 .evaluate(xml, XPathConstants.NODE);
@@ -432,17 +467,4 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("true", element.getAttribute("visible-to-user"));
         assertNotNull(element.getAttribute("bounds"));
     }
-
-    /* TODO(b/235841020): Implement these tests, and the tests for exceptions of each tested method.
-
-    public void testWaitForWindowUpdate() {}
-
-    public void testTakeScreenshot() {} // already added
-
-    public void testTakeScreenshot_withScaleAndQuality() {} // already added
-
-    public void testGetLauncherPackageName() {}
-
-    public void testExecuteShellCommand() {} // already added
-    */
 }
