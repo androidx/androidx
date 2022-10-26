@@ -70,8 +70,8 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
     // Queue of new requests that have not been sent to the pipeline/camera.
     @VisibleForTesting
     final Deque<TakePictureRequest> mNewRequests = new ArrayDeque<>();
-    final ImagePipeline mImagePipeline;
     final ImageCaptureControl mImageCaptureControl;
+    ImagePipeline mImagePipeline;
 
     // The current request being processed by the camera. Only one request can be processed by
     // the camera at the same time. Null if the camera is idle.
@@ -85,17 +85,23 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
 
     /**
      * @param imageCaptureControl for controlling {@link ImageCapture}
-     * @param imagePipeline       for building capture requests and post-processing camera output.
      */
     @MainThread
-    public TakePictureManager(
-            @NonNull ImageCaptureControl imageCaptureControl,
-            @NonNull ImagePipeline imagePipeline) {
+    public TakePictureManager(@NonNull ImageCaptureControl imageCaptureControl) {
         checkMainThread();
         mImageCaptureControl = imageCaptureControl;
+        mIncompleteRequests = new ArrayList<>();
+    }
+
+    /**
+     * Sets the {@link ImagePipeline} for building capture requests and post-processing camera
+     * output.
+     */
+    @MainThread
+    public void setImagePipeline(@NonNull ImagePipeline imagePipeline) {
+        checkMainThread();
         mImagePipeline = imagePipeline;
         mImagePipeline.setOnImageCloseListener(this);
-        mIncompleteRequests = new ArrayList<>();
     }
 
     /**
@@ -266,6 +272,12 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
     @VisibleForTesting
     List<RequestWithCallback> getIncompleteRequests() {
         return mIncompleteRequests;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public ImagePipeline getImagePipeline() {
+        return mImagePipeline;
     }
 
     @Override

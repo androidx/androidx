@@ -45,7 +45,8 @@ class TakePictureManagerTest {
 
     private val imagePipeline = FakeImagePipeline()
     private val imageCaptureControl = FakeImageCaptureControl()
-    private val takePictureManager = TakePictureManager(imageCaptureControl, imagePipeline)
+    private val takePictureManager =
+        TakePictureManager(imageCaptureControl).also { it.setImagePipeline(imagePipeline) }
     private val exception = ImageCaptureException(ImageCapture.ERROR_UNKNOWN, "", null)
 
     @After
