@@ -35,7 +35,8 @@ internal data class AidlInterfaceSpec(
     override val typesToImport: Set<Type>
         get() {
             return methods.flatMap { method ->
-                method.parameters.map { it.type }.filter { it.requiresImport }.map { it.innerType }
+                method.parameters.map { it.type }
+                    .filter { it.requiresImport && it.innerType != type }.map { it.innerType }
             }.toSet()
         }
 

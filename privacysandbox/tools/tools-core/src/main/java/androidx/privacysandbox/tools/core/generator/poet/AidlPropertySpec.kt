@@ -16,11 +16,10 @@
 
 package androidx.privacysandbox.tools.core.generator.poet
 
-internal data class AidlParameterSpec(
+internal data class AidlPropertySpec(
     val name: String,
     val type: AidlTypeSpec,
-    val isIn: Boolean = false
+    val isNullable: Boolean = false,
 ) {
-
-    override fun toString() = "${if (isIn) "in " else ""}$type $name"
+    override fun toString() = "${if (isNullable) "@nullable(heap=true) " else ""}$type $name;"
 }

@@ -20,7 +20,7 @@ import androidx.privacysandbox.tools.core.generator.poet.AidlFileSpec
 import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec
 import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec.Companion.aidlInterface
 import androidx.privacysandbox.tools.core.generator.poet.AidlMethodSpec
-import androidx.privacysandbox.tools.core.generator.poet.AidlParcelableSpec
+import androidx.privacysandbox.tools.core.generator.poet.AidlParcelableSpec.Companion.aidlParcelable
 import androidx.privacysandbox.tools.core.generator.poet.AidlTypeSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
@@ -166,42 +166,32 @@ class AidlGenerator private constructor(
     }
 
     private fun generateParcelableFailure(): AidlFileSpec {
-        return AidlParcelableSpec(
-            type = throwableParcelType(),
-            properties = listOf(
-                "String exceptionClass;",
-                "String errorMessage;",
-                "$parcelableStackFrameName[] stackTrace;",
-                // @nullable(heap=true) is required to support recursive parcelables.
-                "@nullable(heap=true) $throwableParcelName cause;",
-                "$throwableParcelName[] suppressedExceptions;",
-            ),
-            typesToImport = setOf(
-                parcelableStackFrameType()
+        return aidlParcelable(throwableParcelType()) {
+            addProperty("exceptionClass", primitive("String"))
+            addProperty("errorMessage", primitive("String"))
+            addProperty("stackTrace", AidlTypeSpec(parcelableStackFrameType(), isList = true))
+            addProperty("cause", AidlTypeSpec(throwableParcelType()), isNullable = true)
+            addProperty(
+                "suppressedExceptions", AidlTypeSpec(throwableParcelType(), isList = true)
             )
-        )
+        }
     }
 
     private fun generateParcelableStackTrace(): AidlFileSpec {
-        return AidlParcelableSpec(
-            type = parcelableStackFrameType(),
-            properties = listOf(
-                "String declaringClass;",
-                "String methodName;",
-                "String fileName;",
-                "int lineNumber;",
-            )
-        )
+        return aidlParcelable(parcelableStackFrameType()) {
+            addProperty("declaringClass", primitive("String"))
+            addProperty("methodName", primitive("String"))
+            addProperty("fileName", primitive("String"))
+            addProperty("lineNumber", primitive("int"))
+        }
     }
 
     private fun generateValue(value: AnnotatedValue): AidlFileSpec {
-        val typesToImport =
-            value.properties.mapNotNull { api.valueMap[it.type]?.aidlType()?.innerType }.toSet()
-        return AidlParcelableSpec(type = value.aidlType().innerType,
-            typesToImport = typesToImport,
-            properties = value.properties.map {
-                "${getAidlTypeDeclaration(it.type)} ${it.name};"
-            })
+        return aidlParcelable(value.aidlType().innerType) {
+            for (property in value.properties) {
+                addProperty(property.name, getAidlTypeDeclaration(property.type))
+            }
+        }
     }
 
     private fun getAidlFile(rootPath: Path, aidlSource: AidlFileSpec) = Paths.get(
