@@ -32,6 +32,7 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import java.util.concurrent.Executor
 
@@ -61,9 +62,13 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         if (cancellationReviewer(fragmentManager, cancellationSignal)) {
             return
         }
-        TODO("Not yet implemented")
+        // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
+        CredentialProviderBeginSignInController.getInstance(fragmentManager).invokePlayServices(
+            request, callback, executor
+        )
     }
 
+    @SuppressWarnings("deprecated")
     override fun onCreateCredential(
         request: CreateCredentialRequest,
         activity: Activity?,
@@ -88,11 +93,14 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
                 callback,
                 executor)
         } else if (request is CreatePublicKeyCredentialRequest) {
-            TODO("Not yet implemented")
+            // TODO("Add in")
         } else {
             throw UnsupportedOperationException(
                 "Unsupported request; not password or publickeycredential")
         }
+    }
+    override fun isAvailableOnDevice(): Boolean {
+        TODO("Not yet implemented")
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -114,10 +122,6 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
             }
         }
         return false
-    }
-
-    override fun isAvailableOnDevice(): Boolean {
-        TODO("Not yet implemented")
     }
 
     companion object {
