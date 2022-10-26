@@ -192,13 +192,32 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun processingPipelineOffByDefault() {
-        assertThat(
-            bindImageCapture(
-                useProcessingPipeline = false,
-                bufferFormat = ImageFormat.JPEG,
-            ).isProcessingPipelineEnabled
-        ).isFalse()
+    fun onError_surfaceIsRecreated() {
+        // Arrange: create ImageCapture and get the Surface
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+        val oldSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+
+        // Act: invoke onError callback.
+        imageCapture.sessionConfig.errorListeners.single().onError(
+            imageCapture.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
+
+        // Assert: the surface has been recreated.
+        val newSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(newSurface).isNotEqualTo(oldSurface)
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+    }
+
+    private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
+        val takePictureManagerSurface =
+            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder()
+                .build().surfaces.single().surface.get()
+        val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
     }
 
     @Test
