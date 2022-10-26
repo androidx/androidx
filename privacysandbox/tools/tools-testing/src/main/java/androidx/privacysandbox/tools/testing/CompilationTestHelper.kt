@@ -67,9 +67,9 @@ val TestCompilationResult.resourceOutputDir: File
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun succeeds() {
         assertWithMessage(
-            "UnexpectedErrors:\n${getFullErrorMessages()?.joinToString("\n")}"
+            "Unexpected errors:\n${getFullErrorMessages().joinToString("\n")}"
         ).that(
-            result.success
+            result.success && getRawErrorMessages().isEmpty()
         ).isTrue()
     }
 
@@ -102,14 +102,19 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         assertThat(getShortErrorMessages()).containsExactly(*errors)
     }
 
+    private fun getRawErrorMessages() =
+        (result.diagnostics[Diagnostic.Kind.ERROR] ?: emptyList()) +
+            (result.diagnostics[Diagnostic.Kind.WARNING] ?: emptyList()) +
+            (result.diagnostics[Diagnostic.Kind.MANDATORY_WARNING] ?: emptyList())
+
     private fun getShortErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
 
     private fun getFullErrorMessages() =
-        result.diagnostics[Diagnostic.Kind.ERROR]?.map { it.toFormattedMessage() }
+        getRawErrorMessages().map { it.toFormattedMessage() }
 
     private fun DiagnosticMessage.toFormattedMessage() = """
-            |Error: $msg
+            |$kind: $msg
             |${location?.toFormattedLocation()}$
         """.trimMargin()
 
@@ -141,6 +146,7 @@ val syntheticPrivacySandboxSources = listOf(
         |
         |import android.os.IBinder
         |
+        |@Suppress("UNUSED_PARAMETER")
         |sealed class SandboxedSdkCompat {
         |    abstract fun getInterface(): IBinder?
         |
@@ -158,6 +164,7 @@ val syntheticPrivacySandboxSources = listOf(
         |import android.os.Bundle
         |import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
         |
+        |@Suppress("UNUSED_PARAMETER")
         |class SdkSandboxManagerCompat private constructor() {
         |    suspend fun loadSdk(
         |        sdkName: String,
@@ -179,6 +186,7 @@ val syntheticPrivacySandboxSources = listOf(
         |import android.os.Bundle
         |import android.view.View
         |
+        |@Suppress("UNUSED_PARAMETER")
         |abstract class SandboxedSdkProviderCompat {
         |   var context: Context? = null
         |       private set

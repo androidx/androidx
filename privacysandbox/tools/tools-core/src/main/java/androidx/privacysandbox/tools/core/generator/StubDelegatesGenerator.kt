@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.delicateCoroutinesApiClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Types
@@ -70,6 +71,7 @@ class StubDelegatesGenerator(
             addModifiers(KModifier.OVERRIDE)
             addParameters(getParameters(method))
             addCode {
+                addStatement("@OptIn(%T::class)", delicateCoroutinesApiClass)
                 addControlFlow(
                     "val job = %T.%M(%T)",
                     SpecNames.globalScopeClass,
@@ -78,7 +80,9 @@ class StubDelegatesGenerator(
                 ) {
                     addControlFlow("try") {
                         addStatement {
-                            add("val result = ")
+                            if (method.returnType != Types.unit) {
+                                add("val result = ")
+                            }
                             add(getDelegateCallBlock(method))
                         }
                         if (method.returnType == Types.unit) {
