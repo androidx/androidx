@@ -26,6 +26,7 @@ import androidx.appcompat.testutils.LocalesUtils.getRTLLocaleList
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWait
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
 import androidx.core.os.LocaleListCompat
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.waitForExecution
@@ -118,6 +119,7 @@ class LocalesUpdateTestCase() {
 
     @SdkSuppress(minSdkVersion = 17)
     @Test
+    @FlakyTest(bugId = 255765202)
     fun testLayoutDirectionAfterRecreating() {
         setLocalesAndWaitForRecreate(rule, getRTLLocaleList())
 
