@@ -140,6 +140,6 @@ public class PreviewViewTest {
         cameraInfoInternal.setImplementationType(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         return new SurfaceRequest(new Size(800, 600),
                 new FakeCamera(null, cameraInfoInternal),
-                /*isRGB8888Required*/ false);
+                /*isRGB8888Required*/ false, () -> {});
     }
 }

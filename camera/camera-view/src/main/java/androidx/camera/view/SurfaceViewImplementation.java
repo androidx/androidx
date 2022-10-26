@@ -77,6 +77,12 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                     ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                     onSurfaceNotInUseListener::onSurfaceNotInUse);
         }
+
+        // Note that View.post will add the Runnable to SurfaceView's message queue. This means
+        // that if this line is called while the SurfaceView is detached from window,
+        // "setSurfaceRequest" will be pending til the SurfaceView is attached to window and its
+        // view is prepared. In other words, "setSurfaceRequest" will happen after
+        // "surfaceCreated" is triggered.
         mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest,
                 onSurfaceNotInUseListener));
     }
@@ -161,6 +167,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         private SurfaceRequest mSurfaceRequest;
 
         @Nullable
+        private SurfaceRequest mSurfaceRequestToBeInvalidated;
+
+        @Nullable
         private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
 
         // The cached size of the current Surface.
@@ -170,6 +179,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         // Guarded by the UI thread.
         private boolean mWasSurfaceProvided = false;
+
+        private boolean mNeedToInvalidate = false;
 
         /**
          * Sets the completer and the size. The completer will only be set if the current size of
@@ -181,17 +192,29 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             // Cancel the previous request, if any
             cancelPreviousRequest();
 
-            mSurfaceRequest = surfaceRequest;
-            mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
-            Size targetSize = surfaceRequest.getResolution();
-            mTargetSize = targetSize;
-            mWasSurfaceProvided = false;
+            if (mNeedToInvalidate) {
+                // In some edge cases, the DeferrableSurface behind the SurfaceRequest is timed-out.
+                // Since we can not tell if the timeout happened, we invalidate the
+                // SurfaceRequest to get a new one when the situation is abnormal. (Normally,
+                // invalidate is called when the surface is recreated.)
+                // It's not ideal to track the "timed out" state of the SurfaceRequest this way.
+                // A better way would be making it part of SurfaceRequest. e.g. something like
+                // SurfaceRequest.isTimedOut().
+                mNeedToInvalidate = false;
+                surfaceRequest.invalidate();
+            } else {
+                mSurfaceRequest = surfaceRequest;
+                mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
+                Size targetSize = surfaceRequest.getResolution();
+                mTargetSize = targetSize;
+                mWasSurfaceProvided = false;
 
-            if (!tryToComplete()) {
-                // The current size is incorrect. Wait for it to change.
-                Logger.d(TAG, "Wait for new Surface creation.");
-                mSurfaceView.getHolder().setFixedSize(targetSize.getWidth(),
-                        targetSize.getHeight());
+                if (!tryToComplete()) {
+                    // The current size is incorrect. Wait for it to change.
+                    Logger.d(TAG, "Wait for new Surface creation.");
+                    mSurfaceView.getHolder().setFixedSize(targetSize.getWidth(),
+                            targetSize.getHeight());
+                }
             }
         }
 
@@ -239,9 +262,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         @UiThread
         @SuppressWarnings("ObjectToString")
-        private void invalidateSurface() {
+        private void closeSurface() {
             if (mSurfaceRequest != null) {
-                Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                Logger.d(TAG, "Surface closed " + mSurfaceRequest);
                 mSurfaceRequest.getDeferrableSurface().close();
             }
         }
@@ -249,7 +272,14 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
             Logger.d(TAG, "Surface created.");
-            // No-op. Handling surfaceChanged() is enough because it's always called afterwards.
+
+            // Invalidate the surface request so that the requester is notified that the previously
+            // obtained surface is no longer valid and should request a new one.
+            if (mNeedToInvalidate && mSurfaceRequestToBeInvalidated != null) {
+                mSurfaceRequestToBeInvalidated.invalidate();
+                mSurfaceRequestToBeInvalidated = null;
+                mNeedToInvalidate = false;
+            }
         }
 
         @Override
@@ -264,12 +294,19 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
             Logger.d(TAG, "Surface destroyed.");
 
-            // If a surface was already provided to the camera, invalidate it so that it requests
-            // a new valid one. Otherwise, cancel the surface request.
+            // If a surface was already provided to the camera, close the surface. Otherwise,
+            // cancel the surface request.
             if (mWasSurfaceProvided) {
-                invalidateSurface();
+                closeSurface();
             } else {
                 cancelPreviousRequest();
+            }
+
+            // The surface is no longer valid. The surface request will be invalidated when the new
+            // surface is ready so that the requester can get the new one.
+            mNeedToInvalidate = true;
+            if (mSurfaceRequest != null) {
+                mSurfaceRequestToBeInvalidated = mSurfaceRequest;
             }
 
             // Reset state

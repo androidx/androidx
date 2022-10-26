@@ -304,7 +304,7 @@ class DefaultSurfaceProcessorTest {
     }
 
     private fun createInputSurfaceRequest(): SurfaceRequest {
-        return SurfaceRequest(Size(WIDTH, HEIGHT), fakeCamera, false).apply {
+        return SurfaceRequest(Size(WIDTH, HEIGHT), fakeCamera, false) {}.apply {
             inputSurfaceRequestsToClose.add(this)
         }
     }

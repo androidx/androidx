@@ -106,6 +106,11 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
 
     @NonNull
     private SettableSurface createOutputSurface(@NonNull SettableSurface inputSurface) {
+        // TODO: Can be improved by only restarting part of the pipeline. e.g. only update the
+        //  output Surface (between Effect/App), and still use the same input Surface (between
+        //  Camera/Effect). It's just simpler for now.
+        final Runnable onSurfaceInvalidated = inputSurface::invalidate;
+
         SettableSurface outputSurface;
         switch (mGlTransformOptions) {
             case APPLY_CROP_ROTATE_AND_MIRRORING:
@@ -135,7 +140,8 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
                         /*hasEmbeddedTransform=*/false,
                         sizeToRect(rotatedCroppedSize),
                         /*rotationDegrees=*/0,
-                        /*mirroring=*/false);
+                        /*mirroring=*/false,
+                        onSurfaceInvalidated);
                 break;
             case USE_SURFACE_TEXTURE_TRANSFORM:
                 // No transform output as placeholder.
@@ -148,7 +154,8 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
                         /*hasEmbeddedTransform=*/false,
                         inputSurface.getCropRect(),
                         inputSurface.getRotationDegrees(),
-                        inputSurface.getMirroring());
+                        inputSurface.getMirroring(),
+                        onSurfaceInvalidated);
                 break;
             default:
                 throw new AssertionError("Unknown GlTransformOptions: " + mGlTransformOptions);

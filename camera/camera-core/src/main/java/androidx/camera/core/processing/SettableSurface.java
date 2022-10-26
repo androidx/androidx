@@ -94,6 +94,9 @@ public class SettableSurface extends DeferrableSurface {
     @Nullable
     private SurfaceRequest mProviderSurfaceRequest;
 
+    @NonNull
+    private final Runnable mOnInvalidated;
+
     /**
      * Please see the getters to understand the parameters.
      */
@@ -105,7 +108,8 @@ public class SettableSurface extends DeferrableSurface {
             boolean hasEmbeddedTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
-            boolean mirroring) {
+            boolean mirroring,
+            @NonNull Runnable onInvalidated) {
         super(size, format);
         mTargets = targets;
         mSensorToBufferTransform = sensorToBufferTransform;
@@ -113,6 +117,7 @@ public class SettableSurface extends DeferrableSurface {
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
+        mOnInvalidated = onInvalidated;
         mSurfaceFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCompleter = completer;
@@ -223,8 +228,8 @@ public class SettableSurface extends DeferrableSurface {
             @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, true,
-                expectedFpsRange);
+        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, false,
+                expectedFpsRange, this::invalidate);
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
         } catch (SurfaceClosedException e) {
@@ -279,6 +284,22 @@ public class SettableSurface extends DeferrableSurface {
                     mConsumerToNotify = surfaceOutputImpl;
                     return Futures.immediateFuture(surfaceOutputImpl);
                 }, mainThreadExecutor());
+    }
+
+    /**
+     * Invalidate the previously provided {@link Surface} to provide a new one.
+     *
+     * Calls to inform that the {@link Surface} previously provided via
+     * {@link #createSurfaceRequest(CameraInternal)} or
+     * {@link #createSurfaceRequest(CameraInternal, Range)} is no longer valid and should reacquire
+     * a new {@link Surface}.
+     *
+     * <p>The method <strong>must</strong> be called when the surface provider is ready to provide
+     * a new {@link Surface}. (e.g. SurfaceView's surface is created when its window is visible.)
+     */
+    public void invalidate() {
+        close();
+        mOnInvalidated.run();
     }
 
     /**
