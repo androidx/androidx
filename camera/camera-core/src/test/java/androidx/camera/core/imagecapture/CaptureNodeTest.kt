@@ -23,6 +23,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createFakeImage
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +57,11 @@ class CaptureNodeTest {
         captureNodeOut.requestEdge.setListener {
             requestsPropagated.add(it)
         }
+    }
+
+    @After
+    fun tearDown() {
+        captureNode.release()
     }
 
     @Test
