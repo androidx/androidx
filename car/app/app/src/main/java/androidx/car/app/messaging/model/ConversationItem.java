@@ -18,6 +18,8 @@ package androidx.car.app.messaging.model;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -35,12 +37,17 @@ import java.util.List;
 @CarProtocol
 @RequiresCarApi(6)
 public class ConversationItem implements Item {
-    @NonNull private final String mId;
-    @NonNull private final CarText mTitle;
+    @NonNull
+    private final String mId;
+    @NonNull
+    private final CarText mTitle;
     @Nullable
     private final CarIcon mIcon;
     private final boolean mIsGroupConversation;
-    @NonNull private final List<CarMessage> mMessages;
+    @NonNull
+    private final List<CarMessage> mMessages;
+    @NonNull
+    private final ConversationCallbackDelegate mConversationCallbackDelegate;
 
     ConversationItem(@NonNull Builder builder) {
         this.mId = requireNonNull(builder.mId);
@@ -48,6 +55,8 @@ public class ConversationItem implements Item {
         this.mIcon = builder.mIcon;
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(builder.mMessages);
+        this.mConversationCallbackDelegate = new ConversationCallbackDelegateImpl(
+                requireNonNull(builder.mConversationCallback));
     }
 
     /** Default constructor for serialization. */
@@ -57,6 +66,18 @@ public class ConversationItem implements Item {
         mIcon = null;
         mIsGroupConversation = false;
         mMessages = new ArrayList<>();
+        mConversationCallbackDelegate = new ConversationCallbackDelegateImpl(
+                new ConversationCallback() {
+                    @Override
+                    public void onMarkAsRead() {
+                        // Do nothing
+                    }
+
+                    @Override
+                    public void onTextReply(@NonNull String replyText) {
+                        // Do nothing
+                    }
+                });
     }
 
     /**
@@ -64,17 +85,20 @@ public class ConversationItem implements Item {
      *
      * @see Builder#setId
      */
-    public @NonNull String getId() {
+    @NonNull
+    public String getId() {
         return mId;
     }
 
     /** Returns the title of the conversation */
-    public @NonNull CarText getTitle() {
+    @NonNull
+    public CarText getTitle() {
         return mTitle;
     }
 
     /** Returns a {@link CarIcon} for the conversation, or {@code null} if not set */
-    public @Nullable CarIcon getIcon() {
+    @Nullable
+    public CarIcon getIcon() {
         return mIcon;
     }
 
@@ -88,8 +112,15 @@ public class ConversationItem implements Item {
     }
 
     /** Returns a list of messages for this {@link ConversationItem} */
-    public @NonNull List<CarMessage> getMessages() {
+    @NonNull
+    public List<CarMessage> getMessages() {
         return mMessages;
+    }
+
+    /** Returns host->client callbacks for this conversation */
+    @NonNull
+    public ConversationCallbackDelegate getConversationCallbackDelegate() {
+        return mConversationCallbackDelegate;
     }
 
     /** A builder for {@link ConversationItem} */
@@ -103,6 +134,8 @@ public class ConversationItem implements Item {
         boolean mIsGroupConversation;
         @Nullable
         List<CarMessage> mMessages;
+        @Nullable
+        ConversationCallback mConversationCallback;
 
         /**
          * Specifies a unique identifier for the conversation
@@ -114,19 +147,22 @@ public class ConversationItem implements Item {
          *     <li> Identifying {@link ConversationItem}s in "mark as read" / "reply" callbacks
          * </ul>
          */
-        public @NonNull Builder setId(@NonNull String id) {
+        @NonNull
+        public Builder setId(@NonNull String id) {
             mId = id;
             return this;
         }
 
         /** Sets the title of the conversation */
-        public @NonNull Builder setTitle(@NonNull CarText title) {
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
             mTitle = title;
             return this;
         }
 
         /** Sets a {@link CarIcon} for the conversation */
-        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
+        @NonNull
+        public Builder setIcon(@NonNull CarIcon icon) {
             mIcon = icon;
             return this;
         }
@@ -141,19 +177,31 @@ public class ConversationItem implements Item {
          * historical example, message readout may include sender names for group conversations, but
          * omit them for 1:1 conversations.
          */
-        public @NonNull Builder setGroupConversation(boolean isGroupConversation) {
+        @NonNull
+        public Builder setGroupConversation(boolean isGroupConversation) {
             mIsGroupConversation = isGroupConversation;
             return this;
         }
 
         /** Specifies a list of messages for the conversation */
-        public @NonNull Builder setMessages(@NonNull List<CarMessage> messages) {
+        @NonNull
+        public Builder setMessages(@NonNull List<CarMessage> messages) {
             mMessages = messages;
             return this;
         }
 
+        /** Sets a {@link ConversationCallback} for the conversation */
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        @NonNull
+        public Builder setConversationCallback(
+                @NonNull ConversationCallback conversationCallback) {
+            mConversationCallback = conversationCallback;
+            return this;
+        }
+
         /** Returns a new {@link ConversationItem} instance defined by this builder */
-        public @NonNull ConversationItem build() {
+        @NonNull
+        public ConversationItem build() {
             return new ConversationItem(this);
         }
     }
