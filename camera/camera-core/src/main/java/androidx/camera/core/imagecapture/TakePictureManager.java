@@ -63,7 +63,7 @@ import java.util.List;
  * <p>The thread safety is guaranteed by using the main thread.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class TakePictureManager implements OnImageCloseListener {
+public class TakePictureManager implements OnImageCloseListener, TakePictureRequest.RetryControl {
 
     private static final String TAG = "TakePictureManager";
 
@@ -110,6 +110,14 @@ public class TakePictureManager implements OnImageCloseListener {
         issueNextRequest();
     }
 
+    @MainThread
+    @Override
+    public void retryRequest(@NonNull TakePictureRequest request) {
+        checkMainThread();
+        // Insert the request to the front of the queue.
+        mNewRequests.addFirst(request);
+    }
+
     /**
      * Pauses sending request to camera.
      */
@@ -117,8 +125,12 @@ public class TakePictureManager implements OnImageCloseListener {
     public void pause() {
         checkMainThread();
         mPaused = true;
-        // TODO(b/242683221): increment the retry counter on the in-flight request. The
-        //  mInFlightRequest may fail due to the pausing and need one more retry.
+
+        // Pause means camera reset, which may cause the current request to fail. Increment the
+        // retry counter.
+        if (mCapturingRequest != null) {
+            mCapturingRequest.incrementRetryCounter();
+        }
     }
 
     /**
@@ -147,11 +159,12 @@ public class TakePictureManager implements OnImageCloseListener {
         mNewRequests.clear();
 
         // Abort the in-flight request after clearing the pending requests.
-        for (RequestWithCallback request : mIncompleteRequests) {
+        // Snapshot to avoid concurrent modification with the removal in getCompleteFuture().
+        List<RequestWithCallback> requestsSnapshot = new ArrayList<>(mIncompleteRequests);
+        for (RequestWithCallback request : requestsSnapshot) {
             // TODO: optimize the performance by not processing aborted requests.
             request.abort(exception);
         }
-        mIncompleteRequests.clear();
     }
 
     /**
@@ -179,7 +192,7 @@ public class TakePictureManager implements OnImageCloseListener {
             return;
         }
 
-        RequestWithCallback requestWithCallback = new RequestWithCallback(request);
+        RequestWithCallback requestWithCallback = new RequestWithCallback(request, this);
         trackCurrentRequests(requestWithCallback);
 
         // Send requests.
