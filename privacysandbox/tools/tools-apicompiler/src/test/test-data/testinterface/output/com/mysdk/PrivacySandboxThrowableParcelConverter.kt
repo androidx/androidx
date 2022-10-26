@@ -6,12 +6,12 @@ public object PrivacySandboxThrowableParcelConverter {
         parcel.exceptionClass = throwable::class.qualifiedName
         parcel.errorMessage = throwable.message
         parcel.stackTrace = throwable.stackTrace.map {
-            val parcel = ParcelableStackFrame()
-            parcel.declaringClass = it.className
-            parcel.methodName = it.methodName
-            parcel.fileName = it.fileName
-            parcel.lineNumber = it.lineNumber
-            parcel
+            val stackFrame = ParcelableStackFrame()
+            stackFrame.declaringClass = it.className
+            stackFrame.methodName = it.methodName
+            stackFrame.fileName = it.fileName
+            stackFrame.lineNumber = it.lineNumber
+            stackFrame
         }.toTypedArray()
         throwable.cause?.let {
             parcel.cause = toThrowableParcel(it)
