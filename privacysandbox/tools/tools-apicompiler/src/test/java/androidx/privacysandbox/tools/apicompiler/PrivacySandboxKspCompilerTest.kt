@@ -69,6 +69,9 @@ class PrivacySandboxKspCompilerTest {
                 "com/mysdk/IResponseTransactionCallback.java",
                 "com/mysdk/MyCallbackClientProxy.kt",
                 "com/mysdk/IMyCallback.java",
+                "com/mysdk/PrivacySandboxThrowableParcelConverter.kt",
+                "com/mysdk/ParcelableStackFrame.java",
+                "com/mysdk/PrivacySandboxThrowableParcel.java",
             )
         }.also {
             it.generatesSourcesWithContents(expectedOutput)

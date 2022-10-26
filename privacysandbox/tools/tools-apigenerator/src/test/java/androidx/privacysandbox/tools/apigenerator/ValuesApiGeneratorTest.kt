@@ -31,5 +31,7 @@ class ValuesApiGeneratorTest : BaseApiGeneratorTest() {
         "com/sdkwithvalues/ParcelableSdkRequest.java",
         "com/sdkwithvalues/ParcelableSdkResponse.java",
         "com/sdkwithvalues/ICancellationSignal.java",
+        "com/sdkwithvalues/ParcelableStackFrame.java",
+        "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",
     )
 }

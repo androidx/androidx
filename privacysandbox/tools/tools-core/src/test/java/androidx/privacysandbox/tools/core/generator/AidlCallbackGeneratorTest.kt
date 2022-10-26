@@ -73,7 +73,6 @@ class AidlCallbackGeneratorTest {
             .containsExactly(
                 "com.mysdk" to "IMySdk",
                 "com.mysdk" to "IMyCallback",
-                "com.mysdk" to "ICancellationSignal",
             )
 
         val outputTestDataDir = File("src/test/test-data/aidlcallbackgeneratortest/output")

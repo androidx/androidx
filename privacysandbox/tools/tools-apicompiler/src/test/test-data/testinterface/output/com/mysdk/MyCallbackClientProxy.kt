@@ -1,9 +1,6 @@
 package com.mysdk
 
 import com.mysdk.ResponseConverter.toParcelable
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 public class MyCallbackClientProxy(
     public val remote: IMyCallback,

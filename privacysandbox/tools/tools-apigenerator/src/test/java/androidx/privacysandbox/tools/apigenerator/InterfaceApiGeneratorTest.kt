@@ -30,6 +30,8 @@ class InterfaceApiGeneratorTest : BaseApiGeneratorTest() {
         "com/sdk/IMySecondInterface.java",
         "com/sdk/IMyInterfaceTransactionCallback.java",
         "com/sdk/IIntTransactionCallback.java",
-        "com/sdk/ICancellationSignal.java"
+        "com/sdk/ICancellationSignal.java",
+        "com/sdk/ParcelableStackFrame.java",
+        "com/sdk/PrivacySandboxThrowableParcel.java",
     )
 }

@@ -22,10 +22,12 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
+import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.squareup.kotlinpoet.FileSpec
@@ -51,6 +53,7 @@ class SdkCodeGenerator(
         generateValueConverters()
         generateCallbackProxies()
         generateToolMetadata()
+        generateSuspendFunctionUtilities()
     }
 
     private fun generateAidlSources() {
@@ -78,13 +81,9 @@ class SdkCodeGenerator(
     }
 
     private fun generateStubDelegates() {
-        val basePackageName = api.getOnlyService().type.packageName
-        val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
+        val stubDelegateGenerator = StubDelegatesGenerator(basePackageName(), binderCodeConverter)
         api.services.map(stubDelegateGenerator::generate).forEach(::write)
         api.interfaces.map(stubDelegateGenerator::generate).forEach(::write)
-
-        val transportCancellationGenerator = TransportCancellationGenerator(basePackageName)
-        transportCancellationGenerator.generate().also(::write)
     }
 
     private fun generateValueConverters() {
@@ -93,8 +92,7 @@ class SdkCodeGenerator(
     }
 
     private fun generateCallbackProxies() {
-        val basePackageName = api.getOnlyService().type.packageName
-        val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
+        val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName(), binderCodeConverter)
         api.callbacks.map(clientProxyGenerator::generate).forEach(::write)
     }
 
@@ -107,8 +105,17 @@ class SdkCodeGenerator(
         ).use { Metadata.toolMetadata.writeTo(it) }
     }
 
+    private fun generateSuspendFunctionUtilities() {
+        if (!api.hasSuspendFunctions()) return
+        TransportCancellationGenerator(basePackageName()).generate().also(::write)
+        ThrowableParcelConverterFileGenerator(basePackageName()).generate(convertToParcel = true)
+            .also(::write)
+    }
+
     private fun write(spec: FileSpec) {
         codeGenerator.createNewFile(Dependencies(false), spec.packageName, spec.name)
             .write(spec)
     }
+
+    private fun basePackageName() = api.getOnlyService().type.packageName
 }

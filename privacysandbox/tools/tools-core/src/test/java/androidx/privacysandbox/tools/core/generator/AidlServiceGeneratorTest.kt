@@ -76,6 +76,8 @@ class AidlServiceGeneratorTest {
                 "com.mysdk" to "IStringTransactionCallback",
                 "com.mysdk" to "IUnitTransactionCallback",
                 "com.mysdk" to "ICancellationSignal",
+                "com.mysdk" to "PrivacySandboxThrowableParcel",
+                "com.mysdk" to "ParcelableStackFrame",
             )
 
         val outputTestDataDir = File("src/test/test-data/aidlservicegeneratortest/output")

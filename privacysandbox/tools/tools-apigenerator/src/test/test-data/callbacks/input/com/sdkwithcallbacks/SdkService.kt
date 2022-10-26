@@ -6,7 +6,7 @@ import androidx.privacysandbox.tools.PrivacySandboxValue
 
 @PrivacySandboxService
 interface SdkService {
-    suspend fun registerCallback(callback: SdkCallback)
+    fun registerCallback(callback: SdkCallback)
 }
 
 @PrivacySandboxCallback
