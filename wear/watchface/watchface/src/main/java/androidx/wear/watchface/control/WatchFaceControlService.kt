@@ -58,7 +58,7 @@ import kotlinx.coroutines.MainScope
 @VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WatchFaceControlService : Service() {
-    private val watchFaceInstanceServiceStub by lazy { createServiceStub() }
+    private var watchFaceInstanceServiceStub: IWatchFaceInstanceServiceStub? = null
 
     /** @hide */
     public companion object {
@@ -69,6 +69,9 @@ public open class WatchFaceControlService : Service() {
     override fun onBind(intent: Intent?): IBinder? =
         TraceEvent("WatchFaceControlService.onBind").use {
             if (ACTION_WATCHFACE_CONTROL_SERVICE == intent?.action) {
+                if (watchFaceInstanceServiceStub == null) {
+                    watchFaceInstanceServiceStub = createServiceStub()
+                }
                 watchFaceInstanceServiceStub
             } else {
                 null
@@ -94,13 +97,19 @@ public open class WatchFaceControlService : Service() {
         HeadlessWatchFaceImpl.dump(indentingPrintWriter)
         indentingPrintWriter.flush()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        watchFaceInstanceServiceStub?.onDestroy()
+    }
 }
 
 /** @hide */
 @RequiresApi(27)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class IWatchFaceInstanceServiceStub(
-    private val service: Service,
+    // We need to explicitly null this object in onDestroy to avoid a memory leak.
+    private var service: Service?,
     private val uiThreadCoroutineScope: CoroutineScope
 ) : IWatchFaceControlService.Stub() {
     override fun getApiVersion(): Int = IWatchFaceControlService.API_VERSION
@@ -169,11 +178,11 @@ public open class IWatchFaceInstanceServiceStub(
                     method!!.isAccessible = true
                     method.invoke(
                         watchFaceService,
-                        service as Context,
+                        service!! as Context,
                         null,
                         watchFaceService::class.qualifiedName,
                         null,
-                        service.application,
+                        service!!.application,
                         null
                     )
                 } catch (e: Exception) {
@@ -279,5 +288,9 @@ public open class IWatchFaceInstanceServiceStub(
             Log.e(TAG, "$functionName failed due to exception", e)
             throw e
         }
+    }
+
+    fun onDestroy() {
+        service = null
     }
 }
