@@ -18,13 +18,11 @@ package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.widget.TextView;
 
 import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
 
@@ -65,7 +63,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is the bottom");
 
         assertEquals("This is the bottom", target.getText());
-        assertThrows(UiObjectNotFoundException.class,
+        assertUiObjectNotFound(
                 () -> relativeLayout.getChildByDescription(
                         new UiSelector().className(TextView.class),
                         "This is non-existent"));
@@ -82,7 +80,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is the top", false);
 
         assertEquals("This is the top", target.getText());
-        assertThrows(UiObjectNotFoundException.class,
+        assertUiObjectNotFound(
                 () -> relativeLayout.getChildByDescription(
                         new UiSelector().className(TextView.class), "This is the bottom",
                         false));
@@ -115,7 +113,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is the bottom");
 
         assertEquals("This is the bottom", target.getText());
-        assertThrows(UiObjectNotFoundException.class,
+        assertUiObjectNotFound(
                 () -> relativeLayout.getChildByText(new UiSelector().className(TextView.class),
                         "This is non-existent"));
     }
@@ -131,7 +129,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is the top", false);
 
         assertEquals("This is the top", target.getText());
-        assertThrows(UiObjectNotFoundException.class,
+        assertUiObjectNotFound(
                 () -> relativeLayout.getChildByText(new UiSelector().className(TextView.class),
                         "This is the bottom", false));
     }
@@ -194,7 +192,7 @@ public class UiScrollableTest extends BaseTest {
 
         assertTrue(relativeLayout.scrollIntoView(target));
         assertTrue(relativeLayout.ensureFullyVisible(target));
-        assertThrows(UiObjectNotFoundException.class,
+        assertUiObjectNotFound(
                 () -> relativeLayout.ensureFullyVisible(
                         mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"))));
     }
@@ -234,7 +232,7 @@ public class UiScrollableTest extends BaseTest {
         // Assert throwing exception for `scrollForward(int)` and all its related methods.
         UiScrollable noNode = new UiScrollable(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/no_node"));
-        assertThrows(UiObjectNotFoundException.class, noNode::flingForward);
+        assertUiObjectNotFound(noNode::flingForward);
     }
 
     @Test
@@ -271,7 +269,7 @@ public class UiScrollableTest extends BaseTest {
 
         UiScrollable noNode = new UiScrollable(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/no_node"));
-        assertThrows(UiObjectNotFoundException.class, noNode::flingBackward);
+        assertUiObjectNotFound(noNode::flingBackward);
     }
 
     @Test
