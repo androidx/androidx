@@ -92,7 +92,12 @@ class StubDelegatesGenerator(
                         }
                     }
                     addControlFlow("catch (t: Throwable)") {
-                        addStatement("transactionCallback.onFailure(404, t.message)")
+                        addStatement(
+                            "transactionCallback.onFailure(%M(t))",
+                            ThrowableParcelConverterFileGenerator.toThrowableParcelNameSpec(
+                                basePackageName
+                            )
+                        )
                     }
                 }
                 addStatement(

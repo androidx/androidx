@@ -23,6 +23,13 @@ fun ParsedApi.getOnlyService(): AnnotatedInterface {
     return services.first()
 }
 
+fun ParsedApi.hasSuspendFunctions(): Boolean {
+    val annotatedInterfaces = services + interfaces
+    return annotatedInterfaces
+        .flatMap(AnnotatedInterface::methods)
+        .any(Method::isSuspend)
+}
+
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
     val boolean = Type(packageName = "kotlin", simpleName = "Boolean")

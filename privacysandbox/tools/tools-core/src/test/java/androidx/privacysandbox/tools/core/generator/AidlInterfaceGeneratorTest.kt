@@ -85,6 +85,8 @@ class AidlInterfaceGeneratorTest {
                 "com.mysdk" to "IMyInterface",
                 "com.mysdk" to "ICancellationSignal",
                 "com.mysdk" to "IMyInterfaceTransactionCallback",
+                "com.mysdk" to "PrivacySandboxThrowableParcel",
+                "com.mysdk" to "ParcelableStackFrame",
             )
 
         val outputTestDataDir = File("src/test/test-data/aidlinterfacegeneratortest/output")

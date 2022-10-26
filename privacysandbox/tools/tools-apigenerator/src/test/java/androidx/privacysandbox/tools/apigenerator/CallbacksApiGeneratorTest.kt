@@ -25,10 +25,8 @@ class CallbacksApiGeneratorTest : BaseApiGeneratorTest() {
     override val inputDirectory = File("src/test/test-data/callbacks/input")
     override val outputDirectory = File("src/test/test-data/callbacks/output")
     override val relativePathsToExpectedAidlClasses = listOf(
-        "com/sdkwithcallbacks/ParcelableResponse.java",
         "com/sdkwithcallbacks/ISdkCallback.java",
-        "com/sdkwithcallbacks/ICancellationSignal.java",
-        "com/sdkwithcallbacks/IUnitTransactionCallback.java",
         "com/sdkwithcallbacks/ISdkService.java",
+        "com/sdkwithcallbacks/ParcelableResponse.java",
     )
 }

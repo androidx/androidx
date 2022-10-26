@@ -29,5 +29,7 @@ class PrimitivesApiGeneratorTest : BaseApiGeneratorTest() {
         "com/mysdk/IBooleanTransactionCallback.java",
         "com/mysdk/ICancellationSignal.java",
         "com/mysdk/IUnitTransactionCallback.java",
+        "com/mysdk/ParcelableStackFrame.java",
+        "com/mysdk/PrivacySandboxThrowableParcel.java",
     )
 }

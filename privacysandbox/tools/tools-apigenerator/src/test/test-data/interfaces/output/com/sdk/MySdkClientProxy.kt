@@ -1,6 +1,6 @@
 package com.sdk
 
-import kotlin.coroutines.resume
+import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -19,8 +19,8 @@ public class MySdkClientProxy(
             override fun onSuccess(result: IMyInterface) {
                 it.resumeWith(Result.success(MyInterfaceClientProxy(result)))
             }
-            override fun onFailure(errorCode: Int, errorMessage: String) {
-                it.resumeWithException(RuntimeException(errorMessage))
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
         remote.getInterface(transactionCallback)

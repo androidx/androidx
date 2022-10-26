@@ -30,6 +30,7 @@ import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -53,6 +54,8 @@ class AidlGenerator private constructor(
         }
 
         const val cancellationSignalName = "ICancellationSignal"
+        const val throwableParcelName = "PrivacySandboxThrowableParcel"
+        const val parcelableStackFrameName = "ParcelableStackFrame"
     }
 
     private fun generate(): List<GeneratedSource> {
@@ -91,12 +94,11 @@ class AidlGenerator private constructor(
 
     private fun generateAidlContent(): List<AidlFileSpec> {
         val values = api.values.map(::generateValue)
-        val transactionCallbacks = generateTransactionCallbacks()
         val service = aidlInterface(api.getOnlyService())
         val customCallbacks = api.callbacks.map(::aidlInterface)
         val interfaces = api.interfaces.map(::aidlInterface)
-        return transactionCallbacks +
-            generateICancellationSignal() +
+        val suspendFunctionUtilities = generateSuspendFunctionUtilities()
+        return suspendFunctionUtilities +
             service +
             values +
             customCallbacks +
@@ -128,6 +130,14 @@ class AidlGenerator private constructor(
         )
     }
 
+    private fun generateSuspendFunctionUtilities(): List<AidlFileSpec> {
+        if (!api.hasSuspendFunctions()) return emptyList()
+        return generateTransactionCallbacks() +
+            generateParcelableFailure() +
+            generateParcelableStackTrace() +
+            generateICancellationSignal()
+    }
+
     private fun generateTransactionCallbacks(): List<AidlFileSpec> {
         val annotatedInterfaces = api.services + api.interfaces
         return annotatedInterfaces
@@ -146,14 +156,42 @@ class AidlGenerator private constructor(
                 if (type != Types.unit) addParameter(Parameter("result", type))
             }
             addMethod("onFailure") {
-                addParameter("errorCode", primitive("int"))
-                addParameter("errorMessage", primitive("String"))
+                addParameter("throwableParcel", AidlTypeSpec(throwableParcelType()), isIn = true)
             }
         }
     }
 
     private fun generateICancellationSignal() = aidlInterface(cancellationSignalType().innerType) {
         addMethod("cancel")
+    }
+
+    private fun generateParcelableFailure(): AidlFileSpec {
+        return AidlParcelableSpec(
+            type = throwableParcelType(),
+            properties = listOf(
+                "String exceptionClass;",
+                "String errorMessage;",
+                "$parcelableStackFrameName[] stackTrace;",
+                // @nullable(heap=true) is required to support recursive parcelables.
+                "@nullable(heap=true) $throwableParcelName cause;",
+                "$throwableParcelName[] suppressedExceptions;",
+            ),
+            typesToImport = setOf(
+                parcelableStackFrameType()
+            )
+        )
+    }
+
+    private fun generateParcelableStackTrace(): AidlFileSpec {
+        return AidlParcelableSpec(
+            type = parcelableStackFrameType(),
+            properties = listOf(
+                "String declaringClass;",
+                "String methodName;",
+                "String fileName;",
+                "int lineNumber;",
+            )
+        )
     }
 
     private fun generateValue(value: AnnotatedValue): AidlFileSpec {
@@ -181,6 +219,8 @@ class AidlGenerator private constructor(
 
     private fun packageName() = api.getOnlyService().type.packageName
     private fun cancellationSignalType() = AidlTypeSpec(Type(packageName(), cancellationSignalName))
+    private fun throwableParcelType() = Type(packageName(), throwableParcelName)
+    private fun parcelableStackFrameType() = Type(packageName(), parcelableStackFrameName)
     private fun transactionCallback(type: Type) =
         AidlTypeSpec(Type(api.getOnlyService().type.packageName, type.transactionCallbackName()))
 

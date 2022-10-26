@@ -22,11 +22,14 @@ import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
+import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.File
@@ -87,6 +90,7 @@ class PrivacySandboxApiGenerator {
             output
         )
         generateValueConverters(api, output)
+        generateSuspendFunctionUtilities(api, basePackageName, output)
     }
 
     private fun generateBinders(api: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
@@ -192,5 +196,17 @@ class PrivacySandboxApiGenerator {
             "SDK uses incompatible Privacy Sandbox tooling " +
                 "(version $sdkCodeGenerationVersion). Current version is $consumerVersion."
         }
+    }
+
+    private fun generateSuspendFunctionUtilities(
+        api: ParsedApi,
+        basePackageName: String,
+        output: File
+    ) {
+        if (!api.hasSuspendFunctions()) return
+        ThrowableParcelConverterFileGenerator(basePackageName).generate(
+            convertFromParcel = true
+        ).writeTo(output)
+        PrivacySandboxExceptionFileGenerator(basePackageName).generate().writeTo(output)
     }
 }
