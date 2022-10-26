@@ -41,6 +41,7 @@ androidx {
 
 android {
     defaultConfig {
+        applicationId "androidx.wear.watchface.samples.minimal.style"
         minSdkVersion 26
     }
 
