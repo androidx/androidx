@@ -16,7 +16,6 @@
 
 
 import androidx.build.KmpPlatformsKt
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -27,6 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.benchmark")
+    id("androidx.benchmark.darwin")
 }
 
 def macEnabled = KmpPlatformsKt.enableMac(project)
@@ -111,18 +111,15 @@ androidx {
     description = "AndroidX Collections Benchmarks (Android / iOS)"
 }
 
-if (macEnabled) {
-    apply plugin: "androidx.benchmark.darwin"
-    darwinBenchmark {
-        xcodeGenConfigFile = project.rootProject.file(
-                "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
-        )
-        xcodeProjectName = "collection-benchmark-ios"
-        scheme = "testapp-ios"
-        // ios 13, 15.2
-        destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
-        xcFrameworkConfig = "AndroidXDarwinBenchmarks"
-    }
+darwinBenchmark {
+    xcodeGenConfigFile = project.rootProject.file(
+            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
+    )
+    xcodeProjectName = "collection-benchmark-ios"
+    scheme = "testapp-ios"
+    // ios 13, 15.2
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+    xcFrameworkConfig = "AndroidXDarwinBenchmarks"
 }
 
 android {

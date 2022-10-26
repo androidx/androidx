@@ -16,8 +16,12 @@
 
 package androidx.benchmark.darwin.gradle
 
+import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 /**
  * The Darwin benchmark plugin that helps run KMP benchmarks on iOS devices, and extracts benchmark
@@ -28,6 +32,28 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         val extension =
             project.extensions.create("darwinBenchmark", DarwinBenchmarkPluginExtension::class.java)
 
+        val appliedDarwinPlugin = AtomicBoolean()
+
+        project.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {
+            val multiplatformExtension: KotlinMultiplatformExtension =
+                project.extensions.getByType(it.projectExtensionClass.java)
+            multiplatformExtension.targets.all { kotlinTarget ->
+                if (kotlinTarget is KotlinNativeTarget) {
+                    if (kotlinTarget.konanTarget.family.isAppleFamily) {
+                        // We want to apply the plugin only once.
+                        if (appliedDarwinPlugin.compareAndSet(false, true)) {
+                            applyDarwinPlugin(extension, project)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyDarwinPlugin(
+        extension: DarwinBenchmarkPluginExtension,
+        project: Project
+    ) {
         val xcodeProjectPath = extension.xcodeProjectName.flatMap { name ->
             project.layout.buildDirectory.dir("$name.xcodeproj")
         }
