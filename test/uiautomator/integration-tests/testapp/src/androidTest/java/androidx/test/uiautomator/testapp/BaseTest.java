@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
@@ -27,10 +28,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.Configurator;
 import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.Until;
 
 import org.junit.Before;
+import org.junit.function.ThrowingRunnable;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
@@ -61,5 +65,18 @@ public abstract class BaseTest {
         context.startActivity(new Intent(intent).setClass(context, activity));
         assertTrue("Test app not visible after launching activity",
                 mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), TIMEOUT_MS));
+    }
+
+    // Helper to verify that an operation throws a UiObjectNotFoundException without waiting for
+    // the full 10s default timeout.
+    protected static void assertUiObjectNotFound(ThrowingRunnable runnable) {
+        Configurator configurator = Configurator.getInstance();
+        long timeout = configurator.getWaitForSelectorTimeout();
+        configurator.setWaitForSelectorTimeout(1_000);
+        try {
+            assertThrows(UiObjectNotFoundException.class, runnable);
+        } finally {
+            configurator.setWaitForSelectorTimeout(timeout);
+        }
     }
 }
