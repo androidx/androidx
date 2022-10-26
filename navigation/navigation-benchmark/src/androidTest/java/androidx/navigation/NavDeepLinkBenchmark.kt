@@ -56,7 +56,6 @@ class NavDeepLinkBenchmark {
                         addDestination(
                             navigator.createDestination().apply {
                                 route = URI_PATH + i + URI_EXTRAS
-                                println("added $route")
                                 id = i
                             }
                         )
