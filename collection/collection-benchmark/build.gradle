@@ -34,7 +34,7 @@ def macEnabled = KmpPlatformsKt.enableMac(project)
 androidXMultiplatform {
     android()
 
-    // XCFrameworkConfig must match module name
+    // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
     ios {
         binaries.framework {
@@ -119,7 +119,6 @@ darwinBenchmark {
     scheme = "testapp-ios"
     // ios 13, 15.2
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
-    xcFrameworkConfig = "AndroidXDarwinBenchmarks"
 }
 
 android {

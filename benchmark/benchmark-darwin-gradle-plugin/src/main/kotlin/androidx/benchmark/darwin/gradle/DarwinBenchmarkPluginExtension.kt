@@ -43,10 +43,4 @@ abstract class DarwinBenchmarkPluginExtension {
      * This is typically discovered by using `xcrun xctrace list devices`.
      */
     abstract val destination: Property<String>
-
-    /**
-     * The name of the `XCFrameworkConfig` defined in the benchmark's module build.gradle.
-     * This is used to derive the name of the `release` task to generate the `XCFramework`.
-     */
-    abstract val xcFrameworkConfig: Property<String>
 }
