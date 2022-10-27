@@ -60,6 +60,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -244,6 +245,7 @@ class MultiProcessDataStoreTest {
         }
     }
 
+    @Ignore("b/244352517")
     @Test
     fun testReadFromNonExistentFile() = runTest {
         val nonExistentFile = tempFolder.newFile()
