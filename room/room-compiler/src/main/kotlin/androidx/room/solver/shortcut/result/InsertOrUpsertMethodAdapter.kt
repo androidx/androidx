@@ -132,7 +132,6 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
             )
         }
 
-        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         private fun getReturnType(returnType: XType): ReturnType? {
             return if (returnType.isVoid()) {
                 ReturnType.VOID

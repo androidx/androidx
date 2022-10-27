@@ -49,25 +49,26 @@ public final class UpsertDao_Impl implements UpsertDao {
             }
         }, new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, User value) {
-                stmt.bindLong(1, value.uid);
-                if (value.name == null) {
-                    stmt.bindNull(2);
+            public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+                statement.bindLong(1, entity.uid);
+                if (entity.name == null) {
+                    statement.bindNull(2);
                 } else {
-                    stmt.bindString(2, value.name);
+                    statement.bindString(2, entity.name);
                 }
-                if (value.getLastName() == null) {
-                    stmt.bindNull(3);
+                if (entity.getLastName() == null) {
+                    statement.bindNull(3);
                 } else {
-                    stmt.bindString(3, value.getLastName());
+                    statement.bindString(3, entity.getLastName());
                 }
-                stmt.bindLong(4, value.age);
-                stmt.bindLong(5, value.uid);
+                statement.bindLong(4, entity.age);
+                statement.bindLong(5, entity.uid);
             }
         });
         this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
@@ -84,15 +85,16 @@ public final class UpsertDao_Impl implements UpsertDao {
             }
         }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
+            @NonNull
             public String createQuery() {
                 return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(SupportSQLiteStatement stmt, Book value) {
-                stmt.bindLong(1, value.bookId);
-                stmt.bindLong(2, value.uid);
-                stmt.bindLong(3, value.bookId);
+            public void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
+                statement.bindLong(1, entity.bookId);
+                statement.bindLong(2, entity.uid);
+                statement.bindLong(3, entity.bookId);
             }
         });
     }

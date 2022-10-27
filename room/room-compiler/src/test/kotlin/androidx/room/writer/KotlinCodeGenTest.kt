@@ -874,6 +874,86 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun deleteOrUpdateMethodAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Update
+              fun updateEntity(item: MyEntity)
+
+              @Delete
+              fun deleteEntity(item: MyEntity)
+
+              @Update
+              fun updateEntityAndReturnCount(item: MyEntity): Int
+
+              @Delete
+              fun deleteEntityAndReturnCount(item: MyEntity): Int
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+                val data: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun insertOrUpsertMethodAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Insert
+              fun insertEntity(item: MyEntity)
+
+              @Upsert
+              fun upsertEntity(item: MyEntity)
+
+              @Insert
+              fun insertEntityAndReturnRowId(item: MyEntity): Long
+
+              @Upsert
+              fun upsertEntityAndReturnRowId(item: MyEntity): Long
+
+              @Insert
+              fun insertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long>
+
+              @Upsert
+              fun upsertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+                val data: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

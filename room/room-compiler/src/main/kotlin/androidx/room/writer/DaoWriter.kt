@@ -28,7 +28,6 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -59,8 +58,6 @@ import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.TypeSpec
 import java.util.Arrays
 import java.util.Collections
 import java.util.Locale
@@ -467,7 +464,7 @@ class DaoWriter(
     private fun <T : DeleteOrUpdateShortcutMethod> createShortcutMethods(
         methods: List<T>,
         methodPrefix: String,
-        implCallback: (T, ShortcutEntity) -> TypeSpec
+        implCallback: (T, ShortcutEntity) -> XTypeSpec
     ): List<PreparedStmtQuery> {
         return methods.mapNotNull { method ->
             val entities = method.entities
@@ -496,7 +493,7 @@ class DaoWriter(
 
     private fun createDeleteOrUpdateMethodBody(
         method: DeleteOrUpdateShortcutMethod,
-        adapters: Map<String, Pair<XPropertySpec, TypeSpec>>
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
     ): XCodeBlock {
         if (adapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
@@ -506,7 +503,7 @@ class DaoWriter(
         method.methodBinder.convertAndReturn(
             parameters = method.parameters,
             adapters = adapters,
-            dbField = dbProperty.toJavaPoet(),
+            dbProperty = dbProperty,
             scope = scope
         )
         return scope.generate()
@@ -538,7 +535,7 @@ class DaoWriter(
 
     private fun createUpsertionMethodBody(
         method: UpsertionMethod,
-        upsertionAdapters: Map<String, Pair<XPropertySpec, CodeBlock>>
+        upsertionAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
     ): XCodeBlock {
         if (upsertionAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()

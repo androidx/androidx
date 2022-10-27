@@ -17,6 +17,8 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
@@ -49,8 +51,8 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, TypeSpec>>,
-        dbField: FieldSpec,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
@@ -58,14 +60,14 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
             adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
-                dbField = dbField,
+                dbProperty = dbProperty,
                 scope = adapterScope
             )
             addCode(adapterScope.builder().build())
         }.build()
 
         scope.builder().apply {
-            addStmntBlock(callableImpl, dbField)
+            addStmntBlock(callableImpl, dbProperty.toJavaPoet())
         }
     }
 }
