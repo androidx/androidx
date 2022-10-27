@@ -290,7 +290,8 @@ internal class FrameworkSQLiteDatabase(
     override val isWriteAheadLoggingEnabled: Boolean
         get() = SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
 
-    override val attachedDbs: List<Pair<String, String>>? = delegate.attachedDbs
+    override val attachedDbs: List<Pair<String, String>>?
+        get() = delegate.attachedDbs
 
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
