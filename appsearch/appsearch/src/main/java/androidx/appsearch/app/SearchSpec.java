@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
@@ -66,6 +67,7 @@ public final class SearchSpec {
     static final String RESULT_GROUPING_TYPE_FLAGS = "resultGroupingTypeFlags";
     static final String RESULT_GROUPING_LIMIT = "resultGroupingLimit";
     static final String TYPE_PROPERTY_WEIGHTS_FIELD = "typePropertyWeightsField";
+    static final String JOIN_SPEC = "joinSpec";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,6 +122,7 @@ public final class SearchSpec {
             RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP,
             RANKING_STRATEGY_SYSTEM_USAGE_COUNT,
             RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP,
+            RANKING_STRATEGY_JOIN_AGGREGATE_SCORE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {
@@ -141,6 +144,16 @@ public final class SearchSpec {
     public static final int RANKING_STRATEGY_SYSTEM_USAGE_COUNT = 6;
     /** Ranked by timestamp of last usage from a system UI surface. */
     public static final int RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP = 7;
+    /**
+     * Ranked by the aggregated ranking signal of the joined documents.
+     *
+     * <p> Which aggregation strategy is used to determine a ranking signal is specified in the
+     * {@link JoinSpec} set by {@link Builder#setJoinSpec}. This ranking strategy may not be used
+     * if no {@link JoinSpec} is provided.
+     *
+     * @see Builder#build
+     */
+    public static final int RANKING_STRATEGY_JOIN_AGGREGATE_SCORE = 8;
 
     /**
      * Order for query result.
@@ -410,6 +423,18 @@ public final class SearchSpec {
         return mBundle.getInt(RESULT_GROUPING_LIMIT, Integer.MAX_VALUE);
     }
 
+    /**
+     * Returns specification on which documents need to be joined.
+     */
+    @Nullable
+    public JoinSpec getJoinSpec() {
+        Bundle joinSpec = mBundle.getBundle(JOIN_SPEC);
+        if (joinSpec == null) {
+            return null;
+        }
+        return new JoinSpec(joinSpec);
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mSchemas = new ArrayList<>();
@@ -427,6 +452,7 @@ public final class SearchSpec {
         private @Order int mOrder = ORDER_DESCENDING;
         private @GroupingType int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
+        private JoinSpec mJoinSpec;
         private boolean mBuilt = false;
 
         /**
@@ -595,7 +621,7 @@ public final class SearchSpec {
         @NonNull
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
-                    RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
+                    RANKING_STRATEGY_JOIN_AGGREGATE_SCORE, "Result ranking strategy");
             resetIfBuilt();
             mRankingStrategy = rankingStrategy;
             return this;
@@ -649,7 +675,7 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec.Builder setSnippetCountPerProperty(
                 @IntRange(from = 0, to = MAX_SNIPPET_PER_PROPERTY_COUNT)
-                        int snippetCountPerProperty) {
+                int snippetCountPerProperty) {
             Preconditions.checkArgumentInRange(snippetCountPerProperty,
                     0, MAX_SNIPPET_PER_PROPERTY_COUNT, "snippetCountPerProperty");
             resetIfBuilt();
@@ -829,7 +855,7 @@ public final class SearchSpec {
 // @exportToFramework:endStrip()
 
         /**
-         * Set the maximum number of results to return for each group, where groups are defined
+         * Sets the maximum number of results to return for each group, where groups are defined
          * by grouping type.
          *
          * <p>Calling this method will override any previous calls. So calling
@@ -908,6 +934,21 @@ public final class SearchSpec {
                 propertyPathBundle.putDouble(propertyPath, weight);
             }
             mTypePropertyWeights.putBundle(schemaType, propertyPathBundle);
+            return this;
+        }
+
+        /**
+         * Specifies which documents to join with, and how to join.
+         *
+         * <p> If the ranking strategy is {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE}, and the
+         * JoinSpec is null, {@link #build} will throw an {@link AppSearchException}.
+         *
+         * @param joinSpec a specification on how to perform the Join operation.
+         */
+        @NonNull
+        public Builder setJoinSpec(@NonNull JoinSpec joinSpec) {
+            resetIfBuilt();
+            mJoinSpec = Preconditions.checkNotNull(joinSpec);
             return this;
         }
 
@@ -1062,10 +1103,20 @@ public final class SearchSpec {
          * @throws IllegalArgumentException if property weights are provided with a
          *                                  ranking strategy that isn't
          *                                  RANKING_STRATEGY_RELEVANCE_SCORE.
+         * @throws IllegalStateException if the ranking strategy is
+         * {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} and {@link #setJoinSpec} has never been
+         * called.
+         *
          */
         @NonNull
         public SearchSpec build() {
             Bundle bundle = new Bundle();
+            if (mJoinSpec != null) {
+                bundle.putBundle(JOIN_SPEC, mJoinSpec.getBundle());
+            } else if (mRankingStrategy == RANKING_STRATEGY_JOIN_AGGREGATE_SCORE) {
+                throw new IllegalStateException("Attempting to rank based on joined documents, but "
+                        + "no JoinSpec provided");
+            }
             bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             bundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);

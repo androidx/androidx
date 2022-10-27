@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSpec;
 
@@ -255,6 +256,26 @@ public class SearchSpecCtsTest {
                 "property1", "property2");
     }
 
+    @Test
+    public void testGetJoinSpec() {
+        JoinSpec joinSpec = new JoinSpec.Builder("entityId")
+                .setNestedSearch("joe", new SearchSpec.Builder().build())
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setMaxJoinedResultCount(20)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setJoinSpec(joinSpec)
+                .build();
+
+        assertThat(searchSpec.getJoinSpec()).isNotNull();
+        assertThat(searchSpec.getJoinSpec().getNestedQuery()).isEqualTo("joe");
+        assertThat(searchSpec.getJoinSpec().getAggregationScoringStrategy())
+                .isEqualTo(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT);
+        assertThat(searchSpec.getJoinSpec().getMaxJoinedResultCount()).isEqualTo(20);
+        assertThat(searchSpec.getJoinSpec().getChildPropertyExpression()).isEqualTo("entityId");
+    }
+
 // @exportToFramework:startStrip()
     @Document
     static class King extends Card {
@@ -355,4 +376,47 @@ public class SearchSpecCtsTest {
     }
 
 // @exportToFramework:endStrip()
+
+    @Test
+    public void testInvalidJoinSpecConfig() {
+        IllegalStateException e = assertThrows(IllegalStateException.class, () ->
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE)
+                        .build());
+
+        assertThat(e.getMessage()).isEqualTo("Attempting to rank based on joined documents, but"
+                + " no JoinSpec provided");
+    }
+
+    @Test
+    public void testRebuild() {
+        JoinSpec originalJoinSpec = new JoinSpec.Builder("entityId")
+                .setNestedSearch("joe", new SearchSpec.Builder().addFilterSchemas("Action").build())
+                .build();
+
+        JoinSpec newJoinSpec = new JoinSpec.Builder("entitySchema")
+                .setNestedSearch("",
+                        new SearchSpec.Builder().addFilterSchemas("CallAction").build())
+                .build();
+
+        SearchSpec.Builder searchSpecBuilder =
+                new SearchSpec.Builder().setJoinSpec(originalJoinSpec);
+
+        SearchSpec original = searchSpecBuilder.build();
+        SearchSpec rebuild = searchSpecBuilder
+                .setJoinSpec(newJoinSpec)
+                .build();
+
+        assertThat(original.getJoinSpec()).isNotNull();
+        assertThat(original.getJoinSpec().getChildPropertyExpression()).isEqualTo("entityId");
+        assertThat(original.getJoinSpec().getNestedQuery()).isEqualTo("joe");
+        assertThat(original.getJoinSpec().getNestedSearchSpec().getFilterSchemas())
+                .containsExactly("Action");
+
+        assertThat(rebuild.getJoinSpec()).isNotNull();
+        assertThat(rebuild.getJoinSpec().getChildPropertyExpression()).isEqualTo("entitySchema");
+        assertThat(rebuild.getJoinSpec().getNestedQuery()).isEqualTo("");
+        assertThat(rebuild.getJoinSpec().getNestedSearchSpec().getFilterSchemas())
+                .containsExactly("CallAction");
+    }
 }
