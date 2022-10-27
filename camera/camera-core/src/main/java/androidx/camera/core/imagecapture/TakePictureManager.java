@@ -132,10 +132,9 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
         checkMainThread();
         mPaused = true;
 
-        // Pause means camera reset, which may cause the current request to fail. Increment the
-        // retry counter.
+        // Always retry because the camera may not send an error callback during the reset.
         if (mCapturingRequest != null) {
-            mCapturingRequest.incrementRetryCounter();
+            mCapturingRequest.abortSilentlyAndRetry();
         }
     }
 
@@ -169,7 +168,7 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
         List<RequestWithCallback> requestsSnapshot = new ArrayList<>(mIncompleteRequests);
         for (RequestWithCallback request : requestsSnapshot) {
             // TODO: optimize the performance by not processing aborted requests.
-            request.abort(exception);
+            request.abortAndSendErrorToApp(exception);
         }
     }
 
