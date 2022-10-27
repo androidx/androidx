@@ -80,6 +80,7 @@ public class CameraStream internal constructor(
                 mirrorMode: OutputStream.MirrorMode? = null,
                 timestampBase: OutputStream.TimestampBase? = null,
                 dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
+                streamUseCase: OutputStream.StreamUseCase? = null,
             ): Config = create(
                 OutputStream.Config.create(
                     size,
@@ -88,7 +89,8 @@ public class CameraStream internal constructor(
                     outputType,
                     mirrorMode,
                     timestampBase,
-                    dynamicRangeProfile
+                    dynamicRangeProfile,
+                    streamUseCase,
                 )
             )
 
@@ -133,6 +135,7 @@ public interface OutputStream {
     public val mirrorMode: MirrorMode?
     public val timestampBase: TimestampBase?
     public val dynamicRangeProfile: DynamicRangeProfile?
+    public val streamUseCase: StreamUseCase?
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**
@@ -145,6 +148,7 @@ public interface OutputStream {
         public val mirrorMode: MirrorMode?,
         public val timestampBase: TimestampBase?,
         public val dynamicRangeProfile: DynamicRangeProfile?,
+        public val streamUseCase: StreamUseCase?,
     ) {
         companion object {
             fun create(
@@ -155,6 +159,7 @@ public interface OutputStream {
                 mirrorMode: MirrorMode? = null,
                 timestampBase: TimestampBase? = null,
                 dynamicRangeProfile: DynamicRangeProfile? = null,
+                streamUseCase: StreamUseCase? = null,
             ): Config =
                 if (
                     outputType == OutputType.SURFACE_TEXTURE ||
@@ -167,7 +172,8 @@ public interface OutputStream {
                         outputType,
                         mirrorMode,
                         timestampBase,
-                        dynamicRangeProfile
+                        dynamicRangeProfile,
+                        streamUseCase
                     )
                 } else {
                     check(outputType == OutputType.SURFACE)
@@ -177,7 +183,8 @@ public interface OutputStream {
                         camera,
                         mirrorMode,
                         timestampBase,
-                        dynamicRangeProfile
+                        dynamicRangeProfile,
+                        streamUseCase,
                     )
                 }
 
@@ -203,7 +210,16 @@ public interface OutputStream {
             mirrorMode: MirrorMode?,
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
-        ) : Config(size, format, camera, mirrorMode, timestampBase, dynamicRangeProfile)
+            streamUseCase: StreamUseCase?,
+        ) : Config(
+                size,
+                format,
+                camera,
+                mirrorMode,
+                timestampBase,
+                dynamicRangeProfile,
+                streamUseCase
+            )
 
         /**
          * Used to configure an output with a surface that may be provided after the camera is running.
@@ -221,7 +237,16 @@ public interface OutputStream {
             mirrorMode: MirrorMode?,
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
-        ) : Config(size, format, camera, mirrorMode, timestampBase, dynamicRangeProfile)
+            streamUseCase: StreamUseCase?,
+        ) : Config(
+                size,
+                format,
+                camera,
+                mirrorMode,
+                timestampBase,
+                dynamicRangeProfile,
+                streamUseCase,
+            )
 
         /**
          * Used to define an output that comes from an externally managed OutputConfiguration object.
@@ -243,7 +268,8 @@ public interface OutputStream {
                 camera,
                 MirrorMode(Api33Compat.getMirrorMode(output)),
                 TimestampBase(Api33Compat.getTimestampBase(output)),
-                DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output))
+                DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output)),
+                StreamUseCase(Api33Compat.getStreamUseCase(output)),
             )
     }
 
@@ -312,6 +338,26 @@ public interface OutputStream {
             val DOLBY_VISION_8B_HDR_OEM = DynamicRangeProfile(1024)
             val DOLBY_VISION_8B_HDR_OEM_PO = DynamicRangeProfile(2048)
             val PUBLIC_MAX = DynamicRangeProfile(4096)
+        }
+    }
+
+    /**
+     * Adds the ability to define the stream specific use case of the OutputStream.
+     * [DEFAULT] is the default stream use case, with which
+     * the camera device uses the properties of the output target, such as format, dataSpace,
+     * or surface class type, to optimize the image processing pipeline.
+     *
+     * See the documentation on [OutputConfiguration.setStreamUseCase] for more details.
+     */
+    @JvmInline
+    value class StreamUseCase(val value: Long) {
+        companion object {
+            val DEFAULT = StreamUseCase(0)
+            val PREVIEW = StreamUseCase(1)
+            val STILL_CAPTURE = StreamUseCase(2)
+            val VIDEO_RECORD = StreamUseCase(3)
+            val PREVIEW_VIDEO_STILL = StreamUseCase(4)
+            val VIDEO_CALL = StreamUseCase(5)
         }
     }
 }

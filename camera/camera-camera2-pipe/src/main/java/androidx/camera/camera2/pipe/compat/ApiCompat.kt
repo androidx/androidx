@@ -332,6 +332,18 @@ internal object Api33Compat {
 
     @JvmStatic
     @DoNotInline
+    fun setStreamUseCase(outputConfig: OutputConfiguration, streamUseCase: Long) {
+        outputConfig.streamUseCase = streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getStreamUseCase(outputConfig: OutputConfiguration): Long {
+        return outputConfig.streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun setTimestampBase(outputConfig: OutputConfiguration, timestampBase: Int) {
         outputConfig.timestampBase = timestampBase
     }

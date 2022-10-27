@@ -41,9 +41,9 @@ internal class StreamGraphImplTest {
     fun testPrecomputedTestData() {
         val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
 
-        assertThat(streamGraph.streams).hasSize(8)
-        assertThat(streamGraph.streams).hasSize(8)
-        assertThat(streamGraph.outputConfigs).hasSize(7)
+        assertThat(streamGraph.streams).hasSize(9)
+        assertThat(streamGraph.streams).hasSize(9)
+        assertThat(streamGraph.outputConfigs).hasSize(8)
 
         val stream1 = streamGraph[config.streamConfig1]!!
         val outputStream1 = stream1.outputs.single()
@@ -53,6 +53,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream1.mirrorMode).isNull()
         assertThat(outputStream1.timestampBase).isNull()
         assertThat(outputStream1.dynamicRangeProfile).isNull()
+        assertThat(outputStream1.streamUseCase).isNull()
 
         val stream2 = streamGraph[config.streamConfig2]!!
         val outputStream2 = stream2.outputs.single()
@@ -63,6 +64,7 @@ internal class StreamGraphImplTest {
         assertThat(outputStream2.mirrorMode).isNull()
         assertThat(outputStream2.timestampBase).isNull()
         assertThat(outputStream2.dynamicRangeProfile).isNull()
+        assertThat(outputStream2.streamUseCase).isNull()
     }
 
     @Test
@@ -214,5 +216,16 @@ internal class StreamGraphImplTest {
         val stream2 = streamGraph[config.streamConfig6]!!
         assertThat(stream2.outputs.single().dynamicRangeProfile)
             .isEqualTo(OutputStream.DynamicRangeProfile.PUBLIC_MAX)
+    }
+
+    @Test
+    fun testDefaultAndPropagatedStreamUseCases() {
+        val streamGraph = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
+        val stream1 = streamGraph[config.streamConfig1]!!
+        assertThat(stream1.outputs.single().streamUseCase).isNull()
+
+        val stream2 = streamGraph[config.streamConfig7]!!
+        assertThat(stream2.outputs.single().streamUseCase)
+            .isEqualTo(OutputStream.StreamUseCase.VIDEO_RECORD)
     }
 }
