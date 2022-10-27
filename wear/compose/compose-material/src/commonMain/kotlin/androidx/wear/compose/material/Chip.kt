@@ -1152,7 +1152,7 @@ public object ChipDefaults {
     public fun outlinedChipBorder(
         borderColor: Color = MaterialTheme.colors.primaryVariant.copy(alpha = 0.6f),
         disabledBorderColor: Color = borderColor.copy(alpha = ContentAlpha.disabled),
-        borderWidth: Dp = 2.dp
+        borderWidth: Dp = 1.dp
     ): ChipBorder {
         return DefaultChipBorder(
             borderStroke = BorderStroke(borderWidth, borderColor),
