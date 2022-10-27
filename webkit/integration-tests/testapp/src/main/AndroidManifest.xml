@@ -132,5 +132,15 @@
             android:exported="true" />
         <activity android:name=".CookieManagerActivity"
             android:exported="true" />
+        <activity
+            android:name=".ImageDragActivity"
+            android:exported="false" />
+
+        <provider
+            android:authorities="com.example.androidx.webkit.DropDataProvider"
+            android:name="androidx.webkit.DropDataContentProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
     </application>
 </manifest>
