@@ -16,6 +16,7 @@
 
 package androidx.benchmark.darwin.gradle
 
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -54,6 +55,17 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         extension: DarwinBenchmarkPluginExtension,
         project: Project
     ) {
+        // You can override the xcodeGenDownloadUri by specifying something like:
+        // androidx.benchmark.darwin.xcodeGenDownloadUri=https://github.com/yonaskolb/XcodeGen/releases/download/2.32.0/xcodegen.zip
+        val xcodeGenUri = when (val uri = project.findProperty(XCODEGEN_DOWNLOAD_URI)) {
+            null -> File(
+                project.rootProject.projectDir, // frameworks/support
+                "../../prebuilts/androidx/external/xcodegen"
+            ).absoluteFile.toURI().toString()
+
+            else -> uri.toString()
+        }
+
         val xcodeProjectPath = extension.xcodeProjectName.flatMap { name ->
             project.layout.buildDirectory.dir("$name.xcodeproj")
         }
@@ -62,9 +74,17 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
             project.layout.buildDirectory.dir("$name.xcresult")
         }
 
+        val fetchXCodeGenTask = project.tasks.register(
+            FETCH_XCODEGEN_TASK, FetchXCodeGenTask::class.java
+        ) {
+            it.xcodeGenUri.set(xcodeGenUri)
+            it.downloadPath.set(project.layout.buildDirectory.dir("xcodegen"))
+        }
+
         val generateXCodeProjectTask = project.tasks.register(
             GENERATE_XCODE_PROJECT_TASK, GenerateXCodeProjectTask::class.java
         ) {
+            it.xcodeGenPath.set(fetchXCodeGenTask.map { task -> task.xcodeGenBinary() })
             it.yamlFile.set(extension.xcodeGenConfigFile)
             it.projectName.set(extension.xcodeProjectName)
             it.xcProjectPath.set(xcodeProjectPath)
@@ -98,6 +118,11 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
     }
 
     private companion object {
+        // Gradle Properties
+        const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri"
+
+        // Tasks
+        const val FETCH_XCODEGEN_TASK = "fetchXCodeGen"
         const val GENERATE_XCODE_PROJECT_TASK = "generateXCodeProject"
         const val RUN_DARWIN_BENCHMARKS_TASK = "runDarwinBenchmarks"
         const val DARWIN_BENCHMARK_RESULTS_TASK = "darwinBenchmarkResults"

@@ -39,6 +39,10 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val xcodeGenPath: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val yamlFile: RegularFileProperty
 
     @get:Input
@@ -52,6 +56,7 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
 
     @TaskAction
     fun buildXCodeProject() {
+        val xcodeGen = xcodeGenPath.get().asFile
         val outputFile = xcProjectPath.get().asFile
         if (outputFile.exists()) {
             require(outputFile.deleteRecursively()) {
@@ -59,7 +64,7 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
             }
         }
         val args = listOf(
-            "xcodegen",
+            xcodeGen.absolutePath,
             "--spec",
             yamlFile.get().asFile.absolutePath,
             "--project",
