@@ -64,17 +64,15 @@ class StartupTimingMetricTest {
     fun startup() {
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
+        val intent =
+            Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
         val iterationResult = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
             scope.dropKernelPageCache()
             scope.pressHome()
-            scope.startActivityAndWait {
-                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                it.action =
-                    "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
-            }
+            scope.startActivityAndWait(intent)
         }
 
         assertEquals(
