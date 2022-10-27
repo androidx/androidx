@@ -88,6 +88,7 @@
     <string name="cookie_manager_old_api_text">Old cookie API: </string>
     <string name="cookie_manager_new_api_text">New cookie API: </string>
     <string name="cookie_manager_get_cookie_info_not_supported">CookieManagerCompat#getCookieInfo not supported.</string>
+    <string name="image_drag_drop_activity_title">Image Drag And Drop</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
