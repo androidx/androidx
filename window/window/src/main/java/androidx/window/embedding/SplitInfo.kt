@@ -20,9 +20,15 @@ import android.app.Activity
 
 /** Describes a split pair of two containers with activities. */
 class SplitInfo internal constructor(
+    /**
+     * The [ActivityStack] representing the primary split container.
+     */
     val primaryActivityStack: ActivityStack,
+    /**
+     * The [ActivityStack] representing the secondary split container.
+     */
     val secondaryActivityStack: ActivityStack,
-    /** The [SplitAttributes] of this [SplitInfo]. */
+    /** The [SplitAttributes] of this split pair. */
     val splitAttributes: SplitAttributes
 ) {
     operator fun contains(activity: Activity): Boolean {
