@@ -43,6 +43,7 @@ androidx {
 
 android {
     defaultConfig {
+        applicationId "androidx.wear.watchface.samples.minimal.instances"
         minSdkVersion 26
     }
 
