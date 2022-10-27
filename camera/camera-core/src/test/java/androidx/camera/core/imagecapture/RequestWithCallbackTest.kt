@@ -96,7 +96,7 @@ class RequestWithCallbackTest {
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val callback = RequestWithCallback(request, retryControl)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onCaptureFailure(otherError)
         callback.onProcessFailure(otherError)
         shadowOf(getMainLooper()).idle()
@@ -123,7 +123,7 @@ class RequestWithCallbackTest {
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val callback = RequestWithCallback(request, retryControl)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
@@ -149,7 +149,7 @@ class RequestWithCallbackTest {
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.ON_DISK)
         val callback = RequestWithCallback(request, retryControl)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
