@@ -113,8 +113,9 @@ class SdkCodeGenerator(
     }
 
     private fun write(spec: FileSpec) {
+
         codeGenerator.createNewFile(Dependencies(false), spec.packageName, spec.name)
-            .write(spec)
+            .bufferedWriter().use(spec::writeTo)
     }
 
     private fun basePackageName() = api.getOnlyService().type.packageName

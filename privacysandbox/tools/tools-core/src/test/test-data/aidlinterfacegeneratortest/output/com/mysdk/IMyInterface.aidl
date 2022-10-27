@@ -1,6 +1,5 @@
 package com.mysdk;
 
-import com.mysdk.IMyInterface;
 import com.mysdk.IMyInterfaceTransactionCallback;
 
 oneway interface IMyInterface {

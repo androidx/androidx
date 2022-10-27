@@ -21,10 +21,6 @@ internal data class AidlParameterSpec(
     val type: AidlTypeSpec,
     val isIn: Boolean = false
 ) {
-    companion object {
-        fun parameter(name: String, vararg parameters: AidlParameterSpec) =
-            AidlMethodSpec(name, parameters.toList())
-    }
 
     override fun toString() = "${if (isIn) "in " else ""}$type $name"
 }

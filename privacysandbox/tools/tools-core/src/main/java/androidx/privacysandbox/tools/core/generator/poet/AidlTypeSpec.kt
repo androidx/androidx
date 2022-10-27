@@ -18,6 +18,10 @@ package androidx.privacysandbox.tools.core.generator.poet
 
 import androidx.privacysandbox.tools.core.model.Type
 
-internal data class AidlTypeSpec(val innerType: Type, val requiresImport: Boolean = true) {
-    override fun toString() = innerType.simpleName
+internal data class AidlTypeSpec(
+    val innerType: Type,
+    val requiresImport: Boolean = true,
+    val isList: Boolean = false
+) {
+    override fun toString() = innerType.simpleName + if (isList) "[]" else ""
 }

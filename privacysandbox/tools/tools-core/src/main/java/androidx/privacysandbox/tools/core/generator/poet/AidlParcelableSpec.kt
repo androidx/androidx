@@ -21,16 +21,45 @@ import androidx.privacysandbox.tools.core.model.Type
 /** AIDL file with a single parcelable defined. */
 internal data class AidlParcelableSpec(
     override val type: Type,
-    val properties: List<String>,
-    override val typesToImport: Set<Type> = emptySet(),
+    val properties: List<AidlPropertySpec>,
 ) : AidlFileSpec {
+    companion object {
+        fun aidlParcelable(
+            type: Type,
+            block: Builder.() -> Unit = {}
+        ): AidlParcelableSpec {
+            return Builder(type).also(block).build()
+        }
+    }
+
+    override val typesToImport: Set<Type>
+        get() {
+            return properties.map { it.type }.filter { it.requiresImport && it.innerType != type }
+                .map { it.innerType }
+                .toSet()
+        }
+
     override val innerContent: String
         get() {
-            val body = properties.sorted().joinToString("\n|    ")
+            val body = properties.map { it.toString() }.sorted().joinToString("\n|    ")
             return """
                 |parcelable ${type.simpleName} {
                 |    $body
                 |}
                 """.trimMargin()
         }
+
+    class Builder(val type: Type) {
+        val properties = mutableListOf<AidlPropertySpec>()
+
+        fun addProperty(property: AidlPropertySpec) {
+            properties.add(property)
+        }
+
+        fun addProperty(name: String, type: AidlTypeSpec, isNullable: Boolean = false) {
+            addProperty(AidlPropertySpec(name, type, isNullable))
+        }
+
+        fun build() = AidlParcelableSpec(type, properties)
+    }
 }
