@@ -1866,9 +1866,11 @@ public open class NavController(
         }
 
         // Now collect the set of all intermediate NavGraphs that need to be put onto
-        // the back stack
+        // the back stack. Destinations can have multiple parents, so we check referential
+        // equality to ensure that same destinations with a parent that is not this _graph
+        // will also have their parents added to the hierarchy.
         destination = if (hierarchy.isEmpty()) newDest else hierarchy.first().destination
-        while (destination != null && findDestination(destination.id) == null) {
+        while (destination != null && findDestination(destination.id) !== destination) {
             val parent = destination.parent
             if (parent != null) {
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
