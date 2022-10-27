@@ -27,16 +27,16 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.complications.SystemDataSources
-import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.client.WatchFaceMetadataClient
-import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.client.WatchFaceMetadataClient
+import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationExperimental
-import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
-import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.control.WatchFaceControlService
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.CONFIGURABLE_DATA_SOURCE
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.CONFIGURABLE_DATA_SOURCE_PKG
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth
@@ -365,7 +365,8 @@ public class WatchFaceMetadataServiceTest {
         // check settings' defaults
         val userStyleMap = flavor.style.userStyleMap
         Truth.assertThat(userStyleMap.keys).containsExactly(
-            "color_style_setting", "watch_hand_length_style_setting")
+            "color_style_setting", "watch_hand_length_style_setting"
+        )
 
         val userStyle = UserStyle(flavor.style, schema)
         Truth.assertThat(userStyle[UserStyleSetting.Id("color_style_setting")]!!.id)
@@ -376,7 +377,8 @@ public class WatchFaceMetadataServiceTest {
 
         Truth.assertThat(complications.keys).containsExactly(
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        )
 
         val left = complications[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
         val right = complications[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
@@ -384,19 +386,27 @@ public class WatchFaceMetadataServiceTest {
         Truth.assertThat(left.primaryDataSource).isNull()
         Truth.assertThat(left.secondaryDataSource).isNull()
         Truth.assertThat(left.systemDataSourceFallback).isEqualTo(
-            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+        )
         Truth.assertThat(left.systemDataSourceFallbackDefaultType).isEqualTo(
-            ComplicationType.SHORT_TEXT)
+            ComplicationType.SHORT_TEXT
+        )
 
-        Truth.assertThat(right.primaryDataSource).isEqualTo(ComponentName(
-            CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE))
+        Truth.assertThat(right.primaryDataSource).isEqualTo(
+            ComponentName(
+                CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE
+            )
+        )
         Truth.assertThat(right.primaryDataSourceDefaultType).isEqualTo(
-            ComplicationType.SHORT_TEXT)
+            ComplicationType.SHORT_TEXT
+        )
         Truth.assertThat(right.secondaryDataSource).isNull()
         Truth.assertThat(right.systemDataSourceFallback).isEqualTo(
-            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET)
+            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+        )
         Truth.assertThat(right.systemDataSourceFallbackDefaultType).isEqualTo(
-            ComplicationType.SHORT_TEXT)
+            ComplicationType.SHORT_TEXT
+        )
     }
 
     @Test
@@ -405,20 +415,24 @@ public class WatchFaceMetadataServiceTest {
             WatchFaceMetadataClient.isXmlVersionCompatible(
                 context,
                 context.resources,
-                context.packageName)).isTrue()
+                context.packageName
+            )
+        ).isTrue()
         Truth.assertThat(
             WatchFaceMetadataClient.isXmlVersionCompatible(
                 context,
                 context.resources,
                 context.packageName,
                 OutdatedWatchFaceControlTestService::class.java.name
-            )).isFalse()
+            )
+        ).isFalse()
         Truth.assertThat(
             WatchFaceMetadataClient.isXmlVersionCompatible(
                 context,
                 context.resources,
                 "non.existing.package",
                 "non.existing.package.Service"
-            )).isFalse()
+            )
+        ).isFalse()
     }
 }
