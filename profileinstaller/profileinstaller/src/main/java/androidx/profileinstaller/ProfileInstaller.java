@@ -237,7 +237,10 @@ public class ProfileInstaller {
             RESULT_INSTALL_SKIP_FILE_SUCCESS,
             RESULT_DELETE_SKIP_FILE_SUCCESS,
             RESULT_SAVE_PROFILE_SIGNALLED,
-            RESULT_SAVE_PROFILE_SKIPPED
+            RESULT_SAVE_PROFILE_SKIPPED,
+            RESULT_BENCHMARK_OPERATION_SUCCESS,
+            RESULT_BENCHMARK_OPERATION_FAILURE,
+            RESULT_BENCHMARK_OPERATION_UNKNOWN
     })
     public @interface ResultCode {}
 
@@ -319,6 +322,22 @@ public class ProfileInstaller {
      * Indicates that this process was not able to signal itself to save profile information
      */
     @ResultCode public static final int RESULT_SAVE_PROFILE_SKIPPED = 13;
+
+    /**
+     * Indicates that the benchmark operation was successful
+     */
+    @ResultCode public static final int RESULT_BENCHMARK_OPERATION_SUCCESS = 14;
+
+    /**
+     * Indicates that the benchmark operation failed
+     */
+    @ResultCode public static final int RESULT_BENCHMARK_OPERATION_FAILURE = 15;
+
+    /**
+     * Indicates that the benchmark operation was unknown, likely meaning profileinstaller needs
+     * to update to support the operation
+     */
+    @ResultCode public static final int RESULT_BENCHMARK_OPERATION_UNKNOWN = 16;
 
     /**
      * Check if we've already installed a profile for this app installation.

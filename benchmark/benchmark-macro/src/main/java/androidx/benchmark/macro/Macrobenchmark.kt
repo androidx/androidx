@@ -377,12 +377,13 @@ fun macrobenchmarkWithStartupMode(
                 // Run setup before killing process
                 setupBlock(this)
 
+                // Shader caches are stored in the code cache directory. Make sure that
+                // they are cleared every iteration. Must be done before kill, since on user builds
+                // this broadcasts to the target app
+                dropShaderCache()
+
                 // Kill - code below must not wake process!
                 killProcess()
-
-                // Shader caches are stored in the code cache directory. Make sure that
-                // they are cleared every iteration.
-                dropShaderCache()
 
                 // Ensure app's pages are not cached in memory for a true _cold_ start.
                 dropKernelPageCache()

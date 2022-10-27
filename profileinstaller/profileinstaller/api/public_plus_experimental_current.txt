@@ -4,6 +4,7 @@ package androidx.profileinstaller {
   public class ProfileInstallReceiver extends android.content.BroadcastReceiver {
     ctor public ProfileInstallReceiver();
     method public void onReceive(android.content.Context, android.content.Intent?);
+    field public static final String ACTION_BENCHMARK_OPERATION = "androidx.profileinstaller.action.BENCHMARK_OPERATION";
     field public static final String ACTION_INSTALL_PROFILE = "androidx.profileinstaller.action.INSTALL_PROFILE";
     field public static final String ACTION_SAVE_PROFILE = "androidx.profileinstaller.action.SAVE_PROFILE";
     field public static final String ACTION_SKIP_FILE = "androidx.profileinstaller.action.SKIP_FILE";
@@ -18,6 +19,9 @@ package androidx.profileinstaller {
     field public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 3; // 0x3
     field public static final int RESULT_ALREADY_INSTALLED = 2; // 0x2
     field public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 6; // 0x6
+    field public static final int RESULT_BENCHMARK_OPERATION_FAILURE = 15; // 0xf
+    field public static final int RESULT_BENCHMARK_OPERATION_SUCCESS = 14; // 0xe
+    field public static final int RESULT_BENCHMARK_OPERATION_UNKNOWN = 16; // 0x10
     field public static final int RESULT_DELETE_SKIP_FILE_SUCCESS = 11; // 0xb
     field public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 5; // 0x5
     field public static final int RESULT_INSTALL_SKIP_FILE_SUCCESS = 10; // 0xa
