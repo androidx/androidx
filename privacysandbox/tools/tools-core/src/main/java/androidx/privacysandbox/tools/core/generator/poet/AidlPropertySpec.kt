@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apicompiler.generator
+package androidx.privacysandbox.tools.core.generator.poet
 
-import com.squareup.kotlinpoet.FileSpec
-import java.io.OutputStream
-
-/** Convenience method to write [FileSpec]s to KSP-generated [OutputStream]s. */
-internal fun OutputStream.write(spec: FileSpec) = bufferedWriter().use(spec::writeTo)
+internal data class AidlPropertySpec(
+    val name: String,
+    val type: AidlTypeSpec,
+    val isNullable: Boolean = false,
+) {
+    override fun toString() = "${if (isNullable) "@nullable(heap=true) " else ""}$type $name;"
+}
