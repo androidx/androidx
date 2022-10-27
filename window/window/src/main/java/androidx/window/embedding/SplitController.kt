@@ -49,6 +49,12 @@ class SplitController private constructor() {
 
     /**
      * Registers a new runtime rule. Will be cleared automatically when the process is stopped.
+     *
+     * Note that updating the existing rule will **not** be applied to any existing split activity
+     * container, and will only be used for new split containers created with future activity
+     * launches.
+     *
+     * @param rule new [EmbeddingRule] to register.
      */
     fun registerRule(rule: EmbeddingRule) {
         embeddingBackend.registerRule(rule)
@@ -56,6 +62,8 @@ class SplitController private constructor() {
 
     /**
      * Unregisters a runtime rule that was previously registered via [SplitController.registerRule].
+     *
+     * @param rule the previously registered [EmbeddingRule] to unregister.
      */
     fun unregisterRule(rule: EmbeddingRule) {
         embeddingBackend.unregisterRule(rule)
@@ -78,6 +86,12 @@ class SplitController private constructor() {
      * activity to the side). The reported splits in the list are ordered from
      * bottom to top by their z-order, more recent splits appearing later.
      * Guaranteed to be called at least once to report the most recent state.
+     *
+     * @param activity only split that this [Activity] is part of will be reported.
+     * @param executor when there is an update to the active split state(s), the [consumer] will be
+     * invoked on this [Executor].
+     * @param consumer [Consumer] that will be invoked on the [executor] when there is an update to
+     * the active split state(s).
      */
     fun addSplitListener(
         activity: Activity,
@@ -88,7 +102,9 @@ class SplitController private constructor() {
     }
 
     /**
-     * Unregisters a listener for updates about the active split states.
+     * Unregisters a runtime rule that was previously registered via [addSplitListener].
+     *
+     * @param consumer the previously registered [Consumer] to unregister.
      */
     fun removeSplitListener(
         consumer: Consumer<List<SplitInfo>>
@@ -118,6 +134,8 @@ class SplitController private constructor() {
     /**
      * Checks if an activity is embedded and its presentation may be customized by its or any other
      * process.
+     *
+     * @param activity the [Activity] to check.
      */
     // TODO(b/204399167) Migrate to a Flow
     fun isActivityEmbedded(activity: Activity): Boolean {
@@ -149,8 +167,17 @@ class SplitController private constructor() {
         /**
          * Initializes the shared class instance with the split rules statically defined in an
          * app-provided XML. The rules will be kept for the lifetime of the application process.
-         * <p>It's recommended to set the static rules via an [androidx.startup.Initializer], so
-         * that they are applied early in the application startup before any activities appear.
+         * <p>It's recommended to set the static rules via an [androidx.startup.Initializer], or
+         * [android.app.Application.onCreate], so that they are applied early in the application
+         * startup before any activities appear.
+         * <p>Note that it is not necessary to call this function in order to use [SplitController].
+         * If the app doesn't have any static rule, it can use [registerRule] to register rules at
+         * any time.
+         *
+         * @param context the context to read the split resource from.
+         * @param staticRuleResourceId the resource containing the static split rules.
+         * @throws IllegalArgumentException if any of the rules in the XML is malformed or if
+         * there's a duplicated [tag][EmbeddingRule.tag].
          */
         @JvmStatic
         fun initialize(context: Context, staticRuleResourceId: Int) {
