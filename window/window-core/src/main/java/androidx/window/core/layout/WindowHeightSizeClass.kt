@@ -21,7 +21,7 @@ import androidx.window.core.layout.WindowHeightSizeClass.Companion.EXPANDED
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.MEDIUM
 
 /**
- * A class to represent the width size buckets for a viewport. The possible values are [COMPACT],
+ * A class to represent the height size buckets for a viewport. The possible values are [COMPACT],
  * [MEDIUM], and [EXPANDED]. [WindowHeightSizeClass] should not be used as a proxy for the device
  * type. It is possible to have resizeable windows in different device types.
  * The viewport might change from a [COMPACT] all the way to an [EXPANDED] size class.
@@ -83,8 +83,8 @@ class WindowHeightSizeClass private constructor(
          * @throws IllegalArgumentException if the height is negative
          */
         @JvmStatic
-        fun compute(dpHeight: Float): WindowHeightSizeClass {
-            require(dpHeight > 0) { "Width must be positive, received $dpHeight" }
+        internal fun compute(dpHeight: Float): WindowHeightSizeClass {
+            require(dpHeight > 0) { "Height must be positive, received $dpHeight" }
             return when {
                 dpHeight < 480 -> COMPACT
                 dpHeight < 900 -> MEDIUM

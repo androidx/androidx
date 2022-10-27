@@ -2,7 +2,6 @@
 package androidx.window.core.layout {
 
   public final class WindowHeightSizeClass {
-    method public static androidx.window.core.layout.WindowHeightSizeClass compute(float dpHeight);
     field public static final androidx.window.core.layout.WindowHeightSizeClass COMPACT;
     field public static final androidx.window.core.layout.WindowHeightSizeClass.Companion Companion;
     field public static final androidx.window.core.layout.WindowHeightSizeClass EXPANDED;
@@ -10,7 +9,6 @@ package androidx.window.core.layout {
   }
 
   public static final class WindowHeightSizeClass.Companion {
-    method public androidx.window.core.layout.WindowHeightSizeClass compute(float dpHeight);
   }
 
   public final class WindowSizeClass {
