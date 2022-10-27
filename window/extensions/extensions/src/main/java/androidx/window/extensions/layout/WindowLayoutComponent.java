@@ -42,7 +42,13 @@ import java.util.function.Consumer;
 public interface WindowLayoutComponent {
 
     /**
-     * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}
+     * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}.
+     * Use {@link WindowLayoutComponent#removeWindowLayoutInfoListener} to remove listener.
+     *
+     * A {@link Activity} or a Consumer instance can only be registered once.
+     * Registering the same {@link Activity} or Consumer more than once will result in
+     * a noop.
+     *
      * @param activity hosting a {@link android.view.Window}
      * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
      */
@@ -55,7 +61,7 @@ public interface WindowLayoutComponent {
      *
      * A {@link Context} or a Consumer instance can only be registered once.
      * Registering the same {@link Context} or Consumer more than once will result in
-     * IllegalArgumentException.
+     * a noop.
      *
      * @param context a {@link UiContext} that corresponds to a window or an area on the
      *                      screen - an {@link Activity} or a {@link Context} created with
