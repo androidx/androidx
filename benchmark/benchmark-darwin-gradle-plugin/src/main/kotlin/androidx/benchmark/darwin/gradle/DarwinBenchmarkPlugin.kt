@@ -77,13 +77,10 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
             it.xcodeProjectPath.set(generateXCodeProjectTask.flatMap { task ->
                 task.xcProjectPath
             })
-            val taskName = extension.xcFrameworkConfig.map { name ->
-                "assemble${name}ReleaseXCFramework"
-            }
             it.destination.set(extension.destination)
             it.scheme.set(extension.scheme)
             it.xcResultPath.set(xcResultPath)
-            it.dependsOn(taskName)
+            it.dependsOn(XCFRAMEWORK_TASK_NAME)
         }
 
         project.tasks.register(
@@ -104,5 +101,9 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         const val GENERATE_XCODE_PROJECT_TASK = "generateXCodeProject"
         const val RUN_DARWIN_BENCHMARKS_TASK = "runDarwinBenchmarks"
         const val DARWIN_BENCHMARK_RESULTS_TASK = "darwinBenchmarkResults"
+
+        // There is always a XCFrameworkConfig with the name `AndroidXDarwinBenchmarks`
+        // The corresponding task name is `assemble{name}ReleaseXCFramework`
+        const val XCFRAMEWORK_TASK_NAME = "assembleAndroidXDarwinBenchmarksReleaseXCFramework"
     }
 }
