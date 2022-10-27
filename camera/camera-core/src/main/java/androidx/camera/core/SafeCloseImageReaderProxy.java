@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.ImageReaderProxy;
 
@@ -140,6 +141,16 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
     }
 
     /**
+     * Check if the {@link SafeCloseImageReaderProxy} is closed for testing.
+     */
+    @VisibleForTesting
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mIsClosed;
+        }
+    }
+
+    /**
      * Returns the number of empty slots in the queue.
      */
     public int getCapacity() {
@@ -150,6 +161,7 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
 
     /**
      * Sets a listener for close calls on this image.
+     *
      * @param listener to set
      */
     public void setOnImageCloseListener(@NonNull OnImageCloseListener listener) {

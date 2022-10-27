@@ -29,6 +29,7 @@ import android.view.Surface;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy;
@@ -56,7 +57,6 @@ import java.util.Set;
  *
  * <p>It's also responsible for managing the {@link ImageReaderProxy}. It makes sure that the
  * queue is not overflowed.
- *
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
@@ -72,13 +72,18 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     private final Set<ImageProxy> mPendingImages = new HashSet<>();
     private ProcessingRequest mCurrentRequest = null;
 
+    @Nullable
     SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
+    @Nullable
     private Out mOutputEdge;
+    @Nullable
     private In mInputEdge;
 
     @NonNull
     @Override
     public Out transform(@NonNull In inputEdge) {
+        checkState(mInputEdge == null && mSafeCloseImageReaderProxy == null,
+                "CaptureNode does not support recreation yet.");
         mInputEdge = inputEdge;
         Size size = inputEdge.getSize();
         int format = inputEdge.getFormat();
@@ -127,7 +132,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         }
 
         // Send the image downstream.
-        mOutputEdge.getImageEdge().accept(imageProxy);
+        requireNonNull(mOutputEdge).getImageEdge().accept(imageProxy);
     }
 
     @VisibleForTesting
@@ -146,7 +151,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         mPendingStageIds.addAll(request.getStageIds());
 
         // Send the request downstream.
-        mOutputEdge.getRequestEdge().accept(request);
+        requireNonNull(mOutputEdge).getRequestEdge().accept(request);
 
         // Match pending images and send them downstream.
         for (ImageProxy imageProxy : mPendingImages) {
@@ -159,18 +164,23 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @Override
     public void release() {
         checkMainThread();
-        if (mSafeCloseImageReaderProxy != null) {
-            mSafeCloseImageReaderProxy.safeClose();
-        }
-        if (mInputEdge != null) {
-            mInputEdge.closeSurface();
-        }
+        releaseInputResources(requireNonNull(mInputEdge),
+                requireNonNull(mSafeCloseImageReaderProxy));
+    }
+
+    private void releaseInputResources(@NonNull CaptureNode.In inputEdge,
+            @NonNull SafeCloseImageReaderProxy imageReader) {
+        inputEdge.getSurface().close();
+        // Wait for the termination to close the ImageReader or the Surface may be released
+        // prematurely before it can be used by camera2.
+        inputEdge.getSurface().getTerminationFuture().addListener(
+                imageReader::safeClose, mainThreadExecutor());
     }
 
     @VisibleForTesting
     @NonNull
     In getInputEdge() {
-        return mInputEdge;
+        return requireNonNull(mInputEdge);
     }
 
     @MainThread
@@ -228,10 +238,6 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         void setSurface(@NonNull Surface surface) {
             checkState(mSurface == null, "The surface is already set.");
             mSurface = new ImmediateSurface(surface);
-        }
-
-        void closeSurface() {
-            mSurface.close();
         }
 
         /**
