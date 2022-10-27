@@ -26,12 +26,17 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityRunOnNextRecreateTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     private class Restarted2 : SavedStateRegistry.AutoRecreated {
         override fun onRecreated(owner: SavedStateRegistryOwner) {
