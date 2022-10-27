@@ -7,6 +7,10 @@ import kotlin.Unit
 public class SdkCallbackStubDelegate internal constructor(
   public val `delegate`: SdkCallback,
 ) : ISdkCallback.Stub() {
+  public override fun onCompleteInterface(myInterface: IMyInterface): Unit {
+    delegate.onCompleteInterface(MyInterfaceClientProxy(myInterface))
+  }
+
   public override fun onEmptyEvent(): Unit {
     delegate.onEmptyEvent()
   }

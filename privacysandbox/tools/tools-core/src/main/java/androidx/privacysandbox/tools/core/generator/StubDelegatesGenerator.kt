@@ -90,8 +90,9 @@ class StubDelegatesGenerator(
                         } else {
                             addStatement(
                                 "transactionCallback.onSuccess(%L)",
-                                binderCodeConverter.convertToBinderCodeInServer(
-                                    method.returnType, "result")
+                                binderCodeConverter.convertToBinderCode(
+                                    method.returnType, "result"
+                                )
                             )
                         }
                     }
@@ -137,7 +138,7 @@ class StubDelegatesGenerator(
 
     private fun getDelegateCallBlock(method: Method) = CodeBlock.builder().build {
         add("delegate.${method.name}(")
-        add(method.parameters.map { binderCodeConverter.convertToModelCodeInServer(it) }
+        add(method.parameters.map { binderCodeConverter.convertToModelCode(it.type, it.name) }
             .joinToCode())
         add(")")
     }

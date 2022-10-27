@@ -12,4 +12,8 @@ public class MyCallbackClientProxy(
     public override fun onClick(x: Int, y: Int): Unit {
         remote.onClick(x, y)
     }
+
+    public override fun onCompleteInterface(myInterface: MyInterface): Unit {
+        remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface))
+    }
 }

@@ -8,6 +8,7 @@ public object InnerSdkValueConverter {
                 hugeNumber = parcelable.hugeNumber,
                 id = parcelable.id,
                 message = parcelable.message,
+                myInterface = MyInterfaceClientProxy(parcelable.myInterface),
                 separator = parcelable.separator,
                 shouldBeAwesome = parcelable.shouldBeAwesome)
         return annotatedValue
@@ -20,6 +21,7 @@ public object InnerSdkValueConverter {
         parcelable.hugeNumber = annotatedValue.hugeNumber
         parcelable.id = annotatedValue.id
         parcelable.message = annotatedValue.message
+        parcelable.myInterface = (annotatedValue.myInterface as MyInterfaceClientProxy).remote
         parcelable.separator = annotatedValue.separator
         parcelable.shouldBeAwesome = annotatedValue.shouldBeAwesome
         return parcelable

@@ -266,8 +266,9 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.bar: only primitives and data classes annotated with " +
-                "@PrivacySandboxValue are supported as properties."
+            "Error in com.mysdk.Foo.bar: only primitives, data classes annotated with " +
+                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface " +
+                "are supported as properties."
         )
     }
 
@@ -332,43 +333,9 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives and data classes annotated " +
-                "with @PrivacySandboxValue are supported as callback parameter types."
-        )
-    }
-
-    @Test
-    fun callbackReceivingInterface_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
-            ),
-            callbacks = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
-                    methods = listOf(
-                        Method(
-                            name = "foo",
-                            parameters = listOf(
-                                Parameter("otherCallback", Type("com.mysdk", "MySdkInterface"))
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        ),
-                    )
-                )
-            ),
-            interfaces = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdkInterface"),
-                    )
-                )
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives and data classes annotated " +
-                "with @PrivacySandboxValue are supported as callback parameter types."
+            "Error in com.mysdk.MySdkCallback.foo: only primitives, data classes annotated " +
+                "with @PrivacySandboxValue and interfaces annotated with " +
+                "@PrivacySandboxInterface are supported as callback parameter types."
         )
     }
 }
