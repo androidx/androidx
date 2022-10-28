@@ -534,6 +534,116 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderAfterPauseAndResume() {
+        val renderLatch = CountDownLatch(2)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            val mProjectionMatrix = FloatArray(16)
+            val mOrthoMatrix = FloatArray(16)
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        }
+                    )
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+            }
+            // Navigate to stopped and resumed state to simulate returning to the application
+            scenario.moveToState(Lifecycle.State.CREATED)
+                .moveToState(Lifecycle.State.RESUMED)
+                .onActivity {
+                    renderer?.renderFrontBufferedLayer(Any())
+                }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                Color.RED ==
+                    bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun GLFrontBufferedRenderer<*>?.blockingRelease(timeoutMillis: Long = 3000) {
         if (this != null) {
