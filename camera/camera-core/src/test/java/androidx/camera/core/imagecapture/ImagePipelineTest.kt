@@ -291,7 +291,7 @@ class ImagePipelineTest {
         for (i in 0 until MAX_IMAGES) {
             val imageInfo = FakeImageInfo()
             imageReaderProxy.triggerImageAvailable(imageInfo.tagBundle, 0)
-            imagePipeline.captureNode.mSafeCloseImageReaderProxy.acquireNextImage()
+            imagePipeline.captureNode.mSafeCloseImageReaderProxy!!.acquireNextImage()
                 ?.let { images.add(it) }
         }
 
