@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,23 @@ import java.lang.annotation.ElementType.FIELD
 import java.lang.annotation.ElementType.METHOD
 import java.lang.annotation.ElementType.PACKAGE
 import java.lang.annotation.ElementType.TYPE
+
 /**
- * Denotes that the annotated element should only be called on the given API level or higher.
+ * Denotes that the annotated element should only be called if the given
+ * extension is at least the given version.
  *
- * This is similar in purpose to the older `@TargetApi` annotation, but more clearly
- * expresses that this is a requirement on the caller, rather than being used to "suppress" warnings
- * within the method that exceed the `minSdkVersion`.
+ * This annotation is repeatable, and if specified multiple times, you are
+ * required to have one of (not all of) the specified extension versions.
  *
- * For API requirements on SDK extensions, see the [RequiresExtension] annotation.
+ * Example:
+ * ```
+ * @RequiresExtension(extension = Build.VERSION_CODES.R, version = 3)
+ * fun methodUsingApisFromR() { ... }
+ * ```
+ *
+ * For the special case of [extension] == 0, you can instead use the
+ * [RequiresApi] annotation; `@RequiresApi(30)` is equivalent to
+ * `@RequiresExtension(extension=0, version=30)`.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -43,13 +52,16 @@ import java.lang.annotation.ElementType.TYPE
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION")
+@Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
 @java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
-public annotation class RequiresApi(
+@Repeatable
+public annotation class RequiresExtension(
     /**
-     * The API level to require. Alias for [.api] which allows you to leave out the `api=` part.
+     * The extension SDK ID. This corresponds to the extension id's allowed by
+     * [android.os.ext.SdkExtensions.getExtensionVersion], and for id values
+     * less than 1_000_000 is one of the [android.os.Build.VERSION_CODES].
      */
-    @IntRange(from = 1) val value: Int = 1,
-    /** The API level to require  */
-    @IntRange(from = 1) val api: Int = 1
+    @IntRange(from = 1) val extension: Int,
+    /** The minimum version to require  */
+    @IntRange(from = 1) val version: Int
 )
