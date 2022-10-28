@@ -74,21 +74,19 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? {
-        return when (type) {
-            ComplicationType.SHORT_TEXT ->
-                ShortTextComplicationData.Builder(
-                    plainText("S 10"),
-                    ComplicationText.EMPTY
-                ).build()
+    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
+        ComplicationType.SHORT_TEXT ->
+            ShortTextComplicationData.Builder(
+                plainText("S 10"),
+                ComplicationText.EMPTY
+            ).build()
 
-            ComplicationType.LONG_TEXT ->
-                LongTextComplicationData.Builder(
-                    plainText("Secs 10"),
-                    ComplicationText.EMPTY
-                ).build()
+        ComplicationType.LONG_TEXT ->
+            LongTextComplicationData.Builder(
+                plainText("Secs 10"),
+                ComplicationText.EMPTY
+            ).build()
 
-            else -> null
-        }
+        else -> null
     }
 }

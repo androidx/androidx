@@ -361,7 +361,7 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
-    @Suppress("DEPRECATION") // defaultDataSourceType
+    @Suppress("DEPRECATION", "NewApi") // defaultDataSourceType
     @Test
     fun headlessComplicationDetails() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -390,6 +390,8 @@ class WatchFaceControlClientTest {
         )
         assertThat(leftComplicationDetails.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
@@ -413,6 +415,8 @@ class WatchFaceControlClientTest {
         )
         assertThat(rightComplicationDetails.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
@@ -709,7 +713,7 @@ class WatchFaceControlClientTest {
         }
     }
 
-    @Suppress("DEPRECATION") // defaultDataSourceType
+    @Suppress("DEPRECATION", "newApi") // defaultDataSourceType & ComplicationType
     @Test
     fun interactiveWatchFaceClient_ComplicationDetails() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
@@ -745,6 +749,8 @@ class WatchFaceControlClientTest {
         )
         assertThat(leftComplicationDetails.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
@@ -774,6 +780,8 @@ class WatchFaceControlClientTest {
         )
         assertThat(rightComplicationDetails.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
+            ComplicationType.GOAL_PROGRESS,
+            ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.LONG_TEXT,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,

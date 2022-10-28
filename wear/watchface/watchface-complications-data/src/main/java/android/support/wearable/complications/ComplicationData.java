@@ -93,6 +93,8 @@ public final class ComplicationData implements Parcelable, Serializable {
             TYPE_LARGE_IMAGE,
             TYPE_NO_PERMISSION,
             TYPE_NO_DATA,
+            TYPE_GOAL_PROGRESS,
+            TYPE_WEIGHTED_ELEMENTS,
             EXP_TYPE_PROTO_LAYOUT,
             EXP_TYPE_LIST
     })
@@ -230,14 +232,6 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int TYPE_NO_PERMISSION = 9;
 
-    // The following types are experimental, and they have negative IDs.
-
-    /** Type that specifies a proto layout based complication. */
-    public static final int EXP_TYPE_PROTO_LAYOUT = -11;
-
-    /** Type that specifies a list of complication values. E.g. to support linear 3. */
-    public static final int EXP_TYPE_LIST = -12;
-
     /**
      * Type used for complications which indicate progress towards a goal. The value may be
      * accompanied by an icon and/or short text and title.
@@ -250,7 +244,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      * text</i> fields are optional for this type, but at least one must be defined. The watch face
      * may choose which of these fields to display, if any.
      */
-    public static final int EXP_TYPE_GOAL_PROGRESS = -13;
+    public static final int TYPE_GOAL_PROGRESS = 13;
 
     /**
      * Type used for complications to display a series of weighted values e.g. in a pie chart. The
@@ -263,7 +257,15 @@ public final class ComplicationData implements Parcelable, Serializable {
      * text</i> fields are optional for this type, but at least one must be defined. The watch face
      * may choose which of these fields to display, if any.
      */
-    public static final int EXP_TYPE_WEIGHTED_ELEMENTS = -14;
+    public static final int TYPE_WEIGHTED_ELEMENTS = 14;
+
+    // The following types are experimental, and they have negative IDs.
+
+    /** Type that specifies a proto layout based complication. */
+    public static final int EXP_TYPE_PROTO_LAYOUT = -11;
+
+    /** Type that specifies a list of complication values. E.g. to support linear 3. */
+    public static final int EXP_TYPE_LIST = -12;
 
     /** @hide */
     @IntDef({IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON})
@@ -289,8 +291,13 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public static final int IMAGE_STYLE_ICON = 2;
 
+    private static final String FIELD_COLOR_RAMP = "COLOR_RAMP";
+    private static final String FIELD_COLOR_RAMP_INTERPOLATED = "COLOR_RAMP_INTERPOLATED";
     private static final String FIELD_DATA_SOURCE = "FIELD_DATA_SOURCE";
     private static final String FIELD_DISPLAY_POLICY = "DISPLAY_POLICY";
+    private static final String FIELD_ELEMENT_BACKGROUND_COLOR = "ELEMENT_BACKGROUND_COLOR";
+    private static final String FIELD_ELEMENT_COLORS = "ELEMENT_COLORS";
+    private static final String FIELD_ELEMENT_WEIGHTS = "ELEMENT_WEIGHTS";
     private static final String FIELD_END_TIME = "END_TIME";
     private static final String FIELD_ICON = "ICON";
     private static final String FIELD_ICON_BURN_IN_PROTECTION = "ICON_BURN_IN_PROTECTION";
@@ -311,6 +318,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_START_TIME = "START_TIME";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
     private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
+    private static final String FIELD_TARGET_VALUE = "TARGET_VALUE";
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
     private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
@@ -319,11 +327,6 @@ public final class ComplicationData implements Parcelable, Serializable {
     private static final String FIELD_VALUE_TYPE = "VALUE_TYPE";
 
     // Experimental fields, these are subject to change without notice.
-    private static final String EXP_FIELD_COLOR_RAMP = "EXP_COLOR_RAMP";
-    private static final String EXP_FIELD_COLOR_RAMP_INTERPOLATED = "EXP_COLOR_RAMP_INTERPOLATED";
-    private static final String EXP_FIELD_ELEMENT_BACKGROUND_COLOR = "EXP_ELEMENT_BACKGROUND_COLOR";
-    private static final String EXP_FIELD_ELEMENT_COLORS = "EXP_ELEMENT_COLORS";
-    private static final String EXP_FIELD_ELEMENT_WEIGHTS = "EXP_ELEMENT_WEIGHTS";
     private static final String EXP_FIELD_LIST_ENTRIES = "EXP_LIST_ENTRIES";
     private static final String EXP_FIELD_LIST_ENTRY_TYPE = "EXP_LIST_ENTRY_TYPE";
     private static final String EXP_FIELD_LIST_STYLE_HINT = "EXP_LIST_STYLE_HINT";
@@ -332,7 +335,6 @@ public final class ComplicationData implements Parcelable, Serializable {
             "EXP_FIELD_PROTO_LAYOUT_INTERACTIVE";
     private static final String EXP_FIELD_PROTO_LAYOUT_RESOURCES =
             "EXP_FIELD_PROTO_LAYOUT_RESOURCES";
-    private static final String EXP_FIELD_TARGET_VALUE = "EXP_TARGET_VALUE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -354,8 +356,8 @@ public final class ComplicationData implements Parcelable, Serializable {
         set.add(TYPE_NO_DATA);
         set.add(EXP_TYPE_PROTO_LAYOUT);
         set.add(EXP_TYPE_LIST);
-        set.add(EXP_TYPE_GOAL_PROGRESS);
-        set.add(EXP_TYPE_WEIGHTED_ELEMENTS);
+        set.add(TYPE_GOAL_PROGRESS);
+        set.add(TYPE_WEIGHTED_ELEMENTS);
         return set;
     }
 
@@ -379,10 +381,10 @@ public final class ComplicationData implements Parcelable, Serializable {
                 EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
                 EXP_FIELD_PROTO_LAYOUT_RESOURCES});
         map.put(EXP_TYPE_LIST, new String[]{EXP_FIELD_LIST_ENTRIES});
-        map.put(EXP_TYPE_GOAL_PROGRESS, new String[]{FIELD_VALUE, EXP_FIELD_TARGET_VALUE});
-        map.put(EXP_TYPE_WEIGHTED_ELEMENTS, new String[]{EXP_FIELD_ELEMENT_WEIGHTS,
-                EXP_FIELD_ELEMENT_COLORS,
-                EXP_FIELD_ELEMENT_BACKGROUND_COLOR});
+        map.put(TYPE_GOAL_PROGRESS, new String[]{FIELD_VALUE, FIELD_TARGET_VALUE});
+        map.put(TYPE_WEIGHTED_ELEMENTS, new String[]{FIELD_ELEMENT_WEIGHTS,
+                FIELD_ELEMENT_COLORS,
+                FIELD_ELEMENT_BACKGROUND_COLOR});
         return map;
     }
 
@@ -429,8 +431,8 @@ public final class ComplicationData implements Parcelable, Serializable {
                 FIELD_TAP_ACTION,
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
-                EXP_FIELD_COLOR_RAMP,
-                EXP_FIELD_COLOR_RAMP_INTERPOLATED,
+                FIELD_COLOR_RAMP,
+                FIELD_COLOR_RAMP_INTERPOLATED,
                 FIELD_PERSISTENCE_POLICY,
                 FIELD_DISPLAY_POLICY,
                 FIELD_VALUE_TYPE});
@@ -503,7 +505,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
                 FIELD_DISPLAY_POLICY});
-        map.put(EXP_TYPE_GOAL_PROGRESS, new String[]{
+        map.put(TYPE_GOAL_PROGRESS, new String[]{
                 FIELD_SHORT_TEXT,
                 FIELD_SHORT_TITLE,
                 FIELD_ICON,
@@ -514,11 +516,11 @@ public final class ComplicationData implements Parcelable, Serializable {
                 FIELD_TAP_ACTION,
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
-                EXP_FIELD_COLOR_RAMP,
-                EXP_FIELD_COLOR_RAMP_INTERPOLATED,
+                FIELD_COLOR_RAMP,
+                FIELD_COLOR_RAMP_INTERPOLATED,
                 FIELD_PERSISTENCE_POLICY,
                 FIELD_DISPLAY_POLICY});
-        map.put(EXP_TYPE_WEIGHTED_ELEMENTS, new String[]{
+        map.put(TYPE_WEIGHTED_ELEMENTS, new String[]{
                 FIELD_SHORT_TEXT,
                 FIELD_SHORT_TITLE,
                 FIELD_ICON,
@@ -640,10 +642,10 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getRangedMaxValue());
             }
-            if (isFieldValidForType(EXP_FIELD_TARGET_VALUE, type)) {
+            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
                 oos.writeFloat(mComplicationData.getTargetValue());
             }
-            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP, type)) {
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
                 int[] colors = mComplicationData.getColorRamp();
                 if (colors != null) {
                     oos.writeBoolean(true);
@@ -655,7 +657,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
                 Boolean isColorRampSmoothShaded = mComplicationData.isColorRampInterpolated();
                 if (isColorRampSmoothShaded != null) {
                     oos.writeBoolean(true);
@@ -664,7 +666,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_WEIGHTS, type)) {
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
                 float[] weights = mComplicationData.getElementWeights();
                 if (weights != null) {
                     oos.writeBoolean(true);
@@ -676,7 +678,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_COLORS, type)) {
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
                 int[] colors = mComplicationData.getElementColors();
                 if (colors != null) {
                     oos.writeBoolean(true);
@@ -688,7 +690,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                     oos.writeBoolean(false);
                 }
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+            if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
                 oos.writeInt(mComplicationData.getElementBackgroundColor());
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
@@ -842,38 +844,38 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
                 fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(EXP_FIELD_TARGET_VALUE, type)) {
-                fields.putFloat(EXP_FIELD_TARGET_VALUE, ois.readFloat());
+            if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
+                fields.putFloat(FIELD_TARGET_VALUE, ois.readFloat());
             }
-            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
                 int numColors = ois.readInt();
                 int[] colors = new int[numColors];
                 for (int i = 0; i < numColors; ++i) {
                     colors[i] = ois.readInt();
                 }
-                fields.putIntArray(EXP_FIELD_COLOR_RAMP, colors);
+                fields.putIntArray(FIELD_COLOR_RAMP, colors);
             }
-            if (isFieldValidForType(EXP_FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
-                fields.putBoolean(EXP_FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
+                fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean());
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
                 int numWeights = ois.readInt();
                 float[] weights = new float[numWeights];
                 for (int i = 0; i < numWeights; ++i) {
                     weights[i] = ois.readFloat();
                 }
-                fields.putFloatArray(EXP_FIELD_ELEMENT_WEIGHTS, weights);
+                fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, weights);
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
                 int numColors = ois.readInt();
                 int[] colors = new int[numColors];
                 for (int i = 0; i < numColors; ++i) {
                     colors[i] = ois.readInt();
                 }
-                fields.putIntArray(EXP_FIELD_ELEMENT_COLORS, colors);
+                fields.putIntArray(FIELD_ELEMENT_COLORS, colors);
             }
-            if (isFieldValidForType(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
-                fields.putInt(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt());
+            if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+                fields.putInt(FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt());
             }
             if (isFieldValidForType(FIELD_START_TIME, type)) {
                 fields.putLong(FIELD_START_TIME, ois.readLong());
@@ -1253,7 +1255,7 @@ public final class ComplicationData implements Parcelable, Serializable {
      */
     public boolean hasTargetValue() {
         try {
-            return isFieldValidForType(EXP_FIELD_TARGET_VALUE, mType);
+            return isFieldValidForType(FIELD_TARGET_VALUE, mType);
         } catch (BadParcelableException e) {
             return false;
         }
@@ -1262,26 +1264,26 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns the <i>value</i> field for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_GOAL_PROGRESS}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_GOAL_PROGRESS}.
      * Otherwise returns zero.
      */
     public float getTargetValue() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_TARGET_VALUE, mType);
-        return mFields.getFloat(EXP_FIELD_TARGET_VALUE);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_TARGET_VALUE, mType);
+        return mFields.getFloat(FIELD_TARGET_VALUE);
     }
 
     /**
      * Returns the colors for the progress bar.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
-     * {@link #EXP_TYPE_GOAL_PROGRESS}.
+     * {@link #TYPE_GOAL_PROGRESS}.
      */
     @ColorInt
     @Nullable
     public int[] getColorRamp() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_COLOR_RAMP, mType);
-        if (mFields.containsKey(EXP_FIELD_COLOR_RAMP)) {
-            return mFields.getIntArray(EXP_FIELD_COLOR_RAMP);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP, mType);
+        if (mFields.containsKey(FIELD_COLOR_RAMP)) {
+            return mFields.getIntArray(FIELD_COLOR_RAMP);
         }
         return null;
     }
@@ -1290,16 +1292,16 @@ public final class ComplicationData implements Parcelable, Serializable {
      * Returns either a boolean where: true means the color ramp colors should be smoothly
      * interpolatded; false means the color ramp should be rendered in equal sized blocks of
      * solid color; null means this value wasn't set, i.e. the complication is not of type
-     * {@link #TYPE_RANGED_VALUE} or {@link #EXP_TYPE_GOAL_PROGRESS}.
+     * {@link #TYPE_RANGED_VALUE} or {@link #TYPE_GOAL_PROGRESS}.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE} or
-     * {@link #EXP_TYPE_GOAL_PROGRESS}.
+     * {@link #TYPE_GOAL_PROGRESS}.
      */
     @Nullable
     public Boolean isColorRampInterpolated() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_COLOR_RAMP_INTERPOLATED, mType);
-        if (mFields.containsKey(EXP_FIELD_COLOR_RAMP_INTERPOLATED)) {
-            return mFields.getBoolean(EXP_FIELD_COLOR_RAMP_INTERPOLATED);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_COLOR_RAMP_INTERPOLATED, mType);
+        if (mFields.containsKey(FIELD_COLOR_RAMP_INTERPOLATED)) {
+            return mFields.getBoolean(FIELD_COLOR_RAMP_INTERPOLATED);
         }
         return null;
     }
@@ -1683,37 +1685,37 @@ public final class ComplicationData implements Parcelable, Serializable {
     /**
      * Returns the element weights for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns null.
      */
     @Nullable
     public float[] getElementWeights() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_WEIGHTS, mType);
-        return mFields.getFloatArray(EXP_FIELD_ELEMENT_WEIGHTS);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_WEIGHTS, mType);
+        return mFields.getFloatArray(FIELD_ELEMENT_WEIGHTS);
     }
 
     /**
      * Returns the element colors for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns null.
      */
     @Nullable
     public int[] getElementColors() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_COLORS, mType);
-        return mFields.getIntArray(EXP_FIELD_ELEMENT_COLORS);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_COLORS, mType);
+        return mFields.getIntArray(FIELD_ELEMENT_COLORS);
     }
 
     /**
      * Returns the background color to use between elements for this complication.
      *
-     * <p>Valid only if the type of this complication data is {@link #EXP_TYPE_WEIGHTED_ELEMENTS}.
+     * <p>Valid only if the type of this complication data is {@link #TYPE_WEIGHTED_ELEMENTS}.
      * Otherwise returns 0.
      */
     @ColorInt
     public int getElementBackgroundColor() {
-        checkFieldValidForTypeWithoutThrowingException(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, mType);
-        return mFields.getInt(EXP_FIELD_ELEMENT_BACKGROUND_COLOR);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ELEMENT_BACKGROUND_COLOR, mType);
+        return mFields.getInt(FIELD_ELEMENT_BACKGROUND_COLOR);
     }
 
     /**
@@ -1978,12 +1980,12 @@ public final class ComplicationData implements Parcelable, Serializable {
 
         /**
          * Sets the <i>value</i> field. This is required for the {@link #TYPE_RANGED_VALUE} type,
-         * and the {@link #EXP_TYPE_GOAL_PROGRESS} type. For {@link #TYPE_RANGED_VALUE} value must
-         * be in the range [min .. max] for {@link #EXP_TYPE_GOAL_PROGRESS} value must be >= and may
+         * and the {@link #TYPE_GOAL_PROGRESS} type. For {@link #TYPE_RANGED_VALUE} value must
+         * be in the range [min .. max] for {@link #TYPE_GOAL_PROGRESS} value must be >= and may
          * be greater than target value.
          *
          * <p>Both the {@link #TYPE_RANGED_VALUE} complication and the
-         * {@link #EXP_TYPE_GOAL_PROGRESS} complication visually present a single value, which is
+         * {@link #TYPE_GOAL_PROGRESS} complication visually present a single value, which is
          * usually a percentage. E.g. you have completed 70% of today's  target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
@@ -2040,8 +2042,8 @@ public final class ComplicationData implements Parcelable, Serializable {
 
         /**
          * Sets the <i>targetValue</i> field. This is required for the
-         * {@link #EXP_TYPE_GOAL_PROGRESS} type, and is not valid for any other type. A
-         * {@link #EXP_TYPE_GOAL_PROGRESS} complication visually presents a single value, which
+         * {@link #TYPE_GOAL_PROGRESS} type, and is not valid for any other type. A
+         * {@link #TYPE_GOAL_PROGRESS} complication visually presents a single value, which
          * is usually a percentage. E.g. you have completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
@@ -2050,7 +2052,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setTargetValue(float targetValue) {
-            putFloatField(EXP_FIELD_TARGET_VALUE, targetValue);
+            putFloatField(FIELD_TARGET_VALUE, targetValue);
             return this;
         }
 
@@ -2377,7 +2379,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setColorRamp(@Nullable int[] colorRamp) {
-            putOrRemoveField(EXP_FIELD_COLOR_RAMP, colorRamp);
+            putOrRemoveField(FIELD_COLOR_RAMP, colorRamp);
             return this;
         }
 
@@ -2389,7 +2391,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setColorRampIsSmoothShaded(@Nullable Boolean isSmoothShaded) {
-            putOrRemoveField(EXP_FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded);
+            putOrRemoveField(FIELD_COLOR_RAMP_INTERPOLATED, isSmoothShaded);
             return this;
         }
 
@@ -2424,7 +2426,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementWeights(@Nullable float[] elementWeights) {
-            putOrRemoveField(EXP_FIELD_ELEMENT_WEIGHTS, elementWeights);
+            putOrRemoveField(FIELD_ELEMENT_WEIGHTS, elementWeights);
             return this;
         }
 
@@ -2435,7 +2437,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementColors(@Nullable int[] elementColors) {
-            putOrRemoveField(EXP_FIELD_ELEMENT_COLORS, elementColors);
+            putOrRemoveField(FIELD_ELEMENT_COLORS, elementColors);
             return this;
         }
 
@@ -2446,7 +2448,7 @@ public final class ComplicationData implements Parcelable, Serializable {
          */
         @NonNull
         public Builder setElementBackgroundColor(@ColorInt int elementBackgroundColor) {
-            putOrRemoveField(EXP_FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor);
+            putOrRemoveField(FIELD_ELEMENT_BACKGROUND_COLOR, elementBackgroundColor);
             return this;
         }
 

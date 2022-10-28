@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
 /**
@@ -36,11 +38,10 @@ public enum class ComplicationType(private val wireType: Int) {
     SMALL_IMAGE(WireComplicationData.TYPE_SMALL_IMAGE),
     PHOTO_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
     NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
-
-    @ComplicationExperimental
-    GOAL_PROGRESS(WireComplicationData.EXP_TYPE_GOAL_PROGRESS),
-    @ComplicationExperimental
-    WEIGHTED_ELEMENTS(WireComplicationData.EXP_TYPE_WEIGHTED_ELEMENTS);
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    GOAL_PROGRESS(WireComplicationData.TYPE_GOAL_PROGRESS),
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    WEIGHTED_ELEMENTS(WireComplicationData.TYPE_WEIGHTED_ELEMENTS);
 
     /**
      * Converts this value to the integer value used for serialization.
@@ -65,6 +66,7 @@ public enum class ComplicationType(private val wireType: Int) {
         @OptIn(ComplicationExperimental::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
+        @Suppress("NewApi")
         public fun fromWireType(wireType: Int): ComplicationType =
             when (wireType) {
                 NO_DATA.wireType -> NO_DATA
