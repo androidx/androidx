@@ -178,8 +178,9 @@ class ValueParserTest {
         )
         checkSourceFails(dataClass)
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest.foo: only primitives and data classes " +
-                    "annotated with @PrivacySandboxValue are supported as properties."
+                "Error in com.mysdk.MySdkRequest.foo: only primitives, data classes " +
+                    "annotated with @PrivacySandboxValue and interfaces annotated with " +
+                    "@PrivacySandboxInterface are supported as properties."
             )
     }
 

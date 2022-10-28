@@ -20,6 +20,7 @@ import androidx.privacysandbox.tools.apigenerator.parser.ApiStubParser
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
+import androidx.privacysandbox.tools.core.generator.ClientBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
@@ -66,7 +67,7 @@ class PrivacySandboxApiGenerator {
         val output = outputDirectory.toFile()
 
         val basePackageName = api.getOnlyService().type.packageName
-        val binderCodeConverter = BinderCodeConverter(api)
+        val binderCodeConverter = ClientBinderCodeConverter(api)
         val interfaceFileGenerator = InterfaceFileGenerator()
 
         generateBinders(api, AidlCompiler(aidlCompiler), output)
@@ -85,7 +86,7 @@ class PrivacySandboxApiGenerator {
             interfaceFileGenerator,
             output
         )
-        generateValueConverters(api, output)
+        generateValueConverters(api, binderCodeConverter, output)
         generateSuspendFunctionUtilities(api, basePackageName, output)
     }
 
@@ -142,9 +143,13 @@ class PrivacySandboxApiGenerator {
         }
     }
 
-    private fun generateValueConverters(api: ParsedApi, output: File) {
+    private fun generateValueConverters(
+        api: ParsedApi,
+        binderCodeConverter: BinderCodeConverter,
+        output: File
+    ) {
         val valueFileGenerator = ValueFileGenerator()
-        val valueConverterFileGenerator = ValueConverterFileGenerator(api)
+        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
         api.values.forEach {
             valueFileGenerator.generate(it).writeTo(output)
             valueConverterFileGenerator.generate(it).writeTo(output)

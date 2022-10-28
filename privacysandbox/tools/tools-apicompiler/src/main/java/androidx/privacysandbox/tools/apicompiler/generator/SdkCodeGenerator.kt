@@ -19,8 +19,8 @@ package androidx.privacysandbox.tools.apicompiler.generator
 import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
-import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
@@ -41,7 +41,7 @@ class SdkCodeGenerator(
     private val api: ParsedApi,
     private val aidlCompilerPath: Path,
 ) {
-    private val binderCodeConverter = BinderCodeConverter(api)
+    private val binderCodeConverter = ServerBinderCodeConverter(api)
 
     fun generate() {
         if (api.services.isEmpty()) {
@@ -87,7 +87,7 @@ class SdkCodeGenerator(
     }
 
     private fun generateValueConverters() {
-        val valueConverterFileGenerator = ValueConverterFileGenerator(api)
+        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
         api.values.map(valueConverterFileGenerator::generate).forEach(::write)
     }
 

@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.model.Parameter
+import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
@@ -24,57 +24,17 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
 /** Utility to generate [CodeBlock]s that convert values to/from their binder equivalent. */
-class BinderCodeConverter(private val api: ParsedApi) {
-
+abstract class BinderCodeConverter(private val api: ParsedApi) {
     /**
      * Generate a block that converts the given expression from the binder representation to its
-     * model equivalent in the client.
+     * model equivalent.
      *
      * @param type the type of the resulting expression. Can reference a primitive on annotated
      * interface/value.
      * @param expression the expression to be converted.
      * @return a [CodeBlock] containing the generated code to perform the conversion.
      */
-    fun convertToModelCodeInClient(type: Type, expression: String): CodeBlock {
-        val codeBlock = convertToModelCodeCommon(type, expression)
-        if (codeBlock != null) {
-            return codeBlock
-        }
-
-        val sandboxInterface = api.interfaceMap[type]
-        if (sandboxInterface != null) {
-            return CodeBlock.of(
-                "%T(%L)", sandboxInterface.clientProxyNameSpec(), expression)
-        }
-
-        return CodeBlock.of(expression)
-    }
-
-    /**
-     * Generate a block that converts the given expression from the binder representation to its
-     * model equivalent in the server.
-     *
-     * @param parameter the type of the resulting expression and the expression to be converted.
-     * @return a [CodeBlock] containing the generated code to perform the conversion.
-     */
-    fun convertToModelCodeInServer(parameter: Parameter): CodeBlock {
-        val type = parameter.type
-        val expression = parameter.name
-        val codeBlock = convertToModelCodeCommon(type, expression)
-        if (codeBlock != null) {
-            return codeBlock
-        }
-
-        val sandboxInterface = api.interfaceMap[type]
-        if (sandboxInterface != null) {
-            return CodeBlock.of(
-                "(%L as %T).delegate", expression, sandboxInterface.stubDelegateNameSpec())
-        }
-
-        return CodeBlock.of(expression)
-    }
-
-    private fun convertToModelCodeCommon(type: Type, expression: String): CodeBlock? {
+    fun convertToModelCode(type: Type, expression: String): CodeBlock {
         require(type != Types.unit) { "Cannot convert Unit." }
         val value = api.valueMap[type]
         if (value != null) {
@@ -84,57 +44,28 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (callback != null) {
             return CodeBlock.of("%T(%L)", callback.clientProxyNameSpec(), expression)
         }
-        return null
+        val sandboxInterface = api.interfaceMap[type]
+        if (sandboxInterface != null) {
+            return convertToInterfaceModelCode(sandboxInterface, expression)
+        }
+        return CodeBlock.of(expression)
     }
+
+    protected abstract fun convertToInterfaceModelCode(
+        annotatedInterface: AnnotatedInterface,
+        expression: String
+    ): CodeBlock
 
     /**
      * Generate a block that converts the given expression from the model representation to its
-     * binder equivalent in the server.
+     * binder equivalent.
      *
      * @param type the type of the given expression. Can reference a primitive on annotated
      * interface/value.
      * @param expression the expression to be converted.
      * @return a [CodeBlock] containing the generated code to perform the conversion.
      */
-    fun convertToBinderCodeInServer(type: Type, expression: String): CodeBlock {
-        val codeBlock = convertToBinderCodeCommon(type, expression)
-        if (codeBlock != null) {
-            return codeBlock
-        }
-
-        val sandboxInterface = api.interfaceMap[type]
-        if (sandboxInterface != null) {
-            return CodeBlock.of("%T(%L)", sandboxInterface.stubDelegateNameSpec(), expression)
-        }
-
-        return CodeBlock.of(expression)
-    }
-
-    /**
-     * Generate a block that converts the given expression from the model representation to its
-     * binder equivalent in the client.
-     *
-     * @param parameter the type of the resulting expression and the expression to be converted.
-     * @return a [CodeBlock] containing the generated code to perform the conversion.
-     */
-    fun convertToBinderCodeInClient(parameter: Parameter): CodeBlock {
-        val type = parameter.type
-        val expression = parameter.name
-        val codeBlock = convertToBinderCodeCommon(type, expression)
-        if (codeBlock != null) {
-            return codeBlock
-        }
-
-        val sandboxInterface = api.interfaceMap[type]
-        if (sandboxInterface != null) {
-            return CodeBlock.of(
-                "(%L as %T).remote", expression, sandboxInterface.clientProxyNameSpec())
-        }
-
-        return CodeBlock.of(expression)
-    }
-
-    private fun convertToBinderCodeCommon(type: Type, expression: String): CodeBlock? {
+    fun convertToBinderCode(type: Type, expression: String): CodeBlock {
         require(type != Types.unit) { "Cannot convert to Unit." }
         val value = api.valueMap[type]
         if (value != null) {
@@ -144,8 +75,17 @@ class BinderCodeConverter(private val api: ParsedApi) {
         if (callback != null) {
             return CodeBlock.of("%T(%L)", callback.stubDelegateNameSpec(), expression)
         }
-        return null
+        val sandboxInterface = api.interfaceMap[type]
+        if (sandboxInterface != null) {
+            return convertToInterfaceBinderCode(sandboxInterface, expression)
+        }
+        return CodeBlock.of(expression)
     }
+
+    protected abstract fun convertToInterfaceBinderCode(
+        annotatedInterface: AnnotatedInterface,
+        expression: String
+    ): CodeBlock
 
     /** Convert the given model type declaration to its binder equivalent. */
     fun convertToBinderType(type: Type): ClassName {

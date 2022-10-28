@@ -93,6 +93,7 @@ class PrivacySandboxKspCompilerTest {
             )
         ).generatesExactlySources()
     }
+
     @Test
     fun generatesMetadataFile() {
         val source =
@@ -126,7 +127,8 @@ class PrivacySandboxKspCompilerTest {
             .isEqualTo(
                 ToolMetadata.newBuilder()
                     .setCodeGenerationVersion(1)
-                    .build())
+                    .build()
+            )
     }
 
     @Test

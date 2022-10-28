@@ -96,14 +96,18 @@ class ModelValidator private constructor(val api: ParsedApi) {
 
     private fun validateValuePropertyTypes() {
         val allowedValuePropertyTypes =
-            (api.values.map(AnnotatedValue::type) + Types.primitiveTypes).toSet()
+            (api.values.map(AnnotatedValue::type) +
+                api.interfaces.map(AnnotatedInterface::type) +
+                Types.primitiveTypes).toSet()
+
         for (value in api.values) {
             for (property in value.properties) {
                 if (!allowedValuePropertyTypes.contains(property.type)) {
                     errors.add(
                         "Error in ${value.type.qualifiedName}.${property.name}: " +
-                            "only primitives and data classes annotated with " +
-                            "@PrivacySandboxValue are supported as properties."
+                            "only primitives, data classes annotated with " +
+                            "@PrivacySandboxValue and interfaces annotated with " +
+                            "@PrivacySandboxInterface are supported as properties."
                     )
                 }
             }
@@ -113,6 +117,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
     private fun validateCallbackMethods() {
         val allowedParameterTypes =
             (api.values.map(AnnotatedValue::type) +
+                api.interfaces.map(AnnotatedInterface::type) +
                 Types.primitiveTypes).toSet()
 
         for (callback in api.callbacks) {
@@ -120,8 +125,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
                 if (method.parameters.any { !allowedParameterTypes.contains(it.type) }) {
                     errors.add(
                         "Error in ${callback.type.qualifiedName}.${method.name}: " +
-                            "only primitives and data classes annotated with " +
-                            "@PrivacySandboxValue are supported as callback parameter types."
+                            "only primitives, data classes annotated with " +
+                            "@PrivacySandboxValue and interfaces annotated with " +
+                            "@PrivacySandboxInterface are supported as callback parameter types."
                     )
                 }
                 if (method.returnType != Types.unit || method.isSuspend) {
