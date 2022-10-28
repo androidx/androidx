@@ -32,12 +32,14 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -46,6 +48,9 @@ class FragmentTransitionAnimTest(
     private val reorderingAllowed: ReorderingAllowed,
 ) {
     private var onBackStackChangedTimes: Int = 0
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     fun setup() {

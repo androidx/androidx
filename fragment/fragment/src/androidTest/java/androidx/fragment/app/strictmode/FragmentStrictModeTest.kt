@@ -29,8 +29,10 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,6 +42,9 @@ public class FragmentStrictModeTest {
     private val fragmentClass = StrictFragment::class.java
 
     private lateinit var originalPolicy: FragmentStrictMode.Policy
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     public fun setup() {

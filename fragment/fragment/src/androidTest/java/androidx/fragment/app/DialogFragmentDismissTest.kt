@@ -26,12 +26,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Class representing the different ways of dismissing a [DialogFragment]
@@ -99,10 +101,13 @@ class DialogFragmentDismissTest(
     }
 
     @Suppress("DEPRECATION")
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityTestRule = androidx.test.rule.ActivityTestRule(
-        EmptyFragmentTestActivity::class.java
-    )
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityTestRule)
 
     @Test
     fun testDialogFragmentDismiss() {

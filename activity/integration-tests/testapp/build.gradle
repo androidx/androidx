@@ -22,8 +22,6 @@ plugins {
 
 android {
     defaultConfig {
-        testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
-
         applicationId "androidx.activity.integration.testapp"
     }
     namespace "androidx.activity.integration.testapp"

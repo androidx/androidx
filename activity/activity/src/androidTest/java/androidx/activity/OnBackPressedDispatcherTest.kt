@@ -26,7 +26,9 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,6 +38,9 @@ class OnBackPressedHandlerTest {
 
     private var fallbackCount = 0
     lateinit var dispatcher: OnBackPressedDispatcher
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     fun setup() {

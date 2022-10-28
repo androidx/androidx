@@ -24,6 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -32,6 +34,9 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S_V2)
 class OnBackPressedDispatcherInvokerTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testSimpleInvoker() {
