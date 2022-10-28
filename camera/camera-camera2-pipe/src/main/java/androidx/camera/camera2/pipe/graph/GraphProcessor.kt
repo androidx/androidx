@@ -21,6 +21,10 @@ package androidx.camera.camera2.pipe.graph
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.config.CameraGraphScope
@@ -35,6 +39,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The [GraphProcessor] is responsible for queuing and then submitting them to a
@@ -42,6 +48,8 @@ import kotlinx.coroutines.withContext
  * and submitted before the camera is available.
  */
 internal interface GraphProcessor {
+    val graphState: StateFlow<GraphState>
+
     fun submit(request: Request)
     fun submit(requests: List<Request>)
     suspend fun submit(parameters: Map<*, Any?>): Boolean
@@ -102,7 +110,19 @@ internal class GraphProcessorImpl @Inject constructor(
     @GuardedBy("lock")
     private var closed = false
 
+    private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
+
+    override val graphState: StateFlow<GraphState>
+        get() = _graphState
+
+    override fun onGraphStarting() {
+        debug { "$this onGraphStarting" }
+        _graphState.value = GraphStateStarting
+    }
+
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStarted" }
+        _graphState.value = GraphStateStarted
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -126,6 +146,8 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphStopped" }
+        _graphState.value = GraphStateStopped
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {

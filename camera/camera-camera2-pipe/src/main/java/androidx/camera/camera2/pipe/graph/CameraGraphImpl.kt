@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
@@ -31,6 +32,7 @@ import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.StateFlow
 
 internal val cameraGraphIds = atomic(0)
 
@@ -40,6 +42,7 @@ internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
+    private val graphListener: GraphListener,
     private val streamGraph: StreamGraphImpl,
     private val surfaceGraph: SurfaceGraph,
     private val cameraController: CameraController,
@@ -63,9 +66,13 @@ internal class CameraGraphImpl @Inject constructor(
     override val streams: StreamGraph
         get() = streamGraph
 
+    override val graphState: StateFlow<GraphState>
+        get() = graphProcessor.graphState
+
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
+        graphListener.onGraphStarting()
         cameraController.start()
         Debug.traceStop()
     }
@@ -73,6 +80,7 @@ internal class CameraGraphImpl @Inject constructor(
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
+        graphListener.onGraphStopping()
         cameraController.stop()
         Debug.traceStop()
     }
