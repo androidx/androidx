@@ -118,6 +118,7 @@ internal class CameraGraphImplTest {
             graphConfig,
             metadata,
             fakeGraphProcessor,
+            fakeGraphProcessor,
             streamGraph,
             surfaceGraph,
             cameraController,

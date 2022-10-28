@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import androidx.camera.camera2.pipe.graph.GraphState3A
 import androidx.camera.camera2.pipe.putAllMetadata
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Fake implementation of a [GraphProcessor] for tests.
@@ -43,6 +46,11 @@ internal class FakeGraphProcessor(
     private val _requestQueue = mutableListOf<List<Request>>()
     private var processor: GraphRequestProcessor? = null
 
+    private val _graphState = MutableStateFlow<GraphState>(GraphState.GraphStateStopped)
+
+    override val graphState: StateFlow<GraphState>
+        get() = _graphState
+
     override fun startRepeating(request: Request) {
         repeatingRequest = request
     }
@@ -58,6 +66,7 @@ internal class FakeGraphProcessor(
     override fun submit(requests: List<Request>) {
         _requestQueue.add(requests)
     }
+
     override suspend fun submit(parameters: Map<*, Any?>): Boolean {
         if (closed) {
             return false
