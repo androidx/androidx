@@ -60,7 +60,7 @@ public fun <T> arraySetOf(vararg values: T): ArraySet<T> {
  * will grow once items are added to it.
  */
 public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
-    AbstractMutableCollection<E>(), MutableSet<E> {
+    MutableCollection<E>, MutableSet<E> {
 
     private var hashes: IntArray = EMPTY_INTS
     private var array: Array<Any?> = EMPTY_OBJECTS
@@ -446,6 +446,26 @@ public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
             remove(array.valueAt(i))
         }
         return originalSize != _size
+    }
+
+    @Suppress("ArrayReturn")
+    public fun toArray(): Array<Any?> {
+        return array.copyOfRange(fromIndex = 0, toIndex = _size)
+    }
+
+    @Suppress("ArrayReturn")
+    public fun <T> toArray(array: Array<T>): Array<T> {
+        return if (array.size < _size) {
+            @Suppress("UNCHECKED_CAST")
+            this.array.copyOfRange(fromIndex = 0, toIndex = _size) as Array<T>
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            this.array.copyInto(array as Array<Any?>, 0, 0, _size)
+            if (array.size > _size) {
+                array[_size] = null
+            }
+            array
+        }
     }
 
     /**
