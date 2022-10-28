@@ -16,42 +16,43 @@
 
 package androidx.wear.watchface.complications.datasource.samples
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.GoalProgressComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 
-/* Example data source with configuration activity */
-class ConfigurableDataSourceService : ComplicationDataSourceService() {
+/** Trivial example of serving [GoalProgressComplicationData]. */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+class GoalProgressDataSourceService : ComplicationDataSourceService() {
+
     override fun onComplicationRequest(
         request: ComplicationRequest,
         listener: ComplicationRequestListener
     ) {
-        val value = getSharedPreferences(ConfigActivity.SHARED_PREF_NAME, 0).getInt(
-            ConfigActivity.getKey(
-                request.complicationInstanceId,
-                ConfigActivity.SHARED_PREF_KEY),
-            DEFAULT_VALUE)
-
-        listener.onComplicationData(makeComplicationData(value))
+        listener.onComplicationData(
+            GoalProgressComplicationData.Builder(
+                value = 12345.0f,
+                targetValue = 10000.0f,
+                plainText("12345 steps")
+            ).setText(plainText("12345"))
+                .setTitle(plainText("Steps"))
+                .build()
+        )
     }
 
-    override fun getPreviewData(type: ComplicationType) = when (type) {
-        ComplicationType.SHORT_TEXT -> makeComplicationData(DEFAULT_VALUE)
+    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
+        ComplicationType.GOAL_PROGRESS ->
+            GoalProgressComplicationData.Builder(
+                value = 1024.0f,
+                targetValue = 10000.0f,
+                plainText("Steps complication")
+            ).setText(plainText("1024"))
+                .setTitle(plainText("Steps"))
+                .build()
+
         else -> null
-    }
-
-    private fun makeComplicationData(value: Int): ComplicationData {
-        return ShortTextComplicationData.Builder(
-            plainText(value.toString()),
-            ComplicationText.EMPTY
-        ).build()
-    }
-
-    companion object {
-        // used as default value while data source has not been configured
-        const val DEFAULT_VALUE = 0
     }
 }

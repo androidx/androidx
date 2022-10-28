@@ -265,7 +265,6 @@ public class NoDataComplicationData internal constructor(
         null
     )
 
-    @OptIn(ComplicationExperimental::class)
     val contentDescription: ComplicationText? =
         when (placeholder) {
             is ShortTextComplicationData -> placeholder.contentDescription
@@ -857,16 +856,19 @@ public class LongTextComplicationData internal constructor(
  * overrides the normal watch face colors when there's a particular semantic meaning. E.g. red to
  * blue for a ranged value representing temperature.
  *
+ * Note this is a subset of the functionality of [android.graphics.LinearGradient] and the x & y
+ * coordinates for the ramp are not known to the complication data source.
+ *
  * @property colors The colors to render the progress bar with. For [RangedValueComplicationData]
  * the first color corresponds to [RangedValueComplicationData.min] and the last color to
  * [RangedValueComplicationData.max]. For [GoalProgressComplicationData] the first color corresponds
  * to zero and the last color to [GoalProgressComplicationData.targetValue]. A maximum of 7 colors
- * may be specified. When rendered the colors must be evenly spread along the progress bar.
+ * may be specified. When rendered the colors must be evenly spread along the progress bar. The
+ * colors must be meaningful to the user, e.g. blue = cold, red/yellow = warm.
  * @property interpolated If `true` then the colors should be smoothly interpolated when rendering
  * the progress bar. If `false` the colors should be rendered as equal sized regions of solid color,
  * resulting in a noticeable step between each color.
  */
-@ComplicationExperimental
 public class ColorRamp(
     @ColorInt val colors: IntArray,
     @get:JvmName("isInterpolated")
@@ -906,7 +908,6 @@ public class ColorRamp(
  * renderer may wish to visually differentiate between the different types, for example rendering a
  * dot on a line/arc to show the value for a [SCORE].
  */
-@ComplicationExperimental
 object RangedValueTypes {
     /** The ranged value's semantic hasn't been defined, but it's most commonly a percentage. */
     const val UNDEFINED = 0
@@ -919,7 +920,6 @@ object RangedValueTypes {
 }
 
 /** @hide */
-@OptIn(ComplicationExperimental::class)
 @IntDef(
     value = [
         RangedValueTypes.UNDEFINED,
@@ -975,9 +975,11 @@ public annotation class RangedValueType
  * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
  * @property contentDescription The content description field for accessibility.
+ * @property colorRamp Optional hint to render the value with the specified [ColorRamp]. When
+ * present the renderer may choose to use the ColorRamp when rendering the progress bar.
+ * @property valueType The semantic meaning of [value], see [RangedValueType] for more details.
  */
-public class RangedValueComplicationData @OptIn(ComplicationExperimental::class)
-internal constructor(
+public class RangedValueComplicationData internal constructor(
     public val value: Float,
     public val min: Float,
     public val max: Float,
@@ -990,8 +992,8 @@ internal constructor(
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
-    colorRamp: ColorRamp?,
-    @RangedValueType valueType: Int,
+    public val colorRamp: ColorRamp?,
+    @RangedValueType public val valueType: Int,
     @ComplicationPersistencePolicy persistencePolicy: Int,
     @ComplicationDisplayPolicy displayPolicy: Int
 ) : ComplicationData(
@@ -1003,19 +1005,6 @@ internal constructor(
     persistencePolicy = persistencePolicy,
     displayPolicy = displayPolicy
 ) {
-    /** Optional hint to render the value with the specified [ColorRamp]. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ComplicationExperimental
-    @ComplicationExperimental
-    val colorRamp: ColorRamp? = colorRamp
-
-    /** The semantic meaning of [value], see [RangedValueType] for more details. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ComplicationExperimental
-    @ComplicationExperimental
-    @RangedValueType
-    val valueType: Int = valueType
-
     /**
      * Builder for [RangedValueComplicationData].
      *
@@ -1028,7 +1017,6 @@ internal constructor(
      * @param max The maximum value. This must be less than [Float.MAX_VALUE].
      * @param contentDescription Localized description for use by screen readers
      */
-    @OptIn(ComplicationExperimental::class)
     public class Builder(
         private val value: Float,
         private val min: Float,
@@ -1041,9 +1029,7 @@ internal constructor(
         private var smallImage: SmallImage? = null
         private var title: ComplicationText? = null
         private var text: ComplicationText? = null
-        @OptIn(ComplicationExperimental::class)
         private var colorRamp: ColorRamp? = null
-        @OptIn(ComplicationExperimental::class)
         @RangedValueType
         private var valueType: Int = RangedValueTypes.UNDEFINED
 
@@ -1085,25 +1071,23 @@ internal constructor(
         }
 
         /**
-         * Sets an optional hint which suggests the renderer draws the complication using a
+         * Sets an optional hint that the renderer should draw the progress bar using the
          * [ColorRamp].
          */
-        @ComplicationExperimental
         public fun setColorRamp(colorRamp: ColorRamp?): Builder = apply {
             this.colorRamp = colorRamp
         }
 
         /**
-         * Sets the semantic meaning of [value], see [@RangedValueTypes] for detail.s Defaults to
-         * [RangedValueTypes.UNDEFINED] if not set.
+         * Sets the semantic meaning of [value], see [@RangedValueTypes] for details. Defaults to
+         * [RangedValueTypes.UNDEFINED] if not set. Watch faces may use this as a hint to select
+         * rendering style.
          */
-        @ComplicationExperimental
         public fun setValueType(@RangedValueType valueType: Int): Builder = apply {
             this.valueType = valueType
         }
 
         /** Builds the [RangedValueComplicationData]. */
-        @OptIn(ComplicationExperimental::class)
         public override fun build(): RangedValueComplicationData {
             require(
                 monochromaticImage != null || smallImage != null || text != null || title != null
@@ -1142,7 +1126,6 @@ internal constructor(
         }.build().also { cachedWireComplicationData = it }
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setRangedValue(value)
         builder.setRangedMinValue(min)
@@ -1167,7 +1150,6 @@ internal constructor(
         builder.setRangedValueType(valueType)
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -1194,7 +1176,6 @@ internal constructor(
         return true
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun hashCode(): Int {
         var result = value.hashCode()
         result = 31 * result + valueType
@@ -1215,7 +1196,6 @@ internal constructor(
         return result
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun toString(): String {
         val valueString = if (WireComplicationData.shouldRedact()) {
             "REDACTED"
@@ -1265,10 +1245,12 @@ internal constructor(
 }
 
 /**
- * Type used for complications which show progress towards a goal, E.g. you've done 2400 out of your
- * daily target of 10000 steps. Unlike [RangedValueComplicationData] [value] is allowed to be larger
- * than [targetValue] (e.g. you've done 12000 steps) and renderers may chose to acknowledge this in
- * a special way. The value may be accompanied by an icon and/or short text and title.
+ * Type used for complications which shows the user's progress towards a goal, E.g. you've done 2400
+ * out of your daily target of 10000 steps. Unlike [RangedValueComplicationData] [value] is allowed
+ * to be larger than [targetValue] (e.g. you've done 12000 steps) and renderers may chose to
+ * acknowledge this in a special way (e.g. by colorizing part of the progress bar in a different
+ * color to indicate progress past the goal). The value may be accompanied by an icon and/or short
+ * text and title.
  *
  * The [value], and [targetValue] fields are required for this type and the progress is expected to
  * always be displayed.
@@ -1283,8 +1265,8 @@ internal constructor(
  * specify both a [monochromaticImage] and a [smallImage].
  *
  * If you want to represent a score for something that's not based on the user (e.g. air quality
- * index) then you should use a [RangedValueComplicationData] and pass [RangedValueTypes.SCORE] into
- * [RangedValueComplicationData.Builder.setValueType].
+ * index) then you should instead use a [RangedValueComplicationData] and pass
+ * [RangedValueTypes.SCORE] into [RangedValueComplicationData.Builder.setValueType].
  *
  * @property value The [Float] value of this complication which is >= 0f, this value may be larger
  * than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
@@ -1316,8 +1298,10 @@ internal constructor(
  * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
  * @property contentDescription The content description field for accessibility.
+ * @property colorRamp Optional hint to render the progress bar representing [value] with the
+ * specified [ColorRamp].
  */
-@ComplicationExperimental
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class GoalProgressComplicationData
 internal constructor(
     public val value: Float,
@@ -1331,7 +1315,7 @@ internal constructor(
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
     dataSource: ComponentName?,
-    colorRamp: ColorRamp?,
+    public val colorRamp: ColorRamp?,
     @ComplicationPersistencePolicy persistencePolicy: Int,
     @ComplicationDisplayPolicy displayPolicy: Int
 ) : ComplicationData(
@@ -1343,12 +1327,6 @@ internal constructor(
     persistencePolicy = persistencePolicy,
     displayPolicy = displayPolicy
 ) {
-    /** Optional hint to render the value with the specified [ColorRamp]. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ComplicationExperimental
-    @ComplicationExperimental
-    val colorRamp: ColorRamp? = colorRamp
-
     /**
      * Builder for [GoalProgressComplicationData].
      *
@@ -1359,7 +1337,6 @@ internal constructor(
      * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
      * @param contentDescription Localized description for use by screen readers
      */
-    @OptIn(ComplicationExperimental::class)
     public class Builder(
         private val value: Float,
         private val targetValue: Float,
@@ -1371,7 +1348,6 @@ internal constructor(
         private var smallImage: SmallImage? = null
         private var title: ComplicationText? = null
         private var text: ComplicationText? = null
-        @OptIn(ComplicationExperimental::class)
         private var colorRamp: ColorRamp? = null
 
         init {
@@ -1415,13 +1391,11 @@ internal constructor(
          * Sets an optional hint which suggests the renderer draws the complication using a
          * [ColorRamp].
          */
-        @ComplicationExperimental
         public fun setColorRamp(colorRamp: ColorRamp?): Builder = apply {
             this.colorRamp = colorRamp
         }
 
         /** Builds the [GoalProgressComplicationData]. */
-        @OptIn(ComplicationExperimental::class)
         public override fun build(): GoalProgressComplicationData {
             require(
                 monochromaticImage != null || smallImage != null || text != null || title != null
@@ -1458,7 +1432,6 @@ internal constructor(
         }.build().also { cachedWireComplicationData = it }
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setRangedValue(value)
         builder.setTargetValue(targetValue)
@@ -1481,7 +1454,6 @@ internal constructor(
         }
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -1506,7 +1478,6 @@ internal constructor(
         return true
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun hashCode(): Int {
         var result = value.hashCode()
         result = 31 * result + targetValue.hashCode()
@@ -1525,7 +1496,6 @@ internal constructor(
         return result
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun toString(): String {
         val valueString = if (WireComplicationData.shouldRedact()) {
             "REDACTED"
@@ -1558,7 +1528,6 @@ internal constructor(
     /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
-        @OptIn(ComplicationExperimental::class)
         @JvmField
         public val TYPE: ComplicationType = ComplicationType.GOAL_PROGRESS
 
@@ -1591,11 +1560,13 @@ internal constructor(
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
  *
- * @property elements The breakdown of the subject into various [Element]s. E.g. the proportion of
- * calories consumed which were carbohydrates, fats etc... If this is equal to [PLACEHOLDER] then
- * the renderer must display this in a visually distinct way to suggest to the user that it's
- * placeholder data.  E.g. each rendered is rendered in light grey. The maximum valid size of this
- * list is [MAX_NUM_ELEMENTS].
+ * @property elements The breakdown of the subject into various [Element]s (e.g. the proportion of
+ * calories consumed which were carbohydrates, fats, etc.). The colors need to be meaningful to the
+ * user (e.g. blue is cold, yellow/red is worm), and should be consistent with the experience
+ * launched by tapping on the complication. If this is equal to [PLACEHOLDER] then the renderer must
+ * display this in a visually distinct way to suggest to the user that it's placeholder data.  E.g.
+ * each element is rendered in light grey. The maximum valid size of this list is
+ * [MAX_NUM_ELEMENTS].
  * @property elementBackgroundColor If elements are draw as segments then this is the background
  * color to use in between them.
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
@@ -1624,7 +1595,7 @@ internal constructor(
  * box.
  * @property contentDescription The content description field for accessibility.
  */
-@ComplicationExperimental
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class WeightedElementsComplicationData
 internal constructor(
     public val elements: List<Element>,
@@ -1655,10 +1626,11 @@ internal constructor(
      * @property weight The weight of the Element which must be > zero. The size of the element when
      * rendered should be proportional to its weight. Weights are not required to sum to any
      * particular value.
-     * @property color The color of the Element. In conjunction with the other fields this color
-     * needs to be meaningful to the user. Tapping on the complication should launch an experience
-     * where the data is presented in more detail. Care must be taken to ensure the colors used are
-     * consistent.
+     * @property color The color of the Element, which must be used instead of the watch face's
+     * colors. This color needs to be meaningful to the user in conjunction with the other fields
+     * (e.g. blue is cold, red/yellow is warm). Tapping on the complication should launch an
+     * experience where the data is presented in more detail. Care must be taken to ensure the
+     * colors used are consistent with the launched experience.
      */
     class Element(
         @FloatRange(from = 0.0, fromInclusive = false) val weight: Float,
@@ -1703,7 +1675,6 @@ internal constructor(
      * [MAX_NUM_ELEMENTS].
      * @param contentDescription Localized description for use by screen readers
      */
-    @OptIn(ComplicationExperimental::class)
     public class Builder(
         private val elements: List<Element>,
         private var contentDescription: ComplicationText
@@ -1764,7 +1735,6 @@ internal constructor(
         }
 
         /** Builds the [GoalProgressComplicationData]. */
-        @OptIn(ComplicationExperimental::class)
         public override fun build(): WeightedElementsComplicationData {
             require(
                 monochromaticImage != null || smallImage != null || text != null || title != null
@@ -1800,7 +1770,6 @@ internal constructor(
         }.build().also { cachedWireComplicationData = it }
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setElementWeights(elements.map { it.weight }.toFloatArray())
         builder.setElementColors(elements.map { it.color }.toIntArray())
@@ -1830,7 +1799,6 @@ internal constructor(
         }
     }
 
-    @OptIn(ComplicationExperimental::class)
     override fun toString(): String {
         val elementsString = if (WireComplicationData.shouldRedact()) {
             "REDACTED"
@@ -1886,7 +1854,6 @@ internal constructor(
 
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
-        @OptIn(ComplicationExperimental::class)
         @JvmField
         public val TYPE: ComplicationType = ComplicationType.WEIGHTED_ELEMENTS
 
@@ -2536,7 +2503,6 @@ public class NoPermissionComplicationData internal constructor(
     }
 }
 
-@OptIn(ComplicationExperimental::class)
 @Suppress("NewApi")
 internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationData? {
     try {
@@ -2701,7 +2667,6 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
 /**
  * @hide
  */
-@OptIn(ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("NewApi")
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
