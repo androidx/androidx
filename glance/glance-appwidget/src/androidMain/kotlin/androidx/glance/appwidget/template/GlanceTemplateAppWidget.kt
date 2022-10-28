@@ -40,10 +40,12 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
         internal val sizeS = 200.dp
         internal val sizeM = 241.dp
         internal val sizeL = 350.dp
+        internal val sizeXL = 600.dp
         private val COLLAPSED = DpSize(sizeMin, sizeMin)
         private val HORIZONTAL_S = DpSize(sizeM, sizeMin)
         private val HORIZONTAL_M = DpSize(sizeM, sizeS)
-        private val HORIZONTAL_L = DpSize(sizeL, sizeS)
+        private val HORIZONTAL_L = DpSize(sizeL, sizeMin)
+        private val HORIZONTAL_XL = DpSize(sizeXL, sizeL)
         private val VERTICAL_S = DpSize(sizeMin, sizeM)
         private val VERTICAL_M = DpSize(sizeS, sizeM)
         private val VERTICAL_L = DpSize(sizeS, sizeL)
@@ -52,7 +54,14 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     /** Default widget size mode is [SizeMode.Responsive] */
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(
-            COLLAPSED, VERTICAL_S, VERTICAL_M, VERTICAL_L, HORIZONTAL_S, HORIZONTAL_M, HORIZONTAL_L
+            COLLAPSED,
+            VERTICAL_S,
+            VERTICAL_M,
+            VERTICAL_L,
+            HORIZONTAL_S,
+            HORIZONTAL_M,
+            HORIZONTAL_L,
+            HORIZONTAL_XL
         )
     )
 
