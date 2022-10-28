@@ -39,14 +39,16 @@ interface MySecondInterface {
 }
 
 @PrivacySandboxValue
-data class Request(val query: String)
+data class Request(val query: String, val myInterface: MyInterface)
 
 @PrivacySandboxValue
-data class Response(val response: String)
+data class Response(val response: String, val mySecondInterface: MySecondInterface)
 
 @PrivacySandboxCallback
 interface MyCallback {
     fun onComplete(response: Response)
 
     fun onClick(x: Int, y: Int)
+
+    fun onCompleteInterface(myInterface: MyInterface)
 }

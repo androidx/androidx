@@ -145,7 +145,7 @@ class ClientProxyTypeGenerator(
             ) {
                 addStatement(
                     "it.resumeWith(Result.success(%L))",
-                    binderCodeConverter.convertToModelCodeInClient(method.returnType, "result")
+                    binderCodeConverter.convertToModelCode(method.returnType, "result")
                 )
             }
         }
@@ -156,7 +156,7 @@ class ClientProxyTypeGenerator(
         extraParameters: List<CodeBlock> = emptyList(),
     ) = CodeBlock.builder().build {
         val parameters =
-            method.parameters.map { binderCodeConverter.convertToBinderCodeInClient(it) } +
+            method.parameters.map { binderCodeConverter.convertToBinderCode(it.type, it.name) } +
                 extraParameters
         addStatement {
             add("remote.${method.name}(")

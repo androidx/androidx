@@ -17,7 +17,6 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
-import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -29,7 +28,7 @@ import com.squareup.kotlinpoet.joinToCode
  * Generates a file that defines a converter for an SDK defined value and its AIDL parcelable
  * counterpart.
  */
-class ValueConverterFileGenerator(private val api: ParsedApi) {
+class ValueConverterFileGenerator(private val binderConverter: BinderCodeConverter) {
 
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(
@@ -42,9 +41,9 @@ class ValueConverterFileGenerator(private val api: ParsedApi) {
 
     private fun generateConverter(value: AnnotatedValue) =
         TypeSpec.objectBuilder(value.converterNameSpec()).build {
-        addFunction(generateFromParcelable(value))
-        addFunction(generateToParcelable(value))
-    }
+            addFunction(generateFromParcelable(value))
+            addFunction(generateToParcelable(value))
+        }
 
     private fun generateToParcelable(value: AnnotatedValue) =
         FunSpec.builder(value.toParcelableNameSpec().simpleName).build {
@@ -57,14 +56,13 @@ class ValueConverterFileGenerator(private val api: ParsedApi) {
 
     private fun generateToParcelablePropertyConversion(property: ValueProperty) =
         CodeBlock.builder().build {
-            val innerValue = api.valueMap[property.type]
-            if (innerValue != null) {
-                addStatement(
-                    "parcelable.${property.name} = %M(annotatedValue.${property.name})",
-                    innerValue.toParcelableNameSpec())
-            } else {
-                addStatement("parcelable.${property.name} = annotatedValue.${property.name}")
-            }
+            addStatement(
+                "parcelable.${property.name} = %L",
+                binderConverter.convertToBinderCode(
+                    property.type,
+                    "annotatedValue.${property.name}"
+                )
+            )
         }
 
     private fun generateFromParcelable(value: AnnotatedValue) =
@@ -82,14 +80,11 @@ class ValueConverterFileGenerator(private val api: ParsedApi) {
 
     private fun generateFromParcelablePropertyConversion(property: ValueProperty) =
         CodeBlock.builder().build {
-            val innerValue = api.valueMap[property.type]
-            if (innerValue != null) {
-                add(
-                    "${property.name} = %M(parcelable.${property.name})",
-                    innerValue.fromParcelableNameSpec()
+            add(
+                "${property.name} = %L",
+                binderConverter.convertToModelCode(
+                    property.type, "parcelable.${property.name}"
                 )
-            } else {
-                add("${property.name} = parcelable.${property.name}")
-            }
+            )
         }
 }

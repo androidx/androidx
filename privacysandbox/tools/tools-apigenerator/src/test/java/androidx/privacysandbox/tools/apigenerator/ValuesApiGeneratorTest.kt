@@ -25,6 +25,7 @@ class ValuesApiGeneratorTest : BaseApiGeneratorTest() {
     override val inputDirectory = File("src/test/test-data/values/input")
     override val outputDirectory = File("src/test/test-data/values/output")
     override val relativePathsToExpectedAidlClasses = listOf(
+        "com/sdkwithvalues/IMyInterface.java",
         "com/sdkwithvalues/ISdkInterface.java",
         "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
         "com/sdkwithvalues/ParcelableInnerSdkValue.java",
