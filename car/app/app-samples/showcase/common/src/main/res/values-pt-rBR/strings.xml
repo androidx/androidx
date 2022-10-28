@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite da tarefa atingido\nContinuar vai forçar a parada do app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demonstração de botão de ativação"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Alternar teste"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Mudanças com estado são permitidas"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Tela de demonstração do Acesso por voz"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interações do usuário"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Solicitar demonstração de permissões"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
