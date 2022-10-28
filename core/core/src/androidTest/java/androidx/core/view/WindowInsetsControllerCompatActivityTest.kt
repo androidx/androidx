@@ -226,6 +226,7 @@ public class WindowInsetsControllerCompatActivityTest {
         testShow(WindowInsetsCompat.Type.statusBars())
     }
 
+    @Ignore // b/244445899
     @Test
     public fun toggle_NavBar() {
         testHide(WindowInsetsCompat.Type.navigationBars())
