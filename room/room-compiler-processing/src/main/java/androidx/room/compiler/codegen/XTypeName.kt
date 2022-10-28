@@ -32,8 +32,10 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -105,6 +107,11 @@ open class XTypeName protected constructor(
         val PRIMITIVE_FLOAT = Float::class.asPrimitiveTypeName()
         val PRIMITIVE_DOUBLE = Double::class.asPrimitiveTypeName()
 
+        val ANY_WILDCARD = XTypeName(
+            java = JWildcardTypeName.subtypeOf(Object::class.java),
+            kotlin = com.squareup.kotlinpoet.STAR
+        )
+
         /**
          * The default [KTypeName] returned by xprocessing APIs when the backend is not KSP.
          */
@@ -126,7 +133,7 @@ open class XTypeName protected constructor(
          * the equivalent Kotlin and Java type names are represented, [IntArray] and `int[]`
          * respectively.
          */
-        fun getArrayTypeName(componentTypeName: XTypeName): XTypeName {
+        fun getArrayName(componentTypeName: XTypeName): XTypeName {
             val (java, kotlin) = when (componentTypeName) {
                 PRIMITIVE_BOOLEAN ->
                     JArrayTypeName.of(JTypeName.BOOLEAN) to BOOLEAN_ARRAY
@@ -149,6 +156,34 @@ open class XTypeName protected constructor(
                         ARRAY.parameterizedBy(componentTypeName.kotlin)
             }
             return XTypeName(java, kotlin)
+        }
+
+        /**
+         * Create a contravariant wildcard type name, to use as a consumer site-variance
+         * declaration.
+         *
+         * In Java: `? super <bound>`
+         * In Kotlin `in <bound>
+         */
+        fun getConsumerSuperName(bound: XTypeName): XTypeName {
+            return XTypeName(
+                java = JWildcardTypeName.supertypeOf(bound.java),
+                kotlin = KWildcardTypeName.consumerOf(bound.kotlin)
+            )
+        }
+
+        /**
+         * Create a covariant wildcard type name, to use as a producer site-variance
+         * declaration.
+         *
+         * In Java: `? extends <bound>`
+         * In Kotlin `out <bound>
+         */
+        fun getProducerExtendsName(bound: XTypeName): XTypeName {
+            return XTypeName(
+                java = JWildcardTypeName.subtypeOf(bound.java),
+                kotlin = KWildcardTypeName.producerOf(bound.kotlin)
+            )
         }
     }
 }
