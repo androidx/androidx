@@ -15,9 +15,13 @@
  */
 package androidx.health.connect.client.permission
 
+import androidx.health.connect.client.RECORD_CLASSES
+import androidx.health.connect.client.records.ExerciseRouteRecord
+import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,5 +40,49 @@ class HealthPermissionTest {
         val permission = HealthPermission.createWritePermission(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.WRITE)
         assertThat(permission.recordType).isEqualTo(StepsRecord::class)
+    }
+
+    @Test
+    fun createReadPermissionInternal() {
+        val permission = HealthPermission.createReadPermissionInternal(StepsRecord::class)
+        assertThat(permission).isEqualTo(HealthPermission.READ_STEPS)
+    }
+
+    @Test
+    fun createReadPermissionInternal_everyRecord() {
+        RECORD_CLASSES.filterNot { it == ExerciseRouteRecord::class }
+            .forEach {
+                val permission = HealthPermission.createReadPermissionInternal(it)
+                assertThat(permission).isNotNull()
+            }
+    }
+
+    @Test
+    fun createReadPermissionInternal_invalidRecord_isNull() {
+        assertThrows(IllegalArgumentException::class.java) {
+            HealthPermission.createReadPermissionInternal(Record::class)
+        }
+    }
+
+    @Test
+    fun createWritePermissionInternal() {
+        val permission = HealthPermission.createWritePermissionInternal(StepsRecord::class)
+        assertThat(permission).isEqualTo(HealthPermission.WRITE_STEPS)
+    }
+
+    @Test
+    fun createWritePermissionInternal_everyRecord() {
+        RECORD_CLASSES.filterNot { it == ExerciseRouteRecord::class }
+            .forEach {
+                val permission = HealthPermission.createWritePermissionInternal(it)
+                assertThat(permission).isNotNull()
+            }
+    }
+
+    @Test
+    fun createWritePermissionInternal_invalidRecord_isNull() {
+        assertThrows(IllegalArgumentException::class.java) {
+            HealthPermission.createWritePermissionInternal(Record::class)
+        }
     }
 }
