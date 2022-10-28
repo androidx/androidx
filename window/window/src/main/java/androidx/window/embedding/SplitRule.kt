@@ -32,7 +32,7 @@ import kotlin.math.min
  * Split configuration rules for activities that are launched to side in a split.
  * Define the visual properties of the split. Can be set either statically via
  * [SplitController.Companion.initialize] or at runtime via
- * [SplitController.registerRule]. The rules can only be  applied to activities that
+ * [SplitController.addRule]. The rules can only be  applied to activities that
  * belong to the same application and are running in the same process. The rules are always
  * applied only to activities that will be started  after the rules were set.
  *

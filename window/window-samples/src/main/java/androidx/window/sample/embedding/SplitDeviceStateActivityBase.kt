@@ -258,7 +258,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             .setTag(tag)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
-        splitController.registerRule(splitPairRule)
+        splitController.addRule(splitPairRule)
     }
 
     /** Updates split attributes when receives callback from the extension. */
@@ -307,7 +307,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     fun updateRadioGroupAndCheckBoxFromRule() {
-        val splitPairRule = splitController.getSplitRules().firstOrNull { rule ->
+        val splitPairRule = splitController.getRules().firstOrNull { rule ->
             isRuleForSplitActivityA(rule)
         } ?: return
         val tag = splitPairRule.tag

@@ -40,6 +40,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @VisibleForTesting
     val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
     private val splitInfoEmbeddingCallback = EmbeddingCallbackImpl()
+    private var splitAttributesCalculator: SplitAttributesCalculator? = null
 
     init {
         splitChangeCallbacks = CopyOnWriteArrayList<SplitListenerWrapper>()
@@ -116,34 +117,34 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     private val ruleTracker = RuleTracker()
 
     @GuardedBy("globalLock")
-    override fun getSplitRules(): Set<EmbeddingRule> {
+    override fun getRules(): Set<EmbeddingRule> {
         globalLock.withLock { return ruleTracker.splitRules }
     }
 
     @GuardedBy("globalLock")
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
+    override fun setRules(rules: Set<EmbeddingRule>) {
         globalLock.withLock {
             ruleTracker.setRules(rules)
-            embeddingExtension?.setSplitRules(getSplitRules())
+            embeddingExtension?.setSplitRules(getRules())
         }
     }
 
     @GuardedBy("globalLock")
-    override fun registerRule(rule: EmbeddingRule) {
+    override fun addRule(rule: EmbeddingRule) {
         globalLock.withLock {
             if (rule !in ruleTracker) {
                 ruleTracker.addOrUpdateRule(rule)
-                embeddingExtension?.setSplitRules(getSplitRules())
+                embeddingExtension?.setSplitRules(getRules())
             }
         }
     }
 
     @GuardedBy("globalLock")
-    override fun unregisterRule(rule: EmbeddingRule) {
+    override fun removeRule(rule: EmbeddingRule) {
         globalLock.withLock {
             if (rule in ruleTracker) {
                 ruleTracker.removeRule(rule)
-                embeddingExtension?.setSplitRules(getSplitRules())
+                embeddingExtension?.setSplitRules(getRules())
             }
         }
     }
@@ -240,7 +241,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun registerSplitListenerForActivity(
+    override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
@@ -264,7 +265,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun unregisterSplitListenerForActivity(
+    override fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     ) {
         globalLock.withLock {
@@ -300,12 +301,21 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
-        embeddingExtension?.setSplitAttributesCalculator(calculator)
+        globalLock.withLock {
+            splitAttributesCalculator = calculator
+            embeddingExtension?.setSplitAttributesCalculator(calculator)
+        }
     }
 
     override fun clearSplitAttributesCalculator() {
-        embeddingExtension?.clearSplitAttributesCalculator()
+        globalLock.withLock {
+            splitAttributesCalculator = null
+            embeddingExtension?.clearSplitAttributesCalculator()
+        }
     }
+
+    override fun getSplitAttributesCalculator(): SplitAttributesCalculator? =
+        globalLock.withLock { splitAttributesCalculator }
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false

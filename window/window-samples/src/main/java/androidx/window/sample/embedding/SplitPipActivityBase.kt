@@ -174,7 +174,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     internal fun updateCheckboxes() {
         updatingConfigs = true
 
-        val curRules = splitController.getSplitRules()
+        val curRules = splitController.getRules()
         val splitRule = curRules.firstOrNull { isRuleForSplit(it) }
         val placeholderRule = curRules.firstOrNull { isRuleForPlaceholder(it) }
 
@@ -253,7 +253,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
-            splitController.registerRule(rule)
+            splitController.addRule(rule)
         }
 
         if (viewBinding.usePlaceHolderCheckBox.isChecked) {
@@ -266,7 +266,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setFinishPrimaryWithPlaceholder(ADJACENT)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
-            splitController.registerRule(rule)
+            splitController.addRule(rule)
         }
     }
 

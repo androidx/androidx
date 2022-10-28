@@ -38,13 +38,13 @@ import kotlin.concurrent.withLock
  */
 class SplitController private constructor() {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend.getInstance()
-    private var staticSplitRules: Set<EmbeddingRule> = emptySet()
+    private var staticRules: Set<EmbeddingRule> = emptySet()
 
     /**
-     * Returns a copy of the currently applied split configurations.
+     * Returns a copy of the currently applied [rules][EmbeddingRule].
      */
-    fun getSplitRules(): Set<EmbeddingRule> {
-        return embeddingBackend.getSplitRules()
+    fun getRules(): Set<EmbeddingRule> {
+        return embeddingBackend.getRules()
     }
 
     /**
@@ -58,24 +58,24 @@ class SplitController private constructor() {
      *
      * @param rule new [EmbeddingRule] to register.
      */
-    fun registerRule(rule: EmbeddingRule) {
-        embeddingBackend.registerRule(rule)
+    fun addRule(rule: EmbeddingRule) {
+        embeddingBackend.addRule(rule)
     }
 
     /**
-     * Unregisters a runtime rule that was previously registered via [SplitController.registerRule].
+     * Unregisters a runtime rule that was previously registered via [SplitController.addRule].
      *
      * @param rule the previously registered [EmbeddingRule] to unregister.
      */
-    fun unregisterRule(rule: EmbeddingRule) {
-        embeddingBackend.unregisterRule(rule)
+    fun removeRule(rule: EmbeddingRule) {
+        embeddingBackend.removeRule(rule)
     }
 
     /**
-     * Unregisters all runtime rules added with [registerRule].
+     * Unregisters all runtime rules added with [addRule].
      */
     fun clearRegisteredRules() {
-        embeddingBackend.setSplitRules(staticSplitRules)
+        embeddingBackend.setRules(staticRules)
     }
 
     /**
@@ -100,7 +100,7 @@ class SplitController private constructor() {
         executor: Executor,
         consumer: Consumer<List<SplitInfo>>
     ) {
-        embeddingBackend.registerSplitListenerForActivity(activity, executor, consumer)
+        embeddingBackend.addSplitListenerForActivity(activity, executor, consumer)
     }
 
     /**
@@ -111,7 +111,7 @@ class SplitController private constructor() {
     fun removeSplitListener(
         consumer: Consumer<List<SplitInfo>>
     ) {
-        embeddingBackend.unregisterSplitListenerForActivity(consumer)
+        embeddingBackend.removeSplitListenerForActivity(consumer)
     }
 
     /**
@@ -128,9 +128,9 @@ class SplitController private constructor() {
         return embeddingBackend.isSplitSupported()
     }
 
-    private fun setStaticSplitRules(staticRules: Set<EmbeddingRule>) {
-        staticSplitRules = staticRules
-        embeddingBackend.setSplitRules(staticRules)
+    private fun setStaticRules(staticRules: Set<EmbeddingRule>) {
+        this.staticRules = staticRules
+        embeddingBackend.setRules(staticRules)
     }
 
     /**
@@ -171,6 +171,10 @@ class SplitController private constructor() {
     fun clearSplitAttributesCalculator() {
         embeddingBackend.clearSplitAttributesCalculator()
     }
+
+    /** Returns the current set [SplitAttributesCalculator]. */
+    fun getSplitAttributesCalculator(): SplitAttributesCalculator? =
+        embeddingBackend.getSplitAttributesCalculator()
 
     /** Returns whether [SplitAttributesCalculator] is supported or not. */
     fun isSplitAttributesCalculatorSupported(): Boolean =
@@ -218,7 +222,7 @@ class SplitController private constructor() {
             val parser = SplitRuleParser()
             val configs = parser.parseSplitRules(context, staticRuleResourceId)
             val controllerInstance = getInstance()
-            controllerInstance.setStaticSplitRules(configs ?: emptySet())
+            controllerInstance.setStaticRules(configs ?: emptySet())
         }
     }
 }

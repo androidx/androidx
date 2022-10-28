@@ -22,21 +22,21 @@ import java.util.concurrent.Executor
 
 // TODO(b/191164045): Move to window-testing or adapt for testing otherwise.
 internal interface EmbeddingBackend {
-    fun setSplitRules(rules: Set<EmbeddingRule>)
+    fun setRules(rules: Set<EmbeddingRule>)
 
-    fun getSplitRules(): Set<EmbeddingRule>
+    fun getRules(): Set<EmbeddingRule>
 
-    fun registerRule(rule: EmbeddingRule)
+    fun addRule(rule: EmbeddingRule)
 
-    fun unregisterRule(rule: EmbeddingRule)
+    fun removeRule(rule: EmbeddingRule)
 
-    fun registerSplitListenerForActivity(
+    fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
     )
 
-    fun unregisterSplitListenerForActivity(
+    fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     )
 
@@ -47,6 +47,8 @@ internal interface EmbeddingBackend {
     fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator)
 
     fun clearSplitAttributesCalculator()
+
+    fun getSplitAttributesCalculator(): SplitAttributesCalculator?
 
     fun isSplitAttributesCalculatorSupported(): Boolean
 }
