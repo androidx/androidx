@@ -45,21 +45,6 @@ import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
-private val timeText = charArrayOf('1', '0', ':', '0', '9')
-private val secondsText = charArrayOf('3', '0')
-
-@Px
-private val SECONDS_TEXT_HEIGHT = 180f
-
-@Px
-private val TIME_TEXT_ACTIVE_HEIGHT = 64f
-
-@Px
-private val TIME_TEXT_AMBIENT_HEIGHT = 96f
-
-@Px
-private val TEXT_PADDING = 12
-
 open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
     internal val twelveHourClockOption by lazy {
@@ -271,159 +256,188 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             }
         }
     )
-}
 
-class ExampleHierarchicalStyleWatchFaceRenderer {
-    internal val paint = Paint().apply {
-        textAlign = Paint.Align.CENTER
-        isAntiAlias = true
-    }
-
-    internal val textBounds = Rect()
-
-    @Px
-    internal val timeActiveHeight = Rect().apply {
-        paint.textSize = TIME_TEXT_ACTIVE_HEIGHT
-        paint.getTextBounds(timeText, 0, timeText.size, this)
-    }.height()
-
-    @Px
-    internal val timeAmbientHeight = Rect().apply {
-        paint.textSize = TIME_TEXT_AMBIENT_HEIGHT
-        paint.getTextBounds(timeText, 0, timeText.size, this)
-    }.height()
-
-    @Px
-    internal val secondsHeight = Rect().apply {
-        paint.textSize = SECONDS_TEXT_HEIGHT
-        paint.getTextBounds(secondsText, 0, secondsText.size, this)
-    }.height()
-
-    @Px
-    internal val timeActiveOffset =
-        (timeActiveHeight + secondsHeight + TEXT_PADDING) / 2 - timeActiveHeight
-
-    @Px
-    internal val timeAmbientOffset = timeAmbientHeight / 2 - timeAmbientHeight
-
-    @Px
-    internal val secondsActiveOffset = timeActiveOffset - secondsHeight - TEXT_PADDING
-
-    fun renderDigital(
-        canvas: Canvas,
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-        renderParameters: RenderParameters,
-        watchState: WatchState,
-        twentyFourHour: Boolean,
-        color: IntArray
-    ) {
-        val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
-        val hour = zonedDateTime.hour % if (twentyFourHour) 24 else 12
-        val minute = zonedDateTime.minute
-        val second = zonedDateTime.second
-
-        paint.color = if (isActive) {
-            val scale = 64 + 192 * second / 60
-            Color.rgb(color[0] * scale, color[1] * scale, color[2] * scale)
-        } else {
-           Color.BLACK
+    private class ExampleHierarchicalStyleWatchFaceRenderer {
+        internal val paint = Paint().apply {
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
         }
-        canvas.drawRect(bounds, paint)
 
-        paint.color = Color.WHITE
-        timeText[0] = ('0' + hour / 10)
-        timeText[1] = ('0' + hour % 10)
-        timeText[2] = if (second % 2 == 0) ':' else ' '
-        timeText[3] = ('0' + minute / 10)
-        timeText[4] = ('0' + minute % 10)
-        paint.textSize = if (isActive) TIME_TEXT_ACTIVE_HEIGHT else TIME_TEXT_AMBIENT_HEIGHT
-        val timeOffset = if (isActive) timeActiveOffset else timeAmbientOffset
-        canvas.drawText(
-            timeText,
-            0,
-            timeText.size,
-            bounds.centerX().toFloat(),
-            (bounds.centerY() - watchState.chinHeight - timeOffset).toFloat(),
-            paint
-        )
+        internal val textBounds = Rect()
 
-        paint.textSize = SECONDS_TEXT_HEIGHT
-        if (isActive) {
-            secondsText[0] = ('0' + second / 10)
-            secondsText[1] = ('0' + second % 10)
+        @Px
+        internal val timeActiveHeight = Rect().apply {
+            paint.textSize = TIME_TEXT_ACTIVE_HEIGHT
+            paint.getTextBounds(timeText, 0, timeText.size, this)
+        }.height()
+
+        @Px
+        internal val timeAmbientHeight = Rect().apply {
+            paint.textSize = TIME_TEXT_AMBIENT_HEIGHT
+            paint.getTextBounds(timeText, 0, timeText.size, this)
+        }.height()
+
+        @Px
+        internal val secondsHeight = Rect().apply {
+            paint.textSize = SECONDS_TEXT_HEIGHT
+            paint.getTextBounds(secondsText, 0, secondsText.size, this)
+        }.height()
+
+        @Px
+        internal val timeActiveOffset =
+            (timeActiveHeight + secondsHeight + TEXT_PADDING) / 2 - timeActiveHeight
+
+        @Px
+        internal val timeAmbientOffset = timeAmbientHeight / 2 - timeAmbientHeight
+
+        @Px
+        internal val secondsActiveOffset = timeActiveOffset - secondsHeight - TEXT_PADDING
+
+        fun renderDigital(
+            canvas: Canvas,
+            bounds: Rect,
+            zonedDateTime: ZonedDateTime,
+            renderParameters: RenderParameters,
+            watchState: WatchState,
+            twentyFourHour: Boolean,
+            color: IntArray
+        ) {
+            val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
+            val hour = zonedDateTime.hour % if (twentyFourHour) 24 else 12
+            val minute = zonedDateTime.minute
+            val second = zonedDateTime.second
+
+            paint.color = if (isActive) {
+                val scale = 64 + 192 * second / 60
+                Color.rgb(color[0] * scale, color[1] * scale, color[2] * scale)
+            } else {
+                Color.BLACK
+            }
+            canvas.drawRect(bounds, paint)
+
+            paint.color = Color.WHITE
+            timeText[0] = ('0' + hour / 10)
+            timeText[1] = ('0' + hour % 10)
+            timeText[2] = if (second % 2 == 0) ':' else ' '
+            timeText[3] = ('0' + minute / 10)
+            timeText[4] = ('0' + minute % 10)
+            paint.textSize = if (isActive) TIME_TEXT_ACTIVE_HEIGHT else TIME_TEXT_AMBIENT_HEIGHT
+            val timeOffset = if (isActive) timeActiveOffset else timeAmbientOffset
             canvas.drawText(
-                secondsText,
+                timeText,
                 0,
-                secondsText.size,
+                timeText.size,
                 bounds.centerX().toFloat(),
-                (bounds.centerY() - watchState.chinHeight - secondsActiveOffset).toFloat(),
+                (bounds.centerY() - watchState.chinHeight - timeOffset).toFloat(),
                 paint
             )
-        }
-    }
 
-    fun renderAnalog(
-        canvas: Canvas,
-        bounds: Rect,
-        zonedDateTime: ZonedDateTime,
-        renderParameters: RenderParameters,
-        hoursDrawFreq: Int,
-        watchHandLength: Float
-    ) {
-        val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
-
-        paint.color = Color.BLACK
-        canvas.drawRect(bounds, paint)
-
-        paint.color = Color.WHITE
-        paint.textSize = 20.0f
-        if (isActive) {
-            for (i in 12 downTo 1 step hoursDrawFreq) {
-                val rot = i.toFloat() / 12.0f * 2.0f * Math.PI
-                val dx = sin(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
-                val dy = -cos(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
-                val mark = i.toString()
-                paint.getTextBounds(mark, 0, mark.length, textBounds)
+            paint.textSize = SECONDS_TEXT_HEIGHT
+            if (isActive) {
+                secondsText[0] = ('0' + second / 10)
+                secondsText[1] = ('0' + second % 10)
                 canvas.drawText(
-                    mark,
-                    bounds.exactCenterX() + dx - textBounds.width() / 2.0f,
-                    bounds.exactCenterY() + dy + textBounds.height() / 2.0f,
+                    secondsText,
+                    0,
+                    secondsText.size,
+                    bounds.centerX().toFloat(),
+                    (bounds.centerY() - watchState.chinHeight - secondsActiveOffset).toFloat(),
                     paint
                 )
             }
         }
 
-        val hours = (zonedDateTime.hour % 12).toFloat()
-        val minutes = zonedDateTime.minute.toFloat()
-        val seconds = zonedDateTime.second.toFloat() +
-            (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
+        fun renderAnalog(
+            canvas: Canvas,
+            bounds: Rect,
+            zonedDateTime: ZonedDateTime,
+            renderParameters: RenderParameters,
+            hoursDrawFreq: Int,
+            watchHandLength: Float
+        ) {
+            val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
 
-        val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
-        val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f
+            paint.color = Color.BLACK
+            canvas.drawRect(bounds, paint)
 
-        val hourXRadius = bounds.width() * watchHandLength * 0.35f
-        val hourYRadius = bounds.height() * watchHandLength * 0.35f
+            paint.color = Color.WHITE
+            paint.textSize = 20.0f
+            if (isActive) {
+                for (i in 12 downTo 1 step hoursDrawFreq) {
+                    val rot = i.toFloat() / 12.0f * 2.0f * Math.PI
+                    val dx = sin(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
+                    val dy = -cos(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
+                    val mark = i.toString()
+                    paint.getTextBounds(mark, 0, mark.length, textBounds)
+                    canvas.drawText(
+                        mark,
+                        bounds.exactCenterX() + dx - textBounds.width() / 2.0f,
+                        bounds.exactCenterY() + dy + textBounds.height() / 2.0f,
+                        paint
+                    )
+                }
+            }
 
-        paint.strokeWidth = if (isActive) 8f else 5f
-        canvas.drawLine(
-            bounds.exactCenterX(),
-            bounds.exactCenterY(),
-            bounds.exactCenterX() + sin(hourRot) * hourXRadius,
-            bounds.exactCenterY() - cos(hourRot) * hourYRadius,
-            paint
-        )
+            val hours = (zonedDateTime.hour % 12).toFloat()
+            val minutes = zonedDateTime.minute.toFloat()
+            val seconds = zonedDateTime.second.toFloat() +
+                (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
-        val minuteXRadius = bounds.width() * watchHandLength * 0.499f
-        val minuteYRadius = bounds.height() * watchHandLength * 0.499f
+            val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
+            val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f
 
-        paint.strokeWidth = if (isActive) 4f else 2.5f
-        canvas.drawLine(
-            bounds.exactCenterX(),
-            bounds.exactCenterY(),
-            bounds.exactCenterX() + sin(minuteRot) * minuteXRadius,
-            bounds.exactCenterY() - cos(minuteRot) * minuteYRadius,
-            paint
-        )
+            val hourXRadius = bounds.width() * watchHandLength * 0.35f
+            val hourYRadius = bounds.height() * watchHandLength * 0.35f
+
+            paint.strokeWidth = if (isActive) 8f else 5f
+            canvas.drawLine(
+                bounds.exactCenterX(),
+                bounds.exactCenterY(),
+                bounds.exactCenterX() + sin(hourRot) * hourXRadius,
+                bounds.exactCenterY() - cos(hourRot) * hourYRadius,
+                paint
+            )
+
+            val minuteXRadius = bounds.width() * watchHandLength * 0.499f
+            val minuteYRadius = bounds.height() * watchHandLength * 0.499f
+
+            paint.strokeWidth = if (isActive) 4f else 2.5f
+            canvas.drawLine(
+                bounds.exactCenterX(),
+                bounds.exactCenterY(),
+                bounds.exactCenterX() + sin(minuteRot) * minuteXRadius,
+                bounds.exactCenterY() - cos(minuteRot) * minuteYRadius,
+                paint
+            )
+        }
+    }
+
+    companion object {
+        private const val COLOR_STYLE_SETTING = "color_style_setting"
+        private const val RED_STYLE = "red_style"
+        private const val GREEN_STYLE = "green_style"
+        private const val BLUE_STYLE = "blue_style"
+
+        private const val WATCH_HAND_LENGTH_STYLE_SETTING = "watch_hand_length_style_setting"
+        private const val HOURS_DRAW_FREQ_STYLE_SETTING = "hours_draw_freq_style_setting"
+        private const val HOURS_DRAW_FREQ_MIN = 1L
+        private const val HOURS_DRAW_FREQ_MAX = 4L
+        private const val HOURS_DRAW_FREQ_DEFAULT = 3L
+        private const val NUMBER_RADIUS_FRACTION = 0.45f
+
+        private val timeText = charArrayOf('1', '0', ':', '0', '9')
+        private val secondsText = charArrayOf('3', '0')
+
+        @Px
+        private val SECONDS_TEXT_HEIGHT = 180f
+
+        @Px
+        private val TIME_TEXT_ACTIVE_HEIGHT = 64f
+
+        @Px
+        private val TIME_TEXT_AMBIENT_HEIGHT = 96f
+
+        @Px
+        private val TEXT_PADDING = 12
     }
 }

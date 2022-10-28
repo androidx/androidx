@@ -54,6 +54,21 @@
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_yellow">Yellow</string>
 
+    <!-- Name of watchface style category for selecting the hand style [CHAR LIMIT=20] -->
+    <string name="hand_style_setting" translatable="false">Hand Style</string>
+
+    <!-- Subtitle for the menu option to select the watch face hand style [CHAR LIMIT=20] -->
+    <string name="hand_style_setting_description" translatable="false">Hand visual look</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_classic" translatable="false">Classic</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_modern" translatable="false">Modern</string>
+
+    <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
+    <string name="hand_style_gothic" translatable="false">Gothic</string>
+
     <!-- An option within the analog watch face to draw pips to mark each hour [CHAR LIMIT=20] -->
     <string name="watchface_pips_setting">Hour Pips</string>
 

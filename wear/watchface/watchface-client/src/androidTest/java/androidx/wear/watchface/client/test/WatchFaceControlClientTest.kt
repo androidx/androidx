@@ -42,15 +42,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.complications.ComplicationSlotBounds
-import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
-import androidx.wear.watchface.complications.SystemDataSources
-import androidx.wear.watchface.complications.data.ComplicationText
-import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.LongTextComplicationData
-import androidx.wear.watchface.complications.data.PlainComplicationText
-import androidx.wear.watchface.complications.data.RangedValueComplicationData
-import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotBoundsType
@@ -73,24 +64,35 @@ import androidx.wear.watchface.client.InteractiveWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
+import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
+import androidx.wear.watchface.complications.data.ComplicationText
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.samples.BLUE_STYLE
-import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
-import androidx.wear.watchface.samples.COMPLICATIONS_STYLE_SETTING
-import androidx.wear.watchface.samples.DRAW_HOUR_PIPS_STYLE_SETTING
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.BLUE_STYLE
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.COLOR_STYLE_SETTING
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.COMPLICATIONS_STYLE_SETTING
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.CONFIGURABLE_DATA_SOURCE
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.CONFIGURABLE_DATA_SOURCE_PKG
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.DRAW_HOUR_PIPS_STYLE_SETTING
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.GREEN_STYLE
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.LEFT_COMPLICATION
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.NO_COMPLICATIONS
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.WATCH_HAND_LENGTH_STYLE_SETTING
 import androidx.wear.watchface.samples.ExampleOpenGLBackgroundInitWatchFaceService
-import androidx.wear.watchface.samples.GREEN_STYLE
-import androidx.wear.watchface.samples.LEFT_COMPLICATION
-import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.R
-import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -100,6 +102,12 @@ import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.Bo
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -119,12 +127,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
@@ -601,8 +603,11 @@ class WatchFaceControlClientTest {
         assertThat(flavorA.style.userStyleMap.containsKey("color_style_setting"))
         assertThat(flavorA.style.userStyleMap.containsKey("watch_hand_length_style_setting"))
         assertThat(flavorA.complications.containsKey(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID))
-        assertThat(flavorA.complications.containsKey(
-            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID))
+        assertThat(
+            flavorA.complications.containsKey(
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+            )
+        )
 
         headlessInstance.close()
     }
@@ -1080,23 +1085,23 @@ class WatchFaceControlClientTest {
         )
         (wallpaperService as TestExampleCanvasAnalogWatchFaceService)
             .watchFace.renderer.additionalContentDescriptionLabels = listOf(
-                Pair(
-                    0,
-                    ContentDescriptionLabel(
-                        PlainComplicationText.Builder("Before").build(),
-                        Rect(10, 10, 20, 20),
-                        pendingIntent1
-                    )
-                ),
-                Pair(
-                    20000,
-                    ContentDescriptionLabel(
-                        PlainComplicationText.Builder("After").build(),
-                        Rect(30, 30, 40, 40),
-                        pendingIntent2
-                    )
+            Pair(
+                0,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("Before").build(),
+                    Rect(10, 10, 20, 20),
+                    pendingIntent1
+                )
+            ),
+            Pair(
+                20000,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("After").build(),
+                    Rect(30, 30, 40, 40),
+                    pendingIntent2
                 )
             )
+        )
 
         val sysUiInterface =
             service.getInteractiveWatchFaceClientInstance("testId")!!
@@ -1273,8 +1278,8 @@ class WatchFaceControlClientTest {
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             ComponentName(
-                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
-                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
+                                CONFIGURABLE_DATA_SOURCE_PKG,
+                                CONFIGURABLE_DATA_SOURCE
                             ),
                             ComplicationType.SHORT_TEXT,
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
@@ -1308,8 +1313,8 @@ class WatchFaceControlClientTest {
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             ComponentName(
-                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
-                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
+                                CONFIGURABLE_DATA_SOURCE_PKG,
+                                CONFIGURABLE_DATA_SOURCE
                             ),
                             ComplicationType.SHORT_TEXT,
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
@@ -2448,7 +2453,8 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                 canvas: Canvas,
                 bounds: Rect,
                 zonedDateTime: ZonedDateTime
-            ) {}
+            ) {
+            }
         }
         return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
@@ -2495,7 +2501,7 @@ internal class TestComplicationStyleUpdateWatchFaceService(
                             enabled = true,
                             nameResourceId = R.string.left_complication_screen_name,
                             screenReaderNameResourceId =
-                                R.string.left_complication_screen_reader_name
+                            R.string.left_complication_screen_reader_name
                         )
                     )
                 )

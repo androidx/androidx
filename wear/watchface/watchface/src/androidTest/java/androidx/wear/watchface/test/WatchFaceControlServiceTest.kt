@@ -51,11 +51,11 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
+import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService.Companion.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat

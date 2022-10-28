@@ -70,10 +70,10 @@ import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-import androidx.wear.watchface.samples.GREEN_STYLE
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.COLOR_STYLE_SETTING
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.GREEN_STYLE
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
@@ -665,25 +665,25 @@ public class WatchFaceServiceImageTest {
             listOf(
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                        ShortTextComplicationData.Builder(
-                            PlainComplicationText.Builder("Test").build(),
-                            ComplicationText.EMPTY
-                        )
-                            .setSmallImage(smallImage)
-                            .build()
-                            .asWireComplicationData()
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
+                    )
+                        .setSmallImage(smallImage)
+                        .build()
+                        .asWireComplicationData()
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                        RangedValueComplicationData.Builder(
-                            25f,
-                            0f,
-                            100f,
-                            ComplicationText.EMPTY
-                        )
-                            .setSmallImage(smallImage)
-                            .build()
-                            .asWireComplicationData()
+                    RangedValueComplicationData.Builder(
+                        25f,
+                        0f,
+                        100f,
+                        ComplicationText.EMPTY
+                    )
+                        .setSmallImage(smallImage)
+                        .build()
+                        .asWireComplicationData()
                 )
             )
         )
