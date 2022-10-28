@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ടാസ്ക്ക് പരിധിയെത്തി\nമുന്നോട്ട് പോകുന്നത് ആപ്പ് നിർബന്ധിതമായി നിർത്താൻ കാരണമാകും"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ടാസ്ക്ക് ഘട്ടങ്ങളിൽ %1$d -ാമത്തേത്"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"മുന്നോട്ട് പോകാൻ ക്ലിക്ക് ചെയ്യുക"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ടോഗിൾ ബട്ടൺ ഡെമോ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ടെസ്റ്റ് മാറ്റുക"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"സ്റ്റേറ്റ്ഫുള്ളായ മാറ്റങ്ങൾ അനുവദനീയമാണ്"</string>
@@ -305,22 +307,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"ബാക്ക് ഓപ്പറേഷനുകളിൽ അപ്ഡേറ്റുകൾ അനുവദിക്കുന്നു."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"ടോഗിൾ ടെസ്‌റ്റ് പ്രവർത്തനക്ഷമമാക്കി"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ടോഗിൾ ടെസ്‌റ്റ് പ്രവർത്തനരഹിതമാക്കി"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"സെക്കൻഡറി പ്രവർത്തനവും ഡെക്കറേഷൻ ഡെമോയും"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"സെക്കൻഡറി പ്രവർത്തന ടെസ്റ്റ്"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"സെക്കൻഡറി പ്രവർത്തനം മാത്രമേ തിരഞ്ഞെടുക്കാനാകൂ"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"ഡെക്കറേഷൻ ടെസ്റ്റ്"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"സെക്കൻഡറി പ്രവർത്തനങ്ങളും ഡെക്കറേഷനും"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"വരിയും തിരഞ്ഞെടുക്കാവുന്നതാണ്"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"സെക്കൻഡറി പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"വരിയുടെ പ്രാഥമിക പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"പലവക ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ഡെമോകൾ ഷോക്കേസ് ചെയ്യുക"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ടെംപ്ലേറ്റ് ലേഔട്ട് ഡെമോകൾ"</string>
@@ -328,6 +322,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access ഡെമോ സ്ക്രീൻ"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ഉപയോക്തൃ ഇടപഴകലുകൾ"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"അനുമതി ഡെമോകൾ അഭ്യർത്ഥിക്കുക"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"അനുമതി ഗ്രൂപ്പ്"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase ആപ്പിനുള്ള അനുമതി ഗ്രൂപ്പ്"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"ഫൈൻ ലൊക്കേഷനിലേക്കുള്ള ആക്സസ്"</string>

@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ಕಾರ್ಯದ ಮಿತಿಯನ್ನು ತಲುಪಿದ್ದೀರಿ\nಮುಂದುವರಿಸಿದರೆ ಆ್ಯಪ್ ಅನ್ನು ಬಲವಂತವಾಗಿ ನಿಲ್ಲಿಸಲಾಗುತ್ತದೆ"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"ಕಾರ್ಯದ ಹಂತ %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ಮುಂದೆ ಹೋಗಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ಟಾಗಲ್ ಬಟನ್ ಡೆಮೋ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ಟಾಗಲ್ ಟೆಸ್ಟ್"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ಪುನಃ ಸ್ಥಾಪಿಸಬಹುದಾದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"ಧ್ವನಿ ಆ್ಯಕ್ಸೆಸ್ ಡೆಮೋ ಸ್ಕ್ರೀನ್"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ಬಳಕೆದಾರರ ಸಂವಹನಗಳು"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"ಅನುಮತಿಗಳ ಡೆಮೋಗಳನ್ನು ವಿನಂತಿಸಿ"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"ಅನುಮತಿ ಗುಂಪು"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"ಶೋಕೇಸ್ ಆ್ಯಪ್‌ನ ಅನುಮತಿ ಗುಂಪು"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"ನಿಖರವಾದ ಸ್ಥಳಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್"</string>

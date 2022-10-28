@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"টগল বোতাম সংক্রান্ত ডেমো"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"টগল টেস্ট"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"\'ভয়েস অ্যাক্সেস\' অ্যাপের ডেমো স্ক্রিন"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ব্যবহারকারীর ইন্টার‍্যাকশন"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"অনুমতি সংক্রান্ত ডেমোর জন্য অনুরোধ জানানো"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"অনুমতি সংক্রান্ত গ্রুপ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase অ্যাপের জন্য অনুমতি সংক্রান্ত গ্রুপ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"সুনির্দিষ্ট লোকেশনে অ্যাক্সেস"</string>
