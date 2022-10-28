@@ -155,7 +155,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
 
         override fun onLayerDestroyed() {
-            release(true)
+            detachTargets(true)
         }
 
         override fun obtainDoubleBufferedLayerParams(): MutableCollection<T>? =
@@ -282,8 +282,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
         renderer.registerEGLContextCallback(mContextCallbacks)
 
-        mDoubleBufferedLayerRenderTarget =
-            mParentRenderLayer.createRenderTarget(renderer, mCallback)
         mGLRenderer = renderer
 
         mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
@@ -292,7 +290,11 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     internal fun update(width: Int, height: Int) {
-        if (mWidth != width || mHeight != height) {
+        if (mWidth != width || mHeight != height && isValid()) {
+
+            mDoubleBufferedLayerRenderTarget?.detach(true)
+            val doubleBufferTarget = mParentRenderLayer.createRenderTarget(mGLRenderer, mCallback)
+
             mFrontBufferedLayerSurfaceControl?.release()
 
             val frontBufferedSurfaceControl = SurfaceControlCompat.Builder()
@@ -351,6 +353,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
             mFrontBufferedLayerRenderer = frontBufferedLayerRenderer
             mFrontBufferedLayerSurfaceControl = frontBufferedSurfaceControl
+            mDoubleBufferedLayerRenderTarget = doubleBufferTarget
             mBufferPool = bufferPool
             mWidth = width
             mHeight = height
@@ -424,24 +427,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
-     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
-     * pending requests to render into the front or double buffered layers will be processed before
-     * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
-     * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
-     * method does nothing.
-     *
-     * @param cancelPending Flag indicating that requests to render should be processed before
-     * the [GLFrontBufferedRenderer] is released
-     * @param onReleaseComplete Optional callback invoked when the [GLFrontBufferedRenderer] has
-     * been released. This callback is invoked on the backing GLThread
+     * Helper method used to detach the front and multi buffered render targets as well as
+     * release SurfaceControl instances
      */
-    @JvmOverloads
-    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
-        if (!isValid()) {
-            Log.w(TAG, "Attempt to release GLFrontbufferedRenderer that is already released")
-            return
-        }
+    internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         // Wrap the callback into a separate lambda to ensure it is invoked only after
         // both the front and double buffered layer target renderers are detached
         var callbackCount = 0
@@ -471,10 +460,35 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 onReleaseComplete?.invoke()
             }
         }
+        mFrontBufferedLayerSurfaceControl = null
         mFrontBufferedRenderTarget?.detach(cancelPending, wrappedCallback)
         mDoubleBufferedLayerRenderTarget?.detach(cancelPending, wrappedCallback)
         mFrontBufferedRenderTarget = null
         mDoubleBufferedLayerRenderTarget = null
+        mWidth = -1
+        mHeight = -1
+    }
+
+    /**
+     * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
+     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
+     * pending requests to render into the front or double buffered layers will be processed before
+     * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
+     * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
+     * method does nothing.
+     *
+     * @param cancelPending Flag indicating that requests to render should be processed before
+     * the [GLFrontBufferedRenderer] is released
+     * @param onReleaseComplete Optional callback invoked when the [GLFrontBufferedRenderer] has
+     * been released. This callback is invoked on the backing GLThread
+     */
+    @JvmOverloads
+    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
+        if (!isValid()) {
+            Log.w(TAG, "Attempt to release GLFrontbufferedRenderer that is already released")
+            return
+        }
+        detachTargets(cancelPending, onReleaseComplete)
 
         mGLRenderer.unregisterEGLContextCallback(mContextCallbacks)
         if (mIsManagingGLRenderer) {
@@ -486,8 +500,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mGLRenderer.stop(false)
         }
 
-        mFrontBufferedLayerSurfaceControl = null
-        mParentRenderLayer.setParentLayerCallbacks(null)
         mExecutor.shutdown()
         mIsReleased = true
     }
