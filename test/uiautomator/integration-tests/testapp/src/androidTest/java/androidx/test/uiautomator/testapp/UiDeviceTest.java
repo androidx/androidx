@@ -355,36 +355,38 @@ public class UiDeviceTest extends BaseTest {
     @Test
     public void testSetOrientationLeft() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
-
-        assertTrue(mDevice.isNaturalOrientation());
-        assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-        mDevice.setOrientationLeft();
-        // Make the device wait for 1 sec for the rotation animation to finish.
-        SystemClock.sleep(1_000);
-        assertFalse(mDevice.isNaturalOrientation());
-        assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
-
-        mDevice.setOrientationNatural();
-        SystemClock.sleep(1_000);
-        assertTrue(mDevice.isNaturalOrientation());
+        try {
+            assertTrue(mDevice.isNaturalOrientation());
+            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            mDevice.setOrientationLeft();
+            // Make the device wait for 1 sec for the rotation animation to finish.
+            SystemClock.sleep(1_000);
+            assertFalse(mDevice.isNaturalOrientation());
+            assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
+            mDevice.setOrientationNatural();
+            SystemClock.sleep(1_000);
+            assertTrue(mDevice.isNaturalOrientation());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
     }
 
     @Test
     public void testSetOrientationRight() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
-
-        assertTrue(mDevice.isNaturalOrientation());
-        assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-        mDevice.setOrientationRight();
-        SystemClock.sleep(1_000);
-        assertFalse(mDevice.isNaturalOrientation());
-        assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
-
-        mDevice.setOrientationNatural();
-        SystemClock.sleep(1_000);
-        assertTrue(mDevice.isNaturalOrientation());
+        try {
+            assertTrue(mDevice.isNaturalOrientation());
+            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            mDevice.setOrientationRight();
+            SystemClock.sleep(1_000);
+            assertFalse(mDevice.isNaturalOrientation());
+            assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
+            mDevice.setOrientationNatural();
+            SystemClock.sleep(1_000);
+            assertTrue(mDevice.isNaturalOrientation());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
     }
 
     @Test
