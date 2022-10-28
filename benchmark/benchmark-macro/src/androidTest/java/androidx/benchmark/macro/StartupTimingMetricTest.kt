@@ -129,10 +129,18 @@ class StartupTimingMetricTest {
                 scope.startActivityAndWait(launchIntent)
             }
 
-            if (delayMs > 0) {
+            if (useInAppNav) {
+                // in app nav destinations always have different strings to differentiate
+                // vs the first activity's strings to prevent races
+                awaitActivityText(
+                    if (delayMs > 0) {
+                        ConfigurableActivity.INNER_ACTIVITY_FULLY_DRAWN_TEXT
+                    } else {
+                        ConfigurableActivity.INNER_ACTIVITY_TEXT
+                    }
+                )
+            } else if (delayMs > 0) {
                 awaitActivityText(ConfigurableActivity.FULLY_DRAWN_TEXT)
-            } else if (useInAppNav) {
-                awaitActivityText(ConfigurableActivity.INNER_ACTIVITY_TEXT)
             }
         }
 
