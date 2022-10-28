@@ -16,11 +16,16 @@
 
 package androidx.benchmark.macro.perfetto.server
 
+import android.os.Build
+import android.security.NetworkSecurityPolicy
 import android.util.Log
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.userspaceTrace
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.ConnectException
@@ -94,6 +99,21 @@ internal class PerfettoHttpServer(private val port: Int) {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
             return@userspaceTrace
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+            !Api24Impl.isCleartextTrafficPermittedForLocalhost()
+        ) {
+            throw IOException(
+                """
+                Macrobenchmark requires cleartext HTTP traffic to the on-device localhost to enable
+                querying data from perfetto traces, such as timestamps that are used to calculate
+                metrics. This should be enabled by default via manifest merging when building with
+                Gradle.  Please refer to
+                https://d.android.com/training/articles/security-config#CleartextTrafficPermitted
+                and enable cleartext http requests towards localhost in your test android manifest.
+            """.trimIndent()
+            )
         }
 
         val shellScript = getOrCreateShellScript().start(port.toString())
@@ -239,4 +259,11 @@ internal class PerfettoHttpServer(private val port: Int) {
             return value
         }
     }
+}
+
+@RequiresApi(24)
+private object Api24Impl {
+    @DoNotInline
+    fun isCleartextTrafficPermittedForLocalhost() =
+        NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost")
 }
