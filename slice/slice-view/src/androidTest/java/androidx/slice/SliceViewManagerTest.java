@@ -117,7 +117,10 @@ public class SliceViewManagerTest {
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
                 .build();
-        Uri longerUri = uri.buildUpon().appendPath("something").build();
+        Uri longerUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(mContext.getPackageName())
+                .appendPath("something").build();
         try {
             mViewManager.pinSlice(uri);
             mViewManager.pinSlice(longerUri);
