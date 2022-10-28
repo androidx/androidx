@@ -55,6 +55,7 @@ public class WebSettingsCompatLightThemeTest extends
     /**
      * Test web content is always light regardless the algorithmic darkening is allowed or not.
      */
+    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testSimplifiedDarkMode_rendersLight() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
@@ -79,6 +80,7 @@ public class WebSettingsCompatLightThemeTest extends
     /**
      * Test web content is always light (if supported) on the light theme app.
      */
+    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);

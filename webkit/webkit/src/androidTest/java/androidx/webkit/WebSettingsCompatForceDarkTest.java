@@ -135,6 +135,7 @@ public class WebSettingsCompatForceDarkTest extends
      */
     @SuppressWarnings("deprecation")
     @FlakyTest(bugId = 240432254)
+    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
