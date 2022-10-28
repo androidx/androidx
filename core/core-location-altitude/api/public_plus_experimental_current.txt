@@ -1,1 +1,9 @@
 // Signature format: 4.0
+package androidx.core.location.altitude {
+
+  public final class AltitudeConverterCompat {
+    method public static com.google.common.util.concurrent.ListenableFuture<android.location.Location!> addMslAltitudeAsync(android.content.Context, android.location.Location);
+  }
+
+}
+
