@@ -30,12 +30,17 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentArchLifecycleTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testFragmentAdditionDuringOnStop() {

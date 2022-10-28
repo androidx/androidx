@@ -34,12 +34,17 @@ import androidx.testutils.RecreatedActivity
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentSavedStateRegistryTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     private fun ActivityScenario<FragmentSavedStateActivity>.initializeSavedState(
         testFragment: Fragment = Fragment()

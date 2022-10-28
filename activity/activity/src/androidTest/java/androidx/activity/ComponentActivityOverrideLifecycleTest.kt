@@ -25,13 +25,18 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityOverrideLifecycleTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @UiThreadTest
     @Test

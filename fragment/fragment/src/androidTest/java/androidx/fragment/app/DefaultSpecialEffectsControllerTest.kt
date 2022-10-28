@@ -24,6 +24,8 @@ import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -31,6 +33,10 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class DefaultSpecialEffectsControllerTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun fragmentManagerGetSetSpecialEffectsController() {
        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
