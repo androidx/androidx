@@ -19,7 +19,6 @@ package androidx.room.solver.types
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.CodeBlock
 
 /**
  * A [TypeConverter] that has only 1 statement (e.g. foo ? bar : baz).
@@ -47,7 +46,7 @@ abstract class SingleStatementTypeConverter(
     }
 
     /**
-     * Returns a [CodeBlock] that will compute the [to] value.
+     * Returns a [XCodeBlock] that will compute the [to] value.
      */
     abstract fun buildStatement(
         inputVarName: String,
