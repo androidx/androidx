@@ -37,7 +37,6 @@ import androidx.room.ext.RoomPagingRx3TypeNames
 import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
@@ -305,10 +304,7 @@ object COMMON {
     }
 
     val ROOM_DATABASE_KTX by lazy {
-        loadJavaCode(
-            "common/input/RoomDatabaseKt.java",
-            RoomTypeNames.ROOM_DB_KT.toString()
-        )
+        loadKotlinCode("common/input/RoomDatabaseExt.kt")
     }
 }
 

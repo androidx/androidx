@@ -17,11 +17,10 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Connects the delete or update method, the database and the [DeleteOrUpdateMethodAdapter].
@@ -56,8 +55,8 @@ abstract class DeleteOrUpdateMethodBinder(val adapter: DeleteOrUpdateMethodAdapt
      */
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, TypeSpec>>,
-        dbField: FieldSpec,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     )
 }

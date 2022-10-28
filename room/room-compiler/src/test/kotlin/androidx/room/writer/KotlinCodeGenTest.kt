@@ -755,6 +755,205 @@ class KotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun transactionMethodAdapter_interface(
+        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
+        jvmDefaultMode: JvmDefaultMode
+    ) {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.sqlite.db.SupportSQLiteQuery
+
+            interface BaseDao {
+                @Transaction
+                open fun baseConcrete() {
+                }
+
+                @Transaction
+                open suspend fun baseSuspendConcrete() {
+                }
+            }
+
+            @Dao
+            interface MyDao : BaseDao {
+              @Transaction
+              fun concrete() {
+              }
+
+              @Transaction
+              fun concreteWithReturn(): String {
+                TODO("")
+              }
+
+              @Transaction
+              fun concreteWithParamsAndReturn(text: String, num: Long): String {
+                TODO("")
+              }
+
+              @Transaction
+              fun concreteWithFunctionalParam(block: () -> Unit) {
+              }
+
+              @Transaction
+              suspend fun suspendConcrete() {
+
+              }
+
+              @Transaction
+              suspend fun suspendConcreteWithReturn(): String {
+                TODO("")
+              }
+
+              @Transaction
+              suspend fun suspendConcreteWithSuspendFunctionalParam(block: suspend () -> Unit) {
+              }
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
+            expectedFilePath = getTestGoldenPath(testName),
+            jvmDefaultMode = jvmDefaultMode
+        )
+    }
+
+    @Test
+    fun transactionMethodAdapter_abstractClass() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.sqlite.db.SupportSQLiteQuery
+
+            interface BaseDao {
+                @Transaction
+                open fun baseConcrete() {
+                }
+
+                @Transaction
+                open suspend fun baseSuspendConcrete() {
+                }
+            }
+
+            @Dao
+            abstract class MyDao : BaseDao {
+              @Transaction
+              open fun concrete() {
+              }
+
+              @Transaction
+              open fun concreteInternal() {
+              }
+
+              @Transaction
+              open suspend fun suspendConcrete() {
+
+              }
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
+            expectedFilePath = getTestGoldenPath(testName),
+        )
+    }
+
+    @Test
+    fun deleteOrUpdateMethodAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Update
+              fun updateEntity(item: MyEntity)
+
+              @Delete
+              fun deleteEntity(item: MyEntity)
+
+              @Update
+              fun updateEntityAndReturnCount(item: MyEntity): Int
+
+              @Delete
+              fun deleteEntityAndReturnCount(item: MyEntity): Int
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+                val data: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun insertOrUpsertMethodAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Insert
+              fun insertEntity(item: MyEntity)
+
+              @Upsert
+              fun upsertEntity(item: MyEntity)
+
+              @Insert
+              fun insertEntityAndReturnRowId(item: MyEntity): Long
+
+              @Upsert
+              fun upsertEntityAndReturnRowId(item: MyEntity): Long
+
+              @Insert
+              fun insertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long>
+
+              @Upsert
+              fun upsertEntityListAndReturnRowIds(items: List<MyEntity>): List<Long>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Long,
+                val data: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

@@ -190,7 +190,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.jvmName, callType)
+            TransactionMethodAdapter(executableElement.name, executableElement.jvmName, callType)
         )
 }
 
@@ -206,7 +206,7 @@ class SuspendMethodProcessorDelegate(
 
     private val continuationParam: XVariableElement by lazy {
         val continuationType = context.processingEnv
-            .requireType(KotlinTypeNames.CONTINUATION.toString()).rawType
+            .requireType(KotlinTypeNames.CONTINUATION).rawType
         executableElement.parameters.last {
             it.type.rawType == continuationType
         }
@@ -300,8 +300,12 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
+            adapter = TransactionMethodAdapter(
+                executableElement.name,
+                executableElement.jvmName,
+                callType
+            ),
             continuationParamName = continuationParam.name,
-            useLambdaSyntax = context.processingEnv.jvmVersion >= 8
+            javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
         )
 }

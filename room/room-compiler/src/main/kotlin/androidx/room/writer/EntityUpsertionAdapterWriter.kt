@@ -16,17 +16,12 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
-import androidx.room.ext.T
+import androidx.room.ext.RoomTypeNames
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.ParameterizedTypeName
 
-// TODO b/240736981 need to implement the writer's test
 class EntityUpsertionAdapterWriter private constructor(
     val tableName: String,
     val pojo: Pojo
@@ -44,16 +39,17 @@ class EntityUpsertionAdapterWriter private constructor(
         entity: ShortcutEntity,
         typeWriter: TypeWriter,
         dbProperty: XPropertySpec
-    ): CodeBlock {
-        val upsertionAdapter = ParameterizedTypeName.get(
-            UPSERTION_ADAPTER.toJavaPoet(), pojo.typeName.toJavaPoet()
-        )
+    ): XCodeBlock {
+        val upsertionAdapter = RoomTypeNames.UPSERTION_ADAPTER.parametrizedBy(pojo.typeName)
         val insertionHelper = EntityInsertionAdapterWriter.create(entity, "")
-            .createAnonymous(typeWriter, dbProperty).toJavaPoet()
+            .createAnonymous(typeWriter, dbProperty)
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "")
             .createAnonymous(typeWriter, dbProperty.name)
-        return CodeBlock.builder().add("new $T($L, $L)",
-            upsertionAdapter, insertionHelper, updateHelper
-        ).build()
+        return XCodeBlock.ofNewInstance(
+            language = typeWriter.codeLanguage,
+            typeName = upsertionAdapter,
+            argsFormat = "%L, %L",
+            args = arrayOf(insertionHelper, updateHelper)
+        )
     }
 }

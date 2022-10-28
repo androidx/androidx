@@ -41,91 +41,96 @@ public final class UpdateDao_Impl implements UpdateDao {
     this.__db = __db;
     this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
       }
 
       @Override
-      public void bind(SupportSQLiteStatement stmt, User value) {
-        stmt.bindLong(1, value.uid);
-        if (value.name == null) {
-          stmt.bindNull(2);
+      public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
         } else {
-          stmt.bindString(2, value.name);
+          statement.bindString(2, entity.name);
         }
-        if (value.getLastName() == null) {
-          stmt.bindNull(3);
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
         } else {
-          stmt.bindString(3, value.getLastName());
+          statement.bindString(3, entity.getLastName());
         }
-        stmt.bindLong(4, value.age);
-        stmt.bindLong(5, value.uid);
+        statement.bindLong(4, entity.age);
+        statement.bindLong(5, entity.uid);
       }
     };
     this.__updateAdapterOfUser_1 = new EntityDeletionOrUpdateAdapter<User>(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
       }
 
       @Override
-      public void bind(SupportSQLiteStatement stmt, User value) {
-        stmt.bindLong(1, value.uid);
-        if (value.name == null) {
-          stmt.bindNull(2);
+      public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
         } else {
-          stmt.bindString(2, value.name);
+          statement.bindString(2, entity.name);
         }
-        if (value.getLastName() == null) {
-          stmt.bindNull(3);
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
         } else {
-          stmt.bindString(3, value.getLastName());
+          statement.bindString(3, entity.getLastName());
         }
-        stmt.bindLong(4, value.age);
-        stmt.bindLong(5, value.uid);
+        statement.bindLong(4, entity.age);
+        statement.bindLong(5, entity.uid);
       }
     };
     this.__updateAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         return "UPDATE OR ABORT `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
       }
 
       @Override
-      public void bind(SupportSQLiteStatement stmt, MultiPKeyEntity value) {
-        if (value.name == null) {
-          stmt.bindNull(1);
+      public void bind(@NonNull final SupportSQLiteStatement statement,
+              final MultiPKeyEntity entity) {
+        if (entity.name == null) {
+          statement.bindNull(1);
         } else {
-          stmt.bindString(1, value.name);
+          statement.bindString(1, entity.name);
         }
-        if (value.lastName == null) {
-          stmt.bindNull(2);
+        if (entity.lastName == null) {
+          statement.bindNull(2);
         } else {
-          stmt.bindString(2, value.lastName);
+          statement.bindString(2, entity.lastName);
         }
-        if (value.name == null) {
-          stmt.bindNull(3);
+        if (entity.name == null) {
+          statement.bindNull(3);
         } else {
-          stmt.bindString(3, value.name);
+          statement.bindString(3, entity.name);
         }
-        if (value.lastName == null) {
-          stmt.bindNull(4);
+        if (entity.lastName == null) {
+          statement.bindNull(4);
         } else {
-          stmt.bindString(4, value.lastName);
+          statement.bindString(4, entity.lastName);
         }
       }
     };
     this.__updateAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
       @Override
+      @NonNull
       public String createQuery() {
         return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
       }
 
       @Override
-      public void bind(SupportSQLiteStatement stmt, Book value) {
-        stmt.bindLong(1, value.bookId);
-        stmt.bindLong(2, value.uid);
-        stmt.bindLong(3, value.bookId);
+      public void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
+        statement.bindLong(1, entity.bookId);
+        statement.bindLong(2, entity.uid);
+        statement.bindLong(3, entity.bookId);
       }
     };
     this.__preparedStmtOfAgeUserByUid = new SharedSQLiteStatement(__db) {
@@ -202,7 +207,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     int _total = 0;
     __db.beginTransaction();
     try {
-      _total +=__updateAdapterOfUser.handle(user);
+      _total += __updateAdapterOfUser.handle(user);
       __db.setTransactionSuccessful();
       return _total;
     } finally {
@@ -216,8 +221,8 @@ public final class UpdateDao_Impl implements UpdateDao {
     int _total = 0;
     __db.beginTransaction();
     try {
-      _total +=__updateAdapterOfUser.handle(user1);
-      _total +=__updateAdapterOfUser.handleMultiple(others);
+      _total += __updateAdapterOfUser.handle(user1);
+      _total += __updateAdapterOfUser.handleMultiple(others);
       __db.setTransactionSuccessful();
       return _total;
     } finally {
@@ -231,7 +236,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     int _total = 0;
     __db.beginTransaction();
     try {
-      _total +=__updateAdapterOfUser.handleMultiple(users);
+      _total += __updateAdapterOfUser.handleMultiple(users);
       __db.setTransactionSuccessful();
       return _total;
     } finally {
@@ -245,7 +250,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     int _total = 0;
     __db.beginTransaction();
     try {
-      _total +=__updateAdapterOfUser.handle(user);
+      _total += __updateAdapterOfUser.handle(user);
       __db.setTransactionSuccessful();
       return _total;
     } finally {
@@ -278,7 +283,7 @@ public final class UpdateDao_Impl implements UpdateDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-          _total +=__updateAdapterOfUser.handle(user);
+          _total += __updateAdapterOfUser.handle(user);
           __db.setTransactionSuccessful();
           return _total;
         } finally {
@@ -296,7 +301,7 @@ public final class UpdateDao_Impl implements UpdateDao {
         int _total = 0;
         __db.beginTransaction();
         try {
-          _total +=__updateAdapterOfUser.handle(user);
+          _total += __updateAdapterOfUser.handle(user);
           __db.setTransactionSuccessful();
           return _total;
         } finally {
@@ -312,7 +317,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     int _total = 0;
     __db.beginTransaction();
     try {
-      _total +=__updateAdapterOfMultiPKeyEntity.handle(entity);
+      _total += __updateAdapterOfMultiPKeyEntity.handle(entity);
       __db.setTransactionSuccessful();
       return _total;
     } finally {

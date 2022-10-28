@@ -132,7 +132,6 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
             )
         }
 
-        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         private fun getReturnType(returnType: XType): ReturnType? {
             return if (returnType.isVoid()) {
                 ReturnType.VOID
@@ -250,11 +249,11 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
         SINGLE_ID("AndReturnId", XTypeName.PRIMITIVE_LONG), // return long
         ID_ARRAY(
             "AndReturnIdsArray",
-            XTypeName.getArrayTypeName(XTypeName.PRIMITIVE_LONG)
+            XTypeName.getArrayName(XTypeName.PRIMITIVE_LONG)
         ), // return long[]
         ID_ARRAY_BOX(
             "AndReturnIdsArrayBox",
-            XTypeName.getArrayTypeName(Long::class.asClassName())
+            XTypeName.getArrayName(Long::class.asClassName())
         ), // return Long[]
         ID_LIST(
             "AndReturnIdsList",
