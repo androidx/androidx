@@ -16,7 +16,58 @@
 package androidx.health.connect.client.permission
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import kotlin.reflect.KClass
 
 /**
@@ -44,14 +95,50 @@ internal constructor(
         }
 
         /**
+         * Returns a permission defined in [HealthPermission] to read provided [recordType], such as
+         * `Steps::class`.
+         *
+         * @return Permission to use with [androidx.health.connect.client.PermissionController].
+         * @throws IllegalArgumentException if the given record type is invalid.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+        @JvmStatic
+        public fun createReadPermissionInternal(recordType: KClass<out Record>): String {
+            if (RECORD_TYPE_TO_PERMISSION[recordType] == null) {
+                throw IllegalArgumentException(
+                    "Given recordType is not valid : $recordType.simpleName"
+                )
+            }
+            return READ_PERMISSION_PREFIX + RECORD_TYPE_TO_PERMISSION[recordType]
+        }
+
+        /**
          * Creates [HealthPermission] to write provided [recordType], such as `Steps::class`.
          *
-         * @return Permission object to use with
-         * [androidx.health.connect.client.PermissionController].
+         * @return Permission to use with [androidx.health.connect.client.PermissionController].
          */
         @JvmStatic
         public fun createWritePermission(recordType: KClass<out Record>): HealthPermission {
             return HealthPermission(recordType, AccessTypes.WRITE)
+        }
+
+        /**
+         * Returns a permission defined in [HealthPermission] to read provided [recordType], such as
+         * `Steps::class`.
+         *
+         * @return Permission object to use with
+         * [androidx.health.connect.client.PermissionController].
+         * @throws IllegalArgumentException if the given record type is invalid.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // Not yet ready for public
+        @JvmStatic
+        public fun createWritePermissionInternal(recordType: KClass<out Record>): String {
+            if (RECORD_TYPE_TO_PERMISSION[recordType] == null) {
+                throw IllegalArgumentException(
+                    "Given recordType is not valid : $recordType.simpleName"
+                )
+            }
+            return WRITE_PERMISSION_PREFIX + RECORD_TYPE_TO_PERMISSION.getOrDefault(recordType, "")
         }
 
         // Read permissions for ACTIVITY.
@@ -230,6 +317,99 @@ internal constructor(
         const val WRITE_RESPIRATORY_RATE = "android.permission.health.WRITE_RESPIRATORY_RATE"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val WRITE_RESTING_HEART_RATE = "android.permission.health.WRITE_RESTING_HEART_RATE"
+
+        private const val READ_PERMISSION_PREFIX = "android.permission.health.READ_"
+
+        private const val WRITE_PERMISSION_PREFIX = "android.permission.health.WRITE_"
+
+        private val RECORD_TYPE_TO_PERMISSION =
+            mapOf<KClass<out Record>, String>(
+                ActiveCaloriesBurnedRecord::class to
+                    READ_ACTIVE_CALORIES_BURNED.substringAfter(READ_PERMISSION_PREFIX),
+                BasalBodyTemperatureRecord::class to
+                    READ_BASAL_BODY_TEMPERATURE.substringAfter(READ_PERMISSION_PREFIX),
+                BasalMetabolicRateRecord::class to
+                    READ_BASAL_METABOLIC_RATE.substringAfter(READ_PERMISSION_PREFIX),
+                BloodGlucoseRecord::class to
+                    READ_BLOOD_GLUCOSE.substringAfter(READ_PERMISSION_PREFIX),
+                BloodPressureRecord::class to
+                    READ_BLOOD_PRESSURE.substringAfter(READ_PERMISSION_PREFIX),
+                BodyFatRecord::class to READ_BODY_FAT.substringAfter(READ_PERMISSION_PREFIX),
+                BodyTemperatureRecord::class to
+                    READ_BODY_TEMPERATURE.substringAfter(READ_PERMISSION_PREFIX),
+                BodyWaterMassRecord::class to
+                    READ_BODY_WATER_MASS.substringAfter(READ_PERMISSION_PREFIX),
+                BoneMassRecord::class to READ_BONE_MASS.substringAfter(READ_PERMISSION_PREFIX),
+                CervicalMucusRecord::class to
+                    READ_CERVICAL_MUCUS.substringAfter(READ_PERMISSION_PREFIX),
+                CyclingPedalingCadenceRecord::class to
+                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                DistanceRecord::class to READ_DISTANCE.substringAfter(READ_PERMISSION_PREFIX),
+                ElevationGainedRecord::class to
+                    READ_ELEVATION_GAINED.substringAfter(READ_PERMISSION_PREFIX),
+                ExerciseEventRecord::class to READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                ExerciseLapRecord::class to READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                ExerciseRepetitionsRecord::class to
+                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                ExerciseSessionRecord::class to
+                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                FloorsClimbedRecord::class to
+                    READ_FLOORS_CLIMBED.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateRecord::class to READ_HEART_RATE.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilityDifferentialIndexRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilityRmssdRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySd2Record::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySdannRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySdnnIndexRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySdnnRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySdsdRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilitySRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeartRateVariabilityTinnRecord::class to
+                    READ_HEART_RATE_VARIABILITY.substringAfter(READ_PERMISSION_PREFIX),
+                HeightRecord::class to READ_HEIGHT.substringAfter(READ_PERMISSION_PREFIX),
+                HipCircumferenceRecord::class to
+                    READ_HIP_CIRCUMFERENCE.substringAfter(READ_PERMISSION_PREFIX),
+                HydrationRecord::class to READ_HYDRATION.substringAfter(READ_PERMISSION_PREFIX),
+                LeanBodyMassRecord::class to
+                    READ_LEAN_BODY_MASS.substringAfter(READ_PERMISSION_PREFIX),
+                MenstruationFlowRecord::class to
+                    READ_MENSTRUATION.substringAfter(READ_PERMISSION_PREFIX),
+                NutritionRecord::class to READ_NUTRITION.substringAfter(READ_PERMISSION_PREFIX),
+                OvulationTestRecord::class to
+                    READ_OVULATION_TEST.substringAfter(READ_PERMISSION_PREFIX),
+                OxygenSaturationRecord::class to
+                    READ_OXYGEN_SATURATION.substringAfter(READ_PERMISSION_PREFIX),
+                PowerRecord::class to READ_POWER.substringAfter(READ_PERMISSION_PREFIX),
+                RespiratoryRateRecord::class to
+                    READ_RESPIRATORY_RATE.substringAfter(READ_PERMISSION_PREFIX),
+                RestingHeartRateRecord::class to
+                    READ_RESTING_HEART_RATE.substringAfter(READ_PERMISSION_PREFIX),
+                SexualActivityRecord::class to
+                    READ_SEXUAL_ACTIVITY.substringAfter(READ_PERMISSION_PREFIX),
+                SleepSessionRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
+                SleepStageRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
+                SpeedRecord::class to READ_SPEED.substringAfter(READ_PERMISSION_PREFIX),
+                StepsCadenceRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
+                StepsRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
+                SwimmingStrokesRecord::class to
+                    READ_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
+                TotalCaloriesBurnedRecord::class to
+                    READ_TOTAL_CALORIES_BURNED.substringAfter(READ_PERMISSION_PREFIX),
+                Vo2MaxRecord::class to READ_VO2_MAX.substringAfter(READ_PERMISSION_PREFIX),
+                WaistCircumferenceRecord::class to
+                    READ_WAIST_CIRCUMFERENCE.substringAfter(READ_PERMISSION_PREFIX),
+                WeightRecord::class to READ_WEIGHT.substringAfter(READ_PERMISSION_PREFIX),
+                WheelchairPushesRecord::class to
+                    READ_WHEELCHAIR_PUSHES.substringAfter(READ_PERMISSION_PREFIX),
+            )
     }
 
     override fun equals(other: Any?): Boolean {
