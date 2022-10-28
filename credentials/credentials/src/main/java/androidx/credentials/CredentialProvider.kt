@@ -55,7 +55,7 @@ interface CredentialProvider {
      */
     fun onGetCredential(
         request: GetCredentialRequest,
-        activity: Activity?,
+        activity: Activity?, // TODO("Update on optionality")
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse>,
