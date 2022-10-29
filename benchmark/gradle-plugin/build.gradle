@@ -32,7 +32,6 @@ dependencies {
 
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
 }
