@@ -85,6 +85,10 @@ public class UiDevice implements Searchable {
     private final DisplayManager mDisplayManager;
     private final WaitMixin<UiDevice> mWaitMixin = new WaitMixin<>(this);
 
+    // Track accessibility service flags to determine when the underlying connection has changed.
+    private int mCachedServiceFlags = -1;
+    private boolean mCompressed = false;
+
     // Lazily created UI context per display, used to access UI components/configurations.
     private final Map<Integer, Context> mUiContexts = new HashMap<>();
 
@@ -96,17 +100,10 @@ public class UiDevice implements Searchable {
     /** Private constructor. Clients should use {@link UiDevice#getInstance(Instrumentation)}. */
     UiDevice(Instrumentation instrumentation) {
         mInstrumentation = instrumentation;
-        mQueryController = new QueryController(instrumentation);
-        mInteractionController = new InteractionController(instrumentation);
+        mQueryController = new QueryController(this);
+        mInteractionController = new InteractionController(this);
         mDisplayManager = (DisplayManager) instrumentation.getContext().getSystemService(
                 Service.DISPLAY_SERVICE);
-
-        // Enable multi-window support by subscribing to window information for API 21+.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
-            info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
-            getUiAutomation().setServiceInfo(info);
-        }
     }
 
     boolean isInWatcherContext() {
@@ -223,12 +220,8 @@ public class UiDevice implements Searchable {
      * @param compressed true to enable compression; else, false to disable
      */
     public void setCompressedLayoutHeirarchy(boolean compressed) {
-        AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
-        if (compressed)
-            info.flags &= ~AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
-        else
-            info.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
-        getUiAutomation().setServiceInfo(info);
+        mCompressed = compressed;
+        mCachedServiceFlags = -1; // Reset cached accessibility service flags to force an update.
     }
 
     /**
@@ -1107,21 +1100,39 @@ public class UiDevice implements Searchable {
         return context;
     }
 
-    static UiAutomation getUiAutomation(final Instrumentation instrumentation) {
+    UiAutomation getUiAutomation() {
+        UiAutomation uiAutomation;
         int flags = Configurator.getInstance().getUiAutomationFlags();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Api24Impl.getUiAutomation(instrumentation, flags);
+            uiAutomation = Api24Impl.getUiAutomation(getInstrumentation(), flags);
         } else {
-            // Custom flags not supported prior to N.
             if (flags != Configurator.DEFAULT_UIAUTOMATION_FLAGS) {
-                Log.w(LOG_TAG, "UiAutomation flags not supported prior to N - ignoring.");
+                Log.w(LOG_TAG, "UiAutomation flags not supported prior to API 24");
             }
-            return instrumentation.getUiAutomation();
+            uiAutomation = getInstrumentation().getUiAutomation();
         }
-    }
 
-    UiAutomation getUiAutomation() {
-        return getUiAutomation(getInstrumentation());
+        // Verify and update the accessibility service flags if necessary. These might get reset
+        // if the underlying UiAutomationConnection is recreated.
+        AccessibilityServiceInfo serviceInfo = uiAutomation.getServiceInfo();
+        if (serviceInfo.flags != mCachedServiceFlags) {
+            // Enable multi-window support for API 21+.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                serviceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+            }
+            // Enable or disable hierarchy compression.
+            if (mCompressed) {
+                serviceInfo.flags &= ~AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+            } else {
+                serviceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+            }
+            Log.d(LOG_TAG,
+                    String.format("Setting accessibility service flags: %d", serviceInfo.flags));
+            uiAutomation.setServiceInfo(serviceInfo);
+            mCachedServiceFlags = serviceInfo.flags;
+        }
+
+        return uiAutomation;
     }
 
     QueryController getQueryController() {

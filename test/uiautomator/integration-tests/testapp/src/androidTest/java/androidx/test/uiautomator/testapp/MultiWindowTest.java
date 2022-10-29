@@ -36,6 +36,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.Configurator;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -56,6 +57,20 @@ public class MultiWindowTest extends BaseTest {
     public void testMultiWindow_statusBar() {
         // Can locate objects outside of current context.
         assertTrue(mDevice.hasObject(By.res("com.android.systemui", "status_bar")));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testMultiWindow_reconnected() {
+        Configurator configurator = Configurator.getInstance();
+        int initialFlags = configurator.getUiAutomationFlags();
+        // Update the UiAutomation flags to force the underlying connection to be recreated.
+        configurator.setUiAutomationFlags(5);
+        try {
+            assertTrue(mDevice.hasObject(By.res("com.android.systemui", "status_bar")));
+        } finally {
+            configurator.setUiAutomationFlags(initialFlags);
+        }
     }
 
     @Test
