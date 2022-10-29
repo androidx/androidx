@@ -10,7 +10,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.leanback:leanback:1.1.0-beta01")
-    api("androidx.paging:paging-runtime:3.0.0")
+    api("androidx.paging:paging-runtime:3.1.0")
 
     // To avoid manifest merger warnings due to duplicate package names
     // It can be removed if leanback library is updated to a newer version
