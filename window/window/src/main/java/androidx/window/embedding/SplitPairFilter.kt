@@ -30,6 +30,24 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
  * It is used when a new activity is started from the primary activity.
  * If the filter matches the primary [Activity.getComponentName] and the new started activity
  * [Intent], it matches the [SplitPairRule] that holds this filter.
+ *
+ * @param primaryActivityName Component name of the primary activity in the split. Must be
+ * non-empty. Can contain a single wildcard at the end.
+ * Supported formats:
+ * - package/class
+ * - `package/*`
+ * - `package/suffix.*`
+ * - `*/*`
+ * @param secondaryActivityName Component name of the secondary activity in the split. Must be
+ * non-empty. Can contain a single wildcard at the end.
+ * Supported formats:
+ * - package/class
+ * - `package/*`
+ * - `package/suffix.*`
+ * - `*/*`
+ * @param secondaryActivityIntentAction action used for secondary activity launch Intent. If it is
+ * not `null`, the [SplitPairFilter] will check the activity [Intent.getAction] besides the
+ * component name. If it is `null`, [Intent.getAction] will be ignored.
  */
 class SplitPairFilter(
     /**
@@ -43,8 +61,8 @@ class SplitPairFilter(
      */
     val primaryActivityName: ComponentName,
     /**
-     * Component name in the intent for the secondary activity in the split. Must be non-empty.
-     * Can contain a single wildcard at the end.
+     * Component name of the secondary activity in the split. Must be non-empty. Can contain a
+     * single wildcard at the end.
      * Supported formats:
      * - package/class
      * - `package/*`
@@ -53,7 +71,10 @@ class SplitPairFilter(
      */
     val secondaryActivityName: ComponentName,
     /**
-     * Action used for secondary activity launch.
+     * Action used for secondary activity launch Intent.
+     *
+     * If it is not `null`, the [SplitPairFilter] will check the activity [Intent.getAction] besides
+     * the component name. If it is `null`, [Intent.getAction] will be ignored.
      */
     val secondaryActivityIntentAction: String?
 ) {
@@ -63,6 +84,11 @@ class SplitPairFilter(
 
     /**
      * Returns `true` if this [SplitPairFilter] matches [primaryActivity] and [secondaryActivity].
+     * If the [SplitPairFilter] is created with [secondaryActivityIntentAction], the filter will
+     * also compare it with [Intent.getAction] of [Activity.getIntent] of [secondaryActivity].
+     *
+     * @param primaryActivity the [Activity] to test against with the [primaryActivityName]
+     * @param secondaryActivity the [Activity] to test against with the [secondaryActivityName]
      */
     fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
         // Check if the activity component names match
@@ -87,6 +113,11 @@ class SplitPairFilter(
     /**
      * Returns `true` if this [SplitPairFilter] matches the [primaryActivity] and the
      * [secondaryActivityIntent]
+     * If the [SplitPairFilter] is created with [secondaryActivityIntentAction], the filter will
+     * also compare it with [Intent.getAction] of the [secondaryActivityIntent].
+     *
+     * @param primaryActivity the [Activity] to test against with the [primaryActivityName]
+     * @param secondaryActivityIntent the [Intent] to test against with the [secondaryActivityName]
      */
     fun matchesActivityIntentPair(
         primaryActivity: Activity,
