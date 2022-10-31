@@ -738,23 +738,23 @@ package androidx.health.connect.client.records {
   }
 
   public final class MenstruationFlowRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public MenstruationFlowRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional int flow, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public int getFlow();
+    ctor public MenstruationFlowRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional String? flow, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public String? getFlow();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final int flow;
+    property public final String? flow;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
-    field public static final androidx.health.connect.client.records.MenstruationFlowRecord.Companion Companion;
-    field public static final int FLOW_HEAVY = 3; // 0x3
-    field public static final int FLOW_LIGHT = 1; // 0x1
-    field public static final int FLOW_MEDIUM = 2; // 0x2
-    field public static final int FLOW_UNKNOWN = 0; // 0x0
   }
 
-  public static final class MenstruationFlowRecord.Companion {
+  public static final class MenstruationFlowRecord.Flow {
+    field public static final String HEAVY = "heavy";
+    field public static final androidx.health.connect.client.records.MenstruationFlowRecord.Flow INSTANCE;
+    field public static final String LIGHT = "light";
+    field public static final String MEDIUM = "medium";
+    field public static final String SPOTTING = "spotting";
   }
 
   public final class NutritionRecord implements androidx.health.connect.client.records.IntervalRecord {

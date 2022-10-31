@@ -51,7 +51,6 @@ import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
-import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -217,8 +216,6 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("HeartRateVariabilityTinn"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is IntermenstrualBleedingRecord ->
-            instantaneousProto().setDataType(protoDataType("IntermenstrualBleeding")).build()
         is LeanBodyMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("LeanBodyMass"))
@@ -227,11 +224,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is MenstruationFlowRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Menstruation"))
-                .apply {
-                    enumValFromInt(flow, MenstruationFlowRecord.FLOW_TYPE_INT_TO_STRING_MAP)?.let {
-                        putValues("flow", it)
-                    }
-                }
+                .apply { flow?.let { putValues("flow", enumVal(it)) } }
                 .build()
         is OvulationTestRecord ->
             instantaneousProto()
