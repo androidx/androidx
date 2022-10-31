@@ -70,11 +70,12 @@ public class MacrobenchmarkScope(
     val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
-     * Start an activity, by default the default launch of the package, and wait until
+     * Start an activity, by default the launcher activity of the package, and wait until
      * its launch completes.
      *
      * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command.
+     * converting the Intent to a URI, and starting via `am start` shell command. Note that from
+     * api 33 the launch intent needs to have category {@link android.intent.category.LAUNCHER}.
      *
      * @throws IllegalStateException if unable to acquire intent for package.
      *

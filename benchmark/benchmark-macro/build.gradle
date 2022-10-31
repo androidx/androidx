@@ -87,7 +87,7 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ '-opt-in=kotlin.RequiresOptIn' ]
+        freeCompilerArgs += ['-opt-in=kotlin.RequiresOptIn']
     }
 }
 
@@ -152,3 +152,14 @@ afterEvaluate {
     }
 }
 
+// Define a task dependency so the app is installed before we run macro benchmarks.
+afterEvaluate {
+    // `:benchmark:integration-tests:macrobenchmark-target:installRelease` is not in the compose
+    // build, so it may fail the compose build job.
+    def installTask = tasks.findByPath(
+            ":benchmark:integration-tests:macrobenchmark-target:installRelease")
+    if (installTask != null) {
+        tasks.getByPath(":benchmark:benchmark-macro:connectedDebugAndroidTest")
+                .dependsOn(installTask)
+    }
+}
