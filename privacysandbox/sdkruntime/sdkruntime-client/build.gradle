@@ -42,12 +42,20 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
 
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
 }
 
 android {
+    sourceSets {
+        androidTest {
+            assets {
+                srcDirs += "src/androidTest/assets"
+            }
+        }
+    }
     namespace "androidx.privacysandbox.sdkruntime.client"
 }
 

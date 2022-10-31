@@ -27,11 +27,16 @@ import android.os.Bundle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
+import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
+import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_SANDBOX_DISABLED
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_ALREADY_LOADED
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.toSandboxedSdkCompat
+import java.util.WeakHashMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -42,7 +47,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @see [SdkSandboxManager]
  */
-class SdkSandboxManagerCompat private constructor(private val mPlatformApi: PlatformApi) {
+class SdkSandboxManagerCompat private constructor(
+    private val platformApi: PlatformApi,
+    private val configHolder: LocalSdkConfigsHolder,
+    private val sdkLoader: SdkLoader
+) {
+
+    private val localLoadedSdks = HashMap<String, LocalSdk>()
+
     /**
      * Load SDK in a SDK sandbox java process or locally.
      *
@@ -59,13 +71,23 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
         sdkName: String,
         params: Bundle
     ): SandboxedSdkCompat {
-        // TODO(b/249982004) Try to load SDK bundled with App first, fallback to platform after.
-        return mPlatformApi.loadSdk(sdkName, params)
+        if (localLoadedSdks.containsKey(sdkName)) {
+            throw LoadSdkCompatException(LOAD_SDK_ALREADY_LOADED, "$sdkName already loaded")
+        }
+
+        val sdkConfig = configHolder.getSdkConfig(sdkName)
+        if (sdkConfig != null) {
+            val sdkHolder = sdkLoader.loadSdk(sdkConfig)
+            val sandboxedSdkCompat = sdkHolder.onLoadSdk(params)
+            localLoadedSdks.put(sdkName, sdkHolder)
+            return sandboxedSdkCompat
+        }
+
+        return platformApi.loadSdk(sdkName, params)
     }
 
     private interface PlatformApi {
         @DoNotInline
-        @Throws(LoadSdkCompatException::class)
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
     }
 
@@ -73,7 +95,7 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
     @SuppressLint("NewApi", "ClassVerificationFailure")
     @RequiresApi(TIRAMISU)
     private class Api33Impl(context: Context) : PlatformApi {
-        private val mSdkSandboxManager = context.getSystemService(
+        private val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
 
@@ -95,7 +117,7 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
             params: Bundle
         ): SandboxedSdk {
             return suspendCancellableCoroutine { continuation ->
-                mSdkSandboxManager.loadSdk(
+                sdkSandboxManager.loadSdk(
                     sdkName,
                     params,
                     Runnable::run,
@@ -118,11 +140,14 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
             sdkName: String,
             params: Bundle
         ): SandboxedSdkCompat {
-            throw LoadSdkCompatException(LOAD_SDK_SDK_SANDBOX_DISABLED, "Not implemented")
+            throw LoadSdkCompatException(LOAD_SDK_NOT_FOUND, "$sdkName not bundled with app")
         }
     }
 
     companion object {
+
+        private val sInstances = WeakHashMap<Context, SdkSandboxManagerCompat>()
+
         /**
          *  Creates [SdkSandboxManagerCompat].
          *
@@ -132,13 +157,22 @@ class SdkSandboxManagerCompat private constructor(private val mPlatformApi: Plat
          */
         @JvmStatic
         fun obtain(context: Context): SdkSandboxManagerCompat {
-            val platformApi =
-                if (Build.VERSION.SDK_INT >= TIRAMISU && Api33Impl.isSandboxAvailable()) {
-                    Api33Impl(context)
-                } else {
-                    FailImpl()
+            synchronized(sInstances) {
+                var instance = sInstances[context]
+                if (instance == null) {
+                    val configHolder = LocalSdkConfigsHolder.load(context)
+                    val sdkLoader = SdkLoader.create(context)
+                    val platformApi =
+                        if (Build.VERSION.SDK_INT >= TIRAMISU && Api33Impl.isSandboxAvailable()) {
+                            Api33Impl(context)
+                        } else {
+                            FailImpl()
+                        }
+                    instance = SdkSandboxManagerCompat(platformApi, configHolder, sdkLoader)
+                    sInstances[context] = instance
                 }
-            return SdkSandboxManagerCompat(platformApi)
+                return instance
+            }
         }
     }
 }
