@@ -55,24 +55,28 @@ public class WebSettingsCompatLightThemeTest extends
     /**
      * Test web content is always light regardless the algorithmic darkening is allowed or not.
      */
-    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testSimplifiedDarkMode_rendersLight() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize();
+        float expected_luminance = 0.5f;
+        // Theme.AppCompat.Light has a darker background in api 33 than previous.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            expected_luminance = 0.4f;
+        }
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
-                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
+                ColorUtils.calculateLuminance(getWebPageColor()) > expected_luminance);
         assertFalse("WebView should always prefers light color scheme in light theme app",
                 prefersDarkTheme());
-        // Allowing algorithmic darkening in dark theme app should result in a dark background.
+        // Allowing algorithmic darkening in light theme app should not take any effect.
         WebSettingsCompat.setAlgorithmicDarkeningAllowed(
                 getSettingsOnUiThread(), true);
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
-        assertTrue("Bitmap colour should be dark",
-                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
+        assertTrue("Bitmap colour should be light",
+                ColorUtils.calculateLuminance(getWebPageColor()) > expected_luminance);
         assertFalse("WebView should always prefers light color scheme in light theme app",
                 prefersDarkTheme());
     }
@@ -80,17 +84,21 @@ public class WebSettingsCompatLightThemeTest extends
     /**
      * Test web content is always light (if supported) on the light theme app.
      */
-    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize();
 
+        float expected_luminance = 0.5f;
+        // Theme.AppCompat.Light has a darker background in api 33 than previous.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            expected_luminance = 0.4f;
+        }
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
-                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
+                ColorUtils.calculateLuminance(getWebPageColor()) > expected_luminance);
         assertFalse("WebView should always prefers light color scheme in light theme app",
                 prefersDarkTheme());
 
@@ -99,7 +107,7 @@ public class WebSettingsCompatLightThemeTest extends
         getWebViewOnUiThread().loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html",
                 "base64");
         assertTrue("Bitmap colour should be light",
-                ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
+                ColorUtils.calculateLuminance(getWebPageColor()) > expected_luminance);
         assertFalse("WebView should always prefers light color scheme in light theme app",
                 prefersDarkTheme());
     }
