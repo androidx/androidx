@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator;
 
-import android.app.Instrumentation;
 import android.app.UiAutomation.OnAccessibilityEventListener;
 import android.os.SystemClock;
 import android.util.Log;
@@ -43,7 +42,7 @@ class QueryController {
     static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
     private static final boolean VERBOSE = Log.isLoggable(LOG_TAG, Log.VERBOSE);
 
-    private final Instrumentation mInstrumentation;
+    private final UiDevice mDevice;
 
     final Object mLock = new Object();
 
@@ -90,9 +89,9 @@ class QueryController {
         }
     };
 
-    public QueryController(Instrumentation instrumentation) {
-        mInstrumentation = instrumentation;
-        UiDevice.getUiAutomation(instrumentation).setOnAccessibilityEventListener(mEventListener);
+    QueryController(UiDevice device) {
+        mDevice = device;
+        mDevice.getUiAutomation().setOnAccessibilityEventListener(mEventListener);
     }
 
     /**
@@ -179,7 +178,7 @@ class QueryController {
         long waitInterval = 250;
         AccessibilityNodeInfo rootNode = null;
         for (int x = 0; x < maxRetry; x++) {
-            rootNode = UiDevice.getUiAutomation(getInstrumentation()).getRootInActiveWindow();
+            rootNode = mDevice.getUiAutomation().getRootInActiveWindow();
             if (rootNode != null) {
                 return rootNode;
             }
@@ -529,8 +528,7 @@ class QueryController {
      */
     public void waitForIdle(long timeout) {
         try {
-            UiDevice.getUiAutomation(getInstrumentation())
-                    .waitForIdle(QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE, timeout);
+            mDevice.getUiAutomation().waitForIdle(QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE, timeout);
         } catch (TimeoutException e) {
             Log.w(LOG_TAG, "Could not detect idle state.");
         }
@@ -545,9 +543,5 @@ class QueryController {
         else
             l.append(String.format(". . [%d]: %s", mPatternCounter, str));
         return l.toString();
-    }
-
-    private Instrumentation getInstrumentation() {
-        return mInstrumentation;
     }
 }
