@@ -383,6 +383,20 @@ class ShellTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun shellReuse() {
+        val script = Shell.createShellScript("xargs echo $1", stdin = "foo")
+
+        repeat(2) {
+            // validates that the stdin can be reused across multiple invocations
+            with(script.start()) {
+                assertEquals(listOf("foo"), stdOutLineSequence().toList())
+            }
+        }
+        script.cleanUp()
+    }
+
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
         return Shell.getPidsForProcess(packageName).firstOrNull()
