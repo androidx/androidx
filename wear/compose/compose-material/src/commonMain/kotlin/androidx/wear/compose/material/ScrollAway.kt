@@ -61,11 +61,12 @@ public fun Modifier.scrollAway(
     scrollState: LazyListState,
     itemIndex: Int = 0,
     offset: Dp = 0.dp,
-): Modifier = scrollAway {
-    scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-        -it.offset - offset.toPx()
+): Modifier =
+    scrollAway(itemIndex < scrollState.layoutInfo.totalItemsCount) {
+        scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
+            -it.offset - offset.toPx()
+        }
     }
-}
 
 /**
  * Scroll an item vertically in/out of view based on a [ScalingLazyListState].
@@ -81,21 +82,29 @@ public fun Modifier.scrollAway(
     scrollState: ScalingLazyListState,
     itemIndex: Int = 1,
     offset: Dp = 0.dp,
-): Modifier = scrollAway {
-    scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-        -it.offset - offset.toPx()
+): Modifier =
+    scrollAway(itemIndex < scrollState.layoutInfo.totalItemsCount) {
+        scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
+            -it.offset - offset.toPx()
+        }
     }
-}
 
-private fun Modifier.scrollAway(yPxFn: Density.() -> Float?): Modifier =
+private fun Modifier.scrollAway(valid: Boolean = true, yPxFn: Density.() -> Float?): Modifier =
     this.then(
         object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
                 constraints: Constraints
             ): MeasureResult {
+                val placeable = measurable.measure(constraints)
                 val yPx = yPxFn()
-                if (yPx == null) {
+                if (!valid) {
+                    // For invalid inputs, don't scroll the content away - just show it.
+                    return layout(placeable.width, placeable.height) {
+                        placeable.placeRelative(0, 0)
+                    }
+                } else if (yPx == null) {
+                    // For valid inputs, but no y offset provided, hide the content.
                     return object : MeasureResult {
                         override val width = 0
                         override val height = 0
@@ -103,7 +112,7 @@ private fun Modifier.scrollAway(yPxFn: Density.() -> Float?): Modifier =
                         override fun placeChildren() {}
                     }
                 } else {
-                    val placeable = measurable.measure(constraints)
+                    // Valid input and a y offset is provided - apply fade, scale and offset.
                     return layout(placeable.width, placeable.height) {
                         val progress: Float = (yPx / maxScrollOut.toPx()).coerceIn(0f, 1f)
                         val motionFraction: Float = lerp(minMotionOut, maxMotionOut, progress)

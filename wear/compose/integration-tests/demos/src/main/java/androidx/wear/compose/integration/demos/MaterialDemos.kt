@@ -138,6 +138,9 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("SLC Cards offset>0") {
                     ScrollAwayScalingLazyColumnCardDemoMismatch()
                 },
+                ComposableDemo("Out of range") {
+                    ScrollAwayScalingLazyColumnCardDemoOutOfRange()
+                },
                 ComposableDemo("SLC Chips") {
                     ScrollAwayScalingLazyColumnChipDemo()
                 },
