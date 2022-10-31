@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc. All rights reserved.
+ * Copyright 2022 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,40 +47,40 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Writes one or more still images (of the same dimensions) into
- * a heif file.
+ * This class writes one or more still images (of the same dimensions) into
+ * an AVIF file.
  *
- * <p>This class currently supports three input modes: {@link #INPUT_MODE_BUFFER},
+ * It currently supports three input modes: {@link #INPUT_MODE_BUFFER},
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
- * <p>The general sequence (in pseudo-code) to write a heif file using this class is as follows:
+ * The general sequence (in pseudo-code) to write a avif file using this class is as follows:
  *
- * <p>1) Construct the writer:<br>
- * <code>HeifWriter heifwriter = new HeifWriter(...);</code>
+ * 1) Construct the writer:
+ * AvifWriter avifwriter = new AvifWriter(...);
  *
- * <p>2) If using surface input mode, obtain the input surface:<br>
- * <code>Surface surface = heifwriter.getInputSurface();</code>
+ * 2) If using surface input mode, obtain the input surface:
+ * Surface surface = avifwriter.getInputSurface();
  *
- * <p>3) Call <code>start</code>:<br>
- * <code>heifwriter.start();</code>
+ * 3) Call start:
+ * avifwriter.start();
  *
- * <p>4) Depending on the chosen input mode, add one or more images using one of these methods:<br>
- * <code>heifwriter.addYuvBuffer(...);</code>   Or<br>
- * <code>heifwriter.addBitmap(...);</code>   Or<br>
- *
+ * 4) Depending on the chosen input mode, add one or more images using one of these methods:
+ * avifwriter.addYuvBuffer(...);   Or
+ * avifwriter.addBitmap(...);   Or
  * render to the previously obtained surface
  *
- * <p>5) Call <code>stop</code>:<br>
- * <code>heifwriter.stop(...);</code>
+ * 5) Call stop:
+ * avifwriter.stop(...);
  *
- * <p>6) Close the writer:<br>
- * <code>heifwriter.close();</code>
+ * 6) Close the writer:
+ * avifwriter.close();
  *
- * <p>Please refer to the documentations on individual methods for the exact usage.
+ * Please refer to the documentations on individual methods for the exact usage.
  */
 @SuppressWarnings("HiddenSuperclass")
-public final class HeifWriter extends WriterBase {
-    private static final String TAG = "HeifWriter";
+public final class AvifWriter extends WriterBase {
+
+    private static final String TAG = "AvifWriter";
     private static final boolean DEBUG = false;
 
     /**
@@ -91,13 +91,11 @@ public final class HeifWriter extends WriterBase {
     public static final int INPUT_MODE_BUFFER = WriterBase.INPUT_MODE_BUFFER;
 
     /**
-     * The input mode where the client renders the images to an input Surface
-     * created by the writer.
+     * The input mode where the client renders the images to an input Surface created by the writer.
      *
-     * The input surface operates in single buffer mode. As a result, for use case
-     * where camera directly outputs to the input surface, this mode will not work
-     * because camera framework requires multiple buffers to operate in a pipeline
-     * fashion.
+     * The input surface operates in single buffer mode. As a result, for use case where camera
+     * directly outputs to the input surface, this mode will not work because camera framework
+     * requires multiple buffers to operate in a pipeline fashion.
      *
      * @see #getInputSurface()
      */
@@ -110,15 +108,19 @@ public final class HeifWriter extends WriterBase {
      */
     public static final int INPUT_MODE_BITMAP = WriterBase.INPUT_MODE_BITMAP;
 
-    /** @hide */
+    /**
+     * @hide
+     */
     @IntDef({
         INPUT_MODE_BUFFER, INPUT_MODE_SURFACE, INPUT_MODE_BITMAP,
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface InputMode {}
+    public @interface InputMode {
+
+    }
 
     /**
-     * Builder class for constructing a HeifWriter object from specified parameters.
+     * Builder class for constructing a AvifWriter object from specified parameters.
      */
     public static final class Builder {
         private final String mPath;
@@ -183,7 +185,7 @@ public final class HeifWriter extends WriterBase {
          *                 180 or 270. Default is 0.
          * @return this Builder object.
          */
-        public Builder setRotation(@IntRange(from = 0)  int rotation) {
+        public Builder setRotation(@IntRange(from = 0) int rotation) {
             if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270) {
                 throw new IllegalArgumentException("Invalid rotation angle: " + rotation);
             }
@@ -250,7 +252,7 @@ public final class HeifWriter extends WriterBase {
         }
 
         /**
-         * Provide a handler for the HeifWriter to use.
+         * Provide a handler for the AvifWriter to use.
          *
          * @param handler If not null, client will receive all callbacks on the handler's looper.
          *                Otherwise, client will receive callbacks on a looper created by the
@@ -263,21 +265,21 @@ public final class HeifWriter extends WriterBase {
         }
 
         /**
-         * Build a HeifWriter object.
+         * Build a AvifWriter object.
          *
-         * @return a HeifWriter object built according to the specifications.
+         * @return a AvifWriter object built according to the specifications.
          * @throws IOException if failed to create the writer, possibly due to failure to create
          *                     {@link android.media.MediaMuxer} or {@link android.media.MediaCodec}.
          */
-        public HeifWriter build() throws IOException {
-            return new HeifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
+        public AvifWriter build() throws IOException {
+            return new AvifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
                 mMaxImages, mPrimaryIndex, mInputMode, mHandler);
         }
     }
 
     @SuppressLint("WrongConstant")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    HeifWriter(@NonNull String path,
+    AvifWriter(@NonNull String path,
         @NonNull FileDescriptor fd,
         int width,
         int height,
@@ -307,7 +309,7 @@ public final class HeifWriter extends WriterBase {
         mMuxer = (path != null) ? new MediaMuxer(path, MUXER_OUTPUT_HEIF)
             : new MediaMuxer(fd, MUXER_OUTPUT_HEIF);
 
-        mEncoder = new HeifEncoder(width, height, gridEnabled, quality,
+        mEncoder = new AvifEncoder(width, height, gridEnabled, quality,
             mInputMode, mHandler, new WriterCallback());
     }
 }

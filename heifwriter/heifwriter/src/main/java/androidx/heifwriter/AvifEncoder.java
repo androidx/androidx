@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc. All rights reserved.
+ * Copyright 2022 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 /**
- * This class encodes images into HEIF-compatible samples using HEVC encoder.
+ * This class encodes images into HEIF-compatible samples using AV1 encoder.
  *
  * It currently supports three input modes: {@link #INPUT_MODE_BUFFER},
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
@@ -48,8 +48,8 @@ import java.io.IOException;
  *
  * @hide
  */
-public final class HeifEncoder extends EncoderBase {
-    private static final String TAG = "HeifEncoder";
+public final class AvifEncoder extends EncoderBase {
+    private static final String TAG = "AvifEncoder";
     private static final boolean DEBUG = false;
 
     protected static final int GRID_WIDTH = 512;
@@ -60,7 +60,7 @@ public final class HeifEncoder extends EncoderBase {
         new MediaCodecList(MediaCodecList.REGULAR_CODECS);
 
     /**
-     * Configure the heif encoding session. Should only be called once.
+     * Configure the avif encoding session. Should only be called once.
      *
      * @param width Width of the image.
      * @param height Height of the image.
@@ -71,25 +71,25 @@ public final class HeifEncoder extends EncoderBase {
      * @param inputMode The input type of this encoding session.
      * @param handler If not null, client will receive all callbacks on the handler's looper.
      *                Otherwise, client will receive callbacks on a looper created by us.
-     * @param cb The callback to receive various messages from the heif encoder.
+     * @param cb The callback to receive various messages from the avif encoder.
      */
-    public HeifEncoder(int width, int height, boolean useGrid,
+    public AvifEncoder(int width, int height, boolean useGrid,
         int quality, @InputMode int inputMode,
         @Nullable Handler handler, @NonNull Callback cb) throws IOException {
-        super("HEIC", width, height, useGrid, quality, inputMode, handler, cb);
-        mEncoder.setCallback(new HevcEncoderCallback(), mHandler);
+        super("AVIF", width, height, useGrid, quality, inputMode, handler, cb);
+        mEncoder.setCallback(new Av1EncoderCallback(), mHandler);
         finishSettingUpEncoder();
     }
 
-    protected static String findHevcFallback() {
-        String hevc = null; // first HEVC encoder
+    protected static String findAv1Fallback() {
+        String av1 = null; // first AV1 encoder
         for (MediaCodecInfo info : sMCL.getCodecInfos()) {
             if (!info.isEncoder()) {
                 continue;
             }
             MediaCodecInfo.CodecCapabilities caps = null;
             try {
-                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1);
             } catch (IllegalArgumentException e) { // mime is not supported
                 continue;
             }
@@ -104,28 +104,28 @@ public final class HeifEncoder extends EncoderBase {
                 // order of preference.)
                 return info.getName();
             }
-            if (hevc == null) {
-                hevc = info.getName();
+            if (av1 == null) {
+                av1 = info.getName();
             }
         }
-        // If no encoders support CQ, return the first HEVC encoder.
-        return hevc;
+        // If no encoders support CQ, return the first AV1 encoder.
+        return av1;
     }
 
     /**
-     * MediaCodec callback for HEVC encoding.
+     * MediaCodec callback for AV1 encoding.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    protected class HevcEncoderCallback extends EncoderCallback {
+    protected class Av1EncoderCallback extends EncoderCallback {
         @Override
         public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
             if (codec != mEncoder) return;
 
             if (DEBUG) Log.d(TAG, "onOutputFormatChanged: " + format);
 
-            if (!MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC.equals(
-                format.getString(MediaFormat.KEY_MIME))) {
-                format.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+            // TODO(b/252835975) replace "image/avif" with  MIMETYPE_IMAGE_AVIF.
+            if (!format.getString(MediaFormat.KEY_MIME).equals("image/avif")) {
+                format.setString(MediaFormat.KEY_MIME, "image/avif");
                 format.setInteger(MediaFormat.KEY_WIDTH, mWidth);
                 format.setInteger(MediaFormat.KEY_HEIGHT, mHeight);
 
@@ -137,7 +137,7 @@ public final class HeifEncoder extends EncoderBase {
                 }
             }
 
-            mCallback.onOutputFormatChanged(HeifEncoder.this, format);
+            mCallback.onOutputFormatChanged(AvifEncoder.this, format);
         }
     }
 }
