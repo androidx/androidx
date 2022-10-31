@@ -23,7 +23,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileLock
-import java.util.concurrent.Semaphore
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.completeWith
@@ -148,7 +147,7 @@ internal class MultiProcessDataStore<T>(
             versionFile
         }
     }
-    private val threadLockSemaphore = Semaphore(1)
+    private val threadLock = Mutex()
     private val storageConnection: StorageConnection<T> by lazy {
         storage.createConnection()
     }
@@ -476,9 +475,7 @@ internal class MultiProcessDataStore<T>(
     }
 
     private suspend fun getWriteFileLock(block: suspend () -> T): Data<T> {
-        // TODO(b/239970979): use kotlinx.coroutines.sync.Mutex instead of adhoc ThreadLock with
-        // semaphore to make the best use of coroutine
-        ThreadLock.acquire(threadLockSemaphore).use {
+        threadLock.withLock {
             FileOutputStream(lockFile).use { lockFileStream ->
                 var lock: FileLock? = null
                 try {
@@ -495,8 +492,8 @@ internal class MultiProcessDataStore<T>(
     private suspend fun tryGetReadFileLock(
         block: suspend (Boolean) -> Data<T>
     ): Data<T> {
-        ThreadLock.tryAcquire(threadLockSemaphore).use {
-            if (it.acquired() == false) {
+        return threadLock.withTryLock<Data<T>> {
+            if (it == false) {
                 return block(false)
             }
             FileInputStream(lockFile).use { lockFileStream ->
@@ -524,6 +521,22 @@ internal class MultiProcessDataStore<T>(
                 } finally {
                     lock?.release()
                 }
+            }
+        }
+    }
+
+    /**
+     * Provide similar functionality of {@link kotlinx.coroutines.sync.Mutex#withLock} but don't
+     * wait for the lock if unavailable, instead it passes a Boolean into the {@link action} lambda
+     * to indicate if it is able to get the lock and run {@link action} immediately.
+     */
+    private inline fun <R> Mutex.withTryLock(owner: Any? = null, action: (Boolean) -> R): R {
+        val locked: Boolean = tryLock(owner)
+        try {
+            return action(locked)
+        } finally {
+            if (locked) {
+                unlock(owner)
             }
         }
     }
