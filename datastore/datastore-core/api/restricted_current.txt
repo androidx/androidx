@@ -34,6 +34,10 @@ package androidx.datastore.core {
     field public static final androidx.datastore.core.DataStoreFactory INSTANCE;
   }
 
+  public final class MultiProcessDataStoreFactory {
+    field public static final androidx.datastore.core.MultiProcessDataStoreFactory INSTANCE;
+  }
+
   public interface ReadScope<T> extends androidx.datastore.core.Closeable {
     method public suspend Object? readData(kotlin.coroutines.Continuation<? super T>);
   }

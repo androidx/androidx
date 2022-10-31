@@ -333,6 +333,6 @@ class FileStorageTest {
     }
 
     private fun getTempFolder(): File {
-        return File.createTempFile("test", "test").parentFile
+        return File.createTempFile("test", "test").parentFile!!
     }
 }
