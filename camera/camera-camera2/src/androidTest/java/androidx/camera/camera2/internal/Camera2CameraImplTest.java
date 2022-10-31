@@ -69,6 +69,9 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.mocks.MockObserver;
+import androidx.camera.testing.mocks.helpers.CallTimes;
+import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -91,12 +94,9 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -534,10 +534,11 @@ public final class Camera2CameraImplTest {
 
     @Test
     public void cameraTransitionsThroughPendingState_whenNoCamerasAvailable() {
-        CameraInternalStateMockObserver mockObserver = new CameraInternalStateMockObserver();
+        MockObserver<CameraInternal.State> mockObserver = new MockObserver<>();
 
         // Ensure real camera can't open due to max cameras being open
         Camera mockCamera = mock(Camera.class);
+
         mCameraStateRegistry.registerCamera(mockCamera, CameraXExecutors.directExecutor(),
                 () -> {
                 });
@@ -550,7 +551,7 @@ public final class Camera2CameraImplTest {
 
         // Ensure that the camera gets to a PENDING_OPEN state
         mockObserver.verifyOnNewDataCall(CameraInternal.State.PENDING_OPEN, 3000,
-                times -> times > 0);
+                new CallTimesAtLeast(1));
 
         // Allow camera to be opened
         mCameraStateRegistry.markCameraState(mockCamera, CameraInternal.State.CLOSED);
@@ -593,7 +594,7 @@ public final class Camera2CameraImplTest {
         // Wait for the secondary capture session is configured.
         assertTrue(mSessionStateCallback.waitForOnConfigured(1));
 
-        CameraInternalStateMockObserver mockObserver = new CameraInternalStateMockObserver();
+        MockObserver<CameraInternal.State> mockObserver = new MockObserver<>();
 
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
                 mockObserver);
@@ -602,7 +603,8 @@ public final class Camera2CameraImplTest {
 
         // Wait for the CLOSED state. If the test fail, the CameraX might in wrong internal state,
         // and the Camera2CameraImpl#release() might stuck.
-        mockObserver.verifyOnNewDataCall(CameraInternal.State.CLOSED, 4000, times -> times == 1);
+        mockObserver.verifyOnNewDataCall(CameraInternal.State.CLOSED, 4000,
+                new CallTimes(1));
     }
 
     @Test
@@ -1044,64 +1046,4 @@ public final class Camera2CameraImplTest {
             return suggestedResolution;
         }
     }
-
-    static class CameraInternalStateMockObserver
-            implements Observable.Observer<CameraInternal.State> {
-        public interface CallTimesCondition {
-            boolean check(int times);
-        }
-
-        private final Map<CameraInternal.State, Integer> mNewDataCount = new HashMap<>();
-
-        private CallTimesCondition mCallTimesCondition;
-        private CameraInternal.State mValueToVerify;
-        private CountDownLatch mLatch;
-
-        private boolean isVerified() {
-            int count = mNewDataCount.get(mValueToVerify) == null
-                    ? 0 : mNewDataCount.get(mValueToVerify);
-            return mCallTimesCondition.check(count);
-        }
-
-        public void verifyOnNewDataCall(@Nullable CameraInternal.State value,
-                long timeoutInMillis) {
-            verifyOnNewDataCall(value, timeoutInMillis, times -> times == 1);
-        }
-
-        public void verifyOnNewDataCall(@Nullable CameraInternal.State value,
-                long timeoutInMillis, CallTimesCondition callTimesCondition) {
-            mValueToVerify = value;
-            mCallTimesCondition = callTimesCondition;
-
-            if (!isVerified()) {
-                mLatch = new CountDownLatch(1);
-
-                try {
-                    assertTrue("Test failed for a timeout of " + timeoutInMillis + " ms",
-                            mLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-                assertTrue("onNewData called "
-                                + mNewDataCount.get(value) + " time(s) with " + value,
-                        isVerified());
-
-                mLatch = null;
-            }
-        }
-
-        @Override
-        public void onNewData(@Nullable CameraInternal.State value) {
-            Integer prevCount = mNewDataCount.get(value);
-            mNewDataCount.put(value, (prevCount == null ? 0 : prevCount) + 1);
-
-            if (mLatch != null && isVerified()) {
-                mLatch.countDown();
-            }
-        }
-
-        @Override
-        public void onError(@NonNull Throwable t) {}
-    };
 }
