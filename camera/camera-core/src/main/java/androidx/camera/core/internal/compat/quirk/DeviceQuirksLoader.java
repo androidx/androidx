@@ -46,6 +46,9 @@ public class DeviceQuirksLoader {
         if (SurfaceOrderQuirk.load()) {
             quirks.add(new SurfaceOrderQuirk());
         }
+        if (CaptureFailedRetryQuirk.load()) {
+            quirks.add(new CaptureFailedRetryQuirk());
+        }
 
         return quirks;
     }
