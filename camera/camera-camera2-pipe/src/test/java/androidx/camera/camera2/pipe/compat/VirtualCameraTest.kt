@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -185,7 +186,11 @@ internal class AndroidCameraDeviceTest {
         listener.onOpened(testCamera.cameraDevice)
 
         assertThat(listener.state.value).isInstanceOf(CameraStateOpen::class.java)
-        assertThat((listener.state.value as CameraStateOpen).cameraDevice.unwrap())
+        assertThat(
+            (listener.state.value as CameraStateOpen)
+                .cameraDevice
+                .unwrapAs(CameraDevice::class)
+        )
             .isSameInstanceAs(testCamera.cameraDevice)
 
         mainLooper.idleFor(1000, TimeUnit.MILLISECONDS)

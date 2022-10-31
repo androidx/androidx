@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 @RequiresApi(21)
@@ -226,9 +227,6 @@ internal class ExternalCaptureSequenceProcessor(
 
         override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
-        override fun unwrap(): CaptureRequest? {
-            // CustomRequestMetadata does not extend a Camera2 CaptureRequest.
-            return null
-        }
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
     }
 }

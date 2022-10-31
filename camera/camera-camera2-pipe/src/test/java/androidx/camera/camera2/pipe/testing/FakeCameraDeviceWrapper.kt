@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.InputConfigData
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 import androidx.camera.camera2.pipe.compat.SessionConfigData
+import kotlin.reflect.KClass
 
 /**
  * Fake implementation of [CameraDeviceWrapper] for tests.
@@ -117,5 +118,9 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         return nextSession
     }
 
-    override fun unwrap(): CameraDevice? = fakeCamera.cameraDevice
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CameraDevice::class -> fakeCamera.cameraDevice as T
+        else -> null
+    }
 }

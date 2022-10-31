@@ -36,6 +36,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
 import android.hardware.camera2.CaptureRequest.Key
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
+import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameInfo
@@ -413,7 +414,7 @@ class Camera2CameraControlDeviceTest {
         // Assert.
         registerListener().verify(
             { _, captureResult: FrameInfo ->
-                captureResult.unwrap()!!.let { totalCaptureResult ->
+                captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         totalCaptureResult.physicalCameraTotalResults.containsKey(
                             physicalCameraId

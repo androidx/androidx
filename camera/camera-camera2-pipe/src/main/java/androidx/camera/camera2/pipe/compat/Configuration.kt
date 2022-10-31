@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
 import java.util.concurrent.Executor
+import kotlin.reflect.KClass
 
 /**
  * A data class that mirrors the fields in [android.hardware.camera2.params.SessionConfiguration] so
@@ -81,7 +82,7 @@ internal data class InputConfigData(
  * [OutputConfiguration]'s are NOT immutable, and changing state of an [OutputConfiguration] may
  * require the CameraCaptureSession to be finalized or updated.
  */
-internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
+internal interface OutputConfigurationWrapper : UnsafeWrapper {
     /**
      * This method will return null if the output configuration was created without a Surface,
      * and until addSurface is called for the first time.
@@ -306,7 +307,11 @@ internal class AndroidOutputConfiguration(
     override val surfaceGroupId: Int
         get() = output.surfaceGroupId
 
-    override fun unwrap(): OutputConfiguration = output
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        OutputConfiguration::class -> output as T
+        else -> null
+    }
 
     override fun toString(): String = output.toString()
 }
