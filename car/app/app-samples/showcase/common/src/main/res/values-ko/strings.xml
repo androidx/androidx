@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"작업 제한에 도달함\n계속 진행하면 앱이 강제 종료됩니다"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"작업 단계 %1$d/%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"클릭하여 진행"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"전환 버튼 데모"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"전환 테스트"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"스테이트풀(Stateful) 변경은 허용됨"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"음성 액세스 데모 화면"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"사용자 상호작용"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"권한 요청 데모"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"권한 그룹"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"쇼케이스 앱에 대한 권한 그룹"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"정확한 위치 액세스"</string>

@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнато е ограничувањето за задачи\nАко продолжите, апликацијата ќе се исклучи присилно"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Преземете чекор %1$d од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликнете за да одите нанапред"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Демо на копче за вклучување/исклучување"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Тест за вклучување/исклучување"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Дозволени се промени на зачувувањето на состојбата"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Екран за демо за „Пристап со глас“"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Кориснички интеракции"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Побарајте дозволи за демо"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"Група дозволи"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Група дозволи за апликација за вести избрани од издавачи"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Пристап до точна локација"</string>

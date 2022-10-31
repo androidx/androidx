@@ -292,6 +292,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"လုပ်ဆောင်စရာကန့်သတ်ချက် ရောက်သွားပြီ\nရှေ့ဆက်သွားခြင်းက အက်ပ်ကို မဖြစ်မနေရပ်ခိုင်းမည်"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"လုပ်ဆောင်စရာအဆင့် %2$d ခုအနက် %1$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ရှေ့ဆက်သွားရန် နှိပ်ပါ"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ဖွင့်ပိတ် ခလုတ် သရုပ်ပြချက်"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"စစ်ဆေးမှု ပြောင်းခြင်း"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"အနေအထားအပြည့် အပြောင်းအလဲများ ခွင့်ပြုထားသည်"</string>
@@ -328,6 +330,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access သရုပ်ပြချက်စခရင်"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"အသုံးပြုသူ ပြန်လှန်တုံ့ပြန်မှုများ"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"ခွင့်ပြုချက်များ တောင်းဆိုရန် သရုပ်ပြချက်"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"ခွင့်ပြုချက်အုပ်စု"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"‘စင်မြင့် အက်ပ်’ အတွက် ခွင့်ပြုချက်အုပ်စု"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"‘တည်နေရာအချော’ သုံးခွင့်"</string>
