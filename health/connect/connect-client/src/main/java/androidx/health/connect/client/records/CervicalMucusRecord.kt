@@ -19,8 +19,6 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.records.CervicalMucusRecord.Appearances
-import androidx.health.connect.client.records.CervicalMucusRecord.Sensations
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -46,8 +44,10 @@ public class CervicalMucusRecord(
         const val APPEARANCE_STICKY = 2
         const val APPEARANCE_CREAMY = 3
         const val APPEARANCE_WATERY = 4
+
         /** A constant describing clear or egg white like looking cervical mucus. */
         const val APPEARANCE_EGG_WHITE = 5
+
         /** A constant describing an unusual (worth attention) kind of cervical mucus. */
         const val APPEARANCE_UNUSUAL = 6
 
@@ -71,8 +71,7 @@ public class CervicalMucusRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val APPEARANCE_INT_TO_STRING_MAP =
-            APPEARANCE_STRING_TO_INT_MAP.entries.associate { it.value to it.key }
+        val APPEARANCE_INT_TO_STRING_MAP = APPEARANCE_STRING_TO_INT_MAP.reverse()
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
@@ -85,8 +84,7 @@ public class CervicalMucusRecord(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
-        val SENSATION_INT_TO_STRING_MAP =
-            SENSATION_STRING_TO_INT_MAP.entries.associate { it.value to it.key }
+        val SENSATION_INT_TO_STRING_MAP = SENSATION_STRING_TO_INT_MAP.reverse()
     }
 
     /** List of supported Cervical Mucus Sensation types on Health Platform. */

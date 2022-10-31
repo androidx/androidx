@@ -17,7 +17,7 @@
 package androidx.health.connect.client.records
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -28,7 +28,7 @@ class FloorsClimbedRecordTest {
 
     @Test
     fun validRecord_equals() {
-        Truth.assertThat(
+        assertThat(
                 FloorsClimbedRecord(
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,

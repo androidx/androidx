@@ -35,3 +35,7 @@ internal fun requireNonNegative(value: Long, name: String) {
 internal fun requireNonNegative(value: Double, name: String) {
     require(value >= 0.0) { "$name must not be negative" }
 }
+
+internal fun Map<String, Int>.reverse(): Map<Int, String> {
+    return entries.associateBy({ it.value }, { it.key })
+}

@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -37,7 +37,7 @@ public class ExerciseEventRecord(
      *
      * @see EventType
      */
-    @property:EventTypes public val eventType: String,
+    @property:EventTypes public val eventType: Int,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
@@ -60,8 +60,7 @@ public class ExerciseEventRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + eventType.hashCode()
+        var result = eventType.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
@@ -73,7 +72,7 @@ public class ExerciseEventRecord(
      * Types of exercise event. They can be either explicitly requested by a user or auto-detected
      * by a tracking app.
      */
-    public object EventType {
+    internal object EventType {
         /**
          * Explicit pause during an workout, requested by the user (by clicking a pause button in
          * the session UI). Movement happening during pause should not contribute to session
@@ -93,13 +92,32 @@ public class ExerciseEventRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                EventType.PAUSE,
-                EventType.REST,
+                EVENT_TYPE_UNKNOWN,
+                EVENT_TYPE_PAUSE,
+                EVENT_TYPE_REST,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class EventTypes
+
+    companion object {
+        const val EVENT_TYPE_UNKNOWN = 0
+        const val EVENT_TYPE_PAUSE = 1
+        const val EVENT_TYPE_REST = 2
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val EVENT_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                EventType.PAUSE to EVENT_TYPE_PAUSE,
+                EventType.REST to EVENT_TYPE_REST,
+            )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val EVENT_TYPE_INT_TO_STRING_MAP = EVENT_TYPE_STRING_TO_INT_MAP.reverse()
+    }
 }

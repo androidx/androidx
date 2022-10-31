@@ -35,7 +35,7 @@ class SwimmingStrokesRecordTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     count = 10,
-                    type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
+                    type = SwimmingStrokesRecord.SWIMMING_TYPE_BACKSTROKE,
                 )
             )
             .isEqualTo(
@@ -45,7 +45,7 @@ class SwimmingStrokesRecordTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     count = 10,
-                    type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
+                    type = SwimmingStrokesRecord.SWIMMING_TYPE_BACKSTROKE,
                 )
             )
     }
@@ -59,8 +59,20 @@ class SwimmingStrokesRecordTest {
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
                 count = 10,
-                type = SwimmingStrokesRecord.SwimmingType.BACKSTROKE,
+                type = SwimmingStrokesRecord.SWIMMING_TYPE_BACKSTROKE,
             )
         }
+    }
+
+    @Test
+    fun eventEnums_existInMapping() {
+        val allEnums =
+            SwimmingStrokesRecord.Companion::class.allIntDefEnumsWithPrefix("SWIMMING_TYPE")
+                .filter { it != SwimmingStrokesRecord.SWIMMING_TYPE_OTHER }
+
+        assertThat(SwimmingStrokesRecord.SWIMMING_TYPE_STRING_TO_INT_MAP.values)
+            .containsExactlyElementsIn(allEnums)
+        assertThat(SwimmingStrokesRecord.SWIMMING_TYPE_INT_TO_STRING_MAP.keys)
+            .containsExactlyElementsIn(allEnums)
     }
 }
