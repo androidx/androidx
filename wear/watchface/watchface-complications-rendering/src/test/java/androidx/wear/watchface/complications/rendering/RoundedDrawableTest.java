@@ -55,7 +55,7 @@ public class RoundedDrawableTest {
     @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mRoundedDrawable = new RoundedDrawable();
         mBitmapDrawable =
                 new BitmapDrawable(

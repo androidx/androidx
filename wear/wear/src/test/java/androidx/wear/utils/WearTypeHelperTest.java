@@ -41,7 +41,7 @@ public class WearTypeHelperTest {
     @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mContext = ApplicationProvider.getApplicationContext();
         mShadowPackageManager = Shadows.shadowOf(mContext.getPackageManager());
     }
