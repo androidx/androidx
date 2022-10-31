@@ -60,7 +60,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfFullName = 0;
             final int _cursorIndexOfId = 1;
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
                 _item = new ComplexDao.FullName();
                 if (_cursor.isNull(_cursorIndexOfFullName)) {
@@ -195,7 +195,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
             final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final User _item_1;
                 _item_1 = new User();
                 _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
@@ -307,7 +307,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final Integer _item_1;
                 if (_cursor.isNull(0)) {
                     _item_1 = null;
@@ -375,7 +375,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final Integer _item_3;
                 if (_cursor.isNull(0)) {
                     _item_3 = null;
@@ -468,7 +468,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
                     final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
-                    while(_cursor.moveToNext()) {
+                    while (_cursor.moveToNext()) {
                         final User _item_1;
                         _item_1 = new User();
                         _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
@@ -512,7 +512,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
             final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
             final List<Child1> _result = new ArrayList<Child1>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final Child1 _item;
                 final int _tmpId;
                 _tmpId = _cursor.getInt(_cursorIndexOfId);
@@ -556,7 +556,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
             final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
             final List<Child2> _result = new ArrayList<Child2>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final Child2 _item;
                 final int _tmpId;
                 _tmpId = _cursor.getInt(_cursorIndexOfId);
@@ -603,7 +603,7 @@ public final class ComplexDao_Impl extends ComplexDao {
                     final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
                     final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
                     final List<Child1> _result = new ArrayList<Child1>(_cursor.getCount());
-                    while(_cursor.moveToNext()) {
+                    while (_cursor.moveToNext()) {
                         final Child1 _item;
                         final int _tmpId;
                         _tmpId = _cursor.getInt(_cursorIndexOfId);
@@ -646,7 +646,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _cursorIndexOfUid = 0;
             final int _cursorIndexOfName = 1;
             final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final UserSummary _item;
                 _item = new UserSummary();
                 _item.uid = _cursor.getInt(_cursorIndexOfUid);
