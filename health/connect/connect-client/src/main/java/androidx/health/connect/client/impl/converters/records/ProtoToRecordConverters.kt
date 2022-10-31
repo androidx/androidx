@@ -52,6 +52,7 @@ import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
@@ -328,7 +329,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Menstruation" ->
                 MenstruationFlowRecord(
-                    flow = getEnum("flow"),
+                    flow =
+                        mapEnum(
+                            "flow",
+                            MenstruationFlowRecord.FLOW_TYPE_STRING_TO_INT_MAP,
+                            MenstruationFlowRecord.FLOW_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -628,6 +634,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
+                    metadata = metadata
+                )
+            "IntermenstrualBleeding" ->
+                IntermenstrualBleedingRecord(
+                    time = time,
+                    zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "Steps" ->
