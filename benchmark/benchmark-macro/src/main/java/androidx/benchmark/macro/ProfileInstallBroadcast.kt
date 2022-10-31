@@ -36,7 +36,9 @@ internal object ProfileInstallBroadcast {
         // installed synchronously
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
         // Use an explicit broadcast given the app was force-stopped.
-        val result = Shell.executeCommand("am broadcast -a $action $packageName/$receiverName")
+        val result = Shell.executeScriptCaptureStdout(
+            "am broadcast -a $action $packageName/$receiverName"
+        )
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
@@ -101,7 +103,7 @@ internal object ProfileInstallBroadcast {
         val action = "androidx.profileinstaller.action.SKIP_FILE"
         val operationKey = "EXTRA_SKIP_FILE_OPERATION"
         val extras = "$operationKey $operation"
-        val result = Shell.executeCommand(
+        val result = Shell.executeScriptCaptureStdout(
             "am broadcast -a $action -e $extras $packageName/$receiverName"
         )
             .substringAfter("Broadcast completed: result=")
@@ -141,7 +143,9 @@ internal object ProfileInstallBroadcast {
     fun saveProfile(packageName: String): String? {
         Log.d(TAG, "Profile Installer - Save Profile")
         val action = "androidx.profileinstaller.action.SAVE_PROFILE"
-        val result = Shell.executeCommand("am broadcast -a $action $packageName/$receiverName")
+        val result = Shell.executeScriptCaptureStdout(
+            "am broadcast -a $action $packageName/$receiverName"
+        )
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
@@ -180,7 +184,7 @@ internal object ProfileInstallBroadcast {
         val action = "androidx.profileinstaller.action.BENCHMARK_OPERATION"
         val operationKey = "EXTRA_BENCHMARK_OPERATION"
         val extras = "$operationKey $operation"
-        val result = Shell.executeCommand(
+        val result = Shell.executeScriptCaptureStdout(
             "am broadcast -a $action -e $extras $packageName/$receiverName"
         )
             .substringAfter("Broadcast completed: result=")

@@ -96,8 +96,8 @@ public class PerfettoHelper(
             val actualConfigPath = if (unbundled) {
                 val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                 // Move the config to a directory that unbundled perfetto has permissions for.
-                Shell.executeCommand("rm $path")
-                Shell.executeCommand("mv $configFilePath $path")
+                Shell.executeScriptSilent("rm -f $path")
+                Shell.executeScriptSilent("mv $configFilePath $path")
                 path
             } else {
                 configFilePath
@@ -105,13 +105,13 @@ public class PerfettoHelper(
 
             val outputPath = getPerfettoTmpOutputFilePath()
             // Remove already existing temporary output trace file if any.
-            val output = Shell.executeCommand("rm $outputPath")
-            Log.i(LOG_TAG, "Perfetto output file cleanup - $output")
+            Shell.executeScriptSilent("rm -f $outputPath")
 
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = Shell.executeScript("$perfettoCmd; echo EXITCODE=$?").trim()
+            val perfettoCmdOutput =
+                Shell.executeScriptCaptureStdout("$perfettoCmd; echo EXITCODE=$?").trim()
 
             val expectedSuffix = "\nEXITCODE=0"
             if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
@@ -162,7 +162,7 @@ public class PerfettoHelper(
         val pollTracingOnMs = 100L
 
         repeat(pollTracingOnMaxCount) {
-            when (val output = Shell.executeCommand("cat $path").trim()) {
+            when (val output = Shell.executeScriptCaptureStdout("cat $path").trim()) {
                 "0" -> {
                     userspaceTrace("wait for trace to start (tracing_on == 1)") {
                         SystemClock.sleep(pollTracingOnMs)
@@ -315,8 +315,8 @@ public class PerfettoHelper(
         // destinationFile
         try {
             val moveResult =
-                Shell.executeCommand("mv $sourceFile $destinationFile")
-            if (moveResult.isNotEmpty()) {
+                Shell.executeScriptCaptureStdoutStderr("mv $sourceFile $destinationFile")
+            if (!moveResult.isBlank()) {
                 Log.e(
                     LOG_TAG,
                     """
@@ -423,15 +423,22 @@ public class PerfettoHelper(
                 )
             }
 
-            // Have seen cases where unbundled Perfetto crashes, and leaves ftrace enabled,
+            // Have seen cases where bundled Perfetto crashes, and leaves ftrace enabled,
             // e.g. b/205763418. --cleanup-after-crash will reset that state, so it doesn't leak
             // between tests. If this sort of crash happens on higher API levels, may need to do
-            // this there as well. Can't use /system/bin/traced_probes, as that requires root, and
-            // unbundled tracebox otherwise not used/installed on higher APIs, outside of tests.
+            // this there as well. Can't use bundled /system/bin/traced_probes, as that requires
+            // root, and unbundled tracebox otherwise not used/installed on higher APIs, outside
+            // of tests.
             if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
-                Shell.executeCommand(
+                val output = Shell.executeScriptCaptureStdoutStderr(
                     "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )
+                check(
+                    output.stderr.isBlank() ||
+                        output.stderr.contains("Hard resetting ftrace state")
+                ) {
+                    "Unexpected output from --cleanup-after-crash: $output"
+                }
             }
         }
     }

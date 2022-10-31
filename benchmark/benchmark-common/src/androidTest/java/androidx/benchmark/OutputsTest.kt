@@ -109,7 +109,7 @@ public class OutputsTest {
             file.writeText(file.name) // use name, as it's fairly unique
             Assert.assertEquals(
                 file.name,
-                Shell.executeCommand("cat ${file.absolutePath}")
+                Shell.executeScriptCaptureStdout("cat ${file.absolutePath}")
             )
         } finally {
             file.delete()

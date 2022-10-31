@@ -160,20 +160,13 @@ fun collectBaselineProfile(
  */
 @RequiresApi(33)
 private fun extractProfile(packageName: String): String {
-    val dumpResult = Shell.executeScriptWithStderr(
+    Shell.executeScriptSilent(
         "pm dump-profiles --dump-classes-and-methods $packageName"
     )
-    check(dumpResult.isBlank()) {
-        "Expected no stdout/stderr from pm dump-profiles," +
-            " saw '${dumpResult.stdout}', '${dumpResult.stderr}'"
-    }
     val fileName = "$packageName-primary.prof.txt"
-    val mvResult = Shell.executeScriptWithStderr(
+    Shell.executeScriptSilent(
         "mv /data/misc/profman/$fileName ${Outputs.dirUsableByAppAndShell}/"
     )
-    check(mvResult.isBlank()) {
-        "Expected no stdout/stderr from mv, saw '${mvResult.stdout}', '${mvResult.stderr}'"
-    }
 
     val rawRuleOutput = File(Outputs.dirUsableByAppAndShell, fileName)
     try {
@@ -194,7 +187,7 @@ private fun extractProfileRooted(packageName: String): String {
     // The path to the primary profile
     val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
     Log.d(TAG, "Reference profile location: $referenceProfile")
-    val pathResult = Shell.executeScript("pm path $packageName")
+    val pathResult = Shell.executeScriptCaptureStdout("pm path $packageName")
     // The result looks like: `package: <result>`
     val apkPath = pathResult.substringAfter("package:").trim()
     Log.d(TAG, "APK Path: $apkPath")
@@ -210,7 +203,7 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
     // The `current` path is eventually merged  into the `ref` path after background dexopt.
     for (currentPath in pathOptions) {
         Log.d(TAG, "Using profile location: $currentPath")
-        val profile = Shell.executeScript(
+        val profile = Shell.executeScriptCaptureStdout(
             "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
         )
         if (profile.isNotBlank()) {
@@ -313,7 +306,7 @@ internal val deviceSpecifier by lazy {
         // so we just specify emulator and hope there's only one
         "-e "
     } else {
-        val getpropOutput = Shell.executeScriptWithStderr("getprop ro.serialno")
+        val getpropOutput = Shell.executeScriptCaptureStdoutStderr("getprop ro.serialno")
         if (getpropOutput.stdout.isBlank() || getpropOutput.stderr.isNotBlank()) {
             "" // failed to get serial
         } else {

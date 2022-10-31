@@ -78,7 +78,7 @@ sealed class CompilationMode {
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation) {
-                Log.d(TAG, "Resetting $packageName")
+                Log.d(TAG, "Compiling $packageName")
                 // Write skip file to stop profile installer from interfering with the benchmark
                 writeProfileInstallerSkipFile(packageName, killProcessBlock = killProcessBlock)
                 compileImpl(packageName, killProcessBlock, warmupBlock)
@@ -248,7 +248,7 @@ sealed class CompilationMode {
                             TAG,
                             "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
                         )
-                        val response = Shell.executeScriptWithStderr(
+                        val response = Shell.executeScriptCaptureStdoutStderr(
                             "killall -s SIGUSR1 $packageName"
                         )
                         check(response.isBlank()) {
@@ -340,7 +340,10 @@ sealed class CompilationMode {
 
         @RequiresApi(24)
         internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
-            Shell.executeCommand("cmd package compile -f -m $compileArgument $packageName")
+            val stdout = Shell.executeScriptCaptureStdout(
+                "cmd package compile -f -m $compileArgument $packageName"
+            )
+            check(stdout.trim() == "Success")
         }
     }
 }
@@ -354,7 +357,7 @@ sealed class CompilationMode {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun CompilationMode.isSupportedWithVmSettings(): Boolean {
-    val getProp = Shell.executeCommand("getprop dalvik.vm.extra-opts")
+    val getProp = Shell.getprop("dalvik.vm.extra-opts")
     val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
 
     // true if requires interpreted, false otherwise

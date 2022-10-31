@@ -220,16 +220,16 @@ internal object StackSamplingSimpleperf : Profiler() {
         securityPerfHarden.forceValue()
 
         // for all other properties, simply set the values, as these don't have defaults
-        Shell.executeCommand("setprop debug.perf_event_max_sample_rate 10000")
-        Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
-        Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
+        Shell.executeScriptSilent("setprop debug.perf_event_max_sample_rate 10000")
+        Shell.executeScriptSilent("setprop debug.perf_cpu_time_max_percent 25")
+        Shell.executeScriptSilent("setprop debug.perf_event_mlock_kb 32800")
 
         outputRelativePath = traceName(traceUniqueName, "stackSampling")
         session = ProfileSession().also {
             // prepare simpleperf must be done as shell user, so do this here with other shell setup
             // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
             // fail, but only on devices that have not run this command since flashing (e.g. in CI)
-            Shell.executeCommand(it.findSimpleperf() + " api-prepare")
+            Shell.executeScriptSilent(it.findSimpleperf() + " api-prepare")
             it.startRecording(
                 RecordOptions()
                     .setSampleFrequency(Arguments.profilerSampleFrequency)

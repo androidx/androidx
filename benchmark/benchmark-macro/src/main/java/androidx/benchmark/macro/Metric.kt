@@ -456,13 +456,13 @@ public class PowerMetric(
 
     internal override fun start() {
         if (type is Type.Battery) {
-            Shell.executeCommand("setprop power.battery_input.suspended true")
+            Shell.executeScriptSilent("setprop power.battery_input.suspended true")
         }
     }
 
     internal override fun stop() {
         if (type is Type.Battery) {
-            Shell.executeCommand("setprop power.battery_input.suspended false")
+            Shell.executeScriptSilent("setprop power.battery_input.suspended false")
         }
     }
 

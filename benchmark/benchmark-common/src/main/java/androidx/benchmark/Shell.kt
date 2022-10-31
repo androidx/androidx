@@ -22,6 +22,7 @@ import android.os.ParcelFileDescriptor
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -77,21 +78,16 @@ object Shell {
     }
 
     /**
-     * Run a command, and capture stdout
+     * Run a command, and capture stdout, dropping / ignoring stderr
      *
      * Below L, returns null
      */
     fun optionalCommand(command: String): String? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            executeCommand(command)
+            executeScriptCaptureStdoutStderr(command).stdout
         } else {
             null
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun executeCommand(command: String): String {
-        return ShellImpl.executeCommand(command)
     }
 
     /**
@@ -113,21 +109,20 @@ object Shell {
 
     @RequiresApi(21)
     fun chmodExecutable(absoluteFilePath: String) {
+        // use unsafe commands, as this is used in Shell.executeScript
         if (Build.VERSION.SDK_INT >= 23) {
-            ShellImpl.executeCommand("chmod +x $absoluteFilePath")
+            ShellImpl.executeCommandUnsafe("chmod +x $absoluteFilePath")
         } else {
             // chmod with support for +x only added in API 23
             // While 777 is technically more permissive, this is only used for scripts and temporary
             // files in tests, so we don't worry about permissions / access here
-            ShellImpl.executeCommand("chmod 777 $absoluteFilePath")
+            ShellImpl.executeCommandUnsafe("chmod 777 $absoluteFilePath")
         }
     }
 
     @RequiresApi(21)
     fun moveToTmpAndMakeExecutable(src: String, dst: String) {
-        // Note: we don't check for return values from the below, since shell based file
-        // permission errors generally crash our process.
-        ShellImpl.executeCommand("cp $src $dst")
+        ShellImpl.executeCommandUnsafe("cp $src $dst")
         chmodExecutable(dst)
     }
 
@@ -170,11 +165,17 @@ object Shell {
         return ShellImpl.isSessionRooted || ShellImpl.isSuAvailable
     }
 
+    @RequiresApi(21)
+    fun getprop(propertyName: String): String {
+        return executeScriptCaptureStdout("getprop $propertyName").trim()
+    }
+
     /**
-     * Convenience wrapper around [UiAutomation.executeShellCommand()] which enables redirects,
-     * piping, and all other shell script functionality.
+     * Convenience wrapper around [android.app.UiAutomation.executeShellCommand] which adds
+     * scripting functionality like piping and redirects, and which throws if stdout or stder was
+     * produced.
      *
-     * Unlike [UiDevice.executeShellCommand()], this method supports arbitrary multi-line shell
+     * Unlike `executeShellCommand()`, this method supports arbitrary multi-line shell
      * expressions, as it creates and executes a shell script in `/data/local/tmp/`.
      *
      * Note that shell scripting capabilities differ based on device version. To see which utilities
@@ -187,12 +188,34 @@ object Shell {
      * @return Stdout string
      */
     @RequiresApi(21)
-    fun executeScript(script: String, stdin: String? = null): String {
-        return ShellImpl
-            .createShellScript(script, stdin, false)
-            .start()
-            .getOutputAndClose()
-            .stdout
+    fun executeScriptSilent(script: String, stdin: String? = null) {
+        val output = executeScriptCaptureStdoutStderr(script, stdin)
+        check(output.isBlank()) { "Expected no stdout/stderr from $script, saw $output" }
+    }
+
+    /**
+     * Convenience wrapper around [android.app.UiAutomation.executeShellCommand] which adds
+     * scripting functionality like piping and redirects, and which captures stdout and throws if
+     * stderr was produced.
+     *
+     * Unlike `executeShellCommand()`, this method supports arbitrary multi-line shell
+     * expressions, as it creates and executes a shell script in `/data/local/tmp/`.
+     *
+     * Note that shell scripting capabilities differ based on device version. To see which utilities
+     * are available on which platform versions,see
+     * [Android's shell and utilities](https://android.googlesource.com/platform/system/core/+/master/shell_and_utilities/README.md#)
+     *
+     * @param script Script content to run
+     * @param stdin String to pass in as stdin to first command in script
+     *
+     * @return Stdout string
+     */
+    @RequiresApi(21)
+    @CheckResult
+    fun executeScriptCaptureStdout(script: String, stdin: String? = null): String {
+        val output = executeScriptCaptureStdoutStderr(script, stdin)
+        check(output.stderr.isBlank()) { "Expected no stderr from $script, saw ${output.stderr}" }
+        return output.stdout
     }
 
     data class Output(val stdout: String, val stderr: String) {
@@ -209,10 +232,10 @@ object Shell {
     }
 
     /**
-     * Convenience wrapper around [UiAutomation.executeShellCommand()] which enables redirects,
-     * piping, and all other shell script functionality, and which captures stderr of last command.
+     * Convenience wrapper around [android.app.UiAutomation.executeShellCommand] which adds
+     * scripting functionality like piping and redirects, and which captures both stdout and stderr.
      *
-     * Unlike [UiDevice.executeShellCommand()], this method supports arbitrary multi-line shell
+     * Unlike `executeShellCommand()`, this method supports arbitrary multi-line shell
      * expressions, as it creates and executes a shell script in `/data/local/tmp/`.
      *
      * Note that shell scripting capabilities differ based on device version. To see which utilities
@@ -222,21 +245,24 @@ object Shell {
      * @param script Script content to run
      * @param stdin String to pass in as stdin to first command in script
      *
-     * @return ShellOutput, including stdout of full script, and stderr of last command.
+     * @return Output object containing stdout and stderr of full script, and stderr of last command
      */
     @RequiresApi(21)
-    fun executeScriptWithStderr(
+    @CheckResult
+    fun executeScriptCaptureStdoutStderr(
         script: String,
         stdin: String? = null
     ): Output {
-        return ShellImpl
-            .createShellScript(script = script, stdin = stdin, includeStderr = true)
-            .start()
-            .getOutputAndClose()
+        return trace("executeScript $script".take(127)) {
+            ShellImpl
+                .createShellScript(script = script, stdin = stdin)
+                .start()
+                .getOutputAndClose()
+        }
     }
 
     /**
-     * Creates a executable shell script that can be started. Similar to [executeScriptWithStderr]
+     * Creates a executable shell script that can be started. Similar to [executeScriptCaptureStdoutStderr]
      * but allows deferring and caching script execution.
      *
      * @param script Script content to run
@@ -247,14 +273,12 @@ object Shell {
     @RequiresApi(21)
     fun createShellScript(
         script: String,
-        stdin: String? = null,
-        includeStderr: Boolean = true
+        stdin: String? = null
     ): ShellScript {
         return ShellImpl
             .createShellScript(
                 script = script,
-                stdin = stdin,
-                includeStderr = includeStderr
+                stdin = stdin
             )
     }
 
@@ -283,7 +307,7 @@ object Shell {
         // Can't use ps -A pre API 26, arg isn't supported.
         // Grep device side, since ps output by itself gets truncated
         // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
-        return executeScript("ps | grep $processName")
+        return executeScriptCaptureStdout("ps | grep $processName")
             .split(Regex("\r?\n"))
             .map { it.trim() }
             .filter { psLineContainsProcess(psOutputLine = it, processName = processName) }
@@ -306,7 +330,9 @@ object Shell {
      */
     @RequiresApi(23)
     private fun pgrepLF(pattern: String): List<Pair<Int, String>> {
-        return executeCommand("pgrep -l -f $pattern")
+        // Note: we use the unsafe variant for performance, since this is a
+        // common operation, and pgrep is stable after API 23 see [ShellBehaviorTest#pgrep]
+        return ShellImpl.executeCommandUnsafe("pgrep -l -f $pattern")
             .split(Regex("\r?\n"))
             .filter { it.isNotEmpty() }
             .map {
@@ -336,7 +362,7 @@ object Shell {
         // NOTE: Can't use ps -A pre API 26, arg isn't supported, but would need
         // to pass it on 26 to see all processes.
         // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
-        return executeScript("ps | grep $packageName")
+        return executeScriptCaptureStdout("ps | grep $packageName")
             .split(Regex("\r?\n"))
             .map {
                 // get process name from end
@@ -355,7 +381,9 @@ object Shell {
      */
     @RequiresApi(21)
     fun isProcessAlive(pid: Int, processName: String): Boolean {
-        return executeCommand("ps $pid")
+        // unsafe, since this behavior is well tested, and performance here is important
+        // See [ShellBehaviorTest#ps]
+        return ShellImpl.executeCommandUnsafe("ps $pid")
             .split(Regex("\r?\n"))
             .any { psLineContainsProcess(psOutputLine = it, processName = processName) }
     }
@@ -388,7 +416,9 @@ object Shell {
         vararg processes: ProcessPid
     ) {
         processes.forEach {
-            val stopOutput = executeCommand("kill -TERM ${it.pid}")
+            // NOTE: we don't fail on stdout/stderr, since killing processes can be racy, and
+            // killing one can kill others. Instead, validation of process death happens below.
+            val stopOutput = executeScriptCaptureStdoutStderr("kill -TERM ${it.pid}")
             Log.d(BenchmarkState.TAG, "kill -TERM command output - $stopOutput")
         }
 
@@ -408,7 +438,7 @@ object Shell {
 
     @RequiresApi(21)
     fun pathExists(absoluteFilePath: String): Boolean {
-        return executeCommand("ls $absoluteFilePath").trim() == absoluteFilePath
+        return ShellImpl.executeCommandUnsafe("ls $absoluteFilePath").trim() == absoluteFilePath
     }
 }
 
@@ -436,23 +466,26 @@ private object ShellImpl {
     init {
         // These variables are used in executeCommand and executeScript, so we keep them as var
         // instead of val and use a separate initializer
-        isSessionRooted = executeCommand("id").contains("uid=0(root)")
+        isSessionRooted = executeCommandUnsafe("id").contains("uid=0(root)")
+        // use a script below, since `su` command failure is unrecoverable on some API levels
         isSuAvailable = createShellScript(
-            "su root id",
-            null,
-            false
+            script = "su root id",
+            stdin = null
         ).start().getOutputAndClose().stdout.contains("uid=0(root)")
     }
 
     /**
      * Reimplementation of UiAutomator's Device.executeShellCommand,
      * to avoid the UiAutomator dependency, and add tracing
+     *
+     * NOTE: this does not capture stderr, and is thus unsafe. Only use this when the more complex
+     * Shell.executeScript APIs aren't appropriate (such as in their implementation)
      */
-    fun executeCommand(cmd: String): String = trace("executeCommand $cmd".take(127)) {
-        return@trace executeCommandNonBlocking(cmd).fullyReadInputStream()
+    fun executeCommandUnsafe(cmd: String): String = trace("executeCommand $cmd".take(127)) {
+        return@trace executeCommandNonBlockingUnsafe(cmd).fullyReadInputStream()
     }
 
-    fun executeCommandNonBlocking(cmd: String): ParcelFileDescriptor =
+    fun executeCommandNonBlockingUnsafe(cmd: String): ParcelFileDescriptor =
         trace("executeCommandNonBlocking $cmd".take(127)) {
             return@trace uiAutomation.executeShellCommand(
                 if (!isSessionRooted && isSuAvailable) {
@@ -465,57 +498,32 @@ private object ShellImpl {
 
     fun createShellScript(
         script: String,
-        stdin: String?,
-        includeStderr: Boolean
-    ): ShellScript = trace("createShellScript $script".take(127)) {
+        stdin: String?
+    ): ShellScript = trace("createShellScript") {
 
         // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
         // so we copy to /data/local/tmp
         val externalDir = Outputs.dirUsableByAppAndShell
-        val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
-        val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
+        val scriptContentFile = File.createTempFile("temporaryScript", null, externalDir)
 
         // only create/read/delete stdin/stderr files if they are needed
         val stdinFile = stdin?.run {
             File.createTempFile("temporaryStdin", null, externalDir)
         }
-        val stderrPath = if (includeStderr) {
-            // we use a modified runnableScriptPath (as opposed to externalDir) because some shell
-            // commands fail to redirect stderr to externalDir (notably, `am start`).
-            // This also means we need to `cat` the file to read it, and `rm` to remove it.
-            runnableScriptPath + "_stderr"
-        } else {
-            null
-        }
-
-        var shellScript: ShellScript? = null
+        // we use a path on /data/local/tmp (as opposed to externalDir) because some shell
+        // commands fail to redirect stderr to externalDir (notably, `am start`).
+        // This also means we need to `cat` the file to read it, and `rm` to remove it.
+        val stderrPath = "/data/local/tmp/" + scriptContentFile.name + "_stderr"
 
         try {
-            var scriptText: String = script
-            if (stdinFile != null) {
-                stdinFile.writeText(stdin)
-                scriptText = "cat ${stdinFile.absolutePath} | $scriptText"
-            }
-            if (stderrPath != null) {
-                scriptText = "$scriptText 2> $stderrPath"
-            }
-            writableScriptFile.writeText(scriptText)
-
-            // Note: we don't check for return values from the below, since shell based file
-            // permission errors generally crash our process.
-            executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
-            Shell.chmodExecutable(runnableScriptPath)
-
-            shellScript = ShellScript(
+            stdinFile?.writeText(stdin)
+            scriptContentFile.writeText(script)
+            return@trace ShellScript(
                 stdinFile = stdinFile,
-                writableScriptFile = writableScriptFile,
-                stderrPath = stderrPath,
-                runnableScriptPath = runnableScriptPath
+                scriptContentFile = scriptContentFile,
+                stderrPath = stderrPath
             )
-
-            return@trace shellScript
         } catch (e: Exception) {
-            shellScript?.cleanUp()
             throw Exception("Can't create shell script", e)
         }
     }
@@ -525,24 +533,29 @@ private object ShellImpl {
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class ShellScript internal constructor(
     private val stdinFile: File?,
-    private val writableScriptFile: File,
-    private val stderrPath: String?,
-    private val runnableScriptPath: String
+    private val scriptContentFile: File,
+    private val stderrPath: String
 ) {
-
     private var cleanedUp: Boolean = false
 
     /**
      * Starts the shell script previously created.
      *
-     * @param params a vararg string of parameters to be passed to the script.
-     *
      * @return a [StartedShellScript] that contains streams to read output streams.
      */
-    fun start(vararg params: String): StartedShellScript = trace("ShellScript#start") {
-        val cmd = "$runnableScriptPath ${params.joinToString(" ")}"
-        val stdoutDescriptor = ShellImpl.executeCommandNonBlocking(cmd)
-        val stderrDescriptorFn = stderrPath?.run { { ShellImpl.executeCommand("cat $stderrPath") } }
+    fun start(): StartedShellScript = trace("ShellScript#start") {
+        val stdoutDescriptor = ShellImpl.executeCommandNonBlockingUnsafe(
+            scriptWrapperCommand(
+                scriptContentPath = scriptContentFile.absolutePath,
+                stderrPath = stderrPath,
+                stdinPath = stdinFile?.absolutePath
+            )
+        )
+        val stderrDescriptorFn = stderrPath.run {
+            {
+                ShellImpl.executeCommandUnsafe("cat $stderrPath")
+            }
+        }
 
         return@trace StartedShellScript(
             stdoutDescriptor = stdoutDescriptor,
@@ -558,14 +571,44 @@ class ShellScript internal constructor(
         if (cleanedUp) {
             return@trace
         }
-        stdinFile?.delete()
-        writableScriptFile.delete()
-        if (stderrPath != null) {
-            ShellImpl.executeCommand("rm $stderrPath $runnableScriptPath")
-        } else {
-            ShellImpl.executeCommand("rm $runnableScriptPath")
-        }
+        // NOTE: while we should theoretically be able to delete the scriptContentFile as part of
+        // shellWrapper, this doesn't work reliably (observed empty stdout on API 26/28)
+        ShellImpl.executeCommandUnsafe("rm -f $stderrPath ${scriptContentFile.absolutePath}")
         cleanedUp = true
+    }
+
+    companion object {
+        /**
+         * Usage args: ```path/to/shellWrapper.sh <scriptFile> <stderrFile> [inputFile]```
+         */
+        private val scriptWrapperPath = Shell.createRunnableExecutable(
+            "shellWrapper.sh",
+            """
+                ### shell script which passes in stdin as needed, and captures stderr in a file
+                # $1 == script content (not executable, to avoid separate chmod, cleaned up)
+                # $2 == stderr
+                # $3 == stdin (optional, cleaned up)
+                if [[ $3 -eq "0" ]]; then
+                    /system/bin/sh $1 2> $2
+                else
+                    cat $3 | /system/bin/sh $1 2> $2
+                    rm -f $3
+                fi
+            """.trimIndent().byteInputStream()
+        )
+
+        fun scriptWrapperCommand(
+            scriptContentPath: String,
+            stderrPath: String,
+            stdinPath: String?
+        ): String {
+            val base = "$scriptWrapperPath $scriptContentPath $stderrPath"
+            return if (stdinPath == null) {
+                base
+            } else {
+                "$base $stdinPath"
+            }
+        }
     }
 }
 
@@ -573,7 +616,7 @@ class ShellScript internal constructor(
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class StartedShellScript internal constructor(
     private val stdoutDescriptor: ParcelFileDescriptor,
-    private val stderrDescriptorFn: (() -> (String))?,
+    private val stderrDescriptorFn: (() -> (String)),
     private val cleanUpBlock: () -> Unit
 ) : Closeable {
 
@@ -594,7 +637,7 @@ class StartedShellScript internal constructor(
     fun getOutputAndClose(): Shell.Output {
         val output = Shell.Output(
             stdout = stdoutDescriptor.fullyReadInputStream(),
-            stderr = stderrDescriptorFn?.invoke() ?: ""
+            stderr = stderrDescriptorFn.invoke()
         )
         close()
         return output
