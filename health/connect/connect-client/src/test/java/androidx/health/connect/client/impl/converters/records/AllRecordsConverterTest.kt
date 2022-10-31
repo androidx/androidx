@@ -50,10 +50,10 @@ import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
-import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationFlowRecord.Flow
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -468,19 +468,6 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testIntermenstrualBleeding() {
-        val data =
-            IntermenstrualBleedingRecord(
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testLeanBodyMass() {
         val data =
             LeanBodyMassRecord(
@@ -498,7 +485,7 @@ class AllRecordsConverterTest {
     fun testMenstruation() {
         val data =
             MenstruationFlowRecord(
-                flow = MenstruationFlowRecord.FLOW_HEAVY,
+                flow = Flow.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
