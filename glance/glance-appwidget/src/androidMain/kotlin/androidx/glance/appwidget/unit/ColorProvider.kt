@@ -25,27 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.R
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-
-/**
- * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
- * mode is on.
- */
-fun ColorProvider(day: Color, night: Color): ColorProvider {
-    return DayNightColorProvider(day, night)
-}
-
-internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
-    override fun getColor(context: Context) = getColor(context.isNightMode)
-
-    fun getColor(isNightMode: Boolean) = if (isNightMode) night else day
-}
-
-internal val Context.isNightMode: Boolean
-    get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-        Configuration.UI_MODE_NIGHT_YES
 
 /** Provider of different colors depending on a checked state. */
 internal sealed interface CheckableColorProvider

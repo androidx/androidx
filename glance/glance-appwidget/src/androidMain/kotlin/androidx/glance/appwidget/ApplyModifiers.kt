@@ -41,7 +41,7 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.applyAction
-import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier

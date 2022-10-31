@@ -17,7 +17,7 @@
 package androidx.glance.material3
 
 import androidx.compose.material3.ColorScheme
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
 import androidx.glance.color.ColorProviders
 import androidx.glance.color.colorProviders
 import androidx.glance.unit.ColorProvider

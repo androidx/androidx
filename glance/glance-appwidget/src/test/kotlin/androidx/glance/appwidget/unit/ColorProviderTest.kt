@@ -24,6 +24,7 @@ import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import androidx.glance.appwidget.ColorSubject.Companion.assertThat
+import androidx.glance.color.ColorProvider
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config

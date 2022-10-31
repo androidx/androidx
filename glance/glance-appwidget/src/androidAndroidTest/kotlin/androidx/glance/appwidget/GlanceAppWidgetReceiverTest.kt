@@ -61,6 +61,7 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -786,7 +787,7 @@ class GlanceAppWidgetReceiverTest {
                 onCheckedChange = null,
                 text = "Hello Checked Switch (day: Blue/Green, night: Red/Yellow)",
                 style = TextStyle(
-                    color = androidx.glance.appwidget.unit.ColorProvider(
+                    color = ColorProvider(
                         day = Color.Black,
                         night = Color.White
                     ),
@@ -794,11 +795,11 @@ class GlanceAppWidgetReceiverTest {
                     fontStyle = FontStyle.Normal,
                 ),
                 colors = switchColors(
-                    checkedThumbColor = androidx.glance.appwidget.unit.ColorProvider(
+                    checkedThumbColor = ColorProvider(
                         day = Color.Blue,
                         night = Color.Red
                     ),
-                    checkedTrackColor = androidx.glance.appwidget.unit.ColorProvider(
+                    checkedTrackColor = ColorProvider(
                         day = Color.Green,
                         night = Color.Yellow
                     ),

@@ -20,7 +20,7 @@ import androidx.compose.material.Colors
 import androidx.compose.material.primarySurface
 import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceTheme
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
 import androidx.glance.color.ColorProviders
 import androidx.glance.color.colorProviders
 import androidx.glance.unit.ColorProvider
