@@ -69,6 +69,12 @@ import kotlinx.coroutines.isActive
  * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
  * placeholders. There should only be one placeholderShimmer for each component.
  *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
+ *
  * Background placeholder effects are used to mask the background of components like chips and cards
  * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
  * [PlaceholderDefaults.placeholderBackgroundBrush] and
@@ -279,6 +285,12 @@ private fun checkForStageTransition(
  *
  * The [placeholderState] determines when to 'show' and 'wipe off' the placeholder.
  *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be first in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
+ *
  * @param placeholderState determines whether the placeholder is visible and controls animation
  * effects for the placeholder.
  * @param shape the shape to apply to the placeholder
@@ -322,6 +334,12 @@ public fun Modifier.placeholder(
  * the top of it when waiting for placeholder data to load and then draws a placeholder shimmer over
  * the top:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * @param placeholderState the current placeholder state that determine whether the placeholder
  * shimmer should be shown.

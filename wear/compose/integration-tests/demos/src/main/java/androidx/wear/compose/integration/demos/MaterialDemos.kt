@@ -70,6 +70,7 @@ import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
+import androidx.wear.compose.material.samples.TextPlaceholder
 import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TimeTextWithStatus
@@ -418,6 +419,11 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Overlaid Placeholder") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 ChipWithIconAndLabelsAndOverlaidPlaceholder()
+                            }
+                        },
+                        ComposableDemo("Simple Text Placeholder") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TextPlaceholder()
                             }
                         },
                      )
