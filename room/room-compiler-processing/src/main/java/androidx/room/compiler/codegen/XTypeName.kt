@@ -25,6 +25,12 @@ import com.squareup.kotlinpoet.DOUBLE_ARRAY
 import com.squareup.kotlinpoet.FLOAT_ARRAY
 import com.squareup.kotlinpoet.INT_ARRAY
 import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.MUTABLE_COLLECTION
+import com.squareup.kotlinpoet.MUTABLE_ITERABLE
+import com.squareup.kotlinpoet.MUTABLE_LIST
+import com.squareup.kotlinpoet.MUTABLE_MAP
+import com.squareup.kotlinpoet.MUTABLE_MAP_ENTRY
+import com.squareup.kotlinpoet.MUTABLE_SET
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT_ARRAY
 import com.squareup.kotlinpoet.asClassName
@@ -257,6 +263,8 @@ class XClassName internal constructor(
  * [kotlin.collections.MutableList] then the non-mutable [XClassName] is returned due to the
  * mutable interfaces only existing at compile-time, see:
  * https://youtrack.jetbrains.com/issue/KT-11754.
+ *
+ * If the mutable [XClassName] is needed, use [asMutableClassName].
  */
 fun KClass<*>.asClassName(): XClassName {
     val jClassName = if (this.java.isPrimitive) {
@@ -270,6 +278,38 @@ fun KClass<*>.asClassName(): XClassName {
         kotlin = kClassName,
         nullability = XNullability.NONNULL
     )
+}
+
+/**
+ * Creates a mutable [XClassName] from the receiver [KClass]
+ *
+ * This is a workaround for:
+ * https://github.com/square/kotlinpoet/issues/279
+ * https://youtrack.jetbrains.com/issue/KT-11754
+ *
+ * When the receiver [KClass] is a Kotlin interop collection, such as [kotlin.collections.List]
+ * then the returned [XClassName] contains the corresponding JavaPoet class name. See:
+ * https://kotlinlang.org/docs/reference/java-interop.html#mapped-types.
+ *
+ * When the receiver [KClass] is a Kotlin mutable collection, such as
+ * [kotlin.collections.MutableList] then the returned [XClassName] contains the corresponding
+ * KotlinPoet class name.
+ *
+ * If an equivalent interop [XClassName] mapping for a Kotlin mutable Kotlin collection receiver
+ * [KClass] is not found, the method will error out.
+ */
+fun KClass<*>.asMutableClassName(): XClassName {
+    val java = JClassName.get(this.java)
+    val kotlin = when (this) {
+        Iterator::class -> MUTABLE_ITERABLE
+        Collection::class -> MUTABLE_COLLECTION
+        List::class -> MUTABLE_LIST
+        Set::class -> MUTABLE_SET
+        Map::class -> MUTABLE_MAP
+        Map.Entry::class -> MUTABLE_MAP_ENTRY
+        else -> error("No equivalent mutable Kotlin interop found for `$this`.")
+    }
+    return XClassName(java, kotlin, XNullability.NONNULL)
 }
 
 private fun getBoxedJClassName(klass: Class<*>): JClassName = when (klass) {
