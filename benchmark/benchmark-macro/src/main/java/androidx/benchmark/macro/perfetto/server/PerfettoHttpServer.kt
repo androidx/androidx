@@ -59,6 +59,7 @@ internal class PerfettoHttpServer(private val port: Int) {
         private const val TAG = "PerfettoHttpServer"
         private const val SERVER_START_TIMEOUT_MS = 5000
         private const val READ_TIMEOUT_SECONDS = 300000
+        private const val SERVER_PROCESS_NAME = "trace_processor_shell"
 
         private var shellScript: ShellScript? = null
 
@@ -130,13 +131,30 @@ internal class PerfettoHttpServer(private val port: Int) {
             Thread.sleep(5)
             elapsed += 5
             if (elapsed >= SERVER_START_TIMEOUT_MS) {
-                throw IllegalStateException(
-                    """
+
+                // In the event that the instrumentation app cannot connect to the
+                // trace_processor_shell server, trying to read the full stderr may make the
+                // process hang. Here we check if the process is still running to determine if
+                // that's the case and throw the correct exception.
+
+                val processRunning =
+                    processId?.let { Shell.isProcessAlive(it, SERVER_PROCESS_NAME) } ?: false
+
+                if (processRunning) {
+                    throw IllegalStateException(
+                        """
+                        The instrumentation app cannot connect to the trace_processor_shell server.
+                        """.trimIndent()
+                    )
+                } else {
+                    throw IllegalStateException(
+                        """
                         Perfetto trace_processor_shell did not start correctly.
                         Process stderr:
                         ${shellScript.getOutputAndClose().stderr}
-                    """.trimIndent()
-                )
+                        """.trimIndent()
+                    )
+                }
             }
         }
         Log.i(TAG, "Perfetto trace processor shell server started (pid=$processId).")
