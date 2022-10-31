@@ -17,7 +17,6 @@
 package androidx.wear.watchface.client.guava
 
 import android.annotation.SuppressLint
-import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -44,8 +43,8 @@ private const val TIMEOUT_MS = 500L
  * Test shim to allow us to connect to WatchFaceControlService from
  * [ListenableWatchFaceMetadataClientTest] and to optionally override the reported API version.
  */
-public class WatchFaceControlTestService : Service() {
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
+@RequiresApi(Build.VERSION_CODES.O_MR1)
+public class WatchFaceControlTestService : WatchFaceControlService() {
     private val realService = object : WatchFaceControlService() {
         @SuppressLint("NewApi")
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
@@ -58,6 +57,7 @@ public class WatchFaceControlTestService : Service() {
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class ListenableWatchFaceMetadataClientTest {
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.samples.test",
