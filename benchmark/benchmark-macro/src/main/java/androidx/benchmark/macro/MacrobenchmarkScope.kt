@@ -126,7 +126,7 @@ public class MacrobenchmarkScope(
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
-        val result = Shell.executeScriptWithStderr(cmd)
+        val result = Shell.executeScriptCaptureStdoutStderr(cmd)
 
         val outputLines = result.stdout
             .split("\n")
@@ -192,7 +192,7 @@ public class MacrobenchmarkScope(
                 // we use framestats here because it gives us not just frame counts, but actual
                 // timestamps for new activity starts. Frame counts would mostly work, but would
                 // have false positives if some window of the app is still animating/rendering.
-                Shell.executeCommand("dumpsys gfxinfo $processName framestats")
+                Shell.executeScriptCaptureStdout("dumpsys gfxinfo $processName framestats")
             }
             FrameStatsResult.parse(frameStatsOutput)
         }
@@ -246,10 +246,7 @@ public class MacrobenchmarkScope(
             if (Shell.isSessionRooted()) {
                 // fall back to root approach
                 val path = getShaderCachePath(packageName)
-                val output = Shell.executeScriptWithStderr("find $path -type f | xargs rm")
-                check(output.isBlank()) {
-                    "Failed to delete shader cache directory $path, output $output"
-                }
+                Shell.executeScriptSilent("find $path -type f | xargs rm")
             } else {
                 throw IllegalStateException(dropError)
             }
@@ -264,14 +261,14 @@ public class MacrobenchmarkScope(
      */
     @RequiresApi(31)
     private fun dropKernelPageCacheSetProp() {
-        val result = Shell.executeScriptWithStderr("setprop perf.drop_caches 3")
+        val result = Shell.executeScriptCaptureStdoutStderr("setprop perf.drop_caches 3")
         check(result.stdout.isEmpty() && result.stderr.isEmpty()) {
             "Failed to trigger drop cache via setprop: $result"
         }
         // Polling duration is very conservative, on Pixel 4L finishes in ~150ms
         repeat(50) {
             Thread.sleep(50)
-            when (val getPropResult = Shell.executeCommand("getprop perf.drop_caches").trim()) {
+            when (val getPropResult = Shell.getprop("perf.drop_caches")) {
                 "0" -> return // completed!
                 "3" -> {} // not completed, continue
                 else -> throw IllegalStateException(
@@ -297,7 +294,7 @@ public class MacrobenchmarkScope(
         if (Build.VERSION.SDK_INT >= 31) {
             dropKernelPageCacheSetProp()
         } else {
-            val result = Shell.executeScript(
+            val result = Shell.executeScriptCaptureStdout(
                 "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
             ).trim()
             // Older user builds don't allow drop caches, should investigate workaround

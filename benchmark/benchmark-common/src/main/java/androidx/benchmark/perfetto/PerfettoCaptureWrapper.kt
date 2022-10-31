@@ -94,7 +94,7 @@ class PerfettoCaptureWrapper {
 
         // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see
         // https://perfetto.dev/docs/quickstart/android-tracing#starting-the-tracing-services
-        val propOverride = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        val propOverride = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
             PropOverride(TRACE_ENABLE_PROP, "1")
         } else null
         try {
