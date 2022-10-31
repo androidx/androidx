@@ -223,9 +223,6 @@ internal constructor(
         const val READ_HEART_RATE_VARIABILITY =
             "android.permission.health.READ_HEART_RATE_VARIABILITY"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val READ_INTERMENSTRUAL_BLEEDING =
-            "android.permission.health.READ_INTERMENSTRUAL_BLEEDING"
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val READ_OXYGEN_SATURATION = "android.permission.health.READ_OXYGEN_SATURATION"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val READ_RESPIRATORY_RATE = "android.permission.health.READ_RESPIRATORY_RATE"
@@ -272,9 +269,6 @@ internal constructor(
         const val WRITE_HEIGHT = "android.permission.health.WRITE_HEIGHT"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val WRITE_HIP_CIRCUMFERENCE = "android.permission.health.WRITE_HIP_CIRCUMFERENCE"
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val WRITE_INTERMENSTRUAL_BLEEDING =
-            "android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         const val WRITE_LEAN_BODY_MASS = "android.permission.health.WRITE_LEAN_BODY_MASS"
         @RestrictTo(RestrictTo.Scope.LIBRARY)
