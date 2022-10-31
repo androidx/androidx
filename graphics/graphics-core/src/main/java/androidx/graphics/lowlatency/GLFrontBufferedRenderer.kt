@@ -31,8 +31,6 @@ import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
-import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
-import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 
@@ -130,12 +128,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mContextCallbacks = object : GLRenderer.EGLContextCallback {
         override fun onEGLContextCreated(eglManager: EGLManager) {
-            with(eglManager) {
-                val supportsEglFences = isExtensionSupported(EGL_KHR_FENCE_SYNC)
-                val supportsAndroidFences = isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
-                Log.d(TAG, "Supports KHR_FENCE_SYNC: $supportsEglFences")
-                Log.d(TAG, "Supports ANDROID_NATIVE_FENCE_SYNC: $supportsAndroidFences")
-            }
+            // no-op
         }
 
         override fun onEGLContextDestroyed(eglManager: EGLManager) {
