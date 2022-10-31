@@ -18,10 +18,9 @@ package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
+import androidx.privacysandbox.tools.testing.hasAllExpectedGeneratedSourceFilesAndContent
 import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.room.compiler.processing.util.Source
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -55,19 +54,11 @@ abstract class BaseApiGeneratorTest {
 
     @Test
     fun generatedApi_hasExpectedContents() {
-        val expectedSources = loadSourcesFromDirectory(outputDirectory)
-        assertThat(generatedSources.map(Source::relativePath))
-            .containsExactlyElementsIn(
-                expectedSources.map(Source::relativePath) + relativePathsToExpectedAidlClasses
-            )
-
-        val outputSourceMap = generatedSources.associateBy(Source::relativePath)
-        for (expected in expectedSources) {
-            assertWithMessage(
-                "Contents of generated file %s don't match goldens.",
-                expected.relativePath
-            ).that(outputSourceMap[expected.relativePath]?.contents)
-                .isEqualTo(expected.contents)
-        }
+        val expectedKotlinSources = loadSourcesFromDirectory(outputDirectory)
+        hasAllExpectedGeneratedSourceFilesAndContent(
+            generatedSources,
+            expectedKotlinSources,
+            relativePathsToExpectedAidlClasses
+        )
     }
 }

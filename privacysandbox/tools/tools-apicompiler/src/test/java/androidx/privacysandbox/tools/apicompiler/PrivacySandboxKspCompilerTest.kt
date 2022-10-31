@@ -37,45 +37,37 @@ class PrivacySandboxKspCompilerTest {
     fun compileServiceInterface_ok() {
         val inputTestDataDir = File("src/test/test-data/testinterface/input")
         val outputTestDataDir = File("src/test/test-data/testinterface/output")
-        val sources = loadSourcesFromDirectory(inputTestDataDir)
-        val expectedOutput = loadSourcesFromDirectory(outputTestDataDir)
+        val inputSources = loadSourcesFromDirectory(inputTestDataDir)
+        val expectedKotlinSources = loadSourcesFromDirectory(outputTestDataDir)
         val provider = PrivacySandboxKspCompiler.Provider()
-        // Check that compilation is successful
-        assertThat(
-            compileAll(
-                sources,
-                symbolProcessorProviders = listOf(provider),
-                processorOptions = getProcessorOptions(),
-            )
-        ).also {
-            it.generatesExactlySources(
-                "com/mysdk/IMyInterface.java",
-                "com/mysdk/IMySecondInterface.java",
-                "com/mysdk/IMySdk.java",
-                "com/mysdk/ICancellationSignal.java",
-                "com/mysdk/IMyInterfaceTransactionCallback.java",
-                "com/mysdk/IMySecondInterfaceTransactionCallback.java",
-                "com/mysdk/IStringTransactionCallback.java",
-                "com/mysdk/IUnitTransactionCallback.java",
-                "com/mysdk/AbstractSandboxedSdkProvider.kt",
-                "com/mysdk/MyInterfaceStubDelegate.kt",
-                "com/mysdk/MySecondInterfaceStubDelegate.kt",
-                "com/mysdk/MySdkStubDelegate.kt",
-                "com/mysdk/TransportCancellationCallback.kt",
-                "com/mysdk/ResponseConverter.kt",
-                "com/mysdk/RequestConverter.kt",
-                "com/mysdk/ParcelableRequest.java",
-                "com/mysdk/ParcelableResponse.java",
-                "com/mysdk/IResponseTransactionCallback.java",
-                "com/mysdk/MyCallbackClientProxy.kt",
-                "com/mysdk/IMyCallback.java",
-                "com/mysdk/PrivacySandboxThrowableParcelConverter.kt",
-                "com/mysdk/ParcelableStackFrame.java",
-                "com/mysdk/PrivacySandboxThrowableParcel.java",
-            )
-        }.also {
-            it.generatesSourcesWithContents(expectedOutput)
-        }
+
+        val result = compileAll(
+            inputSources,
+            symbolProcessorProviders = listOf(provider),
+            processorOptions = getProcessorOptions(),
+        )
+        assertThat(result).succeeds()
+
+        val expectedAidlFilepath = listOf(
+            "com/mysdk/ICancellationSignal.java",
+            "com/mysdk/IMyCallback.java",
+            "com/mysdk/IMyInterface.java",
+            "com/mysdk/IMyInterfaceTransactionCallback.java",
+            "com/mysdk/IMySdk.java",
+            "com/mysdk/IMySecondInterface.java",
+            "com/mysdk/IMySecondInterfaceTransactionCallback.java",
+            "com/mysdk/IResponseTransactionCallback.java",
+            "com/mysdk/IStringTransactionCallback.java",
+            "com/mysdk/IUnitTransactionCallback.java",
+            "com/mysdk/ParcelableRequest.java",
+            "com/mysdk/ParcelableResponse.java",
+            "com/mysdk/ParcelableStackFrame.java",
+            "com/mysdk/PrivacySandboxThrowableParcel.java",
+        )
+        assertThat(result).hasAllExpectedGeneratedSourceFilesAndContent(
+            expectedKotlinSources,
+            expectedAidlFilepath
+        )
     }
 
     @Test
@@ -91,7 +83,7 @@ class PrivacySandboxKspCompilerTest {
                     processorOptions = getProcessorOptions(),
                 )
             )
-        ).generatesExactlySources()
+        ).hasNoGeneratedSourceFiles()
     }
 
     @Test
