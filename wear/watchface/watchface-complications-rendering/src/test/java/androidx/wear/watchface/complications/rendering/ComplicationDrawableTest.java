@@ -103,7 +103,7 @@ public class ComplicationDrawableTest {
     @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mComplicationDrawable = new ComplicationDrawable();
         mComplicationDrawable.setCallback(mMockDrawableCallback);
 
