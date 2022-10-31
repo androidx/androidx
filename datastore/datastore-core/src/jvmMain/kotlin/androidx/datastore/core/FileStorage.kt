@@ -165,9 +165,15 @@ internal open class FileReadScope<T>(
             }
         } catch (ex: FileNotFoundException) {
             if (file.exists()) {
-                throw ex
+                // Re-read to prevent throwing from a race condition where the file is created by
+                // another process after the initial read attempt but before `file.exists()` is
+                // called. Otherwise file exists but we can't read it; throw FileNotFoundException
+                // because something is wrong.
+                return FileInputStream(file).use { stream ->
+                    serializer.readFrom(stream)
+                }
             }
-            serializer.defaultValue
+            return serializer.defaultValue
         }
     }
 
