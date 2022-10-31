@@ -565,15 +565,24 @@ class ShellScript internal constructor(
     }
 
     /**
-     * Manually clean up the shell script from the temp folder.
+     * Manually clean up the shell script temporary files from the temp folder.
      */
     fun cleanUp() = trace("ShellScript#cleanUp") {
         if (cleanedUp) {
             return@trace
         }
-        // NOTE: while we should theoretically be able to delete the scriptContentFile as part of
-        // shellWrapper, this doesn't work reliably (observed empty stdout on API 26/28)
-        ShellImpl.executeCommandUnsafe("rm -f $stderrPath ${scriptContentFile.absolutePath}")
+
+        // NOTE: while we could theoretically remove some of these files from the script, this isn't
+        // safe when the script is called multiple times, expecting the intermediates to remain.
+        // We need a rm to clean up the stderr file anyway (b/c it's not ready until stdout is
+        // complete), so we just delete everything here, all at once.
+        ShellImpl.executeCommandUnsafe(
+            "rm -f " + listOfNotNull(
+                stderrPath,
+                scriptContentFile.absolutePath,
+                stdinFile?.absolutePath
+            ).joinToString(" ")
+        )
         cleanedUp = true
     }
 
@@ -585,14 +594,13 @@ class ShellScript internal constructor(
             "shellWrapper.sh",
             """
                 ### shell script which passes in stdin as needed, and captures stderr in a file
-                # $1 == script content (not executable, to avoid separate chmod, cleaned up)
+                # $1 == script content (not executable)
                 # $2 == stderr
-                # $3 == stdin (optional, cleaned up)
+                # $3 == stdin (optional)
                 if [[ $3 -eq "0" ]]; then
                     /system/bin/sh $1 2> $2
                 else
                     cat $3 | /system/bin/sh $1 2> $2
-                    rm -f $3
                 fi
             """.trimIndent().byteInputStream()
         )
@@ -601,14 +609,12 @@ class ShellScript internal constructor(
             scriptContentPath: String,
             stderrPath: String,
             stdinPath: String?
-        ): String {
-            val base = "$scriptWrapperPath $scriptContentPath $stderrPath"
-            return if (stdinPath == null) {
-                base
-            } else {
-                "$base $stdinPath"
-            }
-        }
+        ): String = listOfNotNull(
+            scriptWrapperPath,
+            scriptContentPath,
+            stderrPath,
+            stdinPath
+        ).joinToString(" ")
     }
 }
 
