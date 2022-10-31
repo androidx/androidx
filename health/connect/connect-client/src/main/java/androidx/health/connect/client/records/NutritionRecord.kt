@@ -122,7 +122,7 @@ public class NutritionRecord(
      *
      * @see MealType
      */
-    @property:MealTypes public val mealType: String? = null,
+    @property:MealTypes public val mealType: Int = MealType.MEAL_TYPE_UNKNOWN,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
@@ -237,7 +237,7 @@ public class NutritionRecord(
         result = 31 * result + vitaminK.hashCode()
         result = 31 * result + zinc.hashCode()
         result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (mealType?.hashCode() ?: 0)
+        result = 31 * result + mealType
         result = 31 * result + startTime.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()

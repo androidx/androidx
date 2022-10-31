@@ -34,7 +34,7 @@ class ExerciseEventRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    eventType = ExerciseEventRecord.EventType.PAUSE,
+                    eventType = ExerciseEventRecord.EVENT_TYPE_REST,
                 )
             )
             .isEqualTo(
@@ -43,7 +43,7 @@ class ExerciseEventRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    eventType = ExerciseEventRecord.EventType.PAUSE,
+                    eventType = ExerciseEventRecord.EVENT_TYPE_REST,
                 )
             )
     }
@@ -56,8 +56,18 @@ class ExerciseEventRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                eventType = ExerciseEventRecord.EventType.PAUSE,
+                eventType = ExerciseEventRecord.EVENT_TYPE_REST,
             )
         }
+    }
+
+    @Test
+    fun eventEnums_existInMapping() {
+        val allEnums = ExerciseEventRecord.Companion::class.allIntDefEnumsWithPrefix("EVENT_TYPE")
+
+        assertThat(ExerciseEventRecord.EVENT_TYPE_STRING_TO_INT_MAP.values)
+            .containsExactlyElementsIn(allEnums)
+        assertThat(ExerciseEventRecord.EVENT_TYPE_INT_TO_STRING_MAP.keys)
+            .containsExactlyElementsIn(allEnums)
     }
 }

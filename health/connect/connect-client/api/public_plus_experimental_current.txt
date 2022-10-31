@@ -138,13 +138,13 @@ package androidx.health.connect.client.records {
   }
 
   public final class BasalBodyTemperatureRecord implements androidx.health.connect.client.records.Record {
-    ctor public BasalBodyTemperatureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Temperature temperature, optional String? measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public String? getMeasurementLocation();
+    ctor public BasalBodyTemperatureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Temperature temperature, optional int measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public int getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public androidx.health.connect.client.units.Temperature getTemperature();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? measurementLocation;
+    property public final int measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final androidx.health.connect.client.units.Temperature temperature;
     property public java.time.Instant time;
@@ -169,67 +169,75 @@ package androidx.health.connect.client.records {
   }
 
   public final class BloodGlucoseRecord implements androidx.health.connect.client.records.Record {
-    ctor public BloodGlucoseRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.BloodGlucose level, optional String? specimenSource, optional String? mealType, optional String? relationToMeal, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public BloodGlucoseRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.BloodGlucose level, optional int specimenSource, optional int mealType, optional int relationToMeal, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.units.BloodGlucose getLevel();
-    method public String? getMealType();
+    method public int getMealType();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public String? getRelationToMeal();
-    method public String? getSpecimenSource();
+    method public int getRelationToMeal();
+    method public int getSpecimenSource();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public final androidx.health.connect.client.units.BloodGlucose level;
-    property public final String? mealType;
+    property public final int mealType;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final String? relationToMeal;
-    property public final String? specimenSource;
+    property public final int relationToMeal;
+    property public final int specimenSource;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.BloodGlucoseRecord.Companion Companion;
+    field public static final int RELATION_TO_MEAL_AFTER_MEAL = 4; // 0x4
+    field public static final int RELATION_TO_MEAL_BEFORE_MEAL = 3; // 0x3
+    field public static final int RELATION_TO_MEAL_FASTING = 2; // 0x2
+    field public static final int RELATION_TO_MEAL_GENERAL = 1; // 0x1
+    field public static final int RELATION_TO_MEAL_UNKNOWN = 0; // 0x0
+    field public static final int SPECIMEN_SOURCE_CAPILLARY_BLOOD = 2; // 0x2
+    field public static final int SPECIMEN_SOURCE_INTERSTITIAL_FLUID = 1; // 0x1
+    field public static final int SPECIMEN_SOURCE_PLASMA = 3; // 0x3
+    field public static final int SPECIMEN_SOURCE_SERUM = 4; // 0x4
+    field public static final int SPECIMEN_SOURCE_TEARS = 5; // 0x5
+    field public static final int SPECIMEN_SOURCE_UNKNOWN = 0; // 0x0
+    field public static final int SPECIMEN_SOURCE_WHOLE_BLOOD = 6; // 0x6
   }
 
-  public static final class BloodGlucoseRecord.SpecimenSource {
-    field public static final String CAPILLARY_BLOOD = "capillary_blood";
-    field public static final androidx.health.connect.client.records.BloodGlucoseRecord.SpecimenSource INSTANCE;
-    field public static final String INTERSTITIAL_FLUID = "interstitial_fluid";
-    field public static final String PLASMA = "plasma";
-    field public static final String SERUM = "serum";
-    field public static final String TEARS = "tears";
-    field public static final String WHOLE_BLOOD = "whole_blood";
+  public static final class BloodGlucoseRecord.Companion {
   }
 
   public final class BloodPressureRecord implements androidx.health.connect.client.records.Record {
-    ctor public BloodPressureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Pressure systolic, androidx.health.connect.client.units.Pressure diastolic, optional String? bodyPosition, optional String? measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public String? getBodyPosition();
+    ctor public BloodPressureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Pressure systolic, androidx.health.connect.client.units.Pressure diastolic, optional int bodyPosition, optional int measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public int getBodyPosition();
     method public androidx.health.connect.client.units.Pressure getDiastolic();
-    method public String? getMeasurementLocation();
+    method public int getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public androidx.health.connect.client.units.Pressure getSystolic();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? bodyPosition;
+    property public final int bodyPosition;
     property public final androidx.health.connect.client.units.Pressure diastolic;
-    property public final String? measurementLocation;
+    property public final int measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final androidx.health.connect.client.units.Pressure systolic;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final int BODY_POSITION_LYING_DOWN = 3; // 0x3
+    field public static final int BODY_POSITION_RECLINING = 4; // 0x4
+    field public static final int BODY_POSITION_SITTING_DOWN = 2; // 0x2
+    field public static final int BODY_POSITION_STANDING_UP = 1; // 0x1
+    field public static final int BODY_POSITION_UNKNOWN = 0; // 0x0
     field public static final androidx.health.connect.client.records.BloodPressureRecord.Companion Companion;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_AVG;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_MAX;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_MIN;
+    field public static final int MEASUREMENT_LOCATION_LEFT_UPPER_ARM = 3; // 0x3
+    field public static final int MEASUREMENT_LOCATION_LEFT_WRIST = 1; // 0x1
+    field public static final int MEASUREMENT_LOCATION_RIGHT_UPPER_ARM = 4; // 0x4
+    field public static final int MEASUREMENT_LOCATION_RIGHT_WRIST = 2; // 0x2
+    field public static final int MEASUREMENT_LOCATION_UNKNOWN = 0; // 0x0
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_AVG;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_MAX;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_MIN;
   }
 
   public static final class BloodPressureRecord.Companion {
-  }
-
-  public static final class BloodPressureRecord.MeasurementLocation {
-    field public static final androidx.health.connect.client.records.BloodPressureRecord.MeasurementLocation INSTANCE;
-    field public static final String LEFT_UPPER_ARM = "left_upper_arm";
-    field public static final String LEFT_WRIST = "left_wrist";
-    field public static final String RIGHT_UPPER_ARM = "right_upper_arm";
-    field public static final String RIGHT_WRIST = "right_wrist";
   }
 
   public final class BodyFatRecord implements androidx.health.connect.client.records.Record {
@@ -244,36 +252,29 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  public final class BodyPosition {
-    field public static final androidx.health.connect.client.records.BodyPosition INSTANCE;
-    field public static final String LYING_DOWN = "lying_down";
-    field public static final String RECLINING = "reclining";
-    field public static final String SITTING_DOWN = "sitting_down";
-    field public static final String STANDING_UP = "standing_up";
-  }
-
   public final class BodyTemperatureMeasurementLocation {
-    field public static final String ARMPIT = "armpit";
-    field public static final String EAR = "ear";
-    field public static final String FINGER = "finger";
-    field public static final String FOREHEAD = "forehead";
     field public static final androidx.health.connect.client.records.BodyTemperatureMeasurementLocation INSTANCE;
-    field public static final String MOUTH = "mouth";
-    field public static final String RECTUM = "rectum";
-    field public static final String TEMPORAL_ARTERY = "temporal_artery";
-    field public static final String TOE = "toe";
-    field public static final String VAGINA = "vagina";
-    field public static final String WRIST = "wrist";
+    field public static final int MEASUREMENT_LOCATION_ARMPIT = 1; // 0x1
+    field public static final int MEASUREMENT_LOCATION_EAR = 8; // 0x8
+    field public static final int MEASUREMENT_LOCATION_FINGER = 2; // 0x2
+    field public static final int MEASUREMENT_LOCATION_FOREHEAD = 3; // 0x3
+    field public static final int MEASUREMENT_LOCATION_MOUTH = 4; // 0x4
+    field public static final int MEASUREMENT_LOCATION_RECTUM = 5; // 0x5
+    field public static final int MEASUREMENT_LOCATION_TEMPORAL_ARTERY = 6; // 0x6
+    field public static final int MEASUREMENT_LOCATION_TOE = 7; // 0x7
+    field public static final int MEASUREMENT_LOCATION_UNKNOWN = 0; // 0x0
+    field public static final int MEASUREMENT_LOCATION_VAGINA = 10; // 0xa
+    field public static final int MEASUREMENT_LOCATION_WRIST = 9; // 0x9
   }
 
   public final class BodyTemperatureRecord implements androidx.health.connect.client.records.Record {
-    ctor public BodyTemperatureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Temperature temperature, optional String? measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public String? getMeasurementLocation();
+    ctor public BodyTemperatureRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Temperature temperature, optional int measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public int getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public androidx.health.connect.client.units.Temperature getTemperature();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? measurementLocation;
+    property public final int measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final androidx.health.connect.client.units.Temperature temperature;
     property public java.time.Instant time;
@@ -395,25 +396,26 @@ package androidx.health.connect.client.records {
   }
 
   public final class ExerciseEventRecord implements androidx.health.connect.client.records.Record {
-    ctor public ExerciseEventRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, String eventType, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public ExerciseEventRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int eventType, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
-    method public String getEventType();
+    method public int getEventType();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
-    property public final String eventType;
+    property public final int eventType;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.ExerciseEventRecord.Companion Companion;
+    field public static final int EVENT_TYPE_PAUSE = 1; // 0x1
+    field public static final int EVENT_TYPE_REST = 2; // 0x2
+    field public static final int EVENT_TYPE_UNKNOWN = 0; // 0x0
   }
 
-  public static final class ExerciseEventRecord.EventType {
-    field public static final androidx.health.connect.client.records.ExerciseEventRecord.EventType INSTANCE;
-    field public static final String PAUSE = "pause";
-    field public static final String REST = "rest";
+  public static final class ExerciseEventRecord.Companion {
   }
 
   public final class ExerciseLapRecord implements androidx.health.connect.client.records.Record {
@@ -711,12 +713,12 @@ package androidx.health.connect.client.records {
   }
 
   public final class MealType {
-    field public static final String BREAKFAST = "breakfast";
-    field public static final String DINNER = "dinner";
     field public static final androidx.health.connect.client.records.MealType INSTANCE;
-    field public static final String LUNCH = "lunch";
-    field public static final String SNACK = "snack";
-    field public static final String UNKNOWN = "unknown";
+    field public static final int MEAL_TYPE_BREAKFAST = 1; // 0x1
+    field public static final int MEAL_TYPE_DINNER = 3; // 0x3
+    field public static final int MEAL_TYPE_LUNCH = 2; // 0x2
+    field public static final int MEAL_TYPE_SNACK = 4; // 0x4
+    field public static final int MEAL_TYPE_UNKNOWN = 0; // 0x0
   }
 
   public final class MenstruationFlowRecord implements androidx.health.connect.client.records.Record {
@@ -740,7 +742,7 @@ package androidx.health.connect.client.records {
   }
 
   public final class NutritionRecord implements androidx.health.connect.client.records.Record {
-    ctor public NutritionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.units.Mass? biotin, optional androidx.health.connect.client.units.Mass? caffeine, optional androidx.health.connect.client.units.Mass? calcium, optional androidx.health.connect.client.units.Energy? energy, optional androidx.health.connect.client.units.Energy? energyFromFat, optional androidx.health.connect.client.units.Mass? chloride, optional androidx.health.connect.client.units.Mass? cholesterol, optional androidx.health.connect.client.units.Mass? chromium, optional androidx.health.connect.client.units.Mass? copper, optional androidx.health.connect.client.units.Mass? dietaryFiber, optional androidx.health.connect.client.units.Mass? folate, optional androidx.health.connect.client.units.Mass? folicAcid, optional androidx.health.connect.client.units.Mass? iodine, optional androidx.health.connect.client.units.Mass? iron, optional androidx.health.connect.client.units.Mass? magnesium, optional androidx.health.connect.client.units.Mass? manganese, optional androidx.health.connect.client.units.Mass? molybdenum, optional androidx.health.connect.client.units.Mass? monounsaturatedFat, optional androidx.health.connect.client.units.Mass? niacin, optional androidx.health.connect.client.units.Mass? pantothenicAcid, optional androidx.health.connect.client.units.Mass? phosphorus, optional androidx.health.connect.client.units.Mass? polyunsaturatedFat, optional androidx.health.connect.client.units.Mass? potassium, optional androidx.health.connect.client.units.Mass? protein, optional androidx.health.connect.client.units.Mass? riboflavin, optional androidx.health.connect.client.units.Mass? saturatedFat, optional androidx.health.connect.client.units.Mass? selenium, optional androidx.health.connect.client.units.Mass? sodium, optional androidx.health.connect.client.units.Mass? sugar, optional androidx.health.connect.client.units.Mass? thiamin, optional androidx.health.connect.client.units.Mass? totalCarbohydrate, optional androidx.health.connect.client.units.Mass? totalFat, optional androidx.health.connect.client.units.Mass? transFat, optional androidx.health.connect.client.units.Mass? unsaturatedFat, optional androidx.health.connect.client.units.Mass? vitaminA, optional androidx.health.connect.client.units.Mass? vitaminB12, optional androidx.health.connect.client.units.Mass? vitaminB6, optional androidx.health.connect.client.units.Mass? vitaminC, optional androidx.health.connect.client.units.Mass? vitaminD, optional androidx.health.connect.client.units.Mass? vitaminE, optional androidx.health.connect.client.units.Mass? vitaminK, optional androidx.health.connect.client.units.Mass? zinc, optional String? name, optional String? mealType, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public NutritionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.units.Mass? biotin, optional androidx.health.connect.client.units.Mass? caffeine, optional androidx.health.connect.client.units.Mass? calcium, optional androidx.health.connect.client.units.Energy? energy, optional androidx.health.connect.client.units.Energy? energyFromFat, optional androidx.health.connect.client.units.Mass? chloride, optional androidx.health.connect.client.units.Mass? cholesterol, optional androidx.health.connect.client.units.Mass? chromium, optional androidx.health.connect.client.units.Mass? copper, optional androidx.health.connect.client.units.Mass? dietaryFiber, optional androidx.health.connect.client.units.Mass? folate, optional androidx.health.connect.client.units.Mass? folicAcid, optional androidx.health.connect.client.units.Mass? iodine, optional androidx.health.connect.client.units.Mass? iron, optional androidx.health.connect.client.units.Mass? magnesium, optional androidx.health.connect.client.units.Mass? manganese, optional androidx.health.connect.client.units.Mass? molybdenum, optional androidx.health.connect.client.units.Mass? monounsaturatedFat, optional androidx.health.connect.client.units.Mass? niacin, optional androidx.health.connect.client.units.Mass? pantothenicAcid, optional androidx.health.connect.client.units.Mass? phosphorus, optional androidx.health.connect.client.units.Mass? polyunsaturatedFat, optional androidx.health.connect.client.units.Mass? potassium, optional androidx.health.connect.client.units.Mass? protein, optional androidx.health.connect.client.units.Mass? riboflavin, optional androidx.health.connect.client.units.Mass? saturatedFat, optional androidx.health.connect.client.units.Mass? selenium, optional androidx.health.connect.client.units.Mass? sodium, optional androidx.health.connect.client.units.Mass? sugar, optional androidx.health.connect.client.units.Mass? thiamin, optional androidx.health.connect.client.units.Mass? totalCarbohydrate, optional androidx.health.connect.client.units.Mass? totalFat, optional androidx.health.connect.client.units.Mass? transFat, optional androidx.health.connect.client.units.Mass? unsaturatedFat, optional androidx.health.connect.client.units.Mass? vitaminA, optional androidx.health.connect.client.units.Mass? vitaminB12, optional androidx.health.connect.client.units.Mass? vitaminB6, optional androidx.health.connect.client.units.Mass? vitaminC, optional androidx.health.connect.client.units.Mass? vitaminD, optional androidx.health.connect.client.units.Mass? vitaminE, optional androidx.health.connect.client.units.Mass? vitaminK, optional androidx.health.connect.client.units.Mass? zinc, optional String? name, optional int mealType, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.units.Mass? getBiotin();
     method public androidx.health.connect.client.units.Mass? getCaffeine();
     method public androidx.health.connect.client.units.Mass? getCalcium();
@@ -759,7 +761,7 @@ package androidx.health.connect.client.records {
     method public androidx.health.connect.client.units.Mass? getIron();
     method public androidx.health.connect.client.units.Mass? getMagnesium();
     method public androidx.health.connect.client.units.Mass? getManganese();
-    method public String? getMealType();
+    method public int getMealType();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public androidx.health.connect.client.units.Mass? getMolybdenum();
     method public androidx.health.connect.client.units.Mass? getMonounsaturatedFat();
@@ -808,7 +810,7 @@ package androidx.health.connect.client.records {
     property public final androidx.health.connect.client.units.Mass? iron;
     property public final androidx.health.connect.client.units.Mass? magnesium;
     property public final androidx.health.connect.client.units.Mass? manganese;
-    property public final String? mealType;
+    property public final int mealType;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final androidx.health.connect.client.units.Mass? molybdenum;
     property public final androidx.health.connect.client.units.Mass? monounsaturatedFat;
@@ -888,23 +890,23 @@ package androidx.health.connect.client.records {
   }
 
   public final class OvulationTestRecord implements androidx.health.connect.client.records.Record {
-    ctor public OvulationTestRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, String result, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public OvulationTestRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, int result, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public String getResult();
+    method public int getResult();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final String result;
+    property public final int result;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.OvulationTestRecord.Companion Companion;
+    field public static final int RESULT_HIGH = 2; // 0x2
+    field public static final int RESULT_INCONCLUSIVE = 0; // 0x0
+    field public static final int RESULT_NEGATIVE = 3; // 0x3
+    field public static final int RESULT_POSITIVE = 1; // 0x1
   }
 
-  public static final class OvulationTestRecord.Result {
-    field public static final String HIGH = "high";
-    field public static final String INCONCLUSIVE = "inconclusive";
-    field public static final androidx.health.connect.client.records.OvulationTestRecord.Result INSTANCE;
-    field public static final String NEGATIVE = "negative";
-    field public static final String POSITIVE = "positive";
+  public static final class OvulationTestRecord.Companion {
   }
 
   public final class OxygenSaturationRecord implements androidx.health.connect.client.records.Record {
@@ -955,14 +957,6 @@ package androidx.health.connect.client.records {
     property public abstract androidx.health.connect.client.records.metadata.Metadata metadata;
   }
 
-  public final class RelationToMeal {
-    field public static final String AFTER_MEAL = "after_meal";
-    field public static final String BEFORE_MEAL = "before_meal";
-    field public static final String FASTING = "fasting";
-    field public static final String GENERAL = "general";
-    field public static final androidx.health.connect.client.records.RelationToMeal INSTANCE;
-  }
-
   public final class RespiratoryRateRecord implements androidx.health.connect.client.records.Record {
     ctor public RespiratoryRateRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, double rate, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
@@ -995,21 +989,22 @@ package androidx.health.connect.client.records {
   }
 
   public final class SexualActivityRecord implements androidx.health.connect.client.records.Record {
-    ctor public SexualActivityRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional String? protectionUsed, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public SexualActivityRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional int protectionUsed, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public String? getProtectionUsed();
+    method public int getProtectionUsed();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final String? protectionUsed;
+    property public final int protectionUsed;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.SexualActivityRecord.Companion Companion;
+    field public static final int PROTECTION_USED_PROTECTED = 1; // 0x1
+    field public static final int PROTECTION_USED_UNKNOWN = 0; // 0x0
+    field public static final int PROTECTION_USED_UNPROTECTED = 2; // 0x2
   }
 
-  public static final class SexualActivityRecord.Protection {
-    field public static final androidx.health.connect.client.records.SexualActivityRecord.Protection INSTANCE;
-    field public static final String PROTECTED = "protected";
-    field public static final String UNPROTECTED = "unprotected";
+  public static final class SexualActivityRecord.Companion {
   }
 
   public final class SleepSessionRecord implements androidx.health.connect.client.records.Record {
@@ -1146,31 +1141,31 @@ package androidx.health.connect.client.records {
   }
 
   public final class SwimmingStrokesRecord implements androidx.health.connect.client.records.Record {
-    ctor public SwimmingStrokesRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, String type, optional long count, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public SwimmingStrokesRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int type, optional long count, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public long getCount();
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
-    method public String getType();
+    method public int getType();
     property public final long count;
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
-    property public final String type;
+    property public final int type;
+    field public static final androidx.health.connect.client.records.SwimmingStrokesRecord.Companion Companion;
+    field public static final int SWIMMING_TYPE_BACKSTROKE = 2; // 0x2
+    field public static final int SWIMMING_TYPE_BREASTSTROKE = 3; // 0x3
+    field public static final int SWIMMING_TYPE_BUTTERFLY = 4; // 0x4
+    field public static final int SWIMMING_TYPE_FREESTYLE = 1; // 0x1
+    field public static final int SWIMMING_TYPE_MIXED = 5; // 0x5
+    field public static final int SWIMMING_TYPE_OTHER = 0; // 0x0
   }
 
-  public static final class SwimmingStrokesRecord.SwimmingType {
-    field public static final String BACKSTROKE = "backstroke";
-    field public static final String BREASTSTROKE = "breaststroke";
-    field public static final String BUTTERFLY = "butterfly";
-    field public static final String FREESTYLE = "freestyle";
-    field public static final androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType INSTANCE;
-    field public static final String MIXED = "mixed";
-    field public static final String OTHER = "other";
+  public static final class SwimmingStrokesRecord.Companion {
   }
 
   public final class TotalCaloriesBurnedRecord implements androidx.health.connect.client.records.Record {
@@ -1195,27 +1190,27 @@ package androidx.health.connect.client.records {
   }
 
   public final class Vo2MaxRecord implements androidx.health.connect.client.records.Record {
-    ctor public Vo2MaxRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, double vo2MillilitersPerMinuteKilogram, optional String? measurementMethod, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public String? getMeasurementMethod();
+    ctor public Vo2MaxRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, double vo2MillilitersPerMinuteKilogram, optional int measurementMethod, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public int getMeasurementMethod();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public double getVo2MillilitersPerMinuteKilogram();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? measurementMethod;
+    property public final int measurementMethod;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public final double vo2MillilitersPerMinuteKilogram;
     property public java.time.ZoneOffset? zoneOffset;
+    field public static final androidx.health.connect.client.records.Vo2MaxRecord.Companion Companion;
+    field public static final int MEASUREMENT_METHOD_COOPER_TEST = 3; // 0x3
+    field public static final int MEASUREMENT_METHOD_HEART_RATE_RATIO = 2; // 0x2
+    field public static final int MEASUREMENT_METHOD_METABOLIC_CART = 1; // 0x1
+    field public static final int MEASUREMENT_METHOD_MULTISTAGE_FITNESS_TEST = 4; // 0x4
+    field public static final int MEASUREMENT_METHOD_OTHER = 0; // 0x0
+    field public static final int MEASUREMENT_METHOD_ROCKPORT_FITNESS_TEST = 5; // 0x5
   }
 
-  public static final class Vo2MaxRecord.MeasurementMethod {
-    field public static final String COOPER_TEST = "cooper_test";
-    field public static final String HEART_RATE_RATIO = "heart_rate_ratio";
-    field public static final androidx.health.connect.client.records.Vo2MaxRecord.MeasurementMethod INSTANCE;
-    field public static final String METABOLIC_CART = "metabolic_cart";
-    field public static final String MULTISTAGE_FITNESS_TEST = "multistage_fitness_test";
-    field public static final String OTHER = "other";
-    field public static final String ROCKPORT_FITNESS_TEST = "rockport_fitness_test";
+  public static final class Vo2MaxRecord.Companion {
   }
 
   public final class WaistCircumferenceRecord implements androidx.health.connect.client.records.Record {
