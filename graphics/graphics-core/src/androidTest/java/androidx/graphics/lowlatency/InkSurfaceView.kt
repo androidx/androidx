@@ -88,7 +88,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 drawLines(mProjection, floatArrayOf(0f, vHeight, vWidth, vHeight), Color.CYAN)
                 drawLines(mProjection, floatArrayOf(vWidth, vHeight, vWidth, 0f), Color.BLUE)
                 drawLines(mProjection, floatArrayOf(vWidth, 0f, 0f, 0f), Color.MAGENTA)
-                drawLines(mProjection, param, Color.YELLOW, LINE_WIDTH)
+                drawLines(mProjection, param, Color.RED, 20f)
             }
         }
 
@@ -115,7 +115,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
             mSceneParams.addAll(params)
             for (line in mSceneParams) {
-                obtainRenderer().drawLines(mProjection, line, Color.BLUE, LINE_WIDTH)
+                obtainRenderer().drawLines(mProjection, line, Color.BLUE, 20f)
             }
         }
     }
@@ -175,9 +175,5 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             obtainRenderer().release()
         }
         super.onDetachedFromWindow()
-    }
-
-    private companion object {
-        private const val LINE_WIDTH = 5f
     }
 }

@@ -156,5 +156,14 @@ class LineRenderer {
                     gl_FragColor = $vColor;
                 }
             """
+
+        fun loadShader(type: Int, shaderCode: String?): Int {
+            val shader = GLES20.glCreateShader(type)
+
+            GLES20.glShaderSource(shader, shaderCode)
+            GLES20.glCompileShader(shader)
+
+            return shader
+        }
     }
 }

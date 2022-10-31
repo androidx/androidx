@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
-import androidx.opengl.EGLExt
 import java.util.concurrent.atomic.AtomicBoolean
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
@@ -72,40 +71,16 @@ class FrameBufferRenderer(
 
             syncFenceCompat = if (eglManager.supportsNativeAndroidFence()) {
                 syncStrategy.createSyncFence(egl)
-            } else if (eglManager.isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
-                // In this case the device only supports EGL sync objects but not creation
-                // of native SyncFence objects from an EGLSync.
-                // This usually occurs in emulator/cuttlefish instances as well as ChromeOS devices
-                // running ARC++. In this case fallback onto creating a sync object and waiting
-                // on it instead.
-                // TODO b/256217036 block on another thread instead of waiting here
-                val syncKhr = egl.eglCreateSyncKHR(EGLExt.EGL_SYNC_FENCE_KHR, null)
-                if (syncKhr != null) {
-                    GLES20.glFlush()
-                    val status = egl.eglClientWaitSyncKHR(
-                        syncKhr,
-                        EGLExt.EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                        EGLExt.EGL_FOREVER_KHR
-                    )
-                    if (status != EGLExt.EGL_CONDITION_SATISFIED_KHR) {
-                        Log.w(TAG, "warning waiting on sync object: $status")
-                    }
-                } else {
-                    Log.w(TAG, "Unable to create EGLSync")
-                    GLES20.glFinish()
-                }
-                null
             } else {
-                Log.w(TAG, "Device does not support creation of any fences")
-                GLES20.glFinish()
+                Log.w(TAG, "Device does not support creation of native fences")
                 null
             }
-        } catch (exception: Exception) {
-            Log.w(TAG, "Error attempting to render to frame buffer: ${exception.message}")
-        } finally {
+
             // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
             frameBufferRendererCallbacks.onDrawComplete(buffer, syncFenceCompat)
+        } finally {
+            syncFenceCompat?.close()
         }
     }
 
@@ -226,7 +201,6 @@ class FrontBufferSyncStrategy(
         return if (!isVisible) {
             eglSpec.createNativeSyncFence()
         } else if (supportsFrontBufferUsage) {
-            GLES20.glFlush()
             return null
         } else {
             val fence = eglSpec.createNativeSyncFence()
