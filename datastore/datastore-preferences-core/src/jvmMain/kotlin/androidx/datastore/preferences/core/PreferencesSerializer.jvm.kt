@@ -29,10 +29,12 @@ import okio.BufferedSource
 import okio.IOException
 
 /**
- * Proto based serializer for Preferences.
+ * Proto based serializer for Preferences. Can be used to manually create
+ * [DataStore][androidx.datastore.core.DataStore] using the
+ * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
-internal object PreferencesSerializer : OkioSerializer<Preferences> {
-    val fileExtension = "preferences_pb"
+actual object PreferencesSerializer : OkioSerializer<Preferences> {
+    internal const val fileExtension = "preferences_pb"
 
     override val defaultValue: Preferences
         get() {
@@ -52,6 +54,7 @@ internal object PreferencesSerializer : OkioSerializer<Preferences> {
         return mutablePreferences.toPreferences()
     }
 
+    @Suppress("InvalidNullabilityOverride") // Remove after b/232460179 is fixed
     @Throws(IOException::class, CorruptionException::class)
     override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val preferences = t.asMap()

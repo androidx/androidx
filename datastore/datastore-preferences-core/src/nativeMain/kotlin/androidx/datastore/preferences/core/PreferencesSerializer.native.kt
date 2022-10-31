@@ -18,26 +18,30 @@ package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
-import okio.BufferedSink
-import okio.BufferedSource
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
+import okio.BufferedSink
+import okio.BufferedSource
 
+/**
+ * Proto based serializer for Preferences. Can be used to manually create
+ * [DataStore][androidx.datastore.core.DataStore] using the
+ * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
+ */
 @OptIn(ExperimentalSerializationApi::class)
-internal object PreferencesSerializationSerializer : OkioSerializer<Preferences> {
-    val fileExtension = "preferences_pb"
+actual object PreferencesSerializer : OkioSerializer<Preferences> {
+    internal const val fileExtension = "preferences_pb"
 
     override val defaultValue: Preferences
         get() = emptyPreferences()
 
     override suspend fun readFrom(source: BufferedSource): Preferences {
         val prefMap: PreferencesMap = try {
-            ProtoBuf.decodeFromByteArray<PreferencesMap>(
-                source.readByteArray())
+            ProtoBuf.decodeFromByteArray(source.readByteArray())
         } catch (e: SerializationException) {
             throw CorruptionException("Unable to parse preferences proto.", e)
         }
