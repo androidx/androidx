@@ -27,6 +27,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -56,10 +57,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class OpenCloseCameraStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class OpenCloseCameraStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -79,6 +77,7 @@ class OpenCloseCameraStressTest(
     @Before
     fun setUp(): Unit = runBlocking {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        val (cameraId, extensionMode) = config
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -125,8 +124,8 @@ class OpenCloseCameraStressTest(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 

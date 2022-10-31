@@ -18,6 +18,7 @@ package androidx.camera.integration.extensions
 
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -39,16 +40,13 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 28)
-class AdvancedExtenderValidationTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
-    private val validation = AdvancedExtenderValidation(cameraId, extensionMode)
+class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
+    private val validation = AdvancedExtenderValidation(config.cameraId, config.extensionMode)
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 

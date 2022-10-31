@@ -30,6 +30,7 @@ import androidx.camera.integration.extensions.util.waitForCaptureSessionConfigur
 import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
@@ -58,10 +59,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 31)
-class Camera2ExtensionsActivityTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePair) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -101,7 +99,7 @@ class Camera2ExtensionsActivityTest(
         @ClassRule
         @JvmField val stressTest = StressTestRule()
 
-        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = Camera2ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -110,8 +108,7 @@ class Camera2ExtensionsActivityTest(
     @Test
     fun checkPreviewUpdated() {
         val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            cameraId,
-            extensionMode
+            config
         )
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
@@ -125,8 +122,7 @@ class Camera2ExtensionsActivityTest(
     @Test
     fun canCaptureSingleImage() {
         val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            cameraId,
-            extensionMode
+            config
         )
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
@@ -140,8 +136,7 @@ class Camera2ExtensionsActivityTest(
     @Test
     fun checkPreviewUpdated_afterPauseResume() {
         val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            cameraId,
-            extensionMode
+            config
         )
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
@@ -162,8 +157,7 @@ class Camera2ExtensionsActivityTest(
     @Test
     fun canCaptureImage_afterPauseResume() {
         val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            cameraId,
-            extensionMode
+           config
         )
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
@@ -187,8 +181,7 @@ class Camera2ExtensionsActivityTest(
     @Test
     fun canCaptureMultipleImages() {
         val activityScenario = launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-            cameraId,
-            extensionMode
+            config
         )
         with(activityScenario) { // Launches activity
             use { // Ensures that ActivityScenario is cleaned up properly
@@ -201,9 +194,9 @@ class Camera2ExtensionsActivityTest(
     }
 
     private fun launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(
-        cameraId: String,
-        extensionMode: Int
+        config: CameraIdExtensionModePair
     ): ActivityScenario<Camera2ExtensionsActivity> {
+        val (cameraId, extensionMode) = config
         val context = ApplicationProvider.getApplicationContext<Context>()
         assumeTrue(isCamera2ExtensionModeSupported(context, cameraId, extensionMode))
         val intent = context.packageManager

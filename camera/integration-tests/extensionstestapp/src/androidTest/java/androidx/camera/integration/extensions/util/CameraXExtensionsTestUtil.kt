@@ -49,6 +49,7 @@ import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
@@ -66,12 +67,10 @@ object CameraXExtensionsTestUtil {
      * Gets a list of all camera id and extension mode combinations.
      */
     @JvmStatic
-    fun getAllCameraIdExtensionModeCombinations(): List<Array<Any>> =
-        arrayListOf<Array<Any>>().apply {
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.forEach { mode ->
-                    add(arrayOf(cameraId, mode))
-                }
+    fun getAllCameraIdExtensionModeCombinations(): List<CameraIdExtensionModePair> =
+        CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
+            ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.map { extensionMode ->
+                CameraIdExtensionModePair(cameraId, extensionMode)
             }
         }
 

@@ -28,6 +28,7 @@ import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -57,10 +58,7 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class LifecycleStatusChangeStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class LifecycleStatusChangeStressTest(private val config: CameraIdExtensionModePair) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -74,7 +72,7 @@ class LifecycleStatusChangeStressTest(
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     companion object {
-        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -95,8 +93,8 @@ class LifecycleStatusChangeStressTest(
         // Checks whether the extension mode can be supported first before launching the activity.
         CameraXExtensionsTestUtil.assumeExtensionModeSupported(
             extensionsManager,
-            cameraId,
-            extensionMode
+            config.cameraId,
+            config.extensionMode
         )
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
@@ -147,7 +145,7 @@ class LifecycleStatusChangeStressTest(
         verificationTarget: Int,
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ) {
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
         with(activityScenario) {
             use {
@@ -188,7 +186,7 @@ class LifecycleStatusChangeStressTest(
         verificationTarget: Int,
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ) {
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
         with(activityScenario) {
             use {
