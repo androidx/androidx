@@ -17,11 +17,9 @@
 package androidx.test.uiautomator;
 
 import android.accessibilityservice.AccessibilityService;
-import android.app.Instrumentation;
 import android.app.Service;
 import android.app.UiAutomation;
 import android.app.UiAutomation.AccessibilityEventFilter;
-import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.PowerManager;
@@ -59,7 +57,7 @@ class InteractionController {
     private final KeyCharacterMap mKeyCharacterMap =
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
 
-    private final Instrumentation mInstrumentation;
+    private final UiDevice mDevice;
 
     private static final long REGULAR_CLICK_LENGTH = 100;
 
@@ -68,8 +66,8 @@ class InteractionController {
     // Inserted after each motion event injection.
     private static final int MOTION_EVENT_INJECTION_DELAY_MILLIS = 5;
 
-    public InteractionController(Instrumentation instrumentation) {
-        mInstrumentation = instrumentation;
+    InteractionController(UiDevice device) {
+        mDevice = device;
     }
 
     /**
@@ -687,7 +685,8 @@ class InteractionController {
      * @return true if the screen is ON else false
      */
     public boolean isScreenOn() {
-        PowerManager pm = (PowerManager)getContext().getSystemService(Service.POWER_SERVICE);
+        PowerManager pm = (PowerManager) mDevice.getInstrumentation().getContext().getSystemService(
+                Service.POWER_SERVICE);
         return pm.isScreenOn();
     }
 
@@ -847,14 +846,6 @@ class InteractionController {
     }
 
     UiAutomation getUiAutomation() {
-        return UiDevice.getUiAutomation(getInstrumentation());
-    }
-
-    Context getContext() {
-        return getInstrumentation().getContext();
-    }
-
-    Instrumentation getInstrumentation() {
-        return mInstrumentation;
+        return mDevice.getUiAutomation();
     }
 }
