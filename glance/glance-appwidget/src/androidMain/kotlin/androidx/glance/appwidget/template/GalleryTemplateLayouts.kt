@@ -180,11 +180,15 @@ private fun MainEntity(data: GalleryTemplateData, modifier: GlanceModifier) {
     // Show first block by lower numbered priority
     if (data.mainTextBlock.priority <= data.mainImageBlock.priority) {
         HeaderAndTextBlocks(data, modifier)
-        Spacer(modifier = GlanceModifier.width(16.dp))
-        SingleImageBlockTemplate(data.mainImageBlock)
+        if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            SingleImageBlockTemplate(data.mainImageBlock)
+        }
     } else {
-        SingleImageBlockTemplate(data.mainImageBlock)
-        Spacer(modifier = GlanceModifier.width(16.dp))
+        if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+            SingleImageBlockTemplate(data.mainImageBlock)
+            Spacer(modifier = GlanceModifier.width(16.dp))
+        }
         HeaderAndTextBlocks(data, modifier)
     }
 }
