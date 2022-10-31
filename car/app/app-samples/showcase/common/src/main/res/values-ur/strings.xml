@@ -296,6 +296,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ٹاسک کی حد پوری ہو گئی\nآگے بڑھنے سے ایپ کو زبردستی روک دیا جائے گا"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏%2$d میں سے ‎%1$d ٹاسک کا مرحلہ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"آگے بڑھنے کے لیے کلک کریں"</string>
+    <!-- no translation found for task_content_allowed (545061986612431190) -->
+    <skip />
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ٹوگل بٹن کا ڈیمو"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ٹیسٹ کو ٹوگل کریں"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"اسٹیٹ فل تبدیلیوں کی اجازت ہے"</string>
@@ -332,6 +334,12 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"صوتی رسائی کی ڈیمو سکرین"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"صارف کے تعاملات"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"اجازتوں کے ڈیموز کی درخواست کریں"</string>
+    <!-- no translation found for application_overflow_title (396427940886169325) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
+    <skip />
+    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
+    <skip />
     <string name="perm_group" msgid="3834918337351876270">"اجازت کا گروپ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"شوکیس ایپ کے لیے اجازت کا گروپ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"درست مقام تک رسائی"</string>
