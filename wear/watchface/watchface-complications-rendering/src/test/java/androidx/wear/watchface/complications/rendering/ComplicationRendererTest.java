@@ -110,7 +110,7 @@ public class ComplicationRendererTest {
     @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mComplicationBounds = new Rect(0, 0, BOUNDS_WIDTH, BOUNDS_HEIGHT);
 
         mComplicationRenderer = createRendererWithBounds(mComplicationBounds);
