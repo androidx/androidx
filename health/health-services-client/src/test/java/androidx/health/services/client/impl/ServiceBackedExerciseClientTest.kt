@@ -37,6 +37,7 @@ import androidx.health.services.client.impl.internal.IExerciseInfoCallback
 import androidx.health.services.client.impl.internal.IStatusCallback
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
@@ -321,6 +322,13 @@ class ServiceBackedExerciseClientTest {
 
         override fun overrideAutoPauseAndResumeForActiveExercise(
             request: AutoPauseAndResumeConfigRequest?,
+            statusCallback: IStatusCallback?
+        ) {
+            throw NotImplementedError()
+        }
+
+        override fun overrideBatchingModesForActiveExercise(
+            request: BatchingModeConfigRequest?,
             statusCallback: IStatusCallback?
         ) {
             throw NotImplementedError()

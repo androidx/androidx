@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
@@ -38,6 +39,7 @@ import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
@@ -208,6 +210,20 @@ internal class ServiceBackedExerciseClient(
         service.overrideAutoPauseAndResumeForActiveExercise(
             AutoPauseAndResumeConfigRequest(packageName, enabled),
             StatusCallback(resultFuture)
+        )
+    }
+
+    override fun overrideBatchingModesForActiveExerciseAsync(
+        batchingModes: Set<BatchingMode>
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.overrideBatchingModesForActiveExercise(
+                    BatchingModeConfigRequest(packageName, batchingModes),
+                    StatusCallback(resultFuture)
+                )
+            },
+            /* minApiVersion= */ 4
         )
     }
 

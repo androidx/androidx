@@ -20,6 +20,7 @@ import androidx.health.services.client.impl.IExerciseUpdateListener;
 import androidx.health.services.client.impl.internal.IExerciseInfoCallback;
 import androidx.health.services.client.impl.internal.IStatusCallback;
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest;
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest;
 import androidx.health.services.client.impl.request.CapabilitiesRequest;
 import androidx.health.services.client.impl.request.FlushRequest;
 import androidx.health.services.client.impl.request.ExerciseGoalRequest;
@@ -31,7 +32,7 @@ import androidx.health.services.client.impl.response.ExerciseCapabilitiesRespons
 /**
  * Interface to make ipc calls for health services exercise api.
  *
- * The next method added to the interface should use ID: 17
+ * The next method added to the interface should use ID: 18
  * (this id needs to be incremented for each added method)
  *
  * @hide
@@ -42,7 +43,7 @@ interface IExerciseApiService {
      * method is added.
      *
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 4;
 
     /**
      * Returns version of this AIDL interface.
@@ -120,6 +121,13 @@ interface IExerciseApiService {
      * Sets whether auto-pause should be enabled
      */
     void overrideAutoPauseAndResumeForActiveExercise(in AutoPauseAndResumeConfigRequest request, IStatusCallback statusCallback) = 10;
+
+    /**
+     * Sets batching mode for an active exercise.
+     *
+     * <p>Added in API version 4.
+     */
+    void overrideBatchingModesForActiveExercise(in BatchingModeConfigRequest request, IStatusCallback statusCallback) = 17;
 
     /**
      * Method to get capabilities.
