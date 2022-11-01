@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.BloodGlucoseRecord.SpecimenSource
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.BloodGlucose
@@ -141,15 +141,15 @@ public class BloodGlucoseRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                SpecimenSource.INTERSTITIAL_FLUID,
-                SpecimenSource.CAPILLARY_BLOOD,
-                SpecimenSource.PLASMA,
-                SpecimenSource.SERUM,
-                SpecimenSource.TEARS,
-                SpecimenSource.WHOLE_BLOOD,
+                SPECIMEN_SOURCE_INTERSTITIAL_FLUID,
+                SPECIMEN_SOURCE_CAPILLARY_BLOOD,
+                SPECIMEN_SOURCE_PLASMA,
+                SPECIMEN_SOURCE_SERUM,
+                SPECIMEN_SOURCE_TEARS,
+                SPECIMEN_SOURCE_WHOLE_BLOOD,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -160,13 +160,13 @@ public class BloodGlucoseRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                RelationToMeal.GENERAL,
-                RelationToMeal.FASTING,
-                RelationToMeal.BEFORE_MEAL,
-                RelationToMeal.AFTER_MEAL,
+                RELATION_TO_MEAL_GENERAL,
+                RELATION_TO_MEAL_FASTING,
+                RELATION_TO_MEAL_BEFORE_MEAL,
+                RELATION_TO_MEAL_AFTER_MEAL,
             ]
     )
     annotation class RelationToMeals
