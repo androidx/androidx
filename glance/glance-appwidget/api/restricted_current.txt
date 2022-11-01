@@ -13,6 +13,16 @@ package androidx.glance.appwidget {
   public final class AppWidgetModifiersKt {
   }
 
+  public fun interface AppWidgetProviderScope {
+    method public suspend Object? setContent(kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public final class AppWidgetSessionKt {
+  }
+
+  public final class AppWidgetUtilsKt {
+  }
+
   public final class ApplyModifiersKt {
   }
 
@@ -53,10 +63,13 @@ package androidx.glance.appwidget {
   public abstract class GlanceAppWidget {
     ctor public GlanceAppWidget(optional @LayoutRes int errorUiLayout);
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
+    method public androidx.glance.session.SessionManager? getSessionManager();
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public suspend Object? onDelete(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? provideGlance(androidx.glance.appwidget.AppWidgetProviderScope, android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final suspend Object? update(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public androidx.glance.session.SessionManager? sessionManager;
     property public androidx.glance.appwidget.SizeMode sizeMode;
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
   }
@@ -131,6 +144,9 @@ package androidx.glance.appwidget {
   }
 
   public final class RemoteViewsTranslatorKt {
+  }
+
+  public final class SizeBoxKt {
   }
 
   public sealed interface SizeMode {

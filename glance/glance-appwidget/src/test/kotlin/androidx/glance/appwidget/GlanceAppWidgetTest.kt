@@ -316,7 +316,6 @@ class GlanceAppWidgetTest {
 
     @Test
     fun appWidgetMinSize_noResizing() {
-        val composer = SampleGlanceAppWidget { }
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenReturn(
                 appWidgetProviderInfo {
@@ -329,13 +328,12 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+        assertThat(appWidgetMinSize(displayMetrics, appWidgetManager, 1))
             .isEqualTo(DpSize(50.dp, 50.dp))
     }
 
     @Test
     fun appWidgetMinSize_horizontalResizing() {
-        val composer = SampleGlanceAppWidget { }
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenReturn(
                 appWidgetProviderInfo {
@@ -348,13 +346,12 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+        assertThat(appWidgetMinSize(displayMetrics, appWidgetManager, 1))
             .isEqualTo(DpSize(40.dp, 50.dp))
     }
 
     @Test
     fun appWidgetMinSize_verticalResizing() {
-        val composer = SampleGlanceAppWidget { }
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenReturn(
                 appWidgetProviderInfo {
@@ -367,13 +364,12 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+        assertThat(appWidgetMinSize(displayMetrics, appWidgetManager, 1))
             .isEqualTo(DpSize(50.dp, 30.dp))
     }
 
     @Test
     fun appWidgetMinSize_bigMinResize() {
-        val composer = SampleGlanceAppWidget { }
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenReturn(
                 appWidgetProviderInfo {
@@ -386,7 +382,7 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+        assertThat(appWidgetMinSize(displayMetrics, appWidgetManager, 1))
             .isEqualTo(DpSize(50.dp, 50.dp))
     }
 
@@ -452,30 +448,6 @@ class GlanceAppWidgetTest {
         )
     }
 
-    private fun optionsBundleOf(sizes: List<DpSize>): Bundle {
-        require(sizes.isNotEmpty()) { "There must be at least one size" }
-        val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
-            DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
-                DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
-        }
-        return Bundle().apply {
-            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
-            putInt(
-                AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
-                minSize.height.value.toInt()
-            )
-            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
-            putInt(
-                AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
-                maxSize.height.value.toInt()
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val sizeList = sizes.map { it.toSizeF() }.toArrayList()
-                putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
-            }
-        }
-    }
-
     private fun createPortraitContext() =
         makeOrientationContext(Configuration.ORIENTATION_PORTRAIT)
 
@@ -495,6 +467,30 @@ class GlanceAppWidgetTest {
         @Composable
         override fun Content() {
             ui()
+        }
+    }
+}
+
+internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
+    require(sizes.isNotEmpty()) { "There must be at least one size" }
+    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+        DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
+            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+    }
+    return Bundle().apply {
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
+        putInt(
+            AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
+            minSize.height.value.toInt()
+        )
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
+        putInt(
+            AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
+            maxSize.height.value.toInt()
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val sizeList = sizes.map { it.toSizeF() }.toArrayList()
+            putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
         }
     }
 }
