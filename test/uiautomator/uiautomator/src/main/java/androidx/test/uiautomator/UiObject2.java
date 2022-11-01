@@ -51,33 +51,28 @@ public class UiObject2 implements Searchable {
 
     private static final String TAG = UiObject2.class.getSimpleName();
 
-    private UiDevice mDevice;
-    private GestureController mGestureController;
-    private BySelector mSelector;  // Hold this mainly for debugging
+    // Default gesture speeds and timeouts.
+    private static final int DEFAULT_SWIPE_SPEED = 5_000; // dp/s
+    private static final int DEFAULT_SCROLL_SPEED = 5_000; // dp/s
+    private static final int DEFAULT_FLING_SPEED = 7_500; // dp/s
+    private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
+    private static final int DEFAULT_PINCH_SPEED = 2_500; // dp/s
+    private static final long SCROLL_TIMEOUT = 1_000; // ms
+    private static final long FLING_TIMEOUT = 5_000; // ms; longer as motion may continue.
+
+    private final UiDevice mDevice;
+    private final BySelector mSelector;
+    private final GestureController mGestureController;
+    private final WaitMixin<UiObject2> mWaitMixin = new WaitMixin<>(this);
+    private final int mDisplayId;
+    private final float mDisplayDensity;
     private AccessibilityNodeInfo mCachedNode;
-    private int mDisplayId;
-    private float mDisplayDensity;
 
-    // Margins
-    private int mMarginLeft   = 5;
-    private int mMarginTop    = 5;
-    private int mMarginRight  = 5;
+    // Margins used for gestures (avoids touching too close to the object's edge).
+    private int mMarginLeft = 5;
+    private int mMarginTop = 5;
+    private int mMarginRight = 5;
     private int mMarginBottom = 5;
-
-    // Default gesture speeds
-    private static final int DEFAULT_SWIPE_SPEED  = 5000;
-    private static final int DEFAULT_SCROLL_SPEED = 5000;
-    private static final int DEFAULT_FLING_SPEED = 7500;
-    private static final int DEFAULT_DRAG_SPEED = 2500;
-    private static final int DEFAULT_PINCH_SPEED = 2500;
-    // Short, since we should stop scrolling after the gesture completes.
-    private final long SCROLL_TIMEOUT = 1000;
-    // Longer, since we may continue to scroll after the gesture completes.
-    private final long FLING_TIMEOUT = 5000;
-
-    // Get wait functionality from a mixin
-    private WaitMixin<UiObject2> mWaitMixin = new WaitMixin<UiObject2>(this);
-
 
     /** Package-private constructor. Used by {@link UiDevice#findObject(BySelector)}. */
     UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
@@ -219,13 +214,11 @@ public class UiObject2 implements Searchable {
     @Override
     @NonNull
     public List<UiObject2> findObjects(@NonNull BySelector selector) {
-        List<UiObject2> ret = new ArrayList<UiObject2>();
+        List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node :
                 ByMatcher.findMatches(getDevice(), selector, getAccessibilityNodeInfo())) {
-
             ret.add(new UiObject2(getDevice(), selector, node));
         }
-
         return ret;
     }
 
@@ -279,7 +272,7 @@ public class UiObject2 implements Searchable {
         final int displayId = getDisplayId();
         if (displayId == Display.DEFAULT_DISPLAY) {
             final Rect screen =
-                new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
+                    new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
             ret.intersect(screen);
         } else {
             final DisplayManager dm =
@@ -306,8 +299,8 @@ public class UiObject2 implements Searchable {
         }
 
         // Find the visible bounds of our first scrollable ancestor
-        AccessibilityNodeInfo ancestor = null;
-        for (ancestor = node.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
+        for (AccessibilityNodeInfo ancestor = node.getParent(); ancestor != null;
+                ancestor = ancestor.getParent()) {
             // If this ancestor is scrollable
             if (ancestor.isScrollable()) {
                 // Trim any portion of the bounds that are hidden by the non-visible portion of our
@@ -490,7 +483,7 @@ public class UiObject2 implements Searchable {
      * @param dest The end point that this object should be dragged to.
      */
     public void drag(@NonNull Point dest) {
-        drag(dest, (int)(DEFAULT_DRAG_SPEED * mDisplayDensity));
+        drag(dest, (int) (DEFAULT_DRAG_SPEED * mDisplayDensity));
     }
 
     /**
@@ -521,7 +514,7 @@ public class UiObject2 implements Searchable {
      * @param percent The size of the pinch as a percentage of this object's size.
      */
     public void pinchClose(float percent) {
-        pinchClose(percent, (int)(DEFAULT_PINCH_SPEED * mDisplayDensity));
+        pinchClose(percent, (int) (DEFAULT_PINCH_SPEED * mDisplayDensity));
     }
 
     /**
@@ -550,7 +543,7 @@ public class UiObject2 implements Searchable {
      * @param percent The size of the pinch as a percentage of this object's size.
      */
     public void pinchOpen(float percent) {
-        pinchOpen(percent, (int)(DEFAULT_PINCH_SPEED * mDisplayDensity));
+        pinchOpen(percent, (int) (DEFAULT_PINCH_SPEED * mDisplayDensity));
     }
 
     /**
@@ -580,7 +573,7 @@ public class UiObject2 implements Searchable {
      * @param percent The length of the swipe as a percentage of this object's size.
      */
     public void swipe(@NonNull Direction direction, float percent) {
-        swipe(direction, percent, (int)(DEFAULT_SWIPE_SPEED * mDisplayDensity));
+        swipe(direction, percent, (int) (DEFAULT_SWIPE_SPEED * mDisplayDensity));
     }
 
     /**
@@ -612,7 +605,7 @@ public class UiObject2 implements Searchable {
      * @return Whether the object can still scroll in the given direction.
      */
     public boolean scroll(@NonNull Direction direction, final float percent) {
-        return scroll(direction, percent, (int)(DEFAULT_SCROLL_SPEED * mDisplayDensity));
+        return scroll(direction, percent, (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity));
     }
 
     /**
@@ -639,7 +632,7 @@ public class UiObject2 implements Searchable {
         Log.v(TAG, String.format("scroll(bounds=%s,direction=%s,percent=%f,speed=%d)",
                 direction, bounds, percent, speed));
         for (; percent > 0.0f; percent -= 1.0f) {
-            float segment = percent > 1.0f ? 1.0f : percent;
+            float segment = Math.min(percent, 1.0f);
             PointerGesture swipe = Gestures.swipeRect(
                     bounds, swipeDirection, segment, speed, getDisplayId()).pause(250);
 
@@ -660,7 +653,7 @@ public class UiObject2 implements Searchable {
      * @return Whether the object can still scroll in the given direction.
      */
     public boolean fling(@NonNull Direction direction) {
-        return fling(direction, (int)(DEFAULT_FLING_SPEED * mDisplayDensity));
+        return fling(direction, (int) (DEFAULT_FLING_SPEED * mDisplayDensity));
     }
 
     /**
