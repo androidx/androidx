@@ -15,24 +15,49 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.AndroidXComposePlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    //id("kotlin-android")
+    id("AndroidXComposePlugin")
 }
 
-dependencies {
-    implementation(libs.kotlinStdlib)
-}
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-android {
-    sourceSets {
-        main {
-            res.srcDirs += "src/commonMain/resources"
-            res.srcDirs += "src/androidMain/res"
-            java.srcDirs += "src/commonMain/java"
-            assets.srcDirs += "src/androidMain/assets"
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
+
+    android {
+        dependencies {
+            implementation(libs.kotlinStdlib)
+        }
+        sourceSets {
+            main {
+                res.srcDirs += "src/commonMain/resources"
+                res.srcDirs += "src/androidMain/res"
+                java.srcDirs += "src/commonMain/java"
+                assets.srcDirs += "src/androidMain/assets"
+            }
+        }
+    }
+} else {
+    dependencies {
+        implementation(libs.kotlinStdlib)
+    }
+
+    android {
+        sourceSets {
+            main {
+                res.srcDirs += "src/commonMain/resources"
+                res.srcDirs += "src/androidMain/res"
+                java.srcDirs += "src/commonMain/java"
+                assets.srcDirs += "src/androidMain/assets"
+            }
         }
     }
 }
