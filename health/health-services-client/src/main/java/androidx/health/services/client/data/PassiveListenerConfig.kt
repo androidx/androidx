@@ -55,6 +55,14 @@ public class PassiveListenerConfig(
             .toSet()
     )
 
+    internal fun isValidPassiveGoal(): Boolean {
+        // Check if the registered goals are also tracked
+        for (passiveGoal: PassiveGoal in dailyGoals) {
+            if (!dataTypes.contains(passiveGoal.dataTypeCondition.dataType)) return false
+        }
+        return true
+    }
+
     /** Builder for [PassiveListenerConfig] instances. */
     public class Builder {
         private var dataTypes: Set<DataType<*, *>> = emptySet()

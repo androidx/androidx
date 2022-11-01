@@ -20,6 +20,7 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Looper
+import android.os.RemoteException
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
@@ -92,7 +93,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     }
 
     @Test
-    fun registersPassiveListenerService() {
+    fun registersPassiveListenerService_success() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
             shouldUserActivityInfoBeRequested = true,
@@ -115,6 +116,34 @@ class ServiceBackedPassiveMonitoringClientTest {
     }
 
     @Test
+    fun registersPassiveListenerService_fail() {
+        val config = PassiveListenerConfig(
+            dataTypes = setOf(CALORIES_DAILY),
+            shouldUserActivityInfoBeRequested = true,
+            dailyGoals = setOf(
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
+            ),
+            healthEventTypes = setOf()
+        )
+
+        val future = client.setPassiveListenerServiceAsync(FakeListenerService::class.java, config)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Return value of future.get() is not used, but verifying no exceptions are thrown.
+        var exception: Exception? = null
+        try {
+            future.get()
+        } catch (e: Exception) {
+            exception = e
+        }
+
+        assertThat(exception).isNotNull()
+        assertThat(exception?.cause).isInstanceOf(RemoteException::class.java)
+        assertThat(exception).hasMessageThat()
+            .contains("DataType for the requested passive goal is not tracked")
+    }
+
+    @Test
     fun registersPassiveListenerCallback() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
@@ -133,6 +162,27 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(STEPS_DAILY)
         assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
         assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
+    }
+
+    @Test
+    fun registersPassiveListenerCallback_fail() {
+        val config = PassiveListenerConfig(
+            dataTypes = setOf(CALORIES_DAILY),
+            shouldUserActivityInfoBeRequested = true,
+            dailyGoals = setOf(
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
+            ),
+            healthEventTypes = setOf()
+        )
+        val callback = FakeCallback()
+
+        client.setPassiveListenerCallback(config, callback)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(fakeService.registerCallbackRequests).hasSize(0)
+        assertThat(callback.onRegistrationFailedThrowables).hasSize(1)
+        assertThat(callback.onRegistrationFailedThrowables[0]).hasMessageThat()
+            .contains("DataType for the requested passive goal is not tracked")
     }
 
     @Test
