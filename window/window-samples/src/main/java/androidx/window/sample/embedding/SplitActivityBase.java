@@ -202,12 +202,12 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Gets the placeholder rule for the given activity. */
-    SplitPlaceholderRule getPlaceholderRule(Class<? extends Activity> a) {
+    SplitPlaceholderRule getPlaceholderRule(@NonNull Class<? extends Activity> a) {
         Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPlaceholderRule) {
                 for (ActivityFilter filter : ((SplitPlaceholderRule) rule).getFilters()) {
-                    if (filter.matchesClassName(a)) {
+                    if (filter.getComponentName().getClassName().equals(a.getName())) {
                         return (SplitPlaceholderRule) rule;
                     }
                 }
@@ -248,12 +248,9 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Whether the given rule is for splitting the given activity with another. */
-    private boolean isRuleFor(
-            @Nullable Class<? extends Activity> a,
-            @NonNull ActivityRule config
-    ) {
+    private boolean isRuleFor(@NonNull Class<? extends Activity> a, @NonNull ActivityRule config) {
         for (ActivityFilter filter : config.getFilters()) {
-            if (filter.matchesClassNameOrWildCard(a)) {
+            if (filter.getComponentName().getClassName().equals(a.getName())) {
                 return true;
             }
         }

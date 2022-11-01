@@ -19,8 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import androidx.window.core.ActivityComponentInfo
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -59,27 +57,6 @@ class ActivityFilterTest {
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
-    }
-
-    @Test
-    fun matchesClassName() {
-        val filter = ActivityFilter(
-            ActivityComponentInfo(FAKE_PACKAGE, Activity::class.java.name),
-            null
-        )
-        assertTrue(filter.matchesClassName(Activity::class.java))
-        assertFalse(filter.matchesClassName(FakeClass::class.java))
-    }
-
-    @Test
-    fun matchesWildCard() {
-        val filter = ActivityFilter(
-            ActivityComponentInfo(FAKE_PACKAGE, FAKE_CLASS_WILDCARD_VALID),
-            null
-        )
-
-        assertTrue(filter.matchesClassNameOrWildCard<Activity>(null))
-        assertFalse(filter.matchesClassNameOrWildCard(Activity::class.java))
     }
 
     private class FakeClass : Activity()

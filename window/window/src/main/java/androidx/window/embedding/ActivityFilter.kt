@@ -47,7 +47,7 @@ class ActivityFilter internal constructor(
      * If it is not `null`, the [ActivityFilter] will check the activity [Intent.getAction] besides
      * the component name. If it is `null`, [Intent.getAction] will be ignored.
      */
-    internal val intentAction: String?
+    val intentAction: String?
 ) {
 
     /**
@@ -135,17 +135,13 @@ class ActivityFilter internal constructor(
         return match
     }
 
-    /** Returns `true` if the [ActivityFilter] matches the [Class.getName]. */
-    fun <T : Activity> matchesClassName(clazz: Class<T>): Boolean {
-        return activityComponentInfo.className == clazz.name
-    }
-
     /**
-     * Returns `true` if the [ActivityFilter] matches the [Class.getName] or includes wildcard (`*`)
+     * [ComponentName] that the [ActivityFilter] will use to match [Activity] and [Intent].
      */
-    fun <T : Activity> matchesClassNameOrWildCard(clazz: Class<T>?): Boolean {
-        return clazz?.let(::matchesClassName) ?: activityComponentInfo.className.contains("*")
-    }
+    val componentName: ComponentName
+        get() {
+            return ComponentName(activityComponentInfo.packageName, activityComponentInfo.className)
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
