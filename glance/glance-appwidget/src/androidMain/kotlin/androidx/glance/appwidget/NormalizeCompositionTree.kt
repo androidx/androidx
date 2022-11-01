@@ -52,8 +52,28 @@ internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
     }
 }
 
+/**
+ * Ensure that [container] has only one direct child.
+ *
+ * If [container] has multiple children, wrap them in an [EmittableBox] and make that the only child
+ * of container. If [container] contains only children of type [EmittableSizeBox], then we will make
+ * sure each of the [EmittableSizeBox]es has one child by wrapping their children in an
+ * [EmittableBox].
+ */
 private fun coerceToOneChild(container: EmittableWithChildren) {
-    if (container.children.size == 1) return
+    if (container.children.isNotEmpty() && container.children.all { it is EmittableSizeBox }) {
+        for (item in container.children) {
+            item as EmittableSizeBox
+            if (item.children.size == 1) continue
+            val box = EmittableBox()
+            box.children += item.children
+            item.children.clear()
+            item.children += box
+        }
+        return
+    } else if (container.children.size == 1) {
+        return
+    }
     val box = EmittableBox()
     box.children += container.children
     container.children.clear()
@@ -117,10 +137,9 @@ private fun normalizeLazyListItem(view: EmittableLazyListItem) {
  * convert the target emittable to an [EmittableText]
  */
 private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
-    // EmittableLazyListItem is a wrapper for its immediate only child,
-    // and does not get translated to its own element. We will transform
-    // the child instead.
-    if (this is EmittableLazyListItem) return this
+    // EmittableLazyListItem and EmittableSizeBox are wrappers for their immediate only child,
+    // and do not get translated to their own element. We will transform their child instead.
+    if (this is EmittableLazyListItem || this is EmittableSizeBox) return this
 
     var target = this
 

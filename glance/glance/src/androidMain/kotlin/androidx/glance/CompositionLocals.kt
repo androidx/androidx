@@ -19,7 +19,6 @@ package androidx.glance
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
@@ -59,12 +58,7 @@ val LocalGlanceId = staticCompositionLocalOf<GlanceId> { error("No default glanc
  * @return the current store of the provided type [T]
  */
 @Composable
-inline fun <reified T> currentState(): T = LocalState.current.let {
-    when (it) {
-        is State<*> -> it.value as T
-        else -> it as T
-    }
-}
+inline fun <reified T> currentState(): T = LocalState.current as T
 
 /**
  * Retrieves the current [Preferences] value of the provided [Preferences.Key] from the current

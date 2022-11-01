@@ -338,6 +338,7 @@ private fun Emittable.getLayoutType(): LayoutProto.LayoutType =
         is EmittableLazyVerticalGridListItem -> LayoutProto.LayoutType.LIST_ITEM
         is RemoteViewsRoot -> LayoutProto.LayoutType.REMOTE_VIEWS_ROOT
         is EmittableRadioButton -> LayoutProto.LayoutType.RADIO_BUTTON
+        is EmittableSizeBox -> LayoutProto.LayoutType.SIZE_BOX
         else ->
             throw IllegalArgumentException("Unknown element type ${this.javaClass.canonicalName}")
     }
