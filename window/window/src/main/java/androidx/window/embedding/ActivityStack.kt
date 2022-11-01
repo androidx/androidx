@@ -20,16 +20,29 @@ import android.app.Activity
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
+ *
+ * @param activities the [Activity] list in this application's process that belongs to this
+ * [ActivityStack]. Activities running in other processes will not be contained in this list.
+ * @param isEmpty whether there is no [Activity] running in this [ActivityStack]. It can be
+ * non-empty when the [activities] is empty, because there can be [Activity] running in other
+ * processes, which will not be reported in [activities].
  */
 class ActivityStack(
     /**
-     * The [Activity] list in this application's process that belongs to this ActivityStack.
+     * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
-     * Note that Activities that are running in other processes do not contain in this [Activity]
+     * Note that Activities that are running in other processes will not be contained in this
      * list. They can be in any position in terms of ordering relative to the activities in the
      * list.
      */
     internal val activities: List<Activity>,
+    /**
+     * Whether there is no [Activity] running in this [ActivityStack].
+     *
+     * Note that [activities] only report [Activity] in the process used to create this
+     * ActivityStack. That said, if this ActivityStack only contains activities from other
+     * process(es), [activities] will return an empty list, but this method will return `false`.
+     */
     private val isEmpty: Boolean = false
 ) {
 
@@ -38,11 +51,11 @@ class ActivityStack(
     }
 
     /**
-     * Returns `true` if there's no [Activity] running in this ActivityStack.
+     * Returns `true` if there's no [Activity] running in this [ActivityStack].
      *
      * Note that [activities] only report Activity in the process used to create this
-     * ActivityStack. That said, if this ActivityStack only contains activities from other
-     * process(es), [activities] will return empty list, and this method will return `false`.
+     * ActivityStack. That said, if this [ActivityStack] only contains activities from other
+     * process(es), [activities] will return an empty list, but this method will return `false`.
      */
     fun isEmpty(): Boolean {
         return isEmpty
