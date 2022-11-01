@@ -44,7 +44,8 @@ public class ProcessGlobalConfigActivityTestAppTest {
 
     @Before
     public void setUp() {
-        WebkitTestHelpers.assumeStartupFeature(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+        WebkitTestHelpers.assumeStartupFeature(
+                WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
                 ApplicationProvider.getApplicationContext());
     }
 
