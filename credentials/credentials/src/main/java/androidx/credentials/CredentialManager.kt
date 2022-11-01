@@ -125,6 +125,38 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
+     * Clears the current user credential session from all credential providers.
+     *
+     * Usually invoked after your user signs out of your app so that they will not be
+     * automatically signed in the next time.
+     *
+     * @hide
+     */
+    suspend fun clearCredentialSession(): Unit = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
+
+        val callback = object : CredentialManagerCallback<Void> {
+            override fun onResult(result: Void) {
+                continuation.resume(Unit)
+            }
+
+            override fun onError(e: CredentialManagerException) {
+                continuation.resumeWithException(e)
+            }
+        }
+
+        clearCredentialSessionAsync(
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback)
+    }
+
+    /**
      * Java API for requesting a credential from the user.
      *
      * The execution potentially launches framework UI flows for a user to view available
@@ -173,6 +205,27 @@ class CredentialManager private constructor(private val context: Context) {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse>,
+    ) {
+        throw UnsupportedOperationException("Unimplemented")
+    }
+
+    /**
+     * Clears the current user credential session from all credential providers.
+     *
+     * Usually invoked after your user signs out of your app so that they will not be
+     * automatically signed in the next time.
+     *
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     * @throws UnsupportedOperationException Since the api is unimplemented
+     *
+     * @hide
+     */
+    fun clearCredentialSessionAsync(
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<Void>,
     ) {
         throw UnsupportedOperationException("Unimplemented")
     }
