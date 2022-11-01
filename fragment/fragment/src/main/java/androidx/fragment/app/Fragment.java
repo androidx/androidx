@@ -320,6 +320,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         void onPreAttached() {
             mSavedStateRegistryController.performAttach();
             enableSavedStateHandles(Fragment.this);
+            // Restore the state immediately so that every lifecycle callback including
+            // onAttach() can safely access the state in the SavedStateRegistry
+            Bundle savedStateRegistryState = mSavedFragmentState != null
+                    ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
+                    : null;
+            mSavedStateRegistryController.performRestore(savedStateRegistryState);
         }
     };
 
@@ -3083,10 +3089,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
-        Bundle savedStateRegistryState = mSavedFragmentState != null
-                ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
-                : null;
-        mSavedStateRegistryController.performRestore(savedStateRegistryState);
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
