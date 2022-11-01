@@ -45,7 +45,7 @@ public class CustomTabsCallbackTest {
 
     @Test
     public void testOnActivityResized() throws Throwable {
-        mToken.getCallback().onActivityResized(75239, new Bundle());
+        mToken.getCallback().onActivityResized(75239, 1200, new Bundle());
         assertTrue(mCallback.hasActivityBeenResized());
     }
 }
