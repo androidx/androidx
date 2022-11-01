@@ -78,7 +78,7 @@ autoService = { module = "com.google.auto.service:auto-service", version.ref = "
 autoValue = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
 autoValueAnnotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValue" }
 autoValueParcel = { module = "com.ryanharter.auto.value:auto-value-parcel", version = "0.2.6" }
-antlr4 = { module = "org.antlr:antlr4", version = "4.7.1" }
+antlr4 = { module = "org.antlr:antlr4", version = "4.11.1" }
 apacheAnt = { module = "org.apache.ant:ant", version = "1.10.11" }
 apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.15" }
 apacheCommonIo = { module = "commons-io:commons-io", version = "2.4" }

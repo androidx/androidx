@@ -91,8 +91,8 @@
             <trusting group="io.reactivex.rxjava3"/>
          </trusted-key>
          <trusted-key id="1dbb44e80f61493d6369b5fb95c15058a5eda4f1">
-            <trusting group="com.google.protobuf" name="protobuf-gradle-plugin"/>
             <trusting group="com.google.gradle"/>
+            <trusting group="com.google.protobuf" name="protobuf-gradle-plugin"/>
          </trusted-key>
          <trusted-key id="1f47744c9b6e14f2049c2857f1f111af65925306" group="io.github.classgraph" name="classgraph"/>
          <trusted-key id="1f8cf885d537a431" group="com.nhaarman.mockitokotlin2"/>
@@ -205,6 +205,7 @@
          <trusted-key id="5208812e1e4a6db0" group="com.gradle"/>
          <trusted-key id="55c7e5e701832382" group="org.snakeyaml"/>
          <trusted-key id="56b505dc8a29c69138a430b9429c8816dea04cdb" group="org.xerial" name="sqlite-jdbc"/>
+         <trusted-key id="5719e50eac5a4b1dd390b72c2a742740e08e7f8d" group="org.antlr"/>
          <trusted-key id="571a5291e827e1c7" group="net.java"/>
          <trusted-key id="5767f9cde920750621875079a40e24b5b408dbd5" group="org.robolectric"/>
          <trusted-key id="586654072ead6677" group="org.sonatype.oss"/>
@@ -263,6 +264,7 @@
          <trusted-key id="70cd19bfd9f6c330027d6f260315bfb7970a144f">
             <trusting group="com.sun.xml.bind"/>
             <trusting group="javax.xml.bind"/>
+            <trusting group="org.glassfish"/>
             <trusting group="org.glassfish.jaxb"/>
             <trusting group="org.jvnet.staxex"/>
             <trusting group="^com[.]sun($|([.].*))" regex="true"/>
