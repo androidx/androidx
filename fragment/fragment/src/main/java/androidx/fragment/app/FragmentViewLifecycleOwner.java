@@ -44,15 +44,21 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner, ViewModelStoreOwner {
     private final Fragment mFragment;
     private final ViewModelStore mViewModelStore;
+    private final Runnable mRestoreViewSavedStateRunnable;
 
     private ViewModelProvider.Factory mDefaultFactory;
 
     private LifecycleRegistry mLifecycleRegistry = null;
     private SavedStateRegistryController mSavedStateRegistryController = null;
 
-    FragmentViewLifecycleOwner(@NonNull Fragment fragment, @NonNull ViewModelStore viewModelStore) {
+    FragmentViewLifecycleOwner(
+            @NonNull Fragment fragment,
+            @NonNull ViewModelStore viewModelStore,
+            @NonNull Runnable restoreViewSavedStateRunnable
+    ) {
         mFragment = fragment;
         mViewModelStore = viewModelStore;
+        mRestoreViewSavedStateRunnable = restoreViewSavedStateRunnable;
     }
 
     @NonNull
@@ -71,6 +77,7 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
             mSavedStateRegistryController = SavedStateRegistryController.create(this);
             mSavedStateRegistryController.performAttach();
             enableSavedStateHandles(this);
+            mRestoreViewSavedStateRunnable.run();
         }
     }
 

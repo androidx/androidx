@@ -463,19 +463,12 @@ class FragmentViewLifecycleTest {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             val savedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()!!
-            val savedStateLifecycle = savedStateRegistryOwner.lifecycle
             val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
-            savedStateLifecycle.addObserver(
-                LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_CREATE) {
-                        val restoredBundle = savedStateRegistry.consumeRestoredStateForKey(
-                            "savedState"
-                        )
-                        stateIsRestored = restoredBundle != null
-                        restoredState = restoredBundle?.getString("state")
-                    }
-                }
+            val restoredBundle = savedStateRegistry.consumeRestoredStateForKey(
+                "savedState"
             )
+            stateIsRestored = restoredBundle != null
+            restoredState = restoredBundle?.getString("state")
             savedStateRegistry.registerSavedStateProvider("savedState") {
                 stateIsSaved = true
                 Bundle().apply {

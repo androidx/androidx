@@ -695,10 +695,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mView.restoreHierarchyState(mSavedViewState);
             mSavedViewState = null;
         }
-        if (mView != null) {
-            mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
-            mSavedViewRegistryState = null;
-        }
         mCalled = false;
         onViewStateRestored(savedInstanceState);
         if (!mCalled) {
@@ -3102,7 +3098,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mPerformedCreateView = true;
-        mViewLifecycleOwner = new FragmentViewLifecycleOwner(this, getViewModelStore());
+        mViewLifecycleOwner = new FragmentViewLifecycleOwner(this, getViewModelStore(),
+                () -> {
+                    // Perform the restore as soon as the FragmentViewLifecycleOwner
+                    // becomes initialized, to ensure it is always available
+                    mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
+                    mSavedViewRegistryState = null;
+                });
         mView = onCreateView(inflater, container, savedInstanceState);
         if (mView != null) {
             // Initialize the view lifecycle
