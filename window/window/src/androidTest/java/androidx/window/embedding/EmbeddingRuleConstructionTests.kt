@@ -67,7 +67,7 @@ class EmbeddingRuleConstructionTests {
     fun testDefaults_SplitPairRule_Xml() {
         SplitController.initialize(application, R.xml.test_split_config_default_split_pair_rule)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -89,7 +89,7 @@ class EmbeddingRuleConstructionTests {
         SplitController.initialize(application,
             R.xml.test_split_config_split_pair_rule_horizontal_layout)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -212,7 +212,7 @@ class EmbeddingRuleConstructionTests {
         SplitController.initialize(application,
             R.xml.test_split_config_default_split_placeholder_rule)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -236,7 +236,7 @@ class EmbeddingRuleConstructionTests {
         SplitController.initialize(application,
             R.xml.test_split_config_split_placeholder_horizontal_layout)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -372,7 +372,7 @@ class EmbeddingRuleConstructionTests {
     fun testDefaults_ActivityRule_Xml() {
         SplitController.initialize(application, R.xml.test_split_config_default_activity_rule)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertNull(rule.tag)
@@ -387,7 +387,7 @@ class EmbeddingRuleConstructionTests {
     fun testSetTagAndAlwaysExpand_ActivityRule_Xml() {
         SplitController.initialize(application, R.xml.test_split_config_activity_rule_with_tag)
 
-        val rules = splitController.getSplitRules()
+        val rules = splitController.getRules()
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(TEST_TAG, rule.tag)
@@ -456,7 +456,7 @@ class EmbeddingRuleConstructionTests {
     fun testReplacingRuleWithTag() {
         SplitController.initialize(application, R.xml.test_split_config_activity_rule_with_tag)
 
-        var rules = splitController.getSplitRules()
+        var rules = splitController.getRules()
         assertEquals(1, rules.size)
         var rule = rules.first()
         assertEquals(TEST_TAG, rule.tag)
@@ -474,9 +474,9 @@ class EmbeddingRuleConstructionTests {
             .setAlwaysExpand(true)
             .setTag(TEST_TAG)
             .build()
-        splitController.registerRule(rule1)
+        splitController.addRule(rule1)
 
-        rules = splitController.getSplitRules()
+        rules = splitController.getRules()
         assertEquals(1, rules.size)
         rule = rules.first()
         assertEquals(rule1, rule)
@@ -492,9 +492,9 @@ class EmbeddingRuleConstructionTests {
             .setTag(TEST_TAG)
             .build()
 
-        splitController.registerRule(rule2)
+        splitController.addRule(rule2)
 
-        rules = splitController.getSplitRules()
+        rules = splitController.getRules()
         assertEquals(1, rules.size)
         rule = rules.first()
         assertEquals(rule2, rule)

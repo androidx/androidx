@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import android.content.res.Configuration
-import androidx.annotation.NonNull
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 
@@ -119,9 +118,7 @@ interface SplitAttributesCalculator {
      * Computes the [SplitAttributes] with the current device and window states.
      * @param params See [SplitAttributesCalculatorParams]
      */
-    fun computeSplitAttributesForParams(
-        @NonNull params: SplitAttributesCalculatorParams
-    ): SplitAttributes
+    fun computeSplitAttributesForParams(params: SplitAttributesCalculatorParams): SplitAttributes
 
     /** The container of [SplitAttributesCalculator] parameters */
     class SplitAttributesCalculatorParams internal constructor(

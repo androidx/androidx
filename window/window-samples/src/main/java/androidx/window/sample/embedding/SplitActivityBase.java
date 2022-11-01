@@ -192,7 +192,7 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Gets the split rule for the given activity pair. */
     private SplitPairRule getRuleFor(Class<? extends Activity> a, Class<? extends Activity> b) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+        Set<EmbeddingRule> currentRules = mSplitController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPairRule && isRuleFor(a, b, (SplitPairRule) rule)) {
                 return (SplitPairRule) rule;
@@ -203,7 +203,7 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Gets the placeholder rule for the given activity. */
     SplitPlaceholderRule getPlaceholderRule(@NonNull Class<? extends Activity> a) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+        Set<EmbeddingRule> currentRules = mSplitController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPlaceholderRule) {
                 for (ActivityFilter filter : ((SplitPlaceholderRule) rule).getFilters()) {
@@ -218,7 +218,7 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Gets the split rule for the given activity. */
     private ActivityRule getRuleFor(Class<? extends Activity> a) {
-        Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
+        Set<EmbeddingRule> currentRules = mSplitController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof ActivityRule && isRuleFor(a, (ActivityRule) rule)) {
                 return (ActivityRule) rule;
@@ -279,7 +279,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitMainCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mSplitController.addRule(rule);
         }
 
         Set<ActivityFilter> activityFilters = new HashSet<>();
@@ -299,7 +299,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
-            mSplitController.registerRule(placeholderRule);
+            mSplitController.addRule(placeholderRule);
         }
 
         pairFilters = new HashSet<>();
@@ -321,7 +321,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitBCCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mSplitController.addRule(rule);
         }
 
         pairFilters = new HashSet<>();
@@ -339,7 +339,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build();
         if (mViewBinding.splitWithFCheckBox.isChecked()) {
-            mSplitController.registerRule(rule);
+            mSplitController.addRule(rule);
         }
 
         activityFilters = new HashSet<>();
@@ -348,7 +348,7 @@ public class SplitActivityBase extends AppCompatActivity
                 .setAlwaysExpand(true)
                 .build();
         if (mViewBinding.fullscreenECheckBox.isChecked()) {
-            mSplitController.registerRule(activityRule);
+            mSplitController.addRule(activityRule);
         }
     }
 
