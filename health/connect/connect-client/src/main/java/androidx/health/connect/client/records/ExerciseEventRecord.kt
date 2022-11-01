@@ -74,13 +74,13 @@ public class ExerciseEventRecord(
      */
     internal object EventType {
         /**
-         * Explicit pause during an workout, requested by the user (by clicking a pause button in
+         * Explicit pause during a workout, requested by the user (by clicking a pause button in
          * the session UI). Movement happening during pause should not contribute to session
          * metrics.
          */
         const val PAUSE = "pause"
         /**
-         * Auto-detected periods of rest during an workout. There should be no user movement
+         * Auto-detected periods of rest during a workout. There should be no user movement
          * detected during rest and any movement detected should finish rest event.
          */
         const val REST = "rest"
