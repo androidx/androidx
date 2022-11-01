@@ -64,6 +64,26 @@ object CompilationTestHelper {
 val TestCompilationResult.resourceOutputDir: File
     get() = outputClasspath.first().parentFile.resolve("ksp-compiler/resourceOutputDir")
 
+fun hasAllExpectedGeneratedSourceFilesAndContent(
+    actualKotlinSources: List<Source>,
+    expectedKotlinSources: List<Source>,
+    expectedAidlFilepath: List<String>
+) {
+    val expectedRelativePaths =
+        expectedKotlinSources.map(Source::relativePath) + expectedAidlFilepath
+    assertThat(actualKotlinSources.map(Source::relativePath))
+        .containsExactlyElementsIn(expectedRelativePaths)
+
+    val actualRelativePathMap = actualKotlinSources.associateBy(Source::relativePath)
+    for (expectedKotlinSource in expectedKotlinSources) {
+        assertWithMessage(
+            "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
+                "match golden."
+        ).that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
+            .isEqualTo(expectedKotlinSource.contents)
+    }
+}
+
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun succeeds() {
         assertWithMessage(
@@ -73,21 +93,19 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         ).isTrue()
     }
 
-    fun generatesExactlySources(vararg sourcePaths: String) {
-        succeeds()
-        assertThat(result.generatedSources.map(Source::relativePath))
-            .containsExactlyElementsIn(sourcePaths)
+    fun hasAllExpectedGeneratedSourceFilesAndContent(
+        expectedKotlinSources: List<Source>,
+        expectedAidlFilepath: List<String>
+    ) {
+        hasAllExpectedGeneratedSourceFilesAndContent(
+            result.generatedSources,
+            expectedKotlinSources,
+            expectedAidlFilepath
+        )
     }
 
-    fun generatesSourcesWithContents(sources: List<Source>) {
-        succeeds()
-        val contentsByFile = result.generatedSources.associate { it.relativePath to it.contents }
-        for (source in sources) {
-            assertWithMessage("File ${source.relativePath} was not generated")
-                .that(contentsByFile).containsKey(source.relativePath)
-            assertWithMessage("Contents of file ${source.relativePath} don't match.")
-                .that(contentsByFile[source.relativePath]).isEqualTo(source.contents)
-        }
+    fun hasNoGeneratedSourceFiles() {
+        assertThat(result.generatedSources).isEmpty()
     }
 
     fun fails() {
