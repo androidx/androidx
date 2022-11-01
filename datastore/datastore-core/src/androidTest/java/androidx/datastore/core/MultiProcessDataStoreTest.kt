@@ -91,12 +91,11 @@ class MultiProcessDataStoreTest {
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
         return MultiProcessDataStore(
-            { file },
-            serializer = serializer,
+            storage = FileStorage(serializer) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler
-        )
+        ) { file }
     }
 
     @Before
@@ -106,8 +105,8 @@ class MultiProcessDataStoreTest {
         testFile = tempFolder.newFile()
         dataStoreScope = TestScope(UnconfinedTestDispatcher() + Job())
         store =
-            MultiProcessDataStore<Byte>(
-                { testFile },
+            newDataStore(
+                testFile,
                 testingSerializer,
                 scope = dataStoreScope
             )
@@ -277,10 +276,10 @@ class MultiProcessDataStoreTest {
         }
 
         val newStore = MultiProcessDataStore(
-            fileProducer,
-            serializer = testingSerializer,
+            storage = FileStorage(testingSerializer, fileProducer),
             scope = dataStoreScope,
-            initTasksList = listOf()
+            initTasksList = listOf(),
+            produceFile = fileProducer
         )
 
         assertThrows<IOException> { newStore.data.first() }.hasMessageThat().isEqualTo(
@@ -792,10 +791,9 @@ class MultiProcessDataStoreTest {
     fun testMutatingDataStoreFails() = runTest {
 
         val dataStore = MultiProcessDataStore(
-            { testFile },
-            ByteWrapper.ByteWrapperSerializer(),
+            storage = FileStorage(ByteWrapper.ByteWrapperSerializer()) { testFile },
             scope = dataStoreScope,
-        )
+        ) { testFile }
 
         assertThrows<IllegalStateException> {
             dataStore.updateData { input: ByteWrapper ->
@@ -809,10 +807,11 @@ class MultiProcessDataStoreTest {
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = runTest {
         val dataStore = MultiProcessDataStore(
-            { testFile },
-            TestingSerializer(TestingSerializerConfig(defaultValue = 99)),
+            storage = FileStorage(TestingSerializer(TestingSerializerConfig(defaultValue = 99))) {
+                testFile
+            },
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         assertThat(testFile.delete()).isTrue()
 

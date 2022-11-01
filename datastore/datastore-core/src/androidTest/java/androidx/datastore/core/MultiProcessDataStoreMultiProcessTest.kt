@@ -77,11 +77,12 @@ private fun createDataStore(
     scope: TestScope,
     corruptionHandler: CorruptionHandler<FooProto> = NoOpCorruptionHandler<FooProto>()
 ): MultiProcessDataStore<FooProto> {
+    val produceFile = { File(bundle.getString(PATH_BUNDLE_KEY)!!) }
     return MultiProcessDataStore<FooProto>(
-        { File(bundle.getString(PATH_BUNDLE_KEY)!!) },
-        PROTO_SERIALIZER,
+        storage = FileStorage(PROTO_SERIALIZER, produceFile),
         scope = scope,
-        corruptionHandler = corruptionHandler
+        corruptionHandler = corruptionHandler,
+        produceFile = produceFile
     )
 }
 
@@ -113,10 +114,11 @@ class MultiProcessDataStoreMultiProcessTest {
         bundle: Bundle,
         scope: TestScope
     ): MultiProcessDataStore<FooProto> {
+        val produceFile = { File(bundle.getString(PATH_BUNDLE_KEY)!!) }
         return MultiProcessDataStore<FooProto>(
-            { File(bundle.getString(PATH_BUNDLE_KEY)!!) },
-            protoSerializer,
-            scope = scope
+            storage = FileStorage(protoSerializer, produceFile),
+            scope = scope,
+            produceFile = produceFile
         )
     }
 
