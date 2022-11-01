@@ -251,7 +251,7 @@ final class ImageSaver implements Runnable {
                 }
                 outputUri = Uri.fromFile(targetFile);
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | SecurityException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write destination file.";
             exception = e;
