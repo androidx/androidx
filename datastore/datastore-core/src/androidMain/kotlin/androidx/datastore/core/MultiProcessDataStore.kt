@@ -17,11 +17,9 @@
 package androidx.datastore.core
 
 import android.os.FileObserver
-import androidx.annotation.GuardedBy
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileLock
@@ -48,8 +46,7 @@ import kotlinx.coroutines.withContext
  * Multi process implementation of DataStore. It is multi-process safe.
  */
 internal class MultiProcessDataStore<T>(
-    private val produceFile: () -> File,
-    private val serializer: Serializer<T>,
+    private val storage: Storage<T>,
     /**
      * The list of initialization tasks to perform. These tasks will be completed before any data
      * is published to the data and before any read-modify-writes execute in updateData.  If
@@ -59,7 +56,8 @@ internal class MultiProcessDataStore<T>(
      */
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
     private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+    private val produceFile: () -> File
 ) : DataStore<T> {
     override val data: Flow<T> = flow {
         /**
@@ -132,7 +130,6 @@ internal class MultiProcessDataStore<T>(
         return ack.await()
     }
 
-    private val SCRATCH_SUFFIX = ".tmp"
     private val LOCK_SUFFIX = ".lock"
     private val VERSION_SUFFIX = ".version"
     private val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
@@ -152,25 +149,14 @@ internal class MultiProcessDataStore<T>(
         }
     }
     private val threadLockSemaphore = Semaphore(1)
+    private val storageConnection: StorageConnection<T> by lazy {
+        storage.createConnection()
+    }
 
     // file is protected rather than private to avoid requiring synthetic accessor for its usage in
     // the definition of FileObserver
     protected val file: File by lazy {
-        val file = produceFile()
-
-        file.absolutePath.let {
-            synchronized(activeFilesLock) {
-                check(!activeFiles.contains(it)) {
-                    "There are multiple DataStores in the same process active for the same file: " +
-                        "$file. You should either maintain your DataStore as a singleton or " +
-                        "confirm that there is no two DataStore's active on the same file in the " +
-                        "same process(by confirming that the scope is cancelled)."
-                }
-                activeFiles.add(it)
-            }
-        }
-
-        file
+        produceFile()
     }
 
     private val lockFile: File by lazy {
@@ -204,9 +190,7 @@ internal class MultiProcessDataStore<T>(
             // We expect it to always be non-null but we will leave the alternative as a no-op
             // just in case.
 
-            synchronized(activeFilesLock) {
-                activeFiles.remove(file.absolutePath)
-            }
+            storageConnection.close()
         },
         onUndeliveredElement = { msg, ex ->
             msg.ack.completeExceptionally(
@@ -429,21 +413,7 @@ internal class MultiProcessDataStore<T>(
     // Caller is responsible for (try to) getting file lock. It reads from the file directly without
     // checking shared counter version and returns serializer default value if file is not found.
     private suspend fun readDataFromFileOrDefault(): T {
-        try {
-            return FileInputStream(file).use { stream ->
-                serializer.readFrom(stream)
-            }
-        } catch (ex: FileNotFoundException) {
-            if (file.exists()) {
-                // Re-read to prevent throwing from a race condition where the file is created by
-                // another process before `file.exists()` is called. Otherwise file exists but we
-                // can't read it; throw FileNotFoundException because something is wrong.
-                return FileInputStream(file).use { stream ->
-                    serializer.readFrom(stream)
-                }
-            }
-            return serializer.defaultValue
-        }
+        return storageConnection.readData()
     }
 
     private suspend fun transformAndWrite(
@@ -465,39 +435,22 @@ internal class MultiProcessDataStore<T>(
 
     // Write data to disk and return the corresponding version if succeed.
     internal suspend fun writeData(newData: T, updateCache: Boolean = true): Int {
-        file.createParentDirectories()
+        var newVersion: Int = 0
 
-        val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
-        try {
-            FileOutputStream(scratchFile).use { stream ->
-                serializer.writeTo(newData, UncloseableOutputStream(stream))
-                stream.fd.sync()
-                // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
-                // result in reverting to a previous state.
-            }
-
-            val newVersion = sharedCounter.incrementAndGetValue()
-
-            if (!scratchFile.renameTo(file)) {
-                throw IOException(
-                    "Unable to rename $scratchFile." +
-                        "This likely means that there are multiple instances of DataStore " +
-                        "for this file. Ensure that you are only creating a single instance of " +
-                        "datastore for this file."
-                )
-            }
-
+        // The code in `writeScope` is run synchronously, i.e. the newVersion isn't returned until
+        // the code in `writeScope` completes.
+        storageConnection.writeScope {
+            // TODO(b/256242862): decide the long term solution to increment version after write to
+            // scratch file. We used to increment version after scratch file write for performance
+            // optimization for concurrent reads and failed writes.
+            newVersion = sharedCounter.incrementAndGetValue()
+            writeData(newData)
             if (updateCache) {
                 downstreamFlow.value = Data(newData, newData.hashCode(), newVersion)
             }
-
-            return newVersion
-        } catch (ex: IOException) {
-            if (scratchFile.exists()) {
-                scratchFile.delete() // Swallow failure to delete
-            }
-            throw ex
         }
+
+        return newVersion
     }
 
     private fun fileWithSuffix(suffix: String): File {
@@ -576,17 +529,6 @@ internal class MultiProcessDataStore<T>(
     }
 
     internal companion object {
-        /**
-         * Active files should contain the absolute path for which there are currently active
-         * DataStores. A DataStore is active until the scope it was created with has been
-         * cancelled. Files aren't added to this list until the first read/write because the file
-         * path is computed asynchronously.
-         */
-        @GuardedBy("activeFilesLock")
-        internal val activeFiles = mutableSetOf<String>()
-
-        internal val activeFilesLock = Any()
-
         internal val initTaskLock = Mutex()
     }
 }
