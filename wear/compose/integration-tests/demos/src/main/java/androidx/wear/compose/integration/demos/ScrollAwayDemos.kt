@@ -100,6 +100,15 @@ fun ScrollAwayScalingLazyColumnCardDemoMismatch() {
 }
 
 @Composable
+fun ScrollAwayScalingLazyColumnCardDemoOutOfRange() {
+    ScalingLazyColumnCardDemo(
+        itemIndex = 100,
+        offset = 75.dp,
+        initialCenterItemIndex = 1,
+    )
+}
+
+@Composable
 fun ScrollAwayScalingLazyColumnChipDemo() {
     ScalingLazyColumnChipDemo(
         itemIndex = 1,
