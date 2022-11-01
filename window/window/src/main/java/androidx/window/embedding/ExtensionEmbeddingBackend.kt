@@ -71,8 +71,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
          * implementation conforms to the declared API version.
          */
         private fun initAndVerifyEmbeddingExtension(
-            // TODO(b/229656253) use applicationContext to load resource.
-            @Suppress("UNUSED_PARAMETER") applicationContext: Context
+            applicationContext: Context
         ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
@@ -83,7 +82,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                         EmbeddingCompat(
                             EmbeddingCompat.embeddingComponent(),
                             EmbeddingAdapter(PredicateAdapter(loader)),
-                            ConsumerAdapter(loader)
+                            ConsumerAdapter(loader),
+                            applicationContext
                         )
                     }
                     // TODO(b/190433400): Check API conformance

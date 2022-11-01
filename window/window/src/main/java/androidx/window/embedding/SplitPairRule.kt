@@ -66,13 +66,13 @@ class SplitPairRule : SplitRule {
         @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
         @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
         clearTop: Boolean = false,
-        @IntRange(from = 0) minWidth: Int,
-        @IntRange(from = 0) minSmallestWidth: Int,
+        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
         @LayoutDirection layoutDirection: Int = LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+    ) : super(minWidthDp, minSmallestWidthDp, splitRatio, layoutDirection) {
+        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
+        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
         this.filters = filters.toSet()
         this.clearTop = clearTop
@@ -82,17 +82,16 @@ class SplitPairRule : SplitRule {
 
     /**
      * Builder for [SplitPairRule].
+     *
      * @param filters See [SplitPairRule.filters].
-     * @param minWidth See [SplitPairRule.minWidth].
-     * @param minSmallestWidth See [SplitPairRule.minSmallestWidth].
      */
     class Builder(
         private val filters: Set<SplitPairFilter>,
-        @IntRange(from = 0)
-        private val minWidth: Int,
-        @IntRange(from = 0)
-        private val minSmallestWidth: Int
     ) {
+        @IntRange(from = 0)
+        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
         @SplitFinishBehavior
         private var finishPrimaryWithSecondary: Int = FINISH_NEVER
         @SplitFinishBehavior
@@ -102,6 +101,18 @@ class SplitPairRule : SplitRule {
         private var splitRatio: Float = 0.5f
         @LayoutDirection
         private var layoutDirection: Int = LOCALE
+
+        /**
+         * @see SplitPairRule.minWidthDp
+         */
+        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
+            apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * @see SplitPairRule.minSmallestWidthDp
+         */
+        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply { this.minSmallestWidthDp = minSmallestWidthDp }
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -139,7 +150,7 @@ class SplitPairRule : SplitRule {
             apply { this.layoutDirection = layoutDirection }
 
         fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDirection)
+            clearTop, minWidthDp, minSmallestWidthDp, splitRatio, layoutDirection)
     }
 
     /**
@@ -150,7 +161,9 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return Builder(newSet.toSet(), minWidth, minSmallestWidth)
+        return Builder(newSet.toSet())
+            .setMinWidthDp(minWidthDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)

@@ -16,14 +16,14 @@
 
 package androidx.window.embedding
 
-import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Rect
+import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
+import androidx.window.embedding.SplitRule.Companion.DEFAULT_SPLIT_MIN_DIMENSION_DP
 import androidx.window.embedding.SplitRule.Companion.FINISH_ADJACENT
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
@@ -43,10 +43,12 @@ import org.junit.Test
  */
 class EmbeddingRuleConstructionTests {
     private lateinit var application: Context
+    private lateinit var displayMetrics: DisplayMetrics
 
     @Before
     fun setUp() {
         application = ApplicationProvider.getApplicationContext()
+        displayMetrics = application.resources.displayMetrics
     }
 
     /**
@@ -64,9 +66,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(false, rule.clearTop)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        val application = ApplicationProvider.getApplicationContext<Application>()
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
     }
 
     /**
@@ -75,20 +76,14 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPairRule_Builder() {
-        val application = ApplicationProvider.getApplicationContext<Application>()
-        val bounds = minValidWindowBounds(application.resources)
-        val rule = SplitPairRule.Builder(
-            HashSet(),
-            bounds.width(),
-            bounds.width()
-        ).build()
+        val rule = SplitPairRule.Builder(HashSet()).build()
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
         assertEquals(FINISH_ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
     }
 
     /**
@@ -105,11 +100,9 @@ class EmbeddingRuleConstructionTests {
                 "ACTION"
             )
         )
-        val rule = SplitPairRule.Builder(
-            filters,
-            123,
-            456
-        )
+        val rule = SplitPairRule.Builder(filters)
+            .setMinWidthDp(123)
+            .setMinSmallestWidthDp(456)
             .setFinishPrimaryWithSecondary(FINISH_ADJACENT)
             .setFinishSecondaryWithPrimary(FINISH_ADJACENT)
             .setClearTop(true)
@@ -122,8 +115,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(0.3f, rule.splitRatio)
         assertEquals(LayoutDirection.LTR, rule.layoutDirection)
         assertEquals(filters, rule.filters)
-        assertEquals(123, rule.minWidth)
-        assertEquals(456, rule.minSmallestWidth)
+        assertEquals(123, rule.minWidthDp)
+        assertEquals(456, rule.minSmallestWidthDp)
     }
 
     /**
@@ -133,34 +126,28 @@ class EmbeddingRuleConstructionTests {
     @Test
     fun test_SplitPairRule_Builder_illegalArguments() {
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = -1,
-                minSmallestWidth = 456
-            ).build()
+            SplitPairRule.Builder(HashSet())
+                .setMinWidthDp(-1)
+                .setMinSmallestWidthDp(456)
+                .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = 123,
-                minSmallestWidth = -1
-            ).build()
+            SplitPairRule.Builder(HashSet())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(-1)
+                .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
+            SplitPairRule.Builder(HashSet())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(456)
                 .setSplitRatio(-1.0f)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(
-                HashSet(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
+            SplitPairRule.Builder(HashSet())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(456)
                 .setSplitRatio(1.1f)
                 .build()
         }
@@ -172,7 +159,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Xml() {
-        SplitController.initialize(ApplicationProvider.getApplicationContext(),
+        SplitController.initialize(application,
             R.xml.test_split_config_default_split_placeholder_rule)
 
         val rules = SplitController.getInstance(application).getSplitRules()
@@ -182,9 +169,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(false, rule.isSticky)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        val application = ApplicationProvider.getApplicationContext<Application>()
-        assertTrue(rule.checkParentBounds(minValidWindowBounds(application.resources)))
-        assertFalse(rule.checkParentBounds(almostValidWindowBounds(application.resources)))
+        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
     }
 
     /**
@@ -193,12 +179,9 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Builder() {
-        val rule = SplitPlaceholderRule.Builder(
-            HashSet(),
-            Intent(),
-            123,
-            456
-        )
+        val rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
+            .setMinWidthDp(123)
+            .setMinSmallestWidthDp(456)
             .build()
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
@@ -220,12 +203,9 @@ class EmbeddingRuleConstructionTests {
             )
         )
         val intent = Intent("ACTION")
-        val rule = SplitPlaceholderRule.Builder(
-            filters,
-            intent,
-            123,
-            456
-        )
+        val rule = SplitPlaceholderRule.Builder(filters, intent)
+            .setMinWidthDp(123)
+            .setMinSmallestWidthDp(456)
             .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSticky(true)
             .setSplitRatio(0.3f)
@@ -237,8 +217,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(LayoutDirection.LTR, rule.layoutDirection)
         assertEquals(filters, rule.filters)
         assertEquals(intent, rule.placeholderIntent)
-        assertEquals(123, rule.minWidth)
-        assertEquals(456, rule.minSmallestWidth)
+        assertEquals(123, rule.minWidthDp)
+        assertEquals(456, rule.minSmallestWidthDp)
     }
 
     /**
@@ -248,48 +228,35 @@ class EmbeddingRuleConstructionTests {
     @Test
     fun test_SplitPlaceholderRule_Builder_illegalArguments() {
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = -1,
-                minSmallestWidth = 456
-            ).build()
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(-1)
+                .setMinSmallestWidthDp(456)
+                .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = -1
-            ).build()
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(-1)
+                .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(456)
                 .setFinishPrimaryWithPlaceholder(FINISH_NEVER)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(456)
                 .setSplitRatio(-1.0f)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPlaceholderRule.Builder(
-                HashSet(),
-                Intent(),
-                minWidth = 123,
-                minSmallestWidth = 456
-            )
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(123)
+                .setMinSmallestWidthDp(456)
                 .setSplitRatio(1.1f)
                 .build()
         }
@@ -300,8 +267,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_ActivityRule_Xml() {
-        SplitController.initialize(ApplicationProvider.getApplicationContext(),
-            R.xml.test_split_config_default_activity_rule)
+        SplitController.initialize(application, R.xml.test_split_config_default_activity_rule)
 
         val rules = SplitController.getInstance(application).getSplitRules()
         assertEquals(1, rules.size)
@@ -338,22 +304,20 @@ class EmbeddingRuleConstructionTests {
         assertEquals(filters, rule.filters)
     }
 
-    private fun minValidWindowBounds(resources: Resources): Rect {
-        val minValidWidthDp = 600
+    private fun minValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = resources.displayMetrics.density
+        val scale: Float = displayMetrics.density
         // Convert the dps to pixels, based on density scale
-        val minValidWidthPx = (minValidWidthDp * scale + 0.5f).toInt()
+        val minValidWidthPx = (DEFAULT_SPLIT_MIN_DIMENSION_DP * scale + 0.5f).toInt()
 
         return Rect(0, 0, minValidWidthPx, minValidWidthPx)
     }
 
-    private fun almostValidWindowBounds(resources: Resources): Rect {
-        val minValidWidthDp = 600
+    private fun almostValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = resources.displayMetrics.density
+        val scale: Float = displayMetrics.density
         // Convert the dps to pixels, based on density scale
-        val minValidWidthPx = ((minValidWidthDp - 1) * scale + 0.5f).toInt()
+        val minValidWidthPx = ((DEFAULT_SPLIT_MIN_DIMENSION_DP) - 1 * scale + 0.5f).toInt()
 
         return Rect(0, 0, minValidWidthPx, minValidWidthPx)
     }

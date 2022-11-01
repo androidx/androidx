@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.util.LayoutDirection.LOCALE
@@ -27,6 +28,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
+import androidx.window.embedding.SplitRule.Companion.DEFAULT_SPLIT_MIN_DIMENSION_DP
 import kotlin.math.min
 
 /**
@@ -39,21 +41,27 @@ import kotlin.math.min
  */
 open class SplitRule internal constructor(
     /**
-     * The smallest value of width of the parent window when the split should be used, in pixels.
+     * The smallest value of width of the parent window when the split should be used, in DP.
      * When the window size is smaller than requested here, activities in the secondary container
      * will be stacked on top of the activities in the primary one, completely overlapping them.
+     *
+     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
+     * `0` means to always allow split.
      */
     @IntRange(from = 0)
-    val minWidth: Int,
+    val minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
 
     /**
      * The smallest value of the smallest possible width of the parent window in any rotation
-     * when the split should be used, in pixels. When the window size is smaller than requested
+     * when the split should be used, in DP. When the window size is smaller than requested
      * here, activities in the secondary container will be stacked on top of the activities in
      * the primary one, completely overlapping them.
+     *
+     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
+     * `0` means to always allow split.
      */
     @IntRange(from = 0)
-    val minSmallestWidth: Int,
+    val minSmallestWidthDp: Int,
 
     /**
      * Defines what part of the width should be given to the primary activity. Defaults to an
@@ -104,6 +112,11 @@ open class SplitRule internal constructor(
          * @see SplitRule.Companion
          */
         const val FINISH_ADJACENT = 2
+        /**
+         * The default min dimension in DP for allowing split if it is not set by apps. The value
+         * reflects [androidx.window.core.layout.WindowWidthSizeClass.MEDIUM].
+         */
+        const val DEFAULT_SPLIT_MIN_DIMENSION_DP = 600
     }
 
     /**
@@ -117,24 +130,36 @@ open class SplitRule internal constructor(
     /**
      * Verifies if the provided parent bounds are large enough to apply the rule.
      */
-    internal fun checkParentMetrics(parentMetrics: WindowMetrics): Boolean {
+    internal fun checkParentMetrics(context: Context, parentMetrics: WindowMetrics): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             return false
         }
         val bounds = Api30Impl.getBounds(parentMetrics)
-        return checkParentBounds(bounds)
+        // TODO(b/257000820): Application displayMetrics should only be used as a fallback. Replace
+        // with Task density after we include it in WindowMetrics.
+        val density = context.resources.displayMetrics.density
+        return checkParentBounds(density, bounds)
     }
 
     /**
      * @see checkParentMetrics
      */
-    internal fun checkParentBounds(bounds: Rect): Boolean {
-        val validMinWidth = (minWidth == 0 || bounds.width() >= minWidth)
+    internal fun checkParentBounds(density: Float, bounds: Rect): Boolean {
+        val minWidthPx = convertDpToPx(density, minWidthDp)
+        val minSmallestWidthPx = convertDpToPx(density, minSmallestWidthDp)
+        val validMinWidth = (minWidthDp == 0 || bounds.width() >= minWidthPx)
         val validSmallestMinWidth = (
-            minSmallestWidth == 0 ||
-                min(bounds.width(), bounds.height()) >= minSmallestWidth
+            minSmallestWidthDp == 0 ||
+                min(bounds.width(), bounds.height()) >= minSmallestWidthPx
             )
         return validMinWidth && validSmallestMinWidth
+    }
+
+    /**
+     * Converts the dimension from Dp to pixels.
+     */
+    private fun convertDpToPx(density: Float, @IntRange(from = 0) dimensionDp: Int): Int {
+        return (dimensionDp * density + 0.5f).toInt()
     }
 
     @RequiresApi(30)
@@ -149,8 +174,8 @@ open class SplitRule internal constructor(
         if (this === other) return true
         if (other !is SplitRule) return false
 
-        if (minWidth != other.minWidth) return false
-        if (minSmallestWidth != other.minSmallestWidth) return false
+        if (minWidthDp != other.minWidthDp) return false
+        if (minSmallestWidthDp != other.minSmallestWidthDp) return false
         if (splitRatio != other.splitRatio) return false
         if (layoutDirection != other.layoutDirection) return false
 
@@ -158,8 +183,8 @@ open class SplitRule internal constructor(
     }
 
     override fun hashCode(): Int {
-        var result = minWidth
-        result = 31 * result + minSmallestWidth
+        var result = minWidthDp
+        result = 31 * result + minSmallestWidthDp
         result = 31 * result + splitRatio.hashCode()
         result = 31 * result + layoutDirection
         return result

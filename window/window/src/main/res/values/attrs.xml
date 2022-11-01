@@ -19,10 +19,10 @@
     equal width split. -->
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
-    <attr name="splitMinWidth" format="dimension" />
+    <attr name="splitMinWidthDp" format="integer" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
      the split should be used. -->
-    <attr name="splitMinSmallestWidth" format="dimension" />
+    <attr name="splitMinSmallestWidthDp" format="integer" />
     <attr name="splitLayoutDirection" format="enum">
         <enum name="locale" value="0" />
         <enum name="ltr" value="1" />
@@ -58,8 +58,8 @@
          to "false". -->
         <attr name="clearTop" format="boolean" />
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
     </declare-styleable>
 
@@ -76,8 +76,8 @@
          primary container that created the split should also be finished. Defaults to "always". -->
         <attr name="finishPrimaryWithPlaceholder" />
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
     </declare-styleable>
 

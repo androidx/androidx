@@ -77,13 +77,13 @@ class SplitPlaceholderRule : SplitRule {
         placeholderIntent: Intent,
         isSticky: Boolean,
         @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
-        @IntRange(from = 0) minWidth: Int = 0,
-        @IntRange(from = 0) minSmallestWidth: Int = 0,
+        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
         @LayoutDirection layoutDirection: Int = LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+    ) : super(minWidthDp, minSmallestWidthDp, splitRatio, layoutDirection) {
+        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
+        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
         checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
             "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
@@ -96,19 +96,18 @@ class SplitPlaceholderRule : SplitRule {
 
     /**
      * Builder for [SplitPlaceholderRule].
+     *
      * @param filters See [SplitPlaceholderRule.filters].
      * @param placeholderIntent See [SplitPlaceholderRule.placeholderIntent].
-     * @param minWidth See [SplitPlaceholderRule.minWidth].
-     * @param minSmallestWidth See [SplitPlaceholderRule.minSmallestWidth].
      */
     class Builder(
         private val filters: Set<ActivityFilter>,
         private val placeholderIntent: Intent,
-        @IntRange(from = 0)
-        private val minWidth: Int,
-        @IntRange(from = 0)
-        private val minSmallestWidth: Int
     ) {
+        @IntRange(from = 0)
+        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
         @SplitPlaceholderFinishBehavior
         private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
         private var isSticky: Boolean = false
@@ -116,6 +115,18 @@ class SplitPlaceholderRule : SplitRule {
         private var splitRatio: Float = 0.5f
         @LayoutDirection
         private var layoutDirection: Int = LOCALE
+
+        /**
+         * @see SplitPlaceholderRule.minWidthDp
+         */
+        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
+            apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * @see SplitPlaceholderRule.minSmallestWidthDp
+         */
+        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply { this.minSmallestWidthDp = minSmallestWidthDp }
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -146,7 +157,8 @@ class SplitPlaceholderRule : SplitRule {
             apply { this.layoutDirection = layoutDirection }
 
         fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDirection)
+            finishPrimaryWithPlaceholder, minWidthDp, minSmallestWidthDp, splitRatio,
+            layoutDirection)
     }
 
     /**
@@ -157,7 +169,9 @@ class SplitPlaceholderRule : SplitRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return Builder(newSet.toSet(), placeholderIntent, minWidth, minSmallestWidth)
+        return Builder(newSet.toSet(), placeholderIntent)
+            .setMinWidthDp(minWidthDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
             .setSticky(isSticky)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(splitRatio)
