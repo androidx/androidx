@@ -30,7 +30,6 @@ import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
-import com.google.crypto.tink.shaded.protobuf.InvalidProtocolBufferException;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 
 import java.io.File;
@@ -43,7 +42,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 
 /**
  * Class used to create and read encrypted files.
@@ -201,24 +199,15 @@ public final class EncryptedFile {
                     .withSharedPref(mContext, mKeysetAlias, mKeysetPrefName)
                     .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias);
 
-            AndroidKeysetManager keysetManager;
-
-            try {
-                // Building the keyset manager involves shared pref filesystem operations. To
-                // control access to this global state in multi-threaded contexts we need to
-                // ensure mutual exclusion of the build() function.
-                synchronized (sLock) {
-                    keysetManager = keysetManagerBuilder.build();
-                }
-            } catch (InvalidProtocolBufferException e) {
-                throw new InvalidKeyException("Used the wrong key (\"" + mMasterKeyAlias + "\") to "
-                        + "decrypt the keyset (\"" + mKeysetAlias + "\"). If you are using "
-                        + "multiple master keys you must call setKeysetPrefName() or "
-                        + "setKeysetAlias() to differentiate.",
-                        e);
+            // Building the keyset manager involves shared pref filesystem operations. To control
+            // access to this global state in multi-threaded contexts we need to ensure mutual
+            // exclusion of the build() function.
+            AndroidKeysetManager androidKeysetManager;
+            synchronized (sLock) {
+                androidKeysetManager = keysetManagerBuilder.build();
             }
 
-            KeysetHandle streamingAeadKeysetHandle = keysetManager.getKeysetHandle();
+            KeysetHandle streamingAeadKeysetHandle = androidKeysetManager.getKeysetHandle();
             StreamingAead streamingAead =
                     streamingAeadKeysetHandle.getPrimitive(StreamingAead.class);
 
