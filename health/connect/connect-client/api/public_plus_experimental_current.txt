@@ -1120,7 +1120,7 @@ package androidx.health.connect.client.records {
   }
 
   public final class StepsRecord implements androidx.health.connect.client.records.Record {
-    ctor public StepsRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, long count, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public StepsRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, @IntRange(from=1L, to=1000000L) long count, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public long getCount();
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
