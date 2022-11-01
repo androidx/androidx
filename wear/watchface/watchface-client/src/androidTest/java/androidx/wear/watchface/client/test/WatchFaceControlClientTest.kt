@@ -134,6 +134,7 @@ private const val UPDATE_TIMEOUT_MILLIS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 class WatchFaceControlClientTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val service = runBlocking {
@@ -1561,7 +1562,6 @@ class WatchFaceControlClientTest {
     }
 
     @Ignore // b/225230182
-    @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     fun interactiveAndHeadlessOpenGlWatchFaceInstances() {
         val surfaceTexture = SurfaceTexture(false)
