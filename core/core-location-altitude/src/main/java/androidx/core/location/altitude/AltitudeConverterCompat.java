@@ -29,6 +29,8 @@ import java.util.Objects;
 /**
  * Converts altitudes reported above the World Geodetic System 1984 (WGS84) reference ellipsoid
  * into ones above Mean Sea Level.
+ *
+ * @hide
  */
 public final class AltitudeConverterCompat {
 
@@ -53,6 +55,8 @@ public final class AltitudeConverterCompat {
      * </ul>
      *
      * <p>NOTE: Currently throws {@link UnsupportedOperationException} for a valid {@code location}.
+     *
+     * @hide
      */
     @NonNull
     public static ListenableFuture<Location> addMslAltitudeAsync(
