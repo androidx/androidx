@@ -38,13 +38,13 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
         setTitle(R.string.process_global_config_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        if (!WebViewFeature.isStartupFeatureSupported(WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
-                this)) {
+        if (!WebViewFeature.isStartupFeatureSupported(this,
+                WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX)) {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
         ProcessGlobalConfig.createInstance()
-                .setDataDirectorySuffix("per_process_webview_data_0", this)
+                .setDataDirectorySuffix(this, "per_process_webview_data_0")
                 .apply();
         setContentView(R.layout.activity_process_global_config);
         WebView wv = findViewById(R.id.process_global_config_webview);

@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
@@ -58,10 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>
  * The configuration should be set up as early as possible during application startup, to ensure
  * that it happens before any other thread can call a method that loads WebView.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ProcessGlobalConfig {
     private static final AtomicReference<HashMap<String, Object>> sProcessGlobalConfig =
             new AtomicReference<HashMap<String, Object>>();
@@ -84,8 +80,14 @@ public class ProcessGlobalConfig {
     @NonNull
     public static ProcessGlobalConfig createInstance() {
         if (!sInstanceCreated.compareAndSet(false, true)) {
-            throw new IllegalStateException("ProcessGlobalConfig#createInstance() was already "
-                    + "called before");
+            throw new IllegalStateException("ProcessGlobalConfig#createInstance was "
+                    + "called more than once, which is an illegal operation. The configuration "
+                    + "settings provided by ProcessGlobalConfig take effect only once, when "
+                    + "WebView is first loaded into the current process. Every process should "
+                    + "only ever create a single instance of ProcessGlobalConfig and apply it "
+                    + "once, before any calls to android.webkit APIs, such as during early app "
+                    + "startup."
+            );
         }
         return new ProcessGlobalConfig();
     }
@@ -112,16 +114,25 @@ public class ProcessGlobalConfig {
         //  ProcessGlobalConfig, revisit this.
         HashMap<String, Object> configMap = new HashMap<String, Object>();
         if (mApplyCalled) {
-            throw new IllegalStateException("ProcessGlobalConfig#apply() was already called "
-                    + "before");
+            throw new IllegalStateException("ProcessGlobalConfig#apply was "
+                    + "called more than once, which is an illegal operation. The configuration "
+                    + "settings provided by ProcessGlobalConfig take effect only once, when "
+                    + "WebView is first loaded into the current process. Every process should "
+                    + "only ever create a single instance of ProcessGlobalConfig and apply it "
+                    + "once, before any calls to android.webkit APIs, such as during early app "
+                    + "startup."
+            );
         }
         mApplyCalled = true;
         if (webViewCurrentlyLoaded()) {
-            throw new IllegalStateException(
-                    "WebView has already been initialized in the current process");
+            throw new IllegalStateException("WebView has already been loaded in the current "
+                    + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
+                    + "have no effect. ProcessGlobalConfig#apply needs to be called before any "
+                    + "calls to android.webkit APIs, such as during early app startup.");
         }
 
-        final StartupApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
+        final StartupApiFeature.P feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
         if (feature.isSupportedByFramework()) {
             androidx.webkit.internal.ApiHelperForP.setDataDirectorySuffix(mDataDirectorySuffix);
         } else {
@@ -158,24 +169,26 @@ public class ProcessGlobalConfig {
      * This is a compatibility method for
      * {@link android.webkit.WebView#setDataDirectorySuffix(String)}
      *
+     * @param context a Context to access application assets This value cannot be null.
      * @param suffix The directory name suffix to be used for the current
      *               process. Must not contain a path separator and should not be empty.
      * @throws IllegalStateException if WebView has already been initialized
      *                               in the current process or if this method was called before
      * @throws IllegalArgumentException if the suffix contains a path separator or is empty.
      */
-    @RequiresFeature(name = WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+    @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
             enforcement =
                     "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
     @NonNull
-    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull String suffix,
-            @NonNull Context context) {
+    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull Context context,
+            @NonNull String suffix) {
         if (mDataDirectorySuffix != null) {
             throw new IllegalStateException(
                     "ProcessGlobalConfig#setDataDirectorySuffix(String) was already "
                             + "called");
         }
-        final StartupApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
+        final StartupApiFeature.P feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
         if (!feature.isSupported(context)) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

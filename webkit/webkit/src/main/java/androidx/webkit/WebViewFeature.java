@@ -113,7 +113,7 @@ public class WebViewFeature {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
-            SET_DATA_DIRECTORY_SUFFIX,
+            STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -524,13 +524,12 @@ public class WebViewFeature {
     public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}.
+     * Feature for {@link #isStartupFeatureSupported(Context, String)}.
      * This feature covers
      * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SET_DATA_DIRECTORY_SUFFIX = "SET_DATA_DIRECTORY_SUFFIX";
+    public static final String STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
+            "STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
@@ -585,14 +584,12 @@ public class WebViewFeature {
      * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
      * for a particular feature, any callback guarded by that feature will not be invoked.
      *
+     * @param context a Context to access application assets This value cannot be null.
      * @param startupFeature the startup feature to be checked
      * @return whether the feature is supported given the current platform SDK and webview version
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static boolean isStartupFeatureSupported(
-            @NonNull @WebViewStartupFeature String startupFeature,
-            @NonNull Context context) {
+    public static boolean isStartupFeatureSupported(@NonNull Context context,
+            @NonNull @WebViewStartupFeature String startupFeature) {
         return WebViewFeatureInternal.isStartupFeatureSupported(startupFeature, context);
     }
 }
