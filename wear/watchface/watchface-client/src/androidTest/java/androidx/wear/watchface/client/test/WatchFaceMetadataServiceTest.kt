@@ -22,7 +22,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
+import android.os.Build
 import android.support.wearable.watchface.Constants
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -47,6 +49,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceMetadataServiceTest {
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.client.test",
