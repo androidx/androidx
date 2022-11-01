@@ -62,10 +62,10 @@ if [ "$FLAGS_sourceDir" == "" ]; then
 
   if (( FLAGS_useToT )); then
     printf "Downloading docs-tip-of-tree zip files \n"
-    androidxDackkaZip="dackka-tip-of-tree-docs-${FLAGS_buildId}.zip"
+    androidxDackkaZip="docs-tip-of-tree-${FLAGS_buildId}.zip"
   else
     printf "Downloading docs-public zip files \n"
-    androidxDackkaZip="dackka-public-docs-${FLAGS_buildId}.zip"
+    androidxDackkaZip="docs-public-${FLAGS_buildId}.zip"
   fi
 
   if (( "${FLAGS_buildId::1}" == "P" )); then
@@ -95,7 +95,7 @@ else
   printf "== Copying doc sources from local directory $FLAGS_sourceDir \n"
   printf "=================================================================== \n"
 
-  cp -r "$FLAGS_sourceDir/dackkaDocs/." $newDir
+  cp -r "$FLAGS_sourceDir/docs/." $newDir
 
 fi
 

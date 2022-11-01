@@ -14,8 +14,8 @@ Run `python3 offlinify_dackka_docs.py --help` for argument descriptions.
 
 SCRIPT_PATH = Path(__file__).parent.absolute()
 REL_PATH_TO_DOCS = '../../../../out/androidx/docs-tip-of-tree/build'
-DEFAULT_INPUT  = os.path.abspath(os.path.join(SCRIPT_PATH, REL_PATH_TO_DOCS, 'dackkaDocs'))
-DEFAULT_OUTPUT = os.path.abspath(os.path.join(SCRIPT_PATH, REL_PATH_TO_DOCS, 'offlineDackkaDocs'))
+DEFAULT_INPUT  = os.path.abspath(os.path.join(SCRIPT_PATH, REL_PATH_TO_DOCS, 'docs'))
+DEFAULT_OUTPUT = os.path.abspath(os.path.join(SCRIPT_PATH, REL_PATH_TO_DOCS, 'offlineDocs'))
 REL_PATH_TO_LIBRARIES = 'reference/kotlin/androidx'
 STYLE_FILENAME = 'style.css'
 CSS_SOURCE_PATH = os.path.join(SCRIPT_PATH, STYLE_FILENAME)
@@ -78,7 +78,7 @@ def check_input_path(path):
   if path is None:
     if not os.path.exists(DEFAULT_INPUT):
       print(f'ERROR: Default input path `{DEFAULT_INPUT}` does not exist. Generate docs by running')
-      print('    ./gradlew dackkaDocs')
+      print('    ./gradlew docs')
       exit(-1)
     return DEFAULT_INPUT
 
