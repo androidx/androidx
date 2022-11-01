@@ -3931,6 +3931,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        @DoNotInline
         static Context createConfigurationContext(@NonNull Context context,
                 @NonNull Configuration overrideConfiguration) {
             return context.createConfigurationContext(overrideConfiguration);
@@ -3961,6 +3962,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     static class Api21Impl {
         private Api21Impl() { }
 
+        @DoNotInline
         static boolean isPowerSaveMode(PowerManager powerManager) {
             return powerManager.isPowerSaveMode();
         }
