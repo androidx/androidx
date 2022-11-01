@@ -25,7 +25,7 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
  * each other should be shown side-by-side, and the visual properties of such splits. Can be set
  * either statically via [SplitController.Companion.initialize] or at runtime via
- * [SplitController.registerRule]. The rules can only be  applied to activities that
+ * [SplitController.addRule]. The rules can only be  applied to activities that
  * belong to the same application and are running in the same process. The rules are  always
  * applied only to activities that will be started  after the rules were set.
  */
@@ -64,14 +64,14 @@ class SplitPairRule : SplitRule {
         finishPrimaryWithSecondary: FinishBehavior = NEVER,
         finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
         clearTop: Boolean = false,
-        @IntRange(from = 0) minWidth: Int,
-        @IntRange(from = 0) minHeight: Int,
-        @IntRange(from = 0) minSmallestWidth: Int,
+        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidth, minHeight, minSmallestWidth, defaultSplitAttributes) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minHeight, "minHeight must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, defaultSplitAttributes) {
+        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
+        checkArgumentNonnegative(minHeightDp, "minHeightDp must be non-negative")
+        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
         this.filters = filters.toSet()
         this.clearTop = clearTop
         this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
@@ -80,25 +80,41 @@ class SplitPairRule : SplitRule {
 
     /**
      * Builder for [SplitPairRule].
+     *
      * @param filters See [SplitPairRule.filters].
-     * @param minWidth See [SplitPairRule.minWidth].
-     * @param minHeight See [SplitPairRule.minHeight]
-     * @param minSmallestWidth See [SplitPairRule.minSmallestWidth].
      */
     class Builder(
-        private val filters: Set<SplitPairFilter>,
-        @IntRange(from = 0)
-        private val minWidth: Int,
-        @IntRange(from = 0)
-        private val minHeight: Int,
-        @IntRange(from = 0)
-        private val minSmallestWidth: Int,
+        private val filters: Set<SplitPairFilter>
     ) {
         private var tag: String? = null
+        @IntRange(from = 0)
+        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
         private var finishPrimaryWithSecondary: FinishBehavior = NEVER
         private var finishSecondaryWithPrimary: FinishBehavior = ALWAYS
         private var clearTop: Boolean = false
         private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
+
+        /**
+         * @see SplitPairRule.minWidthDp
+         */
+        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
+            apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * @see SplitPairRule.minHeightDp
+         */
+        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder =
+            apply { this.minHeightDp = minHeightDp }
+
+        /**
+         * @see SplitPairRule.minSmallestWidthDp
+         */
+        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply { this.minSmallestWidthDp = minSmallestWidthDp }
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -137,9 +153,9 @@ class SplitPairRule : SplitRule {
             finishPrimaryWithSecondary,
             finishSecondaryWithPrimary,
             clearTop,
-            minWidth,
-            minHeight,
-            minSmallestWidth,
+            minWidthDp,
+            minHeightDp,
+            minSmallestWidthDp,
             defaultSplitAttributes,
         )
     }
@@ -152,8 +168,11 @@ class SplitPairRule : SplitRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return Builder(newSet.toSet(), minWidth, minHeight, minSmallestWidth)
+        return Builder(newSet.toSet())
             .setTag(tag)
+            .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
@@ -187,9 +206,9 @@ class SplitPairRule : SplitRule {
         "${SplitPairRule::class.java.simpleName}{" +
             "tag=$tag" +
             ", defaultSplitAttributes=$defaultSplitAttributes" +
-            ", minWidth=$minWidth" +
-            ", minHeight=$minHeight" +
-            ", minSmallestWidth=$minSmallestWidth" +
+            ", minWidthDp=$minWidthDp" +
+            ", minHeightDp=$minHeightDp" +
+            ", minSmallestWidthDp=$minSmallestWidthDp" +
             ", clearTop=$clearTop" +
             ", finishPrimaryWithSecondary=$finishPrimaryWithSecondary" +
             ", finishSecondaryWithPrimary=$finishSecondaryWithPrimary" +

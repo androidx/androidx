@@ -39,13 +39,10 @@ class SplitActivityTrampoline : SplitActivityBase() {
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
             .build()
-        val placeholderRule = SplitPlaceholderRule.Builder(
-            activityFilters,
-            placeholderIntent,
-            minWidth = minSplitWidth(),
-            minHeight = 0,
-            minSmallestWidth = 0,
-        )
+        val placeholderRule = SplitPlaceholderRule.Builder(activityFilters, placeholderIntent)
+            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+            .setMinHeightDp(0)
+            .setMinSmallestWidthDp(0)
             .setFinishPrimaryWithPlaceholder(ADJACENT)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()

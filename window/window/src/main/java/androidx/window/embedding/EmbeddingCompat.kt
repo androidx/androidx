@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
@@ -34,11 +35,12 @@ import java.lang.reflect.Proxy
 internal class EmbeddingCompat constructor(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
-    private val consumerAdapter: ConsumerAdapter
+    private val consumerAdapter: ConsumerAdapter,
+    private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
 
     override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        val r = adapter.translate(rules)
+        val r = adapter.translate(applicationContext, rules)
         embeddingExtension.setEmbeddingRules(r)
     }
 

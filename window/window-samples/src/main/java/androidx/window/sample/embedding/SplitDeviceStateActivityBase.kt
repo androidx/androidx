@@ -215,8 +215,6 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             .setSplitType(SplitAttributes.SplitType.splitEqually())
             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
             .build()
-        val defaultMinWidth = (DEFAULT_MINIMUM_WIDTH_DP * resources.displayMetrics.density + 0.5f)
-            .toInt()
         // Use the tag to control the rule how to change split attributes with the current state
         var tag = when (id) {
             R.id.use_default_split_attributes -> TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
@@ -249,13 +247,10 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             tag += SUFFIX_REVERSED
         }
 
-        splitPairRule = SplitPairRule.Builder(
-            splitPairFilters,
-            minWidth = defaultMinWidth,
-            minHeight = 0,
-            minSmallestWidth = defaultMinWidth,
-        )
+        splitPairRule = SplitPairRule.Builder(splitPairFilters)
             .setTag(tag)
+            .setMinWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
+            .setMinSmallestWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
         splitController.addRule(splitPairRule)
@@ -369,8 +364,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         /**
          * The default minimum dimension for large screen devices.
          *
-         * It is also the default value of [SplitPairRule.minWidth] and
-         * [SplitPairRule.minSmallestWidth] if the properties are not specified in static rule
+         * It is also the default value of [SplitPairRule.minWidthDp] and
+         * [SplitPairRule.minSmallestWidthDp] if the properties are not specified in static rule
          * XML format.
          */
         const val DEFAULT_MINIMUM_WIDTH_DP = 600

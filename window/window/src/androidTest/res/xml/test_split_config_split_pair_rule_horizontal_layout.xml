@@ -19,9 +19,9 @@
     <SplitPairRule
         window:splitRatio="0.3"
         window:tag="test"
-        window:splitMinWidth="0dp"
-        window:splitMinHeight="600dp"
-        window:splitMinSmallestWidth="0dp"
+        window:splitMinWidthDp="0"
+        window:splitMinHeightDp="600"
+        window:splitMinSmallestWidthDp="0"
         window:splitLayoutDirection="topToBottom">
         <SplitPairFilter
             window:primaryActivityName="A"

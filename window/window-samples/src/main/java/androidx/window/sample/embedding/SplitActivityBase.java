@@ -27,9 +27,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
 
@@ -60,7 +58,7 @@ public class SplitActivityBase extends AppCompatActivity
         implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "SplitActivityTest";
-    private static final float MIN_SPLIT_WIDTH_DP = 600f;
+    static final int MIN_SPLIT_WIDTH_DP = 600;
     static final float SPLIT_RATIO = 0.3f;
     static final String EXTRA_LAUNCH_C_TO_SIDE = "launch_c_to_side";
 
@@ -259,7 +257,6 @@ public class SplitActivityBase extends AppCompatActivity
 
     /** Updates the split rules based on the current selection on checkboxes. */
     private void updateRulesFromCheckboxes() {
-        int minSplitWidth = minSplitWidth();
         mSplitController.clearRegisteredRules();
         final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
@@ -267,12 +264,10 @@ public class SplitActivityBase extends AppCompatActivity
         Set<SplitPairFilter> pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
                 componentName("*"), null));
-        SplitPairRule rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minHeight */,
-                0 /* minSmallestWidth */
-        )
+        SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinHeightDp(0)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(NEVER)
                 .setFinishSecondaryWithPrimary(NEVER)
                 .setClearTop(true)
@@ -289,11 +284,11 @@ public class SplitActivityBase extends AppCompatActivity
                 componentName("androidx.window.sample.embedding.SplitActivityPlaceholder"));
         SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule.Builder(
                 activityFilters,
-                intent,
-                minSplitWidth,
-                0 /* minHeight */,
-                0 /* minSmallestWidth */
+                intent
         )
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinHeightDp(0)
+                .setMinSmallestWidthDp(0)
                 .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
                 .setFinishPrimaryWithPlaceholder(ADJACENT)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
@@ -305,12 +300,10 @@ public class SplitActivityBase extends AppCompatActivity
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
                 componentName(SplitActivityC.class), null));
-        rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minHeight */,
-                0 /* minSmallestWidth */
-        )
+        rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinHeightDp(0)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(
                         mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
                 )
@@ -327,12 +320,10 @@ public class SplitActivityBase extends AppCompatActivity
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName("androidx.window.*"),
                 componentName(SplitActivityF.class), null));
-        rule = new SplitPairRule.Builder(
-                pairFilters,
-                minSplitWidth,
-                0 /* minHeight */,
-                0 /* minSmallestWidth */
-        )
+        rule = new SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinHeightDp(0)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(NEVER)
                 .setFinishSecondaryWithPrimary(NEVER)
                 .setClearTop(true)
@@ -359,11 +350,6 @@ public class SplitActivityBase extends AppCompatActivity
 
     ComponentName componentName(String className) {
         return new ComponentName(getPackageName(), className);
-    }
-
-    int minSplitWidth() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_SPLIT_WIDTH_DP, dm);
     }
 
     /** Updates the status label that says when an activity is embedded. */
