@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMetricApi::class)
+
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
