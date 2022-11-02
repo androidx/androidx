@@ -17,7 +17,7 @@
 package androidx.window.embedding
 
 import android.content.Intent
-import android.util.LayoutDirection
+import android.util.LayoutDirection.LOCALE
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
@@ -25,7 +25,16 @@ import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 
 /**
- * Configuration rules for split placeholders.
+ * Configuration rules for split placeholders. A placeholder activity is usually a mostly empty
+ * activity that occupies an area of split. It might provide some additional optional features, but
+ * must not host important UI elements exclusively, since the placeholder would not show on some
+ * devices and screen configurations. It is expected to be replaced when other activity with content
+ * is launched in a dedicated [SplitPairRule]. The placeholder activity will then be occluded by
+ * the new launched activity.
+ *
+ * See the
+ * [Placeholders](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
+ * section in the official documentation for visual samples and references.
  */
 class SplitPlaceholderRule : SplitRule {
 
@@ -71,7 +80,7 @@ class SplitPlaceholderRule : SplitRule {
         @IntRange(from = 0) minWidth: Int = 0,
         @IntRange(from = 0) minSmallestWidth: Int = 0,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @LayoutDir layoutDirection: Int = LayoutDirection.LOCALE
+        @LayoutDirection layoutDirection: Int = LOCALE
     ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
@@ -105,8 +114,8 @@ class SplitPlaceholderRule : SplitRule {
         private var isSticky: Boolean = false
         @FloatRange(from = 0.0, to = 1.0)
         private var splitRatio: Float = 0.5f
-        @LayoutDir
-        private var layoutDir: Int = LayoutDirection.LOCALE
+        @LayoutDirection
+        private var layoutDirection: Int = LOCALE
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -133,12 +142,11 @@ class SplitPlaceholderRule : SplitRule {
         /**
          * @see SplitPlaceholderRule.layoutDirection
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
-            apply { this.layoutDir = layoutDir }
+        fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
+            apply { this.layoutDirection = layoutDirection }
 
         fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDir)
+            finishPrimaryWithPlaceholder, minWidth, minSmallestWidth, splitRatio, layoutDirection)
     }
 
     /**
@@ -153,7 +161,7 @@ class SplitPlaceholderRule : SplitRule {
             .setSticky(isSticky)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(splitRatio)
-            .setLayoutDir(layoutDirection)
+            .setLayoutDirection(layoutDirection)
             .build()
     }
 

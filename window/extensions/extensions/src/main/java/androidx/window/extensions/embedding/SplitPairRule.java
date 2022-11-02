@@ -42,7 +42,7 @@ public class SplitPairRule extends SplitRule {
     private final int mFinishSecondaryWithPrimary;
     private final boolean mClearTop;
 
-    SplitPairRule(float splitRatio, @LayoutDir int layoutDirection,
+    SplitPairRule(float splitRatio, @LayoutDirection int layoutDirection,
             @SplitFinishBehavior int finishPrimaryWithSecondary,
             @SplitFinishBehavior int finishSecondaryWithPrimary, boolean clearTop,
             @NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
@@ -115,7 +115,7 @@ public class SplitPairRule extends SplitRule {
         @NonNull
         private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
         private float mSplitRatio;
-        @LayoutDir
+        @LayoutDirection
         private int mLayoutDirection;
         private boolean mClearTop;
         @SplitFinishBehavior
@@ -140,7 +140,7 @@ public class SplitPairRule extends SplitRule {
 
         /** @see SplitRule#getLayoutDirection() */
         @NonNull
-        public Builder setLayoutDirection(@LayoutDir int layoutDirection) {
+        public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
         }

@@ -16,9 +16,12 @@
 
 package androidx.window.extensions.embedding;
 
+import static android.util.LayoutDirection.LOCALE;
+import static android.util.LayoutDirection.LTR;
+import static android.util.LayoutDirection.RTL;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.util.LayoutDirection;
 import android.view.WindowMetrics;
 
 import androidx.annotation.IntDef;
@@ -40,17 +43,12 @@ public abstract class SplitRule extends EmbeddingRule {
     @NonNull
     private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
     private final float mSplitRatio;
-    @LayoutDir
+    @LayoutDirection
     private final int mLayoutDirection;
 
-    @IntDef({
-            LayoutDirection.LTR,
-            LayoutDirection.RTL,
-            LayoutDirection.LOCALE
-    })
+    @IntDef({LTR, RTL, LOCALE})
     @Retention(RetentionPolicy.SOURCE)
-    // Not called LayoutDirection to avoid conflict with android.util.LayoutDirection
-    @interface LayoutDir {}
+    @interface LayoutDirection {}
     /**
      * Never finish the associated container.
      * @see SplitFinishBehavior
@@ -91,7 +89,7 @@ public abstract class SplitRule extends EmbeddingRule {
     @interface SplitFinishBehavior {}
 
     SplitRule(@NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate, float splitRatio,
-            @LayoutDir int layoutDirection) {
+            @LayoutDirection int layoutDirection) {
         mParentWindowMetricsPredicate = parentWindowMetricsPredicate;
         mSplitRatio = splitRatio;
         mLayoutDirection = layoutDirection;
@@ -110,7 +108,7 @@ public abstract class SplitRule extends EmbeddingRule {
         return mSplitRatio;
     }
 
-    @LayoutDir
+    @LayoutDirection
     public int getLayoutDirection() {
         return mLayoutDirection;
     }

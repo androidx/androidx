@@ -16,7 +16,7 @@
 
 package androidx.window.embedding
 
-import android.util.LayoutDirection
+import android.util.LayoutDirection.LOCALE
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
@@ -69,8 +69,8 @@ class SplitPairRule : SplitRule {
         @IntRange(from = 0) minWidth: Int,
         @IntRange(from = 0) minSmallestWidth: Int,
         @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
-        @LayoutDir layoutDir: Int = LayoutDirection.LOCALE
-    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDir) {
+        @LayoutDirection layoutDirection: Int = LOCALE
+    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
         checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
         checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
         checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
@@ -100,8 +100,8 @@ class SplitPairRule : SplitRule {
         private var clearTop: Boolean = false
         @FloatRange(from = 0.0, to = 1.0)
         private var splitRatio: Float = 0.5f
-        @LayoutDir
-        private var layoutDir: Int = LayoutDirection.LOCALE
+        @LayoutDirection
+        private var layoutDirection: Int = LOCALE
 
         /**
          * @see SplitPairRule.finishPrimaryWithSecondary
@@ -135,12 +135,11 @@ class SplitPairRule : SplitRule {
         /**
          * @see SplitPairRule.layoutDirection
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
-            apply { this.layoutDir = layoutDir }
+        fun setLayoutDirection(@LayoutDirection layoutDirection: Int): Builder =
+            apply { this.layoutDirection = layoutDirection }
 
         fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
-            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDir)
+            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDirection)
     }
 
     /**
@@ -156,7 +155,7 @@ class SplitPairRule : SplitRule {
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
             .setSplitRatio(splitRatio)
-            .setLayoutDir(layoutDirection)
+            .setLayoutDirection(layoutDirection)
             .build()
     }
 
