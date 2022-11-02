@@ -121,7 +121,7 @@ public abstract class SplitRule extends EmbeddingRule {
      * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
      */
     @Deprecated
-    @SplitAttributes.LayoutDir
+    @SplitAttributes.ExtLayoutDirection
     public int getLayoutDirection() {
         return mDefaultSplitAttributes.getLayoutDirection();
     }
@@ -160,7 +160,7 @@ public abstract class SplitRule extends EmbeddingRule {
     public String toString() {
         return "SplitRule{"
                 + "mTag=" + getTag()
-                + "mDefaultSplitAttributes=" + mDefaultSplitAttributes
+                + ", mDefaultSplitAttributes=" + mDefaultSplitAttributes
                 + '}';
     }
 }

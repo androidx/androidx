@@ -16,6 +16,12 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.BOTTOM_TO_TOP;
+import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LEFT_TO_RIGHT;
+import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LOCALE;
+import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.RIGHT_TO_LEFT;
+import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.FloatRange;
@@ -267,28 +273,22 @@ public class SplitAttributes {
         private LayoutDirection() {}
     }
 
-    @IntDef({
-            LayoutDirection.LEFT_TO_RIGHT,
-            LayoutDirection.RIGHT_TO_LEFT,
-            LayoutDirection.LOCALE,
-            LayoutDirection.TOP_TO_BOTTOM,
-            LayoutDirection.BOTTOM_TO_TOP,
-    })
+    @IntDef({LEFT_TO_RIGHT, RIGHT_TO_LEFT, LOCALE, TOP_TO_BOTTOM, BOTTOM_TO_TOP})
     @Retention(RetentionPolicy.SOURCE)
-    @interface LayoutDir {}
+    @interface ExtLayoutDirection {}
 
-    @LayoutDir
+    @ExtLayoutDirection
     private final int mLayoutDirection;
 
     private final SplitType mSplitType;
 
-    SplitAttributes(@NonNull SplitType splitType, @LayoutDir int layoutDirection) {
+    SplitAttributes(@NonNull SplitType splitType, @ExtLayoutDirection int layoutDirection) {
         mSplitType = splitType;
         mLayoutDirection = layoutDirection;
     }
 
-    /** Returns {@link SplitAttributes.LayoutDirection} for the {@link SplitAttributes}. */
-    @LayoutDir
+    /** Returns {@link LayoutDirection} for the {@link SplitAttributes}. */
+    @ExtLayoutDirection
     public int getLayoutDirection() {
         return mLayoutDirection;
     }
@@ -303,8 +303,8 @@ public class SplitAttributes {
     public static final class Builder {
         @NonNull
         private SplitType mSplitType =  new SplitType.RatioSplitType(0.5f);
-        @LayoutDir
-        private int mLayoutDirection = LayoutDirection.LOCALE;
+        @ExtLayoutDirection
+        private int mLayoutDirection = LOCALE;
 
         /**
          * Sets the {@link SplitType} of this {@link SplitAttributes}. The default value is
@@ -331,7 +331,7 @@ public class SplitAttributes {
          */
         @SuppressLint("WrongConstant") // To compat with android.util.LayoutDirection APIs
         @NonNull
-        public Builder setLayoutDirection(@LayoutDir int layoutDirection) {
+        public Builder setLayoutDirection(@ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
         }
@@ -375,15 +375,15 @@ public class SplitAttributes {
     @NonNull
     private String layoutDirectionToString() {
         switch(mLayoutDirection) {
-            case LayoutDirection.LEFT_TO_RIGHT:
+            case LEFT_TO_RIGHT:
                 return "LEFT_TO_RIGHT";
-            case LayoutDirection.RIGHT_TO_LEFT:
+            case RIGHT_TO_LEFT:
                 return "RIGHT_TO_LEFT";
-            case LayoutDirection.LOCALE:
+            case LOCALE:
                 return "LOCALE";
-            case LayoutDirection.TOP_TO_BOTTOM:
+            case TOP_TO_BOTTOM:
                 return "TOP_TO_BOTTOM";
-            case LayoutDirection.BOTTOM_TO_TOP:
+            case BOTTOM_TO_TOP:
                 return "BOTTOM_TO_TOP";
             default:
                 throw new IllegalArgumentException("Invalid layout direction:" + mLayoutDirection);
