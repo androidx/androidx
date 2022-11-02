@@ -106,7 +106,7 @@ androidXMultiplatform {
 
 androidx {
     name = "AndroidX Collections Benchmarks (Android / iOS)"
-    mavenGroup = LibraryGroups.COLLECTIONS
+    mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2022"
     description = "AndroidX Collections Benchmarks (Android / iOS)"
 }
