@@ -123,7 +123,7 @@ dependencies {
 
 androidx {
     name = "Android Preferences DataStore Core"
-    type = LibraryType.KMP_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
