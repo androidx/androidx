@@ -400,7 +400,7 @@ public class TraceSectionMetric(
  * This measurement is not available prior to API 29.
  */
 @RequiresApi(29)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@ExperimentalMetricApi
 public class PowerMetric(
     private val type: Type
 ) : Metric() {
@@ -408,16 +408,19 @@ public class PowerMetric(
     companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
 
+        @JvmStatic
         fun Battery(): Type.Battery {
             return Type.Battery()
         }
 
+        @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Energy {
             return Type.Energy(categories)
         }
 
+        @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ): Type.Power {
