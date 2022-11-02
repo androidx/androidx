@@ -187,6 +187,28 @@ class LibraryVersionsServiceTest {
         )
     }
 
+    @Test
+    fun overrideInclude() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1", overrideInclude = [ ":otherGroup:subproject" ]}
+            """
+        )
+        assertThat(
+            service.overrideLibraryGroupsByProjectPath.get(":otherGroup:subproject")
+        ).isEqualTo(
+            LibraryGroup(
+                group = "g.g1", atomicGroupVersion = Version("1.2.3")
+            )
+        )
+        assertThat(
+            service.overrideLibraryGroupsByProjectPath.get(":normalGroup:subproject")
+        ).isEqualTo(null)
+    }
+
     private fun createLibraryVersionsService(
         tomlFile: String,
         useMultiplatformGroupVersions: Boolean = false
