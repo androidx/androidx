@@ -712,6 +712,54 @@ public final class SearchSpec {
             return addProjection(schema, propertyPathsArrayList);
         }
 
+// @exportToFramework:startStrip()
+        /**
+         * Adds property paths for the Document class to be used for projection. If property
+         * paths are added for a document class, then only the properties referred to will be
+         * retrieved for results of that type. If a property path that is specified isn't present
+         * in a result, it will be ignored for that result. Property paths cannot be null.
+         *
+         * @see #addProjection
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      add projections to.
+         * @param propertyPaths the projections to add.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
+        @NonNull
+        public SearchSpec.Builder addProjectionsForDocumentClass(
+                @NonNull Class<?> documentClass, @NonNull Collection<String> propertyPaths)
+                throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addProjection(factory.getSchemaName(), propertyPaths);
+        }
+
+        /**
+         * Adds property paths for the specified Document class to be used for projection.
+         * @see #addProjectionPaths
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      add projections to.
+         * @param propertyPaths the projections to add.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
+        @NonNull
+        public SearchSpec.Builder addProjectionPathsForDocumentClass(
+                @NonNull Class<?> documentClass, @NonNull Collection<PropertyPath> propertyPaths)
+                throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (PropertyPath propertyPath : propertyPaths) {
+                propertyPathsArrayList.add(propertyPath.toString());
+            }
+            return addProjectionsForDocumentClass(documentClass, propertyPathsArrayList);
+        }
+// @exportToFramework:endStrip()
+
         /**
          * Set the maximum number of results to return for each group, where groups are defined
          * by grouping type.

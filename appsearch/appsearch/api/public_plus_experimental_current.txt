@@ -472,6 +472,8 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addProjectionPathsForDocumentClass(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SearchSpec.Builder addProjectionsForDocumentClass(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
