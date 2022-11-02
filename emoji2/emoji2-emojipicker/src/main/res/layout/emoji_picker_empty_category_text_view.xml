@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application>
-        <uses-library android:name="android.test.runner"/>
-        <activity android:name="androidx.emoji2.emojipicker.EmojiPickerViewTestActivity"/>
-        <activity android:name="androidx.emoji2.emojipicker.EmojiViewTestActivity" />
-    </application>
-</manifest>
+<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/emoji_picker_empty_category_view"
+    style="?attr/EmojiPickerStyleCategoryEmptyHintText"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:paddingEnd="7dp"
+    android:paddingStart="7dp"
+    android:textSize="16dp"
+    tools:ignore="SmallSp"/>
