@@ -31,7 +31,7 @@ import androidx.input.motionprediction.MotionEventPredictor;
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
     private MultiPointerPredictor mMultiPointerPredictor;
-    private boolean mDisposed = false;
+    private boolean mClosed = false;
 
     public KalmanMotionEventPredictor() {
         mMultiPointerPredictor = new MultiPointerPredictor();
@@ -43,21 +43,21 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
     }
 
     @Override
-    public void recordMovement(@NonNull MotionEvent event) {
+    public void record(@NonNull MotionEvent event) {
         mMultiPointerPredictor.onTouchEvent(event);
     }
 
     @Nullable
     @Override
     public MotionEvent predict() {
-        if (mDisposed) {
+        if (mClosed) {
             return null;
         }
         return mMultiPointerPredictor.predict();
     }
 
     @Override
-    public void dispose() {
-        mDisposed = true;
+    public void close() {
+        mClosed = true;
     }
 }

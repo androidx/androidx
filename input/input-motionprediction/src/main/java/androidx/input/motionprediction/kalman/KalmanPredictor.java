@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public interface InkPredictor {
+public interface KalmanPredictor {
 
     /** Gets the current prediction target */
     int getPredictionTarget();
