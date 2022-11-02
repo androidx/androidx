@@ -105,7 +105,7 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
-        mSplitController = SplitController.Companion.getInstance();
+        mSplitController = SplitController.getInstance(this);
     }
 
     @Override

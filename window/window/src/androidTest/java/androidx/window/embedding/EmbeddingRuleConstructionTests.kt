@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Rect
@@ -31,6 +32,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -40,15 +42,21 @@ import org.junit.Test
  * @see ActivityRule
  */
 class EmbeddingRuleConstructionTests {
+    private lateinit var application: Context
+
+    @Before
+    fun setUp() {
+        application = ApplicationProvider.getApplicationContext()
+    }
+
     /**
      * Verifies that default params are set correctly when reading {@link SplitPairRule} from XML.
      */
     @Test
     fun testDefaults_SplitPairRule_Xml() {
-        SplitController.initialize(ApplicationProvider.getApplicationContext(),
-            R.xml.test_split_config_default_split_pair_rule)
+        SplitController.initialize(application, R.xml.test_split_config_default_split_pair_rule)
 
-        val rules = SplitController.getInstance().getSplitRules()
+        val rules = SplitController.getInstance(application).getSplitRules()
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
@@ -167,7 +175,7 @@ class EmbeddingRuleConstructionTests {
         SplitController.initialize(ApplicationProvider.getApplicationContext(),
             R.xml.test_split_config_default_split_placeholder_rule)
 
-        val rules = SplitController.getInstance().getSplitRules()
+        val rules = SplitController.getInstance(application).getSplitRules()
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
@@ -295,7 +303,7 @@ class EmbeddingRuleConstructionTests {
         SplitController.initialize(ApplicationProvider.getApplicationContext(),
             R.xml.test_split_config_default_activity_rule)
 
-        val rules = SplitController.getInstance().getSplitRules()
+        val rules = SplitController.getInstance(application).getSplitRules()
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(false, rule.alwaysExpand)

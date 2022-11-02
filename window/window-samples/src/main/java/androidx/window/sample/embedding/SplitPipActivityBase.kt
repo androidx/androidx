@@ -73,7 +73,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
         componentNamePlaceholder = ComponentName(packageName,
             SplitPipActivityPlaceholder::class.java.name)
 
-        splitController = SplitController.getInstance()
+        splitController = SplitController.getInstance(this)
 
         // Buttons for split rules of the main activity.
         viewBinding.splitMainCheckBox.setOnCheckedChangeListener(this)
