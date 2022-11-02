@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMetricApi::class)
-class TrivialPowerBenchmark() {
+class TrivialPowerBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 

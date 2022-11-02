@@ -16,11 +16,13 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerMetric
 
 // We want to use android_powrails.sql, but cannot as they do not split into sections with slice
 
+@OptIn(ExperimentalMetricApi::class)
 internal object PowerQuery {
     private fun getFullQuery(slice: Slice) = """
         SELECT
