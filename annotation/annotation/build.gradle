@@ -70,8 +70,7 @@ artifacts {
 
 androidx {
     name = "Android Support Library Annotations"
-    type = LibraryType.KMP_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
     mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2013"
