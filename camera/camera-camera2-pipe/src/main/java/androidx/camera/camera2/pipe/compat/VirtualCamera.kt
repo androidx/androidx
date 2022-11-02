@@ -238,7 +238,7 @@ internal class AndroidCameraState(
         }
 
         closeWith(
-            device?.unwrap(),
+            device?.unwrapAs(CameraDevice::class),
             @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.APP_CLOSED

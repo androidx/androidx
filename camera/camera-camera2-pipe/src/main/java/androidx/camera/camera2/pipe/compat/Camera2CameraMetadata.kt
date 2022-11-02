@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.Debug
+import kotlin.reflect.KClass
 
 /**
  * This implementation provides access to [CameraCharacteristics] and lazy caching of properties
@@ -87,7 +88,11 @@ internal class Camera2CameraMetadata constructor(
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
-    override fun unwrap(): CameraCharacteristics = characteristics
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CameraCharacteristics::class -> characteristics as T
+        else -> null
+    }
 
     override val keys: Set<CameraCharacteristics.Key<*>> get() = _keys.value
     override val requestKeys: Set<CaptureRequest.Key<*>> get() = _requestKeys.value

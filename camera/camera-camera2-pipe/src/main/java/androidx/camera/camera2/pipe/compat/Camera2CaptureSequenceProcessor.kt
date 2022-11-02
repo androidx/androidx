@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 internal interface Camera2CaptureSequenceProcessorFactory {
@@ -307,5 +308,9 @@ internal class Camera2RequestMetadata(
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
-    override fun unwrap(): CaptureRequest = captureRequest
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CaptureRequest::class -> captureRequest as T
+        else -> null
+    }
 }
