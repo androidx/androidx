@@ -86,8 +86,8 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
     }
 
     /**
-     * Starts to listen the given {@code source} LiveData, {@code onChanged} observer will be called
-     * when {@code source} value was changed.
+     * Starts to listen to the given {@code source} LiveData, {@code onChanged} observer will be
+     * called when {@code source} value was changed.
      * <p>
      * {@code onChanged} callback will be called only when this {@code MediatorLiveData} is active.
      * <p> If the given LiveData is already added as a source but with a different Observer,
