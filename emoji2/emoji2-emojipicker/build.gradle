@@ -27,12 +27,21 @@ dependencies {
     implementation("androidx.core:core-ktx:1.8.0")
     implementation project(path: ':emoji2:emoji2')
     implementation project(path: ':core:core')
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.tracing:tracing-ktx:1.0.0'
+    implementation 'androidx.test.ext:junit-ktx:1.1.3'
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation project(path: ':test:screenshot:screenshot')
+    androidTestImplementation project(path: ':internal-testutils-runtime')
+
+    samples(project(":emoji2:emoji2-emojipicker:emoji2-emojipicker-samples"))
 }
+
 
 android {
     defaultConfig {

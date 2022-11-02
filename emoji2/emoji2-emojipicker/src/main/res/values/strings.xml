@@ -34,4 +34,7 @@
     <string name="emoji_category_symbols">SYMBOLS</string>
     <!-- Emoji keyboard's flags sub category. Flags sub category contains emojis that represent country and regional flags. -->
     <string name="emoji_category_flags">FLAGS</string>
+
+    <!-- Shown in emoji keyboard (non-Recent category) when the category is empty. -->
+    <string name="emoji_empty_non_recent_category">No emojis available</string>
 </resources>

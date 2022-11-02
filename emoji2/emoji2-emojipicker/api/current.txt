@@ -1,1 +1,16 @@
 // Signature format: 4.0
+package androidx.emoji2.emojipicker {
+
+  public final class EmojiPickerView extends android.widget.FrameLayout {
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public EmojiPickerView(android.content.Context context);
+    method public int getEmojiGridColumns();
+    method public float getEmojiGridRows();
+    method public void setEmojiGridColumns(int);
+    method public void setEmojiGridRows(float);
+    property public final int emojiGridColumns;
+    property public final float emojiGridRows;
+  }
+
+}
+
