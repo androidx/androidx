@@ -142,6 +142,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             }
         } catch (ImageCaptureException e) {
             sendError(request, e);
+        } catch (OutOfMemoryError e) {
+            sendError(request, new ImageCaptureException(
+                    ERROR_UNKNOWN, "Processing failed due to low memory.", e));
         } catch (RuntimeException e) {
             // For unexpected exceptions, throw an ERROR_UNKNOWN ImageCaptureException.
             sendError(request, new ImageCaptureException(ERROR_UNKNOWN, "Processing failed.", e));
