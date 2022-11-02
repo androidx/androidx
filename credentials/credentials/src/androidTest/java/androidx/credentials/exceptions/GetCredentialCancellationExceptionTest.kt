@@ -24,22 +24,22 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class CreateCredentialCanceledExceptionTest {
-    @Test(expected = CreateCredentialCanceledException::class)
+class GetCredentialCancellationExceptionTest {
+    @Test(expected = GetCredentialCancellationException::class)
     fun construct_inputNonEmpty_success() {
-        throw CreateCredentialCanceledException("msg")
+        throw GetCredentialCancellationException("msg")
     }
 
-    @Test(expected = CreateCredentialCanceledException::class)
+    @Test(expected = GetCredentialCancellationException::class)
     fun construct_errorMessageNull_success() {
-        throw CreateCredentialCanceledException(null)
+        throw GetCredentialCancellationException(null)
     }
 
     @Test
     fun getter_type_success() {
-        val exception = CreateCredentialCanceledException("msg")
-        val expectedType = CreateCredentialCanceledException
-            .TYPE_CREATE_CREDENTIAL_CANCELED_EXCEPTION
+        val exception = GetCredentialCancellationException("msg")
+        val expectedType = GetCredentialCancellationException
+            .TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION
         Truth.assertThat(exception.type).isEqualTo(expectedType)
     }
 }

@@ -28,7 +28,7 @@ import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
-import androidx.credentials.exceptions.GetCredentialCanceledException
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
@@ -132,7 +132,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
         if (resultCode != Activity.RESULT_OK) {
             var exception: GetCredentialException = GetCredentialUnknownException()
             if (resultCode == Activity.RESULT_CANCELED) {
-                exception = GetCredentialCanceledException()
+                exception = GetCredentialCancellationException()
             }
             this.executor.execute { -> this.callback.onError(exception) }
             return
@@ -149,7 +149,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             var exception: GetCredentialException = GetCredentialUnknownException()
             if (e.statusCode == CommonStatusCodes.CANCELED) {
                 Log.i(TAG, "User cancelled the prompt!")
-                exception = GetCredentialCanceledException()
+                exception = GetCredentialCancellationException()
             } else if (e.statusCode in this.retryables) {
                 exception = GetCredentialInterruptedException()
             }

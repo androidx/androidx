@@ -16,13 +16,25 @@
 
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentSender
+import android.os.Build
 import android.util.Log
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
+import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInterruptedException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import androidx.credentials.playservices.controllers.CredentialProviderController
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import java.util.concurrent.Executor
@@ -52,12 +64,59 @@ class CredentialProviderCreatePublicKeyCredentialController :
      */
     private lateinit var executor: Executor
 
+    @SuppressLint("ClassVerificationFailure")
     override fun invokePlayServices(
         request: CreatePublicKeyCredentialRequest,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
         executor: Executor
     ) {
-        TODO("Not yet implemented")
+        this.callback = callback
+        this.executor = executor
+        val fidoRegistrationRequest: PublicKeyCredentialCreationOptions =
+            this.convertRequestToPlayServices(request)
+        Fido.getFido2ApiClient(getActivity())
+            .getRegisterPendingIntent(fidoRegistrationRequest)
+            .addOnSuccessListener { result: PendingIntent ->
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        startIntentSenderForResult(
+                            result.intentSender,
+                            REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL,
+                            null, /* fillInIntent= */
+                            0, /* flagsMask= */
+                            0, /* flagsValue= */
+                            0, /* extraFlags= */
+                            null /* options= */
+                        )
+                    }
+                } catch (e: IntentSender.SendIntentException) {
+                    Log.i(
+                        TAG,
+                        "Failed to send pending intent for fido client " +
+                            " : " + e.message
+                    )
+                    val exception: CreatePublicKeyCredentialException =
+                        CreatePublicKeyCredentialUnknownException()
+                    executor.execute { ->
+                        callback.onError(
+                            exception
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { e: Exception ->
+                var exception: CreatePublicKeyCredentialException =
+                    CreatePublicKeyCredentialUnknownException()
+                if (e is ApiException && e.statusCode in this.retryables) {
+                    exception = CreatePublicKeyCredentialInterruptedException()
+                }
+                Log.i(TAG, "Fido Registration failed with error: " + e.message)
+                executor.execute { ->
+                    callback.onError(
+                        exception
+                    )
+                }
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -67,22 +126,49 @@ class CredentialProviderCreatePublicKeyCredentialController :
 
     private fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "$uniqueRequestCode $resultCode $data")
-        TODO("Not yet implemented")
+        if (uniqueRequestCode != REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL) {
+            return
+        }
+        if (resultCode != Activity.RESULT_OK) {
+            var exception: CreateCredentialException =
+                CreatePublicKeyCredentialUnknownException()
+            if (resultCode == Activity.RESULT_CANCELED) {
+                exception = CreateCredentialCancellationException()
+            }
+            this.executor.execute { -> this.callback.onError(exception) }
+            return
+        }
+        val bytes: ByteArray? = data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
+        if (bytes == null) {
+            this.executor.execute { this.callback.onError(
+                CreatePublicKeyCredentialUnknownException(
+                "Internal error fido module giving null bytes")
+            ) }
+            return
+        }
+        val cred: PublicKeyCredential = PublicKeyCredential.deserializeFromBytes(bytes)
+        if (PublicKeyCredentialControllerUtility.publicKeyCredentialResponseContainsError(
+                this.callback, this.executor, cred)) {
+            return
+        }
+        val response = this.convertResponseToCredentialManager(cred)
+        this.executor.execute { this.callback.onResult(response) }
     }
 
     override fun convertRequestToPlayServices(request: CreatePublicKeyCredentialRequest):
         PublicKeyCredentialCreationOptions {
-        TODO("Not yet implemented")
+        return PublicKeyCredentialControllerUtility.convert(request)
     }
 
     override fun convertResponseToCredentialManager(response: PublicKeyCredential):
         CreateCredentialResponse {
-        TODO("Not yet implemented")
+        return CreatePublicKeyCredentialResponse(PublicKeyCredentialControllerUtility
+            .toCreatePasskeyResponseJson(response))
     }
 
     companion object {
         private val TAG = CredentialProviderCreatePublicKeyCredentialController::class.java.name
-        private const val REQUEST_CODE_GIS_SAVE_PUBLIC_KEY_CREDENTIAL: Int = 1
+        private const val REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL: Int = 1
         // TODO("Ensure this works with the lifecycle")
 
         /**
@@ -97,12 +183,12 @@ class CredentialProviderCreatePublicKeyCredentialController :
         fun getInstance(fragmentManager: android.app.FragmentManager):
             CredentialProviderCreatePublicKeyCredentialController {
             var controller = findPastController(
-                REQUEST_CODE_GIS_SAVE_PUBLIC_KEY_CREDENTIAL,
+                REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL,
                 fragmentManager)
             if (controller == null) {
                 controller = CredentialProviderCreatePublicKeyCredentialController()
                 fragmentManager.beginTransaction().add(controller,
-                    REQUEST_CODE_GIS_SAVE_PUBLIC_KEY_CREDENTIAL.toString())
+                    REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL.toString())
                     .commitAllowingStateLoss()
                 fragmentManager.executePendingTransactions()
             }

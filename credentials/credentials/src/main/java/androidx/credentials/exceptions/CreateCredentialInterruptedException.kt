@@ -19,7 +19,7 @@ package androidx.credentials.exceptions
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the create credential flow, this is called when some interruption occurs that may warrant
+ * During the create credential flow, this is returned when some interruption occurs that may warrant
  * retrying or at least does not indicate a purposeful desire to close or tap away from credential
  * manager.
  *

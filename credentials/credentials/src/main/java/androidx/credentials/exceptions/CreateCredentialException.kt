@@ -25,7 +25,7 @@ import androidx.credentials.CredentialManager
  *
  * @see CredentialManager
  * @see CreateCredentialInterruptedException
- * @see CreateCredentialCanceledException
+ * @see CreateCredentialCancellationException
  * @see CreateCredentialUnknownException
  *
  * @property errorMessage a human-readable string that describes the error
@@ -35,7 +35,7 @@ import androidx.credentials.CredentialManager
 open class CreateCredentialException @JvmOverloads constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
+    open val type: String,
     val errorMessage: CharSequence? = null
 ) : Exception(errorMessage?.toString()) {
     init {

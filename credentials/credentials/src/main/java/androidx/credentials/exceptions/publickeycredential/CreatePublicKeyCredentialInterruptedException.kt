@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions
+package androidx.credentials.exceptions.publickeycredential
 
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the get credential flow, this is called when a user intentionally cancels an operation.
- * When this happens, the application should handle logic accordingly, typically under indication
- * the user does not want to see Credential Manager anymore.
+ * During the create public key credential credential flow, this is returned when some interruption
+ * occurs that may warrant retrying or at least does not indicate a purposeful desire to close or
+ * tap away from credential manager.
  *
- * @see GetCredentialException
+ * @see CreatePublicKeyCredentialException
+ *
+ * @hide
  */
-class GetCredentialCanceledException @JvmOverloads constructor(
+class CreatePublicKeyCredentialInterruptedException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_CANCELED_EXCEPTION, errorMessage) {
+) : CreatePublicKeyCredentialException(
+    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INTERRUPTED_EXCEPTION,
+    errorMessage) {
 
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val TYPE_GET_CREDENTIAL_CANCELED_EXCEPTION: String =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_CANCELED_EXCEPTION"
+        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }
 }
