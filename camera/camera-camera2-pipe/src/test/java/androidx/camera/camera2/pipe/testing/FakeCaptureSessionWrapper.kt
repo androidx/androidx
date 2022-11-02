@@ -23,6 +23,7 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
+import kotlin.reflect.KClass
 
 internal class FakeCaptureSessionWrapper(
     override val device: CameraDeviceWrapper,
@@ -102,12 +103,7 @@ internal class FakeCaptureSessionWrapper(
         )
     }
 
-    override fun unwrap(): CameraCaptureSession? {
-        throw UnsupportedOperationException(
-            "FakeCaptureSessionWrapper does not wrap CameraCaptureSession"
-        )
-    }
-
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
     override fun close() {
         closed = true
     }

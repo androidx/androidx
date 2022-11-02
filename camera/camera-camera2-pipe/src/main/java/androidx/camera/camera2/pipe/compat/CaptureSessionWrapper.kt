@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
@@ -28,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
 import java.io.Closeable
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /**
@@ -36,7 +38,7 @@ import kotlinx.atomicfu.atomic
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-internal interface CameraCaptureSessionWrapper : UnsafeWrapper<CameraCaptureSession>, Closeable {
+internal interface CameraCaptureSessionWrapper : UnsafeWrapper, Closeable {
 
     /**
      * @see [CameraCaptureSession.getDevice]
@@ -256,6 +258,7 @@ internal class AndroidCaptureSessionStateCallback(
         finalizeLastSession()
         stateCallback.onSessionFinalized()
     }
+
     private fun finalizeLastSession() {
         // Clear out the reference to the previous session, if one was set.
         val previousSession = _lastStateCallback.getAndSet(null)
@@ -355,15 +358,15 @@ internal open class AndroidCameraCaptureSession(
         rethrowCamera2Exceptions {
             Api26Compat.finalizeOutputConfigurations(
                 cameraCaptureSession,
-                outputConfigs.map {
-                    it.unwrap()
-                }
+                outputConfigs.map { it.unwrapAs(OutputConfiguration::class) }
             )
         }
     }
 
-    override fun unwrap(): CameraCaptureSession? {
-        return cameraCaptureSession
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CameraCaptureSession::class -> cameraCaptureSession as T?
+        else -> null
     }
 
     override fun close() {
@@ -406,5 +409,11 @@ internal class AndroidCameraConstrainedHighSpeedCaptureSession internal construc
             }
             throw ObjectUnavailableException(e)
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
+        CameraConstrainedHighSpeedCaptureSession::class -> session as T?
+        else -> super.unwrapAs(type)
     }
 }

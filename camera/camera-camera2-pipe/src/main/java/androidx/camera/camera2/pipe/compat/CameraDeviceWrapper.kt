@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.InputConfiguration
+import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** Interface around a [CameraDevice] with minor modifications.
@@ -42,7 +44,7 @@ import kotlinx.atomicfu.atomic
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-internal interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
+internal interface CameraDeviceWrapper : UnsafeWrapper {
     /** @see [CameraDevice.getId] */
     val cameraId: CameraId
 
@@ -112,7 +114,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
 
 internal fun CameraDeviceWrapper?.closeWithTrace() {
     this?.let {
-        it.unwrap().closeWithTrace()
+        it.unwrapAs(CameraDevice::class).closeWithTrace()
         it.onDeviceClosed()
     }
 }
@@ -134,7 +136,7 @@ internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId
-) : CameraDeviceWrapper, UnsafeWrapper<CameraDevice> {
+) : CameraDeviceWrapper {
     private val _lastStateCallback = atomic<CameraCaptureSessionWrapper.StateCallback?>(null)
 
     override fun createCaptureSession(
@@ -212,7 +214,7 @@ internal class AndroidCameraDevice(
         // running on older versions of the OS.
         Api24Compat.createCaptureSessionByOutputConfigurations(
             cameraDevice,
-            outputConfigurations.map { it.unwrap() },
+            outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
@@ -236,7 +238,7 @@ internal class AndroidCameraDevice(
             Api23Compat.newInputConfiguration(
                 inputConfig.width, inputConfig.height, inputConfig.format
             ),
-            outputs.map { it.unwrap() },
+            outputs.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback),
             handler
         )
@@ -250,7 +252,7 @@ internal class AndroidCameraDevice(
 
         val sessionConfig = Api28Compat.newSessionConfiguration(
             config.sessionType,
-            config.outputConfigurations.map { it.unwrap() },
+            config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
             config.executor,
             AndroidCaptureSessionStateCallback(this, stateCallback, previousStateCallback)
         )
@@ -301,7 +303,10 @@ internal class AndroidCameraDevice(
         lastStateCallback?.onSessionFinalized()
     }
 
-    override fun unwrap(): CameraDevice? {
-        return cameraDevice
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CameraDevice::class -> cameraDevice as T
+            else -> null
+        }
 }

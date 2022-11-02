@@ -33,7 +33,7 @@ import androidx.annotation.RequiresApi
  * across all OS levels and makes behavior that depends on [CameraMetadata] easier to test and
  * reason about.
  */
-public interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
+public interface CameraMetadata : Metadata, UnsafeWrapper {
     public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
     public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
