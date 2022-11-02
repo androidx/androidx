@@ -87,6 +87,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -421,7 +422,7 @@ public class DemoScripts {
                             getCurrentDateTimeZoneWithOffset(distanceIncrement))
                             .setRemainingTimeSeconds(/* remainingTimeSeconds= */ distanceIncrement)
                             .build();
-            String notificationTitle = String.format("%dm", stepDistanceRemaining);
+            String notificationTitle = String.format(Locale.US, "%dm", stepDistanceRemaining);
             Instruction.Builder instruction =
                     Instruction.builder(
                             Instruction.Type.SET_TRIP_POSITION_NAVIGATION,
