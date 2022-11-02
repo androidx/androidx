@@ -28,6 +28,7 @@ import androidx.benchmark.macro.CompilationMode.Full
 import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
+import androidx.benchmark.userspaceTrace
 import androidx.profileinstaller.ProfileInstallReceiver
 import org.junit.AssumptionViolatedException
 
@@ -78,12 +79,75 @@ sealed class CompilationMode {
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation) {
-                Log.d(TAG, "Compiling $packageName")
+                Log.d(TAG, "Resetting $packageName")
+                // The compilation mode chooses whether a reset is required or not.
+                // Currently the only compilation mode that does not perform a reset is
+                // CompilationMode.Ignore.
+                if (shouldReset()) {
+                    // It's not possible to reset the compilation profile on `user` builds.
+                    // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
+                    // order to speed-up the profile reset. When set to false, reset is performed
+                    // uninstalling and reinstalling the app.
+                    if (Shell.isSessionRooted()) {
+                        // Package reset enabled
+                        Log.d(TAG, "Re-compiling $packageName")
+                        // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
+                        // Rather than rely on exit codes which are not always correct, we
+                        // specifically look for the work "Success" in stdout to make sure reset
+                        // actually happened.
+                        val output = Shell.executeScriptCaptureStdout(
+                            "cmd package compile --reset $packageName"
+                        )
+                        check(output.trim() == "Success") {
+                            "Unable to recompile $packageName ($output)"
+                        }
+                    } else {
+                        // User builds. Kick off a full uninstall-reinstall
+                        Log.d(TAG, "Reinstalling $packageName")
+                        reinstallPackage(packageName)
+                    }
+                }
                 // Write skip file to stop profile installer from interfering with the benchmark
                 writeProfileInstallerSkipFile(packageName, killProcessBlock = killProcessBlock)
                 compileImpl(packageName, killProcessBlock, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
+            }
+        }
+    }
+
+    // This is a more expensive when compared to `compile --reset`.
+    private fun reinstallPackage(packageName: String) {
+        userspaceTrace("reinstallPackage") {
+            val packagePath = Shell.executeScriptCaptureStdout("pm path $packageName")
+            // The result looks like: `package: <result>`
+            val apkPath = packagePath.substringAfter("package:").trim()
+            // Copy the APK to /data/local/temp
+            val tempApkPath = "/data/local/tmp/$packageName-${System.currentTimeMillis()}.apk"
+            Log.d(TAG, "Copying APK to $tempApkPath")
+            val result = Shell.executeScriptCaptureStdout(
+                "cp $apkPath $tempApkPath"
+            )
+            try {
+                // Uninstall package
+                // This is what effectively clears the ART profiles
+                Log.d(TAG, "Uninstalling $packageName")
+                var output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
+                check(output.trim() == "Success") {
+                    "Unable to uninstall $packageName ($result)"
+                }
+                // Install the APK from /data/local/tmp
+                Log.d(TAG, "Installing $packageName")
+                // Provide a `-t` argument to `pm install` to ensure test packages are
+                // correctly installed. (b/231294733)
+                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPath")
+                check(output.trim() == "Success") {
+                    "Unable to install $packageName ($result)"
+                }
+            } finally {
+                // Cleanup the temporary APK
+                Log.d(TAG, "Deleting $tempApkPath")
+                Shell.executeScriptSilent("rm $tempApkPath")
             }
         }
     }
@@ -114,6 +178,9 @@ sealed class CompilationMode {
         warmupBlock: () -> Unit
     )
 
+    @RequiresApi(24)
+    internal abstract fun shouldReset(): Boolean
+
     /**
      * No pre-compilation - a compilation profile reset is performed and the entire app will be
      * allowed to Just-In-Time compile as it runs.
@@ -131,8 +198,10 @@ sealed class CompilationMode {
             killProcessBlock: () -> Unit,
             warmupBlock: () -> Unit
         ) {
-            cmdPackageCompile(packageName, "verify")
+            // nothing to do!
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     /**
@@ -152,6 +221,8 @@ sealed class CompilationMode {
         ) {
             // Do nothing.
         }
+
+        override fun shouldReset(): Boolean = false
     }
 
     /**
@@ -262,6 +333,8 @@ sealed class CompilationMode {
                 cmdPackageCompile(packageName, "speed-profile")
             }
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     /**
@@ -286,6 +359,8 @@ sealed class CompilationMode {
             }
             // Noop on older versions: apps are fully compiled at install time on API 23 and below
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     /**
@@ -309,6 +384,8 @@ sealed class CompilationMode {
         ) {
             // Nothing to do - handled externally
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     companion object {
