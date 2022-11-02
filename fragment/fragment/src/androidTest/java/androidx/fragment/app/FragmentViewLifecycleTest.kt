@@ -40,19 +40,22 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentViewLifecycleTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     @UiThreadTest
@@ -165,7 +168,7 @@ class FragmentViewLifecycleTest {
         val fm = activity.supportFragmentManager
 
         val fragment = StrictViewFragment(R.layout.fragment_a)
-        val lifecycleObserver = mock(LifecycleEventObserver::class.java)
+        val lifecycleObserver = TestLifecycleEventObserver()
         lateinit var viewLifecycleOwner: LifecycleOwner
         activityRule.runOnUiThread {
             fragment.viewLifecycleOwnerLiveData.observe(
@@ -183,21 +186,23 @@ class FragmentViewLifecycleTest {
             fm.beginTransaction().remove(fragment).commitNow()
         }
 
-        // The Fragment's lifecycle should change first, followed by the fragment's view lifecycle
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_CREATE)
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_CREATE)
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_START)
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_START)
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_RESUME)
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_RESUME)
-        // Now the order reverses as things unwind
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_PAUSE)
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_PAUSE)
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_STOP)
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_STOP)
-        verify(lifecycleObserver).onStateChanged(viewLifecycleOwner, Lifecycle.Event.ON_DESTROY)
-        verify(lifecycleObserver).onStateChanged(fragment, Lifecycle.Event.ON_DESTROY)
-        verifyNoMoreInteractions(lifecycleObserver)
+        assertThat(lifecycleObserver.collectedEvents)
+            .containsExactly(
+                // The Fragment's lifecycle should change first, followed by the fragment's view lifecycle
+                fragment to Lifecycle.Event.ON_CREATE,
+                viewLifecycleOwner to Lifecycle.Event.ON_CREATE,
+                fragment to Lifecycle.Event.ON_START,
+                viewLifecycleOwner to Lifecycle.Event.ON_START,
+                fragment to Lifecycle.Event.ON_RESUME,
+                viewLifecycleOwner to Lifecycle.Event.ON_RESUME,
+                // Now the order reverses as things unwind
+                viewLifecycleOwner to Lifecycle.Event.ON_PAUSE,
+                fragment to Lifecycle.Event.ON_PAUSE,
+                viewLifecycleOwner to Lifecycle.Event.ON_STOP,
+                fragment to Lifecycle.Event.ON_STOP,
+                viewLifecycleOwner to Lifecycle.Event.ON_DESTROY,
+                fragment to Lifecycle.Event.ON_DESTROY
+            ).inOrder()
     }
 
     @Test
@@ -388,6 +393,13 @@ class FragmentViewLifecycleTest {
 
         assertThat(savedStateFragment.stateIsRestored).isTrue()
         assertThat(savedStateFragment.restoredState).isEqualTo("test")
+    }
+
+    class TestLifecycleEventObserver : LifecycleEventObserver {
+        val collectedEvents = mutableListOf<Pair<LifecycleOwner, Lifecycle.Event>>()
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            collectedEvents.add(source to event)
+        }
     }
 
     class ViewTreeCheckFragment : Fragment() {
