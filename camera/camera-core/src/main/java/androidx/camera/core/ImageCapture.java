@@ -108,7 +108,6 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
-import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -420,49 +419,17 @@ public final class ImageCapture extends UseCase {
             };
         } else if (isSessionProcessorEnabledInCurrentCamera()) {
             ImageReaderProxy imageReader;
+            // SessionProcessor only outputs JPEG format.
             if (getImageFormat() == ImageFormat.JPEG) {
-                imageReader =
-                        new AndroidImageReaderProxy(ImageReader.newInstance(resolution.getWidth(),
-                                resolution.getHeight(), getImageFormat(), MAX_IMAGES));
-            } else if (getImageFormat() == ImageFormat.YUV_420_888) { // convert it into Jpeg
-                if (Build.VERSION.SDK_INT >= 26) {
-                    // Jpeg rotation / quality will be set to softwareJpegProcessor later in
-                    // ImageCaptureRequestProcessor.
-                    softwareJpegProcessor =
-                            new YuvToJpegProcessor(getJpegQualityInternal(), MAX_IMAGES);
-
-                    ModifiableImageReaderProxy inputReader =
-                            new ModifiableImageReaderProxy(
-                                    ImageReader.newInstance(resolution.getWidth(),
-                                            resolution.getHeight(),
-                                            ImageFormat.YUV_420_888,
-                                            MAX_IMAGES));
-
-                    CaptureBundle captureBundle = CaptureBundles.singleDefaultCaptureBundle();
-                    ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
-                            inputReader,
-                            captureBundle,
-                            softwareJpegProcessor
-                    ).setPostProcessExecutor(mExecutor).setOutputFormat(ImageFormat.JPEG).build();
-
-                    // Ensure the ImageProxy contains the same capture stage id expected from the
-                    // ProcessingImageReader.
-                    MutableTagBundle tagBundle = MutableTagBundle.create();
-                    // Implicit non-null type use for getCaptureStages().
-                    //noinspection ConstantConditions
-                    tagBundle.putTag(processingImageReader.getTagBundleKey(),
-                            captureBundle.getCaptureStages().get(0).getId());
-                    inputReader.setImageTagBundle(tagBundle);
-
-                    imageReader = processingImageReader;
-                } else {
-                    throw new UnsupportedOperationException("Does not support API level < 26");
-                }
+                // SessionProcessor can't guarantee that image and capture result have the same
+                // time stamp. Thus we can't use MetadataImageReader
+                imageReader = ImageReaderProxys.createIsolatedReader(resolution.getWidth(),
+                        resolution.getHeight(), ImageFormat.JPEG, MAX_IMAGES);
+                mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
+                };
             } else {
                 throw new IllegalArgumentException("Unsupported image format:" + getImageFormat());
             }
-            mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
-            };
             mImageReader = new SafeCloseImageReaderProxy(imageReader);
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
