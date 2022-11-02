@@ -44,7 +44,7 @@ import androidx.window.sample.embedding.SplitDeviceStateActivityBase.Companion.T
 class ExampleWindowInitializer : Initializer<SplitController> {
     override fun create(context: Context): SplitController {
         SplitController.initialize(context, R.xml.main_split_config)
-        val splitController = SplitController.getInstance()
+        val splitController = SplitController.getInstance(context)
         if (splitController.isSplitAttributesCalculatorSupported()) {
             splitController.setSplitAttributesCalculator(SampleSplitAttributesCalculator())
         }

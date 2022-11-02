@@ -167,7 +167,7 @@ package androidx.window.embedding {
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void clearRegisteredRules();
     method public void clearSplitAttributesCalculator();
-    method public static androidx.window.embedding.SplitController getInstance();
+    method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public java.util.Set<androidx.window.embedding.EmbeddingRule> getRules();
     method public androidx.window.embedding.SplitAttributesCalculator? getSplitAttributesCalculator();
     method public static void initialize(android.content.Context context, int staticRuleResourceId);
@@ -181,7 +181,7 @@ package androidx.window.embedding {
   }
 
   public static final class SplitController.Companion {
-    method public androidx.window.embedding.SplitController getInstance();
+    method public androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public void initialize(android.content.Context context, int staticRuleResourceId);
   }
 

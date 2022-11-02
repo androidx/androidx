@@ -45,7 +45,7 @@ import org.junit.Test
  * @see ActivityRule
  */
 class EmbeddingRuleConstructionTests {
-    private val splitController = SplitController.getInstance()
+    private lateinit var splitController: SplitController
     private lateinit var application: Application
     private lateinit var validBounds: Rect
     private lateinit var invalidBounds: Rect
@@ -57,6 +57,7 @@ class EmbeddingRuleConstructionTests {
         invalidBounds = almostValidWindowBounds(application.resources)
         // Clear all registered rules
         SplitController.initialize(application, 0)
+        splitController = SplitController.getInstance(application)
         splitController.clearRegisteredRules()
     }
 

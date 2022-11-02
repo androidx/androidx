@@ -39,7 +39,7 @@ open class SplitActivityList : AppCompatActivity() {
         findViewById<View>(R.id.root_split_activity_layout)
             .setBackgroundColor(Color.parseColor("#e0f7fa"))
 
-        splitController = SplitController.getInstance()
+        splitController = SplitController.getInstance(this)
     }
 
     open fun onItemClick(view: View) {

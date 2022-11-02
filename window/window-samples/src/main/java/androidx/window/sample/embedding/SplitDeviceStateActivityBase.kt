@@ -36,7 +36,7 @@ import androidx.window.sample.databinding.ActivitySplitDeviceStateLayoutBinding
 
 open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
         RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
-    private val splitController = SplitController.getInstance()
+    private val splitController = SplitController.getInstance(this)
 
     private val splitStateChangeListener = SplitStateChangeListener()
 
