@@ -21,11 +21,9 @@ import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
-import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLManager
-import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
 import androidx.lifecycle.Lifecycle
@@ -40,7 +38,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -55,14 +52,12 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
-        if (!deviceSupportsNativeAndroidFence()) {
-            // If the Android device does not support the corresponding extensions to create
-            // a file descriptor from an EGLSync object then skip the test
-            Log.w(TAG, "Skipping testFrontBufferedLayerRender, no native android fence support")
-            return
-        }
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            val mProjectionMatrix = FloatArray(16)
+            val mOrthoMatrix = FloatArray(16)
+
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
                 bufferWidth: Int,
@@ -71,8 +66,18 @@ class GLFrontBufferedRendererTest {
                 param: Any
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
             override fun onDrawDoubleBufferedLayer(
@@ -83,8 +88,18 @@ class GLFrontBufferedRendererTest {
                 params: Collection<Any>
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
             }
 
             override fun onFrontBufferedLayerRenderComplete(
@@ -141,15 +156,12 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDoubleBufferedLayerRender() {
-        if (!deviceSupportsNativeAndroidFence()) {
-            // If the Android device does not support the corresponding extensions to create
-            // a file descriptor from an EGLSync object then skip the test
-            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
-            return
-        }
-
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
                 bufferWidth: Int,
@@ -158,8 +170,18 @@ class GLFrontBufferedRendererTest {
                 param: Any
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
             override fun onDrawDoubleBufferedLayer(
@@ -170,8 +192,18 @@ class GLFrontBufferedRendererTest {
                 params: Collection<Any>
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
             }
 
             override fun onDoubleBufferedLayerRenderComplete(
@@ -288,17 +320,16 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderFrontBufferSeveralTimes() {
-        if (!deviceSupportsNativeAndroidFence()) {
-            // If the Android device does not support the corresponding extensions to create
-            // a file descriptor from an EGLSync object then skip the test
-            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
-            return
-        }
 
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
 
             var red = 1f
             var blue = 0f
+            val mOrthoMatrix = FloatArray(16)
+            val mProjectionMatrix = FloatArray(16)
+            var mRectangle: Rectangle? = null
+
+            private fun getSquare(): Rectangle = mRectangle ?: Rectangle().also { mRectangle = it }
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
@@ -308,8 +339,20 @@ class GLFrontBufferedRendererTest {
                 param: Any
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(red, 0.0f, blue, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                val color = Color.argb(1f, red, 0f, blue)
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                getSquare().draw(mProjectionMatrix, color, 0f, 0f, 100f, 100f)
+
                 val tmp = red
                 red = blue
                 blue = tmp
@@ -323,8 +366,19 @@ class GLFrontBufferedRendererTest {
                 params: Collection<Any>
             ) {
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f)
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                val color = Color.argb(1f, red, 0f, blue)
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                getSquare().draw(mProjectionMatrix, color, 0f, 0f, 100f, 100f)
             }
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
@@ -337,7 +391,7 @@ class GLFrontBufferedRendererTest {
 
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                 val param = Any()
-                repeat(4000) {
+                repeat(500) {
                     renderer?.renderFrontBufferedLayer(param)
                 }
             }
@@ -349,17 +403,10 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
-        if (!deviceSupportsNativeAndroidFence()) {
-            // If the Android device does not support the corresponding extensions to create
-            // a file descriptor from an EGLSync object then skip the test
-            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
-            return
-        }
         val mOrthoMatrix = FloatArray(16)
         val mProjectionMatrix = FloatArray(16)
-        val mLines = FloatArray(4)
-        val mLineRenderer = LineRenderer()
         val screenWidth = FrontBufferedRendererTestActivity.WIDTH
+        val rectWidth = 10f
 
         val renderLatch = CountDownLatch(1)
         val firstDrawLatch = CountDownLatch(1)
@@ -371,7 +418,6 @@ class GLFrontBufferedRendererTest {
                 transform: FloatArray,
                 param: Any
             ) {
-                mLineRenderer.initialize()
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 Matrix.orthoM(
                     mOrthoMatrix,
@@ -383,16 +429,14 @@ class GLFrontBufferedRendererTest {
                     -1f,
                     1f
                 )
-                mLines[0] = screenWidth / 4 + (param as Float)
-                mLines[1] = 0f
-                mLines[2] = screenWidth / 4 + param
-                mLines[3] = 100f
+                val left = screenWidth / 4 + (param as Float) - rectWidth / 2
+                val top = 0f
+                val right = left + rectWidth / 2
+                val bottom = 100f
 
                 Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                mLineRenderer.drawLines(mProjectionMatrix, mLines)
-                assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+                Rectangle().draw(mProjectionMatrix, Color.RED, left, top, right, bottom)
                 firstDrawLatch.countDown()
-                mLineRenderer.release()
             }
 
             override fun onDrawDoubleBufferedLayer(
@@ -402,7 +446,6 @@ class GLFrontBufferedRendererTest {
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                mLineRenderer.initialize()
                 GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
                 Matrix.orthoM(
                     mOrthoMatrix,
@@ -416,15 +459,14 @@ class GLFrontBufferedRendererTest {
                 )
                 Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
                 for (param in params) {
-                    mLines[0] = screenWidth / 4 + (param as Float)
-                    mLines[1] = 0f
-                    mLines[2] = screenWidth / 4 + param
-                    mLines[3] = 100f
+                    val left = screenWidth / 4 + (param as Float) - rectWidth / 2
+                    val top = 0f
+                    val right = left + rectWidth / 2
+                    val bottom = 100f
 
-                    mLineRenderer.drawLines(mProjectionMatrix, mLines)
+                    Rectangle().draw(mProjectionMatrix, Color.RED, left, top, right, bottom)
                     assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
                 }
-                mLineRenderer.release()
             }
 
             override fun onDoubleBufferedLayerRenderComplete(
@@ -477,7 +519,7 @@ class GLFrontBufferedRendererTest {
                     coords[0] + width / 4, coords[1] + height / 2
                 ) == Color.BLACK) &&
                     (bitmap.getPixel(
-                        coords[0] + 3 * width / 4,
+                        coords[0] + 3 * width / 4 - 1,
                         coords[1] + height / 2
                     ) == Color.RED)
             }
@@ -486,7 +528,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @Ignore("b/256664164")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderAfterPauseAndResume() {
