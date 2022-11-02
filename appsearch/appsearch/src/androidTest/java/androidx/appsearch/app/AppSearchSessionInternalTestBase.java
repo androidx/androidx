@@ -239,6 +239,72 @@ public abstract class AppSearchSessionInternalTestBase {
     }
 
     @Test
+    public void testSearchSuggestion_differentRankingStrategy() throws Exception {
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Type").addProperty(
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        // term1 appears 3 times in all 3 docs.
+        // term2 appears 4 times in 2 docs.
+        // term3 appears 5 times in 1 doc.
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "Type")
+                .setPropertyString("body", "term1 term3 term3 term3 term3 term3")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "Type")
+                .setPropertyString("body", "term1 term2 term2 term2")
+                .build();
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace", "id3", "Type")
+                .setPropertyString("body", "term1 term2")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2, doc3)
+                        .build()));
+
+        SearchSuggestionResult result1 =
+                new SearchSuggestionResult.Builder().setSuggestedResult("term1").build();
+        SearchSuggestionResult result2 =
+                new SearchSuggestionResult.Builder().setSuggestedResult("term2").build();
+        SearchSuggestionResult result3 =
+                new SearchSuggestionResult.Builder().setSuggestedResult("term3").build();
+
+
+        // rank by NONE, the order should be arbitrary but all terms appear.
+        List<SearchSuggestionResult> suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .setRankingStrategy(SearchSuggestionSpec
+                                .SUGGESTION_RANKING_STRATEGY_NONE)
+                        .build()).get();
+        assertThat(suggestions).containsExactly(result2, result1, result3);
+
+        // rank by document count, the order should be term1:3 > term2:2 > term3:1
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .setRankingStrategy(SearchSuggestionSpec
+                                .SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT)
+                        .build()).get();
+        assertThat(suggestions).containsExactly(result1, result2, result3).inOrder();
+
+        // rank by term frequency, the order should be term3:5 > term2:4 > term1:3
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .setRankingStrategy(SearchSuggestionSpec
+                                .SUGGESTION_RANKING_STRATEGY_TERM_FREQUENCY)
+                        .build()).get();
+        assertThat(suggestions).containsExactly(result3, result2, result1).inOrder();
+    }
+
+    @Test
     public void testSearchSuggestion_removeDocument() throws Exception {
         // Schema registration
         AppSearchSchema schema = new AppSearchSchema.Builder("Type").addProperty(
