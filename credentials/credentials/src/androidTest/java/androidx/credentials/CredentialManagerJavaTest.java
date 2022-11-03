@@ -79,4 +79,14 @@ public class CredentialManagerJavaTest {
                         })
         );
     }
+
+    @Test
+    public void testClearCredentialSessionAsync() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> mCredentialManager.clearCredentialSessionAsync(
+                        null,
+                        Runnable::run,
+                        result -> {})
+        );
+    }
 }

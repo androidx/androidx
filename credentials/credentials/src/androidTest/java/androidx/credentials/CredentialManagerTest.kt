@@ -57,6 +57,13 @@ class CredentialManagerTest {
     }
 
     @Test
+    fun testClearCredentialSession() = runBlocking<Unit> {
+        assertThrows<UnsupportedOperationException> {
+            credentialManager.clearCredentialSession()
+        }
+    }
+
+    @Test
     fun testCreateCredentialAsyc() {
         assertThrows<UnsupportedOperationException> {
             credentialManager.executeCreateCredentialAsync(
@@ -83,6 +90,19 @@ class CredentialManagerTest {
                 executor = Runnable::run,
                 callback = object : CredentialManagerCallback<GetCredentialResponse> {
                     override fun onResult(result: GetCredentialResponse) {}
+                }
+            )
+        }
+    }
+
+    @Test
+    fun testClearCredentialSessionAsync() {
+        assertThrows<UnsupportedOperationException> {
+            credentialManager.clearCredentialSessionAsync(
+                cancellationSignal = null,
+                executor = Runnable::run,
+                callback = object : CredentialManagerCallback<Void> {
+                    override fun onResult(result: Void) {}
                 }
             )
         }
