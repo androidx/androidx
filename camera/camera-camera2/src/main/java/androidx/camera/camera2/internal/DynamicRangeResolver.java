@@ -221,7 +221,7 @@ final class DynamicRangeResolver {
             @NonNull String rangeOwnerLabel) {
 
         // Dynamic range is already resolved if it is fully specified.
-        if (isFullySpecified(requestedDynamicRange)) {
+        if (requestedDynamicRange.isFullySpecified()) {
             if (combinedConstraints.contains(requestedDynamicRange)) {
                 return requestedDynamicRange;
             }
@@ -315,7 +315,7 @@ final class DynamicRangeResolver {
         // The constraints are unordered, so it may not produce an "optimal" dynamic range. This
         // works for 8-bit, 10-bit or partially specified HDR dynamic ranges.
         for (DynamicRange candidateRange : combinedConstraints) {
-            Preconditions.checkState(isFullySpecified(candidateRange), "Candidate dynamic"
+            Preconditions.checkState(candidateRange.isFullySpecified(), "Candidate dynamic"
                     + " range must be fully specified.");
 
             // Only consider HDR constraints
@@ -390,7 +390,7 @@ final class DynamicRangeResolver {
             Preconditions.checkNotNull(candidateRange,
                     "Fully specified DynamicRange cannot be null.");
             int candidateEncoding = candidateRange.getEncoding();
-            Preconditions.checkState(isFullySpecified(candidateRange),
+            Preconditions.checkState(candidateRange.isFullySpecified(),
                     "Fully specified DynamicRange must have fully defined encoding.");
             if (candidateEncoding == ENCODING_SDR) {
                 // Only consider HDR encodings
@@ -428,15 +428,6 @@ final class DynamicRangeResolver {
      */
     private static boolean isFullyUnspecified(@NonNull DynamicRange dynamicRange) {
         return Objects.equals(dynamicRange, DynamicRange.UNSPECIFIED);
-    }
-
-    /**
-     * Returns {@code true} if both the encoding and bit depth are not unspecified types.
-     */
-    private static boolean isFullySpecified(@NonNull DynamicRange dynamicRange) {
-        return dynamicRange.getEncoding() != ENCODING_UNSPECIFIED
-                && dynamicRange.getEncoding() != ENCODING_HDR_UNSPECIFIED
-                && dynamicRange.getBitDepth() != BIT_DEPTH_UNSPECIFIED;
     }
 
     /**
@@ -485,7 +476,7 @@ final class DynamicRangeResolver {
      */
     private static boolean canResolve(@NonNull DynamicRange testRange,
             @NonNull DynamicRange fullySpecifiedRange) {
-        Preconditions.checkState(isFullySpecified(fullySpecifiedRange), "Fully specified range is"
+        Preconditions.checkState(fullySpecifiedRange.isFullySpecified(), "Fully specified range is"
                 + " not actually fully specified.");
         if (testRange.getEncoding() == ENCODING_HDR_UNSPECIFIED
                 && fullySpecifiedRange.getEncoding() == ENCODING_SDR) {

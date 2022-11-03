@@ -255,6 +255,16 @@ public final class DynamicRange {
         return mBitDepth;
     }
 
+    /**
+     * Returns {@code true} if both the encoding and bit depth are not unspecified types.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isFullySpecified() {
+        return getEncoding() != ENCODING_UNSPECIFIED
+                && getEncoding() != ENCODING_HDR_UNSPECIFIED
+                && getBitDepth() != BIT_DEPTH_UNSPECIFIED;
+    }
+
     @NonNull
     @Override
     public String toString() {
