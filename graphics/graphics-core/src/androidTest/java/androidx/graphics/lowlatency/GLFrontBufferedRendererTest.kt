@@ -16,11 +16,13 @@
 
 package androidx.graphics.lowlatency
 
+import android.app.UiAutomation
 import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLManager
@@ -31,6 +33,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -635,6 +638,126 @@ class GLFrontBufferedRendererTest {
             }
         } finally {
             renderer.blockingRelease()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun test180DegreeRotationBufferTransform() {
+        val initialFrontBufferLatch = CountDownLatch(1)
+        val secondFrontBufferLatch = CountDownLatch(1)
+        var bufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+        var surfaceView: SurfaceView? = null
+        val surfaceHolderCallbacks = object : SurfaceHolder.Callback {
+            override fun surfaceCreated(p0: SurfaceHolder) {
+                // NO-OP
+            }
+
+            override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+                bufferTransform =
+                    BufferTransformHintResolver().getBufferTransformHint(surfaceView!!)
+            }
+
+            override fun surfaceDestroyed(p0: SurfaceHolder) {
+                // NO-OP
+            }
+        }
+        var configuredBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            val mOrthoMatrix = FloatArray(16)
+            val mProjectionMatrix = FloatArray(16)
+            var mRectangle: Rectangle? = null
+
+            private fun getSquare(): Rectangle = mRectangle ?: Rectangle().also { mRectangle = it }
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                param: Any
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                getSquare().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferWidth.toFloat(),
+                    0f,
+                    bufferHeight.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                getSquare().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                configuredBufferTransform =
+                    transaction.mBufferTransforms[frontBufferedLayerSurfaceControl]
+                        ?: BufferTransformHintResolver.UNKNOWN_TRANSFORM
+                if (initialFrontBufferLatch.count == 0L) {
+                    secondFrontBufferLatch.countDown()
+                }
+                initialFrontBufferLatch.countDown()
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    it.getSurfaceView().holder.addCallback(surfaceHolderCallbacks)
+                    renderer = GLFrontBufferedRenderer(it.getSurfaceView(), callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+            }
+
+            assertTrue(initialFrontBufferLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            assertTrue(automation.setRotation(UiAutomation.ROTATION_FREEZE_180))
+            automation.waitForIdle(1000, 3000)
+
+            renderer?.renderFrontBufferedLayer(Any())
+
+            assertTrue(secondFrontBufferLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            assertEquals(
+                BufferTransformer().invertBufferTransform(bufferTransform),
+                configuredBufferTransform
+            )
+        } finally {
+            renderer.blockingRelease(10000)
         }
     }
 
