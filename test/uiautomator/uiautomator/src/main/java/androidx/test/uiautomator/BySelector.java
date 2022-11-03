@@ -16,8 +16,6 @@
 
 package androidx.test.uiautomator;
 
-import android.view.accessibility.AccessibilityNodeInfo;
-
 import androidx.annotation.NonNull;
 
 import java.util.LinkedList;
@@ -159,7 +157,7 @@ public class BySelector {
      * if its content description exactly matches the {@code contentDescription} parameter and all
      * other criteria for this selector are met.
      *
-     * @param contentDescription The exact value to match.
+     * @param contentDescription The exact value to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector desc(@NonNull String contentDescription) {
@@ -173,13 +171,14 @@ public class BySelector {
      * if its content description contains the {@code substring} parameter and all other criteria
      * for this selector are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descContains(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
+        return desc(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring)),
+                Pattern.DOTALL));
     }
 
     /**
@@ -187,13 +186,14 @@ public class BySelector {
      * if its content description starts with the {@code substring} parameter and all other criteria
      * for this selector are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descStartsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
+        return desc(
+                Pattern.compile(String.format("^%s.*$", Pattern.quote(substring)), Pattern.DOTALL));
     }
 
     /**
@@ -201,13 +201,14 @@ public class BySelector {
      * if its content description ends with the {@code substring} parameter and all other criteria
      * for this selector are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector descEndsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
+        return desc(
+                Pattern.compile(String.format("^.*%s$", Pattern.quote(substring)), Pattern.DOTALL));
     }
 
     /**
@@ -314,7 +315,7 @@ public class BySelector {
      * text value exactly matches the {@code textValue} parameter and all other criteria for this
      * selector are met.
      *
-     * @param textValue The exact value to match.
+     * @param textValue The exact value to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector text(@NonNull String textValue) {
@@ -328,13 +329,14 @@ public class BySelector {
      * text value contains the {@code substring} parameter and all other criteria for this selector
      * are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textContains(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
+        return text(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring)),
+                Pattern.DOTALL));
     }
 
     /**
@@ -342,13 +344,14 @@ public class BySelector {
      * text value starts with the {@code substring} parameter and all other criteria for this
      * selector are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textStartsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
+        return text(
+                Pattern.compile(String.format("^%s.*$", Pattern.quote(substring)), Pattern.DOTALL));
     }
 
     /**
@@ -356,13 +359,14 @@ public class BySelector {
      * text value ends with the {@code substring} parameter and all other criteria for this selector
      * are met.
      *
-     * @param substring The substring to match.
+     * @param substring The substring to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
     public @NonNull BySelector textEndsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
+        return text(
+                Pattern.compile(String.format("^.*%s$", Pattern.quote(substring)), Pattern.DOTALL));
     }
 
     /** Sets the text value criteria for matching. A UI element will be considered a match if its
