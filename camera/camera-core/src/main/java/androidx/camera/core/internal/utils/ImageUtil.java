@@ -35,6 +35,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageProcessingUtil;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.ExifData;
@@ -78,7 +79,7 @@ public final class ImageUtil {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         // Rewind the buffer just to be safe.
         planes[0].getBuffer().rewind();
-        bitmap.copyPixelsFromBuffer(planes[0].getBuffer());
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes[0].getBuffer());
         return bitmap;
     }
 
@@ -90,7 +91,7 @@ public final class ImageUtil {
         checkArgument(bitmap.getConfig() == Bitmap.Config.ARGB_8888,
                 "Only accept Bitmap with ARGB_8888 format for now.");
         ByteBuffer byteBuffer = allocateDirect(bitmap.getAllocationByteCount());
-        bitmap.copyPixelsToBuffer(byteBuffer);
+        ImageProcessingUtil.copyBitmapToByteBuffer(bitmap, byteBuffer);
         byteBuffer.rewind();
         return byteBuffer;
     }

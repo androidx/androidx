@@ -16,12 +16,6 @@
 
 package androidx.camera.core.internal.utils;
 
-import static androidx.camera.core.internal.utils.ImageUtil.DEFAULT_RGBA_PIXEL_STRIDE;
-import static androidx.camera.core.internal.utils.ImageUtil.createBitmapFromPlane;
-import static androidx.camera.core.internal.utils.ImageUtil.createDirectByteBuffer;
-import static androidx.camera.testing.TestImageUtil.createBitmap;
-import static androidx.camera.testing.TestImageUtil.getAverageDiff;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertEquals;
@@ -42,7 +36,6 @@ import android.util.Size;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
-import androidx.camera.testing.fakes.FakePlaneProxy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -85,11 +78,11 @@ public class ImageUtilTest {
                     + "KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo"
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
-    private FakeImageProxy mImage;
     @Mock
     private final ImageProxy.PlaneProxy mDataPlane = mock(ImageProxy.PlaneProxy.class);
     private final ByteBuffer mDataBuffer =
             ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
+    private FakeImageProxy mImage;
     private byte[] mDataByteArray = new byte[mDataBuffer.capacity()];
 
     @Before
@@ -105,58 +98,6 @@ public class ImageUtilTest {
         mDataBuffer.get(mDataByteArray);
         mDataBuffer.clear();
     }
-
-    @Test
-    public void createBitmapFromPlane_bitmapCreated() {
-        // Arrange.
-        Bitmap original = createBitmap(WIDTH, HEIGHT);
-        ByteBuffer byteBuffer = createDirectByteBuffer(original);
-        // Move the position to test the case that the ByteBuffer needs rewinding.
-        byteBuffer.position(byteBuffer.capacity());
-        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(byteBuffer,
-                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE, DEFAULT_RGBA_PIXEL_STRIDE);
-        // Act.
-        Bitmap restored = createBitmapFromPlane(
-                new ImageProxy.PlaneProxy[]{planeProxy},
-                WIDTH,
-                HEIGHT);
-        // Assert.
-        assertThat(getAverageDiff(original, restored)).isEqualTo(0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createBitmapWithMultiplePlanes_throwsException() {
-        // Arrange.
-        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
-                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
-                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE,
-                DEFAULT_RGBA_PIXEL_STRIDE);
-        // Act.
-        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy, planeProxy}, WIDTH, HEIGHT);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createBitmapWithWrongPixelStride_throwsException() {
-        // Arrange.
-        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
-                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
-                WIDTH * DEFAULT_RGBA_PIXEL_STRIDE,
-                3); // Wrong pixel stride.
-        // Act.
-        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy}, WIDTH, HEIGHT);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createBitmapWithWrongRowStride_throwsException() {
-        // Arrange.
-        ImageProxy.PlaneProxy planeProxy = new FakePlaneProxy(
-                createDirectByteBuffer(createBitmap(WIDTH, HEIGHT)),
-                (WIDTH - 1) * DEFAULT_RGBA_PIXEL_STRIDE, // Wrong row stride.
-                DEFAULT_RGBA_PIXEL_STRIDE);
-        // Act.
-        createBitmapFromPlane(new ImageProxy.PlaneProxy[]{planeProxy}, WIDTH, HEIGHT);
-    }
-
     @Test
     public void rotateAspectRatioFor90Degrees_rotated() {
         // Arrange.
