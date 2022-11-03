@@ -22,6 +22,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -48,6 +51,7 @@ dependencies {
     // This dependency is unused by the test implementation, but it's here to validate that
     // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
     androidTestImplementation(libs.protobufLite)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {

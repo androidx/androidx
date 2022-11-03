@@ -26,6 +26,9 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    defaultConfig {
+        multiDexEnabled true
+    }
     namespace "androidx.navigation.common"
 }
 
@@ -56,6 +59,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
 
     lintPublish(project(':navigation:navigation-common-lint'))
 }
