@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
@@ -36,12 +37,14 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
     GetCredentialRequest,
     BeginSignInRequest,
     SignInCredential,
-    GetCredentialResponse>() {
+    GetCredentialResponse,
+    GetCredentialException>() {
 
     /**
      * The callback object state, used in the protected handleResponse method.
      */
-    private lateinit var callback: CredentialManagerCallback<GetCredentialResponse>
+    private lateinit var callback: CredentialManagerCallback<GetCredentialResponse,
+        GetCredentialException>
     /**
      * The callback requires an executor to invoke it.
      */
@@ -49,7 +52,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
 
     override fun invokePlayServices(
         request: GetCredentialRequest,
-        callback: CredentialManagerCallback<GetCredentialResponse>,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
         executor: Executor
     ) {
         TODO("Not yet implemented")
@@ -65,11 +68,12 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
         TODO("Not yet implemented")
     }
 
-    override fun convertToPlayServices(request: GetCredentialRequest): BeginSignInRequest {
+    override fun convertRequestToPlayServices(request: GetCredentialRequest): BeginSignInRequest {
         TODO("Not yet implemented")
     }
 
-    override fun convertToCredentialProvider(response: SignInCredential): GetCredentialResponse {
+    override fun convertResponseToCredentialManager(response: SignInCredential):
+        GetCredentialResponse {
         TODO("Not yet implemented")
     }
 
@@ -79,8 +83,8 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
         // TODO("Ensure this works with the lifecycle")
 
         /**
-         * This finds a past version of the BeginSignInController if it exists, otherwise
-         * it generates a new instance.
+         * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
+         * otherwise it generates a new instance.
          *
          * @param fragmentManager a fragment manager pulled from an android activity
          * @return a credential provider controller for a specific credential request
@@ -103,11 +107,15 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             requestCode: Int,
             fragmentManager: android.app.FragmentManager
         ): CredentialProviderBeginSignInController? {
+            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
             try {
-                return fragmentManager.findFragmentByTag(requestCode.toString())
-                    as CredentialProviderBeginSignInController?
+                return oldFragment as CredentialProviderBeginSignInController
             } catch (e: Exception) {
-                Log.i(TAG, "Old fragment found of different type - replacement required")
+                Log.i(TAG,
+                    "Error with old fragment or null - replacement required")
+                if (oldFragment != null) {
+                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
+                }
                 // TODO("Ensure this is well tested for fragment issues")
                 return null
             }
