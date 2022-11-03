@@ -81,22 +81,22 @@ public class BySelectorTest extends BaseTest {
         launchTestActivity(BySelectorTestActivity.class);
 
         // String as the exact content description.
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("The button desc.")));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("button")));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("The is\nthe desc.")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc("desc")));
 
         // Pattern of the content description.
         assertTrue(mDevice.hasObject(
-                By.res(TEST_APP, "desc_family").desc(Pattern.compile(".*button.*"))));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc(Pattern.compile(
-                ".*not_button.*"))));
+                By.res(TEST_APP, "desc_family").desc(Pattern.compile(".*desc.*", Pattern.DOTALL))));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").desc(
+                Pattern.compile(".*not_desc.*", Pattern.DOTALL))));
     }
 
     @Test
     public void testDescContains() {
         launchTestActivity(BySelectorTestActivity.class);
 
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("button")));
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("not_button")));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("desc")));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "desc_family").descContains("not_desc")));
     }
 
     @Test
@@ -150,14 +150,14 @@ public class BySelectorTest extends BaseTest {
         launchTestActivity(BySelectorTestActivity.class);
 
         // Single string as the exact content of the text.
-        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").text("This is the text.")));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "text_family").text("This is\nthe text.")));
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").text("the text")));
 
         // Pattern of the text.
         assertTrue(mDevice.hasObject(
-                By.res(TEST_APP, "text_family").text(Pattern.compile(".*text.*"))));
-        assertFalse(mDevice.hasObject(
-                By.res(TEST_APP, "text_family").text(Pattern.compile(".*nottext.*"))));
+                By.res(TEST_APP, "text_family").text(Pattern.compile(".*text.*", Pattern.DOTALL))));
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "text_family").text(
+                Pattern.compile(".*nottext.*", Pattern.DOTALL))));
     }
 
     @Test

@@ -249,43 +249,43 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descMatches(@NonNull String regex) {
-        return descMatches(Pattern.compile(regex));
+        return descMatches(Pattern.compile(regex, Pattern.DOTALL));
     }
 
     /**
      * Returns a condition that is satisfied when the object's content description exactly matches
-     * the given string.
+     * the given string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> descEquals(@NonNull String contentDescription) {
-        return descMatches(Pattern.compile(Pattern.quote(contentDescription)));
+        return descMatches(Pattern.quote(contentDescription));
     }
 
     /**
      * Returns a condition that is satisfied when the object's content description contains the
-     * given string.
+     * given string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> descContains(@NonNull String substring) {
-        return descMatches(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
+        return descMatches(String.format("^.*%s.*$", Pattern.quote(substring)));
     }
 
     /**
      * Returns a condition that is satisfied when the object's content description starts with the
-     * given string.
+     * given string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> descStartsWith(@NonNull String substring) {
-        return descMatches(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
+        return descMatches(String.format("^%s.*$", Pattern.quote(substring)));
     }
 
     /**
      * Returns a condition that is satisfied when the object's content description ends with the
-     * given string.
+     * given string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> descEndsWith(@NonNull String substring) {
-        return descMatches(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
+        return descMatches(String.format("^.*%s$", Pattern.quote(substring)));
     }
 
     /**
@@ -307,7 +307,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textMatches(@NonNull String regex) {
-        return textMatches(Pattern.compile(regex));
+        return textMatches(Pattern.compile(regex, Pattern.DOTALL));
     }
 
     /**
@@ -326,37 +326,38 @@ public class Until {
 
     /**
      * Returns a condition that is satisfied when the object's text value exactly matches the given
-     * string.
+     * string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> textEquals(@NonNull String text) {
-        return textMatches(Pattern.compile(Pattern.quote(text)));
+        return textMatches(Pattern.quote(text));
     }
 
     /**
-     * Returns a condition that is satisfied when the object's text value contains the given string.
+     * Returns a condition that is satisfied when the object's text value contains the given string
+     * (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> textContains(@NonNull String substring) {
-        return textMatches(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring))));
+        return textMatches(String.format("^.*%s.*$", Pattern.quote(substring)));
     }
 
     /**
      * Returns a condition that is satisfied when the object's text value starts with the given
-     * string.
+     * string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> textStartsWith(@NonNull String substring) {
-        return textMatches(Pattern.compile(String.format("^%s.*$", Pattern.quote(substring))));
+        return textMatches(String.format("^%s.*$", Pattern.quote(substring)));
     }
 
     /**
      * Returns a condition that is satisfied when the object's text value ends with the given
-     * string.
+     * string (case-sensitive).
      */
     @NonNull
     public static UiObject2Condition<Boolean> textEndsWith(@NonNull String substring) {
-        return textMatches(Pattern.compile(String.format("^.*%s$", Pattern.quote(substring))));
+        return textMatches(String.format("^.*%s$", Pattern.quote(substring)));
     }
 
 

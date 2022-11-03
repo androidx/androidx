@@ -130,7 +130,7 @@ public class UiSelector {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
-        return buildSelector(SELECTOR_TEXT_REGEX, Pattern.compile(regex));
+        return buildSelector(SELECTOR_TEXT_REGEX, Pattern.compile(regex, Pattern.DOTALL));
     }
 
     /**
@@ -255,7 +255,7 @@ public class UiSelector {
         if (regex == null) {
             throw new IllegalArgumentException("regex cannot be null");
         }
-        return buildSelector(SELECTOR_DESCRIPTION_REGEX, Pattern.compile(regex));
+        return buildSelector(SELECTOR_DESCRIPTION_REGEX, Pattern.compile(regex, Pattern.DOTALL));
     }
 
     /**
