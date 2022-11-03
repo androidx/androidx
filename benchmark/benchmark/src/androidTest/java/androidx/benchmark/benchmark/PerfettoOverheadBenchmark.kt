@@ -17,8 +17,9 @@
 package androidx.benchmark.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.PerfettoRule
+import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.tracing.Trace
@@ -33,8 +34,9 @@ class PerfettoOverheadBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
+    @OptIn(ExperimentalPerfettoCaptureApi::class)
     @get:Rule
-    val perfettoRule = PerfettoRule()
+    val mPerfettoTraceRule = PerfettoTraceRule()
 
     /**
      * Empty baseline, no tracing. Expect similar results to [TrivialJavaBenchmark.nothing].

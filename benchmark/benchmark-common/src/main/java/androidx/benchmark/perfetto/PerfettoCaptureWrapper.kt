@@ -79,17 +79,27 @@ class PerfettoCaptureWrapper {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun stop(traceLabel: String): String {
+        return Outputs.writeFile(
+            fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace",
+            reportKey = "perfetto_trace_$traceLabel"
+        ) {
+            capture!!.stop(it.absolutePath)
+        }
+    }
+
     fun record(
-        benchmarkName: String,
+        fileLabel: String,
         appTagPackages: List<String>,
         userspaceTracingPackage: String?,
-        iteration: Int? = null,
+        traceCallback: ((String) -> Unit)? = null,
         block: () -> Unit
     ): String? {
         // skip if Perfetto not supported, or on Cuttlefish (where tracing doesn't work)
         if (Build.VERSION.SDK_INT < 21 || !isAbiSupported()) {
             block()
-            return null // tracing not supported
+            return null
         }
 
         // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see
@@ -97,15 +107,17 @@ class PerfettoCaptureWrapper {
         val propOverride = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
             PropOverride(TRACE_ENABLE_PROP, "1")
         } else null
+
+        val path: String
         try {
             propOverride?.forceValue()
             start(appTagPackages, userspaceTracingPackage)
-            val path: String
             try {
                 block()
             } finally {
                 // finally here to ensure trace is fully recorded if block throws
-                path = stop(benchmarkName, iteration)
+                path = stop(fileLabel)
+                traceCallback?.invoke(path)
             }
             return path
         } finally {
