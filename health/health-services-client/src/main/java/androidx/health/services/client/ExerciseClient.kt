@@ -52,7 +52,8 @@ public interface ExerciseClient {
      * aggregation will occur until the exercise is started.
      *
      * If an app is actively preparing and another app starts tracking an active exercise then the
-     * preparing app should expect to receive an [ExerciseUpdate] with [ExerciseState.TERMINATED]
+     * preparing app should expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along
+     * with the reason [ExerciseEndReason.AUTO_END_SUPERSEDED] to the [ExerciseUpdateCallback]
      * indicating that their session has been superseded and ended. At that point no additional
      * updates to availability or data will be sent until the app calls prepareExercise again.
      *
@@ -69,15 +70,17 @@ public interface ExerciseClient {
      *
      * Since Health Services only allows a single active exercise at a time, this will terminate any
      * active exercise currently in progress before starting the new one. If this occurs, clients
-     * can expect to receive an [ExerciseUpdate] with [ExerciseState.TERMINATED], indicating that
-     * their exercise has been superseded and that no additional updates will be sent. Clients can
-     * use [getCurrentExerciseInfoAsync] (described below) to check if they or another app has an
-     * active exercise in-progress.
+     * can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.AUTO_END_SUPERSEDED] to the [ExerciseUpdateCallback] indicating that their
+     * exercise has been superseded and that no additional updates will be sent. Clients can use
+     * [getCurrentExerciseInfoAsync] (described below) to check if they or another app has an active
+     * exercise in-progress.
      *
      * If the client fails to maintain a live [ExerciseUpdateCallback] for at least five minutes
      * during the duration of the exercise, Health Services can decide to terminate the exercise. If
-     * this occurs, clients can expect to receive an [ExerciseUpdate] with
-     * [ExerciseState.AUTO_ENDED] indicating that their exercise has been automatically ended due to
+     * this occurs, clients can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED]
+     * along with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER] to the
+     * [ExerciseUpdateCallback] indicating that their exercise has been automatically ended due to
      * the lack of callback.
      *
      * Clients should only request [ExerciseType]s, [DataType]s, goals, and auto-pause enabled that
@@ -193,7 +196,8 @@ public interface ExerciseClient {
      * deliver them as soon as the callback is registered again. If the client fails to maintain a
      * live [ExerciseUpdateCallback] for at least five minutes during the duration of the exercise
      * Health Services can decide to terminate the exercise automatically. If this occurs, clients
-     * can expect to receive an [ExerciseUpdate] with [ExerciseState.AUTO_ENDED] indicating that
+     * can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.AUTO_END_MISSING_LISTENER] to the [ExerciseUpdateCallback] indicating that
      * their exercise has been automatically ended due to the lack of callback.
      *
      * Calls to the callback will be executed on the main application thread. To control where to
