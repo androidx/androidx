@@ -555,9 +555,7 @@ public class UiObject {
         if(node == null) {
             throw new UiObjectNotFoundException(mUiSelector.toString());
         }
-        String retVal = safeStringReturn(node.getText());
-        Log.d(TAG, String.format("getText() = %s", retVal));
-        return retVal;
+        return safeStringReturn(node.getText());
     }
 
     /**
@@ -572,9 +570,7 @@ public class UiObject {
         if(node == null) {
             throw new UiObjectNotFoundException(mUiSelector.toString());
         }
-        String retVal = safeStringReturn(node.getClassName());
-        Log.d(TAG, String.format("getClassName() = %s", retVal));
-        return retVal;
+        return safeStringReturn(node.getClassName());
     }
 
     /**
@@ -606,6 +602,7 @@ public class UiObject {
         if (node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
+        Log.d(TAG, String.format("Setting text to '%s'", text));
         Rect rect = getVisibleBounds(node);
         getInteractionController().longTapNoSync(rect.left + 20, rect.centerY());
         // check if the edit menu is open
@@ -656,11 +653,13 @@ public class UiObject {
             if (node == null) {
                 throw new UiObjectNotFoundException(getSelector().toString());
             }
+            Log.d(TAG, String.format("Setting text to '%s'", text));
             Bundle args = new Bundle();
             args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
             return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
         } else {
             clearTextField();
+            Log.d(TAG, String.format("Setting text to '%s'", text));
             return getInteractionController().sendText(text);
         }
     }
@@ -687,6 +686,7 @@ public class UiObject {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 setText("");
             } else {
+                Log.d(TAG, "Setting text to ''");
                 Bundle selectionArgs = new Bundle();
                 // select all of the existing text
                 selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
