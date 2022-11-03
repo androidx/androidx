@@ -83,7 +83,8 @@ public class CredentialManagerJavaTest {
     @Test
     public void testClearCredentialSessionAsync() {
         assertThrows(UnsupportedOperationException.class,
-                () -> mCredentialManager.clearCredentialSessionAsync(
+                () -> mCredentialManager.clearCredentialStateAsync(
+                        new ClearCredentialStateRequest(),
                         null,
                         Runnable::run,
                         result -> {})

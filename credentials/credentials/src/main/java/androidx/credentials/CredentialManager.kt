@@ -125,14 +125,22 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
-     * Clears the current user credential session from all credential providers.
+     * Clears the current user credential state from all credential providers.
      *
-     * Usually invoked after your user signs out of your app so that they will not be
-     * automatically signed in the next time.
+     * You should invoked this api after your user signs out of your app to notify all credential
+     * providers that any stored credential session for the given app should be cleared.
      *
-     * @hide
+     * A credential provider may have stored an active credential session and use it to limit
+     * sign-in options for future get-credential calls. For example, it may prioritize the active
+     * credential over any other available credential. When your user explicitly signs out of your
+     * app and in order to get the holistic sign-in options the next time, you should call this API
+     * to let the provider clear any stored credential session.
+     *
+     * @param request the request for clearing the app user's credential state
      */
-    suspend fun clearCredentialSession(): Unit = suspendCancellableCoroutine { continuation ->
+    suspend fun clearCredentialState(
+        request: ClearCredentialStateRequest
+    ): Unit = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
         val canceller = CancellationSignal()
@@ -148,7 +156,8 @@ class CredentialManager private constructor(private val context: Context) {
             }
         }
 
-        clearCredentialSessionAsync(
+        clearCredentialStateAsync(
+            request,
             canceller,
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
@@ -210,19 +219,25 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
-     * Clears the current user credential session from all credential providers.
+     * Clears the current user credential state from all credential providers.
      *
-     * Usually invoked after your user signs out of your app so that they will not be
-     * automatically signed in the next time.
+     * You should invoked this api after your user signs out of your app to notify all credential
+     * providers that any stored credential session for the given app should be cleared.
      *
+     * A credential provider may have stored an active credential session and use it to limit
+     * sign-in options for future get-credential calls. For example, it may prioritize the active
+     * credential over any other available credential. When your user explicitly signs out of your
+     * app and in order to get the holistic sign-in options the next time, you should call this API
+     * to let the provider clear any stored credential session.
+     *
+     * @param request the request for clearing the app user's credential state
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      * @throws UnsupportedOperationException Since the api is unimplemented
-     *
-     * @hide
      */
-    fun clearCredentialSessionAsync(
+    fun clearCredentialStateAsync(
+        request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<Void>,
