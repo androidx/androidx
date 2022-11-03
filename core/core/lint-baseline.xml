@@ -713,6 +713,15 @@
     </issue>
 
     <issue
+        id="Range"
+        message="Value must be ≥ 1 and ≤ 200 but `getSvid` can be 206"
+        errorLine1="        return mWrapped.getSvid(satelliteIndex);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/GnssStatusWrapper.java"/>
+    </issue>
+
+    <issue
         id="WrongConstant"
         message="Must be one of: Callback.DISPATCH_MODE_STOP, Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE"
         errorLine1="                super(compat.getDispatchMode());"
