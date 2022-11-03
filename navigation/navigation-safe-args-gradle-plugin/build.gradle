@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:7.0.4")
+    implementation("com.android.tools.build:gradle:7.3.0")
     implementation(libs.kotlinGradlePluginz)
     api(project(":navigation:navigation-safe-args-generator"))
     api(gradleApi())
