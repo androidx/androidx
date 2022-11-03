@@ -188,22 +188,27 @@ public class AppSearchStatsTest {
     public void testAppSearchStats_SearchStats() {
         int rewriteSearchSpecLatencyMillis = 1;
         int rewriteSearchResultLatencyMillis = 2;
+        int javaLockAcquisitionLatencyMillis = 3;
+        int aclCheckLatencyMillis = 4;
         int visibilityScope = SearchStats.VISIBILITY_SCOPE_LOCAL;
-        int nativeLatencyMillis = 4;
-        int nativeNumTerms = 5;
-        int nativeQueryLength = 6;
-        int nativeNumNamespacesFiltered = 7;
-        int nativeNumSchemaTypesFiltered = 8;
-        int nativeRequestedPageSize = 9;
-        int nativeNumResultsReturnedCurrentPage = 10;
+        int nativeLatencyMillis = 6;
+        int nativeNumTerms = 7;
+        int nativeQueryLength = 8;
+        int nativeNumNamespacesFiltered = 9;
+        int nativeNumSchemaTypesFiltered = 10;
+        int nativeRequestedPageSize = 11;
+        int nativeNumResultsReturnedCurrentPage = 12;
         boolean nativeIsFirstPage = true;
-        int nativeParseQueryLatencyMillis = 11;
-        int nativeRankingStrategy = 12;
-        int nativeNumDocumentsScored = 13;
-        int nativeScoringLatencyMillis = 14;
-        int nativeRankingLatencyMillis = 15;
-        int nativeNumResultsSnippeted = 16;
-        int nativeDocumentRetrievingLatencyMillis = 17;
+        int nativeParseQueryLatencyMillis = 13;
+        int nativeRankingStrategy = 14;
+        int nativeNumDocumentsScored = 15;
+        int nativeScoringLatencyMillis = 16;
+        int nativeRankingLatencyMillis = 17;
+        int nativeNumResultsSnippeted = 18;
+        int nativeDocumentRetrievingLatencyMillis = 19;
+        int nativeLockAcquisitionLatencyMillis = 20;
+        int javaToNativeJniLatencyMillis = 21;
+        int nativeToJavaJniLatencyMillis = 22;
         final SearchStats.Builder sStatsBuilder = new SearchStats.Builder(visibilityScope,
                 TEST_PACKAGE_NAME)
                 .setDatabase(TEST_DATA_BASE)
@@ -211,6 +216,8 @@ public class AppSearchStatsTest {
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
                 .setRewriteSearchSpecLatencyMillis(rewriteSearchSpecLatencyMillis)
                 .setRewriteSearchResultLatencyMillis(rewriteSearchResultLatencyMillis)
+                .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                .setAclCheckLatencyMillis(aclCheckLatencyMillis)
                 .setNativeLatencyMillis(nativeLatencyMillis)
                 .setTermCount(nativeNumTerms)
                 .setQueryLength(nativeQueryLength)
@@ -225,7 +232,10 @@ public class AppSearchStatsTest {
                 .setScoringLatencyMillis(nativeScoringLatencyMillis)
                 .setRankingLatencyMillis(nativeRankingLatencyMillis)
                 .setResultWithSnippetsCount(nativeNumResultsSnippeted)
-                .setDocumentRetrievingLatencyMillis(nativeDocumentRetrievingLatencyMillis);
+                .setDocumentRetrievingLatencyMillis(nativeDocumentRetrievingLatencyMillis)
+                .setNativeLockAcquisitionLatencyMillis(nativeLockAcquisitionLatencyMillis)
+                .setJavaToNativeJniLatencyMillis(javaToNativeJniLatencyMillis)
+                .setNativeToJavaJniLatencyMillis(nativeToJavaJniLatencyMillis);
         final SearchStats sStats = sStatsBuilder.build();
 
         assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -237,6 +247,10 @@ public class AppSearchStatsTest {
                 rewriteSearchSpecLatencyMillis);
         assertThat(sStats.getRewriteSearchResultLatencyMillis()).isEqualTo(
                 rewriteSearchResultLatencyMillis);
+        assertThat(sStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                javaLockAcquisitionLatencyMillis);
+        assertThat(sStats.getAclCheckLatencyMillis()).isEqualTo(
+                aclCheckLatencyMillis);
         assertThat(sStats.getVisibilityScope()).isEqualTo(visibilityScope);
         assertThat(sStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
         assertThat(sStats.getTermCount()).isEqualTo(nativeNumTerms);
@@ -257,6 +271,13 @@ public class AppSearchStatsTest {
         assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(nativeNumResultsSnippeted);
         assertThat(sStats.getDocumentRetrievingLatencyMillis()).isEqualTo(
                 nativeDocumentRetrievingLatencyMillis);
+        assertThat(sStats.getNativeLockAcquisitionLatencyMillis()).isEqualTo(
+                nativeLockAcquisitionLatencyMillis);
+        assertThat(sStats.getJavaToNativeJniLatencyMillis()).isEqualTo(
+                javaToNativeJniLatencyMillis);
+        assertThat(sStats.getNativeToJavaJniLatencyMillis()).isEqualTo(
+                nativeToJavaJniLatencyMillis);
+
     }
 
     @Test
