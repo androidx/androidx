@@ -20,6 +20,10 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -60,10 +64,6 @@ class EmojiPickerView @JvmOverloads constructor(
     private lateinit var bodyView: RecyclerView
 
     init {
-        initialize(context, attrs)
-    }
-
-    private fun initialize(context: Context, attrs: AttributeSet?) {
         val typedArray: TypedArray =
             context.obtainStyledAttributes(attrs, R.styleable.EmojiPickerView, 0, 0)
         emojiGridRows = typedArray.getFloat(
@@ -74,6 +74,18 @@ class EmojiPickerView @JvmOverloads constructor(
             R.styleable.EmojiPickerView_emojiGridColumns,
             EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         )
+        typedArray.recycle()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            BundledEmojiListLoader.load(context)
+            withContext(Dispatchers.Main) {
+                showEmojiPickerView(context)
+            }
+        }
+    }
+
+    private suspend fun showEmojiPickerView(context: Context) {
+        BundledEmojiListLoader.getCategorizedEmojiData()
 
         // get emoji picker
         val emojiPicker = inflate(context, R.layout.emoji_picker, this)
@@ -91,13 +103,5 @@ class EmojiPickerView @JvmOverloads constructor(
             false
         )
         bodyView.adapter = EmojiPickerBodyAdapter(context, emojiGridColumns, emojiGridRows)
-
-        // recycle the typed array
-        typedArray.recycle()
     }
-
-    /**
-     * MetaVersion will be null if EmojiCompat is not enabled.
-     */
-    internal data class EmojiCompatMetadata(val metaVersion: Int?, val replaceAll: Boolean)
 }
