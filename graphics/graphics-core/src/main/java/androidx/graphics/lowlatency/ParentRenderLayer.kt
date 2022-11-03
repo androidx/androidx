@@ -32,11 +32,29 @@ import androidx.graphics.surface.SurfaceControlCompat
 internal interface ParentRenderLayer<T> {
 
     /**
-     * Obtains a pre-rotation hint to configure buffer content. This is helpful to
-     * avoid unnecessary GPU composition for the purposes of rotating buffer content to
-     * match display orientation
+     * Returns the inverse of the pre-rotation hint to configure buffer content. This is helpful
+     * to avoid unnecessary GPU composition for the purposes of rotating buffer content to
+     * match display orientation. Because this value is already inverted from the buffer transform
+     * hint, consumers can pass the result of this method directly into
+     * SurfaceControl.Transaction#setBufferTransform to handle pre-rotation
      */
-    fun getBufferTransformHint(): Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    fun getInverseBufferTransform(): Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+
+    /**
+     * Return the suggested width used for buffers taking into account pre-rotation transformations
+     */
+    fun getBufferWidth(): Int
+
+    /**
+     * Return the suggested height used for buffers taking into account pre-rotation transformations
+     */
+    fun getBufferHeight(): Int
+
+    /**
+     * Return the 4 x 4 transformation matrix represented as a 1 dimensional
+     * float array of 16 values
+     */
+    fun getTransform(): FloatArray
 
     /**
      * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided

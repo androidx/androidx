@@ -60,7 +60,7 @@ internal class SurfaceViewRenderLayer<T>(
                 width: Int,
                 height: Int
             ) {
-                transformHint = getBufferTransformHint()
+                transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
                 inverse = mBufferTransform.invertBufferTransform(transformHint)
                 mBufferTransform.computeTransform(width, height, inverse)
                 mParentSurfaceControl?.release()
@@ -74,9 +74,13 @@ internal class SurfaceViewRenderLayer<T>(
         })
     }
 
-    override fun getBufferTransformHint(): Int {
-        return mTransformResolver.getBufferTransformHint(surfaceView)
-    }
+    override fun getInverseBufferTransform(): Int = inverse
+
+    override fun getBufferWidth(): Int = mBufferTransform.glWidth
+
+    override fun getBufferHeight(): Int = mBufferTransform.glHeight
+
+    override fun getTransform(): FloatArray = mBufferTransform.transform
 
     override fun buildReparentTransaction(
         child: SurfaceControlCompat,

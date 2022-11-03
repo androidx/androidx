@@ -29,8 +29,6 @@ import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
-import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
-import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -264,11 +262,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mHardwareBufferUsageFlags: Long
 
-    /**
-     * Calculates the corresponding projection based on buffer transform hints
-     */
-    private val mBufferTransform = BufferTransformer()
-
     init {
         mParentRenderLayer.setParentLayerCallbacks(mParentLayerCallback)
         val renderer = if (glRenderer == null) {
@@ -304,18 +297,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
                 .build()
 
-            val transformHint = mParentRenderLayer.getBufferTransformHint()
-            val bufferWidth: Int
-            val bufferHeight: Int
-            if (transformHint == BUFFER_TRANSFORM_ROTATE_90 ||
-                transformHint == BUFFER_TRANSFORM_ROTATE_270
-            ) {
-                bufferWidth = height
-                bufferHeight = width
-            } else {
-                bufferWidth = width
-                bufferHeight = height
-            }
+            val bufferWidth = mParentRenderLayer.getBufferWidth()
+            val bufferHeight = mParentRenderLayer.getBufferHeight()
 
             // Create buffer pool for the multi-buffered layer
             // The flags here are identical to those used for buffers in the front buffered layer
@@ -338,11 +321,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             val frontBufferedLayerRenderer =
                 createFrontBufferedLayerRenderer(
                     frontBufferedSurfaceControl,
-                    width,
-                    height,
                     bufferWidth,
                     bufferHeight,
-                    transformHint,
                     mHardwareBufferUsageFlags
                 )
             mFrontBufferedRenderTarget = mGLRenderer.createRenderTarget(
@@ -506,15 +486,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     private fun createFrontBufferedLayerRenderer(
         frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-        width: Int,
-        height: Int,
         bufferWidth: Int,
         bufferHeight: Int,
-        transformHint: Int,
         usageFlags: Long
     ): FrameBufferRenderer {
-        val inverseTransform = mBufferTransform.invertBufferTransform(transformHint)
-        mBufferTransform.computeTransform(width, height, inverseTransform)
         return FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
                 private fun createFrontBufferLayer(usageFlags: Long): HardwareBuffer {
@@ -547,14 +522,15 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                     mActiveSegment.next { param ->
                         mCallback.onDrawFrontBufferedLayer(
                             eglManager,
-                            mBufferTransform.glWidth,
-                            mBufferTransform.glHeight,
-                            mBufferTransform.transform,
+                            mParentRenderLayer.getBufferWidth(),
+                            mParentRenderLayer.getBufferHeight(),
+                            mParentRenderLayer.getTransform(),
                             param
                         )
                     }
                 }
 
+                @SuppressLint("WrongConstant")
                 @WorkerThread
                 override fun onDrawComplete(
                     frameBuffer: FrameBuffer,
@@ -569,7 +545,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                             syncFenceCompat
                         )
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
-                    if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                    val inverseTransform = mParentRenderLayer.getInverseBufferTransform()
+                    if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                         transaction.setBufferTransform(
                             frontBufferedLayerSurfaceControl,
                             inverseTransform
