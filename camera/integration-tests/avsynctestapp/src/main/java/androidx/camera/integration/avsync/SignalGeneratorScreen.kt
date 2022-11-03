@@ -22,7 +22,6 @@ import androidx.camera.integration.avsync.ui.widget.AdvancedFloatingActionButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -63,10 +62,13 @@ fun SignalGeneratorScreen(
         isSignalActive = viewModel.isActivePeriod,
         isSignalStarted = viewModel.isSignalGenerating,
         isRecording = viewModel.isRecording,
+        isPaused = viewModel.isPaused,
         onSignalStartClick = { viewModel.startSignalGeneration() },
         onSignalStopClick = { viewModel.stopSignalGeneration() },
         onRecordingStartClick = { viewModel.startRecording(context) },
         onRecordingStopClick = { viewModel.stopRecording() },
+        onRecordingPauseClick = { viewModel.pauseRecording() },
+        onRecordingResumeClick = { viewModel.resumeRecording() },
     )
 }
 
@@ -77,10 +79,13 @@ private fun MainContent(
     isSignalActive: Boolean = false,
     isSignalStarted: Boolean = false,
     isRecording: Boolean = false,
+    isPaused: Boolean = false,
     onSignalStartClick: () -> Unit = {},
     onSignalStopClick: () -> Unit = {},
     onRecordingStartClick: () -> Unit = {},
     onRecordingStopClick: () -> Unit = {},
+    onRecordingPauseClick: () -> Unit = {},
+    onRecordingResumeClick: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LightingScreen(isOn = isSignalActive)
@@ -93,8 +98,11 @@ private fun MainContent(
         RecordingControl(
             enabled = isRecorderReady,
             isStarted = isRecording,
+            isPaused = isPaused,
             onStartClick = onRecordingStartClick,
             onStopClick = onRecordingStopClick,
+            onPauseClick = onRecordingPauseClick,
+            onResumeClick = onRecordingResumeClick,
         )
     }
 }
@@ -133,10 +141,14 @@ private fun RecordingControl(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     isStarted: Boolean,
+    isPaused: Boolean = false,
     onStartClick: () -> Unit = {},
     onStopClick: () -> Unit = {},
+    onPauseClick: () -> Unit = {},
+    onResumeClick: () -> Unit = {},
 ) {
-    val icon = painterResource(if (isStarted) R.drawable.ic_stop else R.drawable.ic_record)
+    val startStopIconRes = if (isStarted) R.drawable.ic_stop else R.drawable.ic_record
+    val pauseResumeIconRes = if (isPaused) R.drawable.ic_record else R.drawable.ic_pause
 
     Row(modifier = modifier.fillMaxSize()) {
         Box(
@@ -148,10 +160,31 @@ private fun RecordingControl(
                 onClick = if (isStarted) onStopClick else onStartClick,
                 backgroundColor = Color.Cyan
             ) {
-                Icon(icon, stringResource(R.string.desc_recording_control), modifier.size(16.dp))
+                Icon(
+                    painterResource(startStopIconRes),
+                    stringResource(R.string.desc_recording_control),
+                    modifier.size(16.dp)
+                )
             }
         }
-        Spacer(modifier = modifier.weight(1f).fillMaxHeight())
+        Box(
+            modifier = modifier.weight(1f).fillMaxHeight(),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (enabled && isStarted) {
+                AdvancedFloatingActionButton(
+                    enabled = true,
+                    onClick = if (isPaused) onResumeClick else onPauseClick,
+                    backgroundColor = Color.Cyan
+                ) {
+                    Icon(
+                        painterResource(pauseResumeIconRes),
+                        stringResource(R.string.desc_pause_control),
+                        modifier.size(16.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
