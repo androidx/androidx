@@ -457,28 +457,32 @@ public final class OpenGlRenderer {
             mProgramHandle = -1;
         }
 
-        // Destroy EGLSurfaces
-        for (OutputSurface outputSurface : mOutputSurfaceMap.values()) {
-            EGL14.eglDestroySurface(mEglDisplay, outputSurface.getEglSurface());
-        }
-        mOutputSurfaceMap.clear();
-
-        // Destroy temp surface
-        if (!Objects.equals(mTempSurface, EGL14.EGL_NO_SURFACE)) {
-            EGL14.eglDestroySurface(mEglDisplay, mTempSurface);
-            mTempSurface = EGL14.EGL_NO_SURFACE;
-        }
-
-        // Destroy EGLContext and terminate display
         if (!Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
+            EGL14.eglMakeCurrent(mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
+                    EGL14.EGL_NO_CONTEXT);
+
+            // Destroy EGLSurfaces
+            for (OutputSurface outputSurface : mOutputSurfaceMap.values()) {
+                if (!Objects.equals(outputSurface.getEglSurface(), EGL14.EGL_NO_SURFACE)) {
+                    if (!EGL14.eglDestroySurface(mEglDisplay, outputSurface.getEglSurface())) {
+                        checkEglErrorOrLog("eglDestroySurface");
+                    }
+                }
+            }
+            mOutputSurfaceMap.clear();
+
+            // Destroy temp surface
+            if (!Objects.equals(mTempSurface, EGL14.EGL_NO_SURFACE)) {
+                EGL14.eglDestroySurface(mEglDisplay, mTempSurface);
+                mTempSurface = EGL14.EGL_NO_SURFACE;
+            }
+
+            // Destroy EGLContext and terminate display
             if (!Objects.equals(mEglContext, EGL14.EGL_NO_CONTEXT)) {
-                // Ignore the result of eglMakeCurrent with EGL_NO_SURFACE because it returns false
-                // on some devices.
-                EGL14.eglMakeCurrent(mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
-                        mEglContext);
                 EGL14.eglDestroyContext(mEglDisplay, mEglContext);
                 mEglContext = EGL14.EGL_NO_CONTEXT;
             }
+            EGL14.eglReleaseThread();
             EGL14.eglTerminate(mEglDisplay);
             mEglDisplay = EGL14.EGL_NO_DISPLAY;
         }
@@ -631,6 +635,14 @@ public final class OpenGlRenderer {
         int error = EGL14.eglGetError();
         if (error != EGL14.EGL_SUCCESS) {
             throw new IllegalStateException(op + ": EGL error: 0x" + Integer.toHexString(error));
+        }
+    }
+
+    private static void checkEglErrorOrLog(@NonNull String op) {
+        try {
+            checkEglErrorOrThrow(op);
+        } catch (IllegalStateException e) {
+            Logger.e(TAG, e.getMessage(), e);
         }
     }
 
