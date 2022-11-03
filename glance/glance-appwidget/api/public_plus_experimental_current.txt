@@ -386,7 +386,6 @@ package androidx.glance.appwidget.translators {
 package androidx.glance.appwidget.unit {
 
   public final class ColorProviderKt {
-    method public static androidx.glance.unit.ColorProvider ColorProvider(long day, long night);
   }
 
 }

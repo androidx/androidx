@@ -26,8 +26,8 @@ import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedStateSet
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
-import androidx.glance.appwidget.unit.isNightMode
 import androidx.glance.appwidget.unit.resolveCheckedColor
+import androidx.glance.color.isNightMode
 
 internal val checkableColorProviderFallbackColor = Color.Black
 

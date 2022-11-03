@@ -16,20 +16,32 @@
 
 package androidx.glance.appwidget.demos
 
+import android.content.Context
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.RadioButton
 import androidx.glance.appwidget.Switch
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.padding
+import androidx.glance.material.ColorProviders
+import androidx.glance.material3.ColorProviders
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -38,16 +50,34 @@ import androidx.glance.unit.ColorProvider
  * A demo showing how to construct a widget with [GlanceTheme]. It will use Material 3 colors and
  * when supported, it will use the dynamic color theme.
  */
-class DefaultColorsAppWidget : GlanceAppWidget() {
+class DefaultColorsAppWidget(private val theme: DemoColorScheme.Scheme) : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
-        GlanceTheme {
+        val colors = when (theme) {
+            DemoColorScheme.Scheme.SystemM3 -> GlanceTheme.colors
+            DemoColorScheme.Scheme.CustomM3 -> ColorProviders(
+                light = DemoColorScheme.LightColors,
+                dark = DemoColorScheme.DarkColors
+            )
+
+            DemoColorScheme.Scheme.CustomM2 -> ColorProviders(
+                light = DemoColorScheme.SampleM2ColorsLight,
+                dark = DemoColorScheme.SampleM2ColorsDark
+            )
+        }
+
+        GlanceTheme(colors) {
             Column(
                 GlanceModifier
                     .padding(8.dp)
                     .background(GlanceTheme.colors.background)
             ) {
+                Button(
+                    text = "Theme: $currentScheme",
+                    onClick = actionRunCallback<ChangeThemeCallback>(),
+                    modifier = GlanceModifier.padding(2.dp)
+                )
                 Row(GlanceModifier.padding(top = 8.dp)) {
                     CheckBox(checked = false, onCheckedChange = doNothingAction, text = "Unchecked")
                     CheckBox(checked = true, onCheckedChange = doNothingAction, text = "Checked")
@@ -122,6 +152,183 @@ private fun ColorDebug() {
 
 private val doNothingAction = null
 
+class ChangeThemeCallback : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        colorSchemeIndex = (colorSchemeIndex + 1) % DemoColorScheme.Scheme.values().size
+        DefaultColorsAppWidget(currentScheme).update(context, glanceId)
+    }
+}
+
+private var colorSchemeIndex = 0
+private val currentScheme: DemoColorScheme.Scheme
+    get() = DemoColorScheme.Scheme.values()[colorSchemeIndex]
+
 class DefaultColorsAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget = DefaultColorsAppWidget()
+    override val glanceAppWidget = DefaultColorsAppWidget(currentScheme)
+}
+
+/**
+ * Color scheme generated using https://m3.material.io/theme-builder#/custom
+ */
+object DemoColorScheme {
+    enum class Scheme { SystemM3, CustomM3, CustomM2 }
+
+    val md_theme_light_primary = Color(0xFF026E00)
+    val md_theme_light_onPrimary = Color(0xFFFFFFFF)
+    val md_theme_light_primaryContainer = Color(0xFF77FF61)
+    val md_theme_light_onPrimaryContainer = Color(0xFF002200)
+    val md_theme_light_secondary = Color(0xFFA900A9)
+    val md_theme_light_onSecondary = Color(0xFFFFFFFF)
+    val md_theme_light_secondaryContainer = Color(0xFFFFD7F5)
+    val md_theme_light_onSecondaryContainer = Color(0xFF380038)
+    val md_theme_light_tertiary = Color(0xFF006A6A)
+    val md_theme_light_onTertiary = Color(0xFFFFFFFF)
+    val md_theme_light_tertiaryContainer = Color(0xFF00FBFB)
+    val md_theme_light_onTertiaryContainer = Color(0xFF002020)
+    val md_theme_light_error = Color(0xFFBA1A1A)
+    val md_theme_light_errorContainer = Color(0xFFFFDAD6)
+    val md_theme_light_onError = Color(0xFFFFFFFF)
+    val md_theme_light_onErrorContainer = Color(0xFF410002)
+    val md_theme_light_background = Color(0xFFFFFBFF)
+    val md_theme_light_onBackground = Color(0xFF1E1C00)
+    val md_theme_light_surface = Color(0xFFFFFBFF)
+    val md_theme_light_onSurface = Color(0xFF1E1C00)
+    val md_theme_light_surfaceVariant = Color(0xFFDFE4D7)
+    val md_theme_light_onSurfaceVariant = Color(0xFF43483F)
+    val md_theme_light_outline = Color(0xFF73796E)
+    val md_theme_light_inverseOnSurface = Color(0xFFFFF565)
+    val md_theme_light_inverseSurface = Color(0xFF353200)
+    val md_theme_light_inversePrimary = Color(0xFF02E600)
+    val md_theme_light_shadow = Color(0xFF000000)
+    val md_theme_light_surfaceTint = Color(0xFF026E00)
+
+    val md_theme_dark_primary = Color(0xFF02E600)
+    val md_theme_dark_onPrimary = Color(0xFF013A00)
+    val md_theme_dark_primaryContainer = Color(0xFF015300)
+    val md_theme_dark_onPrimaryContainer = Color(0xFF77FF61)
+    val md_theme_dark_secondary = Color(0xFFFFABF3)
+    val md_theme_dark_onSecondary = Color(0xFF5B005B)
+    val md_theme_dark_secondaryContainer = Color(0xFF810081)
+    val md_theme_dark_onSecondaryContainer = Color(0xFFFFD7F5)
+    val md_theme_dark_tertiary = Color(0xFF00DDDD)
+    val md_theme_dark_onTertiary = Color(0xFF003737)
+    val md_theme_dark_tertiaryContainer = Color(0xFF004F4F)
+    val md_theme_dark_onTertiaryContainer = Color(0xFF00FBFB)
+    val md_theme_dark_error = Color(0xFFFFB4AB)
+    val md_theme_dark_errorContainer = Color(0xFF93000A)
+    val md_theme_dark_onError = Color(0xFF690005)
+    val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
+    val md_theme_dark_background = Color(0xFF1E1C00)
+    val md_theme_dark_onBackground = Color(0xFFF2E720)
+    val md_theme_dark_surface = Color(0xFF1E1C00)
+    val md_theme_dark_onSurface = Color(0xFFF2E720)
+    val md_theme_dark_surfaceVariant = Color(0xFF43483F)
+    val md_theme_dark_onSurfaceVariant = Color(0xFFC3C8BC)
+    val md_theme_dark_outline = Color(0xFF8D9387)
+    val md_theme_dark_inverseOnSurface = Color(0xFF1E1C00)
+    val md_theme_dark_inverseSurface = Color(0xFFF2E720)
+    val md_theme_dark_inversePrimary = Color(0xFF026E00)
+    val md_theme_dark_shadow = Color(0xFF000000)
+    val md_theme_dark_surfaceTint = Color(0xFF02E600)
+
+    val seed = Color(0xFF00FF00)
+
+    val LightColors = lightColorScheme(
+        primary = md_theme_light_primary,
+        onPrimary = md_theme_light_onPrimary,
+        primaryContainer = md_theme_light_primaryContainer,
+        onPrimaryContainer = md_theme_light_onPrimaryContainer,
+        secondary = md_theme_light_secondary,
+        onSecondary = md_theme_light_onSecondary,
+        secondaryContainer = md_theme_light_secondaryContainer,
+        onSecondaryContainer = md_theme_light_onSecondaryContainer,
+        tertiary = md_theme_light_tertiary,
+        onTertiary = md_theme_light_onTertiary,
+        tertiaryContainer = md_theme_light_tertiaryContainer,
+        onTertiaryContainer = md_theme_light_onTertiaryContainer,
+        error = md_theme_light_error,
+        onError = md_theme_light_onError,
+        errorContainer = md_theme_light_errorContainer,
+        onErrorContainer = md_theme_light_onErrorContainer,
+        background = md_theme_light_background,
+        onBackground = md_theme_light_onBackground,
+        surface = md_theme_light_surface,
+        onSurface = md_theme_light_onSurface,
+        surfaceVariant = md_theme_light_surfaceVariant,
+        onSurfaceVariant = md_theme_light_onSurfaceVariant,
+        outline = md_theme_light_outline,
+        inverseSurface = md_theme_light_inverseSurface,
+        inverseOnSurface = md_theme_light_inverseOnSurface,
+        inversePrimary = md_theme_light_inversePrimary,
+        surfaceTint = md_theme_light_surfaceTint,
+    )
+
+    val DarkColors = darkColorScheme(
+        primary = md_theme_dark_primary,
+        onPrimary = md_theme_dark_onPrimary,
+        primaryContainer = md_theme_dark_primaryContainer,
+        onPrimaryContainer = md_theme_dark_onPrimaryContainer,
+        secondary = md_theme_dark_secondary,
+        onSecondary = md_theme_dark_onSecondary,
+        secondaryContainer = md_theme_dark_secondaryContainer,
+        onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+        tertiary = md_theme_dark_tertiary,
+        onTertiary = md_theme_dark_onTertiary,
+        tertiaryContainer = md_theme_dark_tertiaryContainer,
+        onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+        error = md_theme_dark_error,
+        onError = md_theme_dark_onError,
+        errorContainer = md_theme_dark_errorContainer,
+        onErrorContainer = md_theme_dark_onErrorContainer,
+        background = md_theme_dark_background,
+        onBackground = md_theme_dark_onBackground,
+        surface = md_theme_dark_surface,
+        onSurface = md_theme_dark_onSurface,
+        surfaceVariant = md_theme_dark_surfaceVariant,
+        onSurfaceVariant = md_theme_dark_onSurfaceVariant,
+        outline = md_theme_dark_outline,
+        inverseSurface = md_theme_dark_inverseSurface,
+        inverseOnSurface = md_theme_dark_inverseOnSurface,
+        inversePrimary = md_theme_dark_inversePrimary,
+        surfaceTint = md_theme_dark_surfaceTint,
+    )
+
+    // Palette based on Jetchat
+    private val Yellow400 = Color(0xFFF6E547)
+    private val Yellow700 = Color(0xFFF3B711)
+    private val Yellow800 = Color(0xFFF29F05)
+    private val Blue200 = Color(0xFF9DA3FA)
+    private val Blue400 = Color(0xFF4860F7)
+    private val Blue500 = Color(0xFF0540F2)
+    private val Blue800 = Color(0xFF001CCF)
+    private val Red300 = Color(0xFFEA6D7E)
+    private val Red800 = Color(0xFFD00036)
+
+    val SampleM2ColorsDark = darkColors(
+        primary = Blue200,
+        primaryVariant = Blue400,
+        onPrimary = Color.Black,
+        secondary = Yellow400,
+        onSecondary = Color.Black,
+        onSurface = Color.White,
+        onBackground = Color.White,
+        error = Red300,
+        onError = Color.Black
+    )
+    val SampleM2ColorsLight = lightColors(
+        primary = Blue500,
+        primaryVariant = Blue800,
+        onPrimary = Color.White,
+        secondary = Yellow700,
+        secondaryVariant = Yellow800,
+        onSecondary = Color.Black,
+        onSurface = Color.Black,
+        onBackground = Color.Black,
+        error = Red800,
+        onError = Color.White
+    )
 }
