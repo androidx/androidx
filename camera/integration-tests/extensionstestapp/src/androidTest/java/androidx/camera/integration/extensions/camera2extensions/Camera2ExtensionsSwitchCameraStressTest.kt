@@ -22,6 +22,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.findNextSupportedCameraId
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
@@ -39,10 +40,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 31)
-class Camera2ExtensionsSwitchCameraStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class Camera2ExtensionsSwitchCameraStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -52,7 +50,7 @@ class Camera2ExtensionsSwitchCameraStressTest(
         @ClassRule
         @JvmField val stressTest = StressTestRule()
 
-        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = Camera2ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -67,6 +65,7 @@ class Camera2ExtensionsSwitchCameraStressTest(
 
     @Test
     fun switchCameras(): Unit = runBlocking {
+        val (cameraId, extensionMode) = config
         val nextCameraId = findNextSupportedCameraId(context, cameraId, extensionMode)
         assumeTrue(nextCameraId != null)
         repeat(Camera2ExtensionsTestUtil.getStressTestRepeatingCount()) {

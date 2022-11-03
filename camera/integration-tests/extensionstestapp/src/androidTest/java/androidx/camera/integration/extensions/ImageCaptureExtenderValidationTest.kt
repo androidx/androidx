@@ -31,6 +31,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -60,10 +61,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ImageCaptureExtenderValidationTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class ImageCaptureExtenderValidationTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -86,6 +84,7 @@ class ImageCaptureExtenderValidationTest(
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
 
+        val (cameraId, extensionMode) = config
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
@@ -119,8 +118,8 @@ class ImageCaptureExtenderValidationTest(
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
@@ -133,8 +132,8 @@ class ImageCaptureExtenderValidationTest(
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
         val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
-            extensionMode,
-            cameraId,
+            config.extensionMode,
+            config.cameraId,
             cameraCharacteristics
         )
 
@@ -149,8 +148,8 @@ class ImageCaptureExtenderValidationTest(
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
         val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
-            extensionMode,
-            cameraId,
+            config.extensionMode,
+            config.cameraId,
             cameraCharacteristics
         )
         assertThat(impl.onPresetSession()).isNull()
@@ -166,7 +165,7 @@ class ImageCaptureExtenderValidationTest(
         // the getEstimatedCaptureLatencyRange function.
         val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
             baseCameraSelector,
-            extensionMode
+            config.extensionMode
         )
 
         // Calls bind to lifecycle to get the selected camera
@@ -179,7 +178,7 @@ class ImageCaptureExtenderValidationTest(
 
         // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
         val impl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
-            extensionMode,
+            config.extensionMode,
             cameraId,
             characteristics
         )
@@ -201,7 +200,10 @@ class ImageCaptureExtenderValidationTest(
             setOrientationNatural()
         }
 
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(
+            config.cameraId,
+            config.extensionMode
+        )
 
         with(activityScenario) {
             use {
