@@ -46,7 +46,4 @@ androidx {
 
 android {
     namespace "androidx.sqlite.db.framework"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
