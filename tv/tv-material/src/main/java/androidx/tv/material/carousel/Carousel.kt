@@ -345,11 +345,11 @@ object CarouselDefaults {
         if (slideCount <= 0) {
             Box(modifier = modifier)
         } else {
-            val defaultSize = 8.dp
-            val inactiveColor = Color.LightGray
-            val activeColor = Color.White
-            val shape = CircleShape
-            val indicatorModifier = Modifier.size(defaultSize)
+            val defaultSize = remember { 8.dp }
+            val inactiveColor = remember { Color.LightGray }
+            val activeColor = remember { Color.White }
+            val shape = remember { CircleShape }
+            val indicatorModifier = remember { Modifier.size(defaultSize) }
 
             Box(modifier = modifier) {
                 Row(

@@ -26,11 +26,10 @@ plugins {
 dependencies {
     implementation(project(":tv:tv-material"))
     implementation(libs.kotlinStdlib)
-    implementation("androidx.leanback:leanback:1.0.0")
     implementation(project(":activity:activity"))
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-runtime"))
-    implementation("androidx.activity:activity-compose:1.5.1")
+    implementation("androidx.activity:activity-compose:1.6.1")
     implementation(project(":tv:tv-foundation"))
     implementation("androidx.appcompat:appcompat:1.6.0-alpha05")
 }

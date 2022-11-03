@@ -22,6 +22,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,16 +60,19 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tv.material.ExperimentalTvMaterialApi
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
@@ -410,6 +415,102 @@ class CarouselTest {
         rule.onNodeWithText("Button 1").assertIsDisplayed()
     }
 
+    @Test
+    fun carousel_scrollToRegainFocus_checkBringIntoView() {
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            LazyColumn {
+                items(3) {
+                    val modifier =
+                        if (it == 0) Modifier.focusRequester(focusRequester)
+                        else Modifier
+                    var isFocused by remember {
+                        mutableStateOf(false)
+                    }
+                    BasicText(
+                        text = "test-card-$it",
+                        modifier = modifier
+                            .testTag("test-card-$it")
+                            .size(200.dp)
+                            .border(2.dp, if (isFocused) Color.Red else Color.Black)
+                            .onFocusChanged { fs ->
+                                isFocused = fs.isFocused
+                            }
+                            .focusable()
+                    )
+                }
+                item {
+                    val carouselState = remember { CarouselState() }
+                    val slideCount = remember { 3 }
+                    Carousel(
+                        modifier = Modifier
+                            .height(400.dp)
+                            .fillMaxWidth()
+                            .testTag("featured-carousel")
+                            .border(2.dp, Color.Black),
+                        carouselState = carouselState,
+                        slideCount = slideCount,
+                        timeToDisplaySlideMillis = delayBetweenSlides
+                    ) {
+                        Frame(text = "carousel-frame")
+                    }
+                }
+                items(2) {
+                    var isFocused by remember { mutableStateOf(false) }
+                    BasicText(
+                        text = "test-card-${it + 3}",
+                        modifier = Modifier
+                            .testTag("test-card-${it + 3}")
+                            .size(250.dp)
+                            .border(
+                                2.dp,
+                                if (isFocused) Color.Red else Color.Black
+                            )
+                            .onFocusChanged { fs ->
+                                isFocused = fs.isFocused
+                            }
+                            .focusable()
+                    )
+                }
+            }
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Initially first focusable element would be focused
+        rule.waitForIdle()
+        rule.onNodeWithTag("test-card-0").assertIsFocused()
+
+        // Scroll down to the Carousel and check if it's brought into view on gaining focus
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 3)
+        rule.waitForIdle()
+        rule.onNodeWithTag("featured-carousel").assertIsDisplayed()
+        assertThat(checkNodeCompletelyVisible("featured-carousel")).isTrue()
+
+        // Scroll down to last element, making sure the carousel is partially visible
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
+        rule.waitForIdle()
+        rule.onNodeWithTag("test-card-4").assertIsFocused()
+        rule.onNodeWithTag("featured-carousel").assertIsDisplayed()
+
+        // Scroll back to the carousel to check if it's brought into view on regaining focus
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 2)
+        rule.waitForIdle()
+        rule.onNodeWithTag("featured-carousel").assertIsDisplayed()
+        assertThat(checkNodeCompletelyVisible("featured-carousel")).isTrue()
+    }
+
+    private fun checkNodeCompletelyVisible(tag: String): Boolean {
+        rule.waitForIdle()
+
+        val rootRect = rule.onRoot().getUnclippedBoundsInRoot()
+        val itemRect = rule.onNodeWithTag(tag).getUnclippedBoundsInRoot()
+
+        return itemRect.left >= rootRect.left &&
+            itemRect.right <= rootRect.right &&
+            itemRect.top >= rootRect.top &&
+            itemRect.bottom <= rootRect.bottom
+    }
+
     private fun performKeyPress(keyCode: Int, count: Int = 1) {
         for (i in 1..count) {
             InstrumentationRegistry
@@ -489,27 +590,23 @@ class CarouselTest {
 
     @Composable
     fun Frame(text: String) {
-        val focusRequester = FocusRequester()
         CarouselItem(
             overlayEnterTransitionStartDelayMillis = overlayRenderWaitTime,
-            background = {}) {
-            Column(modifier = Modifier
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        focusRequester.requestFocus()
+            background = {
+                Box(
+                    Modifier
+                        .background(Color.Yellow)
+                        .fillMaxSize()
+                )
+            }) {
+            Box {
+                Column(modifier = Modifier
+                    .align(Alignment.BottomStart)) {
+                    BasicText(text = text)
+                    Row(modifier = Modifier
+                        .horizontalScroll(rememberScrollState())) {
+                        TestButton(text = "PLAY")
                     }
-                }
-                .focusable()) {
-                BasicText(text = text)
-                Row(modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            focusRequester.requestFocus()
-                        }
-                    }
-                    .focusable()) {
-                    TestButton(text = "PLAY", focusRequester)
                 }
             }
         }
