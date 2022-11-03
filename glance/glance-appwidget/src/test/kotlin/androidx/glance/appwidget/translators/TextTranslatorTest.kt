@@ -42,7 +42,7 @@ import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.runAndTranslateInRtl
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.toPixels
-import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.text.FontStyle

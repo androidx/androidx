@@ -18,8 +18,8 @@ package androidx.glance.appwidget
 
 import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceModifier
-import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 
 /**
  * Apply a background color to the element this modifier is attached to. This will cause the
