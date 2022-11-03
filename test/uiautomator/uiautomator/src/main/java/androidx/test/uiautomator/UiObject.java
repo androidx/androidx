@@ -1121,6 +1121,24 @@ public class UiObject {
      *         <code>false</code> otherwise
      */
     public boolean performMultiPointerGesture(@NonNull PointerCoords[]... touches) {
+        Log.d(TAG, String.format("Performing multi-point gesture %s", touchesToString(touches)));
         return getInteractionController().performMultiPointerGesture(touches);
+    }
+
+    private static String touchesToString(@NonNull PointerCoords[]... touches) {
+        StringBuilder result = new StringBuilder();
+        result.append("[");
+        for (int i = 0; i < touches.length; i++) {
+            result.append("[");
+            for (int j = 0; j < touches[i].length; j++) {
+                PointerCoords point = touches[i][j];
+                result.append(String.format("(%f, %f)", point.x, point.y));
+                if (j + 1 < touches[i].length) result.append(", ");
+            }
+            result.append("]");
+            if (i + 1 < touches.length) result.append(", ");
+        }
+        result.append("]");
+        return result.toString();
     }
 }
