@@ -21,12 +21,12 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -39,14 +39,12 @@ import java.util.Objects;
  */
 @RequiresCarApi(5)
 @CarProtocol
+@KeepFields
 public final class Header {
-    @Keep
     @NonNull
     private final List<Action> mEndHeaderActions;
-    @Keep
     @Nullable
     private final Action mStartHeaderAction;
-    @Keep
     @Nullable
     private final CarText mTitle;
 

@@ -23,28 +23,23 @@ import android.view.Surface;
 import android.view.SurfaceView;
 
 import androidx.annotation.Dimension;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.KeepFields;
 
 /**
  * A class holding the information needed to render the content on a surface.
  */
+@KeepFields
 public final class SurfaceWrapper {
-    @Keep
     @Nullable
     private IBinder mHostToken;
-    @Keep
     @Dimension
     private int mWidth;
-    @Keep
     @Dimension
     private int mHeight;
-    @Keep
     private int mDisplayId;
-    @Keep
     private int mDensityDpi;
-    @Keep
     @Nullable
     private Surface mSurface;
 

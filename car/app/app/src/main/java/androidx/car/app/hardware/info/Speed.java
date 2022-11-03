@@ -19,13 +19,13 @@ import static androidx.car.app.hardware.common.CarUnit.CarSpeedUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -34,16 +34,14 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class Speed {
-    @Keep
     @Nullable
     private final CarValue<Float> mRawSpeedMetersPerSecond;
 
-    @Keep
     @Nullable
     private final CarValue<Float> mDisplaySpeedMetersPerSecond;
 
-    @Keep
     @NonNull
     private final CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit;
 
