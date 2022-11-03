@@ -602,7 +602,7 @@ public class UiObject {
         if (node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
-        Log.d(TAG, String.format("Setting text to '%s'", text));
+        Log.d(TAG, String.format("Setting text to '%s'.", text));
         Rect rect = getVisibleBounds(node);
         getInteractionController().longTapNoSync(rect.left + 20, rect.centerY());
         // check if the edit menu is open
@@ -653,13 +653,13 @@ public class UiObject {
             if (node == null) {
                 throw new UiObjectNotFoundException(getSelector().toString());
             }
-            Log.d(TAG, String.format("Setting text to '%s'", text));
+            Log.d(TAG, String.format("Setting text to '%s'.", text));
             Bundle args = new Bundle();
             args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
             return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
         } else {
             clearTextField();
-            Log.d(TAG, String.format("Setting text to '%s'", text));
+            Log.d(TAG, String.format("Setting text to '%s'.", text));
             return getInteractionController().sendText(text);
         }
     }
@@ -686,7 +686,7 @@ public class UiObject {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 setText("");
             } else {
-                Log.d(TAG, "Setting text to ''");
+                Log.d(TAG, "Setting text to ''.");
                 Bundle selectionArgs = new Bundle();
                 // select all of the existing text
                 selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
@@ -894,6 +894,7 @@ public class UiObject {
      * @return true if the view is displayed, else false if timeout elapsed while waiting
      */
     public boolean waitForExists(long timeout) {
+        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, mUiSelector));
         if(findAccessibilityNodeInfo(timeout) != null) {
             return true;
         }
@@ -918,6 +919,7 @@ public class UiObject {
      * but a matching element is still found.
      */
     public boolean waitUntilGone(long timeout) {
+        Log.d(TAG, String.format("Waiting %dms for %s to be gone.", timeout, mUiSelector));
         long startMills = SystemClock.uptimeMillis();
         long currentMills = 0;
         while (currentMills <= timeout) {
