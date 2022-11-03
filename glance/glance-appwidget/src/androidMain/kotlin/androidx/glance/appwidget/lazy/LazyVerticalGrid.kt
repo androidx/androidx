@@ -116,6 +116,7 @@ private fun LazyVerticalGridItem(
     )
 }
 
+@JvmDefaultWithCompatibility
 /**
  * Receiver scope which is used by [LazyColumn].
  */

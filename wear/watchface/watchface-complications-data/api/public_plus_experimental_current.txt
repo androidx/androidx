@@ -44,7 +44,7 @@ package androidx.wear.watchface.complications.data {
     field public static final androidx.wear.watchface.complications.data.ComplicationPersistencePolicies INSTANCE;
   }
 
-  public interface ComplicationText {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface ComplicationText {
     method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
     method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     method public boolean isAlwaysEmpty();

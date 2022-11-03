@@ -43,7 +43,7 @@ package androidx.graphics.lowlatency {
     field public static final androidx.graphics.lowlatency.GLFrontBufferedRenderer.Companion Companion;
   }
 
-  public static interface GLFrontBufferedRenderer.Callback<T> {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
     method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, java.util.Collection<? extends T> params);
     method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int bufferWidth, int bufferHeight, float[] transform, T? param);
@@ -116,7 +116,7 @@ package androidx.graphics.opengl {
     method @WorkerThread public void onEGLContextDestroyed(androidx.graphics.opengl.egl.EGLManager eglManager);
   }
 
-  public static interface GLRenderer.RenderCallback {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLRenderer.RenderCallback {
     method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager);
     method @WorkerThread public default android.opengl.EGLSurface? onSurfaceCreated(androidx.graphics.opengl.egl.EGLSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
   }
@@ -200,7 +200,7 @@ package androidx.graphics.opengl.egl {
   public static final class EGLManager.Companion {
   }
 
-  public interface EGLSpec {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface EGLSpec {
     method public int eglClientWaitSyncKHR(androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer);

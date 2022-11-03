@@ -19,6 +19,7 @@ package androidx.graphics.lowlatency
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 
+@JvmDefaultWithCompatibility
 /**
  * Interface used to define a parent for rendering front and double buffered layers.
  * This provides the following facilities:

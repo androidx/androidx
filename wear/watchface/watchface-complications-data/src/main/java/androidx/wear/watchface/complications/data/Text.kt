@@ -43,6 +43,7 @@ private typealias WireComplicationTextTimeFormatBuilder =
 
 private typealias WireTimeDependentText = android.support.wearable.complications.TimeDependentText
 
+@JvmDefaultWithCompatibility
 /**
  * The text within a complication.
  *

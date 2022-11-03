@@ -19,6 +19,7 @@ package androidx.core.performance
 import android.content.Context
 import android.os.Build
 
+@JvmDefaultWithCompatibility
 /**
  * Reports the media performance class of the device.
  *

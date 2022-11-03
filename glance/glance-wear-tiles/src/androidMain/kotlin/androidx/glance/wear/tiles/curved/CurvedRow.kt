@@ -244,6 +244,7 @@ annotation class CurvedScopeMarker
 @CurvedScopeMarker
 interface CurvedChildScope
 
+@JvmDefaultWithCompatibility
 /** A scope for elements which can only be contained within a [CurvedRow]. */
 @CurvedScopeMarker
 interface CurvedScope {

@@ -124,6 +124,7 @@ annotation class LazyScopeMarker
 @LazyScopeMarker
 interface LazyItemScope
 
+@JvmDefaultWithCompatibility
 /**
  * Receiver scope which is used by [LazyColumn].
  */

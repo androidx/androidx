@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.health.connect.client {
 
-  public interface HealthConnectClient {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface HealthConnectClient {
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
     method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
     method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
@@ -31,7 +31,7 @@ package androidx.health.connect.client {
     method public boolean isProviderAvailable(android.content.Context context);
   }
 
-  public interface PermissionController {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
     method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract(optional String providerPackageName);
     method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<androidx.health.connect.client.permission.HealthPermission>,java.util.Set<androidx.health.connect.client.permission.HealthPermission>> createRequestPermissionResultContract();
     method public suspend Object? getGrantedPermissions(java.util.Set<androidx.health.connect.client.permission.HealthPermission> permissions, kotlin.coroutines.Continuation<? super java.util.Set<? extends androidx.health.connect.client.permission.HealthPermission>>);

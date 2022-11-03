@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 
+@JvmDefaultWithCompatibility
 /**
  * An ordered, immutable, collection of modifier elements that work with curved components, in a
  * polar coordinate space.

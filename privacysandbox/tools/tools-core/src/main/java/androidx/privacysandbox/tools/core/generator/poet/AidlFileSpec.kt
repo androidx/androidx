@@ -18,6 +18,7 @@ package androidx.privacysandbox.tools.core.generator.poet
 
 import androidx.privacysandbox.tools.core.model.Type
 
+@JvmDefaultWithCompatibility
 /** Describes the contents of an AIDL file. */
 internal interface AidlFileSpec {
     val type: Type

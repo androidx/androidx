@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.AnchorFunctions.verticalAnchorFunctions
 import androidx.constraintlayout.core.state.ConstraintReference
 
+@JvmDefaultWithCompatibility
 /**
  * Represents a vertical side of a layout (i.e start and end) that can be anchored using
  * [linkTo] in their `Modifier.constrainAs` blocks.
@@ -38,6 +39,7 @@ interface VerticalAnchorable {
     )
 }
 
+@JvmDefaultWithCompatibility
 /**
  * Represents a horizontal side of a layout (i.e top and bottom) that can be anchored using
  * [linkTo] in their `Modifier.constrainAs` blocks.
@@ -53,6 +55,7 @@ interface HorizontalAnchorable {
     )
 }
 
+@JvmDefaultWithCompatibility
 /**
  * Represents the [FirstBaseline] of a layout that can be anchored
  * using [linkTo] in their `Modifier.constrainAs` blocks.

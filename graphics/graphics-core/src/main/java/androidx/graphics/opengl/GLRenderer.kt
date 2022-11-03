@@ -299,6 +299,7 @@ class GLRenderer(
         fun onEGLContextDestroyed(eglManager: EGLManager)
     }
 
+    @JvmDefaultWithCompatibility
     /**
      * Interface used for creating an [EGLSurface] with a user defined configuration
      * from the provided surface as well as a callback used to render content into the surface
