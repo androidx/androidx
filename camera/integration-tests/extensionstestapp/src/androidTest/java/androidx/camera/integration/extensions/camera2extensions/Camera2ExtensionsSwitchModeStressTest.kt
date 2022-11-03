@@ -22,6 +22,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.EXTENSION_NOT_FOUND
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.findNextEffectMode
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.StressTestRule
 import androidx.test.core.app.ApplicationProvider
@@ -39,10 +40,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 31)
-class Camera2ExtensionsSwitchModeStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class Camera2ExtensionsSwitchModeStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -68,6 +66,7 @@ class Camera2ExtensionsSwitchModeStressTest(
 
     @Test
     fun switchModes(): Unit = runBlocking {
+        val (cameraId, extensionMode) = config
         val nextMode = findNextEffectMode(context, cameraId, extensionMode)
         assumeTrue(nextMode != EXTENSION_NOT_FOUND)
         repeat(Camera2ExtensionsTestUtil.getStressTestRepeatingCount()) {

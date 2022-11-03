@@ -56,10 +56,8 @@ public class AdvancedVendorExtender implements VendorExtender {
             new ExtensionDisabledValidator();
     private final AdvancedExtenderImpl mAdvancedExtenderImpl;
     private String mCameraId;
-    private final @ExtensionMode.Mode int mMode;
 
     public AdvancedVendorExtender(@ExtensionMode.Mode int mode) {
-        mMode = mode;
         try {
             switch (mode) {
                 case ExtensionMode.BOKEH:
@@ -101,7 +99,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
 
-        if (mExtensionDisabledValidator.shouldDisableExtension(cameraId, mMode)) {
+        if (mExtensionDisabledValidator.shouldDisableExtension()) {
             return false;
         }
 

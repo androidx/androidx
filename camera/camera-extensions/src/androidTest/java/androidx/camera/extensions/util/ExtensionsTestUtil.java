@@ -207,10 +207,7 @@ public class ExtensionsTestUtil {
     /**
      * Returns whether extensions is disabled by quirk.
      */
-    public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
-            @ExtensionMode.Mode int extensionMode) {
-
-        return new ExtensionDisabledValidator().shouldDisableExtension(
-                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode);
+    public static boolean extensionsDisabledByQuirk() {
+        return new ExtensionDisabledValidator().shouldDisableExtension();
     }
 }

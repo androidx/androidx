@@ -37,6 +37,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
@@ -73,12 +74,10 @@ object Camera2ExtensionsTestUtil {
      * Gets a list of all camera id and extension mode combinations.
      */
     @JvmStatic
-    fun getAllCameraIdExtensionModeCombinations(): List<Array<Any>> =
-        arrayListOf<Array<Any>>().apply {
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                AVAILABLE_CAMERA2_EXTENSION_MODES.forEach { mode ->
-                    add(arrayOf(cameraId, mode))
-                }
+    fun getAllCameraIdExtensionModeCombinations(): List<CameraIdExtensionModePair> =
+        CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
+            AVAILABLE_CAMERA2_EXTENSION_MODES.map { extensionMode ->
+                CameraIdExtensionModePair(cameraId, extensionMode)
             }
         }
 

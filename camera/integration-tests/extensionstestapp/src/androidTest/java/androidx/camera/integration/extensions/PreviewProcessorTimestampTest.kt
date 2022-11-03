@@ -40,6 +40,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -73,10 +74,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewProcessorTimestampTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class PreviewProcessorTimestampTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -155,6 +153,7 @@ class PreviewProcessorTimestampTest(
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
 
+        val (cameraId, extensionMode) = config
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
@@ -191,7 +190,7 @@ class PreviewProcessorTimestampTest(
             val timestampExtensionEnabledCameraSelector =
                 getTimestampExtensionEnabledCameraSelector(
                     extensionsManager,
-                    extensionMode,
+                    config.extensionMode,
                     baseCameraSelector
                 )
 
@@ -236,8 +235,8 @@ class PreviewProcessorTimestampTest(
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
 
         /**

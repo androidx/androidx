@@ -182,7 +182,7 @@ class ExtensionsManagerTest(
     @Test
     fun correctAvailability_whenExtensionIsNotAvailable() {
         // Skips the test if extensions availability is disabled by quirk.
-        assumeFalse(ExtensionsTestUtil.extensionsDisabledByQuirk(lensFacing, extensionMode))
+        assumeFalse(ExtensionsTestUtil.extensionsDisabledByQuirk())
 
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
