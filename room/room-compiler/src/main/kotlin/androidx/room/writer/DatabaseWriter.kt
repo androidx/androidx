@@ -91,7 +91,7 @@ class DatabaseWriter(
             addModifiers(PROTECTED)
             returns(
                 ParameterizedTypeName.get(
-                    CommonTypeNames.MAP,
+                    CommonTypeNames.MAP.toJavaPoet(),
                     ParameterizedTypeName.get(
                         ClassName.get(Class::class.java),
                         WildcardTypeName.subtypeOf(Object::class.java)
@@ -146,7 +146,7 @@ class DatabaseWriter(
             addModifiers(PUBLIC)
             returns(
                 ParameterizedTypeName.get(
-                    CommonTypeNames.SET,
+                    CommonTypeNames.SET.toJavaPoet(),
                     ParameterizedTypeName.get(
                         ClassName.get(Class::class.java),
                         WildcardTypeName.subtypeOf(RoomTypeNames.AUTO_MIGRATION_SPEC)
@@ -271,7 +271,7 @@ class DatabaseWriter(
                 HashMap::class.typeName,
                 CommonTypeNames.STRING,
                 ParameterizedTypeName.get(
-                    CommonTypeNames.SET,
+                    CommonTypeNames.SET.toJavaPoet(),
                     CommonTypeNames.STRING
                 )
             )
@@ -373,7 +373,7 @@ class DatabaseWriter(
             addParameter(
                 ParameterSpec.builder(
                     ParameterizedTypeName.get(
-                        CommonTypeNames.MAP,
+                        CommonTypeNames.MAP.toJavaPoet(),
                         ParameterizedTypeName.get(
                             ClassName.get(Class::class.java),
                             WildcardTypeName.subtypeOf(RoomTypeNames.AUTO_MIGRATION_SPEC)

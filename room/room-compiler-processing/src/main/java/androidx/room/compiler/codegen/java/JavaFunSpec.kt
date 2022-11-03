@@ -22,7 +22,6 @@ import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.processing.KnownTypeNames.KOTLIN_UNIT
 import androidx.room.compiler.processing.XNullability
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -82,7 +81,7 @@ internal class JavaFunSpec(
         }
 
         override fun returns(typeName: XTypeName) = apply {
-            if (typeName.java == JTypeName.VOID || typeName.java == KOTLIN_UNIT) {
+            if (typeName.java == JTypeName.VOID) {
                 return@apply
             }
             // TODO(b/247242374) Add nullability annotations for non-private methods

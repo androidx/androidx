@@ -40,6 +40,7 @@ import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import kotlin.reflect.KClass
@@ -56,10 +57,26 @@ import kotlin.reflect.KClass
 open class XTypeName protected constructor(
     internal open val java: JTypeName,
     internal open val kotlin: KTypeName,
-    internal val nullability: XNullability
+    val nullability: XNullability
 ) {
     val isPrimitive: Boolean
         get() = java.isPrimitive
+
+    /**
+     * Returns the raw [XTypeName] if this is a parametrized type name, or itself if not.
+     *
+     * @see [XClassName.parametrizedBy]
+     */
+    val rawTypeName: XTypeName
+        get() {
+            val javaRawType = java.let {
+                if (it is JParameterizedTypeName) it.rawType else it
+            }
+            val kotlinRawType = kotlin.let {
+                if (it is KParameterizedTypeName) it.rawType else it
+            }
+            return XTypeName(javaRawType, kotlinRawType, nullability)
+        }
 
     open fun copy(nullable: Boolean): XTypeName {
         // TODO(b/248633751): Handle primitive to boxed when becoming nullable?
@@ -214,6 +231,11 @@ class XClassName internal constructor(
     val simpleNames: List<String> = java.simpleNames()
     val canonicalName: String = java.canonicalName()
 
+    /**
+     * Returns a parameterized type, applying the `typeArguments` to `this`.
+     *
+     * @see [XTypeName.rawTypeName]
+     */
     fun parametrizedBy(
         vararg typeArguments: XTypeName,
     ): XTypeName {

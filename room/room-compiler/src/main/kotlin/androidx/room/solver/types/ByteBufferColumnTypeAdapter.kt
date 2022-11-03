@@ -17,12 +17,11 @@
 package androidx.room.solver.types
 
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
-import java.nio.ByteBuffer
 
 class ByteBufferColumnTypeAdapter constructor(out: XType) : ColumnTypeAdapter(
     out = out,
@@ -39,7 +38,7 @@ class ByteBufferColumnTypeAdapter constructor(out: XType) : ColumnTypeAdapter(
                 addStatement(
                     "%L = %T.wrap(%L.getBlob(%L))",
                     outVarName,
-                    ByteBuffer::class.asClassName(),
+                    CommonTypeNames.BYTE_BUFFER,
                     cursorVarName,
                     indexVarName
                 )

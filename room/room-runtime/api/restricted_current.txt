@@ -341,6 +341,12 @@ package androidx.room.util {
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
   }
 
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class RelationUtil {
+    method public static <K, V> void recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.ArrayMap<K,V>,kotlin.Unit> fetchBlock);
+    method public static <K, V> void recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.HashMap<K,V>,kotlin.Unit> fetchBlock);
+    method public static <V> void recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.LongSparseArray<V>,kotlin.Unit> fetchBlock);
+  }
+
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
     method public static void appendPlaceholders(StringBuilder builder, int count);
     method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);

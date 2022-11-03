@@ -94,6 +94,14 @@ internal class KotlinCodeBlock(
             actual.endControlFlow()
         }
 
+        override fun indent() = apply {
+            actual.indent()
+        }
+
+        override fun unindent() = apply {
+            actual.unindent()
+        }
+
         override fun build(): XCodeBlock {
             return KotlinCodeBlock(actual.build())
         }
