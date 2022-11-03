@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
+import com.android.tools.lint.model.LintModelMavenName
 import com.intellij.psi.PsiJvmModifiersOwner
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UMethod
@@ -48,8 +49,16 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
         return InterfaceChecker(context)
     }
 
+    fun LintModelMavenName.asProjectString() = "$groupId.$artifactId"
+
     private inner class InterfaceChecker(val context: JavaContext) : UElementHandler() {
         override fun visitClass(node: UClass) {
+            // Don't run lint on the set of projects that already used `-Xjvm-default=all` before
+            // all projects were switched over.
+            if (alreadyDefaultAll.contains(context.project.mavenCoordinate?.asProjectString())) {
+                return
+            }
+
             if (!isKotlin(node)) return
             if (!node.isInterface) return
             if (node.annotatedWithAnyOf(
@@ -148,5 +157,76 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
         )
 
         const val JVM_DEFAULT_WITH_COMPATIBILITY = "kotlin.jvm.JvmDefaultWithCompatibility"
+
+        // This set of projects was created by running `grep "Xjvm-default=all" . -r` in the
+        // `frameworks/support` directory and converting the `build.gradle` files in that list to
+        // this format.
+        private val alreadyDefaultAll = setOf(
+            "androidx.room.room-compiler-processing",
+            "androidx.room.room-migration",
+            "androidx.room.room-testing",
+            "androidx.room.room-compiler",
+            "androidx.room.room-ktx",
+            "androidx.room.room-common",
+            "androidx.room.room-runtime",
+            "androidx.compose.ui.ui",
+            "androidx.compose.ui.ui-unit",
+            "androidx.compose.ui.ui-tooling-preview",
+            "androidx.compose.ui.ui-tooling-data",
+            "androidx.compose.ui.ui-util",
+            "androidx.compose.ui.ui-test",
+            "androidx.compose.ui.ui-test-manifest",
+            "androidx.compose.ui.ui-inspection",
+            "androidx.compose.ui.ui-viewbinding",
+            "androidx.compose.ui.ui-geometry",
+            "androidx.compose.ui.ui-graphics",
+            "androidx.compose.ui.ui-text",
+            "androidx.compose.ui.ui-text-google-fonts",
+            "androidx.compose.ui.ui-test-junit4",
+            "androidx.compose.ui.ui-tooling",
+            "androidx.compose.test-utils",
+            "androidx.compose.runtime.runtime",
+            "androidx.compose.runtime.runtime-livedata",
+            "androidx.compose.runtime.runtime-saveable",
+            "androidx.compose.runtime.runtime-rxjava2",
+            "androidx.compose.runtime.runtime-tracing",
+            "androidx.compose.runtime.runtime-rxjava3",
+            "androidx.compose.animation.animation-tooling-internal",
+            "androidx.compose.animation.animation",
+            "androidx.compose.animation.animation-graphics",
+            "androidx.compose.animation.animation-core",
+            "androidx.compose.foundation.foundation",
+            "androidx.compose.foundation.foundation-layout",
+            "androidx.compose.material3.material3-window-size-class",
+            "androidx.compose.material3.material3.integration-tests.material3-catalog",
+            "androidx.compose.material3.material3",
+            "androidx.compose.material.material-ripple",
+            "androidx.lifecycle.lifecycle-viewmodel",
+            "androidx.sqlite.sqlite-ktx",
+            "androidx.sqlite.sqlite-framework",
+            "androidx.sqlite.integration-tests.inspection-sqldelight-testapp",
+            "androidx.sqlite.integration-tests.inspection-room-testapp",
+            "androidx.sqlite.sqlite",
+            "androidx.sqlite.sqlite-inspection",
+            "androidx.tv.tv-foundation",
+            "androidx.tv.tv-material",
+            "androidx.window.window",
+            "androidx.credentials.credentials",
+            "androidx.wear.compose.compose-material",
+            "androidx.wear.watchface.watchface-complications-data-source",
+            "androidx.wear.watchface.watchface",
+            "androidx.wear.watchface.watchface-client",
+            "androidx.lifecycle.lifecycle-common",
+            // These projects didn't already have "Xjvm-default=al", but the only have the error in
+            // integration tests, where the annotation isn't needed.
+            "androidx.annotation.annotation-experimental-lint-integration-tests",
+            "androidx.annotation.annotation-experimental-lint",
+            "androidx.camera.integration-tests.camera-testapp-camera2-pipe",
+            "androidx.compose.integration-tests.docs-snippets",
+            // These projects are excluded due to b/259578592
+            "androidx.camera.camera-camera2-pipe",
+            "androidx.camera.camera-camera2-pipe-integration",
+            "androidx.camera.camera-camera2-pipe-testing",
+        )
     }
 }
