@@ -208,9 +208,9 @@ private fun macrobenchmark(
                     setupBlock(scope)
                 }
 
-                val iterString = iteration.toString().padStart(3, '0')
                 val tracePath = perfettoCollector.record(
-                    fileLabel = "${uniqueName}_iter$iterString",
+                    benchmarkName = uniqueName,
+                    iteration = iteration,
 
                     /**
                      * Prior to API 24, every package name was joined into a single setprop which
