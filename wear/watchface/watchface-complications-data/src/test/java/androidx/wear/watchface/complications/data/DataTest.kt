@@ -411,7 +411,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                     .setRangedValue(95f)
-                    .setRangedValueType(RangedValueTypes.UNDEFINED)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                     .setRangedMinValue(0f)
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
@@ -476,7 +476,7 @@ public class AsWireComplicationDataTest {
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
             .setDataSource(dataSourceA)
-            .setValueType(RangedValueTypes.SCORE)
+            .setValueType(RangedValueComplicationData.TYPE_RATING)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -492,7 +492,7 @@ public class AsWireComplicationDataTest {
                     .setDataSource(dataSourceA)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
-                    .setRangedValueType(RangedValueTypes.SCORE)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_RATING)
                     .build()
             )
         testRoundTripConversions(data)
@@ -518,7 +518,7 @@ public class AsWireComplicationDataTest {
             .setMonochromaticImage(monochromaticImage2)
             .setSmallImage(smallImage2)
             .setDataSource(dataSourceA)
-            .setValueType(RangedValueTypes.SCORE)
+            .setValueType(RangedValueComplicationData.TYPE_RATING)
             .build()
 
         val data3 = RangedValueComplicationData.Builder(
@@ -527,7 +527,7 @@ public class AsWireComplicationDataTest {
         )
             .setTitle("battery2".complicationText)
             .setDataSource(dataSourceB)
-            .setValueType(RangedValueTypes.SCORE)
+            .setValueType(RangedValueComplicationData.TYPE_RATING)
             .build()
 
         assertThat(data).isEqualTo(data2)
@@ -716,7 +716,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                     .setRangedValue(95f)
-                    .setRangedValueType(RangedValueTypes.UNDEFINED)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                     .setRangedMinValue(0f)
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
@@ -772,6 +772,20 @@ public class AsWireComplicationDataTest {
                 "ComponentInfo{com.pkg_a/com.a}, colorRamp=ColorRamp(colors=[-65536, -16711936, " +
                 "-16776961], interpolated=true), persistencePolicy=0, displayPolicy=0)"
         )
+    }
+
+    @Test
+    fun weightedElementsComplicationDataTruncation() {
+        val data = WeightedElementsComplicationData.Builder(
+            MutableList(WeightedElementsComplicationData.getMaxElements() + 5) {
+                WeightedElementsComplicationData.Element(0.5f, Color.RED)
+            },
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("test".complicationText)
+            .build()
+
+        assertThat(data.elements.size).isEqualTo(WeightedElementsComplicationData.getMaxElements())
     }
 
     @Test
@@ -1392,7 +1406,7 @@ public class AsWireComplicationDataTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                             .setRangedValue(RangedValueComplicationData.PLACEHOLDER)
-                            .setRangedValueType(RangedValueTypes.UNDEFINED)
+                            .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                             .setRangedMinValue(0f)
                             .setRangedMaxValue(100f)
                             .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
@@ -1646,7 +1660,7 @@ public class AsWireComplicationDataTest {
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
                 .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-                .setValueType(RangedValueTypes.SCORE)
+                .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1655,7 +1669,7 @@ public class AsWireComplicationDataTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                             .setRangedValue(RangedValueComplicationData.PLACEHOLDER)
-                            .setRangedValueType(RangedValueTypes.SCORE)
+                            .setRangedValueType(RangedValueComplicationData.TYPE_RATING)
                             .setRangedMinValue(0f)
                             .setRangedMaxValue(100f)
                             .setShortText(ComplicationText.PLACEHOLDER.toWireComplicationText())
@@ -1688,7 +1702,7 @@ public class AsWireComplicationDataTest {
                 .setText(ComplicationText.PLACEHOLDER)
                 .setDataSource(dataSourceA)
                 .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-                .setValueType(RangedValueTypes.SCORE)
+                .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .build()
         )
         val data3 = NoDataComplicationData(
@@ -2182,7 +2196,7 @@ public class FromWireComplicationDataTest {
                             WireComplicationText.plainText("content description")
                         )
                         .setRangedValue(75f)
-                        .setRangedValueType(RangedValueTypes.UNDEFINED)
+                        .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                         .setRangedMinValue(0f)
                         .setRangedMaxValue(100f)
                         .setShortTitle(WireComplicationText.plainText("battery"))
@@ -2603,7 +2617,7 @@ public class ValidTimeRangeTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                     .setRangedValue(95f)
-                    .setRangedValueType(RangedValueTypes.UNDEFINED)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                     .setRangedMinValue(0f)
                     .setRangedMaxValue(100f)
                     .setShortText(WireComplicationText.plainText("battery"))
@@ -2790,7 +2804,7 @@ public class ValidTimeRangeTest {
                     .setPlaceholder(
                         WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                             .setRangedValue(95f)
-                            .setRangedValueType(RangedValueTypes.UNDEFINED)
+                            .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
                             .setRangedMinValue(0f)
                             .setRangedMaxValue(100f)
                             .setShortText(WireComplicationText.plainText("battery"))

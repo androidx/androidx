@@ -54,7 +54,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.watchface.complications.data.ImageKt;
 import androidx.wear.watchface.complications.data.RangedValueComplicationData;
-import androidx.wear.watchface.complications.data.RangedValueTypes;
 import androidx.wear.watchface.complications.rendering.utils.IconLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LargeImageLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LayoutHelper;
@@ -653,7 +652,7 @@ class ComplicationRenderer {
         int valueType = mComplicationData.getRangedValueType();
 
         float gap;
-        if (valueType == RangedValueTypes.SCORE) {
+        if (valueType == RangedValueComplicationData.TYPE_RATING) {
             gap = STROKE_GAP_IN_DEGREES_FOR_SCORE;
         } else if (progress <= 0 || progress >= 1.0f) {
             // We do not need to draw a gap when there's either 0% or 100% progress.
@@ -673,7 +672,7 @@ class ComplicationRenderer {
 
         float startAngle = RANGED_VALUE_START_ANGLE + gap / 2.0f;
         switch (valueType) {
-            case RangedValueTypes.SCORE: {
+            case RangedValueComplicationData.TYPE_RATING: {
                 float sweepAngle = 360.0f - gap / 2;
                 drawProgressBarArc(canvas, isPlaceholder, paintSet, startAngle, sweepAngle);
 
@@ -691,7 +690,7 @@ class ComplicationRenderer {
             }
 
             default:
-            case RangedValueTypes.UNDEFINED:
+            case RangedValueComplicationData.TYPE_UNDEFINED:
                 // Draw the arc represent by the value.
                 drawProgressBarArc(canvas, isPlaceholder, paintSet, startAngle, inProgressAngle);
 
