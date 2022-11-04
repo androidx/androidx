@@ -27,6 +27,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -43,6 +44,10 @@ abstract class DarwinBenchmarkResultsTask @Inject constructor(
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
+
+    @get:OutputFile
+    @get:Optional
+    abstract val distFile: RegularFileProperty
 
     @TaskAction
     fun benchmarkResults() {
@@ -68,5 +73,10 @@ abstract class DarwinBenchmarkResultsTask @Inject constructor(
             .toJson(metrics)
 
         outputFile.get().asFile.writeText(output)
+
+        // Add output to the DIST_DIR when specified
+        if (distFile.isPresent) {
+            distFile.get().asFile.writeText(output)
+        }
     }
 }
