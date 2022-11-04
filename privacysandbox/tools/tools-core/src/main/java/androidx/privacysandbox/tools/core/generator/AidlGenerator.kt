@@ -170,7 +170,7 @@ class AidlGenerator private constructor(
             addProperty("exceptionClass", primitive("String"))
             addProperty("errorMessage", primitive("String"))
             addProperty("stackTrace", AidlTypeSpec(parcelableStackFrameType(), isList = true))
-            addProperty("cause", AidlTypeSpec(throwableParcelType()), isNullable = true)
+            addProperty("cause", AidlTypeSpec(throwableParcelType(), isList = true))
             addProperty(
                 "suppressedExceptions", AidlTypeSpec(throwableParcelType(), isList = true)
             )
