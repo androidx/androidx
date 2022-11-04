@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraComponentBuilder
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -183,6 +184,7 @@ class UseCaseManagerTest {
             FakeCamera2CameraControlCompat(),
             useCaseThreads,
             ComboRequestListener()
-        )
+        ),
+        displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext())
     )
 }

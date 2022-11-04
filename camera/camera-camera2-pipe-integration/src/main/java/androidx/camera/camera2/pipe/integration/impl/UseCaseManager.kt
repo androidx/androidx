@@ -66,7 +66,8 @@ class UseCaseManager @Inject constructor(
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
-    cameraProperties: CameraProperties
+    cameraProperties: CameraProperties,
+    displayInfoManager: DisplayInfoManager
 ) {
     private val lock = Any()
 
@@ -76,7 +77,12 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private val activeUseCases = mutableSetOf<UseCase>()
 
-    private val meteringRepeating by lazy { MeteringRepeating.Builder(cameraProperties).build() }
+    private val meteringRepeating by lazy {
+        MeteringRepeating.Builder(
+            cameraProperties,
+            displayInfoManager
+        ).build()
+    }
 
     @Volatile
     private var _activeComponent: UseCaseCameraComponent? = null
