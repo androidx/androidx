@@ -32,11 +32,11 @@ import java.util.Locale;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class MultiPointerPredictor implements InkPredictor {
+public class MultiPointerPredictor implements KalmanPredictor {
     private static final String TAG = "MultiPointerPredictor";
     private static final boolean DEBUG_PREDICTION = Log.isLoggable(TAG, Log.DEBUG);
 
-    private SparseArray<KalmanInkPredictor> mPredictorMap = new SparseArray<>();
+    private SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
     private int mPredictionTargetMs = 0;
     private int mReportRateMs = 0;
 
@@ -77,7 +77,7 @@ public class MultiPointerPredictor implements InkPredictor {
         int action = event.getActionMasked();
         int pointerId = event.getPointerId(event.getActionIndex());
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
-            KalmanInkPredictor predictor = new KalmanInkPredictor();
+            SinglePointerPredictor predictor = new SinglePointerPredictor();
             predictor.setPredictionTarget(mPredictionTargetMs);
             if (mReportRateMs > 0) {
                 predictor.setReportRate(mReportRateMs);
@@ -86,14 +86,14 @@ public class MultiPointerPredictor implements InkPredictor {
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
         } else if (action == MotionEvent.ACTION_UP) {
-            KalmanInkPredictor predictor = mPredictorMap.get(pointerId);
+            SinglePointerPredictor predictor = mPredictorMap.get(pointerId);
             if (predictor != null) {
                 mPredictorMap.remove(pointerId);
                 predictor.onTouchEvent(event);
             }
             mPredictorMap.clear();
         } else if (action == MotionEvent.ACTION_POINTER_UP) {
-            KalmanInkPredictor predictor = mPredictorMap.get(pointerId);
+            SinglePointerPredictor predictor = mPredictorMap.get(pointerId);
             if (predictor != null) {
                 mPredictorMap.remove(pointerId);
                 predictor.onTouchEvent(event);
@@ -126,7 +126,7 @@ public class MultiPointerPredictor implements InkPredictor {
             return null;
         }
         if (pointerCount == 1) {
-            KalmanInkPredictor predictor = mPredictorMap.valueAt(0);
+            SinglePointerPredictor predictor = mPredictorMap.valueAt(0);
             MotionEvent predictedEv = predictor.predict();
             if (DEBUG_PREDICTION) {
                 Log.d(TAG, "predict() -> MotionEvent: " + predictedEv);
@@ -139,7 +139,7 @@ public class MultiPointerPredictor implements InkPredictor {
         MotionEvent[] singlePointerEvents = new MotionEvent[pointerCount];
         for (int i = 0; i < pointerCount; ++i) {
             pointerIds[i] = mPredictorMap.keyAt(i);
-            KalmanInkPredictor predictor = mPredictorMap.valueAt(i);
+            SinglePointerPredictor predictor = mPredictorMap.valueAt(i);
             singlePointerEvents[i] = predictor.predict();
             // If predictor consumer expect more sample, generate sample where position and
             // pressure are constant

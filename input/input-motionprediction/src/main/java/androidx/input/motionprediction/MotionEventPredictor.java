@@ -33,7 +33,7 @@ import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
  * rendered on the display. Once no more predictions are needed, call {@link #dispose()} to stop it
  * and clean up resources.
  */
-public interface MotionEventPredictor {
+public interface MotionEventPredictor extends AutoCloseable {
     /**
      * Record a user's movement to the predictor. You should call this for every
      * {@link android.view.MotionEvent} that is received by the associated
@@ -41,7 +41,7 @@ public interface MotionEventPredictor {
      * @param event the {@link android.view.MotionEvent} the associated view received and that
      *              needs to be recorded.
      */
-    void recordMovement(@NonNull MotionEvent event);
+    void record(@NonNull MotionEvent event);
 
     /**
      * Compute a prediction
@@ -55,7 +55,8 @@ public interface MotionEventPredictor {
      * Notify the predictor that no more predictions are needed. Any subsequent call to
      * {@link #predict()} will return null.
      */
-    void dispose();
+    @Override
+    void close();
 
     /**
      * Create a new motion predictor associated to a specific {@link android.view.View}

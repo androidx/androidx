@@ -29,7 +29,7 @@ import androidx.input.motionprediction.kalman.matrix.Matrix;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class PenKalmanFilter {
+public class PointerKalmanFilter {
     private KalmanFilter mXKalman;
     private KalmanFilter mYKalman;
     private KalmanFilter mPKalman;
@@ -54,7 +54,7 @@ public class PenKalmanFilter {
      * @param sigmaProcess lower value = more filtering
      * @param sigmaMeasurement higher value = more filtering
      */
-    public PenKalmanFilter(double sigmaProcess, double sigmaMeasurement) {
+    public PointerKalmanFilter(double sigmaProcess, double sigmaMeasurement) {
         mSigmaProcess = sigmaProcess;
         mSigmaMeasurement = sigmaMeasurement;
         mXKalman = createAxisKalmanFilter();
