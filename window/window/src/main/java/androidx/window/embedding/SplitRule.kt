@@ -33,11 +33,12 @@ import kotlin.math.min
 
 /**
  * Split configuration rules for activities that are launched to side in a split.
- * Define the visual properties of the split. Can be set either statically via
- * [SplitController.Companion.initialize] or at runtime via
- * [SplitController.registerRule]. The rules can only be  applied to activities that
- * belong to the same application and are running in the same process. The rules are always
- * applied only to activities that will be started  after the rules were set.
+ * Define the visual properties of the split. Can be set either via [RuleController.setRules] or
+ * via [RuleController.addRule]. The rules are always applied only to activities that will be
+ * started after the rules were set.
+ *
+ * @see androidx.window.embedding.SplitPairRule
+ * @see androidx.window.embedding.SplitPlaceholderRule
  */
 open class SplitRule internal constructor(
     /**
@@ -71,7 +72,13 @@ open class SplitRule internal constructor(
     val splitRatio: Float = 0.5f,
 
     /**
-     * The layout direction for the split.
+     * The layout direction for the split. The value must be one of [LTR], [RTL] or [LOCALE].
+     * - [LTR]: It splits the task bounds vertically, and put the primary container on the left
+     *   portion, and the secondary container on the right portion.
+     * - [RTL]: It splits the task bounds vertically, and put the primary container on the right
+     *   portion, and the secondary container on the left portion.
+     * - [LOCALE]: It splits the task bounds vertically, and the direction is deduced from the
+     *   default language script of locale. The direction can be either [LTR] or [RTL].
      */
     @LayoutDirection
     val layoutDirection: Int = LOCALE

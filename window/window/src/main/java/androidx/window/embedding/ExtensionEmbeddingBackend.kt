@@ -116,30 +116,30 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    private val splitRules: CopyOnWriteArraySet<EmbeddingRule> =
+    private val rules: CopyOnWriteArraySet<EmbeddingRule> =
         CopyOnWriteArraySet<EmbeddingRule>()
 
-    override fun getSplitRules(): Set<EmbeddingRule> {
-        return splitRules
+    override fun getRules(): Set<EmbeddingRule> {
+        return rules
     }
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        splitRules.clear()
-        splitRules.addAll(rules)
-        embeddingExtension?.setSplitRules(splitRules)
+    override fun setRules(rules: Set<EmbeddingRule>) {
+        this.rules.clear()
+        this.rules.addAll(rules)
+        embeddingExtension?.setRules(this.rules)
     }
 
-    override fun registerRule(rule: EmbeddingRule) {
-        if (!splitRules.contains(rule)) {
-            splitRules.add(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+    override fun addRule(rule: EmbeddingRule) {
+        if (!rules.contains(rule)) {
+            rules.add(rule)
+            embeddingExtension?.setRules(rules)
         }
     }
 
-    override fun unregisterRule(rule: EmbeddingRule) {
-        if (splitRules.contains(rule)) {
-            splitRules.remove(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+    override fun removeRule(rule: EmbeddingRule) {
+        if (rules.contains(rule)) {
+            rules.remove(rule)
+            embeddingExtension?.setRules(rules)
         }
     }
 
@@ -165,7 +165,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun registerSplitListenerForActivity(
+    override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
@@ -189,7 +189,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun unregisterSplitListenerForActivity(
+    override fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     ) {
         globalLock.withLock {
