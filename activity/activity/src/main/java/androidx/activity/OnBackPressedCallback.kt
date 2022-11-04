@@ -13,110 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity
 
-package androidx.activity;
-
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
-import androidx.core.os.BuildCompat;
-import androidx.core.util.Consumer;
-import androidx.lifecycle.LifecycleOwner;
-
-import java.util.concurrent.CopyOnWriteArrayList;
+import androidx.annotation.MainThread
+import androidx.annotation.OptIn
+import androidx.core.os.BuildCompat
+import androidx.core.util.Consumer
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * Class for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
- * strongly coupling that implementation to a subclass of {@link ComponentActivity}.
- * <p>
- * This class maintains its own {@link #isEnabled() enabled state}. Only when this callback
- * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
- * <p>
+ * Class for handling [OnBackPressedDispatcher.onBackPressed] callbacks without
+ * strongly coupling that implementation to a subclass of [ComponentActivity].
+ *
+ * This class maintains its own [enabled state][isEnabled]. Only when this callback
+ * is enabled will it receive callbacks to [handleOnBackPressed].
+ *
  * Note that the enabled state is an additional layer on top of the
- * {@link androidx.lifecycle.LifecycleOwner} passed to
- * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
+ * [androidx.lifecycle.LifecycleOwner] passed to
+ * [OnBackPressedDispatcher.addCallback]
  * which controls when the callback is added and removed to the dispatcher.
- * <p>
- * By calling {@link #remove()}, this callback will be removed from any
- * {@link OnBackPressedDispatcher} it has been added to. It is strongly recommended
+ *
+ * By calling [remove], this callback will be removed from any
+ * [OnBackPressedDispatcher] it has been added to. It is strongly recommended
  * to instead disable this callback to handle temporary changes in state.
  *
- * @see ComponentActivity#getOnBackPressedDispatcher()
+ * @param isEnabled The default enabled state for this callback.
+ *
+ * @see ComponentActivity.getOnBackPressedDispatcher
  */
-public abstract class OnBackPressedCallback {
-
-    private boolean mEnabled;
-    private CopyOnWriteArrayList<Cancellable> mCancellables = new CopyOnWriteArrayList<>();
-    private Consumer<Boolean> mEnabledConsumer;
-
+abstract class OnBackPressedCallback(isEnabled: Boolean) {
     /**
-     * Create a {@link OnBackPressedCallback}.
+     * The enabled state of the callback. Only when this callback
+     * is enabled will it receive callbacks to [handleOnBackPressed].
      *
-     * @param enabled The default enabled state for this callback.
-     * @see #setEnabled(boolean)
-     */
-    public OnBackPressedCallback(boolean enabled) {
-        mEnabled = enabled;
-    }
-
-    /**
-     * Set the enabled state of the callback. Only when this callback
-     * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
-     * <p>
      * Note that the enabled state is an additional layer on top of the
-     * {@link androidx.lifecycle.LifecycleOwner} passed to
-     * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
+     * [androidx.lifecycle.LifecycleOwner] passed to
+     * [OnBackPressedDispatcher.addCallback]
      * which controls when the callback is added and removed to the dispatcher.
-     *
-     * @param enabled whether the callback should be considered enabled
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
-    @MainThread
-    public final void setEnabled(boolean enabled) {
-        mEnabled = enabled;
-        if (mEnabledConsumer != null) {
-            mEnabledConsumer.accept(mEnabled);
+    @get:MainThread
+    @set:MainThread
+    @set:OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+    var isEnabled: Boolean = isEnabled
+        set(value) {
+            field = value
+            if (enabledConsumer != null) {
+                enabledConsumer!!.accept(field)
+            }
         }
-    }
+
+    private val cancellables = CopyOnWriteArrayList<Cancellable>()
+    private var enabledConsumer: Consumer<Boolean>? = null
 
     /**
-     * Checks whether this callback should be considered enabled. Only when this callback
-     * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
-     *
-     * @return Whether this callback should be considered enabled.
-     */
-    @MainThread
-    public final boolean isEnabled() {
-        return mEnabled;
-    }
-
-    /**
-     * Removes this callback from any {@link OnBackPressedDispatcher} it is currently
+     * Removes this callback from any [OnBackPressedDispatcher] it is currently
      * added to.
      */
     @MainThread
-    public final void remove() {
-        for (Cancellable cancellable: mCancellables) {
-            cancellable.cancel();
-        }
-    }
+    fun remove() = cancellables.forEach { it.cancel() }
 
     /**
-     * Callback for handling the {@link OnBackPressedDispatcher#onBackPressed()} event.
+     * Callback for handling the [OnBackPressedDispatcher.onBackPressed] event.
      */
     @MainThread
-    public abstract void handleOnBackPressed();
+    abstract fun handleOnBackPressed()
 
-    void addCancellable(@NonNull Cancellable cancellable) {
-        mCancellables.add(cancellable);
+    @JvmName("addCancellable")
+    internal fun addCancellable(cancellable: Cancellable) {
+        cancellables.add(cancellable)
     }
 
-    void removeCancellable(@NonNull Cancellable cancellable) {
-        mCancellables.remove(cancellable);
+    @JvmName("removeCancellable")
+    internal fun removeCancellable(cancellable: Cancellable) {
+        cancellables.remove(cancellable)
     }
 
-    void setIsEnabledConsumer(@Nullable Consumer<Boolean> isEnabled) {
-        mEnabledConsumer = isEnabled;
+    @JvmName("setIsEnabledConsumer")
+    internal fun setIsEnabledConsumer(isEnabled: Consumer<Boolean>?) {
+        enabledConsumer = isEnabled
     }
 }
