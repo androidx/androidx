@@ -60,4 +60,30 @@ class StepsRecordTest {
             )
         }
     }
+
+    @Test
+    fun invalidSteps_tooFewCount_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            StepsRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1235L),
+                endZoneOffset = null,
+                count = 0,
+            )
+        }
+    }
+
+    @Test
+    fun invalidSteps_tooLargeCount_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            StepsRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1235L),
+                endZoneOffset = null,
+                count = 1000_001,
+            )
+        }
+    }
 }
