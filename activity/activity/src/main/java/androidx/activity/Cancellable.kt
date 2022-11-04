@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.activity;
+package androidx.activity
 
 /**
  * Token representing a cancellable operation.
  */
-interface Cancellable {
-
+internal interface Cancellable {
     /**
      * Cancel the subscription. This call should be idempotent, making it safe to
      * call multiple times.
      */
-    void cancel();
+    fun cancel()
 }
