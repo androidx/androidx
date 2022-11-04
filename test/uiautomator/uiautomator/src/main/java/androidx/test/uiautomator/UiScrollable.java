@@ -393,7 +393,6 @@ public class UiScrollable extends UiCollection {
      * @return true if scrolled, false if can't scroll anymore
      */
     public boolean scrollForward(int steps) throws UiObjectNotFoundException {
-        Log.d(TAG, "scrollForward() on selector = " + getSelector());
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(WAIT_FOR_SELECTOR_TIMEOUT);
         if(node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
@@ -424,6 +423,8 @@ public class UiScrollable extends UiCollection {
             upX = rect.left + swipeAreaAdjust;
             upY = rect.centerY();
         }
+        Log.d(TAG, String.format("Scrolling forward from (%d, %d) to (%d, %d) in %d steps.", downX,
+                downY, upX, upY, steps));
         return getInteractionController().scrollSwipe(downX, downY, upX, upY, steps);
     }
 
@@ -466,7 +467,6 @@ public class UiScrollable extends UiCollection {
      * @return true if scrolled, false if can't scroll anymore
      */
     public boolean scrollBackward(int steps) throws UiObjectNotFoundException {
-        Log.d(TAG, "scrollBackward() on selector = " + getSelector());
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(WAIT_FOR_SELECTOR_TIMEOUT);
         if (node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
@@ -483,7 +483,6 @@ public class UiScrollable extends UiCollection {
         // set otherwise by setAsHorizontalContainer()
         if(mIsVerticalList) {
             int swipeAreaAdjust = (int)(rect.height() * getSwipeDeadZonePercentage());
-            Log.d(TAG, "scrollToBeginning() using vertical scroll");
             // scroll vertically: swipe up -> down
             downX = rect.centerX();
             downY = rect.top + swipeAreaAdjust;
@@ -491,7 +490,6 @@ public class UiScrollable extends UiCollection {
             upY = rect.bottom - swipeAreaAdjust;
         } else {
             int swipeAreaAdjust = (int)(rect.width() * getSwipeDeadZonePercentage());
-            Log.d(TAG, "scrollToBeginning() using hotizontal scroll");
             // scroll horizontally: swipe left -> right
             // TODO: Assuming device is not in right to left language
             downX = rect.left + swipeAreaAdjust;
@@ -499,6 +497,8 @@ public class UiScrollable extends UiCollection {
             upX = rect.right - swipeAreaAdjust;
             upY = rect.centerY();
         }
+        Log.d(TAG, String.format("Scrolling backward from (%d, %d) to (%d, %d) in %d steps.", downX,
+                downY, upX, upY, steps));
         return getInteractionController().scrollSwipe(downX, downY, upX, upY, steps);
     }
 
@@ -512,7 +512,6 @@ public class UiScrollable extends UiCollection {
      * @return true on scrolled else false
      */
     public boolean scrollToBeginning(int maxSwipes, int steps) throws UiObjectNotFoundException {
-        Log.d(TAG, "scrollToBeginning() on selector = " + getSelector());
         // protect against potential hanging and return after preset attempts
         for(int x = 0; x < maxSwipes; x++) {
             if(!scrollBackward(steps)) {
