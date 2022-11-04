@@ -18,76 +18,171 @@ package androidx.constraintlayout.core.state.helpers;
 
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.UNKNOWN;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.state.HelperReference;
 import androidx.constraintlayout.core.state.State;
 
 import java.util.HashMap;
 
+/**
+ * {@link HelperReference} for Chains.
+ *
+ * Elements should be added with {@link ChainReference#addChainElement}
+ */
 public class ChainReference extends HelperReference {
 
     protected float mBias = 0.5f;
-    protected HashMap<String ,Float> mMapWeights;
-    protected HashMap<String,Float> mMapPreMargin;
-    protected HashMap<String,Float> mMapPostMargin;
 
-    protected State.Chain mStyle = State.Chain.SPREAD;
+    /**
+     * @deprecated Unintended visibility, use {@link #getWeight(String)} instead
+     */
+    @Deprecated // TODO(b/253515185): Change to private visibility once we change major version
+    protected @NonNull HashMap<String, Float> mMapWeights = new HashMap<>();
 
-    public ChainReference(State state, State.Helper type) {
+    /**
+     * @deprecated Unintended visibility, use {@link #getPreMargin(String)} instead
+     */
+    @Deprecated // TODO(b/253515185): Change to private visibility once we change major version
+    protected @NonNull HashMap<String, Float> mMapPreMargin = new HashMap<>();
+
+    /**
+     * @deprecated Unintended visibility, use {@link #getPostMargin(String)} instead
+     */
+    @Deprecated // TODO(b/253515185): Change to private visibility once we change major version
+    protected @NonNull HashMap<String, Float> mMapPostMargin = new HashMap<>();
+
+    private HashMap<String, Float> mMapPreGoneMargin;
+    private HashMap<String, Float> mMapPostGoneMargin;
+
+    protected @NonNull State.Chain mStyle = State.Chain.SPREAD;
+
+    public ChainReference(@NonNull State state, @NonNull State.Helper type) {
         super(state, type);
     }
 
-    public State.Chain getStyle() {
+    public @NonNull State.Chain getStyle() {
         return State.Chain.SPREAD;
     }
 
-    // @TODO: add description
-    public ChainReference style(State.Chain style) {
+    /**
+     * Sets the {@link State.Chain style}.
+     *
+     * @param style Defines the way the chain will lay out its elements
+     * @return This same instance
+     */
+    @NonNull
+    public ChainReference style(@NonNull State.Chain style) {
         mStyle = style;
         return this;
     }
 
-    public void addChainElement(String id, float weight, float preMargin, float  postMargin ) {
-        super.add(id);
+    /**
+     * Adds the element by the given id to the Chain.
+     *
+     * The order in which the elements are added is important. It will represent the element's
+     * position in the Chain.
+     *
+     * @param id         Id of the element to add
+     * @param weight     Weight used to distribute remaining space to each element
+     * @param preMargin  Additional space in pixels between the added element and the previous one
+     *                   (if any)
+     * @param postMargin Additional space in pixels between the added element and the next one (if
+     *                   any)
+     */
+    public void addChainElement(@NonNull String id,
+            float weight,
+            float preMargin,
+            float postMargin) {
+        addChainElement(id, weight, preMargin, postMargin, 0, 0);
+    }
+
+    /**
+     * Adds the element by the given id to the Chain.
+     *
+     * The object's {@link Object#toString()} result will be used to map the given margins and
+     * weight to it, so it must stable and comparable.
+     *
+     * The order in which the elements are added is important. It will represent the element's
+     * position in the Chain.
+     *
+     * @param id             Id of the element to add
+     * @param weight         Weight used to distribute remaining space to each element
+     * @param preMargin      Additional space in pixels between the added element and the
+     *                       previous one
+     *                       (if any)
+     * @param postMargin     Additional space in pixels between the added element and the next
+     *                       one (if
+     *                       any)
+     * @param preGoneMargin  Additional space in pixels between the added element and the previous
+     *                       one (if any) when the previous element has Gone visibility
+     * @param postGoneMargin Additional space in pixels between the added element and the next
+     *                       one (if any) when the next element has Gone visibility
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void addChainElement(@NonNull Object id,
+            float weight,
+            float preMargin,
+            float postMargin,
+            float preGoneMargin,
+            float postGoneMargin) {
+        super.add(id); // Add element id as is, it's expected to return the same given instance
+        String idString = id.toString();
         if (!Float.isNaN(weight)) {
-            if (mMapWeights == null) {
-                mMapWeights = new HashMap<>();
-            }
-            mMapWeights.put(id, weight);
+            mMapWeights.put(idString, weight);
         }
         if (!Float.isNaN(preMargin)) {
-            if (mMapPreMargin == null) {
-                mMapPreMargin = new HashMap<>();
-            }
-            mMapPreMargin.put(id, preMargin);
+            mMapPreMargin.put(idString, preMargin);
         }
         if (!Float.isNaN(postMargin)) {
-            if (mMapPostMargin == null) {
-                mMapPostMargin = new HashMap<>();
+            mMapPostMargin.put(idString, postMargin);
+        }
+        if (!Float.isNaN(preGoneMargin)) {
+            if (mMapPreGoneMargin == null) {
+                mMapPreGoneMargin = new HashMap<>();
             }
-            mMapPostMargin.put(id, postMargin);
+            mMapPreGoneMargin.put(idString, preGoneMargin);
+        }
+        if (!Float.isNaN(postGoneMargin)) {
+            if (mMapPostGoneMargin == null) {
+                mMapPostGoneMargin = new HashMap<>();
+            }
+            mMapPostGoneMargin.put(idString, postGoneMargin);
         }
     }
 
-  protected float getWeight(String id) {
-       if (mMapWeights == null) {
-           return UNKNOWN;
-       }
-       if (mMapWeights.containsKey(id)) {
-           return mMapWeights.get(id);
-       }
-       return UNKNOWN;
+    protected float getWeight(@NonNull String id) {
+        if (mMapWeights.containsKey(id)) {
+            return mMapWeights.get(id);
+        }
+        return UNKNOWN;
     }
 
-    protected float getPostMargin(String id) {
-        if (mMapPostMargin != null  && mMapPostMargin.containsKey(id)) {
+    protected float getPostMargin(@NonNull String id) {
+        if (mMapPostMargin.containsKey(id)) {
             return mMapPostMargin.get(id);
         }
         return 0;
     }
 
-    protected float getPreMargin(String id) {
-        if (mMapPreMargin != null  && mMapPreMargin.containsKey(id)) {
+    protected float getPreMargin(@NonNull String id) {
+        if (mMapPreMargin.containsKey(id)) {
             return mMapPreMargin.get(id);
+        }
+        return 0;
+    }
+
+    protected float getPostGoneMargin(@NonNull String id) {
+        if (mMapPostGoneMargin != null && mMapPostGoneMargin.containsKey(id)) {
+            return mMapPostGoneMargin.get(id);
+        }
+        return 0;
+    }
+
+    protected float getPreGoneMargin(@NonNull String id) {
+        if (mMapPreGoneMargin != null && mMapPreGoneMargin.containsKey(id)) {
+            return mMapPreGoneMargin.get(id);
         }
         return 0;
     }
@@ -97,6 +192,7 @@ public class ChainReference extends HelperReference {
     }
 
     // @TODO: add description
+    @NonNull
     @Override
     public ChainReference bias(float bias) {
         mBias = bias;

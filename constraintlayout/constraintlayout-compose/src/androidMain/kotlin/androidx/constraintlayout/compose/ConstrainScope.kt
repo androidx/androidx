@@ -134,7 +134,7 @@ class ConstrainScope internal constructor(internal val id: Any) {
         set(value) {
             field = value
             addTransform {
-                if (visibility != Visibility.Invisible) {
+                if (this@ConstrainScope.visibility != Visibility.Invisible) {
                     // A bit of a hack, this behavior is not defined in :core
                     // Invisible should override alpha
                     alpha(value)
@@ -257,6 +257,44 @@ class ConstrainScope internal constructor(internal val id: Any) {
             field = value
             tasks.add { state ->
                 state.constraints(id).verticalChainWeight = value
+            }
+        }
+
+    /**
+     * Applied when the widget has constraints on the [start] and [end] anchors. It defines the
+     * position of the widget relative to the space within the constraints, where `0f` is the
+     * left-most position and `1f` is the right-most position.
+     *
+     * &nbsp;
+     *
+     * When layout direction is RTL, the value of the bias is effectively inverted.
+     *
+     * E.g.: For `horizontalBias = 0.3f`, `0.7f` is used for RTL.
+     *
+     * &nbsp;
+     *
+     * Note that the bias may also be applied with calls such as [linkTo].
+     */
+    @FloatRange(0.0, 1.0)
+    var horizontalBias: Float = 0.5f
+        set(value) {
+            field = value
+            tasks.add { state ->
+                state.constraints(id).horizontalBias(value)
+            }
+        }
+
+    /**
+     * Applied when the widget has constraints on the [top] and [bottom] anchors. It defines the
+     * position of the widget relative to the space within the constraints, where `0f` is the
+     * top-most position and `1f` is the bottom-most position.
+     */
+    @FloatRange(0.0, 1.0)
+    var verticalBias: Float = 0.5f
+        set(value) {
+            field = value
+            tasks.add { state ->
+                state.constraints(id).verticalBias(value)
             }
         }
 

@@ -583,7 +583,7 @@ abstract class ConstraintLayoutBaseScope {
         updateHelpersHashCode(16)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
 
-         return ConstrainedLayoutReference(id)
+        return ConstrainedLayoutReference(id)
     }
 
     /**
@@ -592,7 +592,6 @@ abstract class ConstraintLayoutBaseScope {
      * Use [constrain] with the resulting [HorizontalChainReference] to modify the start/left and
      * end/right constraints of this chain.
      */
-    // TODO(popam, b/157783937): this API should be improved
     fun createHorizontalChain(
         vararg elements: LayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
@@ -603,7 +602,17 @@ abstract class ConstraintLayoutBaseScope {
                 id,
                 androidx.constraintlayout.core.state.State.Helper.HORIZONTAL_CHAIN
             ) as androidx.constraintlayout.core.state.helpers.HorizontalChainReference
-            helper.add(*(elements.map { it.id }.toTypedArray()))
+            elements.forEach { chainElement ->
+                val elementParams = chainElement.getHelperParams() ?: ChainParams.Default
+                helper.addChainElement(
+                    chainElement.id,
+                    elementParams.weight,
+                    state.convertDimension(elementParams.startMargin).toFloat(),
+                    state.convertDimension(elementParams.endMargin).toFloat(),
+                    state.convertDimension(elementParams.startGoneMargin).toFloat(),
+                    state.convertDimension(elementParams.endGoneMargin).toFloat()
+                )
+            }
             helper.style(chainStyle.style)
             helper.apply()
             if (chainStyle.bias != null) {
@@ -622,7 +631,6 @@ abstract class ConstraintLayoutBaseScope {
      * Use [constrain] with the resulting [VerticalChainReference] to modify the top and
      * bottom constraints of this chain.
      */
-    // TODO(popam, b/157783937): this API should be improved
     fun createVerticalChain(
         vararg elements: LayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
@@ -633,7 +641,17 @@ abstract class ConstraintLayoutBaseScope {
                 id,
                 androidx.constraintlayout.core.state.State.Helper.VERTICAL_CHAIN
             ) as androidx.constraintlayout.core.state.helpers.VerticalChainReference
-            helper.add(*(elements.map { it.id }.toTypedArray()))
+            elements.forEach { chainElement ->
+                val elementParams = chainElement.getHelperParams() ?: ChainParams.Default
+                helper.addChainElement(
+                    chainElement.id,
+                    elementParams.weight,
+                    state.convertDimension(elementParams.topMargin).toFloat(),
+                    state.convertDimension(elementParams.bottomMargin).toFloat(),
+                    state.convertDimension(elementParams.topGoneMargin).toFloat(),
+                    state.convertDimension(elementParams.bottomGoneMargin).toFloat()
+                )
+            }
             helper.style(chainStyle.style)
             helper.apply()
             if (chainStyle.bias != null) {
@@ -645,6 +663,147 @@ abstract class ConstraintLayoutBaseScope {
         updateHelpersHashCode(chainStyle.hashCode())
         return VerticalChainReference(id)
     }
+
+    /**
+     * Sets the parameters that are used by chains to customize the resulting layout.
+     *
+     * Use margins to customize the space between widgets in the chain.
+     *
+     * Use weight to distribute available space to each widget when their dimensions are not
+     * fixed.
+     *
+     * &nbsp;
+     *
+     * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
+     * Chains.
+     *
+     * Since margins are only for widgets within the chain: Top, Start and End, Bottom margins are
+     * ignored when the widget is the first or the last element in the chain, respectively.
+     *
+     * @param startMargin Added space from the start of this widget to the previous widget
+     * @param topMargin Added space from the top of this widget to the previous widget
+     * @param endMargin Added space from the end of this widget to the next widget
+     * @param bottomMargin Added space from the bottom of this widget to the next widget
+     * @param startGoneMargin Added space from the start of this widget when the previous widget has [Visibility.Gone]
+     * @param topGoneMargin Added space from the top of this widget when the previous widget has [Visibility.Gone]
+     * @param endGoneMargin Added space from the end of this widget when the next widget has [Visibility.Gone]
+     * @param bottomGoneMargin Added space from the bottom of this widget when the next widget has [Visibility.Gone]
+     * @param weight Defines the proportion of space (relative to the total weight) occupied by this
+     * layout when the corresponding dimension is not a fixed value.
+     * @return The same [LayoutReference] instance with the applied values
+     */
+    fun LayoutReference.withChainParams(
+        startMargin: Dp = 0.dp,
+        topMargin: Dp = 0.dp,
+        endMargin: Dp = 0.dp,
+        bottomMargin: Dp = 0.dp,
+        startGoneMargin: Dp = 0.dp,
+        topGoneMargin: Dp = 0.dp,
+        endGoneMargin: Dp = 0.dp,
+        bottomGoneMargin: Dp = 0.dp,
+        weight: Float = Float.NaN,
+    ): LayoutReference =
+        this.apply {
+            setHelperParams(
+                ChainParams(
+                    startMargin = startMargin,
+                    topMargin = topMargin,
+                    endMargin = endMargin,
+                    bottomMargin = bottomMargin,
+                    startGoneMargin = startGoneMargin,
+                    topGoneMargin = topGoneMargin,
+                    endGoneMargin = endGoneMargin,
+                    bottomGoneMargin = bottomGoneMargin,
+                    weight = weight
+                )
+            )
+        }
+
+    /**
+     * Sets the parameters that are used by horizontal chains to customize the resulting layout.
+     *
+     * Use margins to customize the space between widgets in the chain.
+     *
+     * Use weight to distribute available space to each widget when their horizontal dimension is
+     * not fixed.
+     *
+     * &nbsp;
+     *
+     * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
+     * Chains.
+     *
+     * Since margins are only for widgets within the chain: Start and End margins are
+     * ignored when the widget is the first or the last element in the chain, respectively.
+     *
+     * @param startMargin Added space from the start of this widget to the previous widget
+     * @param endMargin Added space from the end of this widget to the next widget
+     * @param startGoneMargin Added space from the start of this widget when the previous widget has [Visibility.Gone]
+     * @param endGoneMargin Added space from the end of this widget when the next widget has [Visibility.Gone]
+     * @param weight Defines the proportion of space (relative to the total weight) occupied by this
+     * layout when the width is not a fixed dimension.
+     * @return The same [LayoutReference] instance with the applied values
+     */
+    fun LayoutReference.withHorizontalChainParams(
+        startMargin: Dp = 0.dp,
+        endMargin: Dp = 0.dp,
+        startGoneMargin: Dp = 0.dp,
+        endGoneMargin: Dp = 0.dp,
+        weight: Float = Float.NaN
+    ): LayoutReference =
+        withChainParams(
+            startMargin = startMargin,
+            topMargin = 0.dp,
+            endMargin = endMargin,
+            bottomMargin = 0.dp,
+            startGoneMargin = startGoneMargin,
+            topGoneMargin = 0.dp,
+            endGoneMargin = endGoneMargin,
+            bottomGoneMargin = 0.dp,
+            weight = weight
+        )
+
+    /**
+     * Sets the parameters that are used by vertical chains to customize the resulting layout.
+     *
+     * Use margins to customize the space between widgets in the chain.
+     *
+     * Use weight to distribute available space to each widget when their vertical dimension is not
+     * fixed.
+     *
+     * &nbsp;
+     *
+     * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
+     * Chains.
+     *
+     * Since margins are only for widgets within the chain: Top and Bottom margins are
+     * ignored when the widget is the first or the last element in the chain, respectively.
+     *
+     * @param topMargin Added space from the top of this widget to the previous widget
+     * @param bottomMargin Added space from the bottom of this widget to the next widget
+     * @param topGoneMargin Added space from the top of this widget when the previous widget has [Visibility.Gone]
+     * @param bottomGoneMargin Added space from the bottom of this widget when the next widget has [Visibility.Gone]
+     * @param weight Defines the proportion of space (relative to the total weight) occupied by this
+     * layout when the height is not a fixed dimension.
+     * @return The same [LayoutReference] instance with the applied values
+     */
+    fun LayoutReference.withVerticalChainParams(
+        topMargin: Dp = 0.dp,
+        bottomMargin: Dp = 0.dp,
+        topGoneMargin: Dp = 0.dp,
+        bottomGoneMargin: Dp = 0.dp,
+        weight: Float = Float.NaN
+    ): LayoutReference =
+        withChainParams(
+            startMargin = 0.dp,
+            topMargin = topMargin,
+            endMargin = 0.dp,
+            bottomMargin = bottomMargin,
+            startGoneMargin = 0.dp,
+            topGoneMargin = topGoneMargin,
+            endGoneMargin = 0.dp,
+            bottomGoneMargin = bottomGoneMargin,
+            weight = weight
+        )
 }
 
 /**
@@ -653,6 +812,11 @@ abstract class ConstraintLayoutBaseScope {
  */
 @Stable
 abstract class LayoutReference internal constructor(internal open val id: Any) {
+    /**
+     * This map should be used to store one instance of different implementations of [HelperParams].
+     */
+    private val helperParamsMap: MutableMap<String, HelperParams> = mutableMapOf()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -666,6 +830,60 @@ abstract class LayoutReference internal constructor(internal open val id: Any) {
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    internal fun setHelperParams(helperParams: HelperParams) {
+        // Use the class name to force one instance per implementation
+        helperParamsMap[helperParams.javaClass.simpleName] = helperParams
+    }
+
+    /**
+     * Returns the [HelperParams] that corresponds to the class type [T]. Null if no instance of
+     * type [T] has been set.
+     */
+    internal inline fun <reified T> getHelperParams(): T? where T : HelperParams {
+        return helperParamsMap[T::class.java.simpleName] as? T
+    }
+}
+
+/**
+ * Helpers that need parameters on a per-widget basis may implement this interface to store custom
+ * parameters within [LayoutReference].
+ *
+ * @see [LayoutReference.getHelperParams]
+ * @see [LayoutReference.setHelperParams]
+ */
+internal interface HelperParams
+
+/**
+ * Parameters that may be defined for each widget within a chain.
+ *
+ * These will always be used instead of similarly named parameters defined with other calls such as
+ * [ConstrainScope.linkTo].
+ */
+internal class ChainParams(
+    val startMargin: Dp,
+    val topMargin: Dp,
+    val endMargin: Dp,
+    val bottomMargin: Dp,
+    val startGoneMargin: Dp,
+    val topGoneMargin: Dp,
+    val endGoneMargin: Dp,
+    val bottomGoneMargin: Dp,
+    val weight: Float,
+) : HelperParams {
+    companion object {
+        internal val Default = ChainParams(
+            startMargin = 0.dp,
+            topMargin = 0.dp,
+            endMargin = 0.dp,
+            bottomMargin = 0.dp,
+            startGoneMargin = 0.dp,
+            topGoneMargin = 0.dp,
+            endGoneMargin = 0.dp,
+            bottomGoneMargin = 0.dp,
+            weight = Float.NaN
+        )
     }
 }
 
@@ -859,7 +1077,7 @@ class Visibility internal constructor(
 @Immutable
 class Wrap internal constructor(
     internal val mode: Int
-    ) {
+) {
     companion object {
         val None =
             Wrap(androidx.constraintlayout.core.widgets.Flow.WRAP_NONE)
@@ -876,7 +1094,7 @@ class Wrap internal constructor(
 @Immutable
 class VerticalAlign internal constructor(
     internal val mode: Int
-    ) {
+) {
     companion object {
         val Top = VerticalAlign(androidx.constraintlayout.core.widgets.Flow.VERTICAL_ALIGN_TOP)
         val Bottom =
@@ -894,7 +1112,7 @@ class VerticalAlign internal constructor(
 @Immutable
 class HorizontalAlign internal constructor(
     internal val mode: Int
-    ) {
+) {
     companion object {
         val Start =
             HorizontalAlign(androidx.constraintlayout.core.widgets.Flow.HORIZONTAL_ALIGN_START)
@@ -910,7 +1128,7 @@ class HorizontalAlign internal constructor(
 @Immutable
 class FlowStyle internal constructor(
     internal val style: Int
-    ) {
+) {
     companion object {
         val Spread = FlowStyle(0)
         val SpreadInside = FlowStyle(1)
