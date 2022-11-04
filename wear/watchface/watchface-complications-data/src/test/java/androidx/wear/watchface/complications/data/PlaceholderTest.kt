@@ -21,7 +21,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationData.IMAGE_STYLE_ICON
+import android.support.wearable.complications.ComplicationData.Companion.IMAGE_STYLE_ICON
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
