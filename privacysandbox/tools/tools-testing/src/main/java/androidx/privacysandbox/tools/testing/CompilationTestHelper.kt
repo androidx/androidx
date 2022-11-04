@@ -39,18 +39,14 @@ object CompilationTestHelper {
     fun compileAll(
         sources: List<Source>,
         extraClasspath: List<File> = emptyList(),
-        includePrivacySandboxPlatformSources: Boolean = true,
         symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
         processorOptions: Map<String, String> = emptyMap()
     ): TestCompilationResult {
         val tempDir = Files.createTempDirectory("compile").toFile().also { it.deleteOnExit() }
-        val targetSources = if (includePrivacySandboxPlatformSources) {
-            sources + syntheticPrivacySandboxSources
-        } else sources
         return compile(
             tempDir,
             TestCompilationArguments(
-                sources = targetSources,
+                sources = sources,
                 classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,
@@ -154,73 +150,3 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         }
     }
 }
-
-// PrivacySandbox platform APIs are not available in AndroidX prebuilts nor are they stable, so
-// while that's the case we use fake stubs to run our compilation tests.
-val syntheticPrivacySandboxSources = listOf(
-    Source.kotlin(
-        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt", """
-        |package androidx.privacysandbox.sdkruntime.core
-        |
-        |import android.os.IBinder
-        |
-        |@Suppress("UNUSED_PARAMETER")
-        |sealed class SandboxedSdkCompat {
-        |    abstract fun getInterface(): IBinder?
-        |
-        |    companion object {
-        |        fun create(binder: IBinder): SandboxedSdkCompat = throw RuntimeException("Stub!")
-        |    }
-        |}
-        |""".trimMargin()
-    ),
-    Source.kotlin(
-        "androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt", """
-        |package androidx.privacysandbox.sdkruntime.client
-        |
-        |import android.content.Context
-        |import android.os.Bundle
-        |import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-        |
-        |@Suppress("UNUSED_PARAMETER")
-        |class SdkSandboxManagerCompat private constructor() {
-        |    suspend fun loadSdk(
-        |        sdkName: String,
-        |        params: Bundle,
-        |    ): SandboxedSdkCompat = throw RuntimeException("Stub!")
-        |
-        |    companion object {
-        |        fun obtain(context: Context): SdkSandboxManagerCompat =
-        |            throw RuntimeException("Stub!")
-        |    }
-        |}
-        |""".trimMargin()
-    ),
-    Source.kotlin(
-        "androidx/privacysandbox/sdkruntime/core/SandboxedSdkProviderCompat.kt", """
-        |package androidx.privacysandbox.sdkruntime.core
-        |
-        |import android.content.Context
-        |import android.os.Bundle
-        |import android.view.View
-        |
-        |@Suppress("UNUSED_PARAMETER")
-        |abstract class SandboxedSdkProviderCompat {
-        |   var context: Context? = null
-        |       private set
-        |   fun attachContext(context: Context): Unit = throw RuntimeException("Stub!")
-        |
-        |   abstract fun onLoadSdk(params: Bundle): SandboxedSdkCompat
-        |
-        |   open fun beforeUnloadSdk() {}
-        |
-        |   abstract fun getView(
-        |       windowContext: Context,
-        |       params: Bundle,
-        |       width: Int,
-        |       height: Int
-        |   ): View
-        |}
-        |""".trimMargin()
-    )
-)
