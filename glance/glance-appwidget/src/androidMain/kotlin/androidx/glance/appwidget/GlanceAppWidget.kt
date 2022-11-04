@@ -124,7 +124,10 @@ abstract class GlanceAppWidget(
     /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
      */
-    suspend fun update(context: Context, glanceId: GlanceId) {
+    suspend fun update(
+        context: Context,
+        glanceId: GlanceId
+    ) {
         require(glanceId is AppWidgetId) {
             "The glanceId '$glanceId' is not a valid App Widget glance id"
         }
@@ -181,6 +184,31 @@ abstract class GlanceAppWidget(
                 compose(context, appWidgetManager, appWidgetId, state, opts)
             )
         }
+    }
+
+    /**
+     * Trigger an action to be run in the AppWidgetSession for this widget, starting the session if
+     * necessary.
+     */
+    internal suspend fun triggerAction(
+        context: Context,
+        appWidgetId: Int,
+        actionKey: String,
+        options: Bundle? = null,
+    ) {
+        sessionManager?.let { manager ->
+            val glanceId = AppWidgetId(appWidgetId)
+            val session = if (!manager.isSessionRunning(context, glanceId.toSessionKey())) {
+                AppWidgetSession(this, glanceId, options).also { session ->
+                    manager.startSession(context, session)
+                }
+            } else {
+                manager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+            }
+            session.runLambda(actionKey)
+        } ?: error(
+            "GlanceAppWidget.triggerAction may only be used when a SessionManager is provided"
+        )
     }
 
     /**

@@ -26,6 +26,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.background
 import androidx.glance.extractModifier
@@ -116,6 +117,41 @@ private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable)
         if (newChild is EmittableWithChildren) newChild.transformTree(block)
     }
 }
+
+/**
+ * Walks through the Emittable tree and updates the key for all LambdaActions.
+ *
+ * This function updates the key such that the final key is equal to the original key plus a string
+ * indicating its index among its siblings. This is because sibling Composables will often have the
+ * same key due to how [androidx.compose.runtime.currentCompositeKeyHash] works. Adding the index
+ * makes sure that all of these keys are unique.
+ *
+ * Note that, because we run the same composition multiple times for different sizes in certain
+ * modes (see [ForEachSize]), action keys in one SizeBox should mirror the action keys in other
+ * SizeBoxes, so that if an action is triggered on the widget being displayed in one size, the state
+ * will be updated for the composition in all sizes. This is why there can be multiple LambdaActions
+ * for each key, even after de-duping.
+ */
+internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<LambdaAction>> =
+    children.foldIndexed(
+        mutableMapOf<String, MutableList<LambdaAction>>()
+    ) { index, actions, child ->
+        val (actionMod, modifiers) = child.modifier.extractModifier<ActionModifier>()
+        if (actionMod != null && actionMod.action is LambdaAction &&
+            child !is EmittableSizeBox && child !is EmittableLazyListItem) {
+            val action = actionMod.action as LambdaAction
+            val newKey = action.key + "+$index"
+            val newAction = LambdaAction(newKey, action.block)
+            actions.getOrPut(newKey) { mutableListOf() }.add(newAction)
+            child.modifier = modifiers.then(ActionModifier(newAction))
+        }
+        if (child is EmittableWithChildren) {
+            child.updateLambdaActionKeys().forEach { (key, childActions) ->
+                actions.getOrPut(key) { mutableListOf() }.addAll(childActions)
+            }
+        }
+        actions
+    }
 
 private fun normalizeLazyListItem(view: EmittableLazyListItem) {
     if (view.children.size == 1 && view.alignment == Alignment.CenterStart) return

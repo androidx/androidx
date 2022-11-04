@@ -34,6 +34,7 @@ import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
 import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.StartActivityClassAction
@@ -212,6 +213,13 @@ private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
         is RunCallbackAction -> {
             builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
                 .setId(callbackClass.canonicalName!!)
+        }
+        is LambdaAction -> {
+            Log.e(
+                GlanceWearTileTag,
+                "Lambda actions are not currently supported on Wear Tiles. Use " +
+                    "actionRunCallback actions instead."
+            )
         }
         else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
