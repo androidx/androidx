@@ -144,6 +144,7 @@ internal class AppWidgetSession(
             lastRemoteViews = rv
         } finally {
             layoutConfig.save()
+            Tracing.endGlanceAppWidgetUpdate()
         }
     }
 

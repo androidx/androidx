@@ -130,10 +130,15 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
                     val componentName =
                         ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
+                    val ids = if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+                        intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!
+                    } else {
+                        appWidgetManager.getAppWidgetIds(componentName)
+                    }
                     onUpdate(
                         context,
                         appWidgetManager,
-                        appWidgetManager.getAppWidgetIds(componentName)
+                        ids,
                     )
                 }
                 LambdaActionBroadcasts.ActionTriggerLambda -> {

@@ -164,6 +164,7 @@ abstract class GlanceAppWidget(
         appWidgetId: Int,
         options: Bundle? = null,
     ) {
+        Tracing.beginGlanceAppWidgetUpdate()
         sessionManager?.let {
             val glanceId = AppWidgetId(appWidgetId)
             if (!it.isSessionRunning(context, glanceId.toSessionKey())) {
@@ -517,6 +518,8 @@ abstract class GlanceAppWidget(
             logException(throwable)
             val rv = RemoteViews(context.packageName, errorUiLayout)
             appWidgetManager.updateAppWidget(appWidgetId, rv)
+        } finally {
+            Tracing.endGlanceAppWidgetUpdate()
         }
     }
 
