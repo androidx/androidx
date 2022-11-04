@@ -73,7 +73,7 @@ package androidx.browser.customtabs {
     ctor public CustomTabsCallback();
     method public void extraCallback(String, android.os.Bundle?);
     method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
-    method public void onActivityResized(@Dimension(unit=androidx.annotation.Dimension.PX) int, android.os.Bundle);
+    method public void onActivityResized(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, android.os.Bundle);
     method public void onMessageChannelReady(android.os.Bundle?);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
@@ -118,7 +118,7 @@ package androidx.browser.customtabs {
     field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
     field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
-    field public static final String EXTRA_ACTIVITY_RESIZE_BEHAVIOR = "androidx.browser.customtabs.extra.ACTIVITY_RESIZE_BEHAVIOR";
+    field public static final String EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR = "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final String EXTRA_CLOSE_BUTTON_POSITION = "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
     field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";

@@ -70,8 +70,8 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         }
 
         @Override
-        public void onActivityResized(int size, Bundle extras) throws RemoteException {
-            TestCustomTabsCallback.this.onActivityResized(size, extras);
+        public void onActivityResized(int height, int width, Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onActivityResized(height, width, extras);
         }
     };
 
@@ -104,7 +104,7 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
     }
 
     @Override
-    public void onActivityResized(int size, Bundle extras) {
+    public void onActivityResized(int height, int width, @NonNull Bundle extras) {
         mOnResizedReceived = true;
     }
 

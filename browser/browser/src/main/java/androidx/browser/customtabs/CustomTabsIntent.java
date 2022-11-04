@@ -357,24 +357,24 @@ public final class CustomTabsIntent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ACTIVITY_HEIGHT_DEFAULT, ACTIVITY_HEIGHT_ADJUSTABLE, ACTIVITY_HEIGHT_FIXED})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ActivityResizeBehavior {
+    public @interface ActivityHeightResizeBehavior {
     }
 
     /**
-     * Applies the default resize behavior for the Custom Tab Activity when it behaves as a
+     * Applies the default height resize behavior for the Custom Tab Activity when it behaves as a
      * bottom sheet.
      */
     public static final int ACTIVITY_HEIGHT_DEFAULT = 0;
 
     /**
-     * The Custom Tab Activity, when it behaves as a bottom sheet, can be manually resized by the
-     * user.
+     * The Custom Tab Activity, when it behaves as a bottom sheet, can have its height manually
+     * resized by the user.
      */
     public static final int ACTIVITY_HEIGHT_ADJUSTABLE = 1;
 
     /**
-     * The Custom Tab Activity, when it behaves as a bottom sheet, cannot be manually resized by
-     * the user.
+     * The Custom Tab Activity, when it behaves as a bottom sheet, cannot have its height manually
+     * resized by the user.
      */
     public static final int ACTIVITY_HEIGHT_FIXED = 2;
 
@@ -385,12 +385,12 @@ public final class CustomTabsIntent {
 
     /**
      * Extra that, if set in combination with
-     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}, defines the resize behavior of
-     * the Custom Tab Activity when it behaves as a bottom sheet.
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}, defines the height resize
+     * behavior of the Custom Tab Activity when it behaves as a bottom sheet.
      * Default is {@link CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT}.
      */
-    public static final String EXTRA_ACTIVITY_RESIZE_BEHAVIOR =
-            "androidx.browser.customtabs.extra.ACTIVITY_RESIZE_BEHAVIOR";
+    public static final String EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR =
+            "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
 
     /**
      * Extra that sets the toolbar's top corner radii in dp. This will only have
@@ -980,27 +980,28 @@ public final class CustomTabsIntent {
          * The Custom Tab will behave as a bottom sheet.
          *
          * @param initialHeightPx The Custom Tab Activity's initial height in pixels.
-         * @param activityResizeBehavior Desired height behavior.
+         * @param activityHeightResizeBehavior Desired height behavior.
          * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX
-         * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
          */
         @NonNull
         public Builder setInitialActivityHeightPx(@Dimension(unit = PX) int initialHeightPx,
-                @ActivityResizeBehavior int activityResizeBehavior) {
+                @ActivityHeightResizeBehavior int activityHeightResizeBehavior) {
             if (initialHeightPx <= 0) {
                 throw new IllegalArgumentException("Invalid value for the initialHeightPx "
                         + "argument");
             }
-            if (activityResizeBehavior < 0 || activityResizeBehavior > ACTIVITY_HEIGHT_MAX) {
-                throw new IllegalArgumentException("Invalid value for the activityResizeBehavior "
-                        + "argument");
+            if (activityHeightResizeBehavior < 0
+                    || activityHeightResizeBehavior > ACTIVITY_HEIGHT_MAX) {
+                throw new IllegalArgumentException(
+                        "Invalid value for the activityHeightResizeBehavior argument");
             }
 
             mIntent.putExtra(EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, initialHeightPx);
-            mIntent.putExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR, activityResizeBehavior);
+            mIntent.putExtra(EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR, activityHeightResizeBehavior);
             return this;
         }
 
@@ -1184,14 +1185,14 @@ public final class CustomTabsIntent {
      * @param intent Intent to retrieve the resize behavior from.
      * @return The resize behavior. If {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}
      *         is not set as part of the same intent, the value has no effect.
-     * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
      */
-    @ActivityResizeBehavior
+    @ActivityHeightResizeBehavior
     public static int getActivityResizeBehavior(@NonNull Intent intent) {
-        return intent.getIntExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+        return intent.getIntExtra(EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                 CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT);
     }
 
