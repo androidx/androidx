@@ -23,6 +23,7 @@ plugins {
 }
 
 dependencies {
+    api("androidx.annotation:annotation:1.5.0")
     testImplementation(libs.junit)
 }
 

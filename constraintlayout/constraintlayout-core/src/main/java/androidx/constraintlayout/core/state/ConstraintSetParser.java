@@ -811,6 +811,7 @@ public class ConstraintSetParser {
                                         postMargin = toPix(state, array.getFloat(3));
                                         break;
                                 }
+                                // TODO: Define how to set gone margin in JSON syntax
                                 chain.addChainElement(id, weight, preMargin, postMargin);
                             }
                         } else {

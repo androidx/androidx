@@ -2477,20 +2477,22 @@ package androidx.constraintlayout.core.state.helpers {
   }
 
   public class ChainReference extends androidx.constraintlayout.core.state.HelperReference {
-    ctor public ChainReference(androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.state.State.Helper!);
-    method public void addChainElement(String!, float, float, float);
-    method public androidx.constraintlayout.core.state.helpers.ChainReference! bias(float);
+    ctor public ChainReference(androidx.constraintlayout.core.state.State, androidx.constraintlayout.core.state.State.Helper);
+    method public void addChainElement(String, float, float, float);
+    method public androidx.constraintlayout.core.state.helpers.ChainReference bias(float);
     method public float getBias();
-    method protected float getPostMargin(String!);
-    method protected float getPreMargin(String!);
-    method public androidx.constraintlayout.core.state.State.Chain! getStyle();
-    method protected float getWeight(String!);
-    method public androidx.constraintlayout.core.state.helpers.ChainReference! style(androidx.constraintlayout.core.state.State.Chain!);
+    method protected float getPostGoneMargin(String);
+    method protected float getPostMargin(String);
+    method protected float getPreGoneMargin(String);
+    method protected float getPreMargin(String);
+    method public androidx.constraintlayout.core.state.State.Chain getStyle();
+    method protected float getWeight(String);
+    method public androidx.constraintlayout.core.state.helpers.ChainReference style(androidx.constraintlayout.core.state.State.Chain);
     field protected float mBias;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapPostMargin;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapPreMargin;
-    field protected java.util.HashMap<java.lang.String!,java.lang.Float!>! mMapWeights;
-    field protected androidx.constraintlayout.core.state.State.Chain! mStyle;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapPostMargin;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapPreMargin;
+    field @Deprecated protected java.util.HashMap<java.lang.String!,java.lang.Float!> mMapWeights;
+    field protected androidx.constraintlayout.core.state.State.Chain mStyle;
   }
 
   public interface Facade {

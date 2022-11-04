@@ -1663,4 +1663,68 @@ class ConstraintLayoutTest {
         rule.onNodeWithTag(boxTag1).assertPositionInRootIsEqualTo(29.5.dp, 0.dp)
         rule.onNodeWithTag(boxTag2).assertPositionInRootIsEqualTo(60.dp, 0.dp)
     }
+
+    @Test
+    fun testBias_withConstraintSet() {
+        val rootSize = 100.dp
+        val boxSize = 10.dp
+        val horBias = 0.2f
+        val verBias = 1f - horBias
+        rule.setContent {
+            ConstraintLayout(
+                modifier = Modifier.size(rootSize),
+                constraintSet = ConstraintSet {
+                    constrain(createRefFor("box")) {
+                        width = Dimension.value(boxSize)
+                        height = Dimension.value(boxSize)
+
+                        centerTo(parent)
+                        horizontalBias = horBias
+                        verticalBias = verBias
+                    }
+                }) {
+                Box(
+                    modifier = Modifier
+                        .background(Color.Red)
+                        .layoutTestId("box")
+                )
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(
+            (rootSize - boxSize) * 0.2f,
+            (rootSize - boxSize) * 0.8f
+        )
+    }
+
+    @Test
+    fun testBias_withInlineDsl() {
+        val rootSize = 100.dp
+        val boxSize = 10.dp
+        val horBias = 0.2f
+        val verBias = 1f - horBias
+        rule.setContent {
+            ConstraintLayout(Modifier.size(rootSize)) {
+                val box = createRef()
+                Box(
+                    modifier = Modifier
+                        .background(Color.Red)
+                        .constrainAs(box) {
+                            width = Dimension.value(boxSize)
+                            height = Dimension.value(boxSize)
+
+                            centerTo(parent)
+                            horizontalBias = horBias
+                            verticalBias = verBias
+                        }
+                        .layoutTestId("box")
+                )
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(
+            (rootSize - boxSize) * 0.2f,
+            (rootSize - boxSize) * 0.8f
+        )
+    }
 }
