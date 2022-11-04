@@ -471,6 +471,9 @@ public enum class SwipeToDismissValue {
  * Currently Edge swipe, like swipe to dismiss, is only supported on the left part of the viewport
  * regardless of layout direction as content is swiped away from left to right.
  *
+ * Requires that the element to which this modifier is applied exists within a
+ * SwipeToDismissBox which is using the same [SwipeToDismissBoxState] instance.
+ *
  * Example of a modifier usage with SwipeToDismiss
  * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
  *
