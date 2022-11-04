@@ -246,6 +246,7 @@ public class UiScrollable extends UiCollection {
      * @return true if the item was found and now is in view; else, false
      */
     public boolean scrollIntoView(@NonNull UiSelector selector) throws UiObjectNotFoundException {
+        Log.d(TAG, String.format("Scrolling %s into view.", selector));
         // if we happen to be on top of the text we want then return here
         UiSelector childSelector = getSelector().childSelector(selector);
         if (exists(childSelector)) {
@@ -282,6 +283,7 @@ public class UiScrollable extends UiCollection {
      */
     public boolean ensureFullyVisible(@NonNull UiObject childObject)
             throws UiObjectNotFoundException {
+        Log.d(TAG, String.format("Ensuring %s is fully visible.", childObject.getSelector()));
         Rect actual = childObject.getBounds();
         Rect visible = childObject.getVisibleBounds();
         if (visible.width() * visible.height() == actual.width() * actual.height()) {
