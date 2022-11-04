@@ -157,7 +157,7 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    public void testActivityInitialFixedResizeBehavior() {
+    public void testActivityInitialFixedHeightResizeBehavior() {
         int heightFixedResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_FIXED;
         int initialActivityHeight = 200;
 
@@ -166,9 +166,10 @@ public class CustomTabsIntentTest {
                 .build()
                 .intent;
 
-        assertEquals("The value of EXTRA_ACTIVITY_FIXED_HEIGHT should be ACTIVITY_HEIGHT_FIXED.",
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
+                        + "ACTIVITY_HEIGHT_FIXED.",
                 heightFixedResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
@@ -182,7 +183,7 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    public void testActivityInitialAdjustableResizeBehavior() {
+    public void testActivityInitialAdjustableHeightResizeBehavior() {
         int heightAdjustableResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_ADJUSTABLE;
         int initialActivityHeight = 200;
 
@@ -191,10 +192,10 @@ public class CustomTabsIntentTest {
                 .build()
                 .intent;
 
-        assertEquals("The value of EXTRA_ACTIVITY_FIXED_HEIGHT should be "
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
                         + "ACTIVITY_HEIGHT_ADJUSTABLE.",
                 heightAdjustableResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
@@ -220,10 +221,10 @@ public class CustomTabsIntentTest {
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
                 intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0));
-        assertEquals("The value of EXTRA_ACTIVITY_RESIZE_BEHAVIOR should be "
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
                         + "ACTIVITY_HEIGHT_DEFAULT.",
                 defaultResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_FIXED));
         assertEquals("The height returned by the getter should be the same.",
                 initialActivityHeight,
@@ -242,8 +243,8 @@ public class CustomTabsIntentTest {
 
         assertFalse("The EXTRA_INITIAL_ACTIVITY_HEIGHT_PX should not be set.",
                 intent.hasExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX));
-        assertFalse("The EXTRA_ACTIVITY_RESIZE_BEHAVIOR should not be set.",
-                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR));
+        assertFalse("The EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR));
         assertEquals("The getter should return the default value.",
                 defaultInitialActivityHeight,
                 CustomTabsIntent.getInitialActivityHeightPx(intent));
