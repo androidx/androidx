@@ -36,10 +36,19 @@ import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.nameWithoutExtension
 
-class SdkCodeGenerator(
+internal enum class SandboxApiVersion {
+    // Android 13 - Tiramisu Privacy Sandbox
+    API_33,
+
+    // SDK runtime backwards compatibility library.
+    SDK_RUNTIME_COMPAT_LIBRARY,
+}
+
+internal class SdkCodeGenerator(
     private val codeGenerator: CodeGenerator,
     private val api: ParsedApi,
     private val aidlCompilerPath: Path,
+    private val sandboxApiVersion: SandboxApiVersion
 ) {
     private val binderCodeConverter = ServerBinderCodeConverter(api)
 
@@ -77,7 +86,11 @@ class SdkCodeGenerator(
     }
 
     private fun generateAbstractSdkProvider() {
-        AbstractSdkProviderGenerator(api).generate()?.also(::write)
+        val generator = when (sandboxApiVersion) {
+            SandboxApiVersion.API_33 -> Api33SdkProviderGenerator(api)
+            SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY -> CompatSdkProviderGenerator(api)
+        }
+        generator.generate()?.also(::write)
     }
 
     private fun generateStubDelegates() {
