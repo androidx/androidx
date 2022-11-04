@@ -132,7 +132,7 @@ class PrivacySandboxApiPackagerTest {
             |interface Valid
         """.trimMargin()
         )
-        val sdkClasspath = compileAll(listOf(source), includePrivacySandboxPlatformSources = false)
+        val sdkClasspath = compileAll(listOf(source))
             .outputClasspath.first().toPath()
 
         val metadataPath = sdkClasspath.resolve(Metadata.filePath).also {
@@ -186,7 +186,7 @@ class PrivacySandboxApiPackagerTest {
             |interface Valid
         """.trimMargin()
         )
-        val sdkClasspath = compileAll(listOf(source), includePrivacySandboxPlatformSources = false)
+        val sdkClasspath = compileAll(listOf(source))
             .outputClasspath.first().toPath()
         val descriptorPathThatAlreadyExists =
             makeTestDirectory().resolve("sdk-descriptors.jar").also {
@@ -201,7 +201,7 @@ class PrivacySandboxApiPackagerTest {
 
     /** Compiles the given source file and returns a classpath with the results. */
     private fun compileAndReturnUnzippedPackagedClasspath(source: Source): File {
-        val result = compileAll(listOf(source), includePrivacySandboxPlatformSources = false)
+        val result = compileAll(listOf(source))
         assertThat(result).succeeds()
         assertThat(result.outputClasspath).hasSize(1)
 
@@ -234,7 +234,6 @@ class PrivacySandboxApiPackagerTest {
         return compileAll(
             listOf(source),
             extraClasspath = listOf(extraClasspath),
-            includePrivacySandboxPlatformSources = false
         )
     }
 }

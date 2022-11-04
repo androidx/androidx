@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
+import androidx.privacysandbox.tools.apicompiler.generator.SandboxApiVersion
 import androidx.privacysandbox.tools.apicompiler.generator.SdkCodeGenerator
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -31,10 +32,10 @@ class PrivacySandboxKspCompiler(
     private val logger: KSPLogger,
     private val codeGenerator: CodeGenerator,
     private val options: Map<String, String>,
-) :
-    SymbolProcessor {
+) : SymbolProcessor {
     companion object {
         const val AIDL_COMPILER_PATH_OPTIONS_KEY = "aidl_compiler_path"
+        const val USE_COMPAT_LIBRARY_OPTIONS_KEY = "use_sdk_runtime_compat_library"
     }
 
     var invoked = false
@@ -51,9 +52,18 @@ class PrivacySandboxKspCompiler(
             return emptyList()
         }
 
+        val target = if (options[USE_COMPAT_LIBRARY_OPTIONS_KEY]?.lowercase() == "true") {
+            SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY
+        } else SandboxApiVersion.API_33
+
         val parsedApi = ApiParser(resolver, logger).parseApi()
 
-        SdkCodeGenerator(codeGenerator, parsedApi, path).generate()
+        SdkCodeGenerator(
+            codeGenerator,
+            parsedApi,
+            path,
+            target,
+        ).generate()
         return emptyList()
     }
 

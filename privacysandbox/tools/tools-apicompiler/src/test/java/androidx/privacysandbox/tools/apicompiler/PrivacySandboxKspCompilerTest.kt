@@ -18,72 +18,22 @@ package androidx.privacysandbox.tools.apicompiler
 
 import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
-import androidx.privacysandbox.tools.testing.CompilationTestHelper.compileAll
-import androidx.privacysandbox.tools.testing.loadSourcesFromDirectory
 import androidx.privacysandbox.tools.testing.resourceOutputDir
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
-import java.io.File
-import java.nio.file.Files
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class PrivacySandboxKspCompilerTest {
-    @Test
-    fun compileServiceInterface_ok() {
-        val inputTestDataDir = File("src/test/test-data/testinterface/input")
-        val outputTestDataDir = File("src/test/test-data/testinterface/output")
-        val inputSources = loadSourcesFromDirectory(inputTestDataDir)
-        val expectedKotlinSources = loadSourcesFromDirectory(outputTestDataDir)
-        val provider = PrivacySandboxKspCompiler.Provider()
-
-        val result = compileAll(
-            inputSources,
-            symbolProcessorProviders = listOf(provider),
-            processorOptions = getProcessorOptions(),
-        )
-        assertThat(result).succeeds()
-
-        val expectedAidlFilepath = listOf(
-            "com/mysdk/ICancellationSignal.java",
-            "com/mysdk/IMyCallback.java",
-            "com/mysdk/IMyInterface.java",
-            "com/mysdk/IMyInterfaceTransactionCallback.java",
-            "com/mysdk/IMySdk.java",
-            "com/mysdk/IMySecondInterface.java",
-            "com/mysdk/IMySecondInterfaceTransactionCallback.java",
-            "com/mysdk/IResponseTransactionCallback.java",
-            "com/mysdk/IStringTransactionCallback.java",
-            "com/mysdk/IUnitTransactionCallback.java",
-            "com/mysdk/ParcelableRequest.java",
-            "com/mysdk/ParcelableResponse.java",
-            "com/mysdk/ParcelableStackFrame.java",
-            "com/mysdk/PrivacySandboxThrowableParcel.java",
-        )
-        assertThat(result).hasAllExpectedGeneratedSourceFilesAndContent(
-            expectedKotlinSources,
-            expectedAidlFilepath
-        )
-    }
 
     @Test
     fun compileEmpty_ok() {
-        val provider = PrivacySandboxKspCompiler.Provider()
-        // Check that compilation is successful
-        assertThat(
-            compile(
-                Files.createTempDirectory("test").toFile(),
-                TestCompilationArguments(
-                    sources = emptyList(),
-                    symbolProcessorProviders = listOf(provider),
-                    processorOptions = getProcessorOptions(),
-                )
-            )
-        ).hasNoGeneratedSourceFiles()
+        assertThat(compileWithPrivacySandboxKspCompiler(listOf())).apply {
+            succeeds()
+            hasNoGeneratedSourceFiles()
+        }
     }
 
     @Test
@@ -100,13 +50,7 @@ class PrivacySandboxKspCompilerTest {
                     }
                 """
             )
-        val provider = PrivacySandboxKspCompiler.Provider()
-        val compilationResult =
-            compileAll(
-                listOf(source),
-                symbolProcessorProviders = listOf(provider),
-                processorOptions = getProcessorOptions(),
-            )
+        val compilationResult = compileWithPrivacySandboxKspCompiler(listOf(source))
         assertThat(compilationResult).succeeds()
 
         val resourceMap = compilationResult.resourceOutputDir.walk()
@@ -138,20 +82,6 @@ class PrivacySandboxKspCompilerTest {
                     }
                 """
             )
-        val provider = PrivacySandboxKspCompiler.Provider()
-        // Check that compilation fails
-        assertThat(
-            compileAll(
-                listOf(source),
-                symbolProcessorProviders = listOf(provider),
-                processorOptions = getProcessorOptions(),
-            )
-        ).fails()
+        assertThat(compileWithPrivacySandboxKspCompiler(listOf(source))).fails()
     }
-
-    private fun getProcessorOptions() =
-        mapOf(
-            "aidl_compiler_path" to (System.getProperty("aidl_compiler_path")
-                ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
-        )
 }

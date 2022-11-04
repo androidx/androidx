@@ -10,8 +10,8 @@ import kotlin.Int
 
 public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProviderCompat() {
   public override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
-    val sdk = createMySdk(context!!)
-    return create(MySdkStubDelegate(sdk))
+    val sdk = createBackwardsCompatibleSdk(context!!)
+    return create(BackwardsCompatibleSdkStubDelegate(sdk))
   }
 
   public override fun getView(
@@ -23,5 +23,5 @@ public abstract class AbstractSandboxedSdkProvider : SandboxedSdkProviderCompat(
     TODO("Implement")
   }
 
-  protected abstract fun createMySdk(context: Context): MySdk
+  protected abstract fun createBackwardsCompatibleSdk(context: Context): BackwardsCompatibleSdk
 }
