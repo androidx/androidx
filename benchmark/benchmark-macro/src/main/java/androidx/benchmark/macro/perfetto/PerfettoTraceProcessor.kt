@@ -164,7 +164,7 @@ class PerfettoTraceProcessor {
      *
      * Note that sliceNames may include wildcard matches, such as `foo%`
      */
-    internal fun querySlices(
+    fun querySlices(
         vararg sliceNames: String
     ): List<Slice> {
         require(perfettoHttpServer.isRunning()) { "Perfetto trace_shell_process is not running." }
