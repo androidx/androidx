@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * Base request class for registering a public key credential.
  *
@@ -30,10 +33,19 @@ package androidx.credentials
  * @hide
  */
 abstract class CreatePublicKeyCredentialBaseRequest constructor(
-    val requestJson: String
-) : CreateCredentialRequest() {
+    val requestJson: String,
+    type: String,
+    data: Bundle,
+    requireSystemProvider: Boolean,
+) : CreateCredentialRequest(type, data, requireSystemProvider) {
 
     init {
         require(requestJson.isNotEmpty()) { "request json must not be empty" }
+    }
+
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
     }
 }

@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * A privileged request to get passkeys from the user's public key credential provider. The caller
  * can modify the RP. Only callers with privileged permission (e.g. user's public browser or caBLE)
@@ -38,7 +41,12 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
     val clientDataHash: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
-) : GetPublicKeyCredentialBaseOption(requestJson) {
+) : GetPublicKeyCredentialBaseOption(
+    requestJson,
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    toBundle(requestJson, rp, clientDataHash, allowHybrid),
+    false,
+) {
 
     init {
         require(rp.isNotEmpty()) { "rp must not be empty" }
@@ -86,6 +94,32 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
         fun build(): GetPublicKeyCredentialOptionPrivileged {
             return GetPublicKeyCredentialOptionPrivileged(this.requestJson,
                 this.rp, this.clientDataHash, this.allowHybrid)
+        }
+    }
+
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_RP = "androidx.credentials.BUNDLE_KEY_RP"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_CLIENT_DATA_HASH =
+            "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+
+        @JvmStatic
+        internal fun toBundle(
+            requestJson: String,
+            rp: String,
+            clientDataHash: String,
+            allowHybrid: Boolean
+        ): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putString(BUNDLE_KEY_RP, rp)
+            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
+            bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
+            return bundle
         }
     }
 }

@@ -16,5 +16,13 @@
 
 package androidx.credentials
 
-/** Base response class for registering a credential. */
-abstract class CreateCredentialResponse
+import android.os.Bundle
+
+/**
+ * Base response class for the credential creation operation made with the
+ * [CreateCredentialRequest].
+ *
+ * @property type the credential type determined by the credential-type-specific subclass
+ * @property data the response data in the [Bundle] format
+ */
+open class CreateCredentialResponse(val type: String, val data: Bundle)
