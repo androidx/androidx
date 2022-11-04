@@ -16,11 +16,9 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.annotation.RestrictTo
 import androidx.benchmark.macro.perfetto.server.QueryResultIterator
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Slice(
+internal data class Slice(
     val name: String,
     val ts: Long,
     val dur: Long

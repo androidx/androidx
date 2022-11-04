@@ -281,7 +281,7 @@ internal fun measureStartup(
     val metric = StartupTimingMetric()
     metric.configure(packageName)
     val tracePath = PerfettoCaptureWrapper().record(
-        fileLabel = packageName,
+        benchmarkName = packageName,
         // note - packageName may be this package, so we convert to set then list to make unique
         // and on API 23 and below, we use reflection to trace instead within this process
         appTagPackages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
