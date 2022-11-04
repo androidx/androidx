@@ -42,6 +42,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
 import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -133,11 +135,14 @@ class AppWidgetHostRule(
     /**
      * Run the [block] (usually some sort of app widget update) and wait for new RemoteViews to be
      * applied.
+     *
+     * This should not be called from the main thread, i.e. in [onHostView] or [onHostActivity].
      */
     suspend fun runAndWaitForUpdate(block: suspend () -> Unit) {
         val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
         hostView.resetRemoteViewsLatch()
-        block()
+        withContext(Dispatchers.Main) { block() }
+        // Do not wait on the main thread so that the UI handlers can run.
         runAndWaitForChildren {
             hostView.waitForRemoteViews()
         }
