@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
     implementation("androidx.core:core-ktx:1.8.0")
     implementation project(path: ':emoji2:emoji2')
     implementation project(path: ':core:core')
