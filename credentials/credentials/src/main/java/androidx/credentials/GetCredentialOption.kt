@@ -16,5 +16,21 @@
 
 package androidx.credentials
 
-/** Base request class for getting a registered credential. */
-abstract class GetCredentialOption
+import android.os.Bundle
+
+/**
+ * Base class for getting a specific type of credentials.
+ *
+ * [GetCredentialRequest] will be composed of a list of [GetCredentialOption] subclasses to indicate
+ * the specific credential types and configurations that your app accepts.
+ *
+ * @property type the credential type determined by the credential-type-specific subclass
+ * @property data the request data in the [Bundle] format
+ * @property requireSystemProvider true if must only be fulfilled by a system provider and false
+ *                              otherwise
+ */
+open class GetCredentialOption(
+    val type: String,
+    val data: Bundle,
+    val requireSystemProvider: Boolean,
+)

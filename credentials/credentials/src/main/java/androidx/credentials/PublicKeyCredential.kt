@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * Represents the user's passkey credential granted by the user for app sign-in.
  *
@@ -30,7 +33,10 @@ package androidx.credentials
  */
 class PublicKeyCredential constructor(
     val authenticationResponseJson: String
-) : Credential() {
+) : Credential(
+    TYPE_PUBLIC_KEY_CREDENTIAL,
+    toBundle(authenticationResponseJson)
+) {
 
     init {
         require(authenticationResponseJson.isNotEmpty()) {
@@ -40,5 +46,16 @@ class PublicKeyCredential constructor(
         /** The type value for public key credential related operations. */
         const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
             "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON =
+            "androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON"
+
+        @JvmStatic
+        internal fun toBundle(authenticationResponseJson: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON, authenticationResponseJson)
+            return bundle
+        }
     }
 }

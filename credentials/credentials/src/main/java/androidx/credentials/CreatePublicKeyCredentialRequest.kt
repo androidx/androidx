@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+
 /**
  * A request to register a passkey from the user's public key credential provider.
  *
@@ -32,4 +35,23 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
     requestJson: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
-) : CreatePublicKeyCredentialBaseRequest(requestJson)
+) : CreatePublicKeyCredentialBaseRequest(
+    requestJson,
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    toBundle(requestJson, allowHybrid),
+    false,
+) {
+    /** @hide */
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+
+        @JvmStatic
+        internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
+            return bundle
+        }
+    }
+}
