@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntRange
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
@@ -35,11 +36,12 @@ public class StepsRecord(
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     /** Count. Required field. Valid range: 1-1000000. */
+    @IntRange(from = 1, to = 1000_000)
     public val count: Long,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
     init {
-        requireNonNegative(value = count, name = "count")
+        count.requireNotLess(other = 1, name = "count")
         count.requireNotMore(other = 1000_000, name = "count")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
