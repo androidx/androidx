@@ -161,7 +161,9 @@ public class MultiPointerPredictor implements KalmanPredictor {
 
         if (foundNullPrediction) {
             for (MotionEvent ev : singlePointerEvents) {
-                ev.recycle();
+                if (ev != null) {
+                    ev.recycle();
+                }
             }
             return null;
         }
