@@ -212,7 +212,7 @@ public class BenchmarkRule internal constructor(
             var userspaceTrace: perfetto.protos.Trace? = null
 
             val tracePath = PerfettoCaptureWrapper().record(
-                fileLabel = uniqueName,
+                benchmarkName = uniqueName,
                 appTagPackages = packages,
                 userspaceTracingPackage = null
             ) {
