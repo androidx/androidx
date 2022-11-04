@@ -34,7 +34,7 @@ import java.util.Locale;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class KalmanInkPredictor implements InkPredictor {
+public class SinglePointerPredictor implements KalmanPredictor {
     private static final String TAG = "KalmanInkPredictor";
 
     // Influence of jank during each prediction sample
@@ -67,7 +67,7 @@ public class KalmanInkPredictor implements InkPredictor {
     // The Kalman filter is tuned to smooth noise while maintaining fast reaction to direction
     // changes. The stronger the filter, the smoother the prediction result will be, at the
     // cost of possible prediction errors.
-    private final PenKalmanFilter mKalman = new PenKalmanFilter(0.01, 1.0);
+    private final PointerKalmanFilter mKalman = new PointerKalmanFilter(0.01, 1.0);
 
     private final DVector2 mLastPosition = new DVector2();
     private long mPrevEventTime;
@@ -93,7 +93,7 @@ public class KalmanInkPredictor implements InkPredictor {
      * achieving close-to-zero latency, prediction errors can be more visible and the target should
      * be reduced to 20ms.
      */
-    public KalmanInkPredictor() {
+    public SinglePointerPredictor() {
         mKalman.reset();
         mPrevEventTime = 0;
     }

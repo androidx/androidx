@@ -33,7 +33,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
     }
     namespace "androidx.input.motionprediction"
 }
