@@ -41,8 +41,4 @@ import androidx.credentials.exceptions.CreateCredentialException
 open class CreatePublicKeyCredentialException @JvmOverloads constructor(
     type: String,
     errorMessage: CharSequence? = null
-) : CreateCredentialException(type, errorMessage) {
-    init {
-        require(type.isNotEmpty()) { "type must not be empty" }
-    }
-}
+) : CreateCredentialException(type, errorMessage)

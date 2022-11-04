@@ -20,7 +20,7 @@ import androidx.annotation.VisibleForTesting
 
 /**
  * During the create public key credential flow, this is returned when an authenticator response
- * exception contains a constraint_err code or equivalent, indicating that some mutation operation
+ * exception contains a constraint_err code, indicating that some mutation operation
  * occurring during a transaction failed by not satisfying constraints.
  *
  * @see CreatePublicKeyCredentialException
