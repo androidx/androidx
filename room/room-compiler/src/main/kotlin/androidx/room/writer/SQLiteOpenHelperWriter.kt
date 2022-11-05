@@ -17,6 +17,11 @@
 package androidx.room.writer
 
 import androidx.annotation.VisibleForTesting
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -25,15 +30,17 @@ import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
+import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.TypeSpec
 import java.util.ArrayDeque
+import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
 
@@ -46,7 +53,10 @@ const val VALIDATE_CHUNK_SIZE = 1000
 /**
  * Create an open helper using SupportSQLiteOpenHelperFactory
  */
-class SQLiteOpenHelperWriter(val database: Database) {
+class SQLiteOpenHelperWriter(
+    val context: Context,
+    val database: Database
+) {
     fun write(outVar: String, configuration: ParameterSpec, scope: CodeGenScope) {
         scope.builder().apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
@@ -55,7 +65,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 "final $T $L = new $T($N, $L, $S, $S)",
                 SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
                 callbackVar, RoomTypeNames.OPEN_HELPER, configuration,
-                createOpenCallback(scope), database.identityHash, database.legacyIdentityHash
+                createOpenCallback(), database.identityHash, database.legacyIdentityHash
             )
             // build configuration
             addStatement(
@@ -77,17 +87,52 @@ class SQLiteOpenHelperWriter(val database: Database) {
         }
     }
 
-    private fun createOpenCallback(scope: CodeGenScope): TypeSpec {
-        return TypeSpec.anonymousClassBuilder(L, database.version).apply {
-            superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
-            addMethod(createCreateAllTables())
-            addMethod(createDropAllTables(scope.fork()))
-            addMethod(createOnCreate(scope.fork()))
-            addMethod(createOnOpen(scope.fork()))
-            addMethod(createOnPreMigrate())
-            addMethod(createOnPostMigrate())
-            addMethods(createValidateMigration(scope.fork()))
-        }.build()
+    private fun createOpenCallback(): CodeBlock {
+        val openCallbackClassName = XClassName.get(
+            database.implTypeName.packageName,
+            database.implTypeName.simpleNames.single() + "_OpenHelperDelegate"
+        )
+        createOpenHelperDelegate(openCallbackClassName)
+        return CodeBlock.of("new $T(this)", openCallbackClassName.toJavaPoet())
+    }
+
+    private fun createOpenHelperDelegate(openCallbackClassName: XClassName) {
+        object : TypeWriter(CodeLanguage.JAVA) {
+            val scope = CodeGenScope(this)
+            override fun createTypeSpecBuilder(): XTypeSpec.Builder {
+                return XTypeSpec.classBuilder(codeLanguage, openCallbackClassName)
+                    .addOriginatingElement(database.element)
+                    .apply(
+                        javaTypeBuilder = {
+                            superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
+                            addField(
+                                RoomTypeNames.ROOM_DB.toJavaPoet(),
+                                "roomDb",
+                                PRIVATE, FINAL
+                            )
+                            addMethod(
+                                MethodSpec.constructorBuilder()
+                                    .addParameter(
+                                        RoomTypeNames.ROOM_DB.toJavaPoet(), "roomDb"
+                                    )
+                                    .addStatement("super($L)", database.version)
+                                    .addStatement("this.roomDb = roomDb")
+                                    .build()
+                            )
+                            addMethod(createCreateAllTables())
+                            addMethod(createDropAllTables(scope.fork()))
+                            addMethod(createOnCreate(scope.fork()))
+                            addMethod(createOnOpen(scope.fork()))
+                            addMethod(createOnPreMigrate())
+                            addMethod(createOnPostMigrate())
+                            addMethods(createValidateMigration(scope.fork()))
+                        },
+                        kotlinTypeBuilder = {
+                            TODO("Kotlin codegen not yet implemented!")
+                        }
+                    )
+            }
+        }.write(context.processingEnv)
     }
 
     private fun createValidateMigration(scope: CodeGenScope): List<MethodSpec> {
@@ -185,11 +230,11 @@ class SQLiteOpenHelperWriter(val database: Database) {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
-            addStatement("mDatabase = _db")
+            addStatement("roomDb.setDatabase(_db)")
             if (database.enableForeignKeys) {
                 addStatement("_db.execSQL($S)", "PRAGMA foreign_keys = ON")
             }
-            addStatement("internalInitInvalidationTracker(_db)")
+            addStatement("roomDb.internalInitInvalidationTracker(_db)")
             invokeCallbacks(scope, "onOpen")
         }.build()
     }
@@ -246,12 +291,12 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun MethodSpec.Builder.invokeCallbacks(scope: CodeGenScope, methodName: String) {
         val iVar = scope.getTmpVar("_i")
         val sizeVar = scope.getTmpVar("_size")
-        beginControlFlow("if (mCallbacks != null)").apply {
+        beginControlFlow("if (roomDb.getCallbacks() != null)").apply {
             beginControlFlow(
-                "for (int $N = 0, $N = mCallbacks.size(); $N < $N; $N++)",
+                "for (int $N = 0, $N = roomDb.getCallbacks().size(); $N < $N; $N++)",
                 iVar, sizeVar, iVar, sizeVar, iVar
             ).apply {
-                addStatement("mCallbacks.get($N).$N(_db)", iVar, methodName)
+                addStatement("roomDb.getCallbacks().get($N).$N(_db)", iVar, methodName)
             }
             endControlFlow()
         }

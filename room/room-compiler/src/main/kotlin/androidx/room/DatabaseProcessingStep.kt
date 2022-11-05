@@ -100,7 +100,7 @@ class DatabaseProcessingStep : XProcessingStep {
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(db, CodeLanguage.JAVA).write(context.processingEnv)
+            DatabaseWriter(context, db, CodeLanguage.JAVA).write(context.processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (schemaOutFolderPath == null) {

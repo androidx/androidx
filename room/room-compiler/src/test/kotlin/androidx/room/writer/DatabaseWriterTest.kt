@@ -52,6 +52,13 @@ class DatabaseWriterTest {
                         qName = "foo.bar.ComplexDatabase_Impl"
                     )
                 )
+                it.generatedSource(
+                    loadTestSource(
+                        fileName =
+                            "databasewriter/output/ComplexDatabase_Impl_OpenHelperDelegate.java",
+                        qName = "foo.bar.ComplexDatabase_Impl_OpenHelperDelegate"
+                    )
+                )
             }
         }
     }

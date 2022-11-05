@@ -54,8 +54,8 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
             """.trimIndent()
-        ) { database, _ ->
-            val query = SQLiteOpenHelperWriter(database)
+        ) { database, invocation ->
+            val query = SQLiteOpenHelperWriter(invocation.context, database)
                 .createTableQuery(database.entities.first())
             assertThat(
                 query,
@@ -79,8 +79,8 @@ class SQLiteOpenHelperWriterTest {
                 int age;
             """.trimIndent(),
             attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
-        ) { database, _ ->
-            val query = SQLiteOpenHelperWriter(database)
+        ) { database, invocation ->
+            val query = SQLiteOpenHelperWriter(invocation.context, database)
                 .createTableQuery(database.entities.first())
             assertThat(
                 query,
@@ -103,8 +103,8 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
                 """.trimIndent()
-            ) { database, _ ->
-                val query = SQLiteOpenHelperWriter(database)
+            ) { database, invocation ->
+                val query = SQLiteOpenHelperWriter(invocation.context, database)
                     .createTableQuery(database.entities.first())
                 assertThat(
                     query,
@@ -128,8 +128,8 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
                 """.trimIndent()
-            ) { database, _ ->
-                val query = SQLiteOpenHelperWriter(database)
+            ) { database, invocation ->
+                val query = SQLiteOpenHelperWriter(invocation.context, database)
                     .createTableQuery(database.entities.first())
                 assertThat(
                     query,
@@ -145,8 +145,9 @@ class SQLiteOpenHelperWriterTest {
 
     @Test
     fun createSimpleView() {
-        singleView("SELECT uuid, name FROM MyEntity") { database, _ ->
-            val query = SQLiteOpenHelperWriter(database).createViewQuery(database.views.first())
+        singleView("SELECT uuid, name FROM MyEntity") { database, invocation ->
+            val query = SQLiteOpenHelperWriter(invocation.context, database)
+                .createViewQuery(database.views.first())
             assertThat(query, `is`("CREATE VIEW `MyView` AS SELECT uuid, name FROM MyEntity"))
         }
     }
