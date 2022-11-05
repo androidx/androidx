@@ -325,6 +325,6 @@ public final class AvifWriter extends WriterBase {
             : new MediaMuxer(fd, MUXER_OUTPUT_HEIF);
 
         mEncoder = new AvifEncoder(width, height, gridEnabled, quality,
-            mInputMode, mHandler, new WriterCallback());
+            mInputMode, mHandler, new WriterCallback(), highBitDepthEnabled);
     }
 }

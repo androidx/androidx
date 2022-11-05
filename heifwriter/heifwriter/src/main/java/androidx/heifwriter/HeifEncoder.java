@@ -74,11 +74,11 @@ public final class HeifEncoder extends EncoderBase {
      * @param cb The callback to receive various messages from the heif encoder.
      */
     public HeifEncoder(int width, int height, boolean useGrid,
-        int quality, @InputMode int inputMode,
-        @Nullable Handler handler, @NonNull Callback cb) throws IOException {
+            int quality, @InputMode int inputMode,
+            @Nullable Handler handler, @NonNull Callback cb) throws IOException {
         super("HEIC", width, height, useGrid, quality, inputMode, handler, cb);
         mEncoder.setCallback(new HevcEncoderCallback(), mHandler);
-        finishSettingUpEncoder();
+        finishSettingUpEncoder(/* useBitDepth10 */ false);
     }
 
     protected static String findHevcFallback() {
