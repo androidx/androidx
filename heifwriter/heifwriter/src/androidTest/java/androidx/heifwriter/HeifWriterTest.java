@@ -205,6 +205,7 @@ public class HeifWriterTest extends TestBase {
     }
 
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_NoHandler() throws Throwable {
