@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.os.Bundle;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -61,6 +63,20 @@ public class PublicKeyCredentialJavaTest {
         PublicKeyCredential publicKeyCredential = new PublicKeyCredential(testJsonExpected);
         String testJsonActual = publicKeyCredential.getAuthenticationResponseJson();
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
+    }
+
+    @Test
+    public void getter_frameworkProperties() {
+        String jsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        Bundle expectedData = new Bundle();
+        expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON, jsonExpected);
+
+        PublicKeyCredential publicKeyCredential = new PublicKeyCredential(jsonExpected);
+
+        assertThat(publicKeyCredential.getType()).isEqualTo(
+                PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
+        assertThat(TestUtilsKt.equals(publicKeyCredential.getData(), expectedData)).isTrue();
     }
 
     @Test

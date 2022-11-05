@@ -16,9 +16,14 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.GetPublicKeyCredentialBaseOption.BUNDLE_KEY_REQUEST_JSON;
+import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_ALLOW_HYBRID;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+
+import android.os.Bundle;
 
 import org.junit.Test;
 
@@ -72,5 +77,21 @@ public class GetPublicKeyCredentialOptionJavaTest {
                 new GetPublicKeyCredentialOption(testJsonExpected);
         String testJsonActual = getPublicKeyCredentialOpt.getRequestJson();
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
+    }
+
+    @Test
+    public void getter_frameworkProperties_success() {
+        String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        boolean allowHybridExpected = false;
+        Bundle expectedData = new Bundle();
+        expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
+        expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
+
+        GetPublicKeyCredentialOption option =
+                new GetPublicKeyCredentialOption(requestJsonExpected, allowHybridExpected);
+
+        assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
+        assertThat(TestUtilsKt.equals(option.getData(), expectedData)).isTrue();
+        assertThat(option.getRequireSystemProvider()).isFalse();
     }
 }

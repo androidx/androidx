@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -51,6 +52,22 @@ class PublicKeyCredentialTest {
         val publicKeyCredential = PublicKeyCredential(testJsonExpected)
         val testJsonActual = publicKeyCredential.authenticationResponseJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
+    }
+
+    @Test
+    fun getter_frameworkProperties() {
+        val jsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        val expectedData = Bundle()
+        expectedData.putString(
+            PublicKeyCredential.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON, jsonExpected
+        )
+
+        val publicKeyCredential = PublicKeyCredential(jsonExpected)
+
+        assertThat(publicKeyCredential.type).isEqualTo(
+            PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL
+        )
+        assertThat(equals(publicKeyCredential.data, expectedData)).isTrue()
     }
 
     @Test

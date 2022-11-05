@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -46,5 +47,20 @@ class CreatePublicKeyCredentialResponseTest {
         val createPublicKeyCredentialResponse = CreatePublicKeyCredentialResponse(testJsonExpected)
         val testJsonActual = createPublicKeyCredentialResponse.registrationResponseJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
+    }
+
+    @Test
+    fun getter_frameworkProperties_success() {
+        val registrationResponseJsonExpected = "{\"input\":5}"
+        val expectedData = Bundle()
+        expectedData.putString(
+            CreatePublicKeyCredentialResponse.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON,
+            registrationResponseJsonExpected
+        )
+
+        val response = CreatePublicKeyCredentialResponse(registrationResponseJsonExpected)
+
+        assertThat(response.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+        assertThat(equals(response.data, expectedData)).isTrue()
     }
 }
