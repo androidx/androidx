@@ -20,6 +20,8 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -109,15 +111,47 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
             it.xcResultPath.set(runDarwinBenchmarks.flatMap { task ->
                 task.xcResultPath
             })
+            val resultFileName = "${extension.xcodeProjectName.get()}-benchmark-result.json"
             it.outputFile.set(
                 project.layout.buildDirectory.file(
-                    "${extension.xcodeProjectName.get()}-benchmark-result.json"
+                    resultFileName
                 )
             )
+            val provider = project.benchmarksDistributionDirectory(extension)
+            val resultFile = provider.map { directory ->
+                directory.file(resultFileName)
+            }
+            it.distFile.set(resultFile)
+        }
+    }
+
+    private fun Project.benchmarksDistributionDirectory(
+        extension: DarwinBenchmarkPluginExtension
+    ): Provider<Directory> {
+        val distProvider = project.distributionDirectory()
+        val benchmarksDirProvider = distProvider.flatMap { distDir ->
+            extension.xcodeProjectName.map { projectName ->
+                val projectPath = project.path.replace(":", "/")
+                val benchmarksDirectory = File(distDir, DARWIN_BENCHMARKS_DIR)
+                File(benchmarksDirectory, "$projectPath/$projectName")
+            }
+        }
+        return project.layout.dir(benchmarksDirProvider)
+    }
+
+    private fun Project.distributionDirectory(): Provider<File> {
+        // We want to write metrics to library metrics specific location
+        // Context: b/257326666
+        return providers.environmentVariable(DIST_DIR).map { value ->
+            File(value, LIBRARY_METRICS)
         }
     }
 
     private companion object {
+        // Environment variables
+        const val DIST_DIR = "DIST_DIR"
+        const val LIBRARY_METRICS = "librarymetrics"
+        const val DARWIN_BENCHMARKS_DIR = "darwinBenchmarks"
         // Gradle Properties
         const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri"
 
