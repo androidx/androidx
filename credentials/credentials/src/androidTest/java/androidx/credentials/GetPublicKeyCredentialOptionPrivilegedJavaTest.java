@@ -16,7 +16,14 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.GetPublicKeyCredentialBaseOption.BUNDLE_KEY_REQUEST_JSON;
+import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH;
+import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RP;
+
 import static com.google.common.truth.Truth.assertThat;
+
+import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -105,5 +112,27 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
                         "RP", clientDataHashExpected);
         String clientDataHashActual = getPublicKeyCredentialOptionPrivileged.getClientDataHash();
         assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected);
+    }
+
+    @Test
+    public void getter_frameworkProperties_success() {
+        String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        String rpExpected = "RP";
+        String clientDataHashExpected = "X342%4dfd7&";
+        boolean allowHybridExpected = false;
+        Bundle expectedData = new Bundle();
+        expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
+        expectedData.putString(BUNDLE_KEY_RP, rpExpected);
+        expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
+        expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
+
+        GetPublicKeyCredentialOptionPrivileged option =
+                new GetPublicKeyCredentialOptionPrivileged(
+                        requestJsonExpected, rpExpected, clientDataHashExpected,
+                        allowHybridExpected);
+
+        assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
+        assertThat(TestUtilsKt.equals(option.getData(), expectedData)).isTrue();
+        assertThat(option.getRequireSystemProvider()).isFalse();
     }
 }

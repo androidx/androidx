@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.credentials.CreatePublicKeyCredentialBaseRequest.Companion.BUNDLE_KEY_REQUEST_JSON
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_ALLOW_HYBRID
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -68,5 +71,27 @@ class CreatePublicKeyCredentialRequestTest {
         val createPublicKeyCredentialReq = CreatePublicKeyCredentialRequest(testJsonExpected)
         val testJsonActual = createPublicKeyCredentialReq.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
+    }
+
+    @Test
+    fun getter_frameworkProperties_success() {
+        val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        val allowHybridExpected = false
+        val expectedData = Bundle()
+        expectedData.putString(
+            BUNDLE_KEY_REQUEST_JSON, requestJsonExpected
+        )
+        expectedData.putBoolean(
+            BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected
+        )
+
+        val request = CreatePublicKeyCredentialRequest(
+            requestJsonExpected,
+            allowHybridExpected
+        )
+
+        assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+        assertThat(equals(request.data, expectedData)).isTrue()
+        assertThat(request.requireSystemProvider).isFalse()
     }
 }
