@@ -28,9 +28,9 @@ import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
  * app; a motion predictor is a utility that provides predicted {@link android.view.MotionEvent}
  * based on the previously received ones. Obtain a new predictor instance using
  * {@link #newInstance(android.view.View)}; put the motion events you receive into it with
- * {@link #recordMovement(android.view.MotionEvent)}, and call {@link #predict()} to retrieve the
+ * {@link #record(android.view.MotionEvent)}, and call {@link #predict()} to retrieve the
  * predicted  {@link android.view.MotionEvent} that would occur at the moment the next frame is
- * rendered on the display. Once no more predictions are needed, call {@link #dispose()} to stop it
+ * rendered on the display. Once no more predictions are needed, call {@link #close()} to stop it
  * and clean up resources.
  */
 public interface MotionEventPredictor extends AutoCloseable {
