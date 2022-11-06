@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.result
 
-
-package androidx.activity.result;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.Activity
 
 /**
- * A type-safe callback to be called when an {@link Activity#onActivityResult activity result}
+ * A type-safe callback to be called when an [activity result][Activity.onActivityResult]
  * is available.
- *
- * @param <O> result type
  */
-public interface ActivityResultCallback<O> {
-
+fun interface ActivityResultCallback<O : Any> {
     /**
      * Called when result is available
      */
-    void onActivityResult(@SuppressLint("UnknownNullness") O result);
+    fun onActivityResult(result: O)
 }

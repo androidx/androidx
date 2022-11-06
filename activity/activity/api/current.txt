@@ -141,8 +141,8 @@ package androidx.activity.result {
     field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
   }
 
-  public interface ActivityResultCallback<O> {
-    method public void onActivityResult(O!);
+  public fun interface ActivityResultCallback<O> {
+    method public void onActivityResult(O result);
   }
 
   public interface ActivityResultCaller {
