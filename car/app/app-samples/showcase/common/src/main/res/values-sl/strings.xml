@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Dosežena je omejitev opravil.\nČe nadaljujete, bo aplikacija prisilno ustavljena."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Korak opravila %1$d od %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknite, če želite nadaljevati."</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Odprite različne predloge in poskrbite, da je avtomobil v načinu vožnje."</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Predstavitvena različica preklopnega gumba"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Preizkus preklopa"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Spremembe stanj so dovoljene."</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Posodobitve so dovoljene pri pomikih nazaj."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Preizkus preklopa je omogočen."</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Preizkus preklopa je onemogočen."</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Predstavitvena različica sekundarnega dejanja in okrasitve"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Preizkus sekundarnega dejanja"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Izbrati je mogoče samo sekundarno dejanje."</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Preizkus okrasitve"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Sekundarna dejanja in okrasitve"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Izbrati je mogoče tudi vrstico."</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundarno dejanje je izbrano."</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Glavno dejanje vrstice je izbrano."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Predstavitvene različice različnih predlog"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Predstavitvene različice izpostavljenih stvari"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Predstavitvene različice postavitev predlog"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Predstavitvena različica zaslona za glasovni dostop"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Uporabniške interakcije"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Predstavitvene različice zahtev za dovoljenja"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Orodje za preverjanje presežkov aplikacije"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Preizkusite te predloge,"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"ko preklapljate vozilo iz stanja parkiranosti v stanje vožnje."</string>
     <string name="perm_group" msgid="3834918337351876270">"Skupina dovoljenj"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Skupina dovoljenj za aplikacijo Predstavitev"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Dostop do natančne lokacije"</string>

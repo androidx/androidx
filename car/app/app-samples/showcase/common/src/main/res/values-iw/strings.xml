@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"הגעת להגבלת המשימות\nהמשך יוביל לסגירה ידנית של האפליקציה"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏שלב %1$d מתוך %2$d במשימה"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"יש ללחוץ כדי להמשיך"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"יש לבדוק את התבניות השונות ולוודא שהמכונית במצב נהיגה"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"הדגמה של מתג להחלפת מצב"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"בדיקה של החלפת המצב"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"מותר לערוך שינויי מצב"</string>
@@ -322,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"‏מסך ההדגמה של אפליקציית Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"אינטראקציות של משתמשים"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"הדגמה של בקשת הרשאות"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"כלי התיקוף לגבי גלישה באפליקציה"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"יש לבדוק את התבניות הבאות במהלך שינוי"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"מצב הרכב מ\'חניה\' ל\'נהיגה\'"</string>
     <string name="perm_group" msgid="3834918337351876270">"קבוצת הרשאות"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"‏קבוצת הרשאות לאפליקציית Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"גישה למיקום המדויק"</string>

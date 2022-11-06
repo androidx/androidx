@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Dosegnuto ograničenje zadatka\nAko nastavite, aplikacija će se prisilno zaustaviti"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Korak zadatka: %1$d od %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknite da biste nastavili"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Posjetite različite predloške i potvrdite da je automobil u načinu za vožnju"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Pokazna verzija prekidača"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Prebaci test"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Dopuštene su promjene u praćenju stanja"</string>
@@ -322,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pokazna verzija zaslona za Glasovni pristup"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Korisničke interakcije"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Zatraži pokazne verzije dopuštenja"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Validator prelijevanja aplikacije"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Testirajte sljedeće predloške tijekom promjene"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"stanja vozila iz parkiranog u vožnju"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grupa dopuštenja"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupa dopuštenja za aplikaciju Odabir urednika"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Pristup preciznoj lokaciji"</string>

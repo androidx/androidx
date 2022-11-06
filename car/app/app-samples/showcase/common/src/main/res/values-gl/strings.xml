@@ -307,22 +307,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Permítense actualizacións ao ir á pantalla anterior."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Activouse a proba do interruptor"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Desactivouse a proba do interruptor"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Acción secundaria e demostración de decoración"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Proba da acción secundaria"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Só se pode seleccionar a acción secundaria"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Proba de decoración"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Accións secundarias e decoración"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Tamén se pode seleccionar a fila"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Seleccionouse a acción secundaria"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Seleccionouse a acción principal da fila"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Outras demostracións de modelos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracións de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracións de deseños de modelo"</string>

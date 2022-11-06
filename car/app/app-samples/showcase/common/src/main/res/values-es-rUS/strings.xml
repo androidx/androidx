@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Se alcanzó el límite de tareas\nSi avanzas, se forzará la detención de la app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Paso %1$d de %2$d de la tarea"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Haz clic para avanzar"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Visita las diferentes plantillas y asegúrate de que el automóvil esté en modo de conducción"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demostración de botón de activación"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Prueba el botón de activación"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Se permiten los cambios con estado"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Se permiten las actualizaciones en las operaciones de retroceso."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Prueba del botón de activación habilitada"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Prueba del botón de activación desactivada"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demostración de una acción secundaria y decoración"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Prueba de la acción secundaria"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Sólo puede seleccionarse la acción secundaria"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Prueba de decoración"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Acciones secundarias y decoraciones"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"También se puede seleccionar la fila"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Se seleccionó una acción secundaria"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Se seleccionó una acción de fila principal"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demostraciones de plantillas varias"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostraciones de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostración de plantilla de diseño"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pantalla de demostración de Acceso por voz"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interacciones del usuario"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demostración de solicitudes de permisos"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador de exceso de aplicaciones"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Prueba las siguientes plantillas mientras cambias"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"el vehículo del estado de estacionamiento al de conducción"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permisos"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permisos para la app de Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acceso a la ubicación precisa"</string>

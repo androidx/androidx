@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Kikomo cha shughuli kimefikiwa\nKuendelea kutalazimisha kuzima programu"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Hatua ya shughuli %1$d kati ya %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Bofya ili uendelee"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Tafadhali tembelea violezo tofauti na uhakikishe kuwa gari liko katika hali ya kuendesha gari"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Onyesho la Kitufe cha Kugeuza"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Jaribio la kipengele cha kuwasha/kuzima"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Mabadiliko yanayoweza kurudiwa mara kwa mara yanaruhusiwa"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Masasisho yameruhusiwa kwenye shughuli za nyuma."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Jaribio la Kipengele cha Kuwasha/Kuzima Limewashwa"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Jaribio la Kipengele cha Kuwasha/Kuzima Limezimwa"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Onyesho la Kitendo cha Upili na Jaribio la Usanifu"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Jaribio la Kitendo cha Upili"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Kitendo cha upili tu ndiyo kinaweza kuchaguliwa"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Jaribio la Usanifu"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Matendo ya Upili na Usanifu"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Safu mlalo pia inaweza kuchaguliwa"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Kitendo cha Upili kimechaguliwa"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Kitendo cha msingi cha safu mlalo kimechaguliwa"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Maonyesho ya Violezo Anuwai"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Maonyesho ya Kuangazia"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Maonyesho ya Kiolezo cha Muundo"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Skrini ya Toleo la Kujaribu la Kufikia kwa Kutamka"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Shughuli za Mtumiaji"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Omba Matoleo ya Kujaribu ya Ruhusa"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Kithibitishaji cha Vipengee vya ziada vya Programu"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Tafadhali jaribu violezo vifuatavyo huku ukibadilisha"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"gari limeondolewa katika hali ya kuegeshwa na kuwekwa katika hali ya kuendesha"</string>
     <string name="perm_group" msgid="3834918337351876270">"Kikundi cha Ruhusa"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Kikundi cha Ruhusa cha Programu ya Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Ufikiaji wa Eneo Mahususi"</string>

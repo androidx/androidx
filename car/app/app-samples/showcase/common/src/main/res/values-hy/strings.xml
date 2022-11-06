@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Առաջադրանքների սահմանաչափը սպառված է։\nԵթե շարունակեք, հավելվածի աշխատանքը կկանգնեցվի։"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Առաջադրանքի քայլ %1$d՝ %2$d-ից"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Սեղմեք՝ առաջ անցնելու համար"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Դիտեք տարբեր ձևանմուշներ և համոզվեք, որ մեքենան վարելու ռեժիմում է"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Փոխանջատիչի դեմո"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Միացնել/անջատել ստուգումը"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Կարգավիճակի փոփոխությունները թույլատրված են"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Թարմացումները թույլատրված են՝ ֆոնային ռեժիմում գործողություններ կատարելու համար։"</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Փոխանջատիչի փորձարկումը միացված է"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Փոխանջատիչի փորձարկումն անջատված է"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Երկրորդական գործողության և ձևավորման դեմո"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Երկրորդական գործողության թեստ"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Կարելի է ընտրել միայն երկրորդական գործողությունը"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Ձևավորման թեստ"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Երկրորդական գործողություններ և ձևավորում"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Շարքը ևս կարելի է ընտրել"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Ընտրված է շարքի երկրորդական գործողությունը"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Ընտրված է շարքի գլխավոր գործողությունը"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Այլ ձևանմուշների դեմոներ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Ցուցադրել դեմոները"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Ձևանմուշի դասավորության դեմոներ"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access-ի դեմոյի էկրան"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Օգտատիրոջ փոխազդումներ"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Թույլտվության հարցումների դեմոներ"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Հավելվածի լրացուցիչ ընտրացանկի ստուգում"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Փորձարկեք հետևյալ ձևանմուշները, երբ փոխում եք"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"մեքենայի ռեժիմը կայանվածից վարելու ռեժիմի"</string>
     <string name="perm_group" msgid="3834918337351876270">"Թույլտվությունների խումբ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase հավելվածի թույլտվությունների խումբ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Ճշգրիտ տեղադրության հասանելիություն"</string>
