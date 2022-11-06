@@ -26,4 +26,5 @@
     <string name="emoji_category_objects" msgid="6106115586332708067">"OBJETOS"</string>
     <string name="emoji_category_symbols" msgid="5626171724310261787">"SÍMBOLOS"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"BANDEIRAS"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Nenhum emoji disponível"</string>
 </resources>
