@@ -26,4 +26,6 @@
     <string name="emoji_category_objects" msgid="6106115586332708067">"ĐỒ VẬT"</string>
     <string name="emoji_category_symbols" msgid="5626171724310261787">"BIỂU TƯỢNG"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"CỜ"</string>
+    <!-- no translation found for emoji_empty_non_recent_category (288822832574892625) -->
+    <skip />
 </resources>
