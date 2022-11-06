@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static androidx.camera.core.ImageProcessingUtil.convertJpegBytesToImage;
 import static androidx.camera.core.ImageProcessingUtil.rotateYUV;
+import static androidx.camera.core.ImageProcessingUtil.writeJpegBytesToSurface;
 import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -33,6 +34,7 @@ import android.media.ImageWriter;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.core.math.MathUtils;
@@ -47,6 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -149,6 +152,61 @@ public class ImageProcessingUtilTest {
         assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
         assertBitmapColor(bitmap, Color.RED, JPEG_ENCODE_ERROR_TOLERANCE);
+    }
+
+    @Test
+    public void writeJpegToSurface_returnsTheSameImage() {
+        // Arrange: create a JPEG image with solid color.
+        byte[] inputBytes = createJpegBytesWithSolidColor(Color.RED);
+
+        // Act: acquire image and get the bytes.
+        writeJpegBytesToSurface(mJpegImageReaderProxy.getSurface(), inputBytes);
+
+        final ImageProxy imageProxy = mJpegImageReaderProxy.acquireLatestImage();
+        assertThat(imageProxy).isNotNull();
+        ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
+        byteBuffer.rewind();
+        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byteBuffer.get(outputBytes);
+
+        // Assert: the color and the dimension of the restored image.
+        Bitmap bitmap = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
+        assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
+        assertBitmapColor(bitmap, Color.RED, JPEG_ENCODE_ERROR_TOLERANCE);
+    }
+
+    @Test
+    public void convertYuvToJpegBytesIntoSurface_sizeAndRotationAreCorrect() throws IOException {
+        final int expectedRotation = 270;
+        // Arrange: create a YUV_420_888 image
+        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/false,
+                /*incrementValue=*/false));
+
+        // Act: convert it into JPEG and write into the surface.
+        ImageProcessingUtil.convertYuvToJpegBytesIntoSurface(mYUVImageProxy,
+                100, expectedRotation, mJpegImageReaderProxy.getSurface());
+
+        final ImageProxy imageProxy = mJpegImageReaderProxy.acquireLatestImage();
+        assertThat(imageProxy).isNotNull();
+        ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
+        byteBuffer.rewind();
+        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byteBuffer.get(outputBytes);
+
+        // Assert: the format is JPEG and can decode,  the size is correct, the rotation in Exif
+        // is correct.
+        assertThat(imageProxy.getFormat()).isEqualTo(ImageFormat.JPEG);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
+        assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
+        Exif exif = Exif.createFromImageProxy(imageProxy);
+        assertThat(exif.getRotation()).isEqualTo(expectedRotation);
     }
 
     /**

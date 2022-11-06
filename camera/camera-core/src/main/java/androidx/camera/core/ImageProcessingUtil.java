@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
+import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
@@ -91,6 +92,45 @@ public final class ImageProcessingUtil {
             Logger.e(TAG, "Failed to get acquire JPEG image.");
         }
         return imageProxy;
+    }
+
+    /**
+     * Writes a JPEG bytes data as an Image into the Surface. Returns true if it succeeds and false
+     * otherwise.
+     */
+    public static boolean writeJpegBytesToSurface(
+            @NonNull Surface surface,
+            @NonNull byte[] jpegBytes) {
+        Preconditions.checkNotNull(jpegBytes);
+        Preconditions.checkNotNull(surface);
+
+        if (nativeWriteJpegToSurface(jpegBytes, surface) != 0) {
+            Logger.e(TAG, "Failed to enqueue JPEG image.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Convert a YUV_420_888 ImageProxy to a JPEG bytes data as an Image into the Surface.
+     *
+     * <p>Returns true if it succeeds and false otherwise.
+     */
+    public static boolean convertYuvToJpegBytesIntoSurface(
+            @NonNull ImageProxy imageProxy,
+            @IntRange(from = 1, to = 100) int jpegQuality,
+            @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
+            @NonNull Surface outputSurface) {
+        try {
+            byte[] jpegBytes =
+                    ImageUtil.yuvImageToJpegByteArray(
+                            imageProxy, null, jpegQuality, rotationDegrees);
+            return writeJpegBytesToSurface(outputSurface,
+                    jpegBytes);
+        } catch (ImageUtil.CodecFailedException e) {
+            Logger.e(TAG, "Failed to encode YUV to JPEG", e);
+            return false;
+        }
     }
 
     /**
