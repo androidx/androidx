@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"已达到任务限制\n继续会强制停止应用"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"任务第 %1$d 步（共 %2$d 步）"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"点击以继续"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"请访问不同模板并确保此车辆处于驾驶模式"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"切换按钮演示"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"切换测试"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"允许有状态更改"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"返回操作允许更新。"</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"切换测试已启用"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"切换测试已停用"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"次要操作和装饰演示"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"次要操作测试"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"只能选择次要操作"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"装饰测试"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"次要操作和装饰"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"也可以选择行"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"次要操作处于选中状态"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"行主要操作处于选中状态"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他模板演示"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"展示演示"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"模板布局演示"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access 演示屏幕"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"用户互动"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"请求权限演示"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"应用溢出验证器"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"更改时请测试以下模板"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"从停车状态变为驾驶状态的车辆"</string>
     <string name="perm_group" msgid="3834918337351876270">"权限组"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"“展示”应用的权限组"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"访问精确位置信息"</string>

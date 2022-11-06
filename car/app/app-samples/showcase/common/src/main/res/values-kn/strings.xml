@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ಕಾರ್ಯದ ಮಿತಿಯನ್ನು ತಲುಪಿದ್ದೀರಿ\nಮುಂದುವರಿಸಿದರೆ ಆ್ಯಪ್ ಅನ್ನು ಬಲವಂತವಾಗಿ ನಿಲ್ಲಿಸಲಾಗುತ್ತದೆ"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"ಕಾರ್ಯದ ಹಂತ %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ಮುಂದೆ ಹೋಗಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"ವಿವಿಧ ಟೆಂಪ್ಲೇಟ್‌ಗಳಿಗೆ ಭೇಟಿ ನೀಡಿ ಮತ್ತು ಕಾರು, ಡ್ರೈವಿಂಗ್ ಮೋಡ್‌ನಲ್ಲಿರುವುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ಟಾಗಲ್ ಬಟನ್ ಡೆಮೋ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ಟಾಗಲ್ ಟೆಸ್ಟ್"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ಪುನಃ ಸ್ಥಾಪಿಸಬಹುದಾದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"ಹಿನ್ನೆಲೆ ಕಾರ್ಯಾಚರಣೆಗಳಿಗಾಗಿ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆ ಮತ್ತು ಅಲಂಕಾರ ಡೆಮೊ"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಯ ಪರೀಕ್ಷೆ"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಯನ್ನು ಮಾತ್ರ ಆಯ್ಕೆ ಮಾಡಬಹುದು"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"ಅಲಂಕಾರ ಪರೀಕ್ಷೆ"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಗಳು ಮತ್ತು ಅಲಂಕಾರ"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ಸಾಲನ್ನು ಸಹ ಆಯ್ಕೆ ಮಾಡಬಹುದು"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"ಸಾಲಿನ ಪ್ರಾಥಮಿಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ಡೆಮೋಗಳು"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ಟೆಂಪ್ಲೇಟ್ ಲೇಔಟ್ ಡೆಮೋಗಳು"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"ಧ್ವನಿ ಆ್ಯಕ್ಸೆಸ್ ಡೆಮೋ ಸ್ಕ್ರೀನ್"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ಬಳಕೆದಾರರ ಸಂವಹನಗಳು"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"ಅನುಮತಿಗಳ ಡೆಮೋಗಳನ್ನು ವಿನಂತಿಸಿ"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"ಅಪ್ಲಿಕೇಶನ್ ಓವರ್‌ಫ್ಲೋ ಮೌಲ್ಯಮಾಪಕ"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"ಬದಲಾಯಿಸುವಾಗ ಕೆಳಗಿನ ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ಪರೀಕ್ಷಿಸಿ"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"ನಿಲುಗಡೆಯಿಂದ ಚಾಲನೆಯ ಸ್ಥಿತಿಗೆ ಬಂದ ವಾಹನ"</string>
     <string name="perm_group" msgid="3834918337351876270">"ಅನುಮತಿ ಗುಂಪು"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"ಶೋಕೇಸ್ ಆ್ಯಪ್‌ನ ಅನುಮತಿ ಗುಂಪು"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"ನಿಖರವಾದ ಸ್ಥಳಕ್ಕೆ ಆ್ಯಕ್ಸೆಸ್"</string>

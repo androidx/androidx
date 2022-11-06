@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite da tarefa atingido\nContinuar vai forçar a parada do app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Visite os diferentes modelos e confira se o veículo está no modo carro"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demonstração de botão de ativação"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Alternar teste"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Mudanças com estado são permitidas"</string>
@@ -307,35 +306,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Atualizações permitidas em operações de retorno."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Alternância de teste ativada"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Alternância de teste desativada"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demonstração de ação secundária e de decoração"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Teste de ação secundária"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Apenas a ação secundária pode ser selecionada"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Teste de decoração"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Ações secundárias e decoração"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"A linha também pode ser selecionada"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"A ação secundária está selecionada"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"A ação principal da linha está selecionada"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstração de modelos diversos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrações em destaque"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrações de modelos de layout"</string>
     <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Demonstrações de modelo de grade"</string>
-    <string name="voice_access_demo_title" msgid="3825223890895361496">"Tela de demonstração do Acesso por voz"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Tela de demonstração do Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interações do usuário"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Solicitar demonstração de permissões"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador do menu flutuante do aplicativo"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Teste os seguintes modelos durante a mudança"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"o veículo do estado de estacionamento para o de condução"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
