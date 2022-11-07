@@ -46,13 +46,6 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
         get() = superClass
 
     /**
-     * The direct super types of this element.
-     *
-     * See [JLS 4.10.2](https://docs.oracle.com/javase/specs/jls/se18/html/jls-4.html#jls-4.10.2)
-     */
-    val superTypes: List<XType>
-
-    /**
      * The super class of this element if it represents a class.
      */
     val superClass: XType?

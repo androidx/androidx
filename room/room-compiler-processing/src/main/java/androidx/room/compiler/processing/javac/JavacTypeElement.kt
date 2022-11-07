@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
@@ -36,7 +35,6 @@ import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
@@ -193,17 +191,6 @@ internal sealed class JavacTypeElement(
             kotlinType = kotlinMetadata?.kmType,
             elementNullability = element.nullability
         )
-    }
-
-    override val superTypes: List<XType> by lazy {
-        buildList {
-            if (isInterface() && superInterfaces.isEmpty()) {
-                add(env.requireType(TypeName.OBJECT))
-            } else {
-                superClass?.let { add(it) }
-                addAll(superInterfaces)
-            }
-        }
     }
 
     override val superClass: JavacType? by lazy {
