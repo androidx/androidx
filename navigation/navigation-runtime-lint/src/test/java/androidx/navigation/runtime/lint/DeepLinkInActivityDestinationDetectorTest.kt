@@ -66,7 +66,7 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
     fun expectFail() {
         lint().files(
             xml("res/navigation/nav_main.xml",
-            """
+                """
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_main"
@@ -97,5 +97,37 @@ res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activ
 0 errors, 1 warnings
             """
             )
+    }
+
+    @Test
+    fun expectCleanSuppress() {
+        lint().files(
+            xml("res/navigation/nav_main.xml",
+            """
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/fragment_main"
+    >
+
+    <fragment
+        android:id="@+id/fragment_main"
+        android:name="com.example.deeplink.MainFragment"
+        />
+
+    <activity
+        android:id="@+id/activity_deep_link"
+        android:name="com.example.deeplink.DeepLinkActivity"
+        >
+        <deepLink tools:ignore="DeepLinkInActivityDestination" app:uri="www.example.com" />
+    </activity>
+
+</navigation>
+            """
+            )
+        )
+            .run()
+            .expectClean()
     }
 }
