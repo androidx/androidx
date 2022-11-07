@@ -17,7 +17,6 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.LoadSdkException
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.Bundle
@@ -29,15 +28,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.reflect.KClass
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.`when`
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -46,40 +42,50 @@ import org.mockito.Mockito.`when`
 @RequiresApi(api = UPSIDE_DOWN_CAKE)
 class SandboxedSdkProviderAdapterTest {
 
-    private lateinit var mContext: Context
-    private lateinit var mPackageManager: PackageManager
-    private lateinit var providerUnderTest: SandboxedSdkProviderAdapter
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
-        mContext = spy(ApplicationProvider.getApplicationContext<Context>())
-        mPackageManager = mock(PackageManager::class.java)
-        `when`(mContext.packageManager).thenReturn(mPackageManager)
-        providerUnderTest = SandboxedSdkProviderAdapter()
-        providerUnderTest.attachContext(mContext)
+        context = ApplicationProvider.getApplicationContext()
     }
 
     @Test
-    @Throws(LoadSdkException::class)
+    fun testAdapterGetCompatClassNameFromAsset() {
+        val expectedClassName = context.assets
+            .open("SandboxedSdkProviderCompatClassName.txt")
+            .use { inputStream ->
+                inputStream.bufferedReader().readLine()
+            }
+
+        val adapter = SandboxedSdkProviderAdapter()
+        adapter.attachContext(context)
+
+        adapter.onLoadSdk(Bundle())
+
+        val delegate = adapter.extractDelegate<SandboxedSdkProviderCompat>()
+        assertThat(delegate.javaClass.name)
+            .isEqualTo(expectedClassName)
+    }
+
+    @Test
     fun onLoadSdk_shouldInstantiateDelegateAndAttachContext() {
-        setupDelegate(TestOnLoadReturnResultSdkProvider::class.java)
+        val adapter = createAdapterFor(TestOnLoadReturnResultSdkProvider::class)
 
-        providerUnderTest.onLoadSdk(Bundle())
+        adapter.onLoadSdk(Bundle())
 
-        val delegate = extractDelegate(TestOnLoadReturnResultSdkProvider::class.java)
+        val delegate = adapter.extractDelegate<TestOnLoadReturnResultSdkProvider>()
         assertThat(delegate.context)
-            .isSameInstanceAs(mContext)
+            .isSameInstanceAs(context)
     }
 
     @Test
-    @Throws(LoadSdkException::class)
     fun onLoadSdk_shouldDelegateToCompatClassAndReturnResult() {
-        setupDelegate(TestOnLoadReturnResultSdkProvider::class.java)
+        val adapter = createAdapterFor(TestOnLoadReturnResultSdkProvider::class)
         val params = Bundle()
 
-        val result = providerUnderTest.onLoadSdk(params)
+        val result = adapter.onLoadSdk(params)
 
-        val delegate = extractDelegate(TestOnLoadReturnResultSdkProvider::class.java)
+        val delegate = adapter.extractDelegate<TestOnLoadReturnResultSdkProvider>()
         assertThat(delegate.mLastOnLoadSdkBundle)
             .isSameInstanceAs(params)
         assertThat(result)
@@ -88,13 +94,13 @@ class SandboxedSdkProviderAdapterTest {
 
     @Test
     fun loadSdk_shouldRethrowExceptionFromCompatClass() {
-        setupDelegate(TestOnLoadThrowSdkProvider::class.java)
+        val adapter = createAdapterFor(TestOnLoadThrowSdkProvider::class)
 
         val ex = assertThrows(LoadSdkException::class.java) {
-            providerUnderTest.onLoadSdk(Bundle())
+            adapter.onLoadSdk(Bundle())
         }
 
-        val delegate = extractDelegate(TestOnLoadThrowSdkProvider::class.java)
+        val delegate = adapter.extractDelegate<TestOnLoadThrowSdkProvider>()
         assertThat(ex.cause)
             .isSameInstanceAs(delegate.mError.cause)
         assertThat(ex.extraInformation)
@@ -103,35 +109,35 @@ class SandboxedSdkProviderAdapterTest {
 
     @Test
     fun loadSdk_shouldThrowIfCompatClassNotExists() {
-        setupDelegateClassname("NOTEXISTS")
+        val adapter = createAdapterFor("NOTEXISTS")
 
-        assertThrows(RuntimeException::class.java) {
-            providerUnderTest.onLoadSdk(Bundle())
+        assertThrows(ClassNotFoundException::class.java) {
+            adapter.onLoadSdk(Bundle())
         }
     }
 
     @Test
     fun beforeUnloadSdk_shouldDelegateToCompatProvider() {
-        setupDelegate(TestOnBeforeUnloadDelegateSdkProvider::class.java)
+        val adapter = createAdapterFor(TestOnBeforeUnloadDelegateSdkProvider::class)
 
-        providerUnderTest.beforeUnloadSdk()
+        adapter.beforeUnloadSdk()
 
-        val delegate = extractDelegate(TestOnBeforeUnloadDelegateSdkProvider::class.java)
+        val delegate = adapter.extractDelegate<TestOnBeforeUnloadDelegateSdkProvider>()
         assertThat(delegate.mBeforeUnloadSdkCalled)
             .isTrue()
     }
 
     @Test
     fun getView_shouldDelegateToCompatProviderAndReturnResult() {
-        setupDelegate(TestGetViewSdkProvider::class.java)
+        val adapter = createAdapterFor(TestGetViewSdkProvider::class)
         val windowContext = mock(Context::class.java)
         val params = Bundle()
         val width = 1
         val height = 2
 
-        val result = providerUnderTest.getView(windowContext, params, width, height)
+        val result = adapter.getView(windowContext, params, width, height)
 
-        val delegate = extractDelegate(TestGetViewSdkProvider::class.java)
+        val delegate = adapter.extractDelegate<TestGetViewSdkProvider>()
         assertThat(result)
             .isSameInstanceAs(delegate.mView)
         assertThat(delegate.mLastWindowContext)
@@ -144,28 +150,23 @@ class SandboxedSdkProviderAdapterTest {
             .isSameInstanceAs(height)
     }
 
-    private fun setupDelegate(clazz: Class<out SandboxedSdkProviderCompat>) {
-        setupDelegateClassname(clazz.name)
+    private fun createAdapterFor(
+        clazz: KClass<out SandboxedSdkProviderCompat>
+    ): SandboxedSdkProviderAdapter = createAdapterFor(clazz.java.name)
+
+    private fun createAdapterFor(delegateClassName: String): SandboxedSdkProviderAdapter {
+        val adapter = SandboxedSdkProviderAdapter(
+            object : SandboxedSdkProviderAdapter.CompatClassNameProvider {
+                override fun getCompatProviderClassName(context: Context): String {
+                    return delegateClassName
+                }
+            })
+        adapter.attachContext(context)
+        return adapter
     }
 
-    private fun <T : SandboxedSdkProviderCompat?> extractDelegate(clazz: Class<T>): T {
-        return clazz.cast(providerUnderTest.delegate)!!
-    }
-
-    private fun setupDelegateClassname(className: String) {
-        val property = mock(PackageManager.Property::class.java)
-        try {
-            `when`(
-                mPackageManager.getProperty(
-                    eq("android.sdksandbox.PROPERTY_COMPAT_SDK_PROVIDER_CLASS_NAME"),
-                    any(String::class.java)
-                )
-            ).thenReturn(property)
-        } catch (ignored: PackageManager.NameNotFoundException) {
-        }
-        `when`(property.string)
-            .thenReturn(className)
-    }
+    private inline fun <reified T : SandboxedSdkProviderCompat>
+        SandboxedSdkProviderAdapter.extractDelegate(): T = delegate as T
 
     class TestOnLoadReturnResultSdkProvider : SandboxedSdkProviderCompat() {
         var mResult = create(Binder())
