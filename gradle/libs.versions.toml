@@ -48,7 +48,7 @@ moshi = "1.13.0"
 protobuf = "3.21.8"
 paparazzi = "1.0.0"
 paparazziNative = "2022.1.1-canary-f5f9f71"
-skiko = "0.7.37"
+skiko = "0.7.39"
 sqldelight = "1.3.0"
 retrofit = "2.7.2"
 wire = "4.4.1"
@@ -206,6 +206,7 @@ skikoCommon = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-macos-arm64", version.ref = "skiko" }
 skikoMacOsX64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-macos-x64", version.ref = "skiko" }
 skikoWindowsX64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-windows-x64", version.ref = "skiko" }
+skikoWindowsArm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-windows-arm64", version.ref = "skiko" }
 skikoLinuxX64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-linux-x64", version.ref = "skiko" }
 skikoLinuxArm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-linux-arm64", version.ref = "skiko" }
 skikoWasm = { module = "org.jetbrains.skiko:skiko-js-wasm-runtime", version.ref = "skiko" }
