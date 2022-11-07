@@ -44,7 +44,7 @@ import org.junit.runners.model.Statement
  *
  *     @Test
  *     fun startup() = baselineProfileRule.collectBaselineProfile(
- *         packageName = "com.example.app"
+ *         packageName = "com.example.my.application.id"
  *     ) {
  *         pressHome()
  *         // This block defines the app's critical user journey. Here we are
@@ -78,10 +78,12 @@ class BaselineProfileRule : TestRule {
     }
 
     /**
-     * Collects baseline profiles for a critical user journey.
-     * @param packageName Package name of the app for which profiles are to be generated.
+     * Collects baseline profiles for a set of interactions with the application
+     * @param packageName ApplicationId / Application manifest package name of the app for
+     *   which profiles are generated.
      * @param packageFilters List of package names to use as a filter for the generated profiles.
-     *  By default no filters are applied. Note that this works only when the code is not obfuscated.
+     *  By default no filters are applied. Note that this works only when the code is not
+     *  obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
