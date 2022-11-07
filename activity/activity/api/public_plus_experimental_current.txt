@@ -73,11 +73,12 @@ package androidx.activity {
   }
 
   public abstract class OnBackPressedCallback {
-    ctor public OnBackPressedCallback(boolean);
+    ctor public OnBackPressedCallback(boolean isEnabled);
     method @MainThread public abstract void handleOnBackPressed();
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
+    property @MainThread public final boolean isEnabled;
   }
 
   public final class OnBackPressedDispatcher {
