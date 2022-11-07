@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.background
@@ -34,6 +35,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.template.ImageBlock
 import androidx.glance.template.ListStyle
 import androidx.glance.template.ListTemplateData
 import androidx.glance.template.LocalTemplateMode
@@ -86,13 +88,19 @@ private fun WidgetLayoutExpanded(data: ListTemplateData) {
             itemsIndexed(data.listContent) { _, item ->
                 val itemSpacer = if (data.listStyle == ListStyle.Full) 8.dp else 0.dp
                 val itemModifier = GlanceModifier.fillMaxSize().padding(vertical = itemSpacer)
+                var itemImageBlock: ImageBlock? = null
+                if (LocalSize.current.width > GlanceTemplateAppWidget.sizeMin &&
+                    LocalSize.current.height > GlanceTemplateAppWidget.sizeMin
+                ) {
+                    itemImageBlock = item.imageBlock
+                }
                 Row(
                     modifier = itemModifier,
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     TextAndImageBlockTemplate(
                         item.textBlock,
-                        item.imageBlock,
+                        itemImageBlock,
                         GlanceModifier.defaultWeight()
                     )
                     Spacer(modifier = GlanceModifier.width(16.dp))
