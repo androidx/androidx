@@ -36,7 +36,7 @@ import java.io.File
  */
 public class MacrobenchmarkScope(
     /**
-     * Package name of the app being tested.
+     * ApplicationId / Package name of the app being tested.
      */
     val packageName: String,
     /**
