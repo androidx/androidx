@@ -194,7 +194,7 @@ public class SmallImage internal constructor(
     internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {
         setSmallImage(image)
         setSmallImageStyle(
-            when (type) {
+            when (this@SmallImage.type) {
                 SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
                 SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
             }
