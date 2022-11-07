@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -32,8 +32,6 @@ import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
-
-import com.example.androidx.R;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
     }
 
     @Override
-    public RouteController onCreateRouteController(String routeId) {
+    public RouteController onCreateRouteController(@NonNull String routeId) {
         if (!checkDrawOverlay()) return null;
 
         MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
@@ -484,7 +482,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
             for (RouteController controller : getValidMemberControllers()) {
                 controller.onControlRequest(intent, callback);

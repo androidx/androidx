@@ -17,44 +17,6 @@
 <resources>
     <string name="activity_sample_code">AndroidX Demos</string>
 
-    <!-- MediaRouter -->
-
-    <string name="sample_media_router_activity_dark">MediaRouter/Dark Theme</string>
-    <string name="sample_media_router_activity_light">MediaRouter/Light Theme</string>
-    <string name="sample_media_router_activity_light_with_dark_action_bar">MediaRouter/Light Theme, Dark Action Bar</string>
-    <string name="sample_media_router_activity_dynamic_group">MediaRouter/Dynamic Group
-        Dialog</string>
-    <string name="sample_media_router_activity_output_switcher">MediaRouter/Output Switcher</string>
-    <string name="sample_media_router_activity_legacy">MediaRouter/Disable MediaRouter2</string>
-    <string name="sample_media_router_text">This activity demonstrates how to
-            use MediaRouter from the support library.  Select a route from the action bar.</string>
-    <string name="media_route_menu_title">Play on...</string>
-    <string name="sample_media_route_settings_activity">Sample route settings</string>
-
-    <string name="use_default_media_control">Use default media control</string>
-    <string name="my_media_control_text">My Media Control</string>
-
-    <string name="library_tab_text">Library</string>
-    <string name="playlist_tab_text">Playlist</string>
-    <string name="info_tab_text">Route Info</string>
-
-    <string name="sample_media_route_provider_service">Media Route Provider Service Support Library Sample</string>
-    <string name="fixed_volume_route_name">Fixed Volume Remote Playback Route</string>
-    <string name="variable_volume_basic_route_name">Variable Volume (Basic) Remote Playback Route</string>
-    <string name="variable_volume_queuing_route_name">Variable Volume (Queuing) Remote Playback Route</string>
-    <string name="variable_volume_session_route_name">Variable Volume (Session) Remote Playback Route</string>
-    <string name="variable_volume_route_group_name">Variable Volume Route Group</string>
-    <string name="mixed_volume_route_group_name">Mixed Volume Route Group</string>
-    <string name="sample_route_description">Sample route from AndroidXDemos</string>
-
-    <string name="sample_dynamic_group_mrp_service">Media Route Provider Service Support Library Sample (supporting dynamic group)</string>
-    <string name="dg_tv_route_name1">Dynamic Route 1 - TV</string>
-    <string name="dg_tv_route_name2">Dynamic Route 2 - TV</string>
-    <string name="dg_speaker_route_name3">Dynamic Route 3 - Speaker</string>
-    <string name="dg_speaker_route_name4">Dynamic Route 4 - Speaker</string>
-    <string name="dg_not_unselectable_route_name5"> Dynamic Route 5 - Not unselectable</string>
-    <string name="dg_static_group_route_name6"> Dynamic Route 6 - Static Group</string>
-
     <!-- GridLayout -->
 
     <string name="grid_layout_1">GridLayout/1. Simple Form</string>
