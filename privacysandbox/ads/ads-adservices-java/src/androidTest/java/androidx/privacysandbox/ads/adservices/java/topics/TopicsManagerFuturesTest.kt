@@ -45,6 +45,7 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.TIRAMISU)
 class TopicsManagerFuturesTest {
     private lateinit var mContext: Context
     private val mSdkName: String = "sdk1"
