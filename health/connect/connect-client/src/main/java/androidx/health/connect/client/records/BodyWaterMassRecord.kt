@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.kilograms
@@ -25,7 +24,6 @@ import java.time.ZoneOffset
 /**
  * Captures the user's body water mass. Each record represents a single instantaneous measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BodyWaterMassRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,

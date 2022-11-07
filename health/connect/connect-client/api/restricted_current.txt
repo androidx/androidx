@@ -281,6 +281,18 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
+  public final class BodyWaterMassRecord implements androidx.health.connect.client.records.InstantaneousRecord {
+    ctor public BodyWaterMassRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Mass mass, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Mass getMass();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final androidx.health.connect.client.units.Mass mass;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
   public final class BoneMassRecord implements androidx.health.connect.client.records.InstantaneousRecord {
     ctor public BoneMassRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Mass mass, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.units.Mass getMass();
@@ -646,6 +658,18 @@ package androidx.health.connect.client.records {
     method public java.time.Instant getTime();
     property public final long beatsPerMinute;
     property public final java.time.Instant time;
+  }
+
+  public final class HeartRateVariabilityRmssdRecord implements androidx.health.connect.client.records.InstantaneousRecord {
+    ctor public HeartRateVariabilityRmssdRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, double heartRateVariabilityMillis, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public double getHeartRateVariabilityMillis();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public final double heartRateVariabilityMillis;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
   }
 
   public final class HeightRecord implements androidx.health.connect.client.records.InstantaneousRecord {
