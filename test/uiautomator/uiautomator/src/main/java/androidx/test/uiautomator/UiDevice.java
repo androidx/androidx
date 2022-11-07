@@ -620,6 +620,7 @@ public class UiDevice implements Searchable {
      * @param watcher {@link UiWatcher}
      */
     public void registerWatcher(@Nullable String name, @Nullable UiWatcher watcher) {
+        Log.d(TAG, String.format("Registering watcher %s.", name));
         if (mInWatcherContext) {
             throw new IllegalStateException("Cannot register new watcher from within another");
         }
@@ -633,6 +634,7 @@ public class UiDevice implements Searchable {
      * @param name used to register the UiWatcher
      */
     public void removeWatcher(@Nullable String name) {
+        Log.d(TAG, String.format("Removing watcher %s.", name));
         if (mInWatcherContext) {
             throw new IllegalStateException("Cannot remove a watcher from within another");
         }
@@ -672,6 +674,7 @@ public class UiDevice implements Searchable {
      * See {@link #registerWatcher(String, UiWatcher)}
      */
     public void resetWatcherTriggers() {
+        Log.d(TAG, "Resetting all watchers.");
         mWatchersTriggers.clear();
     }
 
