@@ -458,7 +458,7 @@ open class MigrationTestHelper : TestWatcher {
         databaseBundle: DatabaseBundle,
         private val mVerifyDroppedTables: Boolean
     ) : RoomOpenHelperDelegate(databaseBundle) {
-        override fun createAllTables(database: SupportSQLiteDatabase) {
+        override fun createAllTables(db: SupportSQLiteDatabase) {
             throw UnsupportedOperationException(
                 "Was expecting to migrate but received create." +
                     "Make sure you have created the database first."
@@ -547,9 +547,9 @@ open class MigrationTestHelper : TestWatcher {
     internal class CreatingDelegate(
         databaseBundle: DatabaseBundle
     ) : RoomOpenHelperDelegate(databaseBundle) {
-        override fun createAllTables(database: SupportSQLiteDatabase) {
+        override fun createAllTables(db: SupportSQLiteDatabase) {
             mDatabaseBundle.buildCreateQueries().forEach { query ->
-                database.execSQL(query)
+                db.execSQL(query)
             }
         }
 
@@ -567,12 +567,12 @@ open class MigrationTestHelper : TestWatcher {
     ) : RoomOpenHelper.Delegate(
             mDatabaseBundle.version
         ) {
-        override fun dropAllTables(database: SupportSQLiteDatabase) {
+        override fun dropAllTables(db: SupportSQLiteDatabase) {
             throw UnsupportedOperationException("cannot drop all tables in the test")
         }
 
-        override fun onCreate(database: SupportSQLiteDatabase) {}
-        override fun onOpen(database: SupportSQLiteDatabase) {}
+        override fun onCreate(db: SupportSQLiteDatabase) {}
+        override fun onOpen(db: SupportSQLiteDatabase) {}
     }
 
     internal companion object {

@@ -73,12 +73,6 @@ abstract class RoomDatabase {
     @JvmField
     protected var mDatabase: SupportSQLiteDatabase? = null
 
-    @Suppress("DEPRECATION")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun setDatabase(db: SupportSQLiteDatabase) {
-        mDatabase = db
-    }
-
     /**
      * The Executor in use by this database for async queries.
      */
@@ -122,10 +116,6 @@ abstract class RoomDatabase {
     @Deprecated("Will be hidden in a future release.")
     @JvmField
     protected var mCallbacks: List<Callback>? = null
-
-    @Suppress("DEPRECATION")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getCallbacks() = mCallbacks
 
     /**
      * A map of auto migration spec classes to their provided instance.
@@ -625,8 +615,7 @@ abstract class RoomDatabase {
      *
      * @param db The database instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun internalInitInvalidationTracker(db: SupportSQLiteDatabase) {
+    protected open fun internalInitInvalidationTracker(db: SupportSQLiteDatabase) {
         invalidationTracker.internalInit(db)
     }
 

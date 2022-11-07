@@ -99,7 +99,7 @@ class DatabaseProcessingStep : XProcessingStep {
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(context, db, context.codeLanguage).write(context.processingEnv)
+            DatabaseWriter(db, context.codeLanguage).write(context.processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (schemaOutFolderPath == null) {

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.room.RoomDatabase#internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase):
-    Removed method androidx.room.RoomDatabase.internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase)

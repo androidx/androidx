@@ -1,8 +1,12 @@
 import androidx.room.DatabaseConfiguration
 import androidx.room.InvalidationTracker
+import androidx.room.RoomDatabase
 import androidx.room.RoomOpenHelper
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
+import androidx.room.util.TableInfo
+import androidx.room.util.TableInfo.Companion.read
+import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.lang.Class
@@ -25,9 +29,74 @@ public class MyDatabase_Impl : MyDatabase() {
     private val _myDao: Lazy<MyDao> = lazy { MyDao_Impl(this) }
 
     protected override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-        val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config,
-            MyDatabase_Impl_OpenHelperDelegate(this), "195d7974660177325bd1a32d2c7b8b8c",
-            "7458a901120796c5bbc554e2fefd262f")
+        val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config, object :
+            RoomOpenHelper.Delegate(1) {
+            public override fun createAllTables(db: SupportSQLiteDatabase): Unit {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, PRIMARY KEY(`pk`))")
+                db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
+                db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '195d7974660177325bd1a32d2c7b8b8c')")
+            }
+
+            public override fun dropAllTables(db: SupportSQLiteDatabase): Unit {
+                db.execSQL("DROP TABLE IF EXISTS `MyEntity`")
+                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                if (_callbacks != null) {
+                    for (_callback: RoomDatabase.Callback in _callbacks) {
+                        _callback.onDestructiveMigration(db)
+                    }
+                }
+            }
+
+            public override fun onCreate(db: SupportSQLiteDatabase): Unit {
+                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                if (_callbacks != null) {
+                    for (_callback: RoomDatabase.Callback in _callbacks) {
+                        _callback.onCreate(db)
+                    }
+                }
+            }
+
+            public override fun onOpen(db: SupportSQLiteDatabase): Unit {
+                mDatabase = db
+                internalInitInvalidationTracker(db)
+                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
+                if (_callbacks != null) {
+                    for (_callback: RoomDatabase.Callback in _callbacks) {
+                        _callback.onOpen(db)
+                    }
+                }
+            }
+
+            public override fun onPreMigrate(db: SupportSQLiteDatabase): Unit {
+                dropFtsSyncTriggers(db)
+            }
+
+            public override fun onPostMigrate(db: SupportSQLiteDatabase): Unit {
+            }
+
+            public override fun onValidateSchema(db: SupportSQLiteDatabase):
+                RoomOpenHelper.ValidationResult {
+                val _columnsMyEntity: HashMap<String, TableInfo.Column> =
+                    HashMap<String, TableInfo.Column>(1)
+                _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null,
+                    TableInfo.CREATED_FROM_ENTITY))
+                val _foreignKeysMyEntity: HashSet<TableInfo.ForeignKey> = HashSet<TableInfo.ForeignKey>(0)
+                val _indicesMyEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
+                val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
+                    _indicesMyEntity)
+                val _existingMyEntity: TableInfo = read(db, "MyEntity")
+                if (!_infoMyEntity.equals(_existingMyEntity)) {
+                    return RoomOpenHelper.ValidationResult(false, """
+                  |MyEntity(MyEntity).
+                  | Expected:
+                  |""".trimMargin() + _infoMyEntity + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyEntity)
+                }
+                return RoomOpenHelper.ValidationResult(true, null)
+            }
+        }, "195d7974660177325bd1a32d2c7b8b8c", "7458a901120796c5bbc554e2fefd262f")
         val _sqliteConfig: SupportSQLiteOpenHelper.Configuration =
             SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build()
         val _helper: SupportSQLiteOpenHelper = config.sqliteOpenHelperFactory.create(_sqliteConfig)

@@ -90,6 +90,73 @@ class DatabaseKotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun database_withFtsAndView() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Database(
+                entities = [
+                    MyParentEntity::class,
+                    MyEntity::class,
+                    MyFtsEntity::class,
+                ],
+                views = [ MyView::class ],
+                version = 1,
+                exportSchema = false
+            )
+            abstract class MyDatabase : RoomDatabase() {
+              abstract val dao: MyDao
+            }
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyParentEntity(@PrimaryKey val parentKey: Long)
+
+            @Entity(
+                foreignKeys = [
+                    ForeignKey(
+                        entity = MyParentEntity::class,
+                        parentColumns = ["parentKey"],
+                        childColumns = ["indexedCol"],
+                        onDelete = ForeignKey.CASCADE
+                    )
+                ],
+                indices = [Index("indexedCol")]
+            )
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val indexedCol: String
+            )
+
+            @Fts4
+            @Entity
+            data class MyFtsEntity(
+                @PrimaryKey
+                @ColumnInfo(name = "rowid")
+                val pk: Int,
+                val text: String
+            )
+
+            @DatabaseView("SELECT text FROM MyFtsEntity")
+            data class MyView(val text: String)
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

@@ -74,6 +74,7 @@ package androidx.room {
     method public <T> T? getTypeConverter(Class<T> klass);
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
+    method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public boolean isOpen();
     method public android.database.Cursor query(String query, Object![]? args);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);

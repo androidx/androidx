@@ -3,5 +3,15 @@ InvalidNullConversion: androidx.room.EntityInsertionAdapter#bind(androidx.sqlite
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter statement in androidx.room.EntityInsertionAdapter.bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity)
 
 
-RemovedMethod: androidx.room.RoomDatabase#internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase):
-    Removed method androidx.room.RoomDatabase.internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase)
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#createAllTables(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.createAllTables
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.dropAllTables
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onCreate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onCreate
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onOpen(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onOpen
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPostMigrate
+ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
+    Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPreMigrate

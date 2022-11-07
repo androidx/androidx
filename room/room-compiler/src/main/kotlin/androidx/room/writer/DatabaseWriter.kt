@@ -34,7 +34,6 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.decapitalize
 import androidx.room.ext.stripNonJava
-import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -47,7 +46,6 @@ import javax.lang.model.element.Modifier
  * Writes implementation of classes that were annotated with @Database.
  */
 class DatabaseWriter(
-    val context: Context,
     val database: Database,
     codeLanguage: CodeLanguage
 ) : TypeWriter(codeLanguage) {
@@ -415,7 +413,7 @@ class DatabaseWriter(
         val body = XCodeBlock.builder(codeLanguage).apply {
             val openHelperVar = scope.getTmpVar("_helper")
             val openHelperCode = scope.fork()
-            SQLiteOpenHelperWriter(context, database)
+            SQLiteOpenHelperWriter(database)
                 .write(openHelperVar, configParamName, openHelperCode)
             add(openHelperCode.generate())
             addStatement("return %L", openHelperVar)

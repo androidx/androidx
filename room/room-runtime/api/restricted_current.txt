@@ -119,6 +119,7 @@ package androidx.room {
     method public <T> T? getTypeConverter(Class<T> klass);
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
+    method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public boolean isOpen();
     method public android.database.Cursor query(String query, Object![]? args);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
@@ -210,12 +211,12 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class RoomOpenHelper.Delegate {
     ctor public RoomOpenHelper.Delegate(int version);
-    method public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase database);
-    method public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase database);
+    method public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public androidx.room.RoomOpenHelper.ValidationResult onValidateSchema(androidx.sqlite.db.SupportSQLiteDatabase db);
     method @Deprecated protected void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int version;
