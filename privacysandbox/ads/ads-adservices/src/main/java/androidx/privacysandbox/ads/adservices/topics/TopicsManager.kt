@@ -19,8 +19,10 @@ package androidx.privacysandbox.ads.adservices.topics
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
 import androidx.core.os.BuildCompat
@@ -46,6 +48,7 @@ abstract class TopicsManager internal constructor() {
     abstract suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4Impl(
         private val mTopicsManager: android.adservices.topics.TopicsManager
         ) : TopicsManager() {

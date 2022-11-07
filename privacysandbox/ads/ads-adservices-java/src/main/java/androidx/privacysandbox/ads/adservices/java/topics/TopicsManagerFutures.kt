@@ -23,8 +23,10 @@ import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.os.BuildCompat
 import com.google.common.util.concurrent.ListenableFuture
@@ -52,6 +54,7 @@ abstract class TopicsManagerFutures internal constructor() {
     abstract fun getTopicsAsync(request: GetTopicsRequest): ListenableFuture<GetTopicsResponse>
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mTopicsManager: TopicsManager?
     ) : TopicsManagerFutures() {
