@@ -24,6 +24,7 @@ import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
+import androidx.navigation.ui.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
