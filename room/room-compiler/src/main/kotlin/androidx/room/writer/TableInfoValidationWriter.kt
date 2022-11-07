@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -31,8 +32,6 @@ import androidx.room.vo.columnNames
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import java.util.Arrays
-import java.util.HashMap
-import java.util.HashSet
 import java.util.Locale
 
 class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
@@ -48,7 +47,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             val columnListVar = scope.getTmpVar("_columns$suffix")
             val columnListType = ParameterizedTypeName.get(
                 HashMap::class.typeName,
-                CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN
+                CommonTypeNames.STRING.toJavaPoet(), RoomTypeNames.TABLE_INFO_COLUMN
             )
 
             addStatement(

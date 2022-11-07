@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -38,7 +39,7 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
             val columnListVar = scope.getTmpVar("_columns$suffix")
             val columnListType = ParameterizedTypeName.get(
                 HashSet::class.typeName,
-                CommonTypeNames.STRING
+                CommonTypeNames.STRING.toJavaPoet()
             )
 
             addStatement(

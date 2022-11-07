@@ -19,6 +19,8 @@ package androidx.room.writer
 import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
@@ -29,6 +31,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DB_UTIL
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.SupportDbTypeNames.DB
 import androidx.room.ext.T
 import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
@@ -36,7 +39,6 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
-import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import java.util.ArrayDeque
@@ -57,43 +59,54 @@ class SQLiteOpenHelperWriter(
     val context: Context,
     val database: Database
 ) {
-    fun write(outVar: String, configuration: ParameterSpec, scope: CodeGenScope) {
-        scope.builder().apply {
+    fun write(outVar: String, configParamName: String, scope: CodeGenScope) {
+        scope.builder.apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
             val callbackVar = scope.getTmpVar("_openCallback")
-            addStatement(
-                "final $T $L = new $T($N, $L, $S, $S)",
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
-                callbackVar, RoomTypeNames.OPEN_HELPER, configuration,
-                createOpenCallback(), database.identityHash, database.legacyIdentityHash
+            addLocalVariable(
+                name = callbackVar,
+                typeName = SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    RoomTypeNames.OPEN_HELPER,
+                    "%L, %L, %S, %S",
+                    configParamName,
+                    createOpenCallback(scope),
+                    database.identityHash,
+                    database.legacyIdentityHash
+                )
             )
             // build configuration
-            addStatement(
-                """
-                    final $T $L = $T.builder($N.context)
-                    .name($N.name)
-                    .callback($L)
-                    .build()
-                """.trimIndent(),
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG, sqliteConfigVar,
+            addLocalVal(
+                sqliteConfigVar,
                 SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
-                configuration, configuration, callbackVar
+                "%T.builder(%L.context).name(%L.name).callback(%L).build()",
+                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
+                configParamName,
+                configParamName,
+                callbackVar
             )
-            addStatement(
-                "final $T $N = $N.sqliteOpenHelperFactory.create($L)",
-                SupportDbTypeNames.SQLITE_OPEN_HELPER, outVar,
-                configuration, sqliteConfigVar
+            addLocalVal(
+                outVar,
+                SupportDbTypeNames.SQLITE_OPEN_HELPER,
+                "%L.sqliteOpenHelperFactory.create(%L)",
+                configParamName,
+                sqliteConfigVar
             )
         }
     }
 
-    private fun createOpenCallback(): CodeBlock {
+    private fun createOpenCallback(scope: CodeGenScope): XCodeBlock {
         val openCallbackClassName = XClassName.get(
             database.implTypeName.packageName,
             database.implTypeName.simpleNames.single() + "_OpenHelperDelegate"
         )
         createOpenHelperDelegate(openCallbackClassName)
-        return CodeBlock.of("new $T(this)", openCallbackClassName.toJavaPoet())
+        return XCodeBlock.ofNewInstance(
+            scope.language,
+            openCallbackClassName,
+            "this"
+        )
     }
 
     private fun createOpenHelperDelegate(openCallbackClassName: XClassName) {
@@ -139,7 +152,7 @@ class SQLiteOpenHelperWriter(
         val methodSpecs = mutableListOf<MethodSpec>()
         val entities = ArrayDeque(database.entities)
         val views = ArrayDeque(database.views)
-        val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
+        val dbParam = ParameterSpec.builder(DB.toJavaPoet(), "_db").build()
         while (!entities.isEmpty() || !views.isEmpty()) {
             val isPrimaryMethod = methodSpecs.isEmpty()
             val methodName = if (isPrimaryMethod) {
@@ -220,7 +233,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("onCreate").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             invokeCallbacks(scope, "onCreate")
         }.build()
     }
@@ -229,7 +242,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("onOpen").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             addStatement("roomDb.setDatabase(_db)")
             if (database.enableForeignKeys) {
                 addStatement("_db.execSQL($S)", "PRAGMA foreign_keys = ON")
@@ -243,7 +256,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("createAllTables").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             database.bundle.buildCreateQueries().forEach {
                 addStatement("_db.execSQL($S)", it)
             }
@@ -254,7 +267,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("dropAllTables").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             database.entities.forEach {
                 addStatement("_db.execSQL($S)", createDropTableQuery(it))
             }
@@ -269,7 +282,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("onPreMigrate").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             addStatement("$T.dropFtsSyncTriggers($L)", DB_UTIL.toJavaPoet(), "_db")
         }.build()
     }
@@ -278,7 +291,7 @@ class SQLiteOpenHelperWriter(
         return MethodSpec.methodBuilder("onPostMigrate").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
-            addParameter(SupportDbTypeNames.DB, "_db")
+            addParameter(DB.toJavaPoet(), "_db")
             database.entities.filterIsInstance(FtsEntity::class.java)
                 .filter { it.ftsOptions.contentEntity != null }
                 .flatMap { it.contentSyncTriggerCreateQueries }

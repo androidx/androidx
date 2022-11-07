@@ -8,13 +8,11 @@ import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
-import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,21 +26,20 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
 
     @Override
-    protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
-        final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new ComplexDatabase_Impl_OpenHelperDelegate(this), "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2");
-        final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
-                .name(configuration.name)
-                .callback(_openCallback)
-                .build();
-        final SupportSQLiteOpenHelper _helper = configuration.sqliteOpenHelperFactory.create(_sqliteConfig);
+    @NonNull
+    protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
+        final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new ComplexDatabase_Impl_OpenHelperDelegate(this), "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2");
+        final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
+        final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
         return _helper;
     }
 
     @Override
+    @NonNull
     protected InvalidationTracker createInvalidationTracker() {
         final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
-        HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
-        HashSet<String> _tables = new HashSet<String>(1);
+        final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
+        final HashSet<String> _tables = new HashSet<String>(1);
         _tables.add("User");
         _viewTables.put("usersummary", _tables);
         return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User","Child1","Child2");
@@ -68,6 +65,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
+    @NonNull
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
         final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
         _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
@@ -75,15 +73,18 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
+    @NonNull
     public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
         final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
         return _autoMigrationSpecsSet;
     }
 
     @Override
+    @NonNull
     public List<Migration> getAutoMigrations(
-            @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecsMap) {
-        return Arrays.asList();
+            @NonNull final Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs) {
+        final List<Migration> _autoMigrations = new ArrayList<Migration>();
+        return _autoMigrations;
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingEnvConfig
@@ -100,7 +99,7 @@ class DatabaseProcessingStep : XProcessingStep {
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(context, db, CodeLanguage.JAVA).write(context.processingEnv)
+            DatabaseWriter(context, db, context.codeLanguage).write(context.processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (schemaOutFolderPath == null) {

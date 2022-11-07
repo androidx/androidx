@@ -78,7 +78,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             cursorDelegateVarName = scope.getTmpVar("_wrappedCursor")
             val entityColumnNamesParam = CodeBlock.of(
                 "new $T[] { $L }",
-                CommonTypeNames.STRING,
+                CommonTypeNames.STRING.toJavaPoet(),
                 CodeBlock.join(entity.columnNames.map { CodeBlock.of(S, it) }, ",$W")
             )
             val entityColumnIndicesParam = CodeBlock.of(

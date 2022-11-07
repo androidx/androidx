@@ -28,6 +28,8 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.ext.CommonTypeNames.STRING
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -51,15 +53,14 @@ val KClass<*>.arrayTypeName: ArrayTypeName
     get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
-    val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
+    val DB = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
     val SQLITE_STMT: XClassName =
         XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
-    val SQLITE_OPEN_HELPER: ClassName =
-        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
-    val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
-        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
-    val SQLITE_OPEN_HELPER_CONFIG: ClassName =
-        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
+    val SQLITE_OPEN_HELPER = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
+    val SQLITE_OPEN_HELPER_CALLBACK =
+        XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper", "Callback")
+    val SQLITE_OPEN_HELPER_CONFIG =
+        XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper", "Configuration")
     val QUERY = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
@@ -67,7 +68,7 @@ object RoomTypeNames {
     val STRING_UTIL: XClassName = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
     val ROOM_DB: XClassName = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
-    val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
+    val ROOM_DB_CONFIG = XClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: XClassName =
         XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
     val UPSERTION_ADAPTER: XClassName =
@@ -76,14 +77,12 @@ object RoomTypeNames {
         XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: XClassName =
         XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
-    val INVALIDATION_TRACKER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
+    val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
         ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
     val ROOM_SQL_QUERY: XClassName =
         XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
-    val OPEN_HELPER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
+    val OPEN_HELPER = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
         ClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "Delegate")
     val OPEN_HELPER_VALIDATION_RESULT: ClassName =
@@ -106,11 +105,8 @@ object RoomTypeNames {
         XClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: XClassName =
         XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
-    val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")
-    val AUTO_MIGRATION_SPEC: ClassName = ClassName.get(
-        "$ROOM_PACKAGE.migration",
-        "AutoMigrationSpec"
-    )
+    val MIGRATION = XClassName.get("$ROOM_PACKAGE.migration", "Migration")
+    val AUTO_MIGRATION_SPEC = XClassName.get("$ROOM_PACKAGE.migration", "AutoMigrationSpec")
     val UUID_UTIL: XClassName =
         XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
@@ -145,7 +141,7 @@ object LifecyclesTypeNames {
 
 object AndroidTypeNames {
     val CURSOR: XClassName = XClassName.get("android.database", "Cursor")
-    val BUILD: ClassName = ClassName.get("android.os", "Build")
+    val BUILD = XClassName.get("android.os", "Build")
     val CANCELLATION_SIGNAL: XClassName = XClassName.get("android.os", "CancellationSignal")
 }
 
@@ -160,18 +156,18 @@ object KotlinCollectionTypeNames {
 }
 
 object CommonTypeNames {
-    val ARRAYS = ClassName.get("java.util", "Arrays")
-    val LIST = ClassName.get("java.util", "List")
+    val LIST = List::class.asClassName()
     val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
     val MAP = Map::class.asClassName()
     val HASH_MAP = XClassName.get("java.util", "HashMap")
     val SET = Set::class.asClassName()
     val HASH_SET = XClassName.get("java.util", "HashSet")
-    val STRING = ClassName.get("java.lang", "String")
+    val STRING = String::class.asClassName()
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
     val UUID = ClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
+    val JAVA_CLASS = XClassName.get("java.lang", "Class")
 }
 
 object GuavaBaseTypeNames {
@@ -262,6 +258,7 @@ object KotlinTypeNames {
     val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
     val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
+    val LAZY = XClassName.get("kotlin", "Lazy")
 }
 
 object RoomMemberNames {
@@ -396,7 +393,7 @@ fun DoubleArrayLiteral(
                 CodeBlock.join(
                     List(columnSizeProducer(i)) { j ->
                         CodeBlock.of(
-                            if (type == CommonTypeNames.STRING) S else L,
+                            if (type == STRING.toJavaPoet()) S else L,
                             valueProducer(i, j)
                         )
                     },

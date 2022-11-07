@@ -16,6 +16,7 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
@@ -68,7 +69,7 @@ class StringColumnTypeAdapter private constructor(
 
     companion object {
         fun create(env: XProcessingEnv): List<StringColumnTypeAdapter> {
-            val stringType = env.requireType(CommonTypeNames.STRING)
+            val stringType = env.requireType(CommonTypeNames.STRING.toJavaPoet())
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
                     StringColumnTypeAdapter(stringType.makeNonNullable()),
