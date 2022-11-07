@@ -18,14 +18,13 @@ package androidx.credentials;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.credentials.exceptions.ClearCredentialException;
+import androidx.credentials.exceptions.ClearCredentialUnknownException;
 import androidx.credentials.exceptions.CreateCredentialException;
 import androidx.credentials.exceptions.CreateCredentialUnknownException;
 import androidx.credentials.exceptions.GetCredentialException;
@@ -70,7 +69,6 @@ public class CredentialManagerJavaTest {
                     public void onError(@NonNull CreateCredentialException e) {
                         loadedResult.set(e);
                     }
-
                     @Override
                     public void onResult(@NonNull CreateCredentialResponse result) {}
             });
@@ -109,20 +107,27 @@ public class CredentialManagerJavaTest {
 
     @Test
     public void testClearCredentialSessionAsync_throws() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> mCredentialManager.clearCredentialStateAsync(
-                    new ClearCredentialStateRequest(),
-                    null,
-                    Runnable::run,
-                    new CredentialManagerCallback<Void,
-                            ClearCredentialException>() {
-                        @Override
-                        public void onError(@NonNull ClearCredentialException e) {}
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+        AtomicReference<ClearCredentialException> loadedResult = new AtomicReference<>();
 
-                        @Override
-                        public void onResult(@NonNull Void result) {}
-                    })
-        );
+        mCredentialManager.clearCredentialStateAsync(
+                new ClearCredentialStateRequest(),
+                null,
+                Runnable::run,
+                new CredentialManagerCallback<Void,
+                        ClearCredentialException>() {
+                    @Override
+                    public void onError(@NonNull ClearCredentialException e) {
+                        loadedResult.set(e);
+                    }
+
+                    @Override
+                    public void onResult(@NonNull Void result) {}
+                });
+        assertThat(loadedResult.get().getType()).isEqualTo(ClearCredentialUnknownException
+                .TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION);
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 }

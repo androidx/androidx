@@ -19,6 +19,7 @@ package androidx.credentials
 import android.app.Activity
 import android.os.Looper
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
@@ -28,6 +29,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -76,7 +78,10 @@ class CredentialManagerTest {
 
     @Test
     fun testClearCredentialSession_throws() = runBlocking<Unit> {
-        assertThrows<UnsupportedOperationException> {
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
+        assertThrows<ClearCredentialUnknownException> {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
@@ -130,17 +135,21 @@ class CredentialManagerTest {
 
     @Test
     fun testClearCredentialSessionAsync_throws() {
-        assertThrows<UnsupportedOperationException> {
-            credentialManager.clearCredentialStateAsync(
-                request = ClearCredentialStateRequest(),
-                cancellationSignal = null,
-                executor = Runnable::run,
-                callback = object : CredentialManagerCallback<Void, ClearCredentialException> {
-                    override fun onResult(result: Void) {}
-                    override fun onError(e: ClearCredentialException) {}
-                }
-            )
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
         }
+        val loadedResult: AtomicReference<ClearCredentialException> = AtomicReference()
+
+        credentialManager.clearCredentialStateAsync(
+            ClearCredentialStateRequest(),
+            null, Executor { obj: Runnable -> obj.run() },
+            object : CredentialManagerCallback<Void?, ClearCredentialException> {
+                override fun onError(e: ClearCredentialException) { loadedResult.set(e) }
+                override fun onResult(result: Void?) {}
+            })
+
+        assertThat(loadedResult.get().type).isEqualTo(ClearCredentialUnknownException
+            .TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION)
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 }
