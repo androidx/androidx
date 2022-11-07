@@ -145,7 +145,7 @@ class XTypeElementTest {
                 assertThat(it.superClass).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.AbstractClass")
                 )
-                assertThat(it.superTypes).containsExactly(
+                assertThat(it.type.superTypes).containsExactly(
                     invocation.processingEnv.requireType("foo.bar.AbstractClass"),
                     invocation.processingEnv.requireType("foo.bar.MyInterface")
                 )
@@ -160,7 +160,7 @@ class XTypeElementTest {
                 assertThat(it.superClass).isEqualTo(
                     invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
-                assertThat(it.superTypes).containsExactly(
+                assertThat(it.type.superTypes).containsExactly(
                     invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
                 assertThat(it.isAbstract()).isTrue()
@@ -171,7 +171,7 @@ class XTypeElementTest {
             }
             invocation.processingEnv.requireTypeElement("foo.bar.MyInterface").let {
                 assertThat(it.superClass).isNull()
-                assertThat(it.superTypes).containsExactly(
+                assertThat(it.type.superTypes).containsExactly(
                     invocation.processingEnv.requireType(JTypeName.OBJECT)
                 )
                 assertThat(it.isInterface()).isTrue()
@@ -181,7 +181,8 @@ class XTypeElementTest {
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AnotherInterface").let {
                 assertThat(it.superClass).isNull()
-                assertThat(it.superTypes).containsExactly(
+                assertThat(it.type.superTypes).containsExactly(
+                    invocation.processingEnv.requireType("java.lang.Object"),
                     invocation.processingEnv.requireType("foo.bar.MyInterface")
                 )
                 assertThat(it.isInterface()).isTrue()

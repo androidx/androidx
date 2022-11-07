@@ -60,7 +60,11 @@ interface XType {
     val nullability: XNullability
 
     /**
-     * The resolved types of the super classes/interfaces of this type.
+     * The resolved direct super types of this type.
+     *
+     * The interface types, if any, will appear last in the list.
+     *
+     * See [Types#directSupertypes()](https://docs.oracle.com/javase/7/docs/api/javax/lang/model/util/Types.html#directSupertypes(javax.lang.model.type.TypeMirror))
      */
     val superTypes: List<XType>
 
