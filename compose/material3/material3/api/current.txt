@@ -1135,6 +1135,58 @@ package androidx.compose.material3 {
     method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SearchBar(String query, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onQueryChange, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSearch, boolean active, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onActiveChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.SearchBarColors colors, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
   }
 
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SegmentedButtonBorder {
+    ctor public SegmentedButtonBorder(float width);
+    method public androidx.compose.foundation.BorderStroke borderStroke(boolean enabled, boolean checked, androidx.compose.material3.SegmentedButtonColors colors);
+    method public float getWidth();
+    property public final float width;
+  }
+
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SegmentedButtonColors {
+    ctor public SegmentedButtonColors(long checkedContainerColor, long checkedContentColor, long checkedBorderColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedBorderColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedBorderColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedBorderColor);
+    method public long getCheckedBorderColor();
+    method public long getCheckedContainerColor();
+    method public long getCheckedContentColor();
+    method public long getDisabledCheckedBorderColor();
+    method public long getDisabledCheckedContainerColor();
+    method public long getDisabledCheckedContentColor();
+    method public long getDisabledUncheckedBorderColor();
+    method public long getDisabledUncheckedContainerColor();
+    method public long getDisabledUncheckedContentColor();
+    method public long getUncheckedBorderColor();
+    method public long getUncheckedContainerColor();
+    method public long getUncheckedContentColor();
+    property public final long checkedBorderColor;
+    property public final long checkedContainerColor;
+    property public final long checkedContentColor;
+    property public final long disabledCheckedBorderColor;
+    property public final long disabledCheckedContainerColor;
+    property public final long disabledCheckedContentColor;
+    property public final long disabledUncheckedBorderColor;
+    property public final long disabledUncheckedContainerColor;
+    property public final long disabledUncheckedContentColor;
+    property public final long uncheckedBorderColor;
+    property public final long uncheckedContainerColor;
+    property public final long uncheckedContentColor;
+  }
+
+  @androidx.compose.material3.ExperimentalMaterial3Api public final class SegmentedButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.SegmentedButtonColors colors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedBorderColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedBorderColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedBorderColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedBorderColor);
+    method public androidx.compose.material3.SegmentedButtonBorder getBorder();
+    method public float getIconSize();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.foundation.shape.CornerBasedShape getShape();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape shape(int position, int count, optional androidx.compose.foundation.shape.CornerBasedShape shape);
+    property public final androidx.compose.material3.SegmentedButtonBorder Border;
+    property public final float IconSize;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.foundation.shape.CornerBasedShape Shape;
+    field public static final androidx.compose.material3.SegmentedButtonDefaults INSTANCE;
+  }
+
+  public final class SegmentedButtonKt {
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.SegmentedButtonColors colors, optional androidx.compose.material3.SegmentedButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButtonRow(optional androidx.compose.ui.Modifier modifier, optional float space, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SelectableChipBorder {
   }
 
