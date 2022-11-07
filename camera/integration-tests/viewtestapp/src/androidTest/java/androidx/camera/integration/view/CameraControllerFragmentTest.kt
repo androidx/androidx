@@ -476,11 +476,8 @@ class CameraControllerFragmentTest(
         fragment.assertCanRecordVideo()
     }
 
-    @Ignore
     @Test
     fun cameraToggled_canRecordVideo() {
-        // TODO: Enable after we resolve b/212332039.
-
         skipVideoRecordingTestOnCuttlefishApi29()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 
@@ -497,11 +494,8 @@ class CameraControllerFragmentTest(
         fragment.assertCanRecordVideo()
     }
 
-    @Ignore
     @Test
     fun recordDisabledAndEnabledMultipleTimes_canRecordVideo() {
-        // TODO: Enable after we resolve b/211832281.
-
         skipVideoRecordingTestOnCuttlefishApi29()
         skipTestWithSurfaceProcessingOnCuttlefishApi30()
 

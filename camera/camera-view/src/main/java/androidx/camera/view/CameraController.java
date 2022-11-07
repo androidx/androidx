@@ -339,7 +339,7 @@ public abstract class CameraController {
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
-        mVideoCapture = VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
+        mVideoCapture = createNewVideoCapture();
 
         // Wait for camera to be initialized before binding use cases.
         mInitializationFuture = Futures.transform(
@@ -1433,7 +1433,6 @@ public abstract class CameraController {
             return;
         }
         mVideoCaptureQuality = targetQuality;
-        unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
@@ -1449,14 +1448,8 @@ public abstract class CameraController {
         return mVideoCaptureQuality;
     }
 
-    /**
-     * Unbinds VideoCapture and recreate with the latest parameters.
-     */
-    private void unbindVideoAndRecreate() {
-        if (isCameraInitialized()) {
-            mCameraProvider.unbind(mVideoCapture);
-        }
-        mVideoCapture = VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
+    private VideoCapture<Recorder> createNewVideoCapture() {
+        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
     }
 
     // -----------------
@@ -1992,10 +1985,11 @@ public abstract class CameraController {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
+        // TODO: revert aosp/2280599 to reuse VideoCapture when VideoCapture supports reuse.
+        mCameraProvider.unbind(mVideoCapture);
         if (isVideoCaptureEnabled()) {
+            mVideoCapture = createNewVideoCapture();
             builder.addUseCase(mVideoCapture);
-        } else {
-            mCameraProvider.unbind(mVideoCapture);
         }
 
         builder.setViewPort(mViewPort);
