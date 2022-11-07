@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"বিভিন্ন টেমপ্লেট দেখুন ও নিশ্চিত করুন যে গাড়িটি \'ড্রাইভিং\' মোডে আছে"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"টগল বোতাম সংক্রান্ত ডেমো"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"টগল টেস্ট"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"পিছনের পৃষ্ঠাতে গিয়ে পরিবর্তন করা যাবে।"</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"টগল টেস্ট চালু করা হয়েছে"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"টগল টেস্ট বন্ধ করা হয়েছে"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"সেকেন্ডারি অ্যাকশন ও ডেকরেশন ডেমো"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"সেকেন্ডারি অ্যাকশন টেস্ট"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"শুধুমাত্র সেকেন্ডারি অ্যাকশন বেছে নেওয়া যেতে পারে"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"ডেকরেশন টেস্ট"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"সেকেন্ডারি অ্যাকশন ও ডেকরেশন"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"সারিও বেছে নেওয়া যেতে পারে"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"সেকেন্ডারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"সারির প্রাইমারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লেট লেআউট সংক্রান্ত ডেমো"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"\'ভয়েস অ্যাক্সেস\' অ্যাপের ডেমো স্ক্রিন"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ব্যবহারকারীর ইন্টার‍্যাকশন"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"অনুমতি সংক্রান্ত ডেমোর জন্য অনুরোধ জানানো"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"অ্যাপ্লিকেশন ওভারফ্লো ভ্যালিডেটর"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"পরিবর্তন করার সময় নিম্নলিখিত টেমপ্লেট পরীক্ষা করুন"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"গাড়ি পার্ক করা থেকে ড্রাইভিং অবস্থা"</string>
     <string name="perm_group" msgid="3834918337351876270">"অনুমতি সংক্রান্ত গ্রুপ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase অ্যাপের জন্য অনুমতি সংক্রান্ত গ্রুপ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"সুনির্দিষ্ট লোকেশনে অ্যাক্সেস"</string>

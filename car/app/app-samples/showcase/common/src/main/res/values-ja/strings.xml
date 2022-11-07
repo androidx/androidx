@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"タスクの上限に達しました\n続行するとアプリが強制停止されます"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"タスクのステップ %1$d / %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"クリックして続行"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"別のテンプレートにアクセスして自動車が運転モードであることを確認してください"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"切り替えボタンのデモ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"切り替えのテスト"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ステートフルな変更が許可されています"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"アップデートにより「戻る」操作ができるようになりました。"</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"切り替えのテスト有効"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"切り替えのテスト無効"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"セカンダリ アクションとデコレーションのデモ"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"セカンダリ アクション テスト"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"セカンダリ アクションのみ選択できます"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"デコレーション テスト"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"セカンダリ アクションとデコレーション"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"行も選択できます"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"セカンダリ アクションを選択しました"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"行のプライマリ アクションを選択しました"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"その他のテンプレートのデモ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"デモを表示"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"テンプレート レイアウトのデモ"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access のデモ画面"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ユーザー操作"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"権限リクエストのデモ"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"アプリ オーバーフロー バリデータ"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"変更を行う際に以下のテンプレートをテストしてください"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"車両の状態が駐車中から運転状態に変わりました"</string>
     <string name="perm_group" msgid="3834918337351876270">"権限グループ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"ショーケース アプリの権限グループ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"精細な位置情報へのアクセス"</string>

@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Taaklimiet is bereik\nAs jy voortgaan, sal die program verplig word om te stop"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Taak se stap %1$d van %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik om aan te beweeg"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Besoek asseblief die verskillende template en maak seker die motor is in rymodus"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demonstrasie van wisselknoppie"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Wissel toets"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Dinamiese veranderinge word toegelaat"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Opdaterings toegelaat vir terughandelinge."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Wisseltoets is geaktiveer"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Wisseltoets is gedeaktiveer"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Sekondêre handeling en versieringdemonstrasie"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Sekondêrehandelingtoets"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Net die sekondêre handeling kan gekies word"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Versieringtoets"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Sekondêre handelinge en versiering"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Die ry kan ook gekies word"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Sekondêre handeling is gekies"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Primêre handeling vir ry is gekies"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrasies oor diverse template"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Stal demonstrasies uit"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrasie van templaatuitlegte"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Demonstrasieskerm vir stemtoegang"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Gebruikerinteraksies"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Versoek demonstrasies van toestemmings"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Appoorvloei-bekragtiger"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Toets asseblief die volgende template terwyl jy"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"die voertuig van parkeer- na bestuurstaat toe verander"</string>
     <string name="perm_group" msgid="3834918337351876270">"Toestemminggroep"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Toestemminggroep vir uitstalprogram"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Toegang tot fyn ligging"</string>
