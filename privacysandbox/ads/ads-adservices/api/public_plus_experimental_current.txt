@@ -1,1 +1,46 @@
 // Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.topics {
+
+  public final class GetTopicsRequest {
+    ctor public GetTopicsRequest(String sdkName, optional boolean shouldRecordObservation);
+    method public String getSdkName();
+    method public boolean getShouldRecordObservation();
+    property public final String sdkName;
+    property public final boolean shouldRecordObservation;
+  }
+
+  public static final class GetTopicsRequest.Builder {
+    ctor public GetTopicsRequest.Builder(optional String sdkName, optional boolean shouldRecordObservation);
+    method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest build();
+    method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.Builder setSdkName(String sdkName);
+    method public androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.Builder setShouldRecordObservation(boolean shouldRecordObservation);
+  }
+
+  public final class GetTopicsResponse {
+    ctor public GetTopicsResponse(java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> topics);
+    method public java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> getTopics();
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> topics;
+  }
+
+  public final class Topic {
+    ctor public Topic(long taxonomyVersion, long modelVersion, int topicId);
+    method public long getModelVersion();
+    method public long getTaxonomyVersion();
+    method public int getTopicId();
+    property public final long modelVersion;
+    property public final long taxonomyVersion;
+    property public final int topicId;
+  }
+
+  public abstract class TopicsManager {
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public abstract suspend Object? getTopics(androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest request, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse>);
+    method public static final androidx.privacysandbox.ads.adservices.topics.TopicsManager? obtain(android.content.Context context);
+    field public static final androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion Companion;
+  }
+
+  public static final class TopicsManager.Companion {
+    method public androidx.privacysandbox.ads.adservices.topics.TopicsManager? obtain(android.content.Context context);
+  }
+
+}
+
