@@ -9,7 +9,10 @@ public object PrivacySandboxThrowableParcelConverter {
         val stackTrace = throwableParcel.stackTrace
         val exception = PrivacySandboxException(
             "[$exceptionClass] $errorMessage",
-            throwableParcel.cause?.let { fromThrowableParcel(it) })
+            throwableParcel.cause?.firstOrNull()?.let {
+                fromThrowableParcel(it)
+            }
+        )
         for (suppressed in throwableParcel.suppressedExceptions) {
             exception.addSuppressed(fromThrowableParcel(suppressed))
         }

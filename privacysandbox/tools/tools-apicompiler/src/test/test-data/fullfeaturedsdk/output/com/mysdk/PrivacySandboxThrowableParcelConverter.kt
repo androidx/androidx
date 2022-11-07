@@ -14,7 +14,7 @@ public object PrivacySandboxThrowableParcelConverter {
             stackFrame
         }.toTypedArray()
         throwable.cause?.let {
-            parcel.cause = toThrowableParcel(it)
+            parcel.cause = arrayOf(toThrowableParcel(it))
         }
         parcel.suppressedExceptions =
             throwable.suppressedExceptions.map {

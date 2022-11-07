@@ -77,7 +77,7 @@ class ThrowableParcelConverterFileGenerator(private val basePackageName: String)
                         stackFrame
                     }.toTypedArray()
                     throwable.cause?.let {
-                        parcel.cause = ${toThrowableParcelNameSpec.simpleName}(it)
+                        parcel.cause = arrayOf(${toThrowableParcelNameSpec.simpleName}(it))
                     }
                     parcel.suppressedExceptions =
                         throwable.suppressedExceptions.map {
@@ -103,7 +103,10 @@ class ThrowableParcelConverterFileGenerator(private val basePackageName: String)
                     val stackTrace = throwableParcel.stackTrace
                     val exception = PrivacySandboxException(
                         "[${'$'}exceptionClass] ${'$'}errorMessage",
-                        throwableParcel.cause?.let { ${fromThrowableParcelNameSpec.simpleName}(it) })
+                        throwableParcel.cause?.firstOrNull()?.let {
+                            ${fromThrowableParcelNameSpec.simpleName}(it)
+                        }
+                    )
                     for (suppressed in throwableParcel.suppressedExceptions) {
                         exception.addSuppressed(${fromThrowableParcelNameSpec.simpleName}(suppressed))
                     }
