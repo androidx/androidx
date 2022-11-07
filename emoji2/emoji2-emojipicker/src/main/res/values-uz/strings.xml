@@ -26,4 +26,5 @@
     <string name="emoji_category_objects" msgid="6106115586332708067">"OBYEKTLAR"</string>
     <string name="emoji_category_symbols" msgid="5626171724310261787">"BELGILAR"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"BAYROQCHALAR"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Hech qanday emoji mavjud emas"</string>
 </resources>
