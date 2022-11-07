@@ -16,8 +16,6 @@
 
 package androidx.benchmark.darwin.gradle.xcode
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -203,10 +201,10 @@ class ActionTestSummaryDeserializer : JsonDeserializer<ActionsTestSummaryGroupOr
         context: JsonDeserializationContext
     ): ActionsTestSummaryGroupOrMeta {
         return if (checkType(jsonElement, ACTION_TEST_SUMMARY_GROUP)) {
-            val adapter = Models.gson().getAdapter(ActionTestSummaryGroup::class.java)
+            val adapter = GsonHelpers.gson().getAdapter(ActionTestSummaryGroup::class.java)
             adapter.fromJson(jsonElement.toString())
         } else if (checkType(jsonElement, ACTION_TEST_SUMMARY_META)) {
-            val adapter = Models.gson().getAdapter(ActionTestSummaryMeta::class.java)
+            val adapter = GsonHelpers.gson().getAdapter(ActionTestSummaryMeta::class.java)
             adapter.fromJson(jsonElement.toString())
         } else {
             reportException(jsonElement)
@@ -227,7 +225,7 @@ class ActionTestSummaryDeserializer : JsonDeserializer<ActionsTestSummaryGroupOr
             val json = jsonElement.asJsonObject
             val jsonType: JsonElement? = json.get(TYPE)
             if (jsonType != null && jsonType.isJsonObject) {
-                val adapter = Models.gson().getAdapter(TypeDefinition::class.java)
+                val adapter = GsonHelpers.gson().getAdapter(TypeDefinition::class.java)
                 val type = adapter.fromJson(jsonType.toString())
                 return type.name == name
             }
@@ -322,20 +320,5 @@ data class ActionTestSummary(
 
     fun title(): String? {
         return activitySummaries.title()
-    }
-}
-
-object Models {
-    internal fun gsonBuilder(): GsonBuilder {
-        val builder = GsonBuilder()
-        builder.registerTypeAdapter(
-            ActionsTestSummaryGroupOrMeta::class.java,
-            ActionTestSummaryDeserializer()
-        )
-        return builder
-    }
-
-    fun gson(): Gson {
-        return gsonBuilder().create()
     }
 }

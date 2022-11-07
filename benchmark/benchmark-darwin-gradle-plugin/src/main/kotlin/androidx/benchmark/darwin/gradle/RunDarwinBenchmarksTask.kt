@@ -49,21 +49,24 @@ abstract class RunDarwinBenchmarksTask @Inject constructor(
     @TaskAction
     fun runBenchmarks() {
         requireXcodeBuild()
+        val simCtrl = XCodeSimCtrl(execOperations, destination.get())
         val xcodeProject = xcodeProjectPath.get().asFile
         val xcResultFile = xcResultPath.get().asFile
         if (xcResultFile.exists()) {
             xcResultFile.deleteRecursively()
         }
-        val args = listOf(
-            "xcodebuild",
-            "test",
-            "-project", xcodeProject.absolutePath.toString(),
-            "-scheme", scheme.get(),
-            "-destination", destination.get(),
-            "-resultBundlePath", xcResultFile.absolutePath,
-        )
-        logger.info("Command : ${args.joinToString(" ")}")
-        execOperations.executeQuietly(args)
+        simCtrl.start { destinationDesc ->
+            val args = listOf(
+                "xcodebuild",
+                "test",
+                "-project", xcodeProject.absolutePath.toString(),
+                "-scheme", scheme.get(),
+                "-destination", destinationDesc,
+                "-resultBundlePath", xcResultFile.absolutePath,
+            )
+            logger.info("Command : ${args.joinToString(" ")}")
+            execOperations.executeQuietly(args)
+        }
     }
 
     private fun requireXcodeBuild() {
