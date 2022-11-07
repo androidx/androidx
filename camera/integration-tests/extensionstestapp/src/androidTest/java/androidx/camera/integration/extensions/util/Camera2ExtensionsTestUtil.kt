@@ -22,6 +22,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -88,15 +89,7 @@ object Camera2ExtensionsTestUtil {
         verifyOutput: Boolean = false
     ) {
         val extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        assumeTrue(extensionsCharacteristics.supportedExtensions.contains(extensionMode))
-        assumeTrue(
-            extensionsCharacteristics
-                .getExtensionSupportedSizes(extensionMode, SurfaceTexture::class.java).isNotEmpty()
-        )
-        assumeTrue(
-            extensionsCharacteristics
-                .getExtensionSupportedSizes(extensionMode, ImageFormat.JPEG).isNotEmpty()
-        )
+        assumeCameraExtensionSupported(extensionMode, extensionsCharacteristics)
 
         // Preview surface
         val previewSize = extensionsCharacteristics
@@ -119,11 +112,7 @@ object Camera2ExtensionsTestUtil {
         val previewSurface = Surface(surfaceTextureHolder.surfaceTexture)
 
         // Still capture surface
-        val captureSize = extensionsCharacteristics
-            .getExtensionSupportedSizes(extensionMode, ImageFormat.JPEG)
-            .maxBy { it.width * it.height }
-        val imageReader = ImageReader
-            .newInstance(captureSize.width, captureSize.height, ImageFormat.JPEG, 2)
+        val imageReader = createCaptureImageReader(extensionsCharacteristics, extensionMode)
         val captureSurface = imageReader.surface
 
         val cameraDevice = openCameraDevice(cameraManager, cameraId)
@@ -197,9 +186,39 @@ object Camera2ExtensionsTestUtil {
     }
 
     /**
+     * Check if the device supports the [extensionMode] and other extension specific characteristics
+     * required for testing. Halt the test if any criteria is not satisfied.
+     */
+    fun assumeCameraExtensionSupported(
+        extensionMode: Int,
+        extensionsCharacteristics: CameraExtensionCharacteristics
+    ) {
+        assumeTrue(extensionsCharacteristics.supportedExtensions.contains(extensionMode))
+        assumeTrue(
+            extensionsCharacteristics
+                .getExtensionSupportedSizes(extensionMode, SurfaceTexture::class.java).isNotEmpty()
+        )
+        assumeTrue(
+            extensionsCharacteristics
+                .getExtensionSupportedSizes(extensionMode, ImageFormat.JPEG).isNotEmpty()
+        )
+    }
+
+    fun createCaptureImageReader(
+        extensionsCharacteristics: CameraExtensionCharacteristics,
+        extensionMode: Int
+    ): ImageReader {
+        val captureSize = extensionsCharacteristics
+            .getExtensionSupportedSizes(extensionMode, ImageFormat.JPEG)
+            .maxBy { it.width * it.height }
+        return ImageReader
+            .newInstance(captureSize.width, captureSize.height, ImageFormat.JPEG, 2)
+    }
+
+    /**
      * Open the camera device and return the [CameraDevice] instance.
      */
-    private suspend fun openCameraDevice(
+    suspend fun openCameraDevice(
         cameraManager: CameraManager,
         cameraId: String
     ): CameraDevice {
@@ -228,7 +247,7 @@ object Camera2ExtensionsTestUtil {
     /**
      * Open the [CameraExtensionSession] and return the instance.
      */
-    private suspend fun openExtensionSession(
+    suspend fun openExtensionSession(
         cameraDevice: CameraDevice,
         extensionMode: Int,
         outputConfigs: List<OutputConfiguration>
@@ -256,7 +275,11 @@ object Camera2ExtensionsTestUtil {
         return deferred.await()
     }
 
-    private suspend fun takePicture(
+    /**
+     * Take a picture with the provided [session] and output the contents to the [imageReader]. The
+     * latest image written to the [imageReader] is returned.
+     */
+    suspend fun takePicture(
         cameraDevice: CameraDevice,
         session: CameraExtensionSession,
         imageReader: ImageReader
