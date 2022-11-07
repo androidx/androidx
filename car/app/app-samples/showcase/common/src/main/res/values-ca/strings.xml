@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"S\'ha arribat al límit de tasques\nEn continuar es forçarà l\'aturada de l\'aplicació"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Pas de la tasca %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Fes clic per anar endavant"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Visita les diferents plantilles i comprova que el cotxe sigui en mode de conducció"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demostració d\'un botó de commutació"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Test de commutació"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Es permeten canvis amb estat"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Es permeten actualitzacions a les operacions d\'anar enrere."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Prova de commutació activada"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Prova de commutació desactivada"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demostració de l\'acció secundària i la decoració"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Prova de l\'acció secundària"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Només es pot seleccionar l\'acció secundària"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Prova de decoració"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Accions secundàries i decoració"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"La fila també es pot seleccionar"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"S\'ha seleccionat l\'acció secundària"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"S\'ha seleccionat l\'acció principal de la fila"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demostracions de plantilles diverses"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracions de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracions de dissenys de plantilles"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pantalla de demostració de Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interaccions dels usuaris"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demostracions de sol·licitud de permisos"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador del menú addicional de l\'aplicació"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Prova les següents plantilles mentre canvies"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"el vehicle de l\'estat aparcat a mode de conducció"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grup de permisos"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grup de permisos de l\'aplicació Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Accés a la ubicació precisa"</string>

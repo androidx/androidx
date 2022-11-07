@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Task limit reached\nGoing forward will force stop the app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Task step %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Click to go forward"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Please visit the different templates and ensure that the car is in driving mode"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Toggle button demo"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Toggle test"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Stateful changes are allowed"</string>
@@ -322,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access demo screen"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"User interactions"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Request permissions demos"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Application overflow validator"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Please test the following templates while changing"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"the vehicle from parked to driving state"</string>
     <string name="perm_group" msgid="3834918337351876270">"Permission group"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Permission group for Showcase app"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Access to fine location"</string>

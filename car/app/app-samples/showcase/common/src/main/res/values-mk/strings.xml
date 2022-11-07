@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнато е ограничувањето за задачи\nАко продолжите, апликацијата ќе се исклучи присилно"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Преземете чекор %1$d од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликнете за да одите нанапред"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Одете на различните шаблони и погрижете се автомобилот да е во режим на возење"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Демо на копче за вклучување/исклучување"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Тест за вклучување/исклучување"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Дозволени се промени на зачувувањето на состојбата"</string>
@@ -307,22 +306,14 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Ажурирањата се дозволени при операции на враќање назад."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Овозможено тест за вклучување/исклучување"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Оневозможено тест за вклучување/исклучување"</string>
-    <!-- no translation found for secondary_actions_decoration_button_demo_title (3710817648501132309) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_title (3664453747553733613) -->
-    <skip />
-    <!-- no translation found for secondary_actions_test_subtitle (6985282813402073703) -->
-    <skip />
-    <!-- no translation found for decoration_test_title (8450127046762442244) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_title (6282873404859209490) -->
-    <skip />
-    <!-- no translation found for secondary_actions_decoration_test_subtitle (155884606592724532) -->
-    <skip />
-    <!-- no translation found for secondary_action_toast (5076434693504006565) -->
-    <skip />
-    <!-- no translation found for row_primary_action_toast (756516694751965204) -->
-    <skip />
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Демо за секундарно дејство и украсување"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Проба за секундарно дејство"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Само секундарното дејство може да се избере"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Проба за украсување"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Секундарни дејства и украсување"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Редот исто така може да се избере"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Избрано е секундарно дејство"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Избрано е примарно дејство на ред"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Разни демоа за шаблони"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демоа за прикажување"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Демоа за распоред на шаблони"</string>
@@ -330,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Екран за демо за „Пристап со глас“"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Кориснички интеракции"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Побарајте дозволи за демо"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"Алатка за потврдување прелевање на апликацијата"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Тестирајте ги следните шаблони додека менувате"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"возилото од паркирана во состојба на возење"</string>
     <string name="perm_group" msgid="3834918337351876270">"Група дозволи"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Група дозволи за апликација за вести избрани од издавачи"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Пристап до точна локација"</string>

@@ -292,8 +292,7 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ടാസ്ക്ക് പരിധിയെത്തി\nമുന്നോട്ട് പോകുന്നത് ആപ്പ് നിർബന്ധിതമായി നിർത്താൻ കാരണമാകും"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ടാസ്ക്ക് ഘട്ടങ്ങളിൽ %1$d -ാമത്തേത്"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"മുന്നോട്ട് പോകാൻ ക്ലിക്ക് ചെയ്യുക"</string>
-    <!-- no translation found for task_content_allowed (545061986612431190) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"വ്യത്യസ്ത ടെംപ്ലേറ്റുകൾ സന്ദർശിച്ച്, ഡ്രൈവിംഗ് മോഡിലാണ് കാർ ഉള്ളതെന്ന് ഉറപ്പാക്കുക"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"ടോഗിൾ ബട്ടൺ ഡെമോ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ടെസ്റ്റ് മാറ്റുക"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"സ്റ്റേറ്റ്ഫുള്ളായ മാറ്റങ്ങൾ അനുവദനീയമാണ്"</string>
@@ -322,12 +321,9 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access ഡെമോ സ്ക്രീൻ"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"ഉപയോക്തൃ ഇടപഴകലുകൾ"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"അനുമതി ഡെമോകൾ അഭ്യർത്ഥിക്കുക"</string>
-    <!-- no translation found for application_overflow_title (396427940886169325) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle1 (7429415605726615529) -->
-    <skip />
-    <!-- no translation found for application_overflow_subtitle2 (4385123036846369714) -->
-    <skip />
+    <string name="application_overflow_title" msgid="396427940886169325">"ആപ്ലിക്കേഷൻ ഓവർഫ്ലോ വാലിഡേറ്റർ"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"പാർക്കിംഗിൽ നിന്ന് ഡ്രൈവിംഗ് നിലയിലേക്ക് വാഹനം"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"മാറ്റുമ്പോൾ, ഇനിപ്പറയുന്ന ടെംപ്ലേറ്റുകൾ പരിശോധിക്കുക"</string>
     <string name="perm_group" msgid="3834918337351876270">"അനുമതി ഗ്രൂപ്പ്"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase ആപ്പിനുള്ള അനുമതി ഗ്രൂപ്പ്"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"ഫൈൻ ലൊക്കേഷനിലേക്കുള്ള ആക്സസ്"</string>
