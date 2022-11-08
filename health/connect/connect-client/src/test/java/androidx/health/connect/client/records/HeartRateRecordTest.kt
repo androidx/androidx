@@ -82,4 +82,24 @@ class HeartRateRecordTest {
             )
         }
     }
+
+    @Test
+    fun invalidBeatsPerMinute_lessThan1_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            HeartRateRecord.Sample(
+                time = Instant.ofEpochMilli(1235L),
+                beatsPerMinute = 0L,
+            )
+        }
+    }
+
+    @Test
+    fun invalidBeatsPerMinute_moreThan300_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            HeartRateRecord.Sample(
+                time = Instant.ofEpochMilli(1235L),
+                beatsPerMinute = 301L,
+            )
+        }
+    }
 }
