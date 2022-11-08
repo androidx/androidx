@@ -2,12 +2,12 @@
 package androidx.lifecycle {
 
   public interface DefaultLifecycleObserver extends androidx.lifecycle.LifecycleObserver {
-    method public default void onCreate(androidx.lifecycle.LifecycleOwner);
-    method public default void onDestroy(androidx.lifecycle.LifecycleOwner);
-    method public default void onPause(androidx.lifecycle.LifecycleOwner);
-    method public default void onResume(androidx.lifecycle.LifecycleOwner);
-    method public default void onStart(androidx.lifecycle.LifecycleOwner);
-    method public default void onStop(androidx.lifecycle.LifecycleOwner);
+    method public default void onCreate(androidx.lifecycle.LifecycleOwner owner);
+    method public default void onDestroy(androidx.lifecycle.LifecycleOwner owner);
+    method public default void onPause(androidx.lifecycle.LifecycleOwner owner);
+    method public default void onResume(androidx.lifecycle.LifecycleOwner owner);
+    method public default void onStart(androidx.lifecycle.LifecycleOwner owner);
+    method public default void onStop(androidx.lifecycle.LifecycleOwner owner);
   }
 
   public abstract class Lifecycle {

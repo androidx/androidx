@@ -13,86 +13,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
+package androidx.lifecycle
 
 /**
- * Callback interface for listening to {@link LifecycleOwner} state changes.
- * If a class implements both this interface and {@link LifecycleEventObserver}, then
- * methods of {@code DefaultLifecycleObserver} will be called first, and then followed by the call
- * of {@link LifecycleEventObserver#onStateChanged(LifecycleOwner, Lifecycle.Event)}
- * <p>
- * If a class implements this interface and in the same time uses {@link OnLifecycleEvent}, then
+ * Callback interface for listening to [LifecycleOwner] state changes.
+ * If a class implements both this interface and [LifecycleEventObserver], then
+ * methods of `DefaultLifecycleObserver` will be called first, and then followed by the call
+ * of [LifecycleEventObserver.onStateChanged]
+ *
+ *
+ * If a class implements this interface and in the same time uses [OnLifecycleEvent], then
  * annotations will be ignored.
  */
-@SuppressWarnings("unused")
-public interface DefaultLifecycleObserver extends LifecycleObserver {
-
+public interface DefaultLifecycleObserver : LifecycleObserver {
     /**
-     * Notifies that {@code ON_CREATE} event occurred.
-     * <p>
-     * This method will be called after the {@link LifecycleOwner}'s {@code onCreate}
+     * Notifies that `ON_CREATE` event occurred.
+     *
+     *
+     * This method will be called after the [LifecycleOwner]'s `onCreate`
      * method returns.
      *
      * @param owner the component, whose state was changed
      */
-    default void onCreate(@NonNull LifecycleOwner owner) {
-    }
+    public fun onCreate(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that {@code ON_START} event occurred.
-     * <p>
-     * This method will be called after the {@link LifecycleOwner}'s {@code onStart} method returns.
+     * Notifies that `ON_START` event occurred.
+     *
+     *
+     * This method will be called after the [LifecycleOwner]'s `onStart` method returns.
      *
      * @param owner the component, whose state was changed
      */
-    default void onStart(@NonNull LifecycleOwner owner) {
-    }
+    public fun onStart(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that {@code ON_RESUME} event occurred.
-     * <p>
-     * This method will be called after the {@link LifecycleOwner}'s {@code onResume}
+     * Notifies that `ON_RESUME` event occurred.
+     *
+     *
+     * This method will be called after the [LifecycleOwner]'s `onResume`
      * method returns.
      *
      * @param owner the component, whose state was changed
      */
-    default void onResume(@NonNull LifecycleOwner owner) {
-    }
+    public fun onResume(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that {@code ON_PAUSE} event occurred.
-     * <p>
-     * This method will be called before the {@link LifecycleOwner}'s {@code onPause} method
+     * Notifies that `ON_PAUSE` event occurred.
+     *
+     *
+     * This method will be called before the [LifecycleOwner]'s `onPause` method
      * is called.
      *
      * @param owner the component, whose state was changed
      */
-    default void onPause(@NonNull LifecycleOwner owner) {
-    }
+    public fun onPause(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that {@code ON_STOP} event occurred.
-     * <p>
-     * This method will be called before the {@link LifecycleOwner}'s {@code onStop} method
+     * Notifies that `ON_STOP` event occurred.
+     *
+     *
+     * This method will be called before the [LifecycleOwner]'s `onStop` method
      * is called.
      *
      * @param owner the component, whose state was changed
      */
-    default void onStop(@NonNull LifecycleOwner owner) {
-    }
+    public fun onStop(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that {@code ON_DESTROY} event occurred.
-     * <p>
-     * This method will be called before the {@link LifecycleOwner}'s {@code onDestroy} method
+     * Notifies that `ON_DESTROY` event occurred.
+     *
+     *
+     * This method will be called before the [LifecycleOwner]'s `onDestroy` method
      * is called.
      *
      * @param owner the component, whose state was changed
      */
-    default void onDestroy(@NonNull LifecycleOwner owner) {
-    }
+    public fun onDestroy(owner: LifecycleOwner) {}
 }
-

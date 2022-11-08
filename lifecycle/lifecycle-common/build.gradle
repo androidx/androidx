@@ -44,3 +44,11 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
 }
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}
