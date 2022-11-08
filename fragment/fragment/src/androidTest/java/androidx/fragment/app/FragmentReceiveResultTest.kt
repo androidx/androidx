@@ -30,12 +30,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 /**
  * Tests for Fragment startActivityForResult and startIntentSenderForResult.
@@ -44,22 +45,18 @@ import java.util.concurrent.TimeUnit
 @MediumTest
 class FragmentReceiveResultTest {
     @Suppress("DEPRECATION")
-    @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var activity: FragmentTestActivity
-    private lateinit var fragment: TestFragment
-
-    @Before
-    fun setup() {
-        activity = activityRule.activity
-        fragment = attachTestFragment()
-    }
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun testNoFragmentOnActivityResult() {
+        val activity = activityRule.activity
         activity.supportFragmentManager.saveAllStateInternal()
 
         // 0xffff is the request code for the startActivityResult launcher in FragmentManager
@@ -70,12 +67,17 @@ class FragmentReceiveResultTest {
     @Test
     fun testNoFragmentOnRequestPermissionsResult() {
         // 0xffff + 2 is the request code for the requestPermissions launcher in FragmentManager
-        activity.onRequestPermissionsResult(0xffff + 2, arrayOf("permission"), intArrayOf(1))
+        activityRule.activity.onRequestPermissionsResult(
+            0xffff + 2,
+            arrayOf("permission"),
+            intArrayOf(1)
+        )
     }
 
     @Test
     fun testStartActivityForResultOk() {
-        startActivityForResult(10, Activity.RESULT_OK, "content 10")
+        val fragment: TestFragment = attachTestFragment()
+        startActivityForResult(fragment, 10, Activity.RESULT_OK, "content 10")
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(10)
@@ -85,8 +87,9 @@ class FragmentReceiveResultTest {
 
     @Test
     fun testMultipleStartActivityForResultOk() {
-        startActivityForResult(10, Activity.RESULT_OK, "content 10")
-        startActivityForResult(20, Activity.RESULT_OK, "content 20")
+        val fragment: TestFragment = attachTestFragment()
+        startActivityForResult(fragment, 10, Activity.RESULT_OK, "content 10")
+        startActivityForResult(fragment, 20, Activity.RESULT_OK, "content 20")
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(10)
@@ -101,7 +104,8 @@ class FragmentReceiveResultTest {
 
     @Test
     fun testStartActivityForResultCanceled() {
-        startActivityForResult(20, Activity.RESULT_CANCELED, "content 20")
+        val fragment: TestFragment = attachTestFragment()
+        startActivityForResult(fragment, 20, Activity.RESULT_CANCELED, "content 20")
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(20)
@@ -111,7 +115,8 @@ class FragmentReceiveResultTest {
 
     @Test
     fun testStartIntentSenderForResultOk() {
-        startIntentSenderForResult(30, Activity.RESULT_OK, "content 30")
+        val fragment: TestFragment = attachTestFragment()
+        startIntentSenderForResult(fragment, 30, Activity.RESULT_OK, "content 30")
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(30)
@@ -121,7 +126,8 @@ class FragmentReceiveResultTest {
 
     @Test
     fun testStartIntentSenderForResultWithOptionsOk() {
-        startIntentSenderForResult(30, Activity.RESULT_OK, "content 30", Bundle())
+        val fragment: TestFragment = attachTestFragment()
+        startIntentSenderForResult(fragment, 30, Activity.RESULT_OK, "content 30", Bundle())
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(30)
@@ -131,7 +137,8 @@ class FragmentReceiveResultTest {
 
     @Test
     fun testStartIntentSenderForResultCanceled() {
-        startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40")
+        val fragment: TestFragment = attachTestFragment()
+        startIntentSenderForResult(fragment, 40, Activity.RESULT_CANCELED, "content 40")
 
         assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
         assertThat(fragment.requestCode[0]).isEqualTo(40)
@@ -140,6 +147,7 @@ class FragmentReceiveResultTest {
     }
 
     private fun attachTestFragment(): TestFragment {
+        val activity = activityRule.activity
         val fragment = TestFragment()
         activityRule.runOnUiThread {
             activity.supportFragmentManager.beginTransaction()
@@ -154,10 +162,12 @@ class FragmentReceiveResultTest {
 
     @Suppress("DEPRECATION")
     private fun startActivityForResult(
+        fragment: TestFragment,
         requestCode: Int,
         resultCode: Int,
         content: String
     ) {
+        val activity = activityRule.activity
         activityRule.runOnUiThread {
             val intent = Intent(activity, FragmentResultActivity::class.java)
             intent.putExtra(FragmentResultActivity.EXTRA_RESULT_CODE, resultCode)
@@ -174,11 +184,13 @@ class FragmentReceiveResultTest {
 
     @Suppress("DEPRECATION")
     private fun startIntentSenderForResult(
+        fragment: TestFragment,
         requestCode: Int,
         resultCode: Int,
         content: String,
         options: Bundle? = null
     ) {
+        val activity = activityRule.activity
         activityRule.runOnUiThread {
             val intent = Intent(activity, FragmentResultActivity::class.java)
             intent.putExtra(FragmentResultActivity.EXTRA_RESULT_CODE, resultCode)
