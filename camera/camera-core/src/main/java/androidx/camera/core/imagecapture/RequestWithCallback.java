@@ -144,6 +144,10 @@ class RequestWithCallback implements TakePictureCallback {
     @MainThread
     void abortAndSendErrorToApp(@NonNull ImageCaptureException imageCaptureException) {
         checkMainThread();
+        if (mCompleteFuture.isDone()) {
+            // The app has already received a callback. No need to abort.
+            return;
+        }
         abort();
         onFailure(imageCaptureException);
     }
@@ -151,6 +155,10 @@ class RequestWithCallback implements TakePictureCallback {
     @MainThread
     void abortSilentlyAndRetry() {
         checkMainThread();
+        if (mCompleteFuture.isDone()) {
+            // The app has already received a callback. No need to abort.
+            return;
+        }
         abort();
         mRetryControl.retryRequest(mTakePictureRequest);
     }
