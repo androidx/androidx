@@ -1245,8 +1245,14 @@ public final class AppSearchImpl implements Closeable {
                             packageName).setDatabase(databaseName);
         }
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
             List<String> filterPackageNames = searchSpec.getFilterPackageNames();
@@ -1314,10 +1320,17 @@ public final class AppSearchImpl implements Closeable {
                             callerAccess.getCallingPackageName());
         }
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
+            long aclLatencyStartMillis = SystemClock.elapsedRealtime();
             // Convert package filters to prefix filters
             Set<String> packageFilters = new ArraySet<>(searchSpec.getFilterPackageNames());
             Set<String> prefixFilters = new ArraySet<>();
@@ -1345,6 +1358,10 @@ public final class AppSearchImpl implements Closeable {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
+            }
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setAclCheckLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - aclLatencyStartMillis));
             }
             SearchResultPage searchResultPage =
                     doQueryLocked(
@@ -1531,12 +1548,18 @@ public final class AppSearchImpl implements Closeable {
      */
     @NonNull
     public SearchResultPage getNextPage(@NonNull String packageName, long nextPageToken,
-            @Nullable SearchStats.Builder statsBuilder)
+            @Nullable SearchStats.Builder sStatsBuilder)
             throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
             LogUtil.piiTrace(TAG, "getNextPage, request", nextPageToken);
@@ -1544,10 +1567,10 @@ public final class AppSearchImpl implements Closeable {
             SearchResultProto searchResultProto = mIcingSearchEngineLocked.getNextPage(
                     nextPageToken);
 
-            if (statsBuilder != null) {
-                statsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
                 AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(),
-                        statsBuilder);
+                        sStatsBuilder);
             }
 
             LogUtil.piiTrace(
@@ -1572,16 +1595,16 @@ public final class AppSearchImpl implements Closeable {
             // Rewrite search result before we return.
             SearchResultPage searchResultPage = SearchResultToProtoConverter
                     .toSearchResultPage(searchResultProto, mSchemaMapLocked);
-            if (statsBuilder != null) {
-                statsBuilder.setRewriteSearchResultLatencyMillis(
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setRewriteSearchResultLatencyMillis(
                         (int) (SystemClock.elapsedRealtime()
                                 - rewriteSearchResultLatencyStartMillis));
             }
             return searchResultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
-            if (statsBuilder != null) {
-                statsBuilder.setTotalLatencyMillis(
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
             }
         }
