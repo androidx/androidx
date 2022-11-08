@@ -51,7 +51,6 @@ class DeepLinkInActivityDestinationDetector : ResourceXmlDetector() {
                 .message("Do not attach a <deeplink> to an <activity> destination. " +
                     "Attach the deeplink directly to the second activity or the start " +
                     "destination of a nav host in the second activity instead.")
-                .scope(context.getNameLocation(element))
             context.report(incident)
         }
     }
