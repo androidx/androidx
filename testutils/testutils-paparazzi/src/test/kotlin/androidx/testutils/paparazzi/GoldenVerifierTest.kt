@@ -62,7 +62,7 @@ class GoldenVerifierTest {
     @Test
     fun `writes report on success`() {
         createGolden("circle")
-        goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle"))
+        goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
 
         val proto = reportProto()
         assertEquals(Status.PASSED, proto.result)
@@ -75,14 +75,14 @@ class GoldenVerifierTest {
     @Test
     fun `writes actual image on success`() {
         createGolden("circle")
-        goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle"))
+        goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
         assertEquals(loadTestImage("circle"), reportFile("actual.png").readImage())
     }
 
     @Test
     fun `writes expected image on success`() {
         createGolden("circle")
-        goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle"))
+        goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
         assertEquals(loadTestImage("circle"), reportFile("expected.png").readImage())
     }
 
@@ -102,14 +102,14 @@ class GoldenVerifierTest {
             "commit the updated golden image."
 
         assertFailsWithMessage(message) {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
         }
     }
 
     @Test
     fun `writes result proto on failure`() {
         createGolden("star")
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
 
         val proto = reportProto()
         assertEquals(Status.FAILED, proto.result)
@@ -122,21 +122,21 @@ class GoldenVerifierTest {
     @Test
     fun `writes actual image on failure`() {
         createGolden("star")
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
         assertEquals(loadTestImage("circle"), reportFile("actual.png").readImage())
     }
 
     @Test
     fun `writes expected image on failure`() {
         createGolden("star")
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
         assertEquals(loadTestImage("star"), reportFile("expected.png").readImage())
     }
 
     @Test
     fun `writes diff image on failure`() {
         createGolden("star")
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
         assertEquals(loadTestImage("PixelPerfect_diff"), reportFile("diff.png").readImage())
     }
 
@@ -157,7 +157,7 @@ class GoldenVerifierTest {
             "${goldenFile()} and commit the updated golden image."
 
         assertFailsWithMessage(message) {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("vertical_rectangle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
         }
     }
 
@@ -165,7 +165,7 @@ class GoldenVerifierTest {
     fun `writes result proto for size mismatch`() {
         createGolden("horizontal_rectangle")
         assertFails {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("vertical_rectangle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
         }
 
         val proto = reportProto()
@@ -180,7 +180,7 @@ class GoldenVerifierTest {
     fun `writes actual image for size mismatch`() {
         createGolden("horizontal_rectangle")
         assertFails {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("vertical_rectangle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
         }
 
         assertEquals(loadTestImage("vertical_rectangle"), reportFile("actual.png").readImage())
@@ -190,7 +190,7 @@ class GoldenVerifierTest {
     fun `writes expected image for size mismatch`() {
         createGolden("horizontal_rectangle")
         assertFails {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("vertical_rectangle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
         }
 
         assertEquals(loadTestImage("horizontal_rectangle"), reportFile("expected.png").readImage())
@@ -211,13 +211,13 @@ class GoldenVerifierTest {
             "${reportFile("actual.png")} to ${goldenFile()} and commit the new golden image."
 
         assertFailsWithMessage(message) {
-            goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle"))
+            goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
         }
     }
 
     @Test
     fun `writes result proto for missing golden`() {
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
 
         val proto = reportProto()
         assertEquals(Status.MISSING_GOLDEN, proto.result)
@@ -229,7 +229,7 @@ class GoldenVerifierTest {
 
     @Test
     fun `writes actual image for missing golden`() {
-        assertFails { goldenVerifier().assertSimilarToGolden(testId(), loadTestImage("circle")) }
+        assertFails { goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle")) }
         assertEquals(loadTestImage("circle"), reportFile("actual.png").readImage())
     }
 
@@ -238,6 +238,15 @@ class GoldenVerifierTest {
         val analysis = goldenVerifier().analyze(null, loadTestImage("circle"))
         assertIs<GoldenVerifier.AnalysisResult.MissingGolden>(analysis)
         assertEquals(loadTestImage("circle"), analysis.actual)
+    }
+
+    @Test
+    fun `ensures single snapshot per method`() {
+        val verifier = goldenVerifier()
+        createGolden("circle")
+
+        verifier.assertMatchesGolden(snapshot(), loadTestImage("circle"))
+        assertFails { verifier.assertMatchesGolden(snapshot(), loadTestImage("circle")) }
     }
 
     private fun goldenVerifier() = GoldenVerifier(

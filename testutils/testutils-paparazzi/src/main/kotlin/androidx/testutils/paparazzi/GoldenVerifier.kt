@@ -26,25 +26,38 @@ import java.io.File
 import javax.imageio.ImageIO
 
 /**
- * This [SnapshotHandler] implements image diffing for AndroidX CI. It both throws exceptions for
- * failing tests and writes reports out for the image diffing tool in CI to consume.
+ * This [SnapshotHandler] implements AndroidX-specific logic for screenshot testing. Specifically,
+ * it writes a report to [reportDirectory] at every comparison just before throwing an exception,
+ * even on successful comparison. The report contains text and binary protos containing the status
+ * of the comparison and relative paths to actual, expected (copy of golden), and difference
+ * (magenta highlights) images as applicable. CI consumes these reports to allow updating golden
+ * images from the web UI. Golden images can also be updated by the `:updateGolden` Gradle task,
+ * which copies actual images to their expected location in the golden repo.
  *
- * All golden images are identified by the qualified name of the test function. This limits tests
- * to one snapshot per test, but avoids introducing a secondary identifier. It's also currently
- * required for CI.
+ * It also knows that the AndroidX golden repo, located at [goldenRootDirectory], is partitioned
+ * by Gradle project path or [modulePath] and loads images from it.
  *
- * It always fails the test if the expected golden image does not exist yet, but provides an
- * failure message including the path to the actual screenshot and the expected golden path.
+ * As noted in documentation on [androidxPaparazzi], the verifier is the component to enforce a
+ * one-to-one relationship between test functions and golden images. This isn't strictly necessary,
+ * but CI currently expects reports to be generated as a side effect of a regular test invocation.
+ * Enforcing a one-to-one relationship avoids a situation where a failing assertion earlier in the
+ * test would stop a later assertion from executing and generating its report as a side effect,
+ * requiring multiple rounds of updating golden images to get the test passing.
  *
- * @property modulePath Unique path for the module, derived from gradle path. The verifier will
- * search for golden images in this directory relative to [goldenRootDirectory].
- * Example: `test/screenshot/paparazzi`.
+ * Additionally, CI currently only supports one comparison per report (note the [ScreenshotResult]
+ * proto is not repeated). If this limit is lifted in the future, we would need to devise a scheme
+ * for naming additional golden images such as an index of the order they were invoked and wrap the
+ * test rule with something like an `ErrorCollector` to ensure later assertions are always
+ * reachable.
+ *
+ * @property modulePath Unique path for the module, derived from Gradle project path. The verifier
+ * will search for golden images in this directory relative to [goldenRootDirectory].
  *
  * @property goldenRootDirectory Location on disk of the golden images repo. Golden images for this
  * module are found in the [modulePath] directory under this directory.
  *
- * @property reportDirectory Directory to write reports for CI to read, including protos,
- * actual and expected images, and image diffs.
+ * @property reportDirectory Directory to write reports, including protos, actual and expected
+ * images, and image diffs.
  *
  * @property imageDiffer An [ImageDiffer] for comparing images.
  *
@@ -60,20 +73,31 @@ internal class GoldenVerifier(
     /** Directory containing golden images for this module. */
     val goldenDirectory = goldenRootDirectory.resolve(modulePath)
 
+    /** The set of test IDs seen by this verifier, used to enforce single assertion per test. */
+    private val attemptedTests = mutableSetOf<TestName>()
+
     /**
-     * Asserts that the [actual] matches the expected golden for the qualified test function name,
-     * [testId]. As a side effect, this writes the report proto, actual, expected, and difference
-     * images to [reportDirectory] as appropriate.
+     * Asserts that the [actual] matches the expected golden for the test described in [snapshot].
+     * As a side effect, this writes the report proto, actual, expected, and difference images to
+     * [reportDirectory] as appropriate.
      */
-    fun assertSimilarToGolden(testId: String, actual: BufferedImage) {
+    fun assertMatchesGolden(snapshot: Snapshot, actual: BufferedImage) {
+        check(snapshot.testName !in attemptedTests) {
+            "Snapshot already taken for test ${snapshot.testName.methodName}. Taking multiple " +
+                "snapshots per test is not currently supported."
+        }
+        attemptedTests += snapshot.testName
+
+        val testId = snapshot.testName.toTestId()
         val expected = testId.toGoldenFile().takeIf { it.canRead() }?.let { ImageIO.read(it) }
         val analysis = analyze(expected, actual)
 
+        // TODO(b/253255695): Rewrite instructions to use updateGolden gradle task
         fun updateMessage() = "To update the golden image, copy " +
             "${testId.toActualFile().canonicalPath} to ${testId.toGoldenFile().canonicalPath} " +
             "and commit the updated golden image."
 
-        writeReport(testId, analysis)
+        writeReport(snapshot, analysis)
 
         when (analysis) {
             is AnalysisResult.Passed -> { /** Test passed, don't need to throw anything */ }
@@ -87,6 +111,7 @@ internal class GoldenVerifier(
                     "Golden: ${analysis.expected.width}x${analysis.expected.height}. " +
                     updateMessage()
             )
+            // TODO(b/253255695): Rewrite instructions to use updateGolden gradle task
             is AnalysisResult.MissingGolden -> throw AssertionError(
                 "Expected golden image for $testId does not exist. To create it, copy " +
                     "${testId.toActualFile().canonicalPath} to " +
@@ -112,39 +137,43 @@ internal class GoldenVerifier(
     }
 
     /**
-     * Write the [analysis] for test [testId] to [reportDirectory] as both binary and text proto,
-     * including actual, expected, and difference image files as appropriate.
+     * Write the [analysis] for test described by [snapshot] to [reportDirectory] as both binary
+     * and text proto, including actual, expected, and difference image files as appropriate.
      */
-    fun writeReport(testId: String, analysis: AnalysisResult) {
+    fun writeReport(snapshot: Snapshot, analysis: AnalysisResult) {
+        val testId = snapshot.testName.toTestId()
         val actualFile = testId.toActualFile().also { ImageIO.write(analysis.actual, "PNG", it) }
         val goldenFile = testId.toGoldenFile()
 
         val resultProto = ScreenshotResult.newBuilder().apply {
-            currentScreenshotFileName = actualFile.name
+            currentScreenshotFileName = actualFile.toRelativeString(reportDirectory)
             repoRootPath = goldenRepoName
-            locationOfGoldenInRepo = goldenFile.relativeTo(goldenRootDirectory).path
+            locationOfGoldenInRepo = goldenFile.toRelativeString(goldenRootDirectory)
         }
 
-        fun diffFile(diff: BufferedImage) =
-            testId.toDiffFile().also { ImageIO.write(diff, "PNG", it) }
+        fun diffFile(diff: BufferedImage) = testId.toDiffFile()
+            .also { ImageIO.write(diff, "PNG", it) }
+            .toRelativeString(reportDirectory)
+
         fun expectedFile() = goldenFile.copyTo(testId.toExpectedFile())
+            .toRelativeString(reportDirectory)
 
         when (analysis) {
             is AnalysisResult.Passed -> resultProto.apply {
                 result = Status.PASSED
-                expectedImageFileName = expectedFile().name
-                analysis.imageDiff.highlights?.let { diffImageFileName = diffFile(it).name }
+                expectedImageFileName = expectedFile()
+                analysis.imageDiff.highlights?.let { diffImageFileName = diffFile(it) }
                 comparisonStatistics = analysis.imageDiff.taggedDescription()
             }
             is AnalysisResult.Failed -> resultProto.apply {
                 result = Status.FAILED
-                expectedImageFileName = expectedFile().name
-                diffImageFileName = diffFile(analysis.imageDiff.highlights).name
+                expectedImageFileName = expectedFile()
+                diffImageFileName = diffFile(analysis.imageDiff.highlights)
                 comparisonStatistics = analysis.imageDiff.taggedDescription()
             }
             is AnalysisResult.SizeMismatch -> resultProto.apply {
                 result = Status.SIZE_MISMATCH
-                expectedImageFileName = expectedFile().name
+                expectedImageFileName = expectedFile()
             }
             is AnalysisResult.MissingGolden -> resultProto.apply {
                 result = Status.MISSING_GOLDEN
@@ -196,14 +225,14 @@ internal class GoldenVerifier(
 
         return object : SnapshotHandler.FrameHandler {
             override fun handle(image: BufferedImage) {
-                assertSimilarToGolden(snapshot.testName.toTestId(), image)
+                assertMatchesGolden(snapshot, image)
             }
 
-            override fun close() {}
+            override fun close() = Unit
         }
     }
 
-    override fun close() {}
+    override fun close() = Unit
 
     /** Adds [ImageDiffer.name] as a prefix to [ImageDiffer.DiffResult.description]. */
     private fun ImageDiffer.DiffResult.taggedDescription() =
