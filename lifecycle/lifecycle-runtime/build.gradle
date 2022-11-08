@@ -3,6 +3,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -13,6 +14,7 @@ android {
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api(project(":lifecycle:lifecycle-common"))
 
     api("androidx.arch.core:core-common:2.1.0")
