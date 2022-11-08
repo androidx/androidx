@@ -18,6 +18,9 @@ import sys
 import os
 import argparse
 from datetime import date
+import glob
+import pathlib
+import re
 import subprocess
 import toml
 
@@ -74,6 +77,42 @@ def ask_yes_or_no(question):
             if reply[0] == 'y': return True
             if reply[0] == 'n': return False
         print("Please respond with y/n")
+
+
+def sed(pattern, replacement, file):
+    """ Performs an in-place string replacement of pattern in a target file
+
+    Args:
+        pattern: pattern to replace
+        replacement: replacement for the pattern matches
+        file: target file
+
+    Returns:
+        Nothing
+    """
+
+    with open(file) as f:
+        file_contents = f.read()
+    new_file_contents = re.sub(pattern, replacement, file_contents)
+    with open(file, "w") as f:
+        f.write(new_file_contents)
+
+
+def single(list):
+    """ Returns the only item from a list of just one item
+
+    Raises a ValueError if the list does not contain exactly one element
+
+    Args:
+        list: a list of one item
+
+    Returns:
+        The only item from a single-item-list
+    """
+
+    if len(list) != 1:
+        raise ValueError('Expected a list of size 1. Found: %s' % list)
+    return list[0]
 
 
 def run_update_api():
@@ -455,23 +494,81 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
 
     return
 
-def update_tracing_perfetto_version(old_version):
+
+def update_tracing_perfetto(old_version, new_version=None, core_path=FRAMEWORKS_SUPPORT_FP):
     """Updates tracing-perfetto version and artifacts (including building new binaries)
 
     Args:
         old_version: old version of the existing library
+        new_version: new version of the library; defaults to incrementing the old_version
+        core_path: path to frameworks/support directory
     Returns:
         Nothing
     """
-    new_version = increment_version(old_version)
-    cmd = "./update_tracing_perfetto.sh %s %s %s" % (FRAMEWORKS_SUPPORT_FP, old_version, new_version)
-    try:
-        print("Updating tracing-perfetto, this can take a while...")
-        subprocess.check_output(cmd, cwd=VERSION_UPDATER_FP, stderr=subprocess.STDOUT, shell=True)
-        print("Updated tracing-perfetto.")
-    except subprocess.CalledProcessError as e:
-        print_e("FAIL: Error '%s' while running: '%s'" % (e.output, cmd))
-        sys.exit(1)
+
+    print("Updating tracing-perfetto, this can take a while...")
+
+    # update version in code
+    if not new_version:
+        new_version = increment_version(old_version)
+
+    sed('tracingPerfettoVersion = "%s"' % old_version,
+        'tracingPerfettoVersion = "%s"' % new_version,
+        os.path.join(core_path, 'benchmark/benchmark-macro/src/androidTest/java/androidx/benchmark/'
+                                'macro/perfetto/PerfettoSdkHandshakeTest.kt'))
+    sed('TRACING_PERFETTO = "%s"' % old_version,
+        'TRACING_PERFETTO = "%s"' % new_version,
+        os.path.join(core_path, 'libraryversions.toml'))
+    sed('#define VERSION "%s"' % old_version,
+        '#define VERSION "%s"' % new_version,
+        os.path.join(core_path, 'tracing/tracing-perfetto-binary/src/main/cpp/tracing_perfetto.cc'))
+    sed('const val libraryVersion = "%s"' % old_version,
+        'const val libraryVersion = "%s"' % new_version,
+        os.path.join(core_path, 'tracing/tracing-perfetto/src/androidTest/java/androidx/tracing/'
+                                'perfetto/jni/test/PerfettoNativeTest.kt'))
+    sed('const val version = "%s"' % old_version,
+        'const val version = "%s"' % new_version,
+        os.path.join(core_path, 'tracing/tracing-perfetto/src/main/java/androidx/tracing/perfetto/'
+                                'jni/PerfettoNative.kt'))
+
+    # build new binaries
+    subprocess.check_call(["./gradlew",
+                           ":tracing:tracing-perfetto-binary:createProjectZip",
+                           "-DTRACING_PERFETTO_REUSE_PREBUILTS_AAR=false"],
+                          cwd=core_path)
+
+    # copy binaries to prebuilts
+    project_zip_dir = os.path.join(core_path, '../../out/dist/per-project-zips')
+    project_zip_file = os.path.join(
+        project_zip_dir,
+        single(glob.glob('%s/*tracing*perfetto*binary*%s*.zip' % (project_zip_dir, new_version))))
+    dst_dir = pathlib.Path(os.path.join(
+        core_path,
+        "../../prebuilts/androidx/internal/androidx/tracing/tracing-perfetto-binary",
+        new_version))
+    if dst_dir.exists():
+        shutil.rmtree(dst_dir)
+    dst_dir.mkdir()
+    subprocess.check_call(
+        ["unzip", "-xjqq", project_zip_file, '**/%s/**' % new_version, "-d", dst_dir])
+
+    # update SHA
+    for arch in ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']:
+        checksum = subprocess.check_output(
+            'unzip -cxqq "*tracing*binary*%s*.aar" "**/%s/libtracing_perfetto.so" | shasum -a256 |'
+            ' awk \'{print $1}\' | tr -d "\n"' % (new_version, arch),
+            cwd=dst_dir,
+            shell=True
+        ).decode()
+        if not re.fullmatch('^[0-9a-z]{64}$', checksum):
+            raise ValueError('Expecting a sha256 sum. Got: %s' % checksum)
+        sed(
+            '"%s" to "[0-9a-z]{64}"' % arch,
+            '"%s" to "%s"' % (arch, checksum),
+            os.path.join(core_path, 'tracing/tracing-perfetto/src/main/java/androidx/tracing/'
+                                    'perfetto/jni/PerfettoNative.kt'))
+
+    print("Updated tracing-perfetto.")
 
 def commit_updates(release_date):
     for dir in [FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_FP]:
@@ -480,9 +577,11 @@ def commit_updates(release_date):
         staged_changes = subprocess.check_output(["git", "diff", "--cached"], cwd=dir, stderr=subprocess.STDOUT)
         if not staged_changes:
             continue
-        msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
+        msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (
+            release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
         subprocess.check_call(["git", "commit", "-m", msg], cwd=dir, stderr=subprocess.STDOUT)
-        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "--label", "Presubmit-Ready+1"], cwd=dir, stderr=subprocess.STDOUT)
+        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "--label", "Presubmit-Ready+1"], cwd=dir,
+                              stderr=subprocess.STDOUT)
 
 def main(args):
     # Parse arguments and check for existence of build ID or file
@@ -512,7 +611,7 @@ def main(args):
                 if tracing_perfetto_updated:
                     updated = True
                 else:
-                    update_tracing_perfetto_version(artifact["version"])
+                    update_tracing_perfetto(artifact["version"])
                     tracing_perfetto_updated = True
 
             if not updated:
