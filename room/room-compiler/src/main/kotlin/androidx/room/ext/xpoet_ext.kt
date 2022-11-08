@@ -149,7 +149,7 @@ object CommonTypeNames {
     val MUTABLE_SET = Set::class.asMutableClassName()
     val HASH_SET = XClassName.get("java.util", "HashSet")
     val STRING = String::class.asClassName()
-    val OPTIONAL = ClassName.get("java.util", "Optional")
+    val OPTIONAL = XClassName.get("java.util", "Optional")
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")

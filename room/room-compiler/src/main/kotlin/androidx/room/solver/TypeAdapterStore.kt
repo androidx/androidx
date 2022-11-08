@@ -498,7 +498,7 @@ class TypeAdapterStore private constructor(
                 typeArg = typeArg,
                 resultAdapter = SingleItemQueryResultAdapter(rowAdapter)
             )
-        } else if (typeMirror.rawType.typeName == CommonTypeNames.OPTIONAL) {
+        } else if (typeMirror.rawType.asTypeName() == CommonTypeNames.OPTIONAL) {
             // Handle java.util.Optional similarly.
             val typeArg = typeMirror.typeArguments.first()
             // use nullable when finding row adapter as non-null adapters might return
