@@ -707,6 +707,11 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open to allow mocking. */
     internal open fun getChoreographer(): ChoreographerWrapper = object : ChoreographerWrapper {
         private val choreographer = Choreographer.getInstance()
+        init {
+            require(Looper.myLooper() == Looper.getMainLooper()) {
+                "Creating choreographer not on the main thread"
+            }
+        }
 
         override fun postFrameCallback(callback: Choreographer.FrameCallback) {
             choreographer.postFrameCallback(callback)
@@ -1517,20 +1522,31 @@ public abstract class WatchFaceService : WallpaperService() {
         ): Unit = TraceEvent("EngineWrapper.setComplicationDataList").use {
             val earlyInitDetails = getEarlyInitDetailsOrNull()
             if (earlyInitDetails != null) {
-                val now = Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
-                for (idAndComplicationData in complicationDataWireFormats) {
-                    earlyInitDetails.complicationSlotsManager.onComplicationDataUpdate(
-                        idAndComplicationData.id,
-                        idAndComplicationData.complicationData.toApiComplicationData(),
-                        now
-                    )
-                }
-                earlyInitDetails.complicationSlotsManager.onComplicationsUpdated()
-                invalidate()
-                scheduleWriteComplicationDataCache()
+                applyComplications(
+                    earlyInitDetails.complicationSlotsManager,
+                    complicationDataWireFormats
+                )
             } else {
                 setPendingInitialComplications(complicationDataWireFormats)
             }
+        }
+
+        @UiThread
+        internal fun applyComplications(
+            complicationSlotsManager: ComplicationSlotsManager,
+            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
+        ) {
+            val now = Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
+            for (idAndComplicationData in complicationDataWireFormats) {
+                complicationSlotsManager.onComplicationDataUpdate(
+                    idAndComplicationData.id,
+                    idAndComplicationData.complicationData.toApiComplicationData(),
+                    now
+                )
+            }
+            complicationSlotsManager.onComplicationsUpdated()
+            invalidate()
+            scheduleWriteComplicationDataCache()
         }
 
         @UiThread
@@ -2061,13 +2077,15 @@ public abstract class WatchFaceService : WallpaperService() {
                         )
                     )
 
-                    // Apply any pendingInitialComplications, this must be done after
-                    // deferredWatchFaceImpl has completed or there's a window in which complication
-                    // updates get lost.
-                    pendingInitialComplications?.let {
-                        setComplicationDataList(it)
+                    withContext(uiThreadCoroutineScope.coroutineContext) {
+                        // Apply any pendingInitialComplications, this must be done after
+                        // deferredEarlyInitDetails has completed or there's a window in which complication
+                        // updates get lost.
+                        pendingInitialComplications?.let {
+                            applyComplications(complicationSlotsManager, it)
+                        }
+                        pendingInitialComplications = null
                     }
-                    pendingInitialComplications = null
 
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
