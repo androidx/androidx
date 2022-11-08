@@ -934,6 +934,7 @@ public class ComplicationSlot
         get
         @UiThread
         internal set(value) {
+            require(value != 0)
             if (field == value) {
                 return
             }
