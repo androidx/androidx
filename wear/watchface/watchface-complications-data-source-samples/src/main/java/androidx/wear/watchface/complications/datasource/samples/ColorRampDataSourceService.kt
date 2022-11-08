@@ -23,7 +23,6 @@ import androidx.wear.watchface.complications.data.ColorRamp
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
-import androidx.wear.watchface.complications.data.RangedValueTypes
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 
@@ -42,7 +41,7 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
                 max = 100.0f,
                 plainText("Many colors")
             ).setText(plainText("Colors"))
-                .setValueType(RangedValueTypes.SCORE)
+                .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .setColorRamp(
                     ColorRamp(
                         intArrayOf(
@@ -68,7 +67,7 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
                 max = 100.0f,
                 plainText("Many colors")
             ).setText(plainText("Colors"))
-                .setValueType(RangedValueTypes.SCORE)
+                .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .setColorRamp(
                     ColorRamp(
                         intArrayOf(

@@ -904,31 +904,6 @@ public class ColorRamp(
 }
 
 /**
- * Describes the semantic meaning of a [RangedValueComplicationData] if known. The complication
- * renderer may wish to visually differentiate between the different types, for example rendering a
- * dot on a line/arc to show the value for a [SCORE].
- */
-object RangedValueTypes {
-    /** The ranged value's semantic hasn't been defined, but it's most commonly a percentage. */
-    const val UNDEFINED = 0
-
-    /**
-     * The randed value represents a score for something unrelated to the user, e.g. the air quality
-     * index.
-     */
-    const val SCORE = 1
-}
-
-/** @hide */
-@IntDef(
-    value = [
-        RangedValueTypes.UNDEFINED,
-        RangedValueTypes.SCORE
-    ]
-)
-public annotation class RangedValueType
-
-/**
  * Type used for complications including a numerical value within a range, such as a percentage.
  * The value may be accompanied by an icon and/or short text and title.
  *
@@ -977,7 +952,9 @@ public annotation class RangedValueType
  * @property contentDescription The content description field for accessibility.
  * @property colorRamp Optional hint to render the value with the specified [ColorRamp]. When
  * present the renderer may choose to use the ColorRamp when rendering the progress bar.
- * @property valueType The semantic meaning of [value], see [RangedValueType] for more details.
+ * @property valueType The semantic meaning of [value]. The complication renderer may choose to
+ * visually differentiate between the different types, for example rendering a dot on a line/arc to
+ * indicate the value for a [TYPE_RATING].
  */
 public class RangedValueComplicationData internal constructor(
     public val value: Float,
@@ -1005,6 +982,10 @@ public class RangedValueComplicationData internal constructor(
     persistencePolicy = persistencePolicy,
     displayPolicy = displayPolicy
 ) {
+    /** @hide */
+    @IntDef(value = [TYPE_UNDEFINED, TYPE_RATING, TYPE_PERCENTAGE])
+    public annotation class RangedValueType
+
     /**
      * Builder for [RangedValueComplicationData].
      *
@@ -1013,8 +994,9 @@ public class RangedValueComplicationData internal constructor(
      *
      * @param value The value of the ranged complication which should be in the range
      * [[min]] .. [[max]]. The semantic meaning of value can be specified via [setValueType].
-     * @param min The minimum value
-     * @param max The maximum value. This must be less than [Float.MAX_VALUE].
+     * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
+     * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For [TYPE_PERCENTAGE]
+     * this must be 100f.
      * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
@@ -1031,7 +1013,7 @@ public class RangedValueComplicationData internal constructor(
         private var text: ComplicationText? = null
         private var colorRamp: ColorRamp? = null
         @RangedValueType
-        private var valueType: Int = RangedValueTypes.UNDEFINED
+        private var valueType: Int = TYPE_UNDEFINED
 
         init {
             require(max != Float.MAX_VALUE) {
@@ -1079,9 +1061,9 @@ public class RangedValueComplicationData internal constructor(
         }
 
         /**
-         * Sets the semantic meaning of [value], see [@RangedValueTypes] for details. Defaults to
-         * [RangedValueTypes.UNDEFINED] if not set. Watch faces may use this as a hint to select
-         * rendering style.
+         * Sets the semantic meaning of [value]. The complication renderer may choose to visually
+         * differentiate between the different types, for example rendering a dot on a line/arc to
+         * indicate the value for a [TYPE_RATING]. Defaults to [TYPE_UNDEFINED] if not set.
          */
         public fun setValueType(@RangedValueType valueType: Int): Builder = apply {
             this.valueType = valueType
@@ -1093,6 +1075,10 @@ public class RangedValueComplicationData internal constructor(
                 monochromaticImage != null || smallImage != null || text != null || title != null
             ) {
                 "At least one of monochromaticImage, smallImage, text or title must be set"
+            }
+            if (valueType == TYPE_PERCENTAGE) {
+                require(min == 0f)
+                require(max == 100f)
             }
             return RangedValueComplicationData(
                 value,
@@ -1241,6 +1227,23 @@ public class RangedValueComplicationData internal constructor(
          */
         @JvmField
         public val PLACEHOLDER = Float.MAX_VALUE
+
+        /**
+         * The ranged value's semantic hasn't been explicitly defined, most commonly it's a
+         * percentage however.
+         */
+        const val TYPE_UNDEFINED = 0
+
+        /**
+         * The ranged value represents a rating or score for something unrelated to the user,
+         * e.g. the air quality index or the UV index.
+         */
+        const val TYPE_RATING = 1
+
+        /**
+         * The ranged value represents a percentage in the range [0..100]. E.g. Battery charge.
+         */
+        const val TYPE_PERCENTAGE = 2
     }
 }
 
@@ -1266,7 +1269,7 @@ public class RangedValueComplicationData internal constructor(
  *
  * If you want to represent a score for something that's not based on the user (e.g. air quality
  * index) then you should instead use a [RangedValueComplicationData] and pass
- * [RangedValueTypes.SCORE] into [RangedValueComplicationData.Builder.setValueType].
+ * [RangedValueComplicationData.TYPE_RATING] into [RangedValueComplicationData.Builder.setValueType].
  *
  * @property value The [Float] value of this complication which is >= 0f, this value may be larger
  * than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
@@ -1337,6 +1340,7 @@ internal constructor(
      * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
      * @param contentDescription Localized description for use by screen readers
      */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder(
         private val value: Float,
         private val targetValue: Float,
@@ -1565,8 +1569,8 @@ internal constructor(
  * user (e.g. blue is cold, yellow/red is worm), and should be consistent with the experience
  * launched by tapping on the complication. If this is equal to [PLACEHOLDER] then the renderer must
  * display this in a visually distinct way to suggest to the user that it's placeholder data.  E.g.
- * each element is rendered in light grey. The maximum valid size of this list is
- * [MAX_NUM_ELEMENTS].
+ * each element is rendered in light grey. The maximum valid size of this list is provided by
+ * [getMaxElements] and it will be truncated if its larger.
  * @property elementBackgroundColor If elements are draw as segments then this is the background
  * color to use in between them.
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
@@ -1672,11 +1676,12 @@ internal constructor(
      * @param elements The breakdown of the subject into various [Element]s. E.g. the proportion of
      * calories consumed which were carbohydrates, fats etc... The [tapAction] must take the user to
      * an experience where the color key becomes obvious. The maximum valid size of this list is
-     * [MAX_NUM_ELEMENTS].
+     * provided by [getMaxElements].
      * @param contentDescription Localized description for use by screen readers
      */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder(
-        private val elements: List<Element>,
+        elements: List<Element>,
         private var contentDescription: ComplicationText
     ) : BaseBuilder<Builder, WeightedElementsComplicationData>() {
         @ColorInt private var elementBackgroundColor: Int = Color.TRANSPARENT
@@ -1688,9 +1693,19 @@ internal constructor(
         private var text: ComplicationText? = null
 
         init {
-            require(elements.size < MAX_NUM_ELEMENTS) {
-                "Found ${elements.size} elements but the maximum is $MAX_NUM_ELEMENTS"
+            if (elements.size > getMaxElements()) {
+                Log.w(
+                    TAG,
+                    "Found ${elements.size} elements but the maximum is ${getMaxElements()}," +
+                        " truncating!"
+                )
             }
+        }
+
+        private val elements: List<Element> = if (elements.size > getMaxElements()) {
+            elements.subList(0, getMaxElements()) // NB the second parameter is exclusive!
+        } else {
+            elements
         }
 
         /**
@@ -1869,10 +1884,11 @@ internal constructor(
         public val PLACEHOLDER = emptyList<Element>()
 
         /**
-         * The maximum size for [elements]. Complications are small and if we have a very large
-         * number of elements we likely won't be able to render them properly because the individual
-         * elements will be too small on screen. */
-        public const val MAX_NUM_ELEMENTS = 20
+         * Returns the maximum size for [elements]. Complications are small and if we have a very
+         * large  number of elements we likely won't be able to render them properly because the
+         * individual elements will be too small on screen. */
+        @JvmStatic
+        public fun getMaxElements() = 20
     }
 }
 
