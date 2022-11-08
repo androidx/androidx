@@ -578,6 +578,8 @@ includeProject(":concurrent:concurrent-futures", [BuildType.MAIN, BuildType.CAME
 includeProject(":concurrent:concurrent-futures-ktx", [BuildType.MAIN, BuildType.CAMERA])
 includeProject(":constraintlayout:constraintlayout-compose", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:constraintlayout-compose-demos", [BuildType.COMPOSE])
+includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
+includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout", [BuildType.MAIN])
 includeProject(":constraintlayout:constraintlayout-core", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":contentpager:contentpager", [BuildType.MAIN])
