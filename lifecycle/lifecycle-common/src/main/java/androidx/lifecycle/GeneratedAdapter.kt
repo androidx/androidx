@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface GeneratedAdapter {
-
     /**
      * Called when a state transition event happens.
      *
@@ -33,9 +29,12 @@ public interface GeneratedAdapter {
      * @param event The event
      * @param onAny approveCall onAny handlers
      * @param logger if passed, used to track called methods and prevent calling the same method
-     *              twice
+     *                  twice
      */
-    @SuppressWarnings("LambdaLast")
-    void callMethods(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event, boolean onAny,
-            @Nullable MethodCallsLogger logger);
+    public fun callMethods(
+        source: LifecycleOwner,
+        event: Lifecycle.Event,
+        onAny: Boolean,
+        logger: MethodCallsLogger?
+    )
 }
