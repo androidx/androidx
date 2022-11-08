@@ -1640,6 +1640,23 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateMultipleParentsOnHierarchy() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_root)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.root_start)
+
+        // nav_second has two parents: nav_root and nav_first
+        // nav_first has one parent: nav_root
+        // they share common parent of nav_root
+        navController.navigate(Uri.parse("http://www.second.com"))
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_start)
+
+        navController.popBackStack()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.root_start)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithOverriddenDefaultArgs() {
         val args = Bundle()
         args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE)
