@@ -17,7 +17,9 @@
 package androidx.window.testing.layout
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Rect
+import androidx.annotation.UiContext
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 
@@ -27,7 +29,9 @@ import androidx.window.layout.WindowMetricsCalculator
  * in general terms, as an application may be running in multi-window or otherwise adjusted to not
  * occupy the entire display.
  */
-internal object StubWindowMetricsCalculator : WindowMetricsCalculator {
+internal class StubWindowMetricsCalculator(
+    private val calculator: WindowMetricsCalculator
+) : WindowMetricsCalculator {
 
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
         val displayMetrics = activity.resources.displayMetrics
@@ -39,5 +43,13 @@ internal object StubWindowMetricsCalculator : WindowMetricsCalculator {
         val displayMetrics = activity.resources.displayMetrics
         val bounds = Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
         return WindowMetrics(bounds)
+    }
+
+    override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        return calculator.computeCurrentWindowMetrics(context)
+    }
+
+    override fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+        return calculator.computeMaximumWindowMetrics(context)
     }
 }

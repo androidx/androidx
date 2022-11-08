@@ -18,30 +18,11 @@ package androidx.window.layout.util
 
 import android.app.Activity
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.view.WindowInsetsCompat
 
 @RequiresApi(Build.VERSION_CODES.N)
 internal object ActivityCompatHelperApi24 {
     fun isInMultiWindowMode(activity: Activity): Boolean {
         return activity.isInMultiWindowMode
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.R)
-internal object ActivityCompatHelperApi30 {
-
-    /**
-     * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
-     * @DoNotInline required for implementation-specific class method to prevent it from being
-     * inlined.
-     *
-     * @see androidx.window.layout.WindowMetrics.getWindowInsets
-     */
-    @DoNotInline
-    fun currentWindowInsets(activity: Activity): WindowInsetsCompat {
-        val platformInsets = activity.windowManager.currentWindowMetrics.windowInsets
-        return WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
     }
 }

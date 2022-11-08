@@ -17,13 +17,16 @@
 package androidx.window.layout
 
 import android.app.Activity
+import android.content.Context
+import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.Display
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiContext
 import androidx.window.core.ExperimentalWindowApi
 
 /**
- * An interface to calculate the [WindowMetrics] for an [Activity].
+ * An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext].
  */
 interface WindowMetricsCalculator {
 
@@ -65,6 +68,24 @@ interface WindowMetricsCalculator {
     fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
 
     /**
+     * Computes the size and position of the area the window would occupy with
+     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     *
+     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
+     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
+     * created via the [Context.createWindowContext] APIs.
+     *
+     * @see [computeCurrentWindowMetrics]
+     * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
+     * is guaranteed to implement this method.
+     */
+    fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        throw NotImplementedError("Must override computeCurrentWindowMetrics(context) and" +
+            " provide an implementation.")
+    }
+
+    /**
      * Computes the maximum size and position of the area the window can expect with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
      * and any combination of flags that would allow the window to extend behind display cutouts.
@@ -75,6 +96,27 @@ interface WindowMetricsCalculator {
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
     fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
+
+    /**
+     * Computes the maximum size and position of the area the window can expect with
+     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     *
+     * The value returned from this method will always match [Display.getRealSize] on
+     * [Android 10][Build.VERSION_CODES.Q] and below.
+     *
+     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
+     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
+     * created via the [Context.createWindowContext] APIs.
+     *
+     * @see [computeMaximumWindowMetrics]
+     * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
+     * is guaranteed to implement this method.
+     */
+    fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+        throw NotImplementedError("Must override computeMaximumWindowMetrics(context) and" +
+            " provide an implementation.")
+    }
 
     companion object {
 

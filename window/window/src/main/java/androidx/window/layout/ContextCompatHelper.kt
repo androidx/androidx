@@ -25,6 +25,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
+import androidx.window.layout.WindowMetrics
 
 @RequiresApi(Build.VERSION_CODES.N)
 internal object ContextCompatHelperApi24 {
@@ -35,9 +36,21 @@ internal object ContextCompatHelperApi24 {
 
 @RequiresApi(Build.VERSION_CODES.R)
 internal object ContextCompatHelperApi30 {
+
+    fun currentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        val wm = context.getSystemService(WindowManager::class.java)
+        val insets = WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets)
+        return WindowMetrics(wm.currentWindowMetrics.bounds, insets)
+    }
+
     fun currentWindowBounds(@UiContext context: Context): Rect {
         val wm = context.getSystemService(WindowManager::class.java)
         return wm.currentWindowMetrics.bounds
+    }
+
+    fun currentWindowInsets(@UiContext context: Context): WindowInsetsCompat {
+        val wm = context.getSystemService(WindowManager::class.java)
+        return WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets)
     }
 
     fun maximumWindowBounds(@UiContext context: Context): Rect {
