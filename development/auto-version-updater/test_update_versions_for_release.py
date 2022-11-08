@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Copyright (C) 2020 The Android Open Source Project
 #
@@ -18,6 +18,7 @@
 import unittest
 import os
 from update_versions_for_release import *
+from shutil import rmtree
 
 class TestVersionUpdates(unittest.TestCase):
 
@@ -182,6 +183,49 @@ class TestFileParsing(unittest.TestCase):
         self.assertEqual(3300, compose_to_runtime_version_map["1.0.0"]["runtime_version"])
         self.assertEqual(3305, compose_to_runtime_version_map["1.0.5"]["runtime_version"])
         self.assertEqual(4400, compose_to_runtime_version_map["1.1.0-alpha05"]["runtime_version"])
+
+
+class TestReplacements(unittest.TestCase):
+    def test_sed(self):
+        # given
+        out_dir = "./out"
+        test_file = out_dir + "/temp.txt"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        with open(test_file, "w") as f:
+            f.write("ababaa\nfxfx\nbcbcbb")
+
+        # when
+        sed("[ac]", "d", test_file)
+
+        # then
+        with open(test_file) as f:
+            file_contents = f.read()
+        self.assertEqual("dbdbdd\nfxfx\nbdbdbb", file_contents)
+
+        # clean-up
+        if os.path.isdir(out_dir):
+            rmtree(out_dir)
+        elif os.path.exists(out_dir):
+            os.remove(out_dir)
+
+
+class TestLists(unittest.TestCase):
+    def test_single_no_items(self):
+        items = []
+        with self.assertRaisesRegex(ValueError, '^Expected a list of size 1. Found: \\[]$'):
+            single(items)
+
+    def test_single_one_item(self):
+        items = ['a']
+        item = single(items)
+        self.assertEqual(item, items[0])
+
+    def test_single_multiple_items(self):
+        items = ['a', 'b']
+        with self.assertRaisesRegex(ValueError, '^Expected a list of size 1.'
+                                                ' Found: \\[\'a\', \'b\']$'):
+            single(items)
 
 
 if __name__ == '__main__':
