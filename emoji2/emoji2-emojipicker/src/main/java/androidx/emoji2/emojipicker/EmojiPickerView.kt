@@ -18,15 +18,16 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.os.Trace
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 
 /**
  * The emoji picker view that provides up-to-date emojis in a vertical scrollable view with a
@@ -84,24 +85,81 @@ class EmojiPickerView @JvmOverloads constructor(
         }
     }
 
-    private suspend fun showEmojiPickerView(context: Context) {
-        BundledEmojiListLoader.getCategorizedEmojiData()
+    private fun getEmojiPickerBodyAdapter(
+        context: Context,
+        emojiGridColumns: Int,
+        emojiGridRows: Float,
+        categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>
+    ): EmojiPickerBodyAdapter {
+        val categoryNames = mutableListOf<String>()
+        val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
+        for (i in 0 until categorizedEmojiData.size) {
+            categoryNames.add(categorizedEmojiData[i].categoryName)
+            categorizedEmojis.add(
+                categorizedEmojiData[i].emojiDataList.toMutableList()
+            )
+        }
+        val adapter = EmojiPickerBodyAdapter(
+            context,
+            emojiGridColumns,
+            emojiGridRows,
+            categoryNames.toTypedArray()
+        )
+        adapter.updateEmojis(createEmojiViewData(categorizedEmojis))
 
+        return adapter
+    }
+
+    private fun createEmojiViewData(categorizedEmojis: MutableList<MutableList<EmojiViewItem>>):
+        List<List<ItemViewData>> {
+        Trace.beginSection("createEmojiViewData")
+        return try {
+            val listBuilder = mutableListOf<List<ItemViewData>>()
+            for ((categoryIndex, sameType) in categorizedEmojis.withIndex()) {
+                val builder = mutableListOf<ItemViewData>()
+                for ((idInCategory, eachEmoji) in sameType.withIndex()) {
+                    builder.add(
+                        EmojiViewData(
+                            categoryIndex,
+                            idInCategory,
+                            eachEmoji.primary,
+                            eachEmoji.variants.toTypedArray()
+                        )
+                    )
+                }
+                listBuilder.add(builder.toList())
+            }
+            listBuilder.toList()
+        } finally {
+            Trace.endSection()
+        }
+    }
+
+    private suspend fun showEmojiPickerView(context: Context) {
         // get emoji picker
         val emojiPicker = inflate(context, R.layout.emoji_picker, this)
 
         // set headerView
         headerView = emojiPicker.findViewById(R.id.emoji_picker_header)
         headerView.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, /* reverseLayout= */false)
+            LinearLayoutManager(
+                context,
+                LinearLayoutManager.HORIZONTAL,
+                /* reverseLayout= */ false
+            )
         headerView.adapter = EmojiPickerHeaderAdapter(context)
 
         // set bodyView
         bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
         bodyView.layoutManager = GridLayoutManager(
-            context, emojiGridColumns, LinearLayoutManager.VERTICAL, /* reverseLayout= */
-            false
+            context,
+            emojiGridColumns,
+            LinearLayoutManager.VERTICAL,
+            /* reverseLayout= */ false
         )
-        bodyView.adapter = EmojiPickerBodyAdapter(context, emojiGridColumns, emojiGridRows)
+        val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
+        bodyView.adapter = getEmojiPickerBodyAdapter(
+            context, emojiGridColumns, emojiGridRows, categorizedEmojiData
+        )
     }
 }

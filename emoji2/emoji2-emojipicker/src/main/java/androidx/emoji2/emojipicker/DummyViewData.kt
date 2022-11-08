@@ -16,18 +16,17 @@
 
 package androidx.emoji2.emojipicker
 
-/** A utility class to hold various constants used by the Emoji Picker library.  */
-internal object EmojiPickerConstants {
+/**
+ * Placeholder entry, filled at the end of each category if there are room to be filled.
+ *
+ * This behaves like NaN. Nothing is equal to Placeholder entry.
+ */
+internal class DummyViewData(id: Long) : ItemViewData(id) {
+    override val type: Int
+        get() = TYPE
 
-    // The default number of body columns.
-    const val DEFAULT_BODY_COLUMNS = 9
-
-    // The default number of body rows.
-    const val DEFAULT_BODY_ROWS = 7.5f
-
-    // The default minimal number of each body row.
-    const val MIN_ROWS_PER_CATEGORY = 1
-
-    // The default recent category index number.
-    const val RECENT_CATEGORY_INDEX = 0
+    companion object {
+        val TYPE: Int = DummyViewData::class.java.name.hashCode()
+        val INSTANCE = DummyViewData(TYPE.toLong())
+    }
 }

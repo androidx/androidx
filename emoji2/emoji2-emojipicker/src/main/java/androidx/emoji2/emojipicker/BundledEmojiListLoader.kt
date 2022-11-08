@@ -85,14 +85,14 @@ internal object BundledEmojiListLoader {
     private fun loadSingleCategory(
         context: Context,
         resId: Int,
-    ): List<EmojiData> =
+    ): List<EmojiViewItem> =
         context.resources
             .openRawResource(resId)
             .bufferedReader()
             .useLines { it.toList() }
             .map { filterRenderableEmojis(it.split(",")) }
             .filter { it.isNotEmpty() }
-            .map { EmojiData(it.first(), it.drop(1)) }
+            .map { EmojiViewItem(it.first(), it.drop(1)) }
 
     private fun getCacheFileName(categoryIndex: Int) =
         StringBuilder().append("emoji.v1.")
@@ -112,10 +112,8 @@ internal object BundledEmojiListLoader {
             UnicodeRenderableManager.isEmojiRenderable(it)
         }.toList()
 
-    internal data class EmojiData(val primary: String, val variants: List<String>)
-
     internal data class EmojiDataCategory(
         val categoryName: String,
-        val emojiDataList: List<EmojiData>
+        val emojiDataList: List<EmojiViewItem>
     )
 }

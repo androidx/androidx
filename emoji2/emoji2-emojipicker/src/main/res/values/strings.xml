@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,4 +36,6 @@
 
     <!-- Shown in emoji keyboard (non-Recent category) when the category is empty. -->
     <string name="emoji_empty_non_recent_category">No emojis available</string>
+    <!-- Shown in emoji keyboard when Recent emoji is empty. -->
+    <string name="emoji_empty_recent_category">You haven\'t used any emojis yet</string>
 </resources>
