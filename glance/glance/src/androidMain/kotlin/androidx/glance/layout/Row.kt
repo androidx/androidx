@@ -70,6 +70,9 @@ private object RowScopeImplInstance : RowScope {
  * been provided. When children are smaller than the size of the [Row], they will be placed
  * within the available space subject to [verticalAlignment] and [horizontalAlignment].
  *
+ * Note for App Widgets: [Row] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param horizontalAlignment The horizontal alignment to apply to the set of children, when they do
  *   not consume the full width of the [Row] (i.e. whether to push the children towards the start,

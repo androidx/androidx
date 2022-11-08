@@ -1000,6 +1000,31 @@ class RemoteViewsTranslatorKtTest {
         }
     }
 
+    @Test
+    fun containersHaveAtMostTenChildren() = runTest {
+        val rv = context.runAndTranslate {
+            Box {
+                Box {
+                    repeat(15) { Text("") }
+                }
+                Column {
+                    repeat(15) { Text("") }
+                }
+                Row {
+                    repeat(15) { Text("") }
+                }
+            }
+        }
+
+        val children = assertIs<FrameLayout>(context.applyRemoteViews(rv)).nonGoneChildren.toList()
+        val box = assertIs<FrameLayout>(children[0])
+        assertThat(box.nonGoneChildCount).isEqualTo(10)
+        val column = assertIs<LinearLayout>(children[1])
+        assertThat(column.nonGoneChildCount).isEqualTo(10)
+        val row = assertIs<LinearLayout>(children[2])
+        assertThat(row.nonGoneChildCount).isEqualTo(10)
+    }
+
     private fun expectGlanceLog(type: Int, message: String) {
         ShadowLog.getLogsForTag(GlanceAppWidgetTag).forEach { logItem ->
             if (logItem.type == type && logItem.msg == message)
