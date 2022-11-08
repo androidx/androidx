@@ -42,7 +42,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
-public class FullLifecycleObserverTest {
+public class DefaultLifecycleObserverTest {
     private LifecycleOwner mOwner;
     private Lifecycle mLifecycle;
 
@@ -55,8 +55,8 @@ public class FullLifecycleObserverTest {
 
     @Test
     public void eachEvent() {
-        FullLifecycleObserver obj = mock(FullLifecycleObserver.class);
-        FullLifecycleObserverAdapter observer = new FullLifecycleObserverAdapter(obj, null);
+        DefaultLifecycleObserver obj = mock(DefaultLifecycleObserver.class);
+        DefaultLifecycleObserverAdapter observer = new DefaultLifecycleObserverAdapter(obj, null);
         when(mLifecycle.getCurrentState()).thenReturn(CREATED);
 
         observer.onStateChanged(mOwner, ON_CREATE);
@@ -91,36 +91,36 @@ public class FullLifecycleObserverTest {
     }
 
     @Test
-    public void fullLifecycleObserverAndLifecycleEventObserver() {
-        class AllObservers implements FullLifecycleObserver, LifecycleEventObserver {
+    public void defaultLifecycleObserverAndLifecycleEventObserver() {
+        class AllObservers implements DefaultLifecycleObserver, LifecycleEventObserver {
 
             @Override
-            public void onCreate(LifecycleOwner owner) {
+            public void onCreate(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStart(LifecycleOwner owner) {
+            public void onStart(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onResume(LifecycleOwner owner) {
+            public void onResume(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onPause(LifecycleOwner owner) {
+            public void onPause(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStop(LifecycleOwner owner) {
+            public void onStop(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onDestroy(LifecycleOwner owner) {
+            public void onDestroy(@NonNull LifecycleOwner owner) {
 
             }
 
@@ -132,7 +132,7 @@ public class FullLifecycleObserverTest {
         }
 
         AllObservers obj = mock(AllObservers.class);
-        FullLifecycleObserverAdapter observer = new FullLifecycleObserverAdapter(obj, obj);
+        DefaultLifecycleObserverAdapter observer = new DefaultLifecycleObserverAdapter(obj, obj);
         when(mLifecycle.getCurrentState()).thenReturn(CREATED);
 
         observer.onStateChanged(mOwner, ON_CREATE);
@@ -174,7 +174,7 @@ public class FullLifecycleObserverTest {
 
     public void fullLifecycleObserverAndAnnotations() {
         @SuppressWarnings("deprecation")
-        class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
+        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
                 throw new IllegalStateException("Annotations in FullLifecycleObserver "
@@ -182,32 +182,32 @@ public class FullLifecycleObserverTest {
             }
 
             @Override
-            public void onCreate(LifecycleOwner owner) {
+            public void onCreate(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStart(LifecycleOwner owner) {
+            public void onStart(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onResume(LifecycleOwner owner) {
+            public void onResume(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onPause(LifecycleOwner owner) {
+            public void onPause(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStop(LifecycleOwner owner) {
+            public void onStop(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onDestroy(LifecycleOwner owner) {
+            public void onDestroy(@NonNull LifecycleOwner owner) {
 
             }
         }

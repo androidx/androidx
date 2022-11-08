@@ -18,14 +18,14 @@ package androidx.lifecycle;
 
 import androidx.annotation.NonNull;
 
-class FullLifecycleObserverAdapter implements LifecycleEventObserver {
+class DefaultLifecycleObserverAdapter implements LifecycleEventObserver {
 
-    private final FullLifecycleObserver mFullLifecycleObserver;
+    private final DefaultLifecycleObserver mDefaultLifecycleObserver;
     private final LifecycleEventObserver mLifecycleEventObserver;
 
-    FullLifecycleObserverAdapter(FullLifecycleObserver fullLifecycleObserver,
+    DefaultLifecycleObserverAdapter(DefaultLifecycleObserver defaultLifecycleObserver,
             LifecycleEventObserver lifecycleEventObserver) {
-        mFullLifecycleObserver = fullLifecycleObserver;
+        mDefaultLifecycleObserver = defaultLifecycleObserver;
         mLifecycleEventObserver = lifecycleEventObserver;
     }
 
@@ -33,22 +33,22 @@ class FullLifecycleObserverAdapter implements LifecycleEventObserver {
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
             case ON_CREATE:
-                mFullLifecycleObserver.onCreate(source);
+                mDefaultLifecycleObserver.onCreate(source);
                 break;
             case ON_START:
-                mFullLifecycleObserver.onStart(source);
+                mDefaultLifecycleObserver.onStart(source);
                 break;
             case ON_RESUME:
-                mFullLifecycleObserver.onResume(source);
+                mDefaultLifecycleObserver.onResume(source);
                 break;
             case ON_PAUSE:
-                mFullLifecycleObserver.onPause(source);
+                mDefaultLifecycleObserver.onPause(source);
                 break;
             case ON_STOP:
-                mFullLifecycleObserver.onStop(source);
+                mDefaultLifecycleObserver.onStop(source);
                 break;
             case ON_DESTROY:
-                mFullLifecycleObserver.onDestroy(source);
+                mDefaultLifecycleObserver.onDestroy(source);
                 break;
             case ON_ANY:
                 throw new IllegalArgumentException("ON_ANY must not been send by anybody");

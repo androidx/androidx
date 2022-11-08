@@ -116,8 +116,8 @@ public class LifecyclingTest {
     }
 
     @Test
-    public void fullLifecycleObserverAndAnnotations() {
-        class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
+    public void defaultLifecycleObserverAndAnnotations() {
+        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
             @SuppressWarnings("deprecation")
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
@@ -126,32 +126,32 @@ public class LifecyclingTest {
             }
 
             @Override
-            public void onCreate(LifecycleOwner owner) {
+            public void onCreate(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStart(LifecycleOwner owner) {
+            public void onStart(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onResume(LifecycleOwner owner) {
+            public void onResume(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onPause(LifecycleOwner owner) {
+            public void onPause(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onStop(LifecycleOwner owner) {
+            public void onStop(@NonNull LifecycleOwner owner) {
 
             }
 
             @Override
-            public void onDestroy(LifecycleOwner owner) {
+            public void onDestroy(@NonNull LifecycleOwner owner) {
 
             }
         }
