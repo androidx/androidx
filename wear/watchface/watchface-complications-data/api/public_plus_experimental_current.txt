@@ -89,6 +89,14 @@ package androidx.wear.watchface.complications.data {
   public final class DataKt {
   }
 
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public abstract class DynamicFloat {
+    ctor public DynamicFloat();
+    method public abstract byte[] asByteArray();
+  }
+
+  public final class DynamicFloatKt {
+  }
+
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
@@ -97,6 +105,7 @@ package androidx.wear.watchface.complications.data {
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GoalProgressComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.DynamicFloat? getDynamicValue();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public float getTargetValue();
@@ -105,6 +114,7 @@ package androidx.wear.watchface.complications.data {
     method public float getValue();
     property public final androidx.wear.watchface.complications.data.ColorRamp? colorRamp;
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property @androidx.wear.watchface.complications.data.ComplicationExperimental public final androidx.wear.watchface.complications.data.DynamicFloat? dynamicValue;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.watchface.complications.data.SmallImage? smallImage;
     property public final float targetValue;
@@ -117,6 +127,7 @@ package androidx.wear.watchface.complications.data {
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class GoalProgressComplicationData.Builder {
     ctor public GoalProgressComplicationData.Builder(float value, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    ctor @androidx.wear.watchface.complications.data.ComplicationExperimental public GoalProgressComplicationData.Builder(androidx.wear.watchface.complications.data.DynamicFloat dynamicValue, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData build();
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
     method public final T setDataSource(android.content.ComponentName? dataSource);
@@ -265,6 +276,7 @@ package androidx.wear.watchface.complications.data {
   public final class RangedValueComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.ColorRamp? getColorRamp();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.DynamicFloat? getDynamicValue();
     method public float getMax();
     method public float getMin();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
@@ -275,6 +287,7 @@ package androidx.wear.watchface.complications.data {
     method public int getValueType();
     property public final androidx.wear.watchface.complications.data.ColorRamp? colorRamp;
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property @androidx.wear.watchface.complications.data.ComplicationExperimental public final androidx.wear.watchface.complications.data.DynamicFloat? dynamicValue;
     property public final float max;
     property public final float min;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
@@ -292,6 +305,7 @@ package androidx.wear.watchface.complications.data {
 
   public static final class RangedValueComplicationData.Builder {
     ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    ctor @androidx.wear.watchface.complications.data.ComplicationExperimental public RangedValueComplicationData.Builder(androidx.wear.watchface.complications.data.DynamicFloat dynamicValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
     method public final T setDataSource(android.content.ComponentName? dataSource);

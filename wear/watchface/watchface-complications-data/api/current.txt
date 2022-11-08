@@ -86,6 +86,9 @@ package androidx.wear.watchface.complications.data {
   public final class DataKt {
   }
 
+  public final class DynamicFloatKt {
+  }
+
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
