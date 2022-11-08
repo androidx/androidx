@@ -91,6 +91,37 @@ class RequestWithCallbackTest {
     }
 
     @Test
+    fun abortAndRetryAfterSuccess_abortIsNoOp() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Act: deliver result then abort
+        callback.onImageCaptured()
+        callback.onFinalResult(imageResult)
+        callback.abortSilentlyAndRetry()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: retry is not queued.
+        assertThat(retryControl.retriedRequest).isNull()
+    }
+
+    @Test
+    fun abortAndFailAfterFail_abortIsNoOp() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Fail request then abort
+        callback.onCaptureFailure(otherError)
+        callback.abortAndSendErrorToApp(abortError)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert:
+        assertThat(request.exceptionReceived).isEqualTo(otherError)
+    }
+
+    @Test
     fun abortRequestThenSendOtherErrors_receiveAbortError() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
