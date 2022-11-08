@@ -850,6 +850,102 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     }
 
     @Test
+    public void rowCountForAccessibility_verticalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(34, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(3, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(1, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(2, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(3, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_horizontalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(34, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(2, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(1, count);
+    }
+
+    @Test
     public void accessibilityClassName() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         waitForFirstLayout(recyclerView);

@@ -122,7 +122,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         if (mOrientation == HORIZONTAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, getItemCount());
         }
         if (state.getItemCount() < 1) {
             return 0;
@@ -136,7 +136,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         if (mOrientation == VERTICAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, getItemCount());
         }
         if (state.getItemCount() < 1) {
             return 0;
