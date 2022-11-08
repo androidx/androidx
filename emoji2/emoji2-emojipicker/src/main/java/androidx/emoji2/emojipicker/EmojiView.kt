@@ -26,6 +26,7 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
+import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -34,7 +35,9 @@ import androidx.core.graphics.applyCanvas
 /**
  * A customized view to support drawing emojis asynchronously.
  */
-internal class EmojiView(context: Context) : View(context) {
+internal class EmojiView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    View(context, attrs) {
+
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
     }
