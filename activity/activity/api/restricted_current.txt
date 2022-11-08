@@ -142,7 +142,7 @@ package androidx.activity.result {
   }
 
   public fun interface ActivityResultCallback<O> {
-    method public void onActivityResult(O result);
+    method public void onActivityResult(O? result);
   }
 
   public interface ActivityResultCaller {
