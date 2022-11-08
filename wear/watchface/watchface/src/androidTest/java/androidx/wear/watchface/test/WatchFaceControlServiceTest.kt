@@ -46,7 +46,6 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.data.ColorRamp
 import androidx.wear.watchface.complications.data.GoalProgressComplicationData
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
-import androidx.wear.watchface.complications.data.RangedValueTypes
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
@@ -384,7 +383,7 @@ public class WatchFaceControlServiceTest {
                        max = 100.0f,
                        PlainComplicationText.Builder("Rainbow colors").build()
                    ).setText(PlainComplicationText.Builder("Colors").build())
-                       .setValueType(RangedValueTypes.SCORE)
+                       .setValueType(RangedValueComplicationData.TYPE_RATING)
                        .setColorRamp(
                            ColorRamp(
                                intArrayOf(
@@ -430,7 +429,7 @@ public class WatchFaceControlServiceTest {
                        max = 100.0f,
                        PlainComplicationText.Builder("Rainbow colors").build()
                    ).setText(PlainComplicationText.Builder("Colors").build())
-                       .setValueType(RangedValueTypes.SCORE)
+                       .setValueType(RangedValueComplicationData.TYPE_RATING)
                        .setColorRamp(
                            ColorRamp(
                                intArrayOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW),

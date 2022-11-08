@@ -112,7 +112,7 @@ package androidx.wear.watchface.complications.data {
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
-  public static final class GoalProgressComplicationData.Builder {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class GoalProgressComplicationData.Builder {
     ctor public GoalProgressComplicationData.Builder(float value, float targetValue, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData build();
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
@@ -283,6 +283,9 @@ package androidx.wear.watchface.complications.data {
     property public final int valueType;
     field public static final float PLACEHOLDER;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
+    field public static final int TYPE_PERCENTAGE = 2; // 0x2
+    field public static final int TYPE_RATING = 1; // 0x1
+    field public static final int TYPE_UNDEFINED = 0; // 0x0
   }
 
   public static final class RangedValueComplicationData.Builder {
@@ -299,12 +302,6 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setValueType(int valueType);
-  }
-
-  public final class RangedValueTypes {
-    field public static final androidx.wear.watchface.complications.data.RangedValueTypes INSTANCE;
-    field public static final int SCORE = 1; // 0x1
-    field public static final int UNDEFINED = 0; // 0x0
   }
 
   public final class ShortTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -457,6 +454,7 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public int getElementBackgroundColor();
     method public java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> getElements();
+    method public static int getMaxElements();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
@@ -469,12 +467,11 @@ package androidx.wear.watchface.complications.data {
     property public final androidx.wear.watchface.complications.data.ComplicationText? text;
     property public final androidx.wear.watchface.complications.data.ComplicationText? title;
     field public static final androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion Companion;
-    field public static final int MAX_NUM_ELEMENTS = 20; // 0x14
     field public static final java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> PLACEHOLDER;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
-  public static final class WeightedElementsComplicationData.Builder {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class WeightedElementsComplicationData.Builder {
     ctor public WeightedElementsComplicationData.Builder(java.util.List<androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element> elements, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.WeightedElementsComplicationData build();
     method public final T setDataSource(android.content.ComponentName? dataSource);
@@ -490,6 +487,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class WeightedElementsComplicationData.Companion {
+    method public int getMaxElements();
   }
 
   public static final class WeightedElementsComplicationData.Element {
