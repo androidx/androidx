@@ -48,8 +48,8 @@ package androidx.lifecycle {
     enum_constant public static final androidx.lifecycle.Lifecycle.State STARTED;
   }
 
-  public interface LifecycleEventObserver extends androidx.lifecycle.LifecycleObserver {
-    method public void onStateChanged(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event);
+  public fun interface LifecycleEventObserver extends androidx.lifecycle.LifecycleObserver {
+    method public void onStateChanged(androidx.lifecycle.LifecycleOwner source, androidx.lifecycle.Lifecycle.Event event);
   }
 
   public interface LifecycleObserver {
