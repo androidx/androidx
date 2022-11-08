@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.demos
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
 import androidx.glance.ColorFilter
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -32,6 +34,7 @@ import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
@@ -43,19 +46,18 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
-import androidx.glance.session.GlanceSessionManager
 import androidx.glance.text.Text
 
 /**
  * Sample AppWidget that showcase the [ContentScale] options for [Image]
  */
 class ImageAppWidget : GlanceAppWidget() {
-
     override val sizeMode: SizeMode = SizeMode.Exact
-    override val sessionManager = GlanceSessionManager
 
-    @Composable
-    override fun Content() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
         var type by remember { mutableStateOf(ContentScale.Fit) }
         Column(modifier = GlanceModifier.fillMaxSize().padding(8.dp)) {
             Header()

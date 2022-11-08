@@ -32,7 +32,6 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -140,7 +139,7 @@ class SessionWorkerTest {
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello World")
         }
-        val session = assertNotNull(sessionManager.getSession(SESSION_KEY))
+        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
         session.sendEvent {
             state.value = "Hello Earth"
         }
@@ -209,6 +208,8 @@ class TestSession(
         onUiFlow?.emit(root)
         return true
     }
+
+    suspend fun sendEvent(block: () -> Unit) = sendEvent(block as Any)
 
     override suspend fun processEvent(context: Context, event: Any) {
         require(event is Function0<*>)
