@@ -17,6 +17,7 @@
 package androidx.heifwriter;
 
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.Image;
@@ -88,6 +89,7 @@ public class EncoderBase implements AutoCloseable,
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Handler mHandler;
     private final @InputMode int mInputMode;
+    private final boolean mUseBitDepth10;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final int mWidth;
@@ -195,10 +197,13 @@ public class EncoderBase implements AutoCloseable,
      */
     protected EncoderBase(@NonNull String mimeType, int width, int height, boolean useGrid,
         int quality, @InputMode int inputMode,
-        @Nullable Handler handler, @NonNull Callback cb) throws IOException {
+        @Nullable Handler handler, @NonNull Callback cb,
+        boolean useBitDepth10) throws IOException {
         if (DEBUG)
             Log.d(TAG, "width: " + width + ", height: " + height +
-                ", useGrid: " + useGrid + ", quality: " + quality + ", inputMode: " + inputMode);
+                ", useGrid: " + useGrid + ", quality: " + quality +
+                ", inputMode: " + inputMode +
+                ", useBitDepth10: " + String.valueOf(useBitDepth10));
 
         if (width < 0 || height < 0 || quality < 0 || quality > 100) {
             throw new IllegalArgumentException("invalid encoder inputs");
@@ -261,7 +266,7 @@ public class EncoderBase implements AutoCloseable,
         }
 
         mInputMode = inputMode;
-
+        mUseBitDepth10 = useBitDepth10;
         mCallback = cb;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
@@ -277,7 +282,8 @@ public class EncoderBase implements AutoCloseable,
         boolean useSurfaceInternally =
             (inputMode == INPUT_MODE_SURFACE) || (inputMode == INPUT_MODE_BITMAP);
         int colorFormat = useSurfaceInternally ? CodecCapabilities.COLOR_FormatSurface :
-            CodecCapabilities.COLOR_FormatYUV420Flexible;
+                (useBitDepth10 ? CodecCapabilities.COLOR_FormatYUVP010 :
+                CodecCapabilities.COLOR_FormatYUV420Flexible);
         mCopyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
 
         mWidth = width;
@@ -427,7 +433,8 @@ public class EncoderBase implements AutoCloseable,
             }
         } else {
             for (int i = 0; i < INPUT_BUFFER_POOL_SIZE; i++) {
-                mEmptyBuffers.add(ByteBuffer.allocateDirect(mWidth * mHeight * 3 / 2));
+                int bufferSize = mUseBitDepth10 ? mWidth * mHeight * 3 : mWidth * mHeight * 3 / 2;
+                mEmptyBuffers.add(ByteBuffer.allocateDirect(bufferSize));
             }
         }
     }
@@ -517,7 +524,13 @@ public class EncoderBase implements AutoCloseable,
             throw new IllegalStateException(
                 "addYuvBuffer is only allowed in buffer input mode");
         }
-        if (data == null || data.length != mWidth * mHeight * 3 / 2) {
+        if ((mUseBitDepth10 && format != ImageFormat.YCBCR_P010)
+                || (!mUseBitDepth10 && format != ImageFormat.YUV_420_888)) {
+            throw new IllegalStateException("Wrong color format.");
+        }
+        if (data == null
+                || (mUseBitDepth10 && data.length != mWidth * mHeight * 3)
+                || (!mUseBitDepth10 && data.length != mWidth * mHeight * 3 / 2)) {
             throw new IllegalArgumentException("invalid data");
         }
         addYuvBufferInternal(data);
@@ -652,7 +665,8 @@ public class EncoderBase implements AutoCloseable,
                 int left = mGridWidth * (mInputIndex % mGridCols);
                 int top = mGridHeight * (mInputIndex / mGridCols % mGridRows);
                 mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                copyOneTileYUV(currentBuffer, image, mWidth, mHeight, mSrcRect, mDstRect);
+                copyOneTileYUV(currentBuffer, image, mWidth, mHeight, mSrcRect, mDstRect,
+                        mUseBitDepth10);
             }
 
             mEncoder.queueInputBuffer(index, 0,
@@ -670,10 +684,8 @@ public class EncoderBase implements AutoCloseable,
      * Copies from a rect from src buffer to dst image.
      * TOOD: This will be replaced by JNI.
      */
-    private static void copyOneTileYUV(
-        ByteBuffer srcBuffer, Image dstImage,
-        int srcWidth, int srcHeight,
-        Rect srcRect, Rect dstRect) {
+    private static void copyOneTileYUV(ByteBuffer srcBuffer, Image dstImage,
+            int srcWidth, int srcHeight, Rect srcRect, Rect dstRect, boolean useBitDepth10) {
         if (srcRect.width() != dstRect.width() || srcRect.height() != dstRect.height()) {
             throw new IllegalArgumentException("src and dst rect size are different!");
         }
@@ -686,26 +698,53 @@ public class EncoderBase implements AutoCloseable,
         }
 
         Image.Plane[] planes = dstImage.getPlanes();
-        for (int n = 0; n < planes.length; n++) {
-            ByteBuffer dstBuffer = planes[n].getBuffer();
-            int colStride = planes[n].getPixelStride();
-            int copyWidth = Math.min(srcRect.width(), srcWidth - srcRect.left);
-            int copyHeight = Math.min(srcRect.height(), srcHeight - srcRect.top);
-            int srcPlanePos = 0, div = 1;
-            if (n > 0) {
-                div = 2;
-                srcPlanePos = srcWidth * srcHeight * (n + 3) / 4;
-            }
-            for (int i = 0; i < copyHeight / div; i++) {
-                srcBuffer.position(srcPlanePos +
-                    (i + srcRect.top / div) * srcWidth / div + srcRect.left / div);
-                dstBuffer.position((i + dstRect.top / div) * planes[n].getRowStride()
-                    + dstRect.left * colStride / div);
+        if (useBitDepth10) {
+            for (int n = 0; n < planes.length; n++) {
+                ByteBuffer dstBuffer = planes[n].getBuffer();
+                int colStride = planes[n].getPixelStride();
+                int copyWidth = Math.min(srcRect.width(), srcWidth - srcRect.left);
+                int copyHeight = Math.min(srcRect.height(), srcHeight - srcRect.top);
+                int srcPlanePos = 0, div = 1;
+                if (n > 0) {
+                    div = 2;
+                    srcPlanePos = srcWidth * srcHeight;
+                }
+                for (int i = 0; i < copyHeight / div; i++) {
+                    srcBuffer.position(srcPlanePos +
+                        (i + srcRect.top / div) * srcWidth + srcRect.left / div);
+                    dstBuffer.position((i + dstRect.top / div) * planes[n].getRowStride()
+                        + dstRect.left * colStride / div);
 
-                for (int j = 0; j < copyWidth / div; j++) {
-                    dstBuffer.put(srcBuffer.get());
-                    if (colStride > 1 && j != copyWidth / div - 1) {
-                        dstBuffer.position(dstBuffer.position() + colStride - 1);
+                    for (int j = 0; j < copyWidth; j++) {
+                        dstBuffer.put(srcBuffer.get());
+                        if (colStride > 1 && j != copyWidth - 1) {
+                            dstBuffer.position(dstBuffer.position() + colStride - 1);
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int n = 0; n < planes.length; n++) {
+                ByteBuffer dstBuffer = planes[n].getBuffer();
+                int colStride = planes[n].getPixelStride();
+                int copyWidth = Math.min(srcRect.width(), srcWidth - srcRect.left);
+                int copyHeight = Math.min(srcRect.height(), srcHeight - srcRect.top);
+                int srcPlanePos = 0, div = 1;
+                if (n > 0) {
+                    div = 2;
+                    srcPlanePos = srcWidth * srcHeight * (n + 3) / 4;
+                }
+                for (int i = 0; i < copyHeight / div; i++) {
+                    srcBuffer.position(srcPlanePos +
+                        (i + srcRect.top / div) * srcWidth / div + srcRect.left / div);
+                    dstBuffer.position((i + dstRect.top / div) * planes[n].getRowStride()
+                        + dstRect.left * colStride / div);
+
+                    for (int j = 0; j < copyWidth / div; j++) {
+                        dstBuffer.put(srcBuffer.get());
+                        if (colStride > 1 && j != copyWidth / div - 1) {
+                            dstBuffer.position(dstBuffer.position() + colStride - 1);
+                        }
                     }
                 }
             }

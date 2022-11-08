@@ -77,7 +77,7 @@ public final class AvifEncoder extends EncoderBase {
             int quality, @InputMode int inputMode,
             @Nullable Handler handler, @NonNull Callback cb,
             boolean useBitDepth10) throws IOException {
-        super("AVIF", width, height, useGrid, quality, inputMode, handler, cb);
+        super("AVIF", width, height, useGrid, quality, inputMode, handler, cb, useBitDepth10);
         mEncoder.setCallback(new Av1EncoderCallback(), mHandler);
         finishSettingUpEncoder(useBitDepth10);
     }
