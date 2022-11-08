@@ -153,6 +153,7 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
+        Log.d(TAG, String.format("Waiting %dms for condition %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -165,6 +166,7 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+        Log.d(TAG, String.format("Waiting %dms for condition %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -450,7 +452,7 @@ public class UiObject2 implements Searchable {
     /** Clicks on this object's center. */
     public void click() {
         Point center = getVisibleCenter();
-        Log.v(TAG, String.format("click(center=%s)", center));
+        Log.d(TAG, String.format("Clicking on (%d, %d).", center.x, center.y));
         mGestureController.performGesture(Gestures.click(center, getDisplayId()));
     }
 
@@ -461,14 +463,14 @@ public class UiObject2 implements Searchable {
      */
     public void click(@NonNull Point point) {
         clipToGestureBounds(point);
-        Log.v(TAG, String.format("click(point=%s)", point));
+        Log.d(TAG, String.format("Clicking on (%d, %d).", point.x, point.y));
         mGestureController.performGesture(Gestures.click(point, getDisplayId()));
     }
 
     /** Clicks on this object's center for {@code duration} milliseconds. */
     public void click(long duration) {
         Point center = getVisibleCenter();
-        Log.v(TAG, String.format("click(center=%s,duration=%d)", center, duration));
+        Log.d(TAG, String.format("Clicking on (%d, %d) for %dms.", center.x, center.y, duration));
         mGestureController.performGesture(Gestures.click(center, duration, getDisplayId()));
     }
 
@@ -480,7 +482,7 @@ public class UiObject2 implements Searchable {
      */
     public void click(@NonNull Point point, long duration) {
         clipToGestureBounds(point);
-        Log.v(TAG, String.format("click(point=%s,duration=%d)", point, duration));
+        Log.d(TAG, String.format("Clicking on (%d, %d) for %dms.", point.x, point.y, duration));
         mGestureController.performGesture(Gestures.click(point, duration, getDisplayId()));
     }
 
@@ -492,7 +494,8 @@ public class UiObject2 implements Searchable {
      */
     public <U> U clickAndWait(@NonNull EventCondition<U> condition, long timeout) {
         Point center = getVisibleCenter();
-        Log.v(TAG, String.format("clickAndWait(center=%s,timeout=%d)", center, timeout));
+        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for condition %s.",
+                center.x, center.y, timeout, condition));
         return mGestureController.performGestureAndWait(condition, timeout,
                 Gestures.click(center, getDisplayId()));
     }
@@ -508,7 +511,8 @@ public class UiObject2 implements Searchable {
     public <U> U clickAndWait(@NonNull Point point, @NonNull EventCondition<U> condition,
             long timeout) {
         clipToGestureBounds(point);
-        Log.v(TAG, String.format("clickAndWait(point=%s,timeout=%d)", point, timeout));
+        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for condition %s.",
+                point.x, point.y, timeout, condition));
         return mGestureController.performGestureAndWait(
                 condition, timeout, Gestures.click(point, getDisplayId()));
     }
@@ -533,14 +537,15 @@ public class UiObject2 implements Searchable {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
         Point center = getVisibleCenter();
-        Log.v(TAG, String.format("drag(start=%s,dest=%s,speed=%d)", center, dest, speed));
+        Log.d(TAG, String.format("Dragging from (%d, %d) to (%d, %d) at %dpx/s.", center.x,
+                center.y, dest.x, dest.y, speed));
         mGestureController.performGesture(Gestures.drag(center, dest, speed, getDisplayId()));
     }
 
     /** Performs a long click on this object's center. */
     public void longClick() {
         Point center = getVisibleCenter();
-        Log.v(TAG, String.format("longClick(center=%s)", center));
+        Log.d(TAG, String.format("Long-clicking on (%d, %d).", center.x, center.y));
         mGestureController.performGesture(Gestures.longClick(center, getDisplayId()));
     }
 
@@ -567,8 +572,8 @@ public class UiObject2 implements Searchable {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
         Rect bounds = getVisibleBoundsForGestures();
-        Log.v(TAG, String.format("pinchClose(bounds=%s,percent=%f,speed=%d)",
-                bounds, percent, speed));
+        Log.d(TAG, String.format("Pinching close (bounds=%s, percent=%f) at %dpx/s.", bounds,
+                percent, speed));
         mGestureController.performGesture(
                 Gestures.pinchClose(bounds, percent, speed, getDisplayId()));
     }
@@ -596,8 +601,8 @@ public class UiObject2 implements Searchable {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
         Rect bounds = getVisibleBoundsForGestures();
-        Log.v(TAG, String.format("pinchOpen(bounds=%s,percent=%f,speed=%d)",
-                bounds, percent, speed));
+        Log.d(TAG, String.format("Pinching open (bounds=%s, percent=%f) at %dpx/s.", bounds,
+                percent, speed));
         mGestureController.performGesture(
                 Gestures.pinchOpen(bounds, percent, speed, getDisplayId()));
     }
@@ -627,8 +632,8 @@ public class UiObject2 implements Searchable {
             throw new IllegalArgumentException("Speed cannot be negative");
         }
         Rect bounds = getVisibleBoundsForGestures();
-        Log.v(TAG, String.format("swipe(bounds=%s,direction=%s,percent=%f,speed=%d)",
-                bounds, direction, percent, speed));
+        Log.d(TAG, String.format("Swiping %s (bounds=%s, percent=%f) at %dpx/s.",
+                direction.name().toLowerCase(), bounds, percent, speed));
         mGestureController.performGesture(
                 Gestures.swipeRect(bounds, direction, percent, speed, getDisplayId()));
     }
@@ -665,8 +670,8 @@ public class UiObject2 implements Searchable {
 
         // Scroll by performing repeated swipes
         Rect bounds = getVisibleBoundsForGestures();
-        Log.v(TAG, String.format("scroll(bounds=%s,direction=%s,percent=%f,speed=%d)",
-                direction, bounds, percent, speed));
+        Log.d(TAG, String.format("Scrolling %s (bounds=%s, percent=%f) at %dpx/s.",
+                direction.name().toLowerCase(), bounds, percent, speed));
         for (; percent > 0.0f; percent -= 1.0f) {
             float segment = Math.min(percent, 1.0f);
             PointerGesture swipe = Gestures.swipeRect(
@@ -709,12 +714,12 @@ public class UiObject2 implements Searchable {
         final Direction swipeDirection = Direction.reverse(direction);
 
         Rect bounds = getVisibleBoundsForGestures();
-        Log.v(TAG, String.format("fling(bounds=%s,direction=%s,speed=%d)",
-                bounds, direction, speed));
         PointerGesture swipe = Gestures.swipeRect(
                 bounds, swipeDirection, 1.0f, speed, getDisplayId());
 
         // Perform the gesture and return true if we did not reach the end
+        Log.d(TAG, String.format("Flinging %s (bounds=%s) at %dpx/s.",
+                direction.name().toLowerCase(), bounds, speed));
         return !mGestureController.performGestureAndWait(
                 Until.scrollFinished(direction), FLING_TIMEOUT, swipe);
     }
@@ -732,6 +737,7 @@ public class UiObject2 implements Searchable {
             text = "";
         }
 
+        Log.d(TAG, String.format("Setting text to '%s'.", text));
         CharSequence currentText = node.getText();
         if (currentText == null || !text.contentEquals(currentText)) {
             InteractionController ic = getDevice().getInteractionController();
@@ -760,8 +766,8 @@ public class UiObject2 implements Searchable {
         if (text == null) {
             text = "";
         }
-        Log.v(TAG, String.format("setText(text=\"%s\")", text));
 
+        Log.d(TAG, String.format("Setting text to '%s'.", text));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // ACTION_SET_TEXT is added in API 21.
             Bundle args = new Bundle();
