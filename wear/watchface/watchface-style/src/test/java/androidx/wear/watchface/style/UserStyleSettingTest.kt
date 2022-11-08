@@ -21,6 +21,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
@@ -379,5 +380,31 @@ public class UserStyleSettingTest {
                 assertThat(margins[type]).isEqualTo(RectF())
             }
         }
+    }
+
+    @Test
+    @Suppress("deprecation")
+    public fun complicationSlotsOptionWireFormatRoundTrip() {
+        val leftComplicationSlot =
+            ComplicationSlotOverlay(1, nameResourceId = null, screenReaderNameResourceId = null)
+        val rightComplicationSlot =
+            ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
+        val option = UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+            Option.Id("both"),
+            "right and left complications",
+            icon = null,
+            listOf(rightComplicationSlot, leftComplicationSlot),
+        )
+
+        val optionAfterRoundTrip =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                option.toWireFormat()
+            )
+
+        assertThat(option).isEqualTo(optionAfterRoundTrip)
+        assertThat(optionAfterRoundTrip.complicationSlotOverlays).containsExactly(
+            ComplicationSlotOverlay(1, nameResourceId = null, screenReaderNameResourceId = null),
+            ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
+        )
     }
 }

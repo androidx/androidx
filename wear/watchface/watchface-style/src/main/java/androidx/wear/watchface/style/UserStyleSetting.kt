@@ -925,6 +925,10 @@ public sealed class UserStyleSetting private constructor(
             @get:Suppress("AutoBoxing")
             public val screenReaderNameResourceId: Int? = null
         ) {
+            init {
+                require(nameResourceId != 0)
+                require(screenReaderNameResourceId != 0)
+            }
 
             /**
              * @deprecated This constructor is deprecated in favour of the one that specifies
@@ -1082,6 +1086,40 @@ public sealed class UserStyleSetting private constructor(
                     },
                     accessibilityTraversalIndex
                 )
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as ComplicationSlotOverlay
+
+                if (complicationSlotId != other.complicationSlotId) return false
+                if (enabled != other.enabled) return false
+                if (complicationSlotBounds != other.complicationSlotBounds) return false
+                if (accessibilityTraversalIndex != other.accessibilityTraversalIndex) return false
+                if (nameResourceId != other.nameResourceId) return false
+                if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = complicationSlotId
+                result = 31 * result + (enabled?.hashCode() ?: 0)
+                result = 31 * result + (complicationSlotBounds?.hashCode() ?: 0)
+                result = 31 * result + (accessibilityTraversalIndex ?: 0)
+                result = 31 * result + (nameResourceId ?: 0)
+                result = 31 * result + (screenReaderNameResourceId ?: 0)
+                return result
+            }
+
+            override fun toString(): String {
+                return "ComplicationSlotOverlay(complicationSlotId=$complicationSlotId, " +
+                    "enabled=$enabled, complicationSlotBounds=$complicationSlotBounds, " +
+                    "accessibilityTraversalIndex=$accessibilityTraversalIndex, " +
+                    "nameResourceId=$nameResourceId, " +
+                    "screenReaderNameResourceId=$screenReaderNameResourceId)"
+            }
 
             internal companion object {
                 @SuppressLint("ResourceType")
@@ -1481,8 +1519,9 @@ public sealed class UserStyleSetting private constructor(
                             value,
                             wireFormat.mComplicationOverlaysMargins?.get(index)
                                 ?.mPerComplicationTypeMargins,
-                            wireFormat.mComplicationNameResourceIds?.get(index),
+                            wireFormat.mComplicationNameResourceIds?.get(index)?.asResourceId(),
                             wireFormat.mComplicationScreenReaderNameResourceIds?.get(index)
+                                ?.asResourceId()
                         )
                     }
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
@@ -2843,3 +2882,6 @@ fun XmlPullParser.moveToStart(expectedNode: String) {
         "Expected a $expectedNode node but is $name"
     }
 }
+
+/** Converts 0 to null. Since 0 is never a valid resource id. */
+internal fun Int.asResourceId(): Int? = if (this == 0) null else this
