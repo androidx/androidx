@@ -737,8 +737,6 @@ public class CameraXActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         mImageSavedIdlingResource.increment();
-                        mLastTakePictureErrorMessage = null;
-
                         mStartCaptureTime = SystemClock.elapsedRealtime();
                         createDefaultPictureFolderIfNotExist();
                         ContentValues contentValues = new ContentValues();
@@ -1739,7 +1737,11 @@ public class CameraXActivity extends AppCompatActivity {
             synchronized (mSessionMediaUris) {
                 Iterator<Uri> it = mSessionMediaUris.iterator();
                 while (it.hasNext()) {
-                    getContentResolver().delete(it.next(), null, null);
+                    try {
+                        getContentResolver().delete(it.next(), null, null);
+                    } catch (SecurityException e) {
+                        Log.w(TAG, "Cannot delete the content.", e);
+                    }
                     it.remove();
                 }
             }
@@ -1870,6 +1872,11 @@ public class CameraXActivity extends AppCompatActivity {
     @Nullable
     String getLastTakePictureErrorMessage() {
         return mLastTakePictureErrorMessage;
+    }
+
+    @VisibleForTesting
+    void cleanTakePictureErrorMessage() {
+        mLastTakePictureErrorMessage = null;
     }
 
     @SuppressWarnings("unchecked")
