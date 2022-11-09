@@ -1206,7 +1206,16 @@ public open class NavController(
             return false
         }
         val extras = intent.extras
-        var deepLink = extras?.getIntArray(KEY_DEEP_LINK_IDS)
+        var deepLink = try {
+            extras?.getIntArray(KEY_DEEP_LINK_IDS)
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "handleDeepLink() could not extract deepLink from $intent",
+                e
+            )
+            null
+        }
         var deepLinkArgs = extras?.getParcelableArrayList<Bundle>(KEY_DEEP_LINK_ARGS)
         val globalArgs = Bundle()
         val deepLinkExtras = extras?.getBundle(KEY_DEEP_LINK_EXTRAS)
