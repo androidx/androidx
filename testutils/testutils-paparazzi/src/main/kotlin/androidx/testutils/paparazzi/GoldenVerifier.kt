@@ -73,7 +73,7 @@ internal class GoldenVerifier(
     /** Directory containing golden images for this module. */
     val goldenDirectory = goldenRootDirectory.resolve(modulePath)
 
-    /** The set of test IDs seen by this verifier, used to enforce single assertion per test. */
+    /** The set of tests seen by this verifier, used to enforce single assertion per test. */
     private val attemptedTests = mutableSetOf<TestName>()
 
     /**
@@ -83,19 +83,16 @@ internal class GoldenVerifier(
      */
     fun assertMatchesGolden(snapshot: Snapshot, actual: BufferedImage) {
         check(snapshot.testName !in attemptedTests) {
-            "Snapshot already taken for test ${snapshot.testName.methodName}. Taking multiple " +
-                "snapshots per test is not currently supported."
+            "Snapshot already taken for test \"${snapshot.testName.methodName}\". Taking " +
+                "multiple snapshots per test is not currently supported."
         }
         attemptedTests += snapshot.testName
 
-        val testId = snapshot.testName.toTestId()
-        val expected = testId.toGoldenFile().takeIf { it.canRead() }?.let { ImageIO.read(it) }
+        val expected = snapshot.toGoldenFile().takeIf { it.canRead() }?.let { ImageIO.read(it) }
         val analysis = analyze(expected, actual)
 
-        // TODO(b/253255695): Rewrite instructions to use updateGolden gradle task
-        fun updateMessage() = "To update the golden image, copy " +
-            "${testId.toActualFile().canonicalPath} to ${testId.toGoldenFile().canonicalPath} " +
-            "and commit the updated golden image."
+        fun updateMessage() = "To update golden images for this test module, run " +
+            "${updateGoldenGradleTask()}."
 
         writeReport(snapshot, analysis)
 
@@ -111,11 +108,10 @@ internal class GoldenVerifier(
                     "Golden: ${analysis.expected.width}x${analysis.expected.height}. " +
                     updateMessage()
             )
-            // TODO(b/253255695): Rewrite instructions to use updateGolden gradle task
             is AnalysisResult.MissingGolden -> throw AssertionError(
-                "Expected golden image for $testId does not exist. To create it, copy " +
-                    "${testId.toActualFile().canonicalPath} to " +
-                    "${testId.toGoldenFile().canonicalPath} and commit the new golden image."
+                "Expected golden image for test \"${snapshot.testName.methodName}\" does not " +
+                    "exist. Run ${updateGoldenGradleTask()} to create it and update all golden " +
+                    "images for this test module."
             )
         }
     }
@@ -141,9 +137,8 @@ internal class GoldenVerifier(
      * and text proto, including actual, expected, and difference image files as appropriate.
      */
     fun writeReport(snapshot: Snapshot, analysis: AnalysisResult) {
-        val testId = snapshot.testName.toTestId()
-        val actualFile = testId.toActualFile().also { ImageIO.write(analysis.actual, "PNG", it) }
-        val goldenFile = testId.toGoldenFile()
+        val actualFile = snapshot.toActualFile().also { ImageIO.write(analysis.actual, "PNG", it) }
+        val goldenFile = snapshot.toGoldenFile()
 
         val resultProto = ScreenshotResult.newBuilder().apply {
             currentScreenshotFileName = actualFile.toRelativeString(reportDirectory)
@@ -151,11 +146,11 @@ internal class GoldenVerifier(
             locationOfGoldenInRepo = goldenFile.toRelativeString(goldenRootDirectory)
         }
 
-        fun diffFile(diff: BufferedImage) = testId.toDiffFile()
+        fun diffFile(diff: BufferedImage) = snapshot.toDiffFile()
             .also { ImageIO.write(diff, "PNG", it) }
             .toRelativeString(reportDirectory)
 
-        fun expectedFile() = goldenFile.copyTo(testId.toExpectedFile())
+        fun expectedFile() = goldenFile.copyTo(snapshot.toExpectedFile())
             .toRelativeString(reportDirectory)
 
         when (analysis) {
@@ -181,10 +176,10 @@ internal class GoldenVerifier(
         }
 
         val result = resultProto.build()
-        testId.toResultProtoFile().outputStream().use { result.writeTo(it) }
+        snapshot.toResultProtoFile().outputStream().use { result.writeTo(it) }
 
         // TODO(b/244200590): Remove text proto output, or replace with JSON
-        testId.toResultTextProtoFile().writeText(result.toString())
+        snapshot.toResultTextProtoFile().writeText(result.toString())
     }
 
     /**
@@ -238,26 +233,34 @@ internal class GoldenVerifier(
     private fun ImageDiffer.DiffResult.taggedDescription() =
         "[${imageDiffer.name}]: $description"
 
-    // Filename templates based for a given test ID
-    private fun String.toGoldenFile() = goldenDirectory.resolve("${this}_paparazzi.png")
-    private fun String.toExpectedFile() = reportDirectory.resolve("${this}_expected.png")
-    private fun String.toActualFile() = reportDirectory.resolve("${this}_actual.png")
-    private fun String.toDiffFile() = reportDirectory.resolve("${this}_diff.png")
-    private fun String.toResultProtoFile() = reportDirectory.resolve("${this}_goldResult.pb")
-    private fun String.toResultTextProtoFile() =
-        reportDirectory.resolve("${this}_goldResult.textproto")
+    // Filename templates based for a given snapshot
+    private fun Snapshot.toGoldenFile() = goldenDirectory.resolve("${toFileName()}_paparazzi.png")
+    private fun Snapshot.toExpectedFile() = reportDirectory.resolve("${toFileName()}_expected.png")
+    private fun Snapshot.toActualFile() = reportDirectory.resolve("${toFileName()}_actual.png")
+    private fun Snapshot.toDiffFile() = reportDirectory.resolve("${toFileName()}_diff.png")
+    private fun Snapshot.toResultProtoFile() =
+        reportDirectory.resolve("${toFileName()}_goldResult.pb")
+    private fun Snapshot.toResultTextProtoFile() =
+        reportDirectory.resolve("${toFileName()}_goldResult.textproto")
 
     companion object {
         /** Name of the AndroidX golden repo. */
         const val ANDROIDX_GOLDEN_REPO_NAME = "platform/frameworks/support-golden"
 
+        /** Name of the updateGolden Gradle command for this module, via system properties. */
+        fun updateGoldenGradleTask() =
+            System.getProperty("$PACKAGE_NAME.updateGoldenTask") ?: ":updateGolden"
+
         /** Render test function name as a fully qualified string. */
-        fun TestName.toTestId(): String {
+        fun TestName.toQualifiedName(): String {
             return if (packageName.isEmpty()) {
-                "${className}_$methodName"
+                "$className.$methodName"
             } else {
-                "$packageName.${className}_$methodName"
+                "$packageName.$className.$methodName"
             }
         }
+
+        /** Get a file name with special characters removed from a snapshot. */
+        fun Snapshot.toFileName() = testName.toQualifiedName().replace(Regex("\\W+"), "_")
     }
 }
