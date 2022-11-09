@@ -18,6 +18,7 @@ package androidx.constraintlayout.widget;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_SPREAD;
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_WRAP;
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
@@ -2376,7 +2377,7 @@ public class ConstraintLayout extends ViewGroup {
         public static final int START = 6;
 
         /**
-         * The right side of a view in right to left languages.
+         * The right side of a view in left to right languages.
          * In right to left languages it corresponds to the left side of the view
          */
         public static final int END = 7;
