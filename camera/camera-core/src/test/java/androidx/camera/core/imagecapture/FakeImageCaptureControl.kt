@@ -61,6 +61,11 @@ class FakeImageCaptureControl : ImageCaptureControl {
         return IMMEDIATE_RESULT
     }
 
+    fun clear() {
+        // Cancel pending futures.
+        pendingResult.cancel(true)
+    }
+
     enum class Action {
         LOCK_FLASH,
         UNLOCK_FLASH,

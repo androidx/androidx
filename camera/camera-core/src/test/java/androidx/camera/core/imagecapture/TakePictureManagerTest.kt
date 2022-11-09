@@ -46,12 +46,13 @@ class TakePictureManagerTest {
     private val imagePipeline = FakeImagePipeline()
     private val imageCaptureControl = FakeImageCaptureControl()
     private val takePictureManager =
-        TakePictureManager(imageCaptureControl).also { it.setImagePipeline(imagePipeline) }
+        TakePictureManager(imageCaptureControl).also { it.imagePipeline = imagePipeline }
     private val exception = ImageCaptureException(ImageCapture.ERROR_UNKNOWN, "", null)
 
     @After
     fun tearDown() {
         imagePipeline.close()
+        imageCaptureControl.clear()
     }
 
     @Test
@@ -71,6 +72,23 @@ class TakePictureManagerTest {
         // Assert: the in-flight request is retried.
         assertThat(takePictureManager.mNewRequests).containsExactly(request1, request2).inOrder()
         assertThat(request1.remainingRetries).isEqualTo(0)
+    }
+
+    @Test
+    fun abort_captureRequestFutureIsCanceled() {
+        // Arrange: configure ImageCaptureControl to not return immediately.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        imageCaptureControl.shouldUsePendingResult = true
+
+        // Act: offer request then abort.
+        takePictureManager.offerRequest(request)
+        takePictureManager.abortRequests()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: that the app receives exception and the capture future is canceled.
+        assertThat((request.exceptionReceived as ImageCaptureException).imageCaptureError)
+            .isEqualTo(ERROR_CAMERA_CLOSED)
+        assertThat(imageCaptureControl.pendingResult.isCancelled).isTrue()
     }
 
     @Test
