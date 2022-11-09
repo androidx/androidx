@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.paging.testing {
 
+  public final class PagerFlowSnapshotKt {
+    method public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope, kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> loadOperations, kotlin.coroutines.Continuation<? super java.util.List<? extends Value>>);
+  }
+
+  public final class SnapshotLoader<Value> {
+  }
+
   public final class StaticListPagingSourceFactoryKt {
     method public static <Value> kotlin.jvm.functions.Function0<androidx.paging.PagingSource<java.lang.Integer,Value>> asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope);
   }
