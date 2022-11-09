@@ -188,6 +188,35 @@ class SettableSurfaceTest {
     }
 
     @Test
+    fun createSurfaceRequest_hasCameraTransformSetCorrectly() {
+        assertThat(getSurfaceRequestHasTransform(true)).isTrue()
+        assertThat(getSurfaceRequestHasTransform(false)).isFalse()
+    }
+
+    /**
+     * Creates a [SettableSurface] with the given hasEmbeddedTransform value, and returns the
+     * [TransformationInfo.hasCameraTransform] from the [SurfaceRequest].
+     */
+    private fun getSurfaceRequestHasTransform(hasEmbeddedTransform: Boolean): Boolean {
+        // Arrange.
+        val surface = SettableSurface(
+            CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
+            Matrix(), hasEmbeddedTransform, Rect(), 0, false
+        ) {}
+        var transformationInfo: TransformationInfo? = null
+
+        // Act: get the hasCameraTransform bit from the SurfaceRequest.
+        surface.createSurfaceRequest(FakeCamera()).setTransformationInfoListener(
+            mainThreadExecutor()
+        ) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+        surface.close()
+        return transformationInfo!!.hasCameraTransform()
+    }
+
+    @Test
     fun setSourceSurfaceFutureAndProvide_surfaceIsPropagated() {
         // Arrange: set a ListenableFuture<Surface> as the source.
         var completer: CallbackToFutureAdapter.Completer<Surface>? = null

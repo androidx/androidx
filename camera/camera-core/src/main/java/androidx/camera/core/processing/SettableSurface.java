@@ -411,7 +411,8 @@ public class SettableSurface extends DeferrableSurface {
     private void notifyTransformationInfoUpdate() {
         if (mProviderSurfaceRequest != null) {
             mProviderSurfaceRequest.updateTransformationInfo(
-                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED));
+                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED,
+                            /*hasCameraTransform=*/hasEmbeddedTransform()));
         }
     }
 

@@ -455,7 +455,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             } else {
                 surfaceRequest.updateTransformationInfo(
                         SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
-                                targetRotation));
+                                targetRotation, /*hasCameraTransform=*/true));
             }
         }
     }
