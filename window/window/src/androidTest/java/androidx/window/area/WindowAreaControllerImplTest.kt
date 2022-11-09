@@ -27,17 +27,16 @@ import androidx.window.TestConsumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
 class WindowAreaControllerImplTest {
@@ -48,7 +47,6 @@ class WindowAreaControllerImplTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
-    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayStatus(): Unit = testScope.runTest {
@@ -59,7 +57,7 @@ class WindowAreaControllerImplTest {
             val collector = TestConsumer<WindowAreaStatus>()
             extensionComponent
                 .updateStatusListeners(WindowAreaComponent.STATUS_UNAVAILABLE)
-            testScope.launch {
+            testScope.launch(Job()) {
                 repo.rearDisplayStatus().collect(collector::accept)
             }
             collector.assertValue(WindowAreaStatus.UNAVAILABLE)
@@ -72,13 +70,12 @@ class WindowAreaControllerImplTest {
         }
     }
 
-    @Ignore // todo(b/222407443)
     @Test
     public fun testRearDisplayStatusNullComponent(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity {
             val repo = EmptyWindowAreaControllerImpl()
             val collector = TestConsumer<WindowAreaStatus>()
-            testScope.launch {
+            testScope.launch(Job()) {
                 repo.rearDisplayStatus().collect(collector::accept)
             }
             collector.assertValue(WindowAreaStatus.UNSUPPORTED)
@@ -91,10 +88,10 @@ class WindowAreaControllerImplTest {
      * changes the orientation of the activity to landscape when rear display mode is enabled
      * and then returns it back to portrait when it's disabled.
      */
-    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayMode(): Unit = testScope.runTest {
+        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         val extensions = FakeWindowAreaComponent()
         val repo = WindowAreaControllerImpl(extensions)
         extensions.currentStatus = WindowAreaComponent.STATUS_AVAILABLE
@@ -123,10 +120,10 @@ class WindowAreaControllerImplTest {
         }
     }
 
-    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayModeReturnsError(): Unit = testScope.runTest {
+        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         val extensionComponent = FakeWindowAreaComponent()
         extensionComponent.currentStatus = WindowAreaComponent.STATUS_UNAVAILABLE
         val repo = WindowAreaControllerImpl(extensionComponent)
@@ -139,9 +136,10 @@ class WindowAreaControllerImplTest {
         }
     }
 
-    @Ignore // todo(b/222407443)
+    @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayModeNullComponent(): Unit = testScope.runTest {
+        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         val repo = EmptyWindowAreaControllerImpl()
         val callback = TestWindowAreaSessionCallback()
         activityScenario.scenario.onActivity { testActivity ->
