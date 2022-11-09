@@ -29,26 +29,6 @@ import junit.framework.TestListener;
  */
 public class UiAutomatorInstrumentationTestRunner extends InstrumentationTestRunner {
 
-    @Override
-    public void onStart() {
-        // process runner arguments before test starts
-        String traceType = getArguments().getString("traceOutputMode");
-        if(traceType != null) {
-            Tracer.Mode mode = Tracer.Mode.valueOf(Tracer.Mode.class, traceType);
-            if (mode == Tracer.Mode.FILE || mode == Tracer.Mode.ALL) {
-                String filename = getArguments().getString("traceLogFilename");
-                if (filename == null) {
-                    throw new RuntimeException("Name of log file not specified. " +
-                            "Please specify it using traceLogFilename parameter");
-                }
-                Tracer.getInstance().setOutputFilename(filename);
-            }
-            Tracer.getInstance().setOutputMode(mode);
-        }
-        super.onStart();
-    }
-
-
     /**
      * Perform initialization specific to UiAutomator test. It sets up the test case so that
      * it can access the UiDevice and gives it access to the command line arguments.
