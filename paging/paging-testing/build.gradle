@@ -29,6 +29,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation((libs.kotlinCoroutinesAndroid))
     testImplementation(project(":internal-testutils-paging"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
