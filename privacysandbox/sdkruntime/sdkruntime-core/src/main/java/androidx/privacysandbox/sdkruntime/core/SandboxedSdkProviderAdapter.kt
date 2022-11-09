@@ -19,38 +19,52 @@ import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SandboxedSdkProvider
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
 
 /**
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
- * Gets compat class name from property "android.sdksandbox.PROPERTY_COMPAT_SDK_PROVIDER_CLASS_NAME"
+ * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
 // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-class SandboxedSdkProviderAdapter : SandboxedSdkProvider() {
+class SandboxedSdkProviderAdapter internal constructor(
+    private val classNameProvider: CompatClassNameProvider
+) : SandboxedSdkProvider() {
 
-    @get:VisibleForTesting
-    @Volatile
-    var delegate: SandboxedSdkProviderCompat? = null
-        private set
+    /**
+     * Provides classname of [SandboxedSdkProviderCompat] implementation.
+     */
+    internal interface CompatClassNameProvider {
+        fun getCompatProviderClassName(context: Context): String
+    }
+
+    constructor () : this(DefaultClassNameProvider())
+
+    internal val delegate: SandboxedSdkProviderCompat by lazy {
+        val currentContext = context!!
+        val compatSdkProviderClassName =
+            classNameProvider.getCompatProviderClassName(currentContext)
+        val clz = Class.forName(compatSdkProviderClassName)
+        val newDelegate = clz.getConstructor().newInstance() as SandboxedSdkProviderCompat
+        newDelegate.attachContext(currentContext)
+        newDelegate
+    }
 
     @Throws(LoadSdkException::class)
     override fun onLoadSdk(params: Bundle): SandboxedSdk {
         return try {
-            ensureDelegateLoaded().onLoadSdk(params).toSandboxedSdk()
+            delegate.onLoadSdk(params).toSandboxedSdk()
         } catch (e: LoadSdkCompatException) {
             throw e.toLoadSdkException()
         }
     }
 
     override fun beforeUnloadSdk() {
-        ensureDelegateLoaded().beforeUnloadSdk()
+        delegate.beforeUnloadSdk()
     }
 
     override fun getView(
@@ -59,43 +73,21 @@ class SandboxedSdkProviderAdapter : SandboxedSdkProvider() {
         width: Int,
         height: Int
     ): View {
-        return ensureDelegateLoaded().getView(windowContext, params, width, height)
+        return delegate.getView(windowContext, params, width, height)
     }
 
-    private fun ensureDelegateLoaded(): SandboxedSdkProviderCompat {
-        val existing1 = delegate
-        if (existing1 != null) {
-            return existing1
+    private class DefaultClassNameProvider : CompatClassNameProvider {
+        override fun getCompatProviderClassName(context: Context): String {
+            // TODO(b/257966930) Read classname from SDK manifest property
+            return context.assets.open(COMPAT_SDK_PROVIDER_CLASS_ASSET_NAME)
+                .use { inputStream ->
+                    inputStream.bufferedReader().readLine()
+                }
         }
-        synchronized(this) {
-            val existing2 = delegate
-            if (existing2 != null) {
-                return existing2
-            }
-            val currentContext = context!!
-            return try {
-                val jetPackSdkProviderClassName = getCompatProviderClassName(currentContext)
-                val clz = Class.forName(jetPackSdkProviderClassName)
-                val newDelegate = clz.getConstructor().newInstance() as SandboxedSdkProviderCompat
-                newDelegate.attachContext(currentContext)
-                delegate = newDelegate
-                newDelegate
-            } catch (ex: Exception) {
-                throw RuntimeException("Failed to instantiate SandboxedSdkProviderCompat", ex)
-            }
-        }
-    }
-
-    @Throws(PackageManager.NameNotFoundException::class)
-    private fun getCompatProviderClassName(context: Context): String {
-        return context.packageManager.getProperty(
-            COMPAT_SDK_PROVIDER_CLASS_NAME_ATTRIBUTE_NAME,
-            context.packageName
-        ).string!!
     }
 
     companion object {
-        private const val COMPAT_SDK_PROVIDER_CLASS_NAME_ATTRIBUTE_NAME =
-            "android.sdksandbox.PROPERTY_COMPAT_SDK_PROVIDER_CLASS_NAME"
+        private const val COMPAT_SDK_PROVIDER_CLASS_ASSET_NAME =
+            "SandboxedSdkProviderCompatClassName.txt"
     }
 }
