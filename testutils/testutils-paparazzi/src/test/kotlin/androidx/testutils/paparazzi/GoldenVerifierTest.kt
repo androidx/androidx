@@ -60,6 +60,19 @@ class GoldenVerifierTest {
     }
 
     @Test
+    fun `removes special characters in file names`() {
+        createGolden("circle")
+        // Test that createGolden/goldenFile match naming in verifier
+        goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
+
+        assertEquals(
+            goldenFile().name,
+            "androidx_testutils_paparazzi_GoldenVerifierTest_" +
+                "removes_special_characters_in_file_names_paparazzi.png"
+        )
+    }
+
+    @Test
     fun `writes report on success`() {
         createGolden("circle")
         goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
@@ -98,8 +111,7 @@ class GoldenVerifierTest {
     fun `asserts on failure`() {
         createGolden("star")
         val message = "Actual image differs from golden image: 17837 of 65536 pixels different. " +
-            "To update the golden image, copy ${reportFile("actual.png")} to ${goldenFile()} and " +
-            "commit the updated golden image."
+            "To update golden images for this test module, run :updateGolden."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
@@ -153,8 +165,7 @@ class GoldenVerifierTest {
     fun `asserts on size mismatch`() {
         createGolden("horizontal_rectangle")
         val message = "Actual image has different dimensions than golden image. Actual: 72x128. " +
-            "Golden: 128x72. To update the golden image, copy ${reportFile("actual.png")} to " +
-            "${goldenFile()} and commit the updated golden image."
+            "Golden: 128x72. To update golden images for this test module, run :updateGolden."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("vertical_rectangle"))
@@ -207,8 +218,9 @@ class GoldenVerifierTest {
 
     @Test
     fun `asserts on missing golden`() {
-        val message = "Expected golden image for ${testId()} does not exist. To create it, copy " +
-            "${reportFile("actual.png")} to ${goldenFile()} and commit the new golden image."
+        val message = "Expected golden image for test \"asserts on missing golden\" does not " +
+            "exist. Run :updateGolden to create it and update all golden images for this test " +
+            "module."
 
         assertFailsWithMessage(message) {
             goldenVerifier().assertMatchesGolden(snapshot(), loadTestImage("circle"))
@@ -283,7 +295,7 @@ class GoldenVerifierTest {
             .copyTo(goldenFile().apply { parentFile!!.mkdirs() }.outputStream())
 
     /** Relative path to golden image for this test. */
-    private fun goldenPath() = "$modulePath/${testId()}_paparazzi.png"
+    private fun goldenPath() = "$modulePath/${testName()}_paparazzi.png"
 
     /** Resolve the file path for a golden image for this test under [goldenDirectory]. */
     private fun goldenFile() = goldenDirectory.root.resolve(goldenPath()).canonicalFile
@@ -298,13 +310,14 @@ class GoldenVerifierTest {
 
     /** Resolve the file path for a report file with provided [suffix] under [reportDirectory]. */
     private fun reportFile(suffix: String) =
-        reportDirectory.root.resolve("${testId()}_$suffix").canonicalFile
+        reportDirectory.root.resolve("${testName()}_$suffix").canonicalFile
 
     /** Convenience function to read an image from a file. */
     private fun File.readImage() = ImageIO.read(this)
 
-    /** Fully qualified test ID for this test. */
-    private fun testId() = "${this::class.qualifiedName!!}_${testName.methodName}"
+    /** Fully qualified test ID with special characters replaced for this test. */
+    private fun testName() = "${this::class.qualifiedName!!}_${testName.methodName}"
+        .replace(Regex("\\W+"), "_")
 
     /** Load a test image from resources. */
     private fun loadTestImage(name: String) =

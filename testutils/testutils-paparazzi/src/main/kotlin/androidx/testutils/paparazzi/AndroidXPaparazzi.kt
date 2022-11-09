@@ -60,7 +60,7 @@ fun androidxPaparazzi(
 )
 
 /** Package name used for resolving system properties */
-private const val PACKAGE_NAME = "androidx.testutils.paparazzi"
+internal const val PACKAGE_NAME = "androidx.testutils.paparazzi"
 
 /** Name of the internal Gradle plugin */
 private const val PLUGIN_NAME = "AndroidXPaparazziPlugin"
