@@ -16,8 +16,6 @@
 
 package androidx.fragment.app;
 
-import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -76,7 +74,6 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
             mLifecycleRegistry = new LifecycleRegistry(this);
             mSavedStateRegistryController = SavedStateRegistryController.create(this);
             mSavedStateRegistryController.performAttach();
-            enableSavedStateHandles(this);
             mRestoreViewSavedStateRunnable.run();
         }
     }
@@ -134,7 +131,7 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
 
             mDefaultFactory = new SavedStateViewModelFactory(
                     application,
-                    this,
+                    mFragment,
                     mFragment.getArguments());
         }
 
@@ -158,7 +155,7 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         if (application != null) {
             extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, application);
         }
-        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, mFragment);
         extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
         if (mFragment.getArguments() != null) {
             extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, mFragment.getArguments());
