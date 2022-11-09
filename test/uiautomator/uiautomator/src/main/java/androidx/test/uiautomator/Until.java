@@ -44,6 +44,12 @@ public class Until {
             Boolean apply(Searchable container) {
                 return !container.hasObject(selector);
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("SearchCondition[gone=%s]", selector);
+            }
         };
     }
 
@@ -57,6 +63,12 @@ public class Until {
             @Override
             Boolean apply(Searchable container) {
                 return container.hasObject(selector);
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("SearchCondition[hasObject=%s]", selector);
             }
         };
     }
@@ -72,6 +84,12 @@ public class Until {
             UiObject2 apply(Searchable container) {
                 return container.findObject(selector);
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("SearchCondition[findObject=%s]", selector);
+            }
         };
     }
 
@@ -86,6 +104,12 @@ public class Until {
             List<UiObject2> apply(Searchable container) {
                 List<UiObject2> ret = container.findObjects(selector);
                 return ret.isEmpty() ? null : ret;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("SearchCondition[findObjects=%s]", selector);
             }
         };
     }
@@ -105,6 +129,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 return object.isCheckable() == isCheckable;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[checkable=%b]", isCheckable);
+            }
         };
     }
 
@@ -119,6 +149,12 @@ public class Until {
             @Override
             Boolean apply(UiObject2 object) {
                 return object.isChecked() == isChecked;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[checked=%b]", isChecked);
             }
         };
     }
@@ -135,6 +171,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 return object.isClickable() == isClickable;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[clickable=%b]", isClickable);
+            }
         };
     }
 
@@ -149,6 +191,12 @@ public class Until {
             @Override
             Boolean apply(UiObject2 object) {
                 return object.isEnabled() == isEnabled;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[enabled=%b]", isEnabled);
             }
         };
     }
@@ -165,6 +213,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 return object.isFocusable() == isFocusable;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[focusable=%b]", isFocusable);
+            }
         };
     }
 
@@ -179,6 +233,12 @@ public class Until {
             @Override
             Boolean apply(UiObject2 object) {
                 return object.isFocused() == isFocused;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[focused=%b]", isFocused);
             }
         };
     }
@@ -195,6 +255,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 return object.isLongClickable() == isLongClickable;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[longClickable=%b]", isLongClickable);
+            }
         };
     }
 
@@ -209,6 +275,12 @@ public class Until {
             @Override
             Boolean apply(UiObject2 object) {
                 return object.isScrollable() == isScrollable;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[scrollable=%b]", isScrollable);
             }
         };
     }
@@ -225,6 +297,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 return object.isSelected() == isSelected;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[selected=%b]", isSelected);
+            }
         };
     }
 
@@ -239,6 +317,12 @@ public class Until {
             Boolean apply(UiObject2 object) {
                 String desc = object.getContentDescription();
                 return regex.matcher(desc != null ? desc : "").matches();
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[descMatches='%s']", regex);
             }
         };
     }
@@ -299,6 +383,12 @@ public class Until {
                 String text = object.getText();
                 return regex.matcher(text != null ? text : "").matches();
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[textMatches='%s']", regex);
+            }
         };
     }
 
@@ -320,6 +410,12 @@ public class Until {
             @Override
             Boolean apply(UiObject2 object) {
                 return !text.equals(object.getText());
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("UiObject2Condition[textNotEquals='%s']", text);
             }
         };
     }
@@ -379,6 +475,12 @@ public class Until {
             @Override
             Boolean getResult() {
                 return mMask == 0;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("EventCondition[newWindow]");
             }
         };
     }
@@ -448,6 +550,12 @@ public class Until {
                 // If we didn't recieve any scroll events (mResult == null), assume we're already at
                 // the end and return true.
                 return mResult == null || mResult;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return String.format("EventCondition[scrollFinished=%s]", direction.name());
             }
         };
     }
