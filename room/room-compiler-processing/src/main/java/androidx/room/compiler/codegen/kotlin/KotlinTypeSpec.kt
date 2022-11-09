@@ -69,6 +69,14 @@ internal class KotlinTypeSpec(
             actual.addType(typeSpec.actual)
         }
 
+        override fun setPrimaryConstructor(functionSpec: XFunSpec) = apply {
+            require(functionSpec is KotlinFunSpec)
+            actual.primaryConstructor(functionSpec.actual)
+            functionSpec.actual.delegateConstructorArguments.forEach {
+                actual.addSuperclassConstructorParameter(it)
+            }
+        }
+
         override fun setVisibility(visibility: VisibilityModifier) {
             actual.addModifiers(visibility.toKotlinVisibilityModifier())
         }
