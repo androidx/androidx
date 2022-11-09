@@ -18,6 +18,7 @@ dependencies {
     docs(project(":ads:ads-identifier-testing"))
     docs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
+    docs(project(":appactions:interaction:interaction-proto"))
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appsearch:appsearch"))
