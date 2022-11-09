@@ -26,29 +26,28 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 @Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class NestedFragmentTest {
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var parentFragment: ParentFragment
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
-    @Before
-    fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
+    private fun setupParentFragment(parentFragment: ParentFragment) {
         val fragmentManager = activityRule.activity.supportFragmentManager
-        parentFragment = ParentFragment()
         fragmentManager.beginTransaction().add(parentFragment, "parent").commit()
         val latch = CountDownLatch(1)
         activityRule.runOnUiThread {
@@ -60,6 +59,10 @@ class NestedFragmentTest {
 
     @Test
     fun testUsingUpper16BitRequestCode() {
+        val parentFragment = ParentFragment()
+        setupParentFragment(parentFragment)
+
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activityResult = Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
 
         val activityMonitor = instrumentation.addMonitor(
@@ -89,6 +92,10 @@ class NestedFragmentTest {
 
     @Test
     fun testNestedFragmentStartActivityForResult() {
+        val parentFragment = ParentFragment()
+        setupParentFragment(parentFragment)
+
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activityResult = Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
 
         val activityMonitor = instrumentation.addMonitor(
