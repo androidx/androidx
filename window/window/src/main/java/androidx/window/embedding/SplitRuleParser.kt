@@ -161,7 +161,7 @@ internal class SplitRuleParser {
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
             .setSplitRatio(ratio)
-            .setLayoutDir(layoutDir)
+            .setLayoutDirection(layoutDir)
             .build()
     }
 
@@ -223,7 +223,7 @@ internal class SplitRuleParser {
         ).setSticky(stickyPlaceholder)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(ratio)
-            .setLayoutDir(layoutDir)
+            .setLayoutDirection(layoutDir)
             .build()
     }
 

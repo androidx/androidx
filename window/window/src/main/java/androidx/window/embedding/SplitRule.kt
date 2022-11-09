@@ -18,7 +18,9 @@ package androidx.window.embedding
 
 import android.graphics.Rect
 import android.os.Build
-import android.util.LayoutDirection
+import android.util.LayoutDirection.LOCALE
+import android.util.LayoutDirection.LTR
+import android.util.LayoutDirection.RTL
 import android.view.WindowMetrics
 import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
@@ -63,14 +65,13 @@ open class SplitRule internal constructor(
     /**
      * The layout direction for the split.
      */
-    @LayoutDir
-    val layoutDirection: Int = LayoutDirection.LOCALE
+    @LayoutDirection
+    val layoutDirection: Int = LOCALE
 ) : EmbeddingRule() {
 
-    @IntDef(LayoutDirection.LTR, LayoutDirection.RTL, LayoutDirection.LOCALE)
+    @IntDef(LTR, RTL, LOCALE)
     @Retention(AnnotationRetention.SOURCE)
-    // Not called LayoutDirection to avoid conflict with android.util.LayoutDirection
-    internal annotation class LayoutDir
+    internal annotation class LayoutDirection
 
     /**
      * Determines what happens with the associated container when all activities are finished in

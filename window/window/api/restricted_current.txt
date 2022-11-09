@@ -101,7 +101,7 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule.Builder setClearTop(boolean clearTop);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
     method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int finishSecondaryWithPrimary);
-    method public androidx.window.embedding.SplitPairRule.Builder setLayoutDir(int layoutDir);
+    method public androidx.window.embedding.SplitPairRule.Builder setLayoutDirection(int layoutDirection);
     method public androidx.window.embedding.SplitPairRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float splitRatio);
   }
 
@@ -120,7 +120,7 @@ package androidx.window.embedding {
     ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
     method public androidx.window.embedding.SplitPlaceholderRule build();
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int finishPrimaryWithPlaceholder);
-    method public androidx.window.embedding.SplitPlaceholderRule.Builder setLayoutDir(int layoutDir);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int layoutDirection);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float splitRatio);
     method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);
   }
