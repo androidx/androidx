@@ -37,6 +37,8 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.LowMemoryQuirk;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.InternalImageProcessor;
 import androidx.camera.core.processing.Node;
@@ -57,7 +59,7 @@ import java.util.concurrent.Executor;
 public class ProcessingNode implements Node<ProcessingNode.In, Void> {
 
     @NonNull
-    private final Executor mBlockingExecutor;
+    final Executor mBlockingExecutor;
     @Nullable
     final InternalImageProcessor mImageProcessor;
 
@@ -86,7 +88,12 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     ProcessingNode(@NonNull Executor blockingExecutor,
             @Nullable InternalImageProcessor imageProcessor) {
-        mBlockingExecutor = blockingExecutor;
+        boolean isLowMemoryDevice = DeviceQuirks.get(LowMemoryQuirk.class) != null;
+        if (isLowMemoryDevice) {
+            mBlockingExecutor = CameraXExecutors.newSequentialExecutor(blockingExecutor);
+        } else {
+            mBlockingExecutor = blockingExecutor;
+        }
         mImageProcessor = imageProcessor;
     }
 
