@@ -205,7 +205,9 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
                 mImagePipeline.createRequests(request, requestWithCallback);
         CameraRequest cameraRequest = requireNonNull(requests.first);
         ProcessingRequest processingRequest = requireNonNull(requests.second);
-        submitCameraRequest(cameraRequest, () -> mImagePipeline.postProcess(processingRequest));
+        ListenableFuture<Void> captureRequestFuture = submitCameraRequest(cameraRequest,
+                () -> mImagePipeline.postProcess(processingRequest));
+        requestWithCallback.setCaptureRequestFuture(captureRequestFuture);
     }
 
     /**
@@ -234,14 +236,14 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
      * <p>Flash is locked/unlocked during the flight of a {@link CameraRequest}.
      */
     @MainThread
-    private void submitCameraRequest(
+    private ListenableFuture<Void> submitCameraRequest(
             @NonNull CameraRequest cameraRequest,
             @NonNull Runnable successRunnable) {
         checkMainThread();
         mImageCaptureControl.lockFlashMode();
-        ListenableFuture<Void> submitRequestFuture =
+        ListenableFuture<Void> captureRequestFuture =
                 mImageCaptureControl.submitStillCaptureRequests(cameraRequest.getCaptureConfigs());
-        Futures.addCallback(submitRequestFuture, new FutureCallback<Void>() {
+        Futures.addCallback(captureRequestFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void result) {
                 successRunnable.run();
@@ -261,6 +263,7 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
                 mImageCaptureControl.unlockFlashMode();
             }
         }, mainThreadExecutor());
+        return captureRequestFuture;
     }
 
     @VisibleForTesting

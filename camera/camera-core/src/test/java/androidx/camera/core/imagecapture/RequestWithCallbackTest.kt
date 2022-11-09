@@ -25,7 +25,10 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +50,7 @@ class RequestWithCallbackTest {
     private lateinit var imageResult: ImageProxy
     private lateinit var fileResult: ImageCapture.OutputFileResults
     private lateinit var retryControl: FakeRetryControl
+    private lateinit var captureRequestFuture: ListenableFuture<Void>
 
     @Before
     fun setUp() {
@@ -55,6 +59,12 @@ class RequestWithCallbackTest {
         imageResult = FakeImageProxy(FakeImageInfo())
         fileResult = ImageCapture.OutputFileResults(null)
         retryControl = FakeRetryControl()
+        captureRequestFuture = CallbackToFutureAdapter.getFuture { "captureRequestFuture" }
+    }
+
+    @After
+    fun tearDown() {
+        captureRequestFuture.cancel(true)
     }
 
     @Test
@@ -126,6 +136,7 @@ class RequestWithCallbackTest {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
         callback.abortAndSendErrorToApp(abortError)
         callback.onCaptureFailure(otherError)
@@ -133,6 +144,7 @@ class RequestWithCallbackTest {
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.exceptionReceived).isEqualTo(abortError)
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 
     @Test
@@ -153,12 +165,14 @@ class RequestWithCallbackTest {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
         callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.imageReceived).isNull()
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 
     @Test
@@ -179,11 +193,13 @@ class RequestWithCallbackTest {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.ON_DISK)
         val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
         callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.imageReceived).isNull()
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 }
