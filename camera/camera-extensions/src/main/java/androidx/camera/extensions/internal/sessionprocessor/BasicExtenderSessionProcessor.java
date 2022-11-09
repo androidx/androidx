@@ -240,18 +240,20 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     public void onCaptureSessionStart(@NonNull RequestProcessor requestProcessor) {
         mRequestProcessor = requestProcessor;
 
+        List<CaptureStageImpl> captureStages = new ArrayList<>();
         CaptureStageImpl captureStage1 = mPreviewExtenderImpl.onEnableSession();
         Logger.d(TAG, "preview onEnableSession: " + captureStage1);
-
+        if (captureStage1 != null) {
+            captureStages.add(captureStage1);
+        }
         CaptureStageImpl captureStage2 = mImageCaptureExtenderImpl.onEnableSession();
         Logger.d(TAG, "capture onEnableSession:" + captureStage2);
-
-        if (captureStage1 != null) {
-            submitRequestByCaptureStage(requestProcessor, captureStage1);
+        if (captureStage2 != null) {
+            captureStages.add(captureStage2);
         }
 
-        if (captureStage2 != null) {
-            submitRequestByCaptureStage(requestProcessor, captureStage2);
+        if (!captureStages.isEmpty()) {
+            submitRequestByCaptureStages(requestProcessor, captureStages);
         }
 
         if (mPreviewProcessor != null) {
@@ -299,35 +301,41 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     }
 
 
-    private void submitRequestByCaptureStage(RequestProcessor requestProcessor,
-            CaptureStageImpl captureStage) {
-        RequestBuilder builder = new RequestBuilder();
-        builder.addTargetOutputConfigIds(mPreviewOutputConfig.getId());
-        if (mAnalysisOutputConfig != null) {
-            builder.addTargetOutputConfigIds(mAnalysisOutputConfig.getId());
+    private void submitRequestByCaptureStages(RequestProcessor requestProcessor,
+            List<CaptureStageImpl> captureStageList) {
+        List<RequestProcessor.Request> requestList = new ArrayList<>();
+        for (CaptureStageImpl captureStage : captureStageList) {
+            RequestBuilder builder = new RequestBuilder();
+            builder.addTargetOutputConfigIds(mPreviewOutputConfig.getId());
+            if (mAnalysisOutputConfig != null) {
+                builder.addTargetOutputConfigIds(mAnalysisOutputConfig.getId());
+            }
+            for (Pair<CaptureRequest.Key, Object> keyObjectPair : captureStage.getParameters()) {
+                builder.setParameters(keyObjectPair.first, keyObjectPair.second);
+            }
+            builder.setTemplateId(CameraDevice.TEMPLATE_PREVIEW);
+            requestList.add(builder.build());
         }
-        for (Pair<CaptureRequest.Key, Object> keyObjectPair : captureStage.getParameters()) {
-            builder.setParameters(keyObjectPair.first, keyObjectPair.second);
-        }
-
-        builder.setTemplateId(CameraDevice.TEMPLATE_PREVIEW);
-        requestProcessor.submit(builder.build(), new RequestProcessor.Callback() {
+        requestProcessor.submit(requestList, new RequestProcessor.Callback() {
         });
     }
 
     @Override
     public void onCaptureSessionEnd() {
+        List<CaptureStageImpl> captureStages = new ArrayList<>();
         CaptureStageImpl captureStage1 = mPreviewExtenderImpl.onDisableSession();
         Logger.d(TAG, "preview onDisableSession: " + captureStage1);
-
+        if (captureStage1 != null) {
+            captureStages.add(captureStage1);
+        }
         CaptureStageImpl captureStage2 = mImageCaptureExtenderImpl.onDisableSession();
         Logger.d(TAG, "capture onDisableSession:" + captureStage2);
-        if (captureStage1 != null) {
-            submitRequestByCaptureStage(mRequestProcessor, captureStage1);
+        if (captureStage2 != null) {
+            captureStages.add(captureStage2);
         }
 
-        if (captureStage2 != null) {
-            submitRequestByCaptureStage(mRequestProcessor, captureStage2);
+        if (!captureStages.isEmpty()) {
+            submitRequestByCaptureStages(mRequestProcessor, captureStages);
         }
         mRequestProcessor = null;
         mIsCapturing = false;
@@ -358,13 +366,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         }
         builder.setTemplateId(CameraDevice.TEMPLATE_PREVIEW);
         applyParameters(builder);
-        CaptureStageImpl captureStage = mPreviewExtenderImpl.getCaptureStage();
-        if (captureStage != null) {
-            for (Pair<CaptureRequest.Key, Object> keyObjectPair :
-                    captureStage.getParameters()) {
-                builder.setParameters(keyObjectPair.first, keyObjectPair.second);
-            }
-        }
+        applyPreviewStagesParameters(builder);
 
         RequestProcessor.Callback callback = new RequestProcessor.Callback() {
             @Override
@@ -398,6 +400,16 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mRequestProcessor.setRepeating(builder.build(), callback);
     }
 
+    private void applyPreviewStagesParameters(RequestBuilder builder) {
+        CaptureStageImpl captureStage = mPreviewExtenderImpl.getCaptureStage();
+        if (captureStage != null) {
+            for (Pair<CaptureRequest.Key, Object> keyObjectPair :
+                    captureStage.getParameters()) {
+                builder.setParameters(keyObjectPair.first, keyObjectPair.second);
+            }
+        }
+    }
+
     @Override
     public void stopRepeating() {
         mRequestProcessor.stopRepeating();
@@ -428,6 +440,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             captureIdList.add(captureStage.getId());
 
             applyParameters(builder);
+            applyPreviewStagesParameters(builder);
 
             for (Pair<CaptureRequest.Key, Object> keyObjectPair :
                     captureStage.getParameters()) {

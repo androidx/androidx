@@ -1384,12 +1384,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             inputFormatCapture = ImageFormat.YUV_420_888
         )
 
-        val imageCapture = builder
-            .setSupportedResolutions(
-                listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480))))
-            )
-            .build()
-
+        val imageCapture = builder.build()
         val preview = Preview.Builder().build()
 
         var camera: Camera
@@ -1426,18 +1421,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Build.MODEL.contains("Cuttlefish")
         )
 
-        val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
             inputFormatPreview = null, // null means using the same output surface
             inputFormatCapture = null
         )
 
-        val imageCapture = builder
-            .setSupportedResolutions(
-                listOf(android.util.Pair(ImageFormat.JPEG, arrayOf(Size(640, 480))))
-            )
-            .build()
-
+        val imageCapture = ImageCapture.Builder().build()
         val preview = Preview.Builder().build()
 
         withContext(Dispatchers.Main) {

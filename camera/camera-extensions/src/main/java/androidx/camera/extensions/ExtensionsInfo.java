@@ -204,7 +204,7 @@ final class ExtensionsInfo {
                 vendorExtender.init(cameraInfo);
 
                 ExtensionsUseCaseConfigFactory factory = new
-                        ExtensionsUseCaseConfigFactory(mode, vendorExtender, context);
+                        ExtensionsUseCaseConfigFactory(mode, vendorExtender);
 
                 ExtensionsConfig.Builder builder = new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)

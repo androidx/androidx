@@ -136,7 +136,7 @@ public interface SessionProcessor {
          *                          request or the timestamp at start of capture of the
          *                          first frame in a multi-frame capture, in nanoseconds.
          */
-        void onCaptureStarted(int captureSequenceId, long timestamp);
+        default void onCaptureStarted(int captureSequenceId, long timestamp) {}
 
         /**
          * This method is called when an image (or images in case of multi-frame
@@ -144,7 +144,7 @@ public interface SessionProcessor {
          *
          * @param captureSequenceId id of the current capture sequence
          */
-        void onCaptureProcessStarted(int captureSequenceId);
+        default void onCaptureProcessStarted(int captureSequenceId) {}
 
         /**
          * This method is called instead of {@link #onCaptureProcessStarted} when the camera
@@ -153,7 +153,7 @@ public interface SessionProcessor {
          *
          * @param captureSequenceId id of the current capture sequence
          */
-        void onCaptureFailed(int captureSequenceId);
+        default void onCaptureFailed(int captureSequenceId) {}
 
         /**
          * This method is called independently of the others in the CaptureCallback, when a capture
@@ -166,14 +166,14 @@ public interface SessionProcessor {
          *
          * @param captureSequenceId id of the current capture sequence
          */
-        void onCaptureSequenceCompleted(int captureSequenceId);
+        default void onCaptureSequenceCompleted(int captureSequenceId) {}
 
         /**
          * This method is called when a capture sequence aborts.
          *
          * @param captureSequenceId id of the current capture sequence
          */
-        void onCaptureSequenceAborted(int captureSequenceId);
+        default void onCaptureSequenceAborted(int captureSequenceId) {}
 
         /**
          * Capture result callback that needs to be called when the process capture results are
@@ -197,7 +197,7 @@ public interface SessionProcessor {
          *                             that those two settings and results are always supported and
          *                             applied by the corresponding framework.
          */
-        void onCaptureCompleted(long timestamp, int captureSequenceId,
-                @NonNull Map<CaptureResult.Key, Object> result);
+        default void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull Map<CaptureResult.Key, Object> result) {}
     }
 }

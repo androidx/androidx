@@ -91,7 +91,7 @@ const val JPEG_QUALITY_VALUE: Byte = 50
  */
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 23)
+@SdkSuppress(minSdkVersion = 28)  // ImageWriter to PRIVATE format requires API 28
 class ProcessingCaptureSessionTest(
     private var lensFacing: Int,
     // The pair specifies (Output image format to Input image format). SessionProcessor will
@@ -111,7 +111,7 @@ class ProcessingCaptureSessionTest(
                 CameraSelector.LENS_FACING_BACK, (YUV_420_888 to YUV_420_888), (JPEG to null)
             ),
             arrayOf(
-                CameraSelector.LENS_FACING_BACK, (PRIVATE to null), (YUV_420_888 to YUV_420_888)
+                CameraSelector.LENS_FACING_BACK, (PRIVATE to null), (JPEG to YUV_420_888)
             ),
             arrayOf(
                 CameraSelector.LENS_FACING_FRONT, (PRIVATE to null), (JPEG to null)
@@ -120,7 +120,7 @@ class ProcessingCaptureSessionTest(
                 CameraSelector.LENS_FACING_FRONT, (YUV_420_888 to YUV_420_888), (JPEG to null)
             ),
             arrayOf(
-                CameraSelector.LENS_FACING_FRONT, (PRIVATE to null), (YUV_420_888 to YUV_420_888)
+                CameraSelector.LENS_FACING_FRONT, (PRIVATE to null), (JPEG to YUV_420_888)
             )
         )
     }

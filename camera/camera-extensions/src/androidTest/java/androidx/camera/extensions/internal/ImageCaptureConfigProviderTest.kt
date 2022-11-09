@@ -19,7 +19,6 @@ package androidx.camera.extensions.internal
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CaptureRequest
 import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
@@ -28,8 +27,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.impl.CaptureProcessorImpl
-import androidx.camera.extensions.impl.CaptureStageImpl
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -53,9 +50,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -97,64 +91,6 @@ class ImageCaptureConfigProviderTest {
 
     @Test
     @MediumTest
-    fun extenderLifeCycleTest_noMoreInteractionsBeforeAndAfterInitDeInit(): Unit =
-        runBlocking {
-            val mockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl::class.java)
-            val captureStages = mutableListOf<CaptureStageImpl>()
-
-            captureStages.add(FakeCaptureStage())
-
-            Mockito.`when`(mockImageCaptureExtenderImpl.captureStages).thenReturn(captureStages)
-            Mockito.`when`(mockImageCaptureExtenderImpl.captureProcessor).thenReturn(
-                mock(CaptureProcessorImpl::class.java)
-            )
-            val mockVendorExtender = mock(BasicVendorExtender::class.java)
-            Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
-                .thenReturn(mockImageCaptureExtenderImpl)
-
-            val imageCapture = createImageCaptureWithExtenderImpl(mockVendorExtender)
-
-            // Binds the use case to trigger the camera pipeline operations
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageCapture)
-            }
-
-            // To verify the event callbacks in order, and to verification of the onEnableSession()
-            // is also used to wait for the capture session created. The test for the unbind
-            // would come after the capture session was created.
-            verify(mockImageCaptureExtenderImpl, timeout(3000)).captureProcessor
-            verify(mockImageCaptureExtenderImpl, timeout(3000)).maxCaptureStage
-
-            verify(mockVendorExtender, timeout(3000)).supportedCaptureOutputResolutions
-
-            val inOrder = Mockito.inOrder(mockImageCaptureExtenderImpl)
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).captureStages
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(
-                any(String::class.java),
-                any(CameraCharacteristics::class.java),
-                any(Context::class.java)
-            )
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
-                .onPresetSession()
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
-                .onEnableSession()
-
-            withContext(Dispatchers.Main) {
-                // Unbind the use case to test the onDisableSession and onDeInit.
-                cameraProvider.unbind(imageCapture)
-            }
-
-            // To verify the onDisableSession and onDeInit.
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
-                .onDisableSession()
-            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onDeInit()
-
-            // To verify there is no any other calls on the mock.
-            verifyNoMoreInteractions(mockImageCaptureExtenderImpl)
-        }
-
-    @Test
-    @MediumTest
     fun canSetSupportedResolutionsToConfigTest(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
 
@@ -172,11 +108,8 @@ class ImageCaptureConfigProviderTest {
             targetFormatResolutionsPairList
         )
 
-        val mockVendorExtender = mock(BasicVendorExtender::class.java)
-        Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
-            .thenReturn(mockImageCaptureExtenderImpl)
-
-        val preview = createImageCaptureWithExtenderImpl(mockVendorExtender)
+        val vendorExtender = BasicVendorExtender(mockImageCaptureExtenderImpl, null)
+        val preview = createImageCaptureWithExtenderImpl(vendorExtender)
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
@@ -197,12 +130,19 @@ class ImageCaptureConfigProviderTest {
         }
     }
 
-    private fun createImageCaptureWithExtenderImpl(basicVendorExtender: BasicVendorExtender) =
-        ImageCapture.Builder().also {
-            ImageCaptureConfigProvider(extensionMode, basicVendorExtender, context).apply {
-                updateBuilderConfig(it, extensionMode, basicVendorExtender, context)
+    private suspend fun createImageCaptureWithExtenderImpl(
+        basicVendorExtender: BasicVendorExtender
+    ): ImageCapture {
+        withContext(Dispatchers.Main) {
+            val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
+            basicVendorExtender.init(camera.cameraInfo)
+        }
+        return ImageCapture.Builder().also {
+            ImageCaptureConfigProvider(extensionMode, basicVendorExtender).apply {
+                updateBuilderConfig(it, extensionMode, basicVendorExtender)
             }
         }.build()
+    }
 
     private fun generateImageCaptureSupportedResolutions(): List<Pair<Int, Array<Size>>> {
         val formatResolutionsPairList = mutableListOf<Pair<Int, Array<Size>>>()
@@ -217,10 +157,5 @@ class ImageCaptureConfigProviderTest {
         }
 
         return formatResolutionsPairList
-    }
-
-    private class FakeCaptureStage : CaptureStageImpl {
-        override fun getId() = 0
-        override fun getParameters(): List<Pair<CaptureRequest.Key<*>, Any>> = emptyList()
     }
 }
