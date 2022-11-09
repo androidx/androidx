@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
-import androidx.window.embedding.SplitController.Companion
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -27,14 +26,15 @@ import kotlin.concurrent.withLock
 /**
  * Controller class that will be used to get information about the currently active activity splits,
  * as well as provide interaction points to customize them and form new splits. A split is a pair of
- * containers that host activities in the same or different tasks, combined under the same parent
- * window of the hosting task.
+ * containers that host activities in the same or different processes, combined under the same
+ * parent window of the hosting task.
  * <p>A pair of activities can be put into split by providing a static or runtime split rule and
- * launching activity in the same task and process using [android.content.Context.startActivity].
- * <p>This class should be configured before [android.app.Application.onCreate] for upcoming
- * activity launches using the split rules statically defined in an XML using
- * [androidx.startup.Initializer] and [Companion.initialize]. See Jetpack App Startup reference
- * for more information.
+ * launching activity in the same task using [android.app.Activity.startActivity].
+ * <p>This class is recommended to be configured in [androidx.startup.Initializer] or
+ * [android.app.Application.onCreate], so that the rules are applied early in the application
+ * startup before any activities complete initialization. The rule updates only apply to future
+ * [android.app.Activity] launches and do not apply to already running activities.
+ * @see initialize
  */
 class SplitController private constructor() {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend.getInstance()
@@ -207,7 +207,8 @@ class SplitController private constructor() {
          * app-provided XML. The rules will be kept for the lifetime of the application process.
          * <p>It's recommended to set the static rules via an [androidx.startup.Initializer], or
          * [android.app.Application.onCreate], so that they are applied early in the application
-         * startup before any activities appear.
+         * startup before any activities complete initialization. The rule updates only apply to
+         * future [android.app.Activity] launches and do not apply to already running activities.
          * <p>Note that it is not necessary to call this function in order to use [SplitController].
          * If the app doesn't have any static rule, it can use [registerRule] to register rules at
          * any time.
