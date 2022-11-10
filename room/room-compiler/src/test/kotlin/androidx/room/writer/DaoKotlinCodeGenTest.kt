@@ -1164,4 +1164,107 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             expectedFilePath = getTestGoldenPath(testName)
         )
     }
+
+    @Test
+    fun queryResultAdapter_map() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [Artist::class, Song::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+              abstract fun getDao(): MyDao
+            }
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM Song JOIN Artist ON Song.artistKey = Artist.artistId")
+                fun getSongsWithArtist(): Map<Song, Artist>
+
+                @Query("SELECT * FROM Song JOIN Artist ON Song.artistKey = Artist.artistId")
+                fun getSongsWithNullableArtist(): Map<Song, Artist?>
+
+                @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
+                fun getArtistWithSongs(): Map<Artist, List<Song>>
+
+                @MapInfo(valueColumn = "songCount")
+                @Query(
+                    "SELECT Artist.*, COUNT(songId) as songCount " +
+                    "FROM Artist JOIN Song ON Artist.artistId = Song.artistKey " +
+                    "GROUP BY artistId"
+                )
+                fun getArtistSongCount(): Map<Artist, Int>
+
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @MapInfo(valueColumn = "songId")
+                @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
+                fun getArtistWithSongIds(): Map<Artist, List<String>>
+            }
+
+            @Entity
+            data class Artist(
+                @PrimaryKey
+                val artistId: String
+            )
+
+            @Entity
+            data class Song(
+                @PrimaryKey
+                val songId: String,
+                val artistKey: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun queryResultAdapter_map_ambiguousIndexAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [User::class, Comment::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+              abstract fun getDao(): MyDao
+            }
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
+                fun getUserCommentMap(): Map<User, List<Comment>>
+
+                @Query(
+                    "SELECT User.id, name, Comment.id, userId, text " +
+                    "FROM User JOIN Comment ON User.id = Comment.userId"
+                )
+                fun getUserCommentMapWithoutStarProjection(): Map<User, List<Comment>>
+            }
+
+            @Entity
+            data class User(
+                @PrimaryKey val id: Int,
+                val name: String,
+            )
+
+            @Entity
+            data class Comment(
+                @PrimaryKey val id: Int,
+                val userId: Int,
+                val text: String,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
 }

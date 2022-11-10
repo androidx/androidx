@@ -73,7 +73,9 @@ import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableMapQueryResultAdapter
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.MapQueryResultAdapter
+import androidx.room.solver.query.result.MultimapQueryResultAdapter
 import androidx.room.solver.query.result.MultimapQueryResultAdapter.Companion.validateMapTypeArgs
+import androidx.room.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
 import androidx.room.solver.query.result.OptionalQueryResultAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.solver.query.result.QueryResultAdapter
@@ -601,21 +603,24 @@ class TypeAdapterStore private constructor(
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
             typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet() ||
             typeMirror.rawType.typeName == LONG_SPARSE_ARRAY.toJavaPoet() ||
-            typeMirror.rawType.typeName == INT_SPARSE_ARRAY
+            typeMirror.rawType.typeName == INT_SPARSE_ARRAY.toJavaPoet()
         ) {
-            val keyTypeArg = when (typeMirror.rawType.typeName) {
-                LONG_SPARSE_ARRAY.toJavaPoet() -> context.processingEnv.requireType(TypeName.LONG)
-                INT_SPARSE_ARRAY -> context.processingEnv.requireType(TypeName.INT)
-                else -> typeMirror.typeArguments[0].extendsBoundOrSelf()
+            val mapType = when (typeMirror.rawType.asTypeName()) {
+                LONG_SPARSE_ARRAY -> MultimapQueryResultAdapter.MapType.LONG_SPARSE
+                INT_SPARSE_ARRAY -> MultimapQueryResultAdapter.MapType.INT_SPARSE
+                ARRAY_MAP -> MultimapQueryResultAdapter.MapType.ARRAY_MAP
+                else -> MultimapQueryResultAdapter.MapType.DEFAULT
+            }
+            val keyTypeArg = when (mapType) {
+                MultimapQueryResultAdapter.MapType.LONG_SPARSE ->
+                    context.processingEnv.requireType(TypeName.LONG)
+                MultimapQueryResultAdapter.MapType.INT_SPARSE ->
+                    context.processingEnv.requireType(TypeName.INT)
+                else ->
+                    typeMirror.typeArguments[0].extendsBoundOrSelf()
             }
 
-            val isSparseArray = when (typeMirror.rawType.typeName) {
-                LONG_SPARSE_ARRAY.toJavaPoet() -> LONG_SPARSE_ARRAY.toJavaPoet()
-                INT_SPARSE_ARRAY -> INT_SPARSE_ARRAY
-                else -> null
-            }
-
-            val mapValueTypeArg = if (isSparseArray != null) {
+            val mapValueTypeArg = if (mapType.isSparseArray()) {
                 typeMirror.typeArguments[0].extendsBoundOrSelf()
             } else {
                 typeMirror.typeArguments[1].extendsBoundOrSelf()
@@ -636,48 +641,53 @@ class TypeAdapterStore private constructor(
             if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
                 // The Map's value type argument is assignable to a Collection, we need to make
                 // sure it is either a list or a set.
-                if (
-                    mapValueTypeArg.isTypeOf(java.util.List::class) ||
-                    mapValueTypeArg.isTypeOf(java.util.Set::class)
-                ) {
-                    val valueTypeArg = mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
-
-                    val keyRowAdapter = findRowAdapter(
-                        typeMirror = keyTypeArg,
-                        query = query,
-                        columnName = mapInfo?.keyColumnName
-                    ) ?: return null
-
-                    val valueRowAdapter = findRowAdapter(
-                        typeMirror = valueTypeArg,
-                        query = query,
-                        columnName = mapInfo?.valueColumnName
-                    ) ?: return null
-
-                    validateMapTypeArgs(
-                        keyTypeArg = keyTypeArg,
-                        valueTypeArg = valueTypeArg,
-                        keyReader = findCursorValueReader(keyTypeArg, null),
-                        valueReader = findCursorValueReader(valueTypeArg, null),
-                        mapInfo = mapInfo,
-                        logger = context.logger
-                    )
-                    return MapQueryResultAdapter(
-                        context = context,
-                        parsedQuery = query,
-                        keyTypeArg = keyTypeArg,
-                        valueTypeArg = valueTypeArg,
-                        keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
-                        valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
-                        valueCollectionType = mapValueTypeArg,
-                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet(),
-                        isSparseArray = isSparseArray
-                    )
-                } else {
-                    context.logger.e(
-                        valueCollectionMustBeListOrSet(mapValueTypeArg.typeName)
-                    )
+                val listTypeRaw = context.COMMON_TYPES.LIST.rawType
+                val setTypeRaw = context.COMMON_TYPES.SET.rawType
+                val collectionValueType = when {
+                    mapValueTypeArg.rawType.isAssignableFrom(listTypeRaw) ->
+                        MultimapQueryResultAdapter.CollectionValueType.LIST
+                    mapValueTypeArg.rawType.isAssignableFrom(setTypeRaw) ->
+                        MultimapQueryResultAdapter.CollectionValueType.SET
+                    else -> {
+                        context.logger.e(
+                            valueCollectionMustBeListOrSet(mapValueTypeArg.typeName)
+                        )
+                        return null
+                    }
                 }
+
+                val valueTypeArg = mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
+
+                val keyRowAdapter = findRowAdapter(
+                    typeMirror = keyTypeArg,
+                    query = query,
+                    columnName = mapInfo?.keyColumnName
+                ) ?: return null
+
+                val valueRowAdapter = findRowAdapter(
+                    typeMirror = valueTypeArg,
+                    query = query,
+                    columnName = mapInfo?.valueColumnName
+                ) ?: return null
+
+                validateMapTypeArgs(
+                    keyTypeArg = keyTypeArg,
+                    valueTypeArg = valueTypeArg,
+                    keyReader = findCursorValueReader(keyTypeArg, null),
+                    valueReader = findCursorValueReader(valueTypeArg, null),
+                    mapInfo = mapInfo,
+                    logger = context.logger
+                )
+                return MapQueryResultAdapter(
+                    context = context,
+                    parsedQuery = query,
+                    keyTypeArg = keyTypeArg,
+                    valueTypeArg = valueTypeArg,
+                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
+                    valueCollectionType = collectionValueType,
+                    mapType = mapType
+                )
             } else {
                 val keyRowAdapter = findRowAdapter(
                     typeMirror = keyTypeArg,
@@ -706,8 +716,7 @@ class TypeAdapterStore private constructor(
                     keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
                     valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                     valueCollectionType = null,
-                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet(),
-                    isSparseArray = isSparseArray
+                    mapType = mapType
                 )
             }
         }

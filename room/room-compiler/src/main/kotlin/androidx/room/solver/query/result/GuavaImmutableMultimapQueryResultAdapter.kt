@@ -43,7 +43,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         val mapVarName = scope.getTmpVar("_mapBuilder")
 
-        scope.builder().apply {
+        scope.builder.apply {
             val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
             if (duplicateColumns.isNotEmpty()) {
                 // There are duplicate columns in the result objects, generate code that provides
@@ -86,6 +86,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
                     dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                         ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
                 val columnNullCheckCodeBlock = getColumnNullCheckCode(
+                    language = language,
                     cursorVarName = cursorVarName,
                     indexVars = valueIndexVars
                 )

@@ -28,11 +28,8 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.CommonTypeNames.STRING
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -104,8 +101,7 @@ object RoomTypeNames {
     val AUTO_MIGRATION_SPEC = XClassName.get("$ROOM_PACKAGE.migration", "AutoMigrationSpec")
     val UUID_UTIL: XClassName =
         XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
-    val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
-        ClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
+    val AMBIGUOUS_COLUMN_RESOLVER = XClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
 }
 
@@ -143,19 +139,18 @@ object AndroidTypeNames {
 object CollectionTypeNames {
     val ARRAY_MAP = XClassName.get(COLLECTION_PACKAGE, "ArrayMap")
     val LONG_SPARSE_ARRAY = XClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
-    val INT_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
-}
-
-object KotlinCollectionTypeNames {
-    val MUTABLE_LIST = List::class.asMutableClassName()
+    val INT_SPARSE_ARRAY = XClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
 object CommonTypeNames {
     val LIST = List::class.asClassName()
+    val MUTABLE_LIST = List::class.asMutableClassName()
     val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
     val MAP = Map::class.asClassName()
+    val MUTABLE_MAP = Map::class.asMutableClassName()
     val HASH_MAP = XClassName.get("java.util", "HashMap")
     val SET = Set::class.asClassName()
+    val MUTABLE_SET = Set::class.asMutableClassName()
     val HASH_SET = XClassName.get("java.util", "HashSet")
     val STRING = String::class.asClassName()
     val INTEGER = ClassName.get("java.lang", "Integer")
@@ -261,6 +256,8 @@ object RoomMemberNames {
     val DB_UTIL_DROP_FTS_SYNC_TRIGGERS = RoomTypeNames.DB_UTIL.packageMember("dropFtsSyncTriggers")
     val CURSOR_UTIL_GET_COLUMN_INDEX =
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
+    val CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW =
+        RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndexOrThrow")
     val ROOM_SQL_QUERY_ACQUIRE =
         RoomTypeNames.ROOM_SQL_QUERY.companionMember("acquire", isJvmStatic = true)
     val ROOM_DATABASE_WITH_TRANSACTION =
@@ -371,41 +368,89 @@ fun Function1TypeSpec(
  * Generates a 2D array literal where the value at `i`,`j` will be produced by `valueProducer.
  * For example:
  * ```
- * DoubleArrayLiteral(TypeName.INT, 2, { _ -> 3 }, { i, j -> i + j })
+ * DoubleArrayLiteral(XTypeName.PRIMITIVE_INT, 2, { _ -> 3 }, { i, j -> i + j })
  * ```
- * will produce:
+ * For Java will produce:
  * ```
  * new int[][] {
- *   { 0, 1, 2 },
- *   { 1, 2, 3 }
+ *   {0, 1, 2},
+ *   {1, 2, 3}
  * }
+ * ```
+ * For Kotlin will produce:
+ * ```
+ * arrayOf(
+ *   intArrayOf(0, 1, 2),
+ *   intArrayOf(1, 2, 3)
+ * )
  * ```
  */
 fun DoubleArrayLiteral(
-    type: TypeName,
+    language: CodeLanguage,
+    type: XTypeName,
     rowSize: Int,
     columnSizeProducer: (Int) -> Int,
     valueProducer: (Int, Int) -> Any
-): CodeBlock = CodeBlock.of(
-    "new $T[][] {$W$L$W}", type,
-    CodeBlock.join(
-        List(rowSize) { i ->
-            CodeBlock.of(
-                "{$W$L$W}",
-                CodeBlock.join(
-                    List(columnSizeProducer(i)) { j ->
-                        CodeBlock.of(
-                            if (type == STRING.toJavaPoet()) S else L,
-                            valueProducer(i, j)
-                        )
-                    },
-                    ",$W"
-                ),
-            )
-        },
-        ",$W"
+): XCodeBlock {
+    val kotlinArrayOf = when (type) {
+        XTypeName.PRIMITIVE_BOOLEAN -> "booleanArrayOf"
+        XTypeName.PRIMITIVE_BYTE -> "byteArrayOf"
+        XTypeName.PRIMITIVE_SHORT -> "shortArrayOf"
+        XTypeName.PRIMITIVE_INT -> "intArrayOf"
+        XTypeName.PRIMITIVE_LONG -> "longArrayOf"
+        XTypeName.PRIMITIVE_CHAR -> "charArrayOf"
+        XTypeName.PRIMITIVE_FLOAT -> "floatArrayOf"
+        XTypeName.PRIMITIVE_DOUBLE -> "doubleArrayOf"
+        else -> "arrayOf"
+    }
+    val space = when (language) {
+        CodeLanguage.JAVA -> "%W"
+        CodeLanguage.KOTLIN -> " "
+    }
+    val outerInit = when (language) {
+        CodeLanguage.JAVA -> XCodeBlock.of(language, "new %T[][] ", type)
+        CodeLanguage.KOTLIN -> XCodeBlock.of(language, "arrayOf")
+    }
+    val innerInit = when (language) {
+        CodeLanguage.JAVA -> XCodeBlock.of(language, "", type)
+        CodeLanguage.KOTLIN -> XCodeBlock.of(language, kotlinArrayOf)
+    }
+    val openingChar = when (language) {
+        CodeLanguage.JAVA -> "{"
+        CodeLanguage.KOTLIN -> "("
+    }
+    val closingChar = when (language) {
+        CodeLanguage.JAVA -> "}"
+        CodeLanguage.KOTLIN -> ")"
+    }
+    return XCodeBlock.of(
+        language,
+        "%L$openingChar%L$closingChar",
+        outerInit,
+        XCodeBlock.builder(language).apply {
+            val joining = Array(rowSize) { i ->
+                XCodeBlock.of(
+                    language,
+                    "%L$openingChar%L$closingChar",
+                    innerInit,
+                    XCodeBlock.builder(language).apply {
+                        val joining = Array(columnSizeProducer(i)) { j ->
+                            XCodeBlock.of(
+                                language,
+                                if (type == CommonTypeNames.STRING) "%S" else "%L",
+                                valueProducer(i, j)
+                            )
+                        }
+                        val placeholders = joining.joinToString(separator = ",$space") { "%L" }
+                        add(placeholders, *joining)
+                    }.build()
+                )
+            }
+            val placeholders = joining.joinToString(separator = ",$space") { "%L" }
+            add(placeholders, *joining)
+        }.build()
     )
-)
+}
 
 /**
  * Code of expression for [Collection.size] in Kotlin, and [java.util.Collection.size] for Java.
