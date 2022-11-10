@@ -6,7 +6,7 @@ package androidx.tv.material {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
-  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") public @interface ExperimentalTvMaterialApi {
+  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterialApi {
   }
 
   public final class TabColors {
