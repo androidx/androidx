@@ -16,5 +16,5 @@
 <compat-config>
     <compat-entrypoint>androidx.privacysandbox.sdkruntime.test.v1.CompatProvider</compat-entrypoint>
     <dex-path>RuntimeEnabledSdks/V1/classes.dex</dex-path>
-    <java-resource-path>RuntimeEnabledSdks/V1/</java-resource-path>
+    <java-resources-root-path>RuntimeEnabledSdks/V1/javaresources</java-resources-root-path>
 </compat-config>

@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -71,7 +70,7 @@ internal class SdkV1 private constructor(
         @SuppressLint("BanUncheckedReflection") // calling method on SandboxedSdkCompat class
         fun build(rawObject: Any): SandboxedSdkCompat {
             val binder = getInterfaceMethod.invoke(rawObject) as IBinder
-            return create(binder)
+            return SandboxedSdkCompat.create(binder)
         }
 
         companion object {
@@ -79,7 +78,7 @@ internal class SdkV1 private constructor(
             fun create(classLoader: ClassLoader?): SandboxedSdkCompatBuilderV1 {
                 val sandboxedSdkCompatClass = Class.forName(
                     SandboxedSdkCompat::class.java.name,
-                    false,
+                    /* initialize = */ false,
                     classLoader
                 )
                 val getInterfaceMethod = sandboxedSdkCompatClass.getMethod("getInterface")
@@ -121,7 +120,7 @@ internal class SdkV1 private constructor(
             fun create(classLoader: ClassLoader?): LoadSdkCompatExceptionBuilderV1 {
                 val loadSdkCompatExceptionClass = Class.forName(
                     LoadSdkCompatException::class.java.name,
-                    false,
+                    /* initialize = */ false,
                     classLoader
                 )
                 val getLoadSdkErrorCodeMethod = loadSdkCompatExceptionClass.getMethod(
@@ -148,7 +147,7 @@ internal class SdkV1 private constructor(
         ): SdkV1 {
             val sdkProviderClass = Class.forName(
                 sdkProviderClassName,
-                false,
+                /* initialize = */ false,
                 classLoader
             )
             val attachContextMethod =
