@@ -13,6 +13,7 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.1.0")
     api("androidx.core:core:1.6.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
+    api('androidx.dynamicanimation:dynamicanimation:1.0.0')
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.kotlinStdlib)
