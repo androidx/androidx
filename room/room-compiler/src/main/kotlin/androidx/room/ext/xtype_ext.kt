@@ -60,7 +60,7 @@ fun XType.isNotByte() = !isByte()
 /**
  * Returns `true` if this is a `ByteBuffer` type.
  */
-fun XType.isByteBuffer(): Boolean = typeName == BYTE_BUFFER
+fun XType.isByteBuffer(): Boolean = asTypeName() == BYTE_BUFFER
 
 /**
  * Returns `true` if this represents a `UUID` type.

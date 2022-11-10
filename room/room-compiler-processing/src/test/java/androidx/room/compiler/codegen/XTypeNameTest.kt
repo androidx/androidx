@@ -124,4 +124,11 @@ class XTypeNameTest {
             ).hashCode()
         ).isEqualTo(expectedClass.hashCode())
     }
+
+    @Test
+    fun rawType() {
+        val expectedRawClass = XClassName.get("foo", "Bar")
+        assertThat(expectedRawClass.parametrizedBy(String::class.asClassName()).rawTypeName)
+            .isEqualTo(expectedRawClass)
+    }
 }

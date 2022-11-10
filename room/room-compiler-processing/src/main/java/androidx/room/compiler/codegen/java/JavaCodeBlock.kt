@@ -88,6 +88,14 @@ internal class JavaCodeBlock(
             actual.endControlFlow()
         }
 
+        override fun indent() = apply {
+            actual.indent()
+        }
+
+        override fun unindent() = apply {
+            actual.unindent()
+        }
+
         override fun build(): XCodeBlock {
             return JavaCodeBlock(actual.build())
         }
