@@ -40,6 +40,9 @@
             <intent-filter>
                 <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
         </receiver>
     </application>
 </manifest>
