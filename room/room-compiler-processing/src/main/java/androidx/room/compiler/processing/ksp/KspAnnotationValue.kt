@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.InternalXAnnotationValue
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
@@ -93,10 +94,26 @@ internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgume
                     !is List<*> -> listOf(result)
                     else -> result
                 }.map {
-                    KspAnnotationValue(env, this, valueType.componentType, valueArgument) { it }
+                    KspAnnotationValue(env, this, valueType.componentType, valueArgument) {
+                        convertValueToType(it, valueType.componentType)
+                    }
                 }
             }
-            else -> result
+            else -> convertValueToType(result, valueType)
         }
+    }
+}
+
+private fun convertValueToType(value: Any?, valueType: XType): Any? {
+    // Unlike Javac, KSP does not convert the value to the type declared on the annotation class's
+    // annotation value automatically so we have to do that conversion manually here.
+    return when (valueType.asTypeName()) {
+        XTypeName.PRIMITIVE_BYTE -> (value as Number).toByte()
+        XTypeName.PRIMITIVE_SHORT -> (value as Number).toShort()
+        XTypeName.PRIMITIVE_INT -> (value as Number).toInt()
+        XTypeName.PRIMITIVE_LONG -> (value as Number).toLong()
+        XTypeName.PRIMITIVE_FLOAT -> (value as Number).toFloat()
+        XTypeName.PRIMITIVE_DOUBLE -> (value as Number).toDouble()
+        else -> value
     }
 }
