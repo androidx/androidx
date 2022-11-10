@@ -1424,4 +1424,32 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 Math.max(start, end), event.getToIndex());
 
     }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final int itemCount = 2;
+        Config config = new Config(HORIZONTAL, false, 3, GAP_HANDLING_NONE).itemCount(itemCount);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getRowCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(itemCount, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final int itemCount = 2;
+        Config config = new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(itemCount);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getColumnCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(itemCount, count);
+    }
 }
