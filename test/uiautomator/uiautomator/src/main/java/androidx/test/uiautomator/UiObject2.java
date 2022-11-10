@@ -211,7 +211,11 @@ public class UiObject2 implements Searchable {
     public UiObject2 findObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
-        return node != null ? new UiObject2(getDevice(), selector, node) : null;
+        if (node == null) {
+            Log.d(TAG, String.format("Node not found with selector: %s.", selector));
+            return null;
+        }
+        return new UiObject2(getDevice(), selector, node);
     }
 
     /**

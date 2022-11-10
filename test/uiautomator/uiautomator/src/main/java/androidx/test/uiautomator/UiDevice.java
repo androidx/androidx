@@ -140,7 +140,11 @@ public class UiDevice implements Searchable {
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 findObject(@NonNull BySelector selector) {
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
-        return node != null ? new UiObject2(this, selector, node) : null;
+        if (node == null) {
+            Log.d(TAG, String.format("Node not found with selector: %s.", selector));
+            return null;
+        }
+        return new UiObject2(this, selector, node);
     }
 
     /** Returns all objects that match the {@code selector} criteria. */
