@@ -184,16 +184,18 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     /**
      * Order of classes is important hence they are a LinkedHashSet not a set.
      */
-    open class ProcessResult(
+    data class ProcessResult(
         val classes: LinkedHashSet<XType>,
         val converters: List<CustomTypeConverterWrapper>,
         val builtInConverterFlags: BuiltInConverterFlags
     ) {
-        object EMPTY : ProcessResult(
-            classes = LinkedHashSet(),
-            converters = emptyList(),
-            builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-        )
+        companion object {
+            val EMPTY = ProcessResult(
+                classes = LinkedHashSet(),
+                converters = emptyList(),
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+            )
+        }
 
         operator fun plus(other: ProcessResult): ProcessResult {
             val newClasses = LinkedHashSet<XType>()

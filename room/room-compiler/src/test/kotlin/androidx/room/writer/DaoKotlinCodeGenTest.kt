@@ -17,21 +17,15 @@
 package androidx.room.writer
 
 import COMMON
-import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.processor.Context
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import loadTestSource
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// Dany's Kotlin codegen test playground (and tests too)
 @RunWith(TestParameterInjector::class)
-class KotlinCodeGenTest {
+class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     val databaseSrc = Source.kotlin(
         "MyDatabase.kt",
@@ -1007,39 +1001,5 @@ class KotlinCodeGenTest {
             sources = listOf(src, dbSource),
             expectedFilePath = getTestGoldenPath(testName)
         )
-    }
-
-    private fun getTestGoldenPath(testName: String): String {
-        return "kotlinCodeGen/$testName.kt"
-    }
-
-    private fun runTest(
-        sources: List<Source>,
-        expectedFilePath: String,
-        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DEFAULT,
-        handler: (XTestInvocation) -> Unit = { }
-    ) {
-        runKspTest(
-            sources = sources,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
-        ) {
-            val databaseFqn = "androidx.room.Database"
-            DatabaseProcessingStep().process(
-                it.processingEnv,
-                mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                it.roundEnv.isProcessingOver
-            )
-            it.assertCompilationResult {
-                this.generatedSource(
-                    loadTestSource(
-                        expectedFilePath,
-                        "MyDao_Impl"
-                    )
-                )
-                this.hasNoWarnings()
-            }
-            handler.invoke(it)
-        }
     }
 }

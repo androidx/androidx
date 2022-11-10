@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
@@ -872,7 +873,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val pojoRowAdapter = listAdapter.rowAdapters.single() as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
             assertThat(
-                pojoRowAdapter.relationCollectors[0].relationTypeName,
+                pojoRowAdapter.relationCollectors[0].relationTypeName.toJavaPoet(),
                 `is`(
                     ParameterizedTypeName.get(
                         ClassName.get(ArrayList::class.java),

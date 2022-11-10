@@ -59,6 +59,9 @@ interface XCodeBlock : TargetLanguage {
         fun nextControlFlow(controlFlow: String, vararg args: Any?): Builder
         fun endControlFlow(): Builder
 
+        fun indent(): Builder
+        fun unindent(): Builder
+
         fun build(): XCodeBlock
 
         companion object {
@@ -71,7 +74,7 @@ interface XCodeBlock : TargetLanguage {
                 name: String,
                 typeName: XTypeName,
                 assignExprFormat: String,
-                vararg assignExprArgs: Any
+                vararg assignExprArgs: Any?
             ) = apply {
                 addLocalVariable(
                     name = name,

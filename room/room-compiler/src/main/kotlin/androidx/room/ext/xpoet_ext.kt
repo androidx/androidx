@@ -115,6 +115,7 @@ object RoomTypeNames {
         XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
         ClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
+    val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
 }
 
 object PagingTypeNames {
@@ -149,8 +150,8 @@ object AndroidTypeNames {
 }
 
 object CollectionTypeNames {
-    val ARRAY_MAP: ClassName = ClassName.get(COLLECTION_PACKAGE, "ArrayMap")
-    val LONG_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
+    val ARRAY_MAP = XClassName.get(COLLECTION_PACKAGE, "ArrayMap")
+    val LONG_SPARSE_ARRAY = XClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
     val INT_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
@@ -162,13 +163,15 @@ object CommonTypeNames {
     val ARRAYS = ClassName.get("java.util", "Arrays")
     val LIST = ClassName.get("java.util", "List")
     val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
-    val MAP = ClassName.get("java.util", "Map")
-    val SET = ClassName.get("java.util", "Set")
+    val MAP = Map::class.asClassName()
+    val HASH_MAP = XClassName.get("java.util", "HashMap")
+    val SET = Set::class.asClassName()
+    val HASH_SET = XClassName.get("java.util", "HashSet")
     val STRING = ClassName.get("java.lang", "String")
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
     val UUID = ClassName.get("java.util", "UUID")
-    val BYTE_BUFFER = ClassName.get("java.nio", "ByteBuffer")
+    val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
 }
 
 object GuavaBaseTypeNames {
@@ -262,6 +265,7 @@ object KotlinTypeNames {
 }
 
 object RoomMemberNames {
+    val DB_UTIL_QUERY = RoomTypeNames.DB_UTIL.packageMember("query")
     val CURSOR_UTIL_GET_COLUMN_INDEX =
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
     val ROOM_SQL_QUERY_ACQUIRE =
@@ -424,6 +428,18 @@ fun ArraySizeExprCode(language: CodeLanguage, varName: String) = XCodeBlock.of(
     when (language) {
         CodeLanguage.JAVA -> "%L.length" // Just `arr.length`
         CodeLanguage.KOTLIN -> "%L.size" // kotlin.Array.size and primitives (e.g. IntArray)
+    },
+    varName
+)
+
+/**
+ * Code of expression for [Map.keys] in Kotlin, and [java.util.Map.keySet] for Java.
+ */
+fun MapKeySetExprCode(language: CodeLanguage, varName: String) = XCodeBlock.of(
+    language,
+    when (language) {
+        CodeLanguage.JAVA -> "%L.keySet()" // java.util.Map.keySet()
+        CodeLanguage.KOTLIN -> "%L.keys" // kotlin.collections.Map.keys
     },
     varName
 )
