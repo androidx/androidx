@@ -17,7 +17,9 @@
 package androidx.privacysandbox.ads.adservices.topics
 
 /**
- * Represents the request for the getTopics API.
+ * Represents the request for the getTopics API (which takes a {@link GetTopicsRequest} and
+ * returns a {@link GetTopicsResponse}.
+ *
  * @param sdkName The Ads SDK name. This must be called by SDKs running outside of the Sandbox.
  * Other clients must not call it.
  * @param shouldRecordObservation whether to record that the caller has observed the topics of the
@@ -25,7 +27,8 @@ package androidx.privacysandbox.ads.adservices.topics
  *     in the next epoch.
  */
 class GetTopicsRequest public constructor(
-    val sdkName: String,
+    val sdkName: String = "",
+    @get:JvmName("shouldRecordObservation")
     val shouldRecordObservation: Boolean = false
 ) {
     override fun toString(): String {
@@ -49,10 +52,9 @@ class GetTopicsRequest public constructor(
     /**
      * Builder for {@link GetTopicsRequest}.
      */
-    public class Builder(
-        private var sdkName: String = "",
+    public class Builder() {
+        private var sdkName: String = ""
         private var shouldRecordObservation: Boolean = true
-    ) {
 
         /**
          * Set Ads Sdk Name.
