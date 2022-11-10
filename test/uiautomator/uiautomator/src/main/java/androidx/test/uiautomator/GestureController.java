@@ -196,11 +196,7 @@ class GestureController {
                 active.add(gesture);
             }
 
-            try {
-                Thread.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
-            } catch (InterruptedException e) {
-                Log.e(TAG, "Interrupted while sleeping between events in performGesture");
-            }
+            SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
         }
     }
 
