@@ -25,8 +25,6 @@ import android.opengl.EGLSurface;
 import android.util.Log;
 import android.view.Surface;
 
-import androidx.annotation.Nullable;
-
 import java.util.Objects;
 
 /**
@@ -54,22 +52,18 @@ public class EglWindowSurface {
      * Creates an EglWindowSurface from a Surface.
      */
     public EglWindowSurface(Surface surface) {
-        this(surface, false);
-    }
-
-    public EglWindowSurface(Surface surface, boolean useHighBitDepth) {
         if (surface == null) {
             throw new NullPointerException();
         }
         mSurface = surface;
 
-        eglSetup(useHighBitDepth);
+        eglSetup();
     }
 
     /**
      * Prepares EGL. We want a GLES 2.0 context and a surface that supports recording.
      */
-    private void eglSetup(boolean useHighBitDepth) {
+    private void eglSetup() {
         mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (Objects.equals(mEGLDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new RuntimeException("unable to get EGL14 display");
@@ -82,30 +76,27 @@ public class EglWindowSurface {
 
         // Configure EGL for recordable and OpenGL ES 2.0.  We want enough RGB bits
         // to minimize artifacts from possible YUV conversion.
-        int eglColorSize = useHighBitDepth ? 10: 8;
-        int eglAlphaSize = useHighBitDepth ? 2: 0;
-        int[] configAttribList = {
-            EGL14.EGL_RED_SIZE, eglColorSize,
-            EGL14.EGL_GREEN_SIZE, eglColorSize,
-            EGL14.EGL_BLUE_SIZE, eglColorSize,
-            EGL14.EGL_ALPHA_SIZE, eglAlphaSize,
-            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-            EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
-            EGL14.EGL_NONE
+        int[] attribList = {
+                EGL14.EGL_RED_SIZE, 8,
+                EGL14.EGL_GREEN_SIZE, 8,
+                EGL14.EGL_BLUE_SIZE, 8,
+                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+                EGLExt.EGL_RECORDABLE_ANDROID, 1,
+                EGL14.EGL_NONE
         };
         int[] numConfigs = new int[1];
-        if (!EGL14.eglChooseConfig(mEGLDisplay, configAttribList, 0, mConfigs, 0, mConfigs.length,
-            numConfigs, 0)) {
+        if (!EGL14.eglChooseConfig(mEGLDisplay, attribList, 0, mConfigs, 0, mConfigs.length,
+                numConfigs, 0)) {
             throw new RuntimeException("unable to find RGB888+recordable ES2 EGL config");
         }
 
         // Configure context for OpenGL ES 2.0.
-        int[] contextAttribList = {
-            EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-            EGL14.EGL_NONE
+        int[] attrib_list = {
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                EGL14.EGL_NONE
         };
         mEGLContext = EGL14.eglCreateContext(mEGLDisplay, mConfigs[0], EGL14.EGL_NO_CONTEXT,
-            contextAttribList, 0);
+                attrib_list, 0);
         checkEglError("eglCreateContext");
         if (mEGLContext == null) {
             throw new RuntimeException("null context");
@@ -197,7 +188,7 @@ public class EglWindowSurface {
     /**
      * Returns the Surface that the MediaCodec receives buffers from.
      */
-    public @Nullable Surface getSurface() {
+    public Surface getSurface() {
         return mSurface;
     }
 
