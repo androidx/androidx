@@ -1346,7 +1346,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public int getRowCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
             @NonNull RecyclerView.State state) {
         if (mOrientation == HORIZONTAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, state.getItemCount());
         }
         return super.getRowCountForAccessibility(recycler, state);
     }
@@ -1355,7 +1355,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public int getColumnCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
             @NonNull RecyclerView.State state) {
         if (mOrientation == VERTICAL) {
-            return mSpanCount;
+            return Math.min(mSpanCount, state.getItemCount());
         }
         return super.getColumnCountForAccessibility(recycler, state);
     }
