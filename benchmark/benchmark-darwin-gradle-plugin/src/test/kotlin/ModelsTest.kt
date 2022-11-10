@@ -17,7 +17,7 @@
 import androidx.benchmark.darwin.gradle.xcode.ActionTestPlanRunSummaries
 import androidx.benchmark.darwin.gradle.xcode.ActionTestSummary
 import androidx.benchmark.darwin.gradle.xcode.ActionsInvocationRecord
-import androidx.benchmark.darwin.gradle.xcode.Models
+import androidx.benchmark.darwin.gradle.xcode.GsonHelpers
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +28,7 @@ class ModelsTest {
     @Test
     fun parseXcResultOutputs() {
         val json = testData(XCRESULT_OUTPUT_JSON).readText()
-        val gson = Models.gson()
+        val gson = GsonHelpers.gson()
         val record = gson.fromJson(json, ActionsInvocationRecord::class.java)
         assertThat(record.actions.testReferences().size).isEqualTo(1)
         assertThat(record.metrics.size()).isEqualTo(1)
@@ -38,7 +38,7 @@ class ModelsTest {
     @Test
     fun parseTestsReferenceOutput() {
         val json = testData(XC_TESTS_REFERENCE_OUTPUT_JSON).readText()
-        val gson = Models.gson()
+        val gson = GsonHelpers.gson()
         val testPlanSummaries = gson.fromJson(json, ActionTestPlanRunSummaries::class.java)
         val testSummaryMetas = testPlanSummaries.testSummaries()
         assertThat(testSummaryMetas.size).isEqualTo(1)
@@ -49,7 +49,7 @@ class ModelsTest {
     @Test
     fun parseTestOutput() {
         val json = testData(XC_TEST_OUTPUT_JSON).readText()
-        val gson = Models.gson()
+        val gson = GsonHelpers.gson()
         val testSummary = gson.fromJson(json, ActionTestSummary::class.java)
         assertThat(testSummary.title()).isNotEmpty()
         assertThat(testSummary.isSuccessful()).isTrue()
