@@ -294,7 +294,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(recycler, state, info);
         // TODO(b/251823537)
-        if (mRecyclerView.mAdapter.getItemCount() > 0) {
+        if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 info.addAction(AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION);
             }
