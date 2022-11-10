@@ -153,7 +153,7 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for condition %s.", timeout, condition));
+        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -166,7 +166,7 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for condition %s.", timeout, condition));
+        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -494,8 +494,8 @@ public class UiObject2 implements Searchable {
      */
     public <U> U clickAndWait(@NonNull EventCondition<U> condition, long timeout) {
         Point center = getVisibleCenter();
-        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for condition %s.",
-                center.x, center.y, timeout, condition));
+        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for %s.", center.x,
+                center.y, timeout, condition));
         return mGestureController.performGestureAndWait(condition, timeout,
                 Gestures.click(center, getDisplayId()));
     }
@@ -511,8 +511,8 @@ public class UiObject2 implements Searchable {
     public <U> U clickAndWait(@NonNull Point point, @NonNull EventCondition<U> condition,
             long timeout) {
         clipToGestureBounds(point);
-        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for condition %s.",
-                point.x, point.y, timeout, condition));
+        Log.d(TAG, String.format("Clicking on (%d, %d) and waiting %dms for %s.", point.x,
+                point.y, timeout, condition));
         return mGestureController.performGestureAndWait(
                 condition, timeout, Gestures.click(point, getDisplayId()));
     }
