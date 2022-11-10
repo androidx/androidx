@@ -25,7 +25,6 @@ import android.os.SystemClock
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceHolder
-import androidx.hardware.SyncFence
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -407,13 +406,6 @@ class SurfaceControlWrapperTest {
                 Color.RED == bitmap.getPixel(coord[0], coord[1])
             }
         }
-    }
-
-    @Test
-    fun testExtractSyncFenceFd() {
-        val fileDescriptor = 7
-        val syncFence = SyncFence(7)
-        assertEquals(fileDescriptor, JniBindings.nExtractFenceFd(syncFence))
     }
 
     @Test
