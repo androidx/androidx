@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.junit.Test;
 
@@ -324,6 +325,7 @@ public class AppSearchStatsTest {
                 .setGetOldSchemaLatencyMillis(getOldSchemaLatencyMillis)
                 .setGetObserverLatencyMillis(getObserverLatencyMillis)
                 .setPreparingChangeNotificationLatencyMillis(sendNotificationLatencyMillis)
+                .setSchemaMigrationCallType(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA)
                 .build();
 
         assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -360,35 +362,54 @@ public class AppSearchStatsTest {
         assertThat(sStats.getGetObserverLatencyMillis()).isEqualTo(getObserverLatencyMillis);
         assertThat(sStats.getPreparingChangeNotificationLatencyMillis())
                 .isEqualTo(sendNotificationLatencyMillis);
+        assertThat(sStats.getSchemaMigrationCallType())
+                .isEqualTo(SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
     }
 
     @Test
     public void testAppSearchStats_SchemaMigrationStats() {
-        int getSchemaLatency = 1;
-        int queryAndTransformLatency = 2;
-        int firstSetSchemaLatency = 3;
-        int secondSetSchemaLatency = 4;
-        int saveDocumentLatency = 5;
-        int migratedDocumentCount = 6;
-        int savedDocumentCount = 7;
-        SchemaMigrationStats sStats = new SchemaMigrationStats.Builder()
+        int executorAcquisitionLatencyMillis = 1;
+        int getSchemaLatency = 2;
+        int queryAndTransformLatency = 3;
+        int firstSetSchemaLatency = 4;
+        boolean isFirstSetSchemaSuccess = true;
+        int secondSetSchemaLatency = 5;
+        int saveDocumentLatency = 6;
+        int migratedDocumentCount = 7;
+        int savedDocumentCount = 8;
+        int migrationFailureCount = 9;
+        SchemaMigrationStats sStats = new SchemaMigrationStats.Builder(
+                TEST_PACKAGE_NAME, TEST_DATA_BASE)
+                .setStatusCode(TEST_STATUS_CODE)
+                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
+                .setExecutorAcquisitionLatencyMillis(executorAcquisitionLatencyMillis)
                 .setGetSchemaLatencyMillis(getSchemaLatency)
                 .setQueryAndTransformLatencyMillis(queryAndTransformLatency)
                 .setFirstSetSchemaLatencyMillis(firstSetSchemaLatency)
+                .setIsFirstSetSchemaSuccess(isFirstSetSchemaSuccess)
                 .setSecondSetSchemaLatencyMillis(secondSetSchemaLatency)
                 .setSaveDocumentLatencyMillis(saveDocumentLatency)
-                .setMigratedDocumentCount(migratedDocumentCount)
-                .setSavedDocumentCount(savedDocumentCount)
+                .setTotalNeedMigratedDocumentCount(migratedDocumentCount)
+                .setTotalSuccessMigratedDocumentCount(savedDocumentCount)
+                .setMigrationFailureCount(migrationFailureCount)
                 .build();
 
+        assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
+        assertThat(sStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
+        assertThat(sStats.getStatusCode()).isEqualTo(TEST_STATUS_CODE);
+        assertThat(sStats.getTotalLatencyMillis()).isEqualTo(
+                TEST_TOTAL_LATENCY_MILLIS);
+        assertThat(sStats.getExecutorAcquisitionLatencyMillis())
+                .isEqualTo(executorAcquisitionLatencyMillis);
         assertThat(sStats.getGetSchemaLatencyMillis()).isEqualTo(getSchemaLatency);
         assertThat(sStats.getQueryAndTransformLatencyMillis()).isEqualTo(queryAndTransformLatency);
         assertThat(sStats.getFirstSetSchemaLatencyMillis()).isEqualTo(firstSetSchemaLatency);
+        assertThat(sStats.isFirstSetSchemaSuccess()).isEqualTo(isFirstSetSchemaSuccess);
         assertThat(sStats.getSecondSetSchemaLatencyMillis()).isEqualTo(secondSetSchemaLatency);
         assertThat(sStats.getSaveDocumentLatencyMillis()).isEqualTo(saveDocumentLatency);
-        assertThat(sStats.getMigratedDocumentCount()).isEqualTo(migratedDocumentCount);
-        assertThat(sStats.getSavedDocumentCount()).isEqualTo(
-                savedDocumentCount);
+        assertThat(sStats.getTotalNeedMigratedDocumentCount()).isEqualTo(migratedDocumentCount);
+        assertThat(sStats.getTotalSuccessMigratedDocumentCount()).isEqualTo(savedDocumentCount);
+        assertThat(sStats.getMigrationFailureCount()).isEqualTo(migrationFailureCount);
     }
 
     @Test

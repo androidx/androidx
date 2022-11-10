@@ -600,8 +600,9 @@ public final class AppSearchSchema {
                 // TODO(b/204333391): Change to checkArgumentInRange once verbatim is supported
                 if (tokenizerType != TOKENIZER_TYPE_NONE && tokenizerType != TOKENIZER_TYPE_PLAIN
                         && tokenizerType != TOKENIZER_TYPE_RFC822) {
-                    throw new IllegalArgumentException("Tokenizer value " + tokenizerType + " is "
-                            + "out of range. Valid values are TOKENIZER_TYPE_NONE, "
+                    throw new IllegalArgumentException("Tokenizer value "
+                            + tokenizerType
+                            + " is out of range. Valid values are TOKENIZER_TYPE_NONE, "
                             + "TOKENIZER_TYPE_PLAIN, and TOKENIZER_TYPE_RFC822");
                 }
                 mTokenizerType = tokenizerType;
