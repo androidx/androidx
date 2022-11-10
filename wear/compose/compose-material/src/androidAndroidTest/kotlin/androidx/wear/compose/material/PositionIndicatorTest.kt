@@ -106,6 +106,15 @@ public class PositionIndicatorTest {
 
     @Test
     fun scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize() {
+        scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSizeDp)
+    }
+
+    @Test
+    fun scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSizeForZeroSizeItems() {
+        scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(0.dp)
+    }
+
+    private fun scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSize: Dp) {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
@@ -121,7 +130,7 @@ public class PositionIndicatorTest {
                 autoCentering = null
             ) {
                 items(3) {
-                    Box(Modifier.requiredSize(itemSizeDp))
+                    Box(Modifier.requiredSize(itemSize))
                 }
             }
             PositionIndicator(
@@ -444,6 +453,15 @@ public class PositionIndicatorTest {
 
     @Test
     fun lazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize() {
+        lazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSizeDp)
+    }
+
+    @Test
+    fun lazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSizeForZeroSizeItems() {
+        lazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(0.dp)
+    }
+
+    private fun lazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSize: Dp) {
         lateinit var state: LazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
@@ -458,7 +476,7 @@ public class PositionIndicatorTest {
                     .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
             ) {
                 items(3) {
-                    Box(Modifier.requiredSize(itemSizeDp))
+                    Box(Modifier.requiredSize(itemSize))
                 }
             }
             PositionIndicator(
@@ -759,6 +777,15 @@ public class PositionIndicatorTest {
 
     @Test
     fun scrollableColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize() {
+        scrollableColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSizeDp)
+    }
+
+    @Test
+    fun scrollableColumnNotLargeEnoughToScrollGivesCorrectPositionAndSizeForZeroSizeItems() {
+        scrollableColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(0.dp)
+    }
+
+    private fun scrollableColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize(itemSize: Dp) {
         lateinit var state: ScrollState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
@@ -772,9 +799,9 @@ public class PositionIndicatorTest {
                     .verticalScroll(state = state),
                 verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
             ) {
-                Box(Modifier.requiredSize(itemSizeDp))
-                Box(Modifier.requiredSize(itemSizeDp))
-                Box(Modifier.requiredSize(itemSizeDp))
+                Box(Modifier.requiredSize(itemSize))
+                Box(Modifier.requiredSize(itemSize))
+                Box(Modifier.requiredSize(itemSize))
             }
             PositionIndicator(
                 state = positionIndicatorState,
