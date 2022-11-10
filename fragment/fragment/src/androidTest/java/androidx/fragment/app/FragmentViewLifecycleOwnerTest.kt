@@ -18,6 +18,7 @@ package androidx.fragment.app
 
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.app.test.TestViewModel
+import androidx.fragment.app.test.ViewModelActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
@@ -126,6 +127,48 @@ class FragmentViewLifecycleOwnerTest {
             assertThat(
                 ViewModelProvider(recreatedViewLifecycleOwner)["test", TestViewModel::class.java]
             ).isSameInstanceAs(creationViewModel)
+        }
+    }
+
+    @Test
+    fun testCreateViewModelViaExtrasSavedState() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment = StrictViewFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "fragment")
+                .commit()
+            executePendingTransactions()
+
+            val viewLifecycleOwner = (fragment.viewLifecycleOwner as FragmentViewLifecycleOwner)
+
+            val creationViewModel = ViewModelProvider(
+                viewLifecycleOwner.viewModelStore,
+                viewLifecycleOwner.defaultViewModelProviderFactory,
+                viewLifecycleOwner.defaultViewModelCreationExtras
+            )["test", ViewModelActivity.TestSavedStateViewModel::class.java]
+
+            creationViewModel.savedStateHandle["key"] = "value"
+
+            recreate()
+
+            val recreatedViewLifecycleOwner = withActivity {
+                supportFragmentManager.findFragmentByTag("fragment")?.viewLifecycleOwner
+                    as FragmentViewLifecycleOwner
+            }
+
+            val recreateViewModel = ViewModelProvider(recreatedViewLifecycleOwner)[
+                "test", ViewModelActivity.TestSavedStateViewModel::class.java
+            ]
+
+            assertThat(recreateViewModel).isSameInstanceAs(creationViewModel)
+
+            val value: String? = recreateViewModel.savedStateHandle["key"]
+            assertThat(value).isEqualTo("value")
         }
     }
 
