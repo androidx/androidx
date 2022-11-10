@@ -131,6 +131,16 @@ internal class TestExampleCanvasAnalogWatchFaceService(
         )
         return watchFace
     }
+
+    companion object {
+        var systemTimeMillis = 1000000000L
+    }
+
+    override fun getSystemTimeProvider() = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = systemTimeMillis
+
+        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+    }
 }
 
 internal class TestExampleOpenGLBackgroundInitWatchFaceService(
