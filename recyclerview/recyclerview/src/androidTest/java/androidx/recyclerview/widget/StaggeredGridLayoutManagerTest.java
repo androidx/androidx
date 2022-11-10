@@ -48,6 +48,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
@@ -1451,5 +1452,18 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 mRecyclerView.mState);
 
         assertEquals(itemCount, count);
+    }
+
+    @Test
+    public void onInitializeAccessibilityNodeInfo() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE));
+        waitFirstLayout();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(
+                        mRecyclerView.mRecycler, mRecyclerView.mState, info));
+        assertEquals(info.getClassName(),
+                "androidx.recyclerview.widget.StaggeredGridLayoutManager");
     }
 }

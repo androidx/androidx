@@ -1291,6 +1291,16 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // Setting the classname allows accessibility services to set a role for staggered grids
+        // and ensures that they are treated distinctly from canonical grids with clear row/column
+        // semantics.
+        info.setClassName("androidx.recyclerview.widget.StaggeredGridLayoutManager");
+    }
+
+    @Override
     public void onInitializeAccessibilityNodeInfoForItem(@NonNull RecyclerView.Recycler recycler,
             @NonNull RecyclerView.State state, @NonNull View host,
             @NonNull AccessibilityNodeInfoCompat info) {
