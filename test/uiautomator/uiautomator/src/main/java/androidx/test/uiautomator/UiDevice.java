@@ -165,7 +165,7 @@ public class UiDevice implements Searchable {
      * was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for condition %s.", timeout, condition));
+        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
 
@@ -180,8 +180,8 @@ public class UiDevice implements Searchable {
     public <U> U performActionAndWait(@NonNull Runnable action,
             @NonNull EventCondition<U> condition, long timeout) {
         AccessibilityEvent event = null;
-        Log.d(TAG, String.format("Performing action %s and waiting %dms for condition %s.",
-                action, timeout, condition));
+        Log.d(TAG, String.format("Performing action %s and waiting %dms for %s.", action, timeout,
+                condition));
         try {
             event = getUiAutomation().executeAndWaitForEvent(
                 action, new EventForwardingFilter(condition), timeout);
