@@ -57,7 +57,7 @@ class BundledEmojiListLoaderTest {
         BundledEmojiListLoader.load(context)
 
         val cacheFileName = fileCache.emojiPickerCacheDir.listFiles()!![0].listFiles()!![0].name
-        val emptyDefaultValue = listOf<BundledEmojiListLoader.EmojiData>()
+        val emptyDefaultValue = listOf<EmojiViewItem>()
         // Read from cache instead of using default value
         var output = fileCache.getOrPut(cacheFileName) { emptyDefaultValue }
         assertTrue(output.isNotEmpty())

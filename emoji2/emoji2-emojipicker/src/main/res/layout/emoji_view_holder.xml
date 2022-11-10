@@ -14,12 +14,18 @@
   limitations under the License.
   -->
 
-<resources>
-    <attr name="EmojiPickerColorCategoryEmptyHintText" format="color" />
-    <attr name="EmojiPickerColorCategoryLabelText" format="color" />
-    <attr name="EmojiPickerColorHeaderIcon" format="color" />
-    <attr name="EmojiPickerColorHeaderIconSelected" format="color" />
-    <attr name="EmojiPickerStyleCategoryEmptyHintText" format="reference" />
-    <attr name="EmojiPickerStyleCategoryLabelText" format="reference" />
-    <attr name="EmojiPickerStyleHeaderIcon" format="reference" />
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_height="0dp">
+
+    <androidx.emoji2.emojipicker.EmojiView
+        android:id="@+id/emoji_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ripple_emoji_view"
+        android:importantForAccessibility="yes"
+        android:textSize="30dp"
+        tools:ignore="SpUsage" />
+</FrameLayout>

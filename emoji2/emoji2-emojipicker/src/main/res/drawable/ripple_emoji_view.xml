@@ -14,12 +14,12 @@
   limitations under the License.
   -->
 
-<resources>
-    <attr name="EmojiPickerColorCategoryEmptyHintText" format="color" />
-    <attr name="EmojiPickerColorCategoryLabelText" format="color" />
-    <attr name="EmojiPickerColorHeaderIcon" format="color" />
-    <attr name="EmojiPickerColorHeaderIconSelected" format="color" />
-    <attr name="EmojiPickerStyleCategoryEmptyHintText" format="reference" />
-    <attr name="EmojiPickerStyleCategoryLabelText" format="reference" />
-    <attr name="EmojiPickerStyleHeaderIcon" format="reference" />
-</resources>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:colorControlHighlight">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+</ripple>

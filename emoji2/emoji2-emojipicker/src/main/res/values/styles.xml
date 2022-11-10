@@ -27,4 +27,8 @@
     <style name="EmojiPickerCategoryContainer">
         <item name="android:layout_marginBottom">8dp</item>
     </style>
+
+    <style name="EmojiPickerStyleCategoryLabelText">
+        <item name="android:textColor">?attr/EmojiPickerColorCategoryLabelText</item>
+    </style>
 </resources>

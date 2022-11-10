@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.emoji2.emojipicker.BundledEmojiListLoader
+import androidx.emoji2.emojipicker.EmojiViewItem
 import java.io.File
 
 /**
@@ -52,8 +53,8 @@ internal class FileCache(context: Context) {
     /** Get cache for a given file name, or write to a new file using the [defaultValue] factory. */
     internal fun getOrPut(
         key: String,
-        defaultValue: () -> List<BundledEmojiListLoader.EmojiData>
-    ): List<BundledEmojiListLoader.EmojiData> {
+        defaultValue: () -> List<EmojiViewItem>
+    ): List<EmojiViewItem> {
         val targetDir = File(emojiPickerCacheDir, currentProperty)
         // No matching cache folder for current property, clear stale cache directory if any
         if (!targetDir.exists()) {
@@ -65,19 +66,19 @@ internal class FileCache(context: Context) {
         return readFrom(targetFile) ?: writeTo(targetFile, defaultValue)
     }
 
-    private fun readFrom(targetFile: File): List<BundledEmojiListLoader.EmojiData>? {
+    private fun readFrom(targetFile: File): List<EmojiViewItem>? {
         if (!targetFile.isFile)
             return null
         return targetFile.bufferedReader()
             .useLines { it.toList() }
             .map { it.split(",") }
-            .map { BundledEmojiListLoader.EmojiData(it.first(), it.drop(1)) }
+            .map { EmojiViewItem(it.first(), it.drop(1)) }
     }
 
     private fun writeTo(
         targetFile: File,
-        defaultValue: () -> List<BundledEmojiListLoader.EmojiData>
-    ): List<BundledEmojiListLoader.EmojiData> {
+        defaultValue: () -> List<EmojiViewItem>
+    ): List<EmojiViewItem> {
         val data = defaultValue.invoke()
         targetFile.bufferedWriter()
             .use { out ->

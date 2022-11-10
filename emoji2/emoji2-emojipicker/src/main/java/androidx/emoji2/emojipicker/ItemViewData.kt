@@ -16,18 +16,23 @@
 
 package androidx.emoji2.emojipicker
 
-/** A utility class to hold various constants used by the Emoji Picker library.  */
-internal object EmojiPickerConstants {
+import androidx.annotation.IntRange
 
-    // The default number of body columns.
-    const val DEFAULT_BODY_COLUMNS = 9
+/** Value (immutable) classes for Emoji Picker.*/
+internal abstract class ItemViewData(val id: Long) {
+    abstract val type: Int
 
-    // The default number of body rows.
-    const val DEFAULT_BODY_ROWS = 7.5f
+    override fun hashCode(): Int {
+        return (id xor (id ushr 32)).toInt()
+    }
 
-    // The default minimal number of each body row.
-    const val MIN_ROWS_PER_CATEGORY = 1
-
-    // The default recent category index number.
-    const val RECENT_CATEGORY_INDEX = 0
+    companion object {
+        fun calculateId(
+            type: Int,
+            @IntRange(from = 0, to = 256) categoryIndex: Int,
+            @IntRange(from = 0) idInCategory: Int
+        ): Long {
+            return type.toLong() shl 60 or (categoryIndex.toLong() shl 32) or idInCategory.toLong()
+        }
+    }
 }
