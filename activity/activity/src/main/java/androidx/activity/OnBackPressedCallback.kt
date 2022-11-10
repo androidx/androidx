@@ -37,11 +37,11 @@ import java.util.concurrent.CopyOnWriteArrayList
  * [OnBackPressedDispatcher] it has been added to. It is strongly recommended
  * to instead disable this callback to handle temporary changes in state.
  *
- * @param isEnabled The default enabled state for this callback.
+ * @param enabled The default enabled state for this callback.
  *
  * @see ComponentActivity.getOnBackPressedDispatcher
  */
-abstract class OnBackPressedCallback(isEnabled: Boolean) {
+abstract class OnBackPressedCallback(enabled: Boolean) {
     /**
      * The enabled state of the callback. Only when this callback
      * is enabled will it receive callbacks to [handleOnBackPressed].
@@ -54,7 +54,7 @@ abstract class OnBackPressedCallback(isEnabled: Boolean) {
     @get:MainThread
     @set:MainThread
     @set:OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-    var isEnabled: Boolean = isEnabled
+    var isEnabled: Boolean = enabled
         set(value) {
             field = value
             if (enabledConsumer != null) {
