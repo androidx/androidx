@@ -204,6 +204,24 @@ class KspFilerTest {
             fileDependencies[fileName] = dependencies
             return OutputStream.nullOutputStream()
         }
+
+        override fun associateByPath(
+            sources: List<KSFile>,
+            path: String,
+            extensionName: String
+        ) {
+            // no-op for the sake of dependency tracking.
+        }
+
+        override fun createNewFileByPath(
+            dependencies: Dependencies,
+            path: String,
+            extensionName: String
+        ): OutputStream {
+            val fileName = path.split(File.separator).last()
+            fileDependencies[fileName] = dependencies
+            return OutputStream.nullOutputStream()
+        }
     }
 
     companion object {
