@@ -14,5 +14,10 @@
  * limitations under the License.
  */
 
-/** Provides compatibility APIs concerning location altitudes. */
-package androidx.core.location.altitude;
+/** @hide */
+@RestrictTo(LIBRARY)
+package androidx.core.location.altitude.impl.db;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import androidx.annotation.RestrictTo;
