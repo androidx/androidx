@@ -26,10 +26,10 @@ import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.webkit.WebView;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
@@ -188,17 +188,17 @@ public class CommitContentSupport extends Activity {
     }
 
     /**
-     * Creates a new instance of {@link EditText} that is configured to specify the given content
-     * MIME types to {@link EditorInfo#contentMimeTypes} so that developers
+     * Creates a new instance of {@link AppCompatEditText} that is configured to specify the given
+     * content MIME types to {@link EditorInfo#contentMimeTypes} so that developers
      * can locally test how the current input method behaves for such content MIME types.
      *
      * @param contentMimeTypes A {@link String} array that indicates the supported content MIME
      *                         types
-     * @return a new instance of {@link EditText}, which specifies
+     * @return a new instance of {@link AppCompatEditText}, which specifies
      * {@link EditorInfo#contentMimeTypes} with the given content
      * MIME types
      */
-    private EditText createEditTextWithContentMimeTypes(String[] contentMimeTypes) {
+    private AppCompatEditText createEditTextWithContentMimeTypes(String[] contentMimeTypes) {
         final CharSequence hintText;
         final String[] mimeTypes;  // our own copy of contentMimeTypes.
         if (contentMimeTypes == null || contentMimeTypes.length == 0) {
@@ -208,7 +208,7 @@ public class CommitContentSupport extends Activity {
             hintText = "MIME: " + Arrays.toString(contentMimeTypes);
             mimeTypes = Arrays.copyOf(contentMimeTypes, contentMimeTypes.length);
         }
-        EditText exitText = new EditText(this) {
+        AppCompatEditText exitText = new AppCompatEditText(this) {
             @Override
             public InputConnection onCreateInputConnection(EditorInfo editorInfo) {
                 final InputConnection ic = super.onCreateInputConnection(editorInfo);
