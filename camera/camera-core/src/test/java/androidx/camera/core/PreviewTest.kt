@@ -249,6 +249,18 @@ class PreviewTest {
     }
 
     @Test
+    fun createPreviewWithProcessor_mirroringIsTrue() {
+        // Arrange.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+
+        // Act: create pipeline
+        val preview = createPreview(processor)
+
+        // Assert: preview is mirrored by default.
+        assertThat(preview.getCameraSurface().mirroring).isTrue()
+    }
+
+    @Test
     fun setTargetRotationWithProcessor_rotationChangesOnSettableSurface() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
@@ -259,20 +271,20 @@ class PreviewTest {
         preview.targetRotation = Surface.ROTATION_0
         shadowOf(getMainLooper()).idle()
         // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
-        assertThat(preview.getSurfaceRotationDegrees()).isEqualTo(0)
+        assertThat(preview.getCameraSurface().rotationDegrees).isEqualTo(0)
 
         // Act: update target rotation again.
         preview.targetRotation = Surface.ROTATION_180
         shadowOf(getMainLooper()).idle()
         // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
-        assertThat(preview.getSurfaceRotationDegrees()).isEqualTo(180)
+        assertThat(preview.getCameraSurface().rotationDegrees).isEqualTo(180)
 
         // Clean up
         preview.onDetached()
     }
 
-    private fun Preview.getSurfaceRotationDegrees(): Int {
-        return (this.sessionConfig.surfaces.single() as SettableSurface).rotationDegrees
+    private fun Preview.getCameraSurface(): SettableSurface {
+        return this.sessionConfig.surfaces.single() as SettableSurface
     }
 
     @Test

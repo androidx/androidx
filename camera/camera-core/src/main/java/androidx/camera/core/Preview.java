@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM;
+import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
@@ -314,7 +314,8 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(camera, USE_SURFACE_TEXTURE_TRANSFORM, mSurfaceProcessor);
+        mNode = new SurfaceProcessorNode(
+                camera, APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceProcessor);
         SettableSurface cameraSurface = new SettableSurface(
                 CameraEffect.PREVIEW,
                 resolution,
@@ -323,7 +324,7 @@ public final class Preview extends UseCase {
                 /*hasEmbeddedTransform=*/true,
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
-                /*mirroring=*/false,
+                /*mirroring=*/true,
                 this::notifyReset);
         SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
         SurfaceEdge outputEdge = mNode.transform(inputEdge);
