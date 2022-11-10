@@ -36,7 +36,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
     private static final String TAG = "MultiPointerPredictor";
     private static final boolean DEBUG_PREDICTION = Log.isLoggable(TAG, Log.DEBUG);
 
-    private SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
+    private final SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
     private int mPredictionTargetMs = 0;
     private int mReportRateMs = 0;
 

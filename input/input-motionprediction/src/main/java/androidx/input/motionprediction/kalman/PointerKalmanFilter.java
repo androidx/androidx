@@ -30,14 +30,14 @@ import androidx.input.motionprediction.kalman.matrix.Matrix;
  */
 @RestrictTo(LIBRARY)
 public class PointerKalmanFilter {
-    private KalmanFilter mXKalman;
-    private KalmanFilter mYKalman;
-    private KalmanFilter mPKalman;
+    private final KalmanFilter mXKalman;
+    private final KalmanFilter mYKalman;
+    private final KalmanFilter mPKalman;
 
-    private DVector2 mPosition = new DVector2();
-    private DVector2 mVelocity = new DVector2();
-    private DVector2 mAcceleration = new DVector2();
-    private DVector2 mJank = new DVector2();
+    private final DVector2 mPosition = new DVector2();
+    private final DVector2 mVelocity = new DVector2();
+    private final DVector2 mAcceleration = new DVector2();
+    private final DVector2 mJank = new DVector2();
     private double mPressure = 0;
     private double mPressureChange = 0;
 
@@ -46,9 +46,9 @@ public class PointerKalmanFilter {
 
     private int mNumIterations = 0;
 
-    private Matrix mNewX = new Matrix(1, 1);
-    private Matrix mNewY = new Matrix(1, 1);
-    private Matrix mNewP = new Matrix(1, 1);
+    private final Matrix mNewX = new Matrix(1, 1);
+    private final Matrix mNewY = new Matrix(1, 1);
+    private final Matrix mNewP = new Matrix(1, 1);
 
     /**
      * @param sigmaProcess lower value = more filtering

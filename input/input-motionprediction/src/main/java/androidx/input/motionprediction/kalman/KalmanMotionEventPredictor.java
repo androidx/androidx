@@ -30,11 +30,9 @@ import androidx.input.motionprediction.MotionEventPredictor;
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
-    private MultiPointerPredictor mMultiPointerPredictor;
-    private boolean mClosed = false;
+    private MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
 
     public KalmanMotionEventPredictor() {
-        mMultiPointerPredictor = new MultiPointerPredictor();
         // 1 may seem arbitrary, but this basically tells the predictor to
         // just predict the next MotionEvent.
         // This will need to change as we want to build a prediction depending
@@ -44,13 +42,16 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
 
     @Override
     public void record(@NonNull MotionEvent event) {
+        if (mMultiPointerPredictor == null) {
+            return;
+        }
         mMultiPointerPredictor.onTouchEvent(event);
     }
 
     @Nullable
     @Override
     public MotionEvent predict() {
-        if (mClosed) {
+        if (mMultiPointerPredictor == null) {
             return null;
         }
         return mMultiPointerPredictor.predict();
@@ -58,6 +59,6 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
 
     @Override
     public void close() {
-        mClosed = true;
+        mMultiPointerPredictor = null;
     }
 }
