@@ -95,6 +95,15 @@ interface XProcessingEnv {
     fun getDeclaredType(type: XTypeElement, vararg types: XType): XType
 
     /**
+     * Returns an [XType] representing a wildcard type.
+     *
+     * In Java source, this represents types like `?`, `? extends T`, and `? super T`.
+     *
+     * In Kotlin source, this represents types like `*`, `out T`, and `in T`.
+     */
+    fun getWildcardType(consumerSuper: XType? = null, producerExtends: XType? = null): XType
+
+    /**
      * Return an [XArrayType] that has [type] as the [XArrayType.componentType].
      */
     fun getArrayType(type: XType): XArrayType

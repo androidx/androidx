@@ -175,9 +175,7 @@ internal abstract class KspType(
         if (env.resolver.isJavaRawType(ksType)) {
             emptyList()
         } else {
-            ksType.arguments.mapIndexed { index, arg ->
-                env.wrap(ksType.declaration.typeParameters[index], arg)
-            }
+            ksType.arguments.map { env.wrap(it) }
         }
     }
 
