@@ -30,7 +30,6 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
@@ -233,22 +232,11 @@ class KspFieldElementTest {
             val element = invocation.processingEnv.requireTypeElement(input.qName)
             input.expected.forEach { (name, modifiers) ->
                 val field = element.getField(name)
-                // b/250567151: Remove exception for KSP + classes
-                if (invocation.isKsp &&
-                        (element as KspTypeElement).declaration.origin == Origin.KOTLIN_LIB &&
-                        name.lowercase().contains("lateinit")) {
-                    assertWithMessage("${input.qName}:$name")
-                        .that(field.modifiers)
-                        .containsExactlyElementsIn(
-                            listOf(PRIVATE)
-                        )
-                } else {
-                    assertWithMessage("${input.qName}:$name")
-                        .that(field.modifiers)
-                        .containsExactlyElementsIn(
-                            modifiers
-                        )
-                }
+                assertWithMessage("${input.qName}:$name")
+                    .that(field.modifiers)
+                    .containsExactlyElementsIn(
+                        modifiers
+                    )
                 assertThat(field.enclosingElement).isEqualTo(element)
             }
         }
