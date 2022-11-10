@@ -87,6 +87,8 @@ dependencies {
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
     debugImplementation(libs.testCore)
+    // explicitly add runner here to force consistency with androidTestImplementation
+    debugImplementation(libs.testRunner)
 
     // Testing framework
     androidTestImplementation(libs.testCore)
