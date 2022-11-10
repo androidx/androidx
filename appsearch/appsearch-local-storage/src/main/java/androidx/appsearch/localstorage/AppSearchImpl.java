@@ -474,9 +474,15 @@ public final class AppSearchImpl implements Closeable {
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            if (setSchemaStatsBuilder != null) {
+                setSchemaStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             if (mObserverManager.isPackageObserved(packageName)) {
                 return doSetSchemaWithChangeNotificationLocked(
                         packageName,
@@ -521,12 +527,21 @@ public final class AppSearchImpl implements Closeable {
         // whether each registered observer can access each type. Once VisibilityStore is updated
         // by the setSchema call, the information of which observers could see which types will be
         // lost.
+        long getOldSchemaStartTimeMillis = SystemClock.elapsedRealtime();
         GetSchemaResponse oldSchema = getSchema(
                 packageName,
                 databaseName,
                 // A CallerAccess object for internal use that has local access to this database.
                 new CallerAccess(/*callingPackageName=*/packageName));
+        long getOldSchemaEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setIsPackageObserved(true)
+                    .setGetOldSchemaLatencyMillis(
+                            (int) (getOldSchemaEndTimeMillis - getOldSchemaStartTimeMillis));
+        }
 
+        int getOldSchemaObserverStartTimeMillis =
+                (int) (SystemClock.elapsedRealtime() - getOldSchemaEndTimeMillis);
         // Cache some lookup tables to help us work with the old schema
         Set<AppSearchSchema> oldSchemaTypes = oldSchema.getSchemas();
         Map<String, AppSearchSchema> oldSchemaNameToType = new ArrayMap<>(oldSchemaTypes.size());
@@ -546,6 +561,8 @@ public final class AppSearchImpl implements Closeable {
                             mVisibilityStoreLocked,
                             mVisibilityCheckerLocked));
         }
+        int getOldSchemaObserverLatencyMillis =
+                (int) (SystemClock.elapsedRealtime() - getOldSchemaObserverStartTimeMillis);
 
         // Apply the new schema
         InternalSetSchemaResponse internalSetSchemaResponse = doSetSchemaNoChangeNotificationLocked(
@@ -563,6 +580,7 @@ public final class AppSearchImpl implements Closeable {
             return internalSetSchemaResponse;
         }
 
+        long getNewSchemaObserverStartTimeMillis = SystemClock.elapsedRealtime();
         // Cache some lookup tables to help us work with the new schema
         Map<String, AppSearchSchema> newSchemaNameToType = new ArrayMap<>(schemas.size());
         // Maps unprefixed schema name to the set of listening packages that have visibility into
@@ -581,7 +599,14 @@ public final class AppSearchImpl implements Closeable {
                             mVisibilityStoreLocked,
                             mVisibilityCheckerLocked));
         }
+        long getNewSchemaObserverEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setGetObserverLatencyMillis(getOldSchemaObserverLatencyMillis
+                    + (int) (getNewSchemaObserverEndTimeMillis
+                    - getNewSchemaObserverStartTimeMillis));
+        }
 
+        long preparingChangeNotificationStartTimeMillis = SystemClock.elapsedRealtime();
         // Create a unified set of all schema names mentioned in either the old or new schema.
         Set<String> allSchemaNames = new ArraySet<>(oldSchemaNameToType.keySet());
         allSchemaNames.addAll(newSchemaNameToType.keySet());
@@ -650,6 +675,11 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
         }
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setPreparingChangeNotificationLatencyMillis(
+                    (int) (SystemClock.elapsedRealtime()
+                            - preparingChangeNotificationStartTimeMillis));
+        }
 
         return internalSetSchemaResponse;
     }
@@ -672,6 +702,7 @@ public final class AppSearchImpl implements Closeable {
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
+        long setRewriteSchemaLatencyMillis = SystemClock.elapsedRealtime();
         SchemaProto.Builder existingSchemaBuilder = getSchemaProtoLocked().toBuilder();
 
         SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
@@ -689,17 +720,27 @@ public final class AppSearchImpl implements Closeable {
                 existingSchemaBuilder,
                 newSchemaBuilder.build());
 
+        long rewriteSchemaEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setRewriteSchemaLatencyMillis(
+                    (int) (rewriteSchemaEndTimeMillis - setRewriteSchemaLatencyMillis));
+        }
+
         // Apply schema
+        long nativeLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         SchemaProto finalSchema = existingSchemaBuilder.build();
         LogUtil.piiTrace(TAG, "setSchema, request", finalSchema.getTypesCount(), finalSchema);
         SetSchemaResultProto setSchemaResultProto =
                 mIcingSearchEngineLocked.setSchema(finalSchema, forceOverride);
         LogUtil.piiTrace(
                 TAG, "setSchema, response", setSchemaResultProto.getStatus(), setSchemaResultProto);
-
+        long nativeLatencyEndTimeMillis = SystemClock.elapsedRealtime();
         if (setSchemaStatsBuilder != null) {
-            setSchemaStatsBuilder.setStatusCode(statusProtoToResultCode(
-                    setSchemaResultProto.getStatus()));
+            setSchemaStatsBuilder
+                    .setTotalNativeLatencyMillis(
+                            (int) (nativeLatencyEndTimeMillis - nativeLatencyStartTimeMillis))
+                    .setStatusCode(statusProtoToResultCode(
+                            setSchemaResultProto.getStatus()));
             AppSearchLoggerHelper.copyNativeStats(setSchemaResultProto,
                     setSchemaStatsBuilder);
         }
@@ -727,6 +768,7 @@ public final class AppSearchImpl implements Closeable {
             }
         }
 
+        long saveVisibilitySettingStartTimeMillis = SystemClock.elapsedRealtime();
         // Update derived data structures.
         for (SchemaTypeConfigProto schemaTypeConfigProto :
                 rewrittenSchemaResults.mRewrittenPrefixedTypes.values()) {
@@ -768,8 +810,24 @@ public final class AppSearchImpl implements Closeable {
             mVisibilityStoreLocked.removeVisibility(deprecatedVisibilityDocuments);
             mVisibilityStoreLocked.setVisibility(prefixedVisibilityDocuments);
         }
-        return newSuccessfulSetSchemaResponse(SetSchemaResponseToProtoConverter
-                .toSetSchemaResponse(setSchemaResultProto, prefix));
+        long saveVisibilitySettingEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setVisibilitySettingLatencyMillis(
+                    (int) (saveVisibilitySettingEndTimeMillis
+                            - saveVisibilitySettingStartTimeMillis));
+        }
+
+        long convertToResponseStartTimeMillis = SystemClock.elapsedRealtime();
+        InternalSetSchemaResponse setSchemaResponse = newSuccessfulSetSchemaResponse(
+                SetSchemaResponseToProtoConverter
+                        .toSetSchemaResponse(setSchemaResultProto, prefix));
+        long convertToResponseEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setConvertToResponseLatencyMillis(
+                    (int) (convertToResponseEndTimeMillis
+                            - convertToResponseStartTimeMillis));
+        }
+        return setSchemaResponse;
     }
 
     /**
