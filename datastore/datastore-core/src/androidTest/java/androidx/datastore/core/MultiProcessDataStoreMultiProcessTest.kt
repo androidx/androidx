@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Bundle
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.FlakyTest
 import androidx.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite
@@ -43,6 +42,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -265,7 +265,7 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
-    @FlakyTest(bugId = 242765757)
+    @Ignore // b/242765757
     @Test
     fun testInterleavedUpdateDataWithLocalRead() = runTest(UnconfinedTestDispatcher()) {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
