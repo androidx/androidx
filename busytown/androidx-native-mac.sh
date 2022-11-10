@@ -7,6 +7,9 @@ export ANDROIDX_PROJECTS=KMP
 # disable GCP cache, these machines don't have credentials.
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
+# Setup simulators
+impl/androidx-native-mac-simulator-setup.sh
+
 impl/build.sh buildOnServer allTests :docs-kmp:zipCombinedKmpDocs --no-configuration-cache -Pandroidx.displayTestOutput=false
 
 # run a separate createArchive task to prepare a repository

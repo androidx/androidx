@@ -8,6 +8,9 @@ export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
 echo "Starting $0 at $(date)"
 
+# Setup simulators
+impl/androidx-native-mac-simulator-setup.sh
+
 cd "$(dirname $0)"
 
 impl/build.sh allTests \
