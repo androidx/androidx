@@ -43,9 +43,9 @@ dependencies {
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.compose.runtime:runtime:1.1.0-beta01")
-    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
-    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.ui:ui-graphics:1.1.1")
+    api("androidx.compose.ui:ui-unit:1.1.1")
 
     implementation('androidx.core:core-ktx:1.7.0')
     implementation("androidx.datastore:datastore:1.0.0")
