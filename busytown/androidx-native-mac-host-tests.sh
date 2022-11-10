@@ -10,7 +10,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh darwinBenchmarkResults allTests \
+impl/build.sh allTests \
     --no-configuration-cache \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \
