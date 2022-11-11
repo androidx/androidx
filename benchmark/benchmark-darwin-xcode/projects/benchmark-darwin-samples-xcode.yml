@@ -7,7 +7,7 @@ targets:
     type: application
     platform: iOS
     info:
-      path: Info.plist
+      path: App.plist
     sources:
       - path: '../iosSources/main'
     scheme:
@@ -23,7 +23,7 @@ targets:
     type: bundle.unit-test
     platform: iOS
     info:
-      path: Info.plist
+      path: Benchmark.plist
     sources:
       - path: '../iosAppUnitTests/main'
     scheme:
@@ -38,4 +38,4 @@ settings:
   CODE_SIGNING_REQUIRED: 'NO'
   CODE_SIGN_ENTITLEMENTS: ''
   CODE_SIGNING_ALLOWED: 'NO'
-  IPHONEOS_DEPLOYMENT_TARGET: 15.2
+  IPHONEOS_DEPLOYMENT_TARGET: 15.0

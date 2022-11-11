@@ -15,7 +15,7 @@
  */
 
 import androidx.benchmark.darwin.gradle.skia.Metrics
-import androidx.benchmark.darwin.gradle.xcode.Models
+import androidx.benchmark.darwin.gradle.xcode.GsonHelpers
 import androidx.benchmark.darwin.gradle.xcode.XcResultParser
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -51,7 +51,7 @@ class XcResultParserTest {
         assertThat(record.metrics.size()).isEqualTo(2)
         assertThat(summaries.isNotEmpty()).isTrue()
         val metrics = Metrics.buildMetrics(record, summaries)
-        val json = Models.gsonBuilder()
+        val json = GsonHelpers.gsonBuilder()
             .setPrettyPrinting()
             .create()
             .toJson(metrics)
