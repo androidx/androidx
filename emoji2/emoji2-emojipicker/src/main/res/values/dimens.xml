@@ -23,4 +23,5 @@
     <dimen name="emoji_picker_header_icon_underline_width">28dp</dimen>
     <dimen name="emoji_picker_header_icon_underline_height">2dp</dimen>
     <dimen name="emoji_picker_header_height">50dp</dimen>
+    <dimen name="emoji_picker_header_padding">8dp</dimen>
 </resources>
