@@ -19,8 +19,10 @@ package androidx.benchmark.macro.junit4
 import android.Manifest
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
+import androidx.benchmark.macro.ExperimentalStableBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.collectBaselineProfile
+import androidx.benchmark.macro.collectStableBaselineProfile
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
@@ -97,6 +99,40 @@ class BaselineProfileRule : TestRule {
             uniqueName = currentDescription.toUniqueName(),
             packageName = packageName,
             iterations = iterations,
+            packageFilters = packageFilters,
+            profileBlock = profileBlock
+        )
+    }
+
+    /**
+     * Collects baseline profiles for a critical user journey, while ensuring that the generated
+     * profiles are stable for a minimum of [stableIterations].
+     *
+     * @param packageName Package name of the app for which profiles are to be generated.
+     * @param maxIterations Maximum number of iterations to run for when collecting profiles.
+     * @param stableIterations Minimum number of iterations for while baseline profiles have to be stable.
+     * @param strictStability Enforce if the generated profile was stable
+     * @param packageFilters List of package names to use as a filter for the generated profiles.
+     *  By default no filters are applied. Note that this works only when the code is not obfuscated.
+     *  Package filters are only applied after the profiles are deemed stable.
+     * @param [profileBlock] defines the critical user journey.
+     */
+    @JvmOverloads
+    @ExperimentalStableBaselineProfilesApi
+    public fun collectStableBaselineProfile(
+        packageName: String,
+        maxIterations: Int,
+        stableIterations: Int = 3,
+        strictStability: Boolean = false,
+        packageFilters: List<String> = emptyList(),
+        profileBlock: MacrobenchmarkScope.() -> Unit
+    ) {
+        collectStableBaselineProfile(
+            uniqueName = currentDescription.toUniqueName(),
+            packageName = packageName,
+            stableIterations = stableIterations,
+            maxIterations = maxIterations,
+            strictStability = strictStability,
             packageFilters = packageFilters,
             profileBlock = profileBlock
         )
