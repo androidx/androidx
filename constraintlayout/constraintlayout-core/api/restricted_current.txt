@@ -1872,6 +1872,7 @@ package androidx.constraintlayout.core.parser {
     method public void add(androidx.constraintlayout.core.parser.CLElement!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
     method public void clear();
+    method public androidx.constraintlayout.core.parser.CLContainer! clone();
     method public androidx.constraintlayout.core.parser.CLElement! get(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLElement! get(int) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLArray! getArray(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
@@ -1903,9 +1904,10 @@ package androidx.constraintlayout.core.parser {
     method public int size();
   }
 
-  public class CLElement {
+  public class CLElement implements java.lang.Cloneable {
     ctor public CLElement(char[]!);
     method protected void addIndent(StringBuilder!, int);
+    method public androidx.constraintlayout.core.parser.CLElement! clone();
     method public String! content();
     method public androidx.constraintlayout.core.parser.CLElement! getContainer();
     method protected String! getDebugName();
@@ -1915,6 +1917,7 @@ package androidx.constraintlayout.core.parser {
     method public int getLine();
     method public long getStart();
     method protected String! getStrClass();
+    method public boolean hasContent();
     method public boolean isDone();
     method public boolean isStarted();
     method public boolean notStarted();
@@ -1951,6 +1954,7 @@ package androidx.constraintlayout.core.parser {
   public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey> {
     ctor public CLObject(char[]!);
     method public static androidx.constraintlayout.core.parser.CLObject! allocate(char[]!);
+    method public androidx.constraintlayout.core.parser.CLObject! clone();
     method public java.util.Iterator<androidx.constraintlayout.core.parser.CLKey!>! iterator();
     method public String! toFormattedJSON();
     method public String! toFormattedJSON(int, int);
@@ -1971,6 +1975,7 @@ package androidx.constraintlayout.core.parser {
   public class CLString extends androidx.constraintlayout.core.parser.CLElement {
     ctor public CLString(char[]!);
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
+    method public static androidx.constraintlayout.core.parser.CLString from(String);
   }
 
   public class CLToken extends androidx.constraintlayout.core.parser.CLElement {

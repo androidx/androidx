@@ -15,7 +15,13 @@
  */
 package androidx.constraintlayout.core.parser;
 
-public class CLElement {
+import java.util.Arrays;
+import java.util.Objects;
+
+/**
+ * Base element to represent a piece of parsed Json.
+ */
+public class CLElement implements Cloneable {
 
     private final char[] mContent;
     protected long mStart = -1;
@@ -118,6 +124,15 @@ public class CLElement {
         return content.substring((int) mStart, (int) mEnd + 1);
     }
 
+    /**
+     * Whether this element has any valid content defined.
+     * <p>
+     * The content is valid when {@link #content()} can be called without causing exceptions.
+     */
+    public boolean hasContent() {
+        return mContent != null && mContent.length >= 1;
+    }
+
     public boolean isDone() {
         return mEnd != Long.MAX_VALUE;
     }
@@ -156,5 +171,43 @@ public class CLElement {
             return ((CLNumber) this).getFloat();
         }
         return Float.NaN;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CLElement)) return false;
+
+        CLElement clElement = (CLElement) o;
+
+        if (mStart != clElement.mStart) return false;
+        if (mEnd != clElement.mEnd) return false;
+        if (mLine != clElement.mLine) return false;
+        if (!Arrays.equals(mContent, clElement.mContent)) return false;
+        return Objects.equals(mContainer, clElement.mContainer);
+    }
+
+    @Override
+    public int hashCode() {
+        // Auto-generated with Intellij Action "equals() and hashcode()"
+        int result = Arrays.hashCode(mContent);
+        result = 31 * result + (int) (mStart ^ (mStart >>> 32));
+        result = 31 * result + (int) (mEnd ^ (mEnd >>> 32));
+        result = 31 * result + (mContainer != null ? mContainer.hashCode() : 0);
+        result = 31 * result + mLine;
+        return result;
+    }
+
+    @Override
+    public CLElement clone() {
+        try {
+            CLElement clone = (CLElement) super.clone();
+            if (mContainer != null) {
+                clone.mContainer = (CLContainer) mContainer.clone();
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
