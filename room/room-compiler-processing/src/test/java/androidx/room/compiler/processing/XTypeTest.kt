@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.dumpToString
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
@@ -1306,5 +1307,74 @@ class XTypeTest {
             result.hasErrorCount(1)
             result.hasErrorContaining("Unresolved reference")
         }
+    }
+
+    @Test
+    fun getWildcardType() {
+        fun XTestInvocation.checkType() {
+            val usageElement = processingEnv.requireTypeElement("test.Usage")
+            val fooElement = processingEnv.requireTypeElement("test.Foo")
+            val barType = processingEnv.requireType("test.Bar")
+
+            // Test a manually constructed Foo<Bar>
+            val fooBarType = processingEnv.getDeclaredType(fooElement, barType)
+            val fooBarUsageType = usageElement.getDeclaredField("fooBar").type
+            assertThat(fooBarType.asTypeName()).isEqualTo(fooBarUsageType.asTypeName())
+
+            // Test a manually constructed Foo<? extends Bar>
+            val fooExtendsBarType = processingEnv.getDeclaredType(
+                fooElement,
+                processingEnv.getWildcardType(producerExtends = barType)
+            )
+            val fooExtendsBarUsageType = usageElement.getDeclaredField("fooExtendsBar").type
+            assertThat(fooExtendsBarType.asTypeName())
+                .isEqualTo(fooExtendsBarUsageType.asTypeName())
+
+            // Test a manually constructed Foo<? super Bar>
+            val fooSuperBarType = processingEnv.getDeclaredType(
+                fooElement,
+                processingEnv.getWildcardType(consumerSuper = barType)
+            )
+            val fooSuperBarUsageType = usageElement.getDeclaredField("fooSuperBar").type
+            assertThat(fooSuperBarType.asTypeName()).isEqualTo(fooSuperBarUsageType.asTypeName())
+
+            // Test a manually constructed Foo<?>
+            val fooUnboundedType = processingEnv.getDeclaredType(
+                fooElement,
+                processingEnv.getWildcardType()
+            )
+            val fooUnboundedUsageType = usageElement.getDeclaredField("fooUnbounded").type
+            assertThat(fooUnboundedType.asTypeName()).isEqualTo(fooUnboundedUsageType.asTypeName())
+        }
+
+        runProcessorTest(listOf(Source.java(
+            "test.Foo",
+            """
+            package test;
+            class Usage {
+              Foo<?> fooUnbounded;
+              Foo<Bar> fooBar;
+              Foo<? extends Bar> fooExtendsBar;
+              Foo<? super Bar> fooSuperBar;
+            }
+            interface Foo<T> {}
+            interface Bar {}
+            """.trimIndent()
+        ))) { it.checkType() }
+
+        runProcessorTest(listOf(Source.kotlin(
+            "test.Usage.kt",
+            """
+            package test
+            class Usage {
+              val fooUnbounded: Foo<*> = TODO()
+              val fooBar: Foo<Bar> = TODO()
+              val fooExtendsBar: Foo<out Bar> = TODO()
+              val fooSuperBar: Foo<in Bar> = TODO()
+            }
+            interface Foo<T>
+            interface Bar
+            """.trimIndent()
+        ))) { it.checkType() }
     }
 }
