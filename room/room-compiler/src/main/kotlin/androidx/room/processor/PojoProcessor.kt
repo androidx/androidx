@@ -743,7 +743,8 @@ class PojoProcessor private constructor(
                     fieldName = field.name,
                     jvmName = field.name,
                     type = field.type,
-                    callType = CallType.FIELD
+                    callType = CallType.FIELD,
+                    isMutableField = !field.element.isFinal()
                 )
             },
             assignFromMethod = { match ->
@@ -756,7 +757,8 @@ class PojoProcessor private constructor(
                             CallType.SYNTHETIC_METHOD
                         } else {
                             CallType.METHOD
-                        }
+                        },
+                    isMutableField = !field.element.isFinal()
                 )
             },
             reportAmbiguity = { matching ->

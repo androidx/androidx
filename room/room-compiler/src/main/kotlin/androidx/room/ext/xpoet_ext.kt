@@ -258,6 +258,8 @@ object RoomMemberNames {
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndex")
     val CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW =
         RoomTypeNames.CURSOR_UTIL.packageMember("getColumnIndexOrThrow")
+    val CURSOR_UTIL_WRAP_MAPPED_COLUMNS =
+        RoomTypeNames.CURSOR_UTIL.packageMember("wrapMappedColumns")
     val ROOM_SQL_QUERY_ACQUIRE =
         RoomTypeNames.ROOM_SQL_QUERY.companionMember("acquire", isJvmStatic = true)
     val ROOM_DATABASE_WITH_TRANSACTION =
@@ -288,10 +290,10 @@ val DEFERRED_TYPES = listOf(
     ReactiveStreamsTypeNames.PUBLISHER
 )
 
-fun TypeName.defaultValue(): String {
+fun XTypeName.defaultValue(): String {
     return if (!isPrimitive) {
         "null"
-    } else if (this == TypeName.BOOLEAN) {
+    } else if (this == XTypeName.PRIMITIVE_BOOLEAN) {
         "false"
     } else {
         "0"
@@ -365,6 +367,54 @@ fun Function1TypeSpec(
 }.build()
 
 /**
+ * Generates an array literal with the given [values]
+ *
+ * Example: `ArrayLiteral(XTypeName.PRIMITIVE_INT, 1, 2, 3)`
+ *
+ * For Java will produce: `new int[] {1, 2, 3}`
+ *
+ * For Kotlin will produce: `intArrayOf(1, 2, 3)`,
+ */
+fun ArrayLiteral(
+    language: CodeLanguage,
+    type: XTypeName,
+    vararg values: Any
+): XCodeBlock {
+    val space = when (language) {
+        CodeLanguage.JAVA -> "%W"
+        CodeLanguage.KOTLIN -> " "
+    }
+    val initExpr = when (language) {
+        CodeLanguage.JAVA -> XCodeBlock.of(language, "new %T[] ", type)
+        CodeLanguage.KOTLIN -> XCodeBlock.of(language, getArrayOfFunction(type))
+    }
+    val openingChar = when (language) {
+        CodeLanguage.JAVA -> "{"
+        CodeLanguage.KOTLIN -> "("
+    }
+    val closingChar = when (language) {
+        CodeLanguage.JAVA -> "}"
+        CodeLanguage.KOTLIN -> ")"
+    }
+    return XCodeBlock.of(
+        language,
+        "%L$openingChar%L$closingChar",
+        initExpr,
+        XCodeBlock.builder(language).apply {
+            val joining = Array(values.size) { i ->
+                XCodeBlock.of(
+                    language,
+                    if (type == CommonTypeNames.STRING) "%S" else "%L",
+                    values[i]
+                )
+            }
+            val placeholders = joining.joinToString(separator = ",$space") { "%L" }
+            add(placeholders, *joining)
+        }.build()
+    )
+}
+
+/**
  * Generates a 2D array literal where the value at `i`,`j` will be produced by `valueProducer.
  * For example:
  * ```
@@ -392,17 +442,6 @@ fun DoubleArrayLiteral(
     columnSizeProducer: (Int) -> Int,
     valueProducer: (Int, Int) -> Any
 ): XCodeBlock {
-    val kotlinArrayOf = when (type) {
-        XTypeName.PRIMITIVE_BOOLEAN -> "booleanArrayOf"
-        XTypeName.PRIMITIVE_BYTE -> "byteArrayOf"
-        XTypeName.PRIMITIVE_SHORT -> "shortArrayOf"
-        XTypeName.PRIMITIVE_INT -> "intArrayOf"
-        XTypeName.PRIMITIVE_LONG -> "longArrayOf"
-        XTypeName.PRIMITIVE_CHAR -> "charArrayOf"
-        XTypeName.PRIMITIVE_FLOAT -> "floatArrayOf"
-        XTypeName.PRIMITIVE_DOUBLE -> "doubleArrayOf"
-        else -> "arrayOf"
-    }
     val space = when (language) {
         CodeLanguage.JAVA -> "%W"
         CodeLanguage.KOTLIN -> " "
@@ -413,7 +452,7 @@ fun DoubleArrayLiteral(
     }
     val innerInit = when (language) {
         CodeLanguage.JAVA -> XCodeBlock.of(language, "", type)
-        CodeLanguage.KOTLIN -> XCodeBlock.of(language, kotlinArrayOf)
+        CodeLanguage.KOTLIN -> XCodeBlock.of(language, getArrayOfFunction(type))
     }
     val openingChar = when (language) {
         CodeLanguage.JAVA -> "{"
@@ -450,6 +489,18 @@ fun DoubleArrayLiteral(
             add(placeholders, *joining)
         }.build()
     )
+}
+
+private fun getArrayOfFunction(type: XTypeName) = when (type) {
+    XTypeName.PRIMITIVE_BOOLEAN -> "booleanArrayOf"
+    XTypeName.PRIMITIVE_BYTE -> "byteArrayOf"
+    XTypeName.PRIMITIVE_SHORT -> "shortArrayOf"
+    XTypeName.PRIMITIVE_INT -> "intArrayOf"
+    XTypeName.PRIMITIVE_LONG -> "longArrayOf"
+    XTypeName.PRIMITIVE_CHAR -> "charArrayOf"
+    XTypeName.PRIMITIVE_FLOAT -> "floatArrayOf"
+    XTypeName.PRIMITIVE_DOUBLE -> "doubleArrayOf"
+    else -> "arrayOf"
 }
 
 /**

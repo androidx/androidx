@@ -73,7 +73,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 )
             )
             assertThat(field.setter, `is`(FieldSetter("id", "setId", intType, CallType.METHOD)))
-            assertThat(field.getter, `is`(FieldGetter("id", "getId", intType, CallType.METHOD)))
+            assertThat(field.getter,
+                `is`(FieldGetter("id", "getId", intType, CallType.METHOD, true)))
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
         }
     }

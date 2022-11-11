@@ -61,7 +61,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 var pk: Int
             ) {
-                var variable: Long = 0
+                var variablePrimitive: Long = 0
+                var variableString: String = ""
+                var variableNullableString: String? = null
             }
             """.trimIndent()
         )
@@ -1246,6 +1248,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     "FROM User JOIN Comment ON User.id = Comment.userId"
                 )
                 fun getUserCommentMapWithoutStarProjection(): Map<User, List<Comment>>
+
+                @SkipQueryVerification
+                @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
+                fun getUserCommentMapWithoutQueryVerification(): Map<User, List<Comment>>
             }
 
             @Entity
@@ -1264,6 +1270,47 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun entityRowAdapter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+
+              @SkipQueryVerification // To make Room use EntityRowAdapter
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+
+              @SkipQueryVerification // To make Room use EntityRowAdapter
+              @Insert
+              fun addEntity(item: MyEntity)
+            }
+
+            @Entity
+            class MyEntity(
+                @PrimaryKey
+                val valuePrimitive: Long,
+                val valueBoolean: Boolean,
+                val valueString: String,
+                val valueNullableString: String?
+            ) {
+                var variablePrimitive: Long = 0
+                var variableNullableBoolean: Boolean? = null
+                var variableString: String = ""
+                var variableNullableString: String? = null
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName)
         )
     }

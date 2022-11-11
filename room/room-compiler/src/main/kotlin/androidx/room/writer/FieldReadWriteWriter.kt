@@ -16,9 +16,10 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.capitalize
 import androidx.room.ext.defaultValue
 import androidx.room.solver.CodeGenScope
@@ -366,7 +367,20 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
             } else {
                 beginControlFlow("if (%L == -1)", indexVar).apply {
-                    addStatement("%L = %L", tmpField, typeName.toJavaPoet().defaultValue())
+                    val defaultValue = typeName.defaultValue()
+                    if (
+                        language == CodeLanguage.KOTLIN &&
+                        typeName.nullability == XNullability.NONNULL &&
+                        defaultValue == "null"
+                    ) {
+                        // TODO(b/249984504): Generate / output a better message.
+                        addStatement(
+                            "error(%S)",
+                            "Missing column '${field.columnName}' for a non null value."
+                        )
+                    } else {
+                        addStatement("%L = %L", tmpField, defaultValue)
+                    }
                 }
                 nextControlFlow("else").apply {
                     field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
