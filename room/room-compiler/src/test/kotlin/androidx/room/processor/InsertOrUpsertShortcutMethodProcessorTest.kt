@@ -340,7 +340,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 .isEqualTo(
                     ParameterizedTypeName.get(
                         ClassName.get("foo.bar", "MyClass.MyList"),
-                        CommonTypeNames.STRING, USER_TYPE_NAME
+                        CommonTypeNames.STRING.toJavaPoet(), USER_TYPE_NAME
                     ) as TypeName
                 )
 

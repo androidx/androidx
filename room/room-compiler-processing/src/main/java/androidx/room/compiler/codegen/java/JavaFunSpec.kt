@@ -35,7 +35,7 @@ internal class JavaFunSpec(
 ) : JavaLang(), XFunSpec {
 
     internal class Builder(
-        private val name: String,
+        override val name: String,
         internal val actual: MethodSpec.Builder
     ) : JavaLang(), XFunSpec.Builder {
 

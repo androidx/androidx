@@ -16,6 +16,7 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isByte
@@ -111,7 +112,7 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
 fun XType.isSupportedMapTypeArg(): Boolean {
     if (this.typeName.isPrimitive) return true
     if (this.typeName.isBoxedPrimitive) return true
-    if (this.typeName == CommonTypeNames.STRING) return true
+    if (this.typeName == CommonTypeNames.STRING.toJavaPoet()) return true
     if (this.isTypeOf(ByteArray::class)) return true
     if (this.isArray() && this.isByte()) return true
     val typeElement = this.typeElement ?: return false
