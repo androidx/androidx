@@ -28,14 +28,12 @@ import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
-import androidx.window.layout.WindowMetrics as JetpackWindowMetrics
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.LayoutDirection
 import android.view.WindowMetrics
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -50,6 +48,7 @@ import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
+import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
 
 /**
@@ -139,7 +138,7 @@ internal class EmbeddingAdapter(
             translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
+    @SuppressLint("NewApi")
     fun translate(
         params: OEMSplitAttributesCalculatorParams
     ): SplitAttributesCalculatorParams = let {
@@ -149,17 +148,14 @@ internal class EmbeddingAdapter(
         val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
         val windowLayoutInfo = params.parentWindowLayoutInfo
         val splitRuleTag = params.splitRuleTag
+        val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics)
 
-        val jetpackWindowMetrics = JetpackWindowMetrics(
-            taskWindowMetrics.bounds,
-            WindowInsetsCompat.toWindowInsetsCompat(taskWindowMetrics.windowInsets)
-        )
         SplitAttributesCalculatorParams(
-            jetpackWindowMetrics,
+            windowMetrics,
             taskConfiguration,
             translate(defaultSplitAttributes),
             isDefaultMinSizeSatisfied,
-            ExtensionsWindowLayoutInfoAdapter.translate(jetpackWindowMetrics, windowLayoutInfo),
+            ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
             splitRuleTag,
         )
     }
