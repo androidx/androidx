@@ -58,6 +58,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.sign
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
@@ -826,10 +827,10 @@ private class ConsumeAllFlingOnDirection(val orientation: Orientation) : NestedS
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        return when (source) {
-            NestedScrollSource.Fling -> available.consumeOnOrientation(orientation)
-            else -> Offset.Zero
+        if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+            throw CancellationException()
         }
+        return Offset.Zero
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
