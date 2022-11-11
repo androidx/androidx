@@ -855,12 +855,12 @@ public class UiSelector {
         // matched attributes - now check for matching instance number
         if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_INSTANCE) >= 0) {
             currentSelectorInstance =
-                    (Integer)mSelectorAttributes.get(UiSelector.SELECTOR_INSTANCE);
+                    (Integer) mSelectorAttributes.get(UiSelector.SELECTOR_INSTANCE);
         }
 
         // instance is required. Add count if not already counting
         if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_COUNT) >= 0) {
-            currentSelectorCounter = (Integer)mSelectorAttributes.get(UiSelector.SELECTOR_COUNT);
+            currentSelectorCounter = (Integer) mSelectorAttributes.get(UiSelector.SELECTOR_COUNT);
         }
 
         // Verify
