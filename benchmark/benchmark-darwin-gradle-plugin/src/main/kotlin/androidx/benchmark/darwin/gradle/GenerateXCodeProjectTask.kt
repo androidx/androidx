@@ -85,5 +85,11 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
         require(copied) {
             "Unable to copy $sourceFile to $targetFile"
         }
+        // Delete the generated Info.plist file given our source folders should be clean.
+        // Context: b/258545725
+        val deleted = sourceFile.deleteRecursively()
+        require(deleted) {
+            "Unable to delete $sourceFile"
+        }
     }
 }
