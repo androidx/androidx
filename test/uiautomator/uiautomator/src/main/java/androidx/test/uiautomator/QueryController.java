@@ -339,7 +339,7 @@ class QueryController {
                 Log.w(LOG_TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode.toString()));
+                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
@@ -347,7 +347,7 @@ class QueryController {
             if (!childNode.isVisibleToUser()) {
                 if (VERBOSE)
                     Log.v(LOG_TAG,
-                            String.format("Skipping invisible child: %s", childNode.toString()));
+                            String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
             AccessibilityNodeInfo retNode = findNodeRegularRecursive(subSelector, childNode, i);
@@ -469,7 +469,7 @@ class QueryController {
                 Log.w(LOG_TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode.toString()));
+                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
@@ -477,7 +477,7 @@ class QueryController {
             if (!childNode.isVisibleToUser()) {
                 if (DEBUG)
                     Log.d(LOG_TAG,
-                        String.format("Skipping invisible child: %s", childNode.toString()));
+                        String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
             AccessibilityNodeInfo retNode = findNodePatternRecursive(
