@@ -49,26 +49,21 @@ abstract class RunDarwinBenchmarksTask @Inject constructor(
     @TaskAction
     fun runBenchmarks() {
         requireXcodeBuild()
-        // Consider moving this into the shared instance of XCodeBuildService
-        // given that is a much cleaner way of sharing a single instance of a running simulator.
-        val simCtrl = XCodeSimCtrl(execOperations, destination.get())
         val xcodeProject = xcodeProjectPath.get().asFile
         val xcResultFile = xcResultPath.get().asFile
         if (xcResultFile.exists()) {
             xcResultFile.deleteRecursively()
         }
-        simCtrl.start { destinationDesc ->
-            val args = listOf(
-                "xcodebuild",
-                "test",
-                "-project", xcodeProject.absolutePath.toString(),
-                "-scheme", scheme.get(),
-                "-destination", destinationDesc,
-                "-resultBundlePath", xcResultFile.absolutePath,
-            )
-            logger.info("Command : ${args.joinToString(" ")}")
-            execOperations.executeQuietly(args)
-        }
+        val args = listOf(
+            "xcodebuild",
+            "test",
+            "-project", xcodeProject.absolutePath.toString(),
+            "-scheme", scheme.get(),
+            "-destination", destination.get(),
+            "-resultBundlePath", xcResultFile.absolutePath,
+        )
+        logger.info("Command : ${args.joinToString(" ")}")
+        execOperations.executeQuietly(args)
     }
 
     private fun requireXcodeBuild() {
