@@ -58,7 +58,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -244,7 +243,6 @@ class MultiProcessDataStoreTest {
         }
     }
 
-    @Ignore("b/244352517")
     @Test
     fun testReadFromNonExistentFile() = runTest {
         val nonExistentFile = tempFolder.newFile()
@@ -372,7 +370,7 @@ class MultiProcessDataStoreTest {
             dataStore.updateData { awaitCancellation() }
         }
 
-        dsScope.launch(Dispatchers.Unconfined) {
+        val started = dsScope.async(Dispatchers.Unconfined) {
             dataStore.updateData {
                 latch.await()
                 it.inc()
@@ -387,6 +385,11 @@ class MultiProcessDataStoreTest {
 
         assertThat(awaitingCancellation.isCancelled).isTrue()
         assertThat(notStarted.isCancelled).isTrue()
+
+        // wait for coroutine to complete to prevent it from outliving the test, which is flaky
+        latch.complete(Unit)
+        started.await()
+        assertThat(dataStore.data.first()).isEqualTo(1)
     }
 
     @Test
