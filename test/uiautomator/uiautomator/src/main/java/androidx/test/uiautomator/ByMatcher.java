@@ -159,7 +159,7 @@ class ByMatcher {
             AccessibilityNodeInfo child = node.getChild(i);
             if (child == null) {
                 if (!hasNullChild) {
-                    Log.w(TAG, String.format("Node returned null child: %s", node.toString()));
+                    Log.w(TAG, String.format("Node returned null child: %s", node));
                 }
                 hasNullChild = true;
                 Log.w(TAG, String.format("Skipping null child (%s of %s)", i, numChildren));
