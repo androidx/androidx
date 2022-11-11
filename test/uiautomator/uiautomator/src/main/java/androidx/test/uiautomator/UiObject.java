@@ -964,8 +964,9 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      */
     public boolean pinchOut(int percent, int steps) throws UiObjectNotFoundException {
-        // make value between 1 and 100
-        percent = (percent < 0) ? 1 : (percent > 100) ? 100 : percent;
+        if (percent < 0 || percent > 100) {
+            throw new IllegalArgumentException("Percent must be between 0 and 100");
+        }
         float percentage = percent / 100f;
 
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
@@ -1001,8 +1002,9 @@ public class UiObject {
      * @throws UiObjectNotFoundException
      */
     public boolean pinchIn(int percent, int steps) throws UiObjectNotFoundException {
-        // make value between 1 and 100
-        percent = (percent < 0) ? 0 : (percent > 100) ? 100 : percent;
+        if (percent < 0 || percent > 100) {
+            throw new IllegalArgumentException("Percent must be between 0 and 100");
+        }
         float percentage = percent / 100f;
 
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
