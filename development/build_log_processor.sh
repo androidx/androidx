@@ -21,9 +21,6 @@ usage() {
   echo
   echo "Executes <command> <arguments> and then runs build_log_simplifier.py against its output"
   echo
-  echo "-Pandroidx.summarizeStderr"
-  echo "  Run build_log_simplifier.py on failure to produce a summary of the build output"
-  echo
   echo "-Pandroidx.validateNoUnrecognizedMessages"
   echo "  Run build_log_simplifier.py --validate on success to confirm that the build generated no unrecognized messages"
   exit 1
