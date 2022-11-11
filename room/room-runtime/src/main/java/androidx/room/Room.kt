@@ -61,11 +61,11 @@ object Room {
             )
         } catch (e: IllegalAccessException) {
             throw RuntimeException(
-                "Cannot access the constructor $klass.canonicalName"
+                "Cannot access the constructor ${klass.canonicalName}"
             )
         } catch (e: InstantiationException) {
             throw RuntimeException(
-                "Failed to create an instance of $klass.canonicalName"
+                "Failed to create an instance of ${klass.canonicalName}"
             )
         }
     }

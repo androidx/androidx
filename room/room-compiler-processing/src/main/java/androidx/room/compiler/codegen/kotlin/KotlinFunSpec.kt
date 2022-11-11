@@ -31,7 +31,7 @@ internal class KotlinFunSpec(
 ) : KotlinLang(), XFunSpec {
 
     internal class Builder(
-        private val name: String,
+        override val name: String,
         internal val actual: FunSpec.Builder
     ) : KotlinLang(), XFunSpec.Builder {
 

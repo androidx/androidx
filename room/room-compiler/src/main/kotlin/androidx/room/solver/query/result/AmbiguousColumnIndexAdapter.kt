@@ -17,6 +17,7 @@
 package androidx.room.solver.query.result
 
 import androidx.room.AmbiguousColumnResolver
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.DoubleArrayLiteral
 import androidx.room.ext.L
@@ -72,7 +73,7 @@ class AmbiguousColumnIndexAdapter(
                 // query result column names from the Cursor and the result object column names in
                 // an array literal.
                 val rowMappings = DoubleArrayLiteral(
-                    type = CommonTypeNames.STRING,
+                    type = CommonTypeNames.STRING.toJavaPoet(),
                     rowSize = mappings.size,
                     columnSizeProducer = { i -> mappings[i].usedColumns.size },
                     valueProducer = { i, j -> mappings[i].usedColumns[j] }

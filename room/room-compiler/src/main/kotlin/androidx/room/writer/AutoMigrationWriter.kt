@@ -24,7 +24,6 @@ import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addProperty
-import androidx.room.compiler.codegen.toXClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
@@ -53,17 +52,17 @@ class AutoMigrationWriter(
         )
         builder.apply {
             addOriginatingElement(dbElement)
-            superclass(RoomTypeNames.MIGRATION.toXClassName())
+            superclass(RoomTypeNames.MIGRATION)
 
             if (autoMigration.specClassName != null) {
                 builder.addProperty(
                     name = "callback",
-                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC.toXClassName(),
+                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
                     visibility = VisibilityModifier.PRIVATE,
                     initExpr = if (!autoMigration.isSpecProvided) {
                         XCodeBlock.ofNewInstance(
                             codeLanguage,
-                            autoMigration.specClassName.toXClassName()
+                            autoMigration.specClassName
                         )
                     } else {
                         null
@@ -89,7 +88,7 @@ class AutoMigrationWriter(
             )
             if (autoMigration.isSpecProvided) {
                 addParameter(
-                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC.toXClassName(),
+                    typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
                     name = "callback",
                 )
                 addStatement("this.callback = callback")
@@ -104,15 +103,15 @@ class AutoMigrationWriter(
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true,
         ).apply {
-                addParameter(
-                    typeName = SupportDbTypeNames.DB.toXClassName(),
-                    name = "database",
-                )
-                addMigrationStatements(this)
-                if (autoMigration.specClassName != null) {
-                    addStatement("callback.onPostMigrate(database)")
-                }
+            addParameter(
+                typeName = SupportDbTypeNames.DB,
+                name = "database",
+            )
+            addMigrationStatements(this)
+            if (autoMigration.specClassName != null) {
+                addStatement("callback.onPostMigrate(database)")
             }
+        }
         return migrateFunctionBuilder.build()
     }
 
