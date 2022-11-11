@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/emoji_picker_header_height"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.emoji2.emojipicker.EmojiPickerBodyView
         android:id="@+id/emoji_picker_body"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
