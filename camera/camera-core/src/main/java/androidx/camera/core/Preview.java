@@ -452,11 +452,16 @@ public final class Preview extends UseCase {
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null
                 && surfaceRequest != null) {
-            // TODO: when SurfaceProcessorNode exists, use SettableSurface.setRotationDegrees(int)
-            //  instead. However, this requires PreviewView to rely on relative rotation but not
-            //  target rotation.
-            surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    getRelativeRotation(cameraInternal), getAppTargetRotation()));
+            if (mNode == null) {
+                surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
+                        cropRect,
+                        getRelativeRotation(cameraInternal),
+                        getAppTargetRotation(),
+                        /*hasCameraTransform=*/true));
+            } else {
+                ((SettableSurface) mSessionDeferrableSurface).setRotationDegrees(
+                        getRelativeRotation(cameraInternal));
+            }
         }
     }
 

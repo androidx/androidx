@@ -111,7 +111,10 @@ class PreviewTransformationTest {
     private fun isCropRectAspectRatioMatchPreviewView(cropRect: Rect): Boolean {
         mPreviewTransform.setTransformationInfo(
             // Height and width is swapped because rotation is 90°.
-            SurfaceRequest.TransformationInfo.of(cropRect, 90, ARBITRARY_ROTATION),
+            SurfaceRequest.TransformationInfo.of(
+                cropRect, 90, ARBITRARY_ROTATION,
+                /*hasCameraTransform=*/true
+            ),
             SURFACE_SIZE,
             BACK_CAMERA
         )
@@ -195,7 +198,12 @@ class PreviewTransformationTest {
     ): IntArray {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(CROP_RECT, 90, rotation),
+            SurfaceRequest.TransformationInfo.of(
+                CROP_RECT,
+                90,
+                rotation, /*hasCameraTransform=*/
+                true
+            ),
             SURFACE_SIZE,
             isFrontCamera
         )
@@ -223,7 +231,8 @@ class PreviewTransformationTest {
             SurfaceRequest.TransformationInfo.of(
                 CROP_RECT,
                 90,
-                ARBITRARY_ROTATION
+                ARBITRARY_ROTATION,
+                /*hasCameraTransform=*/true
             ),
             SURFACE_SIZE, BACK_CAMERA
         )
@@ -351,7 +360,12 @@ class PreviewTransformationTest {
     ) {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(MISMATCHED_CROP_RECT, 90, ARBITRARY_ROTATION),
+            SurfaceRequest.TransformationInfo.of(
+                MISMATCHED_CROP_RECT,
+                90,
+                ARBITRARY_ROTATION,
+                /*hasCameraTransform=*/true
+            ),
             FIT_SURFACE_SIZE,
             isFrontCamera
         )
@@ -436,7 +450,8 @@ class PreviewTransformationTest {
             SurfaceRequest.TransformationInfo.of(
                 cropRect,
                 rotationDegrees,
-                ARBITRARY_ROTATION
+                ARBITRARY_ROTATION,
+                /*hasCameraTransform=*/true
             ),
             SURFACE_SIZE,
             isFrontCamera

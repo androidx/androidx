@@ -858,6 +858,29 @@ public final class SurfaceRequest {
         public abstract int getTargetRotation();
 
         /**
+         * Whether the {@link Surface} contains the camera transform.
+         *
+         * <p>The {@link Surface} may contain a transformation, which will be used by Android
+         * components such as {@link TextureView} and {@link SurfaceView} to transform the output.
+         * The app may need to handle the transformation differently based on whether this value
+         * exists.
+         *
+         * <ul>
+         * <li>If the producer is the camera, then the {@link Surface} will contain a
+         * transformation that represents the camera orientation. In that case, this method will
+         * return {@code true}.
+         * <li>If the producer is not the camera, for example, if the stream has been edited by
+         * CameraX, then the {@link Surface} will not contain any transformation. In that case,
+         * this method will return {@code false}.
+         * </ul>
+         *
+         * @return true if the producer writes the camera transformation to the {@link Surface}.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract boolean hasCameraTransform();
+
+        /**
          * Creates new {@link TransformationInfo}
          *
          * <p> Internally public to be used in view artifact tests.
@@ -868,9 +891,10 @@ public final class SurfaceRequest {
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
-                @ImageOutputConfig.OptionalRotationValue int targetRotation) {
+                @ImageOutputConfig.OptionalRotationValue int targetRotation,
+                boolean hasCameraTransform) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
-                    targetRotation);
+                    targetRotation, hasCameraTransform);
         }
 
         // Hides public constructor.

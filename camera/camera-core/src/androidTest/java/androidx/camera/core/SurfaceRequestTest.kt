@@ -32,15 +32,15 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import java.lang.ref.PhantomReference
+import java.lang.ref.ReferenceQueue
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import java.lang.ref.PhantomReference
-import java.lang.ref.ReferenceQueue
-import java.util.concurrent.TimeoutException
-import java.util.concurrent.atomic.AtomicReference
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -361,7 +361,8 @@ class SurfaceRequestTest {
     companion object {
         private val FAKE_SIZE: Size by lazy { Size(0, 0) }
         private val FAKE_INFO: SurfaceRequest.TransformationInfo by lazy {
-            SurfaceRequest.TransformationInfo.of(Rect(), 0, Surface.ROTATION_0)
+            SurfaceRequest.TransformationInfo.of(Rect(), 0, Surface.ROTATION_0,
+                /*hasCameraTransform=*/true)
         }
         private val NO_OP_RESULT_LISTENER = Consumer { _: SurfaceRequest.Result? -> }
         private val MOCK_SURFACE = Mockito.mock(
