@@ -29,7 +29,7 @@ class XcResultParser(
 ) {
     fun parseResults(): Pair<ActionsInvocationRecord, List<ActionTestSummary>> {
         val json = commandExecutor(xcRunCommand())
-        val gson = Models.gson()
+        val gson = GsonHelpers.gson()
         val record = gson.fromJson(json, ActionsInvocationRecord::class.java)
         val summaries = record.actions.testReferences().flatMap { testRef ->
             val summary = commandExecutor(xcRunCommand(testRef))

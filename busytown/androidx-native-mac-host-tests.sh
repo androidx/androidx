@@ -13,7 +13,7 @@ cd "$(dirname $0)"
 # Setup simulators
 impl/androidx-native-mac-simulator-setup.sh
 
-impl/build.sh allTests \
+impl/build.sh darwinBenchmarkResults allTests \
     --no-configuration-cache \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \

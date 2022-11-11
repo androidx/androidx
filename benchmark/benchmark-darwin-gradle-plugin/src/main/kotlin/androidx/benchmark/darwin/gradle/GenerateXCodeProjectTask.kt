@@ -26,7 +26,6 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -47,9 +46,6 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
 
     @get:Input
     abstract val projectName: Property<String>
-
-    @get:OutputFile
-    abstract val infoPlistPath: RegularFileProperty
 
     @get:OutputDirectory
     abstract val xcProjectPath: DirectoryProperty
@@ -78,12 +74,14 @@ abstract class GenerateXCodeProjectTask @Inject constructor(
     }
 
     private fun copyProjectMetadata() {
-        val sourceFile = File(yamlFile.get().asFile.parent, "Info.plist")
-        require(sourceFile.exists())
-        val targetFile = infoPlistPath.get().asFile
-        val copied = sourceFile.copyRecursively(targetFile, overwrite = true)
-        require(copied) {
-            "Unable to copy $sourceFile to $targetFile"
+        // Copy generated `App.plist` and `Benchmark.plist` files.
+        // Context: b/258545725
+        val metadataFileNames = listOf("App.plist", "Benchmark.plist")
+        metadataFileNames.forEach { name ->
+            val sourceFile = File(yamlFile.get().asFile.parent, name)
+            require(sourceFile.exists())
+            val targetFile = File(xcProjectPath.get().asFile.parent, name)
+            sourceFile.copyRecursively(targetFile, overwrite = true)
         }
     }
 }
