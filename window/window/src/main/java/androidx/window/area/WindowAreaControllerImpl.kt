@@ -25,6 +25,7 @@ import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.WindowAreaComponent
+import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.channels.BufferOverflow
@@ -101,13 +102,19 @@ internal class WindowAreaControllerImpl(
         val loader = WindowAreaControllerImpl::class.java.classLoader
         loader?.let {
             val consumerAdapter = ConsumerAdapter(it)
-            consumerAdapter.createConsumer(
-                windowAreaComponent,
-                Int::class,
-                "startRearDisplaySession",
-                activity
-            ) { value ->
-                rearDisplaySessionConsumer.accept(value)
+            try {
+                consumerAdapter.createConsumer(
+                    windowAreaComponent,
+                    Int::class,
+                    "startRearDisplaySession",
+                    activity
+                ) { value ->
+                    rearDisplaySessionConsumer.accept(value)
+                }
+            } catch (exception: InvocationTargetException) {
+                // Rethrow the underlying exception when available because Java reflection wraps
+                // the actual exception with InvocationTargetException.
+                throw exception.cause ?: exception
             }
         }
     }
