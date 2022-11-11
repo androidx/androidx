@@ -25,6 +25,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -33,6 +34,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -134,6 +137,37 @@ class TakePictureTest(
                 // Note, moveToState(DESTROYED) doesn't trigger the same code path.
                 it!!.recreate()
                 waitForViewfinderIdle()
+            }
+        }
+    }
+
+    @Test
+    fun testTakePictureQuickly() {
+        with(ActivityScenario.launch<CameraXActivity>(launchIntent)) {
+            use { // Ensure ActivityScenario is cleaned up properly.
+
+                // Arrange, wait for camera starts processing output.
+                waitForViewfinderIdle()
+
+                // Act. continuously take 5 photos.
+                withActivity {
+                    cleanTakePictureErrorMessage()
+                    imageSavedIdlingResource
+                }.apply {
+                    for (i in 5 downTo 1) {
+                        onView(withId(R.id.Picture)).perform(click())
+                    }
+                    waitForIdle()
+                }
+
+                // Assert, there's no error message.
+                withActivity {
+                    deleteSessionImages()
+                    lastTakePictureErrorMessage ?: ""
+                }.let { errorMessage ->
+                    assertWithMessage("Fail to take picture: $errorMessage").that(errorMessage)
+                        .isEmpty()
+                }
             }
         }
     }

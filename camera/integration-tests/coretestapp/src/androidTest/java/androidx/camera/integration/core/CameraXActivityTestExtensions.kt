@@ -64,6 +64,7 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
  */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle() {
     val idlingResource = withActivity {
+        cleanTakePictureErrorMessage()
         imageSavedIdlingResource
     }
     try {
