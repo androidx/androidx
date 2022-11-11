@@ -57,7 +57,7 @@ package androidx.glance.appwidget {
   public final class CoroutineBroadcastReceiverKt {
   }
 
-  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") public @interface ExperimentalGlanceRemoteViewsApi {
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceRemoteViewsApi {
   }
 
   public final class GeneratedLayoutsKt {

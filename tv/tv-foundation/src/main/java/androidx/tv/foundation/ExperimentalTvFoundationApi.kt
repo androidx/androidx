@@ -19,4 +19,5 @@ package androidx.tv.foundation
 @RequiresOptIn(
     "This tv-foundation API is experimental and likely to change or be removed in the future."
 )
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalTvFoundationApi

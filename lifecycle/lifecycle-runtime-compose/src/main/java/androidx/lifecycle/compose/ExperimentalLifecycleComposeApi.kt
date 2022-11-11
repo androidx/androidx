@@ -24,4 +24,5 @@ package androidx.lifecycle.compose
     AnnotationTarget.FIELD,
     AnnotationTarget.PROPERTY_GETTER,
 )
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalLifecycleComposeApi
