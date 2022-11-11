@@ -7,7 +7,6 @@ import androidx.room.util.query
 import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Int
-import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
@@ -17,7 +16,7 @@ import kotlin.jvm.JvmStatic
 @Suppress(names = ["unchecked", "deprecation"])
 public class MyDao_Impl(
     __db: RoomDatabase,
-) : MyDao {
+) : MyDao(__db) {
     private val __db: RoomDatabase
     init {
         this.__db = __db
@@ -32,8 +31,8 @@ public class MyDao_Impl(
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
-                val _tmpPk: Long
-                _tmpPk = _cursor.getLong(_cursorIndexOfPk)
+                val _tmpPk: Int
+                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
                 _result = MyEntity(_tmpPk)
             } else {
                 error("Cursor was empty, but expected a single item.")
