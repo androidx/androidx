@@ -946,7 +946,7 @@ public class UiSelector {
 
     String dumpToString(boolean all) {
         StringBuilder builder = new StringBuilder();
-        builder.append(UiSelector.class.getSimpleName() + "[");
+        builder.append(UiSelector.class.getSimpleName()).append("[");
         final int criterionCount = mSelectorAttributes.size();
         for (int i = 0; i < criterionCount; i++) {
             if (i > 0) {
@@ -1064,7 +1064,7 @@ public class UiSelector {
                     builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
                     break;
                 default:
-                    builder.append("UNDEFINED=" + criterion + " ").append(
+                    builder.append("UNDEFINED=").append(criterion).append(" ").append(
                             mSelectorAttributes.valueAt(i));
             }
         }
