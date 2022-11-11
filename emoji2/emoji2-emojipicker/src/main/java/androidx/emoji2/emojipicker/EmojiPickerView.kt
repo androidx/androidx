@@ -21,7 +21,6 @@ import android.content.res.TypedArray
 import android.os.Trace
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -93,7 +92,7 @@ class EmojiPickerView @JvmOverloads constructor(
     ): EmojiPickerBodyAdapter {
         val categoryNames = mutableListOf<String>()
         val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
-        for (i in 0 until categorizedEmojiData.size) {
+        for (i in categorizedEmojiData.indices) {
             categoryNames.add(categorizedEmojiData[i].categoryName)
             categorizedEmojis.add(
                 categorizedEmojiData[i].emojiDataList.toMutableList()
@@ -151,12 +150,6 @@ class EmojiPickerView @JvmOverloads constructor(
 
         // set bodyView
         bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
-        bodyView.layoutManager = GridLayoutManager(
-            context,
-            emojiGridColumns,
-            LinearLayoutManager.VERTICAL,
-            /* reverseLayout= */ false
-        )
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
         bodyView.adapter = getEmojiPickerBodyAdapter(
             context, emojiGridColumns, emojiGridRows, categorizedEmojiData
