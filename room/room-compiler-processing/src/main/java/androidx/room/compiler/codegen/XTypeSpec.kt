@@ -37,12 +37,13 @@ interface XTypeSpec : TargetLanguage {
         fun addProperty(propertySpec: XPropertySpec): Builder
         fun addFunction(functionSpec: XFunSpec): Builder
         fun addType(typeSpec: XTypeSpec): Builder
+        fun setPrimaryConstructor(functionSpec: XFunSpec): Builder
         fun setVisibility(visibility: VisibilityModifier)
         fun build(): XTypeSpec
 
         companion object {
 
-            fun XTypeSpec.Builder.addOriginatingElement(element: XElement) = apply {
+            fun Builder.addOriginatingElement(element: XElement) = apply {
                 when (language) {
                     CodeLanguage.JAVA -> {
                         check(this is JavaTypeSpec.Builder)

@@ -137,7 +137,11 @@ interface XFunSpec : TargetLanguage {
                     KotlinFunSpec.Builder(
                         name,
                         FunSpec.constructorBuilder().apply {
-                            addModifiers(visibility.toKotlinVisibilityModifier())
+                            // Workaround for the unreleased fix in
+                            // https://github.com/square/kotlinpoet/pull/1342
+                            if (visibility != VisibilityModifier.PUBLIC) {
+                                addModifiers(visibility.toKotlinVisibilityModifier())
+                            }
                         }
                     )
                 }

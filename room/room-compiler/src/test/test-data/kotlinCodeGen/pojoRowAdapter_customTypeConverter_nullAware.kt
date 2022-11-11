@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Int
-import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.Unit
@@ -28,20 +27,22 @@ public class MyDao_Impl(
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
             public override fun createQuery(): String =
-                "INSERT OR ABORT INTO `MyEntity` (`pk`,`numberData`,`stringData`,`nullablenumberData`,`nullablestringData`) VALUES (?,?,?,?,?)"
+                "INSERT OR ABORT INTO `MyEntity` (`pk`,`foo`,`bar`) VALUES (?,?,?)"
 
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
-                val _tmpFoo: Foo = entity.foo
-                statement.bindLong(2, _tmpFoo.numberData)
-                statement.bindString(3, _tmpFoo.stringData)
-                val _tmpNullableFoo: Foo? = entity.nullableFoo
-                if (_tmpNullableFoo != null) {
-                    statement.bindLong(4, _tmpNullableFoo.numberData)
-                    statement.bindString(5, _tmpNullableFoo.stringData)
+                val _tmp: String? = FooBarConverter.toString(entity.foo)
+                if (_tmp == null) {
+                    statement.bindNull(2)
                 } else {
-                    statement.bindNull(4)
-                    statement.bindNull(5)
+                    statement.bindString(2, _tmp)
+                }
+                val _tmp_1: Foo = FooBarConverter.toFoo(entity.bar)
+                val _tmp_2: String? = FooBarConverter.toString(_tmp_1)
+                if (_tmp_2 == null) {
+                    statement.bindNull(3)
+                } else {
+                    statement.bindString(3, _tmp_2)
                 }
             }
         }
@@ -65,32 +66,45 @@ public class MyDao_Impl(
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_cursor, "numberData")
-            val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_cursor, "stringData")
-            val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_cursor, "nullablenumberData")
-            val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_cursor, "nullablestringData")
+            val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_cursor, "foo")
+            val _cursorIndexOfBar: Int = getColumnIndexOrThrow(_cursor, "bar")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
                 val _tmpPk: Int
                 _tmpPk = _cursor.getInt(_cursorIndexOfPk)
                 val _tmpFoo: Foo
-                val _tmpNumberData: Long
-                _tmpNumberData = _cursor.getLong(_cursorIndexOfNumberData)
-                val _tmpStringData: String
-                _tmpStringData = _cursor.getString(_cursorIndexOfStringData)
-                _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
-                val _tmpNullableFoo: Foo?
-                if (!(_cursor.isNull(_cursorIndexOfNumberData_1) &&
-                        _cursor.isNull(_cursorIndexOfStringData_1))) {
-                    val _tmpNumberData_1: Long
-                    _tmpNumberData_1 = _cursor.getLong(_cursorIndexOfNumberData_1)
-                    val _tmpStringData_1: String
-                    _tmpStringData_1 = _cursor.getString(_cursorIndexOfStringData_1)
-                    _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
+                val _tmp: String?
+                if (_cursor.isNull(_cursorIndexOfFoo)) {
+                    _tmp = null
                 } else {
-                    _tmpNullableFoo = null
+                    _tmp = _cursor.getString(_cursorIndexOfFoo)
                 }
-                _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
+                val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
+                if (_tmp_1 == null) {
+                    error("Expected non-null Foo, but it was null.")
+                } else {
+                    _tmpFoo = _tmp_1
+                }
+                val _tmpBar: Bar
+                val _tmp_2: String?
+                if (_cursor.isNull(_cursorIndexOfBar)) {
+                    _tmp_2 = null
+                } else {
+                    _tmp_2 = _cursor.getString(_cursorIndexOfBar)
+                }
+                val _tmp_3: Foo? = FooBarConverter.fromString(_tmp_2)
+                val _tmp_4: Bar?
+                if (_tmp_3 == null) {
+                    _tmp_4 = null
+                } else {
+                    _tmp_4 = FooBarConverter.fromFoo(_tmp_3)
+                }
+                if (_tmp_4 == null) {
+                    error("Expected non-null Bar, but it was null.")
+                } else {
+                    _tmpBar = _tmp_4
+                }
+                _result = MyEntity(_tmpPk,_tmpFoo,_tmpBar)
             } else {
                 error("Cursor was empty, but expected a single item.")
             }
