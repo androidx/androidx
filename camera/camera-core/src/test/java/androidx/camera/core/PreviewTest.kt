@@ -35,6 +35,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.processing.SettableSurface
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -215,6 +216,66 @@ class PreviewTest {
     }
 
     @Test
+    fun createSurfaceRequestWithProcessor_noCameraTransform() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        var transformationInfo: TransformationInfo? = null
+
+        // Act: create pipeline in Preview and provide Surface.
+        val preview = createPreview(processor)
+        preview.mCurrentSurfaceRequest!!.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+
+        // Get pending SurfaceRequest created by pipeline.
+        assertThat(transformationInfo!!.hasCameraTransform()).isFalse()
+    }
+
+    @Test
+    fun createSurfaceRequestWithoutProcessor_hasCameraTransform() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        var transformationInfo: TransformationInfo? = null
+
+        // Act: create pipeline in Preview and provide Surface.
+        val preview = createPreview()
+        preview.mCurrentSurfaceRequest!!.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+
+        // Get pending SurfaceRequest created by pipeline.
+        assertThat(transformationInfo!!.hasCameraTransform()).isTrue()
+    }
+
+    @Test
+    fun setTargetRotationWithProcessor_rotationChangesOnSettableSurface() {
+        // Arrange.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+
+        // Act: create pipeline
+        val preview = createPreview(processor)
+        // Act: update target rotation
+        preview.targetRotation = Surface.ROTATION_0
+        shadowOf(getMainLooper()).idle()
+        // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
+        assertThat(preview.getSurfaceRotationDegrees()).isEqualTo(0)
+
+        // Act: update target rotation again.
+        preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+        // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
+        assertThat(preview.getSurfaceRotationDegrees()).isEqualTo(180)
+
+        // Clean up
+        preview.onDetached()
+    }
+
+    private fun Preview.getSurfaceRotationDegrees(): Int {
+        return (this.sessionConfig.surfaces.single() as SettableSurface).rotationDegrees
+    }
+
+    @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(
@@ -223,7 +284,7 @@ class PreviewTest {
         )
 
         // Act: create pipeline in Preview and provide Surface.
-        val preview = createPreviewPipelineAndAttachProcessor(processor)
+        val preview = createPreview(processor)
         val surfaceRequest = preview.mCurrentSurfaceRequest!!
         var appSurfaceReadyToRelease = false
         surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
@@ -263,7 +324,7 @@ class PreviewTest {
         val processor = FakeSurfaceProcessorInternal(
             mainThreadExecutor()
         )
-        val preview = createPreviewPipelineAndAttachProcessor(processor)
+        val preview = createPreview(processor)
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
@@ -438,9 +499,7 @@ class PreviewTest {
         return Pair(surfaceRequest!!, transformationInfo!!)
     }
 
-    private fun createPreviewPipelineAndAttachProcessor(
-        surfaceProcessor: SurfaceProcessorInternal?
-    ): Preview {
+    private fun createPreview(surfaceProcessor: SurfaceProcessorInternal? = null): Preview {
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .build()
