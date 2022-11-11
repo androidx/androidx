@@ -22,13 +22,17 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -41,6 +45,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.tv.material.ExperimentalTvMaterialApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * This composable is intended for use in Carousel.
@@ -57,7 +62,7 @@ import kotlinx.coroutines.flow.first
  * @param overlay composable defining the content overlaid on the background.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun CarouselItem(
@@ -72,22 +77,35 @@ fun CarouselItem(
     val overlayVisible = remember { MutableTransitionState(initialState = false) }
     var focusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(overlayVisible) {
         snapshotFlow { overlayVisible.isIdle && overlayVisible.currentState }.first { it }
         // slide has loaded completely.
         if (focusState?.isFocused == true) {
-	    focusManager.moveFocus(FocusDirection.Enter)
+            // Using bringIntoViewRequester here instead of in Carousel.kt as when the focusable
+            // item is within an animation, bringIntoView scrolls excessively and loses focus.
+            // b/241591211
+            // By using bringIntoView inside the snapshotFlow, we ensure that the focusable has
+            // completed animating into position.
+            bringIntoViewRequester.bringIntoView()
+            focusManager.moveFocus(FocusDirection.Enter)
         }
     }
 
     Box(modifier = modifier
-            .onFocusChanged {
-                focusState = it
-                if (it.isFocused && overlayVisible.isIdle && overlayVisible.currentState) {
+        .bringIntoViewRequester(bringIntoViewRequester)
+        .onFocusChanged {
+            focusState = it
+            if (it.isFocused && overlayVisible.isIdle && overlayVisible.currentState) {
+                coroutineScope.launch {
+                    bringIntoViewRequester.bringIntoView()
                     focusManager.moveFocus(FocusDirection.Enter)
                 }
-             }.focusable()) {
+            }
+        }
+        .focusable()) {
         background()
 
         LaunchedEffect(overlayVisible) {

@@ -26,14 +26,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -42,6 +46,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.tv.material.ExperimentalTvMaterialApi
+import kotlinx.coroutines.launch
 
 /**
  * Immersive List consists of a list with multiple items and a background that displays content
@@ -57,7 +62,7 @@ import androidx.tv.material.ExperimentalTvMaterialApi
  * @param list composable defining the list of items that has to be rendered.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun ImmersiveList(
@@ -69,8 +74,19 @@ fun ImmersiveList(
 ) {
     var currentItemIndex by remember { mutableStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier) {
+    Box(modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onFocusChanged {
+                if (it.isFocused) {
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }
+    ) {
         ImmersiveListBackgroundScope(this).background(currentItemIndex, listHasFocus)
 
         val focusManager = LocalFocusManager.current
