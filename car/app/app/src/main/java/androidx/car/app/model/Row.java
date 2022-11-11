@@ -165,6 +165,7 @@ public final class Row implements Item {
      */
     @ExperimentalCarApi
     @NonNull
+    @RequiresCarApi(6)
     public List<Action> getActions() {
         return mActions;
     }
@@ -540,6 +541,7 @@ public final class Row implements Item {
          */
         @ExperimentalCarApi
         @NonNull
+        @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));

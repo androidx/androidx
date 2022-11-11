@@ -1393,7 +1393,7 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
-    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
     method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public int getNumericDecoration();
@@ -1414,7 +1414,7 @@ package androidx.car.app.model {
 
   public static final class Row.Builder {
     ctor public Row.Builder();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row.Builder addText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row build();
