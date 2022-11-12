@@ -38,7 +38,7 @@ package androidx.tv.foundation.lazy.grid {
   public final class LazyGridItemPlacementAnimatorKt {
   }
 
-  public final class LazyGridItemsProviderImplKt {
+  public final class LazyGridItemProviderKt {
   }
 
   public final class LazyGridKt {
@@ -47,7 +47,7 @@ package androidx.tv.foundation.lazy.grid {
   public final class LazyGridMeasureKt {
   }
 
-  public final class LazyGridScrollingKt {
+  public final class LazyGridScrollPositionKt {
   }
 
   public final class LazyGridSpanKt {
@@ -73,7 +73,6 @@ package androidx.tv.foundation.lazy.grid {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TvGridItemSpan {
     method public int getCurrentLineSpan();
-    property public final int currentLineSpan;
   }
 
   public sealed interface TvLazyGridItemInfo {
@@ -168,6 +167,16 @@ package androidx.tv.foundation.lazy.grid {
 
 }
 
+package androidx.tv.foundation.lazy.layout {
+
+  public final class LazyAnimateScrollKt {
+  }
+
+  public final class LazyLayoutSemanticsKt {
+  }
+
+}
+
 package androidx.tv.foundation.lazy.list {
 
   public final class LazyDslKt {
@@ -185,7 +194,7 @@ package androidx.tv.foundation.lazy.list {
   public final class LazyListItemPlacementAnimatorKt {
   }
 
-  public final class LazyListItemsProviderImplKt {
+  public final class LazyListItemProviderKt {
   }
 
   public final class LazyListKt {
@@ -194,7 +203,7 @@ package androidx.tv.foundation.lazy.list {
   public final class LazyListMeasureKt {
   }
 
-  public final class LazyListScrollingKt {
+  public final class LazyListScrollPositionKt {
   }
 
   public final class LazyListStateKt {
