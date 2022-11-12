@@ -16,6 +16,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -121,7 +122,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -199,7 +206,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -278,7 +291,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -371,7 +390,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -405,7 +430,13 @@ Fix for src/java/androidx/test.kt line 4: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -443,7 +474,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
@@ -478,7 +515,13 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
         """
         /* ktlint-enable max-line-length */
 
-        check(*input)
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257294309
+            .run()
             .expect(expected)
             .expectFixDiffs(expectedFixDiffs)
     }
