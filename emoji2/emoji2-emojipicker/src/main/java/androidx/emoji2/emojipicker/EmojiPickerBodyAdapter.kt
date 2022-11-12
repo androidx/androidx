@@ -152,7 +152,7 @@ internal class EmojiPickerBodyAdapter(
     }
 
     override fun getItemCount(): Int {
-        return (emojiGridColumns * emojiGridRows).toInt()
+        return flattenSource.size
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -169,11 +169,11 @@ internal class EmojiPickerBodyAdapter(
         return flattenSource
     }
 
-    fun getParentWidth(parent: ViewGroup): Int {
+    private fun getParentWidth(parent: ViewGroup): Int {
         return parent.measuredWidth - parent.paddingLeft - parent.paddingRight
     }
 
-    internal fun updateEmojis(emojis: List<List<ItemViewData>>) {
+    fun updateEmojis(emojis: List<List<ItemViewData>>) {
         flattenSource = ItemViewDataFlatList(
             emojis,
             emojiGridColumns
