@@ -21,8 +21,8 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Build
-import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetCredentialRequest
@@ -58,12 +58,14 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
     /**
      * The callback object state, used in the protected handleResponse method.
      */
-    private lateinit var callback: CredentialManagerCallback<GetCredentialResponse,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    lateinit var callback: CredentialManagerCallback<GetCredentialResponse,
         GetCredentialException>
     /**
      * The callback requires an executor to invoke it.
      */
-    private lateinit var executor: Executor
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    lateinit var executor: Executor
 
     @SuppressLint("ClassVerificationFailure")
     override fun invokePlayServices(
@@ -157,15 +159,23 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
                 )
             }
             return
+        } catch (e: GetCredentialException) {
+            executor.execute { ->
+                callback.onError(
+                    e
+                )
+            }
         }
     }
 
-    override fun convertRequestToPlayServices(request: GetCredentialRequest):
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun convertRequestToPlayServices(request: GetCredentialRequest):
         BeginSignInRequest {
         return constructBeginSignInRequest(request)
     }
 
-    override fun convertResponseToCredentialManager(response: SignInCredential):
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun convertResponseToCredentialManager(response: SignInCredential):
         GetCredentialResponse {
         var cred: Credential? = null
         if (response.password != null) {
@@ -178,11 +188,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             Log.i(TAG, "Credential returned but no google Id or password or passkey found")
         }
         if (cred == null) {
-            executor.execute { callback.onError(
-                GetCredentialUnknownException(
-                    "cred should not be null")
-            ) }
-            return GetCredentialResponse(Credential("ERROR", Bundle.EMPTY))
+            throw GetCredentialUnknownException("null credential found")
         }
         return GetCredentialResponse(cred)
     }
