@@ -68,10 +68,7 @@ class ShellTest {
         val output = Shell.optionalCommand("echo foo")
 
         val expected = when {
-            Build.VERSION.SDK_INT >= 23 -> "foo\n"
-            // known bug in the shell on L (21,22). `echo` doesn't work with shell
-            // programmatically, only works in interactive shell :|
-            Build.VERSION.SDK_INT in 21..22 -> ""
+            Build.VERSION.SDK_INT >= 21 -> "foo\n"
             else -> null
         }
 
@@ -153,7 +150,7 @@ class ShellTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
     fun executeScriptCaptureStdout_pipe_xargs() {
         // validate piping works with xargs
@@ -170,7 +167,7 @@ class ShellTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
     fun executeScriptCaptureStdout_stdinArg_xargs() {
         // validate stdin to first command in script
@@ -204,7 +201,7 @@ class ShellTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
     fun executeScriptCaptureStdout_multilineRedirectStdin_xargs() {
         Assert.assertEquals(
@@ -383,7 +380,7 @@ class ShellTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
     fun shellReuse() {
         val script = Shell.createShellScript("xargs echo $1", stdin = "foo")
@@ -395,6 +392,32 @@ class ShellTest {
             }
         }
         script.cleanUp()
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun getChecksum() {
+        val emptyPaths = listOf("/data/local/tmp/emptyfile1", "/data/local/tmp/emptyfile2")
+        try {
+            val checksums = emptyPaths.map {
+                Shell.executeScriptSilent("rm -f $it")
+                Shell.executeScriptSilent("touch $it")
+                Shell.getChecksum(it)
+            }
+
+            assertEquals(checksums.first(), checksums.last())
+            if (Build.VERSION.SDK_INT < 23) {
+                checksums.forEach { checksum ->
+                    // getChecksum uses ls -l to check size pre API 23,
+                    // this validates that behavior + result parsing
+                    assertEquals("0", checksum)
+                }
+            }
+        } finally {
+            emptyPaths.forEach {
+                Shell.executeScriptSilent("rm -f $it")
+            }
+        }
     }
 
     @RequiresApi(21)
