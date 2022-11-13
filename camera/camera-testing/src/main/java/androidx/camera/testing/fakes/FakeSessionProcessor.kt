@@ -71,6 +71,7 @@ class FakeSessionProcessor(
     private val startRepeatingCalled = CompletableDeferred<Long>()
     private val startCaptureCalled = CompletableDeferred<Long>()
     private val setParametersCalled = CompletableDeferred<Config>()
+    private val startTriggerCalled = CompletableDeferred<Config>()
     private var latestParameters: Config = OptionsBundle.emptyBundle()
     private var blockRunAfterInitSession: () -> Unit = {}
 
@@ -314,6 +315,12 @@ class FakeSessionProcessor(
         return FAKE_CAPTURE_SEQUENCE_ID
     }
 
+    override fun startTrigger(config: Config, callback: SessionProcessor.CaptureCallback): Int {
+        startTriggerCalled.complete(config)
+        callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
+        return FAKE_CAPTURE_SEQUENCE_ID
+    }
+
     override fun abortCapture(captureSequenceId: Int) {
     }
 
@@ -353,6 +360,10 @@ class FakeSessionProcessor(
 
     suspend fun assertSetParametersInvoked(): Config {
         return setParametersCalled.awaitWithTimeout(3000)
+    }
+
+    suspend fun assertStartTriggerInvoked(): Config {
+        return startTriggerCalled.awaitWithTimeout(3000)
     }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {

@@ -231,6 +231,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                 CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
                 map.put(key, options.retrieveOption(option));
             }
+            mParameters.clear();
             mParameters.putAll(map);
             applyRotationAndJpegQualityToProcessor();
         }
@@ -550,5 +551,43 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     public void abortCapture(int captureSequenceId) {
         mRequestProcessor.abortCaptures();
+    }
+
+    @Override
+    public int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
+        Logger.d(TAG, "startTrigger");
+        int captureSequenceId = mNextCaptureSequenceId.getAndIncrement();
+        RequestBuilder builder = new RequestBuilder();
+        builder.addTargetOutputConfigIds(mPreviewOutputConfig.getId());
+        if (mAnalysisOutputConfig != null) {
+            builder.addTargetOutputConfigIds(mAnalysisOutputConfig.getId());
+        }
+        builder.setTemplateId(CameraDevice.TEMPLATE_PREVIEW);
+        applyParameters(builder);
+        applyPreviewStagesParameters(builder);
+
+        CaptureRequestOptions options =
+                CaptureRequestOptions.Builder.from(config).build();
+        for (Config.Option<?> option : options.listOptions()) {
+            @SuppressWarnings("unchecked")
+            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
+            builder.setParameters(key, options.retrieveOption(option));
+        }
+
+        mRequestProcessor.submit(builder.build(), new RequestProcessor.Callback() {
+            @Override
+            public void onCaptureCompleted(@NonNull RequestProcessor.Request request,
+                    @NonNull CameraCaptureResult captureResult) {
+                callback.onCaptureSequenceCompleted(captureSequenceId);
+            }
+
+            @Override
+            public void onCaptureFailed(@NonNull RequestProcessor.Request request,
+                    @NonNull CameraCaptureFailure captureFailure) {
+                callback.onCaptureFailed(captureSequenceId);
+            }
+        });
+
+        return captureSequenceId;
     }
 }

@@ -120,6 +120,13 @@ public interface SessionProcessor {
     void abortCapture(int captureSequenceId);
 
     /**
+     * Sends trigger-type single request such as AF/AE triggers.
+     */
+    default int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
+        return -1;
+    }
+
+    /**
      * Callback for {@link #startRepeating} and {@link #startCapture}.
      */
     interface CaptureCallback {
