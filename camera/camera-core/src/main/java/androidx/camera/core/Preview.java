@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
@@ -315,8 +314,7 @@ public final class Preview extends UseCase {
         clearPipeline();
 
         // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(
-                camera, APPLY_CROP_ROTATE_AND_MIRRORING, mSurfaceProcessor);
+        mNode = new SurfaceProcessorNode(camera, mSurfaceProcessor);
         SettableSurface cameraSurface = new SettableSurface(
                 CameraEffect.PREVIEW,
                 resolution,
