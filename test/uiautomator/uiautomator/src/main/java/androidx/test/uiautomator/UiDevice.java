@@ -1063,7 +1063,7 @@ public class UiDevice implements Searchable {
                 roots.add(root);
             }
         }
-        return roots.toArray(new AccessibilityNodeInfo[roots.size()]);
+        return roots.toArray(new AccessibilityNodeInfo[0]);
     }
 
     Instrumentation getInstrumentation() {

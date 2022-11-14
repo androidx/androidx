@@ -204,8 +204,8 @@ class GestureController {
     private static MotionEvent getMotionEvent(long downTime, long eventTime, int action,
             List<PointerProperties> properties, List<PointerCoords> coordinates, int displayId) {
 
-        PointerProperties[] props = properties.toArray(new PointerProperties[properties.size()]);
-        PointerCoords[] coords = coordinates.toArray(new PointerCoords[coordinates.size()]);
+        PointerProperties[] props = properties.toArray(new PointerProperties[0]);
+        PointerCoords[] coords = coordinates.toArray(new PointerCoords[0]);
         final MotionEvent ev = MotionEvent.obtain(
                 downTime, eventTime, action, props.length, props, coords,
                 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
