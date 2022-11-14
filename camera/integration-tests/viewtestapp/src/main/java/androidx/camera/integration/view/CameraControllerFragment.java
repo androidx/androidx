@@ -20,8 +20,8 @@ import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -150,6 +150,7 @@ public class CameraControllerFragment extends Fragment {
 
     @VisibleForTesting
     ToneMappingPreviewEffect mToneMappingPreviewEffect;
+    ToneMappingImageEffect mToneMappingImageEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -221,6 +222,7 @@ public class CameraControllerFragment extends Fragment {
 
         // Set up post-processing effects.
         mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
+        mToneMappingImageEffect = new ToneMappingImageEffect();
         mEffectToggle = view.findViewById(R.id.effect_toggle);
         mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
         onEffectsToggled();
@@ -372,7 +374,8 @@ public class CameraControllerFragment extends Fragment {
 
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
-            mCameraController.setEffects(singletonList(mToneMappingPreviewEffect));
+            mCameraController.setEffects(
+                    asList(mToneMappingPreviewEffect, mToneMappingImageEffect));
         } else {
             mCameraController.setEffects(emptyList());
         }
