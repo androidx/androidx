@@ -122,6 +122,27 @@ class AspectRatioUtilTest {
     }
 
     @Test
+    fun testHasMatchingAspectRatio_smallerThanDefaultMod16LowerBound() {
+        assertThat(
+            AspectRatioUtil.hasMatchingAspectRatio(
+                Size(640, 358),
+                Rational(16, 9)
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun testHasMatchingAspectRatio_setCustomMod16LowerBound() {
+        assertThat(
+            AspectRatioUtil.hasMatchingAspectRatio(
+                Size(640, 358),
+                Rational(16, 9),
+                Size(320, 240)
+            )
+        ).isTrue()
+    }
+
+    @Test
     fun sortAspectRatios() {
         // Sort the aspect ratio key set by the target aspect ratio.
         val aspectRatios = listOf(
