@@ -31,6 +31,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,6 +44,7 @@ import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
@@ -66,6 +68,8 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService.Companion.BLUE_STYLE
@@ -166,7 +170,8 @@ abstract class WatchFaceControlClientTestBase {
     }
 
     @After
-    fun tearDown() {
+    @CallSuper
+    open fun tearDown() {
         // Interactive instances are not currently shut down when all instances go away. E.g. WCS
         // crashing does not cause the watch face to stop. So we need to shut down explicitly.
         if (this::engine.isInitialized) {
@@ -236,7 +241,52 @@ abstract class WatchFaceControlClientTestBase {
         }
         return value!!
     }
+
+    /**
+     * Updates the complications for [interactiveInstance] and waits until they have been applied.
+     */
+    protected fun updateComplicationsBlocking(
+        interactiveInstance: InteractiveWatchFaceClient,
+        slotIdToComplicationData: Map<Int, ComplicationData>
+    ) {
+        val slotIdToWatchForUpdates = slotIdToComplicationData.keys.first()
+        var slot: ComplicationSlot
+
+        runBlocking {
+            slot = engine.deferredWatchFaceImpl.await()
+                .complicationSlotsManager.complicationSlots[slotIdToWatchForUpdates]!!
+        }
+
+        val updateCountDownLatch = CountDownLatch(1)
+        handlerCoroutineScope.launch {
+            slot.complicationData.collect { updateCountDownLatch.countDown() }
+        }
+
+        interactiveInstance.updateComplicationData(slotIdToComplicationData)
+        assertTrue(updateCountDownLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+    }
+
+    protected fun tapOnComplication(
+        interactiveInstance: InteractiveWatchFaceClient,
+        slotId: Int
+    ) {
+        val leftClickX = interactiveInstance.complicationSlotsState[slotId]!!.bounds.centerX()
+        val leftClickY = interactiveInstance.complicationSlotsState[slotId]!!.bounds.centerY()
+
+        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.DOWN)
+        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.UP)
+    }
 }
+
+fun rangedValueComplicationBuilder() =
+    RangedValueComplicationData.Builder(
+        value = 50.0f,
+        min = 10.0f,
+        max = 100.0f,
+        ComplicationText.EMPTY
+    )
+        .setText(PlainComplicationText.Builder("Battery").build())
+
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @RequiresApi(Build.VERSION_CODES.O_MR1)
@@ -244,6 +294,14 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
 
     private val exampleCanvasAnalogWatchFaceComponentName =
         componentOf<ExampleCanvasAnalogWatchFaceService>()
+
+    @After
+    override fun tearDown() {
+        super.tearDown()
+        ObservableServiceA.reset()
+        ObservableServiceB.reset()
+        ObservableServiceC.reset()
+    }
 
     @Test
     fun complicationProviderDefaults() {
@@ -413,36 +471,11 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     fun updateComplicationData() {
         val interactiveInstance = getOrCreateTestSubject()
 
-        // Under the hood updateComplicationData is a oneway aidl method so we need to perform some
-        // additional synchronization to ensure it's side effects have been applied before
-        // inspecting complicationSlotsState otherwise we risk test flakes.
-        val updateCountDownLatch = CountDownLatch(1)
-        var leftComplicationSlot: ComplicationSlot
-
-        runBlocking {
-            leftComplicationSlot = engine.deferredWatchFaceImpl.await()
-                .complicationSlotsManager.complicationSlots[
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-            ]!!
-        }
-
-        handlerCoroutineScope.launch {
-            leftComplicationSlot.complicationData.collect {
-                updateCountDownLatch.countDown()
-            }
-        }
-
-        interactiveInstance.updateComplicationData(
+        updateComplicationsBlocking(
+            interactiveInstance,
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    RangedValueComplicationData.Builder(
-                        50.0f,
-                        10.0f,
-                        100.0f,
-                        ComplicationText.EMPTY
-                    )
-                        .setText(PlainComplicationText.Builder("Battery").build())
-                        .build(),
+                    rangedValueComplicationBuilder().build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("Test").build(),
@@ -450,7 +483,6 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
                     ).build()
             )
         )
-        assertTrue(updateCountDownLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
 
         assertThat(interactiveInstance.complicationSlotsState.size).isEqualTo(2)
 
@@ -1092,6 +1124,107 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
 
         assertThat(lastDisconnectReason).isEqualTo(DisconnectReasons.ENGINE_DETACHED)
     }
+
+    @Test
+    fun tapComplication() {
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        updateComplicationsBlocking(
+            interactiveInstance,
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    rangedValueComplicationBuilder()
+                        .setTapAction(ObservableServiceA.createPendingIntent(context))
+                        .build()
+            )
+        )
+
+        tapOnComplication(interactiveInstance, EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+
+        assertTrue(
+            ObservableServiceA.awaitForServiceToBeBound(UPDATE_TIMEOUT_MILLIS)
+        )
+    }
+
+    @Test
+    fun tapTimelineComplication() {
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        val watchFaceImpl = runBlocking { engine.deferredWatchFaceImpl.await() }
+
+        // Create a timeline complication with three phases, each with their own tap actions leading
+        // to ObservableServiceA, ObservableServiceB & ObservableServiceC getting bound.
+        val timelineComplication = rangedValueComplicationBuilder()
+            .setTapAction(ObservableServiceA.createPendingIntent(context))
+            .build()
+            .asWireComplicationData()
+
+        timelineComplication.setTimelineEntryCollection(
+            listOf(
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("B").build(),
+                    ComplicationText.EMPTY
+                )
+                    .setTapAction(ObservableServiceB.createPendingIntent(context))
+                    .build()
+                    .asWireComplicationData().apply {
+                        timelineStartEpochSecond =
+                            10 + TestExampleCanvasAnalogWatchFaceService.systemTimeMillis / 1000
+                        timelineEndEpochSecond =
+                            20 + TestExampleCanvasAnalogWatchFaceService.systemTimeMillis / 1000
+                    },
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("C").build(),
+                    ComplicationText.EMPTY
+                )
+                    .setTapAction(ObservableServiceC.createPendingIntent(context))
+                    .build()
+                    .asWireComplicationData().apply {
+                        timelineStartEpochSecond =
+                            20 + TestExampleCanvasAnalogWatchFaceService.systemTimeMillis / 1000
+                        timelineEndEpochSecond =
+                            90 + TestExampleCanvasAnalogWatchFaceService.systemTimeMillis / 1000
+                    }
+            )
+        )
+
+        updateComplicationsBlocking(
+            interactiveInstance,
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    timelineComplication.toApiComplicationData()
+            )
+        )
+
+        // A tap should initially lead to TapTargetServiceA getting bound.
+        tapOnComplication(interactiveInstance, EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+
+        assertTrue(ObservableServiceA.awaitForServiceToBeBound(UPDATE_TIMEOUT_MILLIS))
+
+        // Simulate the passage of time and force timeline entry selection by drawing.
+        TestExampleCanvasAnalogWatchFaceService.systemTimeMillis += 15 * 1000
+        watchFaceImpl.onDraw()
+
+        // A tap should now lead to TapTargetServiceB getting bound.
+        tapOnComplication(interactiveInstance, EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+
+        assertTrue(ObservableServiceB.awaitForServiceToBeBound(UPDATE_TIMEOUT_MILLIS))
+
+        // Simulate the passage of time and force timeline entry selection by drawing.
+        TestExampleCanvasAnalogWatchFaceService.systemTimeMillis += 20 * 1000
+        watchFaceImpl.onDraw()
+
+        // A tap should now lead to TapTargetServiceC getting bound.
+        tapOnComplication(interactiveInstance, EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+
+        assertTrue(ObservableServiceC.awaitForServiceToBeBound(UPDATE_TIMEOUT_MILLIS))
+    }
 }
 
 @RunWith(AndroidJUnit4::class)
@@ -1277,7 +1410,8 @@ class WatchFaceControlClientScreenshotTest : WatchFaceControlClientTestBase() {
         val wallpaperService =
             TestExampleOpenGLBackgroundInitWatchFaceService(context, surfaceHolder2)
 
-        val interactiveInstance = getOrCreateTestSubject(wallpaperService,
+        val interactiveInstance = getOrCreateTestSubject(
+            wallpaperService,
             complications = emptyMap()
         )
 

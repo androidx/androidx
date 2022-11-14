@@ -934,9 +934,8 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    /** @hide */
     @UiThread
-    internal fun onDraw() {
+    fun onDraw() {
         val startTime = getZonedDateTime()
         val startInstant = startTime.toInstant()
         val startTimeMillis = systemTimeProvider.getSystemTimeMillis()
