@@ -1065,7 +1065,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return the locally scoped {@link Fragment} to the given view, if found
      */
     @Nullable
-    private static Fragment findViewFragment(@NonNull View view) {
+    static Fragment findViewFragment(@NonNull View view) {
         while (view != null) {
             Fragment fragment = getViewFragment(view);
             if (fragment != null) {
