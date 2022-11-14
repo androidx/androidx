@@ -26,7 +26,7 @@ import java.util.Deque;
  */
 class PointerGesture {
     // The list of actions that make up this gesture.
-    private final Deque<PointerAction> mActions = new ArrayDeque<PointerAction>();
+    private final Deque<PointerAction> mActions = new ArrayDeque<>();
     private final long mDelay;
     private final int mDisplayId;
     private long mDuration;

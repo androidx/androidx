@@ -108,19 +108,19 @@ class GestureController {
     public void performGesture(PointerGesture ... gestures) {
         // Initialize pointers
         int count = 0;
-        Map<PointerGesture, Pointer> pointers = new HashMap<PointerGesture, Pointer>();
+        Map<PointerGesture, Pointer> pointers = new HashMap<>();
         for (PointerGesture g : gestures) {
             pointers.put(g, new Pointer(count++, g.start()));
         }
 
         // Initialize MotionEvent arrays
-        List<PointerProperties> properties = new ArrayList<PointerProperties>();
-        List<PointerCoords>     coordinates = new ArrayList<PointerCoords>();
+        List<PointerProperties> properties = new ArrayList<>();
+        List<PointerCoords>     coordinates = new ArrayList<>();
 
         // Track active and pending gestures
-        PriorityQueue<PointerGesture> active = new PriorityQueue<PointerGesture>(gestures.length,
+        PriorityQueue<PointerGesture> active = new PriorityQueue<>(gestures.length,
                 END_TIME_COMPARATOR);
-        PriorityQueue<PointerGesture> pending = new PriorityQueue<PointerGesture>(gestures.length,
+        PriorityQueue<PointerGesture> pending = new PriorityQueue<>(gestures.length,
                 START_TIME_COMPARATOR);
         pending.addAll(Arrays.asList(gestures));
 
