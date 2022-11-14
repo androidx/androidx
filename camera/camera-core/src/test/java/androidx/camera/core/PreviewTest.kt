@@ -35,6 +35,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.processing.SettableSurface
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CameraUtil
@@ -57,6 +58,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import kotlin.jvm.Throws
+import org.junit.Assert
 
 private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -470,6 +473,32 @@ class PreviewTest {
         // Assert: received a SurfaceRequest.
         assertThat(receivedWhileDetached).isFalse()
         assertThat(receivedAfterAttach).isTrue()
+    }
+
+    @Test
+    fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            Preview.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetResolutionWithResolutionSelector() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            Preview.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
     }
 
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {

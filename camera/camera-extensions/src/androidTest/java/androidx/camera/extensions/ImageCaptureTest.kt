@@ -73,9 +73,12 @@ class ImageCaptureTest(
 
     private lateinit var baseCameraSelector: CameraSelector
 
+    private lateinit var extensionsCameraSelector: CameraSelector
+
+    private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
+
     @Before
-    @Throws(Exception::class)
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
                 lensFacing,
@@ -91,6 +94,15 @@ class ImageCaptureTest(
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+
+        extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            baseCameraSelector,
+            extensionMode
+        )
+
+        withContext(Dispatchers.Main) {
+            fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
+        }
     }
 
     @After
@@ -143,13 +155,6 @@ class ImageCaptureTest(
                     })
             )
 
-            val fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
-
-            val extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-                baseCameraSelector,
-                extensionMode
-            )
-
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
@@ -179,5 +184,19 @@ class ImageCaptureTest(
                 ImageCaptureException::class.java
             )
         )
+    }
+
+    @Test
+    fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
+        val imageCapture = ImageCapture.Builder().build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionsCameraSelector,
+                imageCapture)
+        }
+
+        assertThat(imageCapture.currentConfig.isHigResolutionDisabled(false)).isTrue()
     }
 }

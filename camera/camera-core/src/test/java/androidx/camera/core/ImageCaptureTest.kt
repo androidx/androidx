@@ -40,6 +40,7 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -60,6 +61,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -574,6 +576,32 @@ class ImageCaptureTest {
         assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
         val cameraControl = camera.cameraControlInternal as FakeCameraControl
         assertThat(cameraControl.isZslConfigAdded).isTrue()
+    }
+
+    @Test
+    fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetResolutionWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
     }
 
     private fun bindImageCapture(

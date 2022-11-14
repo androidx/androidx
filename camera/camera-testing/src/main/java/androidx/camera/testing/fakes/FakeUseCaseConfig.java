@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -223,6 +224,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             return this;
         }
 
+        @NonNull
+        @Override
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
+            return this;
+        }
+
         /**
          * Sets specific image format to the fake use case.
          */
@@ -236,6 +244,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setZslDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setHighResolutionDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
             return this;
         }
     }

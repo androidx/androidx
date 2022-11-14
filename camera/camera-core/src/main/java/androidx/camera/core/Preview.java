@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -34,10 +35,10 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_P
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import static java.util.Collections.singletonList;
@@ -634,6 +635,21 @@ public final class Preview extends UseCase {
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
         }
+
+        // Merges Preview's default max resolution setting when resolution selector is used
+        ResolutionSelector resolutionSelector =
+                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
+        if (resolutionSelector != null && resolutionSelector.getMaxResolution() == null) {
+            Size maxResolution = builder.getMutableConfig().retrieveOption(OPTION_MAX_RESOLUTION);
+            if (maxResolution != null) {
+                ResolutionSelector.Builder resolutionSelectorBuilder =
+                        ResolutionSelector.Builder.fromSelector(resolutionSelector);
+                resolutionSelectorBuilder.setMaxResolution(maxResolution);
+                builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                        resolutionSelectorBuilder.build());
+            }
+        }
+
         return builder.getUseCaseConfig();
     }
 
@@ -867,16 +883,9 @@ public final class Preview extends UseCase {
         @NonNull
         @Override
         public Preview build() {
-            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
-            // the same config.
-            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
-                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
-                throw new IllegalArgumentException(
-                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
-                                + "config.");
-            }
-
-            return new Preview(getUseCaseConfig());
+            PreviewConfig previewConfig = getUseCaseConfig();
+            ImageOutputConfig.validateConfig(previewConfig);
+            return new Preview(previewConfig);
         }
 
         // Implementations of TargetConfig.Builder default methods
@@ -1075,6 +1084,38 @@ public final class Preview extends UseCase {
             return this;
         }
 
+        /**
+         * Sets the resolution selector to select the preferred supported resolution.
+         *
+         * <p>When using the {@code camera-camera2} CameraX implementation, the selected
+         * resolution will be limited by the {@code PREVIEW} size which is defined as the best
+         * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
+         * smaller. See the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'. If the
+         * {@link ResolutionSelector} contains the max resolution setting larger than the {@code
+         * PREVIEW} size, a size larger than the device's screen resolution or 1080p can be
+         * selected to use for {@link Preview}.
+         *
+         * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
+         * larger than the default screen resolution on certain devices.
+         *
+         * <p>The existing {@link #setTargetResolution(Size)} and
+         * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
+         * {@link ResolutionSelector}. Calling any of these APIs together with
+         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
+         * {@link #build()} is called to create the {@link Preview} instance.
+         *
+         * @hide
+         **/
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
+            return this;
+        }
+
         // Implementations of ThreadConfig.Builder default methods
 
         /**
@@ -1204,6 +1245,15 @@ public final class Preview extends UseCase {
         @Override
         public Builder setZslDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setHighResolutionDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
             return this;
         }
     }
