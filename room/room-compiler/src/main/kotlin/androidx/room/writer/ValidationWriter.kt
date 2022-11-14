@@ -16,9 +16,9 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.ParameterSpec
 
 /**
  * Common interface for database validation witters.
@@ -27,53 +27,65 @@ abstract class ValidationWriter {
 
     private lateinit var countingScope: CountingCodeGenScope
 
-    fun write(dbParam: ParameterSpec, scope: CodeGenScope) {
+    fun write(dbParamName: String, scope: CodeGenScope) {
         countingScope = CountingCodeGenScope(scope)
-        write(dbParam, countingScope)
+        write(dbParamName, countingScope)
     }
 
-    protected abstract fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope)
+    protected abstract fun write(dbParamName: String, scope: CountingCodeGenScope)
 
     /**
      * The estimated amount of statements this writer will write.
      */
     fun statementCount() = countingScope.statementCount()
 
-    protected class CountingCodeGenScope(val scope: CodeGenScope) {
+    protected class CountingCodeGenScope(private val scope: CodeGenScope) {
 
-        private var builder: CodeBlockWrapper? = null
+        val builder = CodeBlockWrapper(scope.builder)
 
         fun getTmpVar(prefix: String) = scope.getTmpVar(prefix)
 
-        fun builder(): CodeBlockWrapper {
-            if (builder == null) {
-                builder = CodeBlockWrapper(scope.builder())
-            }
-            return builder!!
-        }
-
-        fun statementCount() = builder?.statementCount ?: 0
+        fun statementCount() = builder.statementCount
     }
 
     // A wrapper class that counts statements added to a CodeBlock
-    protected class CodeBlockWrapper(val builder: CodeBlock.Builder) {
+    protected class CodeBlockWrapper(
+        private val builder: XCodeBlock.Builder
+    ) : XCodeBlock.Builder by builder {
 
         var statementCount = 0
             private set
 
-        fun addStatement(format: String, vararg args: Any?): CodeBlockWrapper {
+        override fun add(format: String, vararg args: Any?): XCodeBlock.Builder {
+            statementCount++
+            builder.add(format, *args)
+            return this
+        }
+
+        override fun addLocalVariable(
+            name: String,
+            typeName: XTypeName,
+            isMutable: Boolean,
+            assignExpr: XCodeBlock?
+        ): XCodeBlock.Builder {
+            statementCount++
+            builder.addLocalVariable(name, typeName, isMutable, assignExpr)
+            return this
+        }
+
+        override fun addStatement(format: String, vararg args: Any?): CodeBlockWrapper {
             statementCount++
             builder.addStatement(format, *args)
             return this
         }
 
-        fun beginControlFlow(controlFlow: String, vararg args: Any): CodeBlockWrapper {
+        override fun beginControlFlow(controlFlow: String, vararg args: Any?): CodeBlockWrapper {
             statementCount++
             builder.beginControlFlow(controlFlow, *args)
             return this
         }
 
-        fun endControlFlow(): CodeBlockWrapper {
+        override fun endControlFlow(): CodeBlockWrapper {
             builder.endControlFlow()
             return this
         }

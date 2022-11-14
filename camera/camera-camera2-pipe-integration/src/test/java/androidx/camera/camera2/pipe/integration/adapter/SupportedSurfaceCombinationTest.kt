@@ -697,10 +697,10 @@ class SupportedSurfaceCombinationTest {
             mockCamcorderProfileAdapter
         )
 
-        // Sets target resolution as 1200x720, all supported resolutions will be put into aspect
+        // Sets target resolution as 1280x640, all supported resolutions will be put into aspect
         // ratio not matched list. Then, 1280x720 will be the nearest matched one. Finally,
         // checks whether 1280x720 is selected or not.
-        val targetResolution = Size(1200, 720)
+        val targetResolution = Size(1280, 640)
         val imageCapture = ImageCapture.Builder().setTargetResolution(
             targetResolution
         ).setTargetRotation(Surface.ROTATION_90).build()

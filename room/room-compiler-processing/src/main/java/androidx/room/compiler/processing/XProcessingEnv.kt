@@ -24,6 +24,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
 
@@ -94,6 +95,15 @@ interface XProcessingEnv {
     fun getDeclaredType(type: XTypeElement, vararg types: XType): XType
 
     /**
+     * Returns an [XType] representing a wildcard type.
+     *
+     * In Java source, this represents types like `?`, `? extends T`, and `? super T`.
+     *
+     * In Kotlin source, this represents types like `*`, `out T`, and `in T`.
+     */
+    fun getWildcardType(consumerSuper: XType? = null, producerExtends: XType? = null): XType
+
+    /**
      * Return an [XArrayType] that has [type] as the [XArrayType.componentType].
      */
     fun getArrayType(type: XType): XArrayType
@@ -119,7 +129,17 @@ interface XProcessingEnv {
         }
         return when (backend) {
             Backend.JAVAC -> requireType(typeName.java)
-            Backend.KSP -> requireType(typeName.kotlin.toString())
+            Backend.KSP -> {
+                val kClassName = typeName.kotlin as? KClassName
+                    ?: error("cannot find required type ${typeName.kotlin}")
+                requireType(kClassName.canonicalName)
+            }
+        }.let {
+            when (typeName.nullability) {
+                XNullability.NULLABLE -> it.makeNullable()
+                XNullability.NONNULL -> it.makeNonNullable()
+                XNullability.UNKNOWN -> it
+            }
         }
     }
 

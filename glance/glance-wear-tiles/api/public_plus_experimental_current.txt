@@ -18,7 +18,7 @@ package androidx.glance.wear.tiles {
   public final class ErrorUiLayoutKt {
   }
 
-  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") public @interface ExperimentalGlanceWearTilesApi {
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
   }
 
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {

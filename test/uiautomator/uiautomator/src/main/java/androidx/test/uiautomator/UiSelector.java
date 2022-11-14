@@ -63,7 +63,7 @@ public class UiSelector {
     static final int SELECTOR_CHECKABLE = 30;
     static final int SELECTOR_RESOURCE_ID_REGEX = 31;
 
-    private SparseArray<Object> mSelectorAttributes = new SparseArray<Object>();
+    private SparseArray<Object> mSelectorAttributes = new SparseArray<>();
 
     public UiSelector() {
     }
@@ -855,12 +855,12 @@ public class UiSelector {
         // matched attributes - now check for matching instance number
         if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_INSTANCE) >= 0) {
             currentSelectorInstance =
-                    (Integer)mSelectorAttributes.get(UiSelector.SELECTOR_INSTANCE);
+                    (Integer) mSelectorAttributes.get(UiSelector.SELECTOR_INSTANCE);
         }
 
         // instance is required. Add count if not already counting
         if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_COUNT) >= 0) {
-            currentSelectorCounter = (Integer)mSelectorAttributes.get(UiSelector.SELECTOR_COUNT);
+            currentSelectorCounter = (Integer) mSelectorAttributes.get(UiSelector.SELECTOR_COUNT);
         }
 
         // Verify
@@ -946,7 +946,7 @@ public class UiSelector {
 
     String dumpToString(boolean all) {
         StringBuilder builder = new StringBuilder();
-        builder.append(UiSelector.class.getSimpleName() + "[");
+        builder.append(UiSelector.class.getSimpleName()).append("[");
         final int criterionCount = mSelectorAttributes.size();
         for (int i = 0; i < criterionCount; i++) {
             if (i > 0) {
@@ -1064,7 +1064,7 @@ public class UiSelector {
                     builder.append("RESOURCE_ID_REGEX=").append(mSelectorAttributes.valueAt(i));
                     break;
                 default:
-                    builder.append("UNDEFINED=" + criterion + " ").append(
+                    builder.append("UNDEFINED=").append(criterion).append(" ").append(
                             mSelectorAttributes.valueAt(i));
             }
         }

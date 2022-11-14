@@ -36,6 +36,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.transform.OutputTransform
+import androidx.camera.video.Quality
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -64,6 +65,7 @@ public class CameraControllerTest {
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
     private val targetSizeWithResolution =
         CameraController.OutputSize(Size(1080, 1960))
+    private val targetVideoQuality = Quality.HIGHEST
 
     @Before
     public fun setUp() {
@@ -287,22 +289,9 @@ public class CameraControllerTest {
 
     @UiThreadTest
     @Test
-    public fun setVideoCaptureResolution() {
-        controller.videoCaptureTargetSize = targetSizeWithResolution
-        assertThat(controller.videoCaptureTargetSize).isEqualTo(targetSizeWithResolution)
-
-        val config = controller.mVideoCapture.currentConfig as ImageOutputConfig
-        assertThat(config.targetResolution).isEqualTo(targetSizeWithResolution.resolution)
-    }
-
-    @UiThreadTest
-    @Test
-    public fun setVideoCaptureAspectRatio() {
-        controller.videoCaptureTargetSize = targetSizeWithAspectRatio
-        assertThat(controller.videoCaptureTargetSize).isEqualTo(targetSizeWithAspectRatio)
-
-        val config = controller.mVideoCapture.currentConfig as ImageOutputConfig
-        assertThat(config.targetAspectRatio).isEqualTo(targetSizeWithAspectRatio.aspectRatio)
+    fun setVideoCaptureQuality() {
+        controller.videoCaptureTargetQuality = targetVideoQuality
+        assertThat(controller.videoCaptureTargetQuality).isEqualTo(targetVideoQuality)
     }
 
     @UiThreadTest

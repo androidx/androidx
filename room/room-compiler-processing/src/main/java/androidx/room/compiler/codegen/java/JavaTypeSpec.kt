@@ -69,6 +69,8 @@ internal class JavaTypeSpec(
             actual.addType(typeSpec.actual)
         }
 
+        override fun setPrimaryConstructor(functionSpec: XFunSpec) = addFunction(functionSpec)
+
         override fun setVisibility(visibility: VisibilityModifier) {
             actual.addModifiers(visibility.toJavaVisibilityModifier())
         }

@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
-import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -30,7 +29,6 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
  */
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
-    val typeParam: KSTypeParameter,
     val typeArg: KSTypeArgument,
     jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(
@@ -68,7 +66,6 @@ internal class KspTypeArgumentType(
     override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = DelegatingTypeArg(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
@@ -80,7 +77,6 @@ internal class KspTypeArgumentType(
     override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = typeArg,
             jvmTypeResolver = jvmTypeResolver
         )

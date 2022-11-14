@@ -808,31 +808,30 @@ public abstract class WatchFaceService : WallpaperService() {
     ) = TraceEvent(
         "WatchFaceService.writeComplicationCache"
     ).use {
-        try {
-            val stream = ByteArrayOutputStream()
-            val objectOutputStream = ObjectOutputStream(stream)
-            objectOutputStream.writeInt(complicationSlotsManager.complicationSlots.size)
-            for (slot in complicationSlotsManager.complicationSlots) {
-                objectOutputStream.writeInt(slot.key)
-                objectOutputStream.writeObject(
-                    if ((slot.value.complicationData.value.persistencePolicy and
-                            ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
-                    ) {
-                        NoDataComplicationData().asWireComplicationData()
-                    } else {
-                        slot.value.complicationData.value.asWireComplicationData()
-                    }
-                )
-            }
-            objectOutputStream.close()
-            val byteArray = stream.toByteArray()
-
-            // File IO can be slow so perform the write from a background thread.
-            getBackgroundThreadHandler().post {
+        // File IO can be slow so perform the write from a background thread.
+        getBackgroundThreadHandler().post {
+            try {
+                val stream = ByteArrayOutputStream()
+                val objectOutputStream = ObjectOutputStream(stream)
+                objectOutputStream.writeInt(complicationSlotsManager.complicationSlots.size)
+                for (slot in complicationSlotsManager.complicationSlots) {
+                    objectOutputStream.writeInt(slot.key)
+                    objectOutputStream.writeObject(
+                        if ((slot.value.complicationData.value.persistencePolicy and
+                              ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
+                        ) {
+                            NoDataComplicationData().asWireComplicationData()
+                        } else {
+                            slot.value.complicationData.value.asWireComplicationData()
+                        }
+                    )
+                }
+                objectOutputStream.close()
+                val byteArray = stream.toByteArray()
                 writeComplicationDataCacheByteArray(context, fileName, byteArray)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to write to complication cache due to exception", e)
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to write to complication cache due to exception", e)
         }
     }
 
@@ -2489,7 +2488,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 "The estimated wire size of the supplied UserStyleSchemas for watch face " +
                     "$packageName is too big at $estimatedBytes bytes. UserStyleSchemas get sent " +
                     "to the companion over bluetooth and should be as small as possible for this " +
-                    "to be performant."
+                    "to be performant. The maximum size is " + MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES
             }
         }
 

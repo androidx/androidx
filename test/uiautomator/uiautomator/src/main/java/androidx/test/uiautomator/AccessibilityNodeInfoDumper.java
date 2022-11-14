@@ -87,11 +87,11 @@ class AccessibilityNodeInfoDumper {
                     dumpNodeRec(child, serializer, i, width, height);
                     child.recycle();
                 } else {
-                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child.toString()));
+                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child));
                 }
             } else {
                 Log.i(LOGTAG, String.format("Null child %d/%d, parent: %s",
-                        i, count, node.toString()));
+                        i, count, node));
             }
         }
         serializer.endTag("", "node");

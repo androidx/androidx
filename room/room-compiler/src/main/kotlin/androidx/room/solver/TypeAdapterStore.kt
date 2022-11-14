@@ -17,6 +17,7 @@
 package androidx.room.solver
 
 import androidx.annotation.VisibleForTesting
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
@@ -598,24 +599,20 @@ class TypeAdapterStore private constructor(
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
-            typeMirror.rawType.typeName == ARRAY_MAP ||
-            typeMirror.rawType.typeName == LONG_SPARSE_ARRAY ||
+            typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet() ||
+            typeMirror.rawType.typeName == LONG_SPARSE_ARRAY.toJavaPoet() ||
             typeMirror.rawType.typeName == INT_SPARSE_ARRAY
         ) {
-            val keyTypeArg = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
-                context.processingEnv.requireType(TypeName.LONG)
-            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
-                context.processingEnv.requireType(TypeName.INT)
-            } else {
-                typeMirror.typeArguments[0].extendsBoundOrSelf()
+            val keyTypeArg = when (typeMirror.rawType.typeName) {
+                LONG_SPARSE_ARRAY.toJavaPoet() -> context.processingEnv.requireType(TypeName.LONG)
+                INT_SPARSE_ARRAY -> context.processingEnv.requireType(TypeName.INT)
+                else -> typeMirror.typeArguments[0].extendsBoundOrSelf()
             }
 
-            val isSparseArray = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
-                LONG_SPARSE_ARRAY
-            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
-                INT_SPARSE_ARRAY
-            } else {
-                null
+            val isSparseArray = when (typeMirror.rawType.typeName) {
+                LONG_SPARSE_ARRAY.toJavaPoet() -> LONG_SPARSE_ARRAY.toJavaPoet()
+                INT_SPARSE_ARRAY -> INT_SPARSE_ARRAY
+                else -> null
             }
 
             val mapValueTypeArg = if (isSparseArray != null) {
@@ -673,7 +670,7 @@ class TypeAdapterStore private constructor(
                         keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
                         valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                         valueCollectionType = mapValueTypeArg,
-                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet(),
                         isSparseArray = isSparseArray
                     )
                 } else {
@@ -709,7 +706,7 @@ class TypeAdapterStore private constructor(
                     keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
                     valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                     valueCollectionType = null,
-                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet(),
                     isSparseArray = isSparseArray
                 )
             }

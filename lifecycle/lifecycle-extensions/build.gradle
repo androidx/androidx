@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":internal-testutils-runtime"))
 }
@@ -60,5 +61,8 @@ androidx {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
     namespace "androidx.lifecycle.extensions"
 }

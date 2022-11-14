@@ -16,58 +16,69 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
-import androidx.room.ext.typeName
 import androidx.room.vo.FtsEntity
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
 import java.util.Locale
 
 class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
-    override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
+    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
-        scope.builder().apply {
-            val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(
-                HashSet::class.typeName,
-                CommonTypeNames.STRING
-            )
-
-            addStatement(
-                "final $T $L = new $T($L)", columnListType, columnListVar,
-                columnListType, entity.fields.size
+        scope.builder.apply {
+            val columnSetVar = scope.getTmpVar("_columns$suffix")
+            val columnsSetType = CommonTypeNames.HASH_SET.parametrizedBy(CommonTypeNames.STRING)
+            addLocalVariable(
+                name = columnSetVar,
+                typeName = columnsSetType,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    columnsSetType,
+                    "%L",
+                    entity.fields.size
+                )
             )
             entity.nonHiddenFields.forEach {
-                addStatement("$L.add($S)", columnListVar, it.columnName)
+                addStatement("%L.add(%S)", columnSetVar, it.columnName)
             }
 
-            addStatement(
-                "final $T $L = new $T($S, $L, $S)",
-                RoomTypeNames.FTS_TABLE_INFO, expectedInfoVar, RoomTypeNames.FTS_TABLE_INFO,
-                entity.tableName, columnListVar, entity.createTableQuery
+            addLocalVariable(
+                name = expectedInfoVar,
+                typeName = RoomTypeNames.FTS_TABLE_INFO,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    RoomTypeNames.FTS_TABLE_INFO,
+                    "%S, %L, %S",
+                    entity.tableName, columnSetVar, entity.createTableQuery
+
+                )
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement(
-                "final $T $L = $T.read($N, $S)",
-                RoomTypeNames.FTS_TABLE_INFO, existingVar, RoomTypeNames.FTS_TABLE_INFO,
-                dbParam, entity.tableName
+            addLocalVal(
+                existingVar,
+                RoomTypeNames.FTS_TABLE_INFO,
+                "%M(%L, %S)",
+                RoomMemberNames.FTS_TABLE_INFO_READ, dbParamName, entity.tableName
             )
 
-            beginControlFlow("if (!$L.equals($L))", expectedInfoVar, existingVar).apply {
+            beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
                 addStatement(
-                    "return new $T(false, $S + $L + $S + $L)",
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                    "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
-                    expectedInfoVar, "\n Found:\n", existingVar
+                    "return %L",
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "false, %S + %L + %S + %L",
+                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
+                        expectedInfoVar,
+                        "\n Found:\n",
+                        existingVar
+                    )
                 )
             }
             endControlFlow()

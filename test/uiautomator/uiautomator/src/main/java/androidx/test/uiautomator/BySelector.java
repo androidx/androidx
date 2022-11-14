@@ -51,7 +51,7 @@ public class BySelector {
     Integer mMaxDepth;
 
     // Child selectors
-    List<BySelector> mChildSelectors = new LinkedList<BySelector>();
+    List<BySelector> mChildSelectors = new LinkedList<>();
 
 
     /** Clients should not instanciate this class directly. Use the {@link By} factory class instead. */

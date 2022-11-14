@@ -17,17 +17,17 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.expansion.isCoreSelect
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
+import java.util.Locale
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
-import java.util.Locale
 
-@Suppress("FunctionName")
 class QueryVisitor(
     private val original: String,
     private val syntaxErrors: List<String>,
@@ -269,7 +269,7 @@ enum class SQLTypeAffinity {
 
     fun getTypeMirrors(env: XProcessingEnv): List<XType>? {
         return when (this) {
-            TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING)
+            TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING.toJavaPoet())
             INTEGER -> withBoxedAndNullableTypes(
                 env, TypeName.INT, TypeName.BYTE, TypeName.CHAR,
                 TypeName.LONG, TypeName.SHORT

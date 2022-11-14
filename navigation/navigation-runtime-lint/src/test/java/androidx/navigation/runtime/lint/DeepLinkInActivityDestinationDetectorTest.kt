@@ -17,6 +17,7 @@
 package androidx.navigation.runtime.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -89,6 +90,7 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
             """
             )
         )
+            .skipTestModes(TestMode.SUPPRESSIBLE) // b/257336973
             .run()
             .expect("""
 res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activity> destination. Attach the deeplink directly to the second activity or the start destination of a nav host in the second activity instead. [DeepLinkInActivityDestination]

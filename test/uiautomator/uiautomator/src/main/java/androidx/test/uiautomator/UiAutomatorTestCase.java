@@ -81,7 +81,7 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
         if (monkeyVal != null) {
             // only if the monkey key is specified, we alter the state of monkey
             // else we should leave things as they are.
-            getUiDevice().getUiAutomation().setRunAsMonkey(Boolean.valueOf(monkeyVal));
+            getUiDevice().getUiAutomation().setRunAsMonkey(Boolean.parseBoolean(monkeyVal));
         }
     }
 

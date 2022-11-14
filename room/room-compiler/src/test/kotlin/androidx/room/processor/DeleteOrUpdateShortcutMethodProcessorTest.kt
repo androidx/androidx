@@ -27,7 +27,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.STRING
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -308,7 +308,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 `is`(
                     ParameterizedTypeName.get(
                         ClassName.get("foo.bar", "MyClass.MyList"),
-                        CommonTypeNames.STRING, COMMON.USER_TYPE_NAME
+                        STRING.toJavaPoet(), COMMON.USER_TYPE_NAME
                     ) as TypeName
                 )
             )

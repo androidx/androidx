@@ -62,30 +62,31 @@ class QueryController {
 
     String mLastTraversedText = "";
 
-    private OnAccessibilityEventListener mEventListener = new OnAccessibilityEventListener() {
-        @Override
-        public void onAccessibilityEvent(AccessibilityEvent event) {
-            synchronized (mLock) {
-                switch(event.getEventType()) {
-                    case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                        // don't trust event.getText(), check for nulls
-                        if (event.getText() != null && event.getText().size() > 0) {
-                            if(event.getText().get(0) != null)
-                                mLastActivityName = event.getText().get(0).toString();
+    private OnAccessibilityEventListener mEventListener = event -> {
+        synchronized (mLock) {
+            switch(event.getEventType()) {
+                case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                    // don't trust event.getText(), check for nulls
+                    if (event.getText() != null && event.getText().size() > 0) {
+                        if (event.getText().get(0) != null) {
+                            mLastActivityName = event.getText().get(0).toString();
                         }
-                       break;
-                    case AccessibilityEvent.TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY:
-                        // don't trust event.getText(), check for nulls
-                        if (event.getText() != null && event.getText().size() > 0)
-                            if(event.getText().get(0) != null)
-                                mLastTraversedText = event.getText().get(0).toString();
-                        if (DEBUG)
-                            Log.d(LOG_TAG, "Last text selection reported: " +
-                                    mLastTraversedText);
-                        break;
-                }
-                mLock.notifyAll();
+                    }
+                    break;
+                case AccessibilityEvent.TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY:
+                    // don't trust event.getText(), check for nulls
+                    if (event.getText() != null && event.getText().size() > 0) {
+                        if (event.getText().get(0) != null) {
+                            mLastTraversedText = event.getText().get(0).toString();
+                        }
+                    }
+                    if (DEBUG) {
+                        Log.d(LOG_TAG, "Last text selection reported: "
+                                + mLastTraversedText);
+                    }
+                    break;
             }
+            mLock.notifyAll();
         }
     };
 
@@ -339,7 +340,7 @@ class QueryController {
                 Log.w(LOG_TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode.toString()));
+                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
@@ -347,7 +348,7 @@ class QueryController {
             if (!childNode.isVisibleToUser()) {
                 if (VERBOSE)
                     Log.v(LOG_TAG,
-                            String.format("Skipping invisible child: %s", childNode.toString()));
+                            String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
             AccessibilityNodeInfo retNode = findNodeRegularRecursive(subSelector, childNode, i);
@@ -469,7 +470,7 @@ class QueryController {
                 Log.w(LOG_TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode.toString()));
+                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
@@ -477,7 +478,7 @@ class QueryController {
             if (!childNode.isVisibleToUser()) {
                 if (DEBUG)
                     Log.d(LOG_TAG,
-                        String.format("Skipping invisible child: %s", childNode.toString()));
+                        String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
             AccessibilityNodeInfo retNode = findNodePatternRecursive(

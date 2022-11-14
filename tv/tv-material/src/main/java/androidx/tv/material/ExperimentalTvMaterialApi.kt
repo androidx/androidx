@@ -19,4 +19,5 @@ package androidx.tv.material
 @RequiresOptIn(
     "This tv-material API is experimental and likely to change or be removed in the future."
 )
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalTvMaterialApi

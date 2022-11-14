@@ -134,7 +134,7 @@ class DaoWriter(
             }
             addProperty(dbProperty)
 
-            addFunction(
+            setPrimaryConstructor(
                 createConstructor(
                     shortcutMethods,
                     dao.constructorParamType != null

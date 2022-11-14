@@ -72,7 +72,7 @@ public final class SearchStats {
     private final int mRewriteSearchSpecLatencyMillis;
     /** Time used to rewrite the search results. */
     private final int mRewriteSearchResultLatencyMillis;
-    /** Time passed while waiting to acquire the lock during Java function calls. **/
+    /** Time passed while waiting to acquire the lock during Java function calls. */
     private final int mJavaLockAcquisitionLatencyMillis;
     /**
      * Time spent on ACL checking. This is the time spent filtering namespaces based on package
@@ -200,7 +200,7 @@ public final class SearchStats {
         return mRewriteSearchResultLatencyMillis;
     }
 
-    /** Returns time passed while waiting to acquire the lock during Java function calls **/
+    /** Returns time passed while waiting to acquire the lock during Java function calls */
     public int getJavaLockAcquisitionLatencyMillis() {
         return mJavaLockAcquisitionLatencyMillis;
     }

@@ -16,14 +16,18 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.view.SurfaceHolder
 import androidx.annotation.Px
+import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -32,18 +36,24 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
-import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.WatchFaceLayer
 import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
@@ -52,7 +62,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("12_style"),
             resources,
             R.string.digital_clock_style_12,
-            icon = null
+            Icon.createWithResource(this, R.drawable.red_style)
         )
     }
 
@@ -61,7 +71,48 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("24_style"),
             resources,
             R.string.digital_clock_style_24,
-            icon = null
+            Icon.createWithResource(this, R.drawable.red_style)
+        )
+    }
+
+    @Suppress("Deprecation")
+    private val digitalComplicationSettings by lazy {
+        ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("DigitalComplications"),
+            resources,
+            R.string.digital_complications_setting,
+            R.string.digital_complications_setting_description,
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("On"),
+                    resources,
+                    R.string.digital_complication_on_screen_name,
+                    Icon.createWithResource(this, R.drawable.on),
+                    listOf(
+                        ComplicationSlotOverlay(
+                            COMPLICATION1_ID,
+                            enabled = true,
+                            complicationSlotBounds =
+                                ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+                        ),
+                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    ),
+                ),
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("Off"),
+                    resources,
+                    R.string.digital_complication_off_screen_name,
+                    Icon.createWithResource(this, R.drawable.off),
+                    listOf(
+                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
+                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    )
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
         )
     }
 
@@ -120,31 +171,63 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         )
     }
 
-    internal val watchHandLengthStyleSetting by lazy {
-        DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id(WATCH_HAND_LENGTH_STYLE_SETTING),
+    internal val drawHoursSetting by lazy {
+        UserStyleSetting.BooleanUserStyleSetting(
+            UserStyleSetting.Id(HOURS_STYLE_SETTING),
             resources,
-            R.string.watchface_hand_length_setting,
-            R.string.watchface_hand_length_setting_description,
-            null,
-            0.25,
-            1.0,
-            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-            0.75
+            R.string.watchface_draw_hours_setting,
+            R.string.watchface_draw_hours_setting_description,
+            icon = null,
+            listOf(WatchFaceLayer.BASE),
+            defaultValue = true,
+            watchFaceEditorData = null
         )
     }
 
-    internal val hoursDrawFreqStyleSetting by lazy {
-        LongRangeUserStyleSetting(
-            UserStyleSetting.Id(HOURS_DRAW_FREQ_STYLE_SETTING),
+    @Suppress("Deprecation")
+    private val analogComplicationSettings by lazy {
+        ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("AnalogComplications"),
             resources,
-            R.string.watchface_draw_hours_freq_setting,
-            R.string.watchface_draw_hours_freq_setting_description,
-            null,
-            HOURS_DRAW_FREQ_MIN,
-            HOURS_DRAW_FREQ_MAX,
-            listOf(WatchFaceLayer.BASE),
-            HOURS_DRAW_FREQ_DEFAULT
+            R.string.watchface_complications_setting,
+            R.string.watchface_complications_setting_description,
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("One"),
+                    resources,
+                    R.string.analog_complication_one_screen_name,
+                    Icon.createWithResource(this, R.drawable.one),
+                    listOf(
+                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    )
+                ),
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("Two"),
+                    resources,
+                    R.string.analog_complication_two_screen_name,
+                    Icon.createWithResource(this, R.drawable.two),
+                    listOf(
+                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
+                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    )
+                ),
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("Three"),
+                    resources,
+                    R.string.analog_complication_three_screen_name,
+                    Icon.createWithResource(this, R.drawable.three),
+                    listOf(
+                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
+                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = true)
+                    )
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
         )
     }
 
@@ -153,8 +236,12 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("digital"),
             resources,
             R.string.style_digital_watch,
-            icon = null,
-            childSettings = listOf(digitalClockStyleSetting, colorStyleSetting)
+            icon = Icon.createWithResource(this, R.drawable.d),
+            childSettings = listOf(
+                digitalClockStyleSetting,
+                colorStyleSetting,
+                digitalComplicationSettings
+            )
         )
     }
 
@@ -163,8 +250,12 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("analog"),
             resources,
             R.string.style_analog_watch,
-            icon = null,
-            childSettings = listOf(watchHandLengthStyleSetting, hoursDrawFreqStyleSetting)
+            icon = Icon.createWithResource(this, R.drawable.a),
+            childSettings = listOf(
+                colorStyleSetting,
+                drawHoursSetting,
+                analogComplicationSettings
+            )
         )
     }
 
@@ -185,10 +276,96 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             watchFaceType,
             digitalClockStyleSetting,
             colorStyleSetting,
-            watchHandLengthStyleSetting,
-            hoursDrawFreqStyleSetting
+            drawHoursSetting,
+            digitalComplicationSettings,
+            analogComplicationSettings
         )
     )
+
+    private val watchFaceStyle by lazy {
+        WatchFaceColorStyle.create(this, "red_style")
+    }
+
+    public override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
+        val canvasComplicationFactory =
+            CanvasComplicationFactory { watchState, listener ->
+                CanvasComplicationDrawable(
+                    watchFaceStyle.getDrawable(this@ExampleHierarchicalStyleWatchFaceService)!!,
+                    watchState,
+                    listener
+                )
+            }
+
+        val complicationOne = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+            COMPLICATION1_ID,
+            canvasComplicationFactory,
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.GOAL_PROGRESS,
+                ComplicationType.WEIGHTED_ELEMENTS,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
+                ComplicationType.RANGED_VALUE
+            ),
+            ComplicationSlotBounds(RectF(0.6f, 0.1f, 0.8f, 0.3f))
+        ).setNameResourceId(R.string.hierarchical_complication1_screen_name)
+            .setScreenReaderNameResourceId(
+                R.string.hierarchical_complication1_screen_reader_name
+            ).build()
+
+        val complicationTwo = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+            COMPLICATION2_ID,
+            canvasComplicationFactory,
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.GOAL_PROGRESS,
+                ComplicationType.WEIGHTED_ELEMENTS,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_TIME_AND_DATE,
+                ComplicationType.SHORT_TEXT
+            ),
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+        ).setNameResourceId(R.string.hierarchical_complication2_screen_name)
+            .setScreenReaderNameResourceId(
+                R.string.hierarchical_complication2_screen_reader_name
+            ).build()
+
+        val complicationThree = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+            COMPLICATION3_ID,
+            canvasComplicationFactory,
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.GOAL_PROGRESS,
+                ComplicationType.WEIGHTED_ELEMENTS,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                ComplicationType.SHORT_TEXT
+            ),
+            ComplicationSlotBounds(RectF(0.6f, 0.7f, 0.8f, 0.9f))
+        ).setNameResourceId(R.string.hierarchical_complication3_screen_name)
+            .setScreenReaderNameResourceId(
+                R.string.hierarchical_complication3_screen_reader_name
+            ).build()
+
+        return ComplicationSlotsManager(
+            listOf(complicationOne, complicationTwo, complicationThree),
+            currentUserStyleRepository
+        )
+    }
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -206,6 +383,32 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             16L
         ) {
             val renderer = ExampleHierarchicalStyleWatchFaceRenderer()
+            val context: Context = this@ExampleHierarchicalStyleWatchFaceService
+
+            init {
+                CoroutineScope(Dispatchers.Main.immediate).launch {
+                    currentUserStyleRepository.userStyle.collect { userStyle ->
+                        for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                            (complication.renderer as CanvasComplicationDrawable).drawable =
+                                when (userStyle[colorStyleSetting]) {
+                                    redStyle ->
+                                        WatchFaceColorStyle.create(context, "red_style")
+                                            .getDrawable(context)!!
+                                    greenStyle ->
+                                        WatchFaceColorStyle.create(context, "green_style")
+                                            .getDrawable(context)!!
+                                    blueStyle ->
+                                        WatchFaceColorStyle.create(context, "blue_style")
+                                             .getDrawable(context)!!
+                                    else -> throw IllegalArgumentException(
+                                        "Unrecognized colorStyleSetting "
+                                    )
+                                }
+                        }
+                    }
+                }
+            }
+
             override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
                 val currentStyle = currentUserStyleRepository.userStyle.value
                 when (currentStyle[watchFaceType]) {
@@ -232,10 +435,8 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
                         bounds,
                         zonedDateTime,
                         renderParameters,
-                        (currentStyle[hoursDrawFreqStyleSetting]!!
-                            as LongRangeOption).value.toInt(),
-                        (currentStyle[watchHandLengthStyleSetting]!!
-                            as DoubleRangeOption).value.toFloat()
+                        (currentStyle[drawHoursSetting]!!
+                            as UserStyleSetting.BooleanUserStyleSetting.BooleanOption).value,
                     )
 
                     else -> {
@@ -245,6 +446,12 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
                         )
                     }
                 }
+
+                for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                    if (complication.enabled) {
+                        complication.render(canvas, zonedDateTime, renderParameters)
+                    }
+                }
             }
 
             override fun renderHighlightLayer(
@@ -252,7 +459,11 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
                 bounds: Rect,
                 zonedDateTime: ZonedDateTime
             ) {
-                // Nothing to do.
+                for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                    if (complication.enabled) {
+                        complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
+                    }
+                }
             }
         }
     )
@@ -352,8 +563,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             bounds: Rect,
             zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters,
-            hoursDrawFreq: Int,
-            watchHandLength: Float
+            drawHourPips: Boolean
         ) {
             val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
 
@@ -362,8 +572,8 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
             paint.color = Color.WHITE
             paint.textSize = 20.0f
-            if (isActive) {
-                for (i in 12 downTo 1 step hoursDrawFreq) {
+            if (isActive && drawHourPips) {
+                for (i in 12 downTo 1 step 3) {
                     val rot = i.toFloat() / 12.0f * 2.0f * Math.PI
                     val dx = sin(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
                     val dy = -cos(rot).toFloat() * NUMBER_RADIUS_FRACTION * bounds.width().toFloat()
@@ -386,8 +596,8 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
             val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f
 
-            val hourXRadius = bounds.width() * watchHandLength * 0.35f
-            val hourYRadius = bounds.height() * watchHandLength * 0.35f
+            val hourXRadius = bounds.width() * 0.3f
+            val hourYRadius = bounds.height() * 0.3f
 
             paint.strokeWidth = if (isActive) 8f else 5f
             canvas.drawLine(
@@ -398,8 +608,8 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
                 paint
             )
 
-            val minuteXRadius = bounds.width() * watchHandLength * 0.499f
-            val minuteYRadius = bounds.height() * watchHandLength * 0.499f
+            val minuteXRadius = bounds.width() * 0.4f
+            val minuteYRadius = bounds.height() * 0.4f
 
             paint.strokeWidth = if (isActive) 4f else 2.5f
             canvas.drawLine(
@@ -418,11 +628,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         private const val GREEN_STYLE = "green_style"
         private const val BLUE_STYLE = "blue_style"
 
-        private const val WATCH_HAND_LENGTH_STYLE_SETTING = "watch_hand_length_style_setting"
-        private const val HOURS_DRAW_FREQ_STYLE_SETTING = "hours_draw_freq_style_setting"
-        private const val HOURS_DRAW_FREQ_MIN = 1L
-        private const val HOURS_DRAW_FREQ_MAX = 4L
-        private const val HOURS_DRAW_FREQ_DEFAULT = 3L
+        private const val HOURS_STYLE_SETTING = "hours_style_setting"
         private const val NUMBER_RADIUS_FRACTION = 0.45f
 
         private val timeText = charArrayOf('1', '0', ':', '0', '9')
@@ -439,5 +645,9 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
         @Px
         private val TEXT_PADDING = 12
+
+        const val COMPLICATION1_ID = 101
+        const val COMPLICATION2_ID = 102
+        const val COMPLICATION3_ID = 103
     }
 }

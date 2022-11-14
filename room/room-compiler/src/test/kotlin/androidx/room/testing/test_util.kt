@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -305,6 +306,20 @@ object COMMON {
 
     val ROOM_DATABASE_KTX by lazy {
         loadKotlinCode("common/input/RoomDatabaseExt.kt")
+    }
+
+    val LONG_SPARSE_ARRAY by lazy {
+        loadJavaCode(
+            "common/input/collection/LongSparseArray.java",
+            CollectionTypeNames.LONG_SPARSE_ARRAY.canonicalName
+        )
+    }
+
+    val ARRAY_MAP by lazy {
+        loadJavaCode(
+            "common/input/collection/ArrayMap.java",
+            CollectionTypeNames.ARRAY_MAP.canonicalName
+        )
     }
 }
 

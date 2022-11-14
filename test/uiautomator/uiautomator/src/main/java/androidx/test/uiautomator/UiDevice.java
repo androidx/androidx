@@ -147,7 +147,7 @@ public class UiDevice implements Searchable {
     @Override
     @NonNull
     public List<UiObject2> findObjects(@NonNull BySelector selector) {
-        List<UiObject2> ret = new ArrayList<UiObject2>();
+        List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
             ret.add(new UiObject2(this, selector, node));
         }
@@ -898,20 +898,13 @@ public class UiDevice implements Searchable {
                 return false;
             }
         }
-        Runnable emptyRunnable = new Runnable() {
-            @Override
-            public void run() {
+        Runnable emptyRunnable = () -> {};
+        AccessibilityEventFilter checkWindowUpdate = t -> {
+            if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+                return packageName == null || (t.getPackageName() != null
+                        && packageName.contentEquals(t.getPackageName()));
             }
-        };
-        AccessibilityEventFilter checkWindowUpdate = new AccessibilityEventFilter() {
-            @Override
-            public boolean accept(AccessibilityEvent t) {
-                if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                    return packageName == null || (t.getPackageName() != null
-                            && packageName.contentEquals(t.getPackageName()));
-                }
-                return false;
-            }
+            return false;
         };
         Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
                 packageName));
@@ -1070,7 +1063,7 @@ public class UiDevice implements Searchable {
                 roots.add(root);
             }
         }
-        return roots.toArray(new AccessibilityNodeInfo[roots.size()]);
+        return roots.toArray(new AccessibilityNodeInfo[0]);
     }
 
     Instrumentation getInstrumentation() {

@@ -36,7 +36,7 @@ package androidx.benchmark {
   public final class ConfigurationErrorKt {
   }
 
-  @kotlin.RequiresOptIn public @interface ExperimentalBenchmarkStateApi {
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
   }
 
   public final class MetricNameUtilsKt {

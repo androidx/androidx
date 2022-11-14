@@ -27,6 +27,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0")
     api("androidx.annotation:annotation:1.2.0")
     api(project(":camera:camera-core"))
+    api(project(":camera:camera-video"))
     implementation(project(":camera:camera-lifecycle"))
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     implementation(libs.guavaListenableFuture)
@@ -61,6 +62,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
+    androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")

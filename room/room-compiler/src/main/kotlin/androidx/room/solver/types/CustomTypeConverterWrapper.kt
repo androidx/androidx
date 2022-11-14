@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.decapitalize
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CustomTypeConverter
@@ -85,21 +86,41 @@ class CustomTypeConverterWrapper(
     }
 
     private fun providedTypeConverter(scope: CodeGenScope): XFunSpec {
-        val className = custom.className
-        val baseName = className.simpleNames.last().decapitalize(Locale.US)
+        val fieldTypeName = when (scope.language) {
+            CodeLanguage.JAVA -> custom.className
+            CodeLanguage.KOTLIN -> KotlinTypeNames.LAZY.parametrizedBy(custom.className)
+        }
+        val baseName = custom.className.simpleNames.last().decapitalize(Locale.US)
         val converterClassName = custom.className
         scope.writer.addRequiredTypeConverter(converterClassName)
         val converterField = scope.writer.getOrCreateProperty(
             object : TypeWriter.SharedPropertySpec(
-                baseName, custom.className
+                baseName, fieldTypeName
             ) {
-                override val isMutable = true
+                override val isMutable = scope.language == CodeLanguage.JAVA
 
                 override fun getUniqueKey(): String {
                     return "converter_${custom.className}"
                 }
 
                 override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
+                    // For Kotlin we'll rely on kotlin.Lazy while for Java we'll memoize the
+                    // provided converter in the getter.
+                    if (builder.language == CodeLanguage.KOTLIN) {
+                        builder.apply {
+                            initializer(
+                                XCodeBlock.builder(language).apply {
+                                    beginControlFlow("lazy")
+                                    addStatement(
+                                        "checkNotNull(%L.getTypeConverter(%L))",
+                                        DaoWriter.DB_PROPERTY_NAME,
+                                        XCodeBlock.ofJavaClassLiteral(language, custom.className)
+                                    )
+                                    endControlFlow()
+                                }.build()
+                            )
+                        }
+                    }
                 }
             }
         )
@@ -115,39 +136,40 @@ class CustomTypeConverterWrapper(
             ) {
                 val body = buildConvertFunctionBody(builder.language)
                 builder.apply(
-                    // Apply synchronized modifier for Java
+                    // Apply synchronized modifier for Java since function checks and sets the
+                    // converter in the shared field.
                     javaMethodBuilder = {
                         addModifiers(Modifier.SYNCHRONIZED)
-                        builder.addCode(body)
                     },
-                    // Use synchronized std-lib function for Kotlin
-                    kotlinFunctionBuilder = {
-                        beginControlFlow("return synchronized")
-                        builder.addCode(body)
-                        endControlFlow()
-                    }
+                    kotlinFunctionBuilder = { }
                 )
+                builder.addCode(body)
                 builder.returns(custom.className)
             }
 
-            private fun buildConvertFunctionBody(language: CodeLanguage): XCodeBlock {
-                return XCodeBlock.builder(language).apply {
-                    beginControlFlow("if (%N == null)", converterField)
-                    addStatement(
-                        "%N = %L.getTypeConverter(%L)",
-                        converterField,
-                        DaoWriter.DB_PROPERTY_NAME,
-                        XCodeBlock.ofJavaClassLiteral(language, custom.className)
-                    )
-                    endControlFlow()
-                    when (language) {
-                        CodeLanguage.JAVA ->
-                            addStatement("return %N", converterField)
-                        CodeLanguage.KOTLIN ->
-                            addStatement("return@synchronized %N", converterField)
+            private fun buildConvertFunctionBody(
+                language: CodeLanguage
+            ) = XCodeBlock.builder(language).apply {
+                // For Java we implement the memoization logic in the converter getter, meanwhile
+                // for Kotlin we rely on kotlin.Lazy so the getter just delegates to it.
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        beginControlFlow("if (%N == null)", converterField).apply {
+                            addStatement(
+                                "%N = %L.getTypeConverter(%L)",
+                                converterField,
+                                DaoWriter.DB_PROPERTY_NAME,
+                                XCodeBlock.ofJavaClassLiteral(language, custom.className)
+                            )
+                        }
+                        endControlFlow()
+                        addStatement("return %N", converterField)
                     }
-                }.build()
-            }
+                    CodeLanguage.KOTLIN -> {
+                        addStatement("return %N.value", converterField)
+                    }
+                }
+            }.build()
         }
         return scope.writer.getOrCreateFunction(funSpec)
     }

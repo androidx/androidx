@@ -17,7 +17,7 @@
 package androidx.benchmark.darwin.gradle
 
 import androidx.benchmark.darwin.gradle.skia.Metrics
-import androidx.benchmark.darwin.gradle.xcode.Models
+import androidx.benchmark.darwin.gradle.xcode.GsonHelpers
 import androidx.benchmark.darwin.gradle.xcode.XcResultParser
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -67,7 +67,7 @@ abstract class DarwinBenchmarkResultsTask @Inject constructor(
         }
         val (record, summaries) = parser.parseResults()
         val metrics = Metrics.buildMetrics(record, summaries)
-        val output = Models.gsonBuilder()
+        val output = GsonHelpers.gsonBuilder()
             .setPrettyPrinting()
             .create()
             .toJson(metrics)

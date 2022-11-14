@@ -78,7 +78,7 @@ class CoroutineTransactionMethodBinder(
             XCodeBlock.of(
                 scope.language,
                 "(%L) -> %L",
-                innerContinuationParamName, adapterScope.builder().build()
+                innerContinuationParamName, adapterScope.generate()
             )
         } else {
             Function1TypeSpec(

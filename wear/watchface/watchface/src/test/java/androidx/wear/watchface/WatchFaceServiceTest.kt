@@ -409,6 +409,17 @@ public class WatchFaceServiceTest {
         ),
         affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
     )
+    private val complicationsStyleSetting2 = ComplicationSlotsUserStyleSetting(
+        UserStyleSetting.Id("complications_style_setting2"),
+        "AllComplicationSlots",
+        "Number and position",
+        icon = null,
+        complicationConfig = listOf(
+            leftOnlyComplicationsOption,
+            rightOnlyComplicationsOption
+        ),
+        affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+    )
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationSlotsManager: ComplicationSlotsManager
@@ -2698,6 +2709,79 @@ public class WatchFaceServiceTest {
 
         // The init function of ComplicationSlotsManager should enable complicationSlotId1.
         assertThat(manager[complicationSlotId1]!!.enabled).isTrue()
+    }
+
+    @Test
+    fun hierarchical_complicationsStyleSetting() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+
+        val option1 = ListUserStyleSetting.ListOption(
+            Option.Id("1"),
+            displayName = "1",
+            icon = null,
+            childSettings = listOf(complicationsStyleSetting)
+        )
+        val option2 = ListUserStyleSetting.ListOption(
+            Option.Id("2"),
+            displayName = "2",
+            icon = null,
+            childSettings = listOf(complicationsStyleSetting2)
+        )
+        val option3 = ListUserStyleSetting.ListOption(Option.Id("3"), "3", icon = null)
+        val choice = ListUserStyleSetting(
+            UserStyleSetting.Id("123"),
+            displayName = "123",
+            description = "123",
+            icon = null,
+            listOf(option1, option2, option3),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(choice, complicationsStyleSetting, complicationsStyleSetting2)),
+            apiVersion = 4
+        )
+
+        currentUserStyleRepository.updateUserStyle(
+            UserStyle(
+                mapOf(
+                    choice to option1,
+                    complicationsStyleSetting to noComplicationsOption, // Active
+                    complicationsStyleSetting2 to rightOnlyComplicationsOption
+                )
+            )
+        )
+        assertFalse(leftComplication.enabled)
+        assertFalse(rightComplication.enabled)
+
+        currentUserStyleRepository.updateUserStyle(
+            UserStyle(
+                mapOf(
+                    choice to option2,
+                    complicationsStyleSetting to noComplicationsOption,
+                    complicationsStyleSetting2 to rightOnlyComplicationsOption // Active
+                )
+            )
+        )
+        assertFalse(leftComplication.enabled)
+        assertTrue(rightComplication.enabled)
+
+        // By default all complications are active if no complicationsStyleSetting applies.
+        currentUserStyleRepository.updateUserStyle(
+            UserStyle(
+                mapOf(
+                    choice to option3,
+                    complicationsStyleSetting to noComplicationsOption,
+                    complicationsStyleSetting2 to rightOnlyComplicationsOption
+                )
+            )
+        )
+        assertTrue(leftComplication.enabled)
+        assertTrue(rightComplication.enabled)
     }
 
     @Test

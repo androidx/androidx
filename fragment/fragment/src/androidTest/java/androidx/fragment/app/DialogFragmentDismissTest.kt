@@ -112,9 +112,9 @@ class DialogFragmentDismissTest(
 
     @Test
     fun testDialogFragmentDismiss() {
-        // Due to b/157955883, we need to early return if API <= 30.
+        // Due to b/157955883, we need to early return if API == 30.
         // Otherwise, this test flakes.
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
             return
         }
         val fragment = TestDialogFragment()

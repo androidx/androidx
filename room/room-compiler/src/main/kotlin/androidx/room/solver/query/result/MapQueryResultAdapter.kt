@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
 import androidx.room.ext.L
@@ -63,7 +64,7 @@ class MapQueryResultAdapter(
         )
     } else {
         ParameterizedTypeName.get(
-            if (isArrayMap) ARRAY_MAP else ClassName.get(Map::class.java),
+            if (isArrayMap) ARRAY_MAP.toJavaPoet() else ClassName.get(Map::class.java),
             keyTypeArg.typeName,
             declaredValueType
         )
@@ -77,7 +78,7 @@ class MapQueryResultAdapter(
     } else {
         // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
         ParameterizedTypeName.get(
-            if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
+            if (isArrayMap) ARRAY_MAP.toJavaPoet() else ClassName.get(LinkedHashMap::class.java),
             keyTypeArg.typeName,
             declaredValueType
         )

@@ -108,19 +108,19 @@ class GestureController {
     public void performGesture(PointerGesture ... gestures) {
         // Initialize pointers
         int count = 0;
-        Map<PointerGesture, Pointer> pointers = new HashMap<PointerGesture, Pointer>();
+        Map<PointerGesture, Pointer> pointers = new HashMap<>();
         for (PointerGesture g : gestures) {
             pointers.put(g, new Pointer(count++, g.start()));
         }
 
         // Initialize MotionEvent arrays
-        List<PointerProperties> properties = new ArrayList<PointerProperties>();
-        List<PointerCoords>     coordinates = new ArrayList<PointerCoords>();
+        List<PointerProperties> properties = new ArrayList<>();
+        List<PointerCoords>     coordinates = new ArrayList<>();
 
         // Track active and pending gestures
-        PriorityQueue<PointerGesture> active = new PriorityQueue<PointerGesture>(gestures.length,
+        PriorityQueue<PointerGesture> active = new PriorityQueue<>(gestures.length,
                 END_TIME_COMPARATOR);
-        PriorityQueue<PointerGesture> pending = new PriorityQueue<PointerGesture>(gestures.length,
+        PriorityQueue<PointerGesture> pending = new PriorityQueue<>(gestures.length,
                 START_TIME_COMPARATOR);
         pending.addAll(Arrays.asList(gestures));
 
@@ -204,8 +204,8 @@ class GestureController {
     private static MotionEvent getMotionEvent(long downTime, long eventTime, int action,
             List<PointerProperties> properties, List<PointerCoords> coordinates, int displayId) {
 
-        PointerProperties[] props = properties.toArray(new PointerProperties[properties.size()]);
-        PointerCoords[] coords = coordinates.toArray(new PointerCoords[coordinates.size()]);
+        PointerProperties[] props = properties.toArray(new PointerProperties[0]);
+        PointerCoords[] coords = coordinates.toArray(new PointerCoords[0]);
         final MotionEvent ev = MotionEvent.obtain(
                 downTime, eventTime, action, props.length, props, coords,
                 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);

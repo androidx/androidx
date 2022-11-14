@@ -19,7 +19,7 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.LIST
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -72,7 +72,7 @@ class PositionalDataSourceQueryResultBinder(
         MethodSpec.methodBuilder("convertRows").apply {
             addAnnotation(Override::class.java)
             addModifiers(Modifier.PROTECTED)
-            returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
+            returns(ParameterizedTypeName.get(LIST.toJavaPoet(), itemTypeName))
             val cursorParam = ParameterSpec.builder(CURSOR.toJavaPoet(), "cursor")
                 .build()
             addParameter(cursorParam)

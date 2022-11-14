@@ -635,6 +635,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchOut(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchOut(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -655,6 +657,8 @@ public class UiObjectTest extends BaseTest {
         UiObject expectedScaleText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
                 + "/scale_factor").text("1.0f"));
 
+        assertTrue(pinchArea.pinchIn(0, 10));
+        assertFalse(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         assertTrue(pinchArea.pinchIn(100, 10));
         assertTrue(expectedScaleText.waitUntilGone(TIMEOUT_MS));
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -674,6 +678,10 @@ public class UiObjectTest extends BaseTest {
         assertUiObjectNotFound(() -> noNode.pinchIn(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchOut(100, 10));
         assertThrows(IllegalStateException.class, () -> smallArea.pinchIn(100, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchOut(101, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(101, 10));
     }
 
     @Test

@@ -23,11 +23,15 @@ import android.os.Bundle;
  * @hide
  */
 interface ICustomTabsCallback {
-    void onNavigationEvent(int navigationEvent, in Bundle extras) = 1;
-    void extraCallback(String callbackName, in Bundle args) = 2;
+    oneway void onNavigationEvent(int navigationEvent, in Bundle extras) = 1;
+    oneway void extraCallback(String callbackName, in Bundle args) = 2;
+
+    // Not defined with 'oneway' to preserve the calling order among |onPostMessage()| and related calls.
     void onMessageChannelReady(in Bundle extras) = 3;
     void onPostMessage(String message, in Bundle extras) = 4;
-    void onRelationshipValidationResult(int relation, in Uri origin, boolean result, in Bundle extras) = 5;
+    oneway void onRelationshipValidationResult(int relation, in Uri origin, boolean result, in Bundle extras) = 5;
+
+    // API with return value cannot be 'oneway'.
     Bundle extraCallbackWithResult(String callbackName, in Bundle args) = 6;
-    void onActivityResized(int height, int width, in Bundle extras) = 7;
+    oneway void onActivityResized(int height, int width, in Bundle extras) = 7;
 }

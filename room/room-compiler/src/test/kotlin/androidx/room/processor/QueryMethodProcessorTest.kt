@@ -19,12 +19,13 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.LIST
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -332,7 +333,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("select * from User")
-                abstract public <T> ${CommonTypeNames.LIST}<T> foo(int x);
+                abstract public <T> ${LIST.toJavaPoet()}<T> foo(int x);
                 """
         ) { parsedQuery, invocation ->
             val expected: TypeName = ParameterizedTypeName.get(
@@ -369,7 +370,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${LIST.toJavaPoet()}<Integer>>
                 getFactorialLiveData();
                 """
         ) { parsedQuery, _ ->
@@ -404,7 +405,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>>
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${LIST.toJavaPoet()}<Integer>>
                 getFactorialLiveData();
                 """
         ) { _, invocation ->
@@ -872,7 +873,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val pojoRowAdapter = listAdapter.rowAdapters.single() as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
             assertThat(
-                pojoRowAdapter.relationCollectors[0].relationTypeName,
+                pojoRowAdapter.relationCollectors[0].relationTypeName.toJavaPoet(),
                 `is`(
                     ParameterizedTypeName.get(
                         ClassName.get(ArrayList::class.java),

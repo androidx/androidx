@@ -17,7 +17,6 @@
 package androidx.room.solver.types
 
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -34,9 +33,7 @@ class UpCastTypeConverter(
     cost = Cost.UP_CAST
 ) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            addStatement("$L = $L", outputVarName, inputVarName)
-        }
+        scope.builder.addStatement("%L = %L", outputVarName, inputVarName)
     }
 
     override fun doConvert(inputVarName: String, scope: CodeGenScope): String {

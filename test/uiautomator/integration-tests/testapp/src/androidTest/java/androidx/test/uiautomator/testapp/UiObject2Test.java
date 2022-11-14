@@ -260,7 +260,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         List<UiObject2> children = nestedObject.getChildren();
         assertEquals(2, children.size());
-        Set<String> childrenClassNames = new HashSet<String>();
+        Set<String> childrenClassNames = new HashSet<>();
         childrenClassNames.add(children.get(0).getClassName());
         childrenClassNames.add(children.get(1).getClassName());
         assertTrue(childrenClassNames.contains("android.widget.TextView"));
@@ -687,7 +687,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargin(1_000);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
 
@@ -697,7 +697,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargin(1);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
@@ -715,7 +715,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargins(1, 1, 1_000, 1_000);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
 
@@ -725,7 +725,7 @@ public class UiObject2Test extends BaseTest {
         pinchArea.setGestureMargins(1, 1, 1, 1);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }

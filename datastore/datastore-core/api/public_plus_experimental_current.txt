@@ -34,7 +34,7 @@ package androidx.datastore.core {
     field public static final androidx.datastore.core.DataStoreFactory INSTANCE;
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING, message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExperimentalMultiProcessDataStore {
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING, message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExperimentalMultiProcessDataStore {
   }
 
   public final class MultiProcessDataStoreFactory {

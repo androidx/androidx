@@ -17,21 +17,15 @@
 package androidx.room.writer
 
 import COMMON
-import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.processor.Context
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import loadTestSource
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// Dany's Kotlin codegen test playground (and tests too)
 @RunWith(TestParameterInjector::class)
-class KotlinCodeGenTest {
+class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     val databaseSrc = Source.kotlin(
         "MyDatabase.kt",
@@ -397,7 +391,6 @@ class KotlinCodeGenTest {
             "MyDao.kt",
             """
             import androidx.room.*
-            import java.util.UUID
 
             @Dao
             interface MyDao {
@@ -437,7 +430,6 @@ class KotlinCodeGenTest {
             "MyDao.kt",
             """
             import androidx.room.*
-            import java.util.UUID
 
             @Dao
             interface MyDao {
@@ -463,6 +455,143 @@ class KotlinCodeGenTest {
                 fun fromString(data: String): Foo = Foo(data)
                 @TypeConverter
                 fun toString(foo: Foo): String = foo.data
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_customTypeConverter_provided() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+
+              @Insert
+              fun addEntity(item: MyEntity)
+            }
+
+            @Entity
+            @TypeConverters(FooConverter::class)
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val foo: Foo,
+            )
+
+            data class Foo(val data: String)
+
+            @ProvidedTypeConverter
+            class FooConverter(val default: String) {
+                @TypeConverter
+                fun fromString(data: String?): Foo = Foo(data ?: default)
+                @TypeConverter
+                fun toString(foo: Foo): String = foo.data
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_customTypeConverter_composite() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+
+              @Insert
+              fun addEntity(item: MyEntity)
+            }
+
+            @Entity
+            @TypeConverters(FooBarConverter::class)
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val bar: Bar,
+            )
+
+            data class Foo(val data: String)
+            data class Bar(val data: String)
+
+            object FooBarConverter {
+                @TypeConverter
+                fun fromString(data: String): Foo = Foo(data)
+                @TypeConverter
+                fun toString(foo: Foo): String = foo.data
+
+                @TypeConverter
+                fun fromFoo(foo: Foo): Bar = Bar(foo.data)
+                @TypeConverter
+                fun toFoo(bar: Bar): Foo = Foo(bar.data)
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun pojoRowAdapter_customTypeConverter_nullAware() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+
+              @Insert
+              fun addEntity(item: MyEntity)
+            }
+
+            @Entity
+            @TypeConverters(FooBarConverter::class)
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val foo: Foo,
+                val bar: Bar
+            )
+
+            data class Foo(val data: String)
+            data class Bar(val data: String)
+
+            object FooBarConverter {
+                @TypeConverter
+                fun fromString(data: String?): Foo? = data?.let { Foo(it) }
+                @TypeConverter
+                fun toString(foo: Foo?): String? = foo?.data
+
+                @TypeConverter
+                fun fromFoo(foo: Foo): Bar = Bar(foo.data)
+                @TypeConverter
+                fun toFoo(bar: Bar): Foo = Foo(bar.data)
             }
             """.trimIndent()
         )
@@ -1009,37 +1138,30 @@ class KotlinCodeGenTest {
         )
     }
 
-    private fun getTestGoldenPath(testName: String): String {
-        return "kotlinCodeGen/$testName.kt"
-    }
+    @Test
+    fun abstractClassWithParam() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
 
-    private fun runTest(
-        sources: List<Source>,
-        expectedFilePath: String,
-        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DEFAULT,
-        handler: (XTestInvocation) -> Unit = { }
-    ) {
-        runKspTest(
-            sources = sources,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
-        ) {
-            val databaseFqn = "androidx.room.Database"
-            DatabaseProcessingStep().process(
-                it.processingEnv,
-                mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                it.roundEnv.isProcessingOver
-            )
-            it.assertCompilationResult {
-                this.generatedSource(
-                    loadTestSource(
-                        expectedFilePath,
-                        "MyDao_Impl"
-                    )
-                )
-                this.hasNoWarnings()
+            @Dao
+            abstract class MyDao(val db: RoomDatabase) {
+              @Query("SELECT * FROM MyEntity")
+              abstract fun getEntity(): MyEntity
             }
-            handler.invoke(it)
-        }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
     }
 }

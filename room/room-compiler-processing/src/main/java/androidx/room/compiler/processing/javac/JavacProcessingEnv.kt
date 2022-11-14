@@ -139,16 +139,25 @@ internal class JavacProcessingEnv(
             check(it is JavacType)
             it.typeMirror
         }.toTypedArray()
-        check(
-            types.all {
-                it is JavacType
-            }
-        )
         return wrap<JavacDeclaredType>(
             typeMirror = typeUtils.getDeclaredType(type.element, *args),
             // type elements cannot have nullability hence we don't synthesize anything here
             kotlinType = null,
             elementNullability = type.element.nullability
+        )
+    }
+
+    override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XType {
+        check(consumerSuper == null || producerExtends == null) {
+            "Cannot supply both super and extends bounds."
+        }
+        return wrap(
+            typeMirror = typeUtils.getWildcardType(
+                (producerExtends as? JavacType)?.typeMirror,
+                (consumerSuper as? JavacType)?.typeMirror,
+            ),
+            kotlinType = null,
+            elementNullability = null
         )
     }
 
