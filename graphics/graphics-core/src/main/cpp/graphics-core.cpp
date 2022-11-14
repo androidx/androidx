@@ -155,6 +155,12 @@ static struct {
     jmethodID onCommit{};
 } gTransactionCommittedListenerClassInfo;
 
+static struct {
+    bool CLASS_INFO_INITIALIZED = false;
+    jclass clazz{};
+    jmethodID dupeFileDescriptor{};
+} gSyncFenceClassInfo;
+
 #define NANO_SECONDS 1000000000LL
 
 int64_t getSystemTime() {
@@ -297,20 +303,29 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionSetOnCommi
     }
 }
 
-int extract_fence_fd(JNIEnv *env, jobject syncFence) {
-    jclass sfClass = env->GetObjectClass(syncFence);
-    jfieldID fid = env->GetFieldID(sfClass, "fd", "I");
-    return env->GetIntField(syncFence, fid);
+void setupSyncFenceClassInfo(JNIEnv *env) {
+    if (!gSyncFenceClassInfo.CLASS_INFO_INITIALIZED) {
+        jclass syncFenceClazz = env->FindClass("androidx/hardware/SyncFence");
+        gSyncFenceClassInfo.clazz = static_cast<jclass>(env->NewGlobalRef(syncFenceClazz));
+        gSyncFenceClassInfo.dupeFileDescriptor =
+                env->GetMethodID(gSyncFenceClassInfo.clazz, "dupeFileDescriptor", "()I");
+        gSyncFenceClassInfo.CLASS_INFO_INITIALIZED = true;
+    }
+}
+
+int dup_fence_fd(JNIEnv *env, jobject syncFence) {
+    setupSyncFenceClassInfo(env);
+    return env->CallIntMethod(syncFence, gSyncFenceClassInfo.dupeFileDescriptor);
 }
 
 /* Helper method to extract the SyncFence file descriptor
  */
 extern "C"
 JNIEXPORT jint JNICALL
-Java_androidx_graphics_surface_JniBindings_00024Companion_nExtractFenceFd(JNIEnv *env,
-                                                                          jobject thiz,
-                                                                          jobject syncFence) {
-    return extract_fence_fd(env, syncFence);
+Java_androidx_graphics_surface_JniBindings_00024Companion_nDupFenceFd(JNIEnv *env,
+                                                                      jobject thiz,
+                                                                      jobject syncFence) {
+    return dup_fence_fd(env, syncFence);
 }
 
 extern "C"
@@ -325,7 +340,7 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBuffer(JNIEnv *env
         auto transaction = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
         auto hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
-        auto fence_fd = extract_fence_fd(env, syncFence);
+        auto fence_fd = dup_fence_fd(env, syncFence);
         ASurfaceTransaction_setBuffer(transaction, sc, hardwareBuffer, fence_fd);
     }
 }
@@ -500,4 +515,10 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetGeometry(JNIEnv *e
     auto src = ARect{0, 0, bufferWidth, bufferHeight};
     auto dest = ARect{0, 0, dstWidth, dstHeight};
     ASurfaceTransaction_setGeometry(st, sc, src, dest, transformation);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_androidx_hardware_SyncFence_nDup(JNIEnv *env, jobject thiz, jint fd) {
+    return static_cast<jint>(dup(static_cast<int>(fd)));
 }
