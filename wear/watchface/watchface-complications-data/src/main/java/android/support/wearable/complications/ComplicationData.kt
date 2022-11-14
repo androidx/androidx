@@ -1119,10 +1119,12 @@ class ComplicationData : Parcelable, Serializable {
                 !fields.containsKey(FIELD_PLACEHOLDER_TYPE)
             ) {
                 null
-            } else ComplicationData(
-                fields.getInt(FIELD_PLACEHOLDER_TYPE),
-                fields.getBundle(FIELD_PLACEHOLDER_FIELDS)!!
-            )
+            } else {
+                ComplicationData(
+                    fields.getInt(FIELD_PLACEHOLDER_TYPE),
+                    fields.getBundle(FIELD_PLACEHOLDER_FIELDS)!!
+                )
+            }
         }
 
     /** Returns the bytes of the proto layout. */
