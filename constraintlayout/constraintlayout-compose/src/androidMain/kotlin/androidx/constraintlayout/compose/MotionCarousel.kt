@@ -37,11 +37,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties
-
-// TODO: replace this implementation?
 import androidx.constraintlayout.compose.carousel.FractionalThreshold
-import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
 import androidx.constraintlayout.compose.carousel.carouselSwipeable
+import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
 
 /**
  * Implements an horizontal Carousel of n elements, driven by drag gestures and customizable
@@ -248,6 +246,7 @@ fun MotionCarousel(
                 state = swipeableState,
                 anchors = anchors,
                 reverseDirection = true,
+                // TODO: replace this implementation?
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
             )

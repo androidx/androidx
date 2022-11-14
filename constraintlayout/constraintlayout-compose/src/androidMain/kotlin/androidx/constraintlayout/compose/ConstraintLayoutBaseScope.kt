@@ -20,7 +20,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.widgets.ConstraintWidget
 
@@ -129,7 +128,7 @@ abstract class ConstraintLayoutBaseScope {
         val id = createHelperId()
         tasks.add { state ->
             state.verticalGuideline(id).apply {
-                if (state.layoutDirection == LayoutDirection.Ltr) start(offset) else end(offset)
+                if (state.isLtr) start(offset) else end(offset)
             }
         }
         updateHelpersHashCode(1)
@@ -157,7 +156,7 @@ abstract class ConstraintLayoutBaseScope {
         val id = createHelperId()
         tasks.add { state ->
             state.verticalGuideline(id).apply {
-                if (state.layoutDirection == LayoutDirection.Ltr) {
+                if (state.isLtr) {
                     percent(fraction)
                 } else {
                     percent(1f - fraction)
@@ -190,7 +189,7 @@ abstract class ConstraintLayoutBaseScope {
         val id = createHelperId()
         tasks.add { state ->
             state.verticalGuideline(id).apply {
-                if (state.layoutDirection == LayoutDirection.Ltr) end(offset) else start(offset)
+                if (state.isLtr) end(offset) else start(offset)
             }
         }
         updateHelpersHashCode(5)
@@ -280,7 +279,7 @@ abstract class ConstraintLayoutBaseScope {
     ): VerticalAnchor {
         val id = createHelperId()
         tasks.add { state ->
-            val direction = if (state.layoutDirection == LayoutDirection.Ltr) {
+            val direction = if (state.isLtr) {
                 SolverDirection.LEFT
             } else {
                 SolverDirection.RIGHT
@@ -342,7 +341,7 @@ abstract class ConstraintLayoutBaseScope {
     ): VerticalAnchor {
         val id = createHelperId()
         tasks.add { state ->
-            val direction = if (state.layoutDirection == LayoutDirection.Ltr) {
+            val direction = if (state.isLtr) {
                 SolverDirection.RIGHT
             } else {
                 SolverDirection.LEFT

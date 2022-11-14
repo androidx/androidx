@@ -18,7 +18,6 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.AnchorFunctions.verticalAnchorFunctions
 import androidx.constraintlayout.core.state.ConstraintReference
@@ -83,16 +82,15 @@ internal abstract class BaseVerticalAnchorable(
         goneMargin: Dp
     ) {
         tasks.add { state ->
-            val layoutDirection = state.layoutDirection
             val index1 =
-                AnchorFunctions.verticalAnchorIndexToFunctionIndex(index, layoutDirection)
+                AnchorFunctions.verticalAnchorIndexToFunctionIndex(index, state.isLtr)
             val index2 = AnchorFunctions.verticalAnchorIndexToFunctionIndex(
                 anchor.index,
-                layoutDirection
+                state.isLtr
             )
             with(getConstraintReference(state)) {
                 verticalAnchorFunctions[index1][index2]
-                    .invoke(this, anchor.id, state.layoutDirection)
+                    .invoke(this, anchor.id, state.isLtr)
                     .margin(margin)
                     .marginGone(goneMargin)
             }
@@ -124,49 +122,43 @@ internal abstract class BaseHorizontalAnchorable(
 
 internal object AnchorFunctions {
     val verticalAnchorFunctions:
-        Array<Array<ConstraintReference.(Any, LayoutDirection) -> ConstraintReference>> =
+        Array<Array<ConstraintReference.(Any, Boolean) -> ConstraintReference>> =
         arrayOf(
             arrayOf(
-                { other, layoutDirection ->
-                    clearLeft(layoutDirection); leftToLeft(other)
+                { other, isLtr ->
+                    clearLeft(isLtr); leftToLeft(other)
                 },
-                { other, layoutDirection ->
-                    clearLeft(layoutDirection); leftToRight(other)
+                { other, isLtr ->
+                    clearLeft(isLtr); leftToRight(other)
                 }
             ),
             arrayOf(
-                { other, layoutDirection ->
-                    clearRight(layoutDirection); rightToLeft(other)
+                { other, isLtr ->
+                    clearRight(isLtr); rightToLeft(other)
                 },
-                { other, layoutDirection ->
-                    clearRight(layoutDirection); rightToRight(other)
+                { other, isLtr ->
+                    clearRight(isLtr); rightToRight(other)
                 }
             )
         )
 
-    private fun ConstraintReference.clearLeft(layoutDirection: LayoutDirection) {
+    private fun ConstraintReference.clearLeft(isLtr: Boolean) {
         leftToLeft(null)
         leftToRight(null)
-        when (layoutDirection) {
-            LayoutDirection.Ltr -> {
-                startToStart(null); startToEnd(null)
-            }
-            LayoutDirection.Rtl -> {
-                endToStart(null); endToEnd(null)
-            }
+        if (isLtr) {
+            startToStart(null); startToEnd(null)
+        } else {
+            endToStart(null); endToEnd(null)
         }
     }
 
-    private fun ConstraintReference.clearRight(layoutDirection: LayoutDirection) {
+    private fun ConstraintReference.clearRight(isLtr: Boolean) {
         rightToLeft(null)
         rightToRight(null)
-        when (layoutDirection) {
-            LayoutDirection.Ltr -> {
-                endToStart(null); endToEnd(null)
-            }
-            LayoutDirection.Rtl -> {
-                startToStart(null); startToEnd(null)
-            }
+        if (isLtr) {
+            endToStart(null); endToEnd(null)
+        } else {
+            startToStart(null); startToEnd(null)
         }
     }
 
@@ -175,10 +167,10 @@ internal object AnchorFunctions {
      * the arrays above (0 -> left, 1 -> right).
      */
     // TODO(popam, b/157886946): this is temporary until we can use CL's own RTL handling
-    fun verticalAnchorIndexToFunctionIndex(index: Int, layoutDirection: LayoutDirection) =
+    fun verticalAnchorIndexToFunctionIndex(index: Int, isLtr: Boolean) =
         when {
             index >= 0 -> index // already left or right
-            layoutDirection == LayoutDirection.Ltr -> 2 + index // start -> left, end -> right
+            isLtr -> 2 + index // start -> left, end -> right
             else -> -index - 1 // start -> right, end -> left
         }
 

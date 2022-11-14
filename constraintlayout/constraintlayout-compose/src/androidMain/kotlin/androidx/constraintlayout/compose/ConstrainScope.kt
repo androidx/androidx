@@ -22,7 +22,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.AnchorFunctions.baselineAnchorFunction
 import androidx.constraintlayout.core.state.ConstraintReference
@@ -327,7 +326,7 @@ class ConstrainScope internal constructor(internal val id: Any) {
         )
         this@ConstrainScope.end.linkTo(anchor = end, margin = endMargin, goneMargin = endGoneMargin)
         tasks.add { state ->
-            val resolvedBias = if (state.layoutDirection == LayoutDirection.Rtl) 1 - bias else bias
+            val resolvedBias = if (state.isLtr) bias else 1 - bias
             state.constraints(id).horizontalBias(resolvedBias)
         }
     }
