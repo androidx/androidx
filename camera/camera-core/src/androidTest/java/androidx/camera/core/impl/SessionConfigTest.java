@@ -369,16 +369,10 @@ public class SessionConfigTest {
         return deferrableSurface;
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void combineTwoSessionsSurfaces() {
         DeferrableSurface previewSurface = createSurface(Preview.class);
-        DeferrableSurface videoSurface = createSurface(androidx.camera.core.VideoCapture.class);
         DeferrableSurface imageCaptureSurface = createSurface(ImageCapture.class);
-
-        SessionConfig.Builder builder0 = new SessionConfig.Builder();
-        builder0.addSurface(videoSurface);
-        builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(previewSurface);
@@ -389,7 +383,6 @@ public class SessionConfigTest {
         builder2.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
-        validatingBuilder.add(builder0.build());
         validatingBuilder.add(builder1.build());
         validatingBuilder.add(builder2.build());
 
@@ -397,8 +390,7 @@ public class SessionConfigTest {
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
         // Ensures the surfaces are all added and sorted correctly.
-        assertThat(surfaces)
-                .containsExactly(previewSurface, imageCaptureSurface, videoSurface).inOrder();
+        assertThat(surfaces).containsExactly(previewSurface, imageCaptureSurface).inOrder();
     }
 
     @Test

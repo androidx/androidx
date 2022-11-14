@@ -17,11 +17,14 @@
 package androidx.camera.extensions
 
 import android.hardware.camera2.CameraCharacteristics
+import androidx.annotation.NonNull
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.internal.VersionName
@@ -30,6 +33,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.video.MediaSpec
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoOutput
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -404,7 +410,6 @@ class ExtensionsManagerTest(
         }
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun throwIllegalArgumentException_whenBindingVideoCapture(): Unit = runBlocking {
         val extensionCameraSelector = checkExtensionAvailabilityAndInit()
@@ -416,7 +421,7 @@ class ExtensionsManagerTest(
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
                     extensionCameraSelector,
-                    androidx.camera.core.VideoCapture.Builder().build()
+                    createVideoCapture()
                 )
             }
         }
@@ -457,5 +462,28 @@ class ExtensionsManagerTest(
             cameraId,
             characteristics
         ) && previewExtenderImpl.isExtensionAvailable(cameraId, characteristics)
+    }
+
+    private fun createVideoCapture(): VideoCapture<TestVideoOutput> {
+        val mediaSpec = MediaSpec.builder().build()
+        val videoOutput = TestVideoOutput()
+        videoOutput.mediaSpecObservable.setState(mediaSpec)
+        return VideoCapture.withOutput(videoOutput)
+    }
+
+    /** A fake implementation of VideoOutput  */
+    private class TestVideoOutput : VideoOutput {
+        val mediaSpecObservable: MutableStateObservable<MediaSpec> =
+            MutableStateObservable.withInitialState(MediaSpec.builder().build())
+        var surfaceRequest: SurfaceRequest? = null
+        var sourceState: VideoOutput.SourceState? = null
+
+        override fun onSurfaceRequested(@NonNull request: SurfaceRequest) {
+            surfaceRequest = request
+        }
+        override fun getMediaSpec() = mediaSpecObservable
+        override fun onSourceStateChanged(@NonNull sourceState: VideoOutput.SourceState) {
+            this.sourceState = sourceState
+        }
     }
 }

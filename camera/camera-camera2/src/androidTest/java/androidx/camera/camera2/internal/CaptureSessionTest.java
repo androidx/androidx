@@ -80,7 +80,6 @@ import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -381,33 +380,6 @@ public final class CaptureSessionTest {
         assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
                 new ArrayList<>())
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE);
-    }
-
-    @SdkSuppress(minSdkVersion = 33)
-    @Test
-    public void getStreamUseCaseFromUseCaseConfigsVideoCapture() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        VideoCaptureConfig videoCaptureConfig =
-                new VideoCaptureConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(videoCaptureConfig);
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
-    }
-
-    @SdkSuppress(minSdkVersion = 33)
-    @Test
-    public void getStreamUseCaseFromUseCaseConfigsVideoAndImageCapture() {
-        Collection<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
-        VideoCaptureConfig videoCaptureConfig =
-                new VideoCaptureConfig(MutableOptionsBundle.create());
-        useCaseConfigs.add(videoCaptureConfig);
-        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig(
-                MutableOptionsBundle.create());
-        useCaseConfigs.add(imageCaptureConfig);
-        assertTrue(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(useCaseConfigs,
-                new ArrayList<>())
-                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL);
     }
 
     // Sharing surface of YUV format is supported since API 28

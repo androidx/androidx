@@ -2786,11 +2786,11 @@ class SupportedSurfaceCombinationTest {
     }
 
     /**
-     * Creates [Preview], [ImageCapture], [ImageAnalysis], [androidx.camera.core.VideoCapture] or
-     * FakeUseCase according to the specified settings.
+     * Creates [Preview], [ImageCapture], [ImageAnalysis] or FakeUseCase according to the specified
+     * settings.
      *
-     * @param useCaseType Which of [Preview], [ImageCapture], [ImageAnalysis],
-     * [androidx.camera.core.VideoCapture] and FakeUseCase should be created.
+     * @param useCaseType Which of [Preview], [ImageCapture], [ImageAnalysis] and FakeUseCase should
+     * be created.
      * @param targetRotation the target rotation setting. Default is UNKNOWN_ROTATION and no target
      * rotation will be set to the created use case.
      * @param targetAspectRatio the target aspect ratio setting. Default is UNKNOWN_ASPECT_RATIO
@@ -2802,7 +2802,6 @@ class SupportedSurfaceCombinationTest {
      * @param defaultResolution the default resolution setting. Default is null.
      * @param supportedResolutions the customized supported resolutions. Default is null.
      */
-    @Suppress("DEPRECATION")
     private fun createUseCaseByLegacyApi(
         useCaseType: Int,
         targetRotation: Int = UNKNOWN_ROTATION,

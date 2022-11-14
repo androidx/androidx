@@ -714,39 +714,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun legacyVideo_suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, mockCameraMetadata, cameraId,
-            mockCamcorderProfileAdapter
-        )
-        val imageCapture = ImageCapture.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val videoCapture = androidx.camera.core.VideoCapture.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val preview = Preview.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val useCases: MutableList<UseCase> = ArrayList()
-        useCases.add(imageCapture)
-        useCases.add(videoCapture)
-        useCases.add(preview)
-        val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            cameraFactory!!.getCamera(cameraId).cameraInfoInternal,
-            useCases,
-            useCaseConfigFactory
-        )
-        assertThrows(IllegalArgumentException::class.java) {
-            supportedSurfaceCombination.getSuggestedResolutions(
-                emptyList(),
-                ArrayList(useCaseToConfigMap.values)
-            )
-        }
-    }
-
-    @Test
     fun suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -762,46 +729,6 @@ class SupportedSurfaceCombinationTest {
             .build()
         val useCases: MutableList<UseCase> = ArrayList()
         useCases.add(imageCapture)
-        useCases.add(videoCapture)
-        useCases.add(preview)
-        val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            cameraFactory!!.getCamera(cameraId).cameraInfoInternal,
-            useCases,
-            useCaseConfigFactory
-        )
-        assertThrows(IllegalArgumentException::class.java) {
-            supportedSurfaceCombination.getSuggestedResolutions(
-                emptyList(),
-                ArrayList(useCaseToConfigMap.values)
-            )
-        }
-    }
-
-    @Test
-    fun legacyVideo_suggestedResForCustomizeResolutionsNotSupportedInLegacyDevice() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, mockCameraMetadata, cameraId,
-            mockCamcorderProfileAdapter
-        )
-
-        // Legacy camera only support (PRIV, PREVIEW) + (PRIV, PREVIEW)
-        val videoResolutionsPairs = listOf(
-            Pair.create(ImageFormat.PRIVATE, arrayOf(recordSize))
-        )
-        val previewResolutionsPairs = listOf(
-            Pair.create(ImageFormat.PRIVATE, arrayOf(previewSize))
-        )
-        // Override the default max resolution in VideoCapture
-        val videoCapture =
-            androidx.camera.core.VideoCapture.Builder()
-                .setMaxResolution(recordSize)
-                .setSupportedResolutions(videoResolutionsPairs)
-                .build()
-        val preview = Preview.Builder()
-            .setSupportedResolutions(previewResolutionsPairs)
-            .build()
-        val useCases: MutableList<UseCase> = ArrayList()
         useCases.add(videoCapture)
         useCases.add(preview)
         val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
@@ -848,52 +775,6 @@ class SupportedSurfaceCombinationTest {
                 ArrayList(useCaseToConfigMap.values)
             )
         }
-    }
-
-    @Test
-    fun legacyVideo_getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, mockCameraMetadata, cameraId,
-            mockCamcorderProfileAdapter
-        )
-        val imageCapture = ImageCapture.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val videoCapture = androidx.camera.core.VideoCapture.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val preview = Preview.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-            .build()
-        val useCases: MutableList<UseCase> = ArrayList()
-        useCases.add(imageCapture)
-        useCases.add(videoCapture)
-        useCases.add(preview)
-        val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            cameraFactory!!.getCamera(cameraId).cameraInfoInternal,
-            useCases,
-            useCaseConfigFactory
-        )
-        val suggestedResolutionMap: Map<UseCaseConfig<*>, Size> =
-            supportedSurfaceCombination.getSuggestedResolutions(
-                emptyList(),
-                ArrayList(useCaseToConfigMap.values)
-            )
-
-        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[imageCapture],
-            recordSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[videoCapture],
-            legacyVideoMaximumVideoSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[preview],
-            previewSize
-        )
     }
 
     // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
@@ -1126,60 +1007,6 @@ class SupportedSurfaceCombinationTest {
             imageAnalysisExceptionHappened = true
         }
         Truth.assertThat(imageAnalysisExceptionHappened).isTrue()
-    }
-
-    @Test
-    fun legacyVideo_getSuggestedResolutionsForCustomizedSupportedResolutions() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, mockCameraMetadata, cameraId,
-            mockCamcorderProfileAdapter
-        )
-        val formatResolutionsPairList: MutableList<Pair<Int, Array<Size>>> = ArrayList()
-        formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, arrayOf(vgaSize)))
-        formatResolutionsPairList.add(
-            Pair.create(ImageFormat.YUV_420_888, arrayOf(vgaSize))
-        )
-        formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, arrayOf(vgaSize)))
-
-        // Sets use cases customized supported resolutions to 640x480 only.
-        val imageCapture = ImageCapture.Builder()
-            .setSupportedResolutions(formatResolutionsPairList)
-            .build()
-        val videoCapture = androidx.camera.core.VideoCapture.Builder()
-            .setSupportedResolutions(formatResolutionsPairList)
-            .build()
-        val preview = Preview.Builder()
-            .setSupportedResolutions(formatResolutionsPairList)
-            .build()
-        val useCases: MutableList<UseCase> = ArrayList()
-        useCases.add(imageCapture)
-        useCases.add(videoCapture)
-        useCases.add(preview)
-        val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            cameraFactory!!.getCamera(cameraId).cameraInfoInternal,
-            useCases,
-            useCaseConfigFactory
-        )
-        val suggestedResolutionMap: Map<UseCaseConfig<*>, Size> =
-            supportedSurfaceCombination.getSuggestedResolutions(
-                emptyList(),
-                ArrayList(useCaseToConfigMap.values)
-            )
-
-        // Checks all suggested resolutions will become 640x480.
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[imageCapture],
-            vgaSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[videoCapture],
-            vgaSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[preview],
-            vgaSize
-        )
     }
 
     @Test

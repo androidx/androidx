@@ -60,10 +60,8 @@ public class SurfaceSorter {
         });
     }
 
-    @SuppressWarnings("deprecation")
     private int getSurfacePriority(@NonNull DeferrableSurface surface) {
-        if (surface.getContainerClass() == MediaCodec.class
-                || surface.getContainerClass() == androidx.camera.core.VideoCapture.class) {
+        if (surface.getContainerClass() == MediaCodec.class) {
             return PRIORITY_MEDIA_CODEC_SURFACE;
         } else if (surface.getContainerClass() == Preview.class) {
             return PRIORITY_PREVIEW_SURFACE;
