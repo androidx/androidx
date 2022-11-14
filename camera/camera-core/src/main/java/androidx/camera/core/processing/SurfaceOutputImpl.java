@@ -235,7 +235,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @AnyThread
     @Override
     public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
-        System.arraycopy(input, 0, output, 0, 16);
+        System.arraycopy(mGlTransform, 0, output, 0, 16);
     }
 
     /**
