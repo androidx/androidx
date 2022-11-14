@@ -186,19 +186,16 @@ class InteractionController {
      */
     public boolean sendKeyAndWaitForEvent(final int keyCode, final int metaState,
             final int eventType, long timeout) {
-        Runnable command = new Runnable() {
-            @Override
-            public void run() {
-                final long eventTime = SystemClock.uptimeMillis();
-                KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN,
+        Runnable command = () -> {
+            final long eventTime = SystemClock.uptimeMillis();
+            KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN,
+                    keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                    InputDevice.SOURCE_KEYBOARD);
+            if (injectEventSync(downEvent)) {
+                KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP,
                         keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
                         InputDevice.SOURCE_KEYBOARD);
-                if (injectEventSync(downEvent)) {
-                    KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP,
-                            keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
-                            InputDevice.SOURCE_KEYBOARD);
-                    injectEventSync(upEvent);
-                }
+                injectEventSync(upEvent);
             }
         };
 
@@ -270,13 +267,10 @@ class InteractionController {
      * @return Runnable
      */
     private Runnable clickRunnable(final int x, final int y) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                if(touchDown(x, y)) {
-                    SystemClock.sleep(REGULAR_CLICK_LENGTH);
-                    touchUp(x, y);
-                }
+        return () -> {
+            if (touchDown(x, y)) {
+                SystemClock.sleep(REGULAR_CLICK_LENGTH);
+                touchUp(x, y);
             }
         };
     }
@@ -290,13 +284,10 @@ class InteractionController {
      * @return Runnable
      */
     private Runnable longTapRunnable(final int x, final int y) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                if(touchDown(x, y)) {
-                    SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
-                    touchUp(x, y);
-                }
+        return () -> {
+            if (touchDown(x, y)) {
+                SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
+                touchUp(x, y);
             }
         };
     }
@@ -384,12 +375,7 @@ class InteractionController {
         Log.d(LOG_TAG, "scrollSwipe (" +  downX + ", " + downY + ", " + upX + ", "
                 + upY + ", " + steps +")");
 
-        Runnable command = new Runnable() {
-            @Override
-            public void run() {
-                swipe(downX, downY, upX, upY, steps);
-            }
-        };
+        Runnable command = () -> swipe(downX, downY, upX, upY, steps);
 
         // Collect all accessibility events generated during the swipe command and get the
         // last event
