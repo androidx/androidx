@@ -63,7 +63,7 @@ public class UiSelector {
     static final int SELECTOR_CHECKABLE = 30;
     static final int SELECTOR_RESOURCE_ID_REGEX = 31;
 
-    private SparseArray<Object> mSelectorAttributes = new SparseArray<Object>();
+    private SparseArray<Object> mSelectorAttributes = new SparseArray<>();
 
     public UiSelector() {
     }

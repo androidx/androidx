@@ -147,7 +147,7 @@ public class UiDevice implements Searchable {
     @Override
     @NonNull
     public List<UiObject2> findObjects(@NonNull BySelector selector) {
-        List<UiObject2> ret = new ArrayList<UiObject2>();
+        List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
             ret.add(new UiObject2(this, selector, node));
         }
