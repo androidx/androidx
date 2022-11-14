@@ -35,6 +35,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +47,7 @@ public class ScrollAwayTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @FlakyTest(bugId = 259134313)
     @Test
     fun hidesTimeTextWithScalingLazyColumn() {
         lateinit var scrollState: ScalingLazyListState
