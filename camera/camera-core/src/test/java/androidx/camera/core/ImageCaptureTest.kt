@@ -233,6 +233,11 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun detachWithoutAttach_doesNotCrash() {
+        ImageCapture.Builder().build().onDetached()
+    }
+
+    @Test
     fun useImageReaderProvider_pipelineDisabled() {
         assertThat(
             bindImageCapture(

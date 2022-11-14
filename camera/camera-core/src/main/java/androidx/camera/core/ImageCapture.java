@@ -1659,8 +1659,10 @@ public final class ImageCapture extends UseCase {
         // RejectedExecutionException if a ProcessingImageReader is used to processing the
         // captured images.
         ExecutorService executorService = mExecutor;
-        imageReaderCloseFuture.addListener(executorService::shutdown,
-                CameraXExecutors.directExecutor());
+        if (executorService != null) {
+            imageReaderCloseFuture.addListener(executorService::shutdown,
+                    CameraXExecutors.directExecutor());
+        }
     }
 
     /**
@@ -1851,7 +1853,9 @@ public final class ImageCapture extends UseCase {
      *  {@link ImagePipeline}/{@link TakePictureManager}.
      */
 
+    @Nullable
     private ImagePipeline mImagePipeline;
+    @Nullable
     private TakePictureManager mTakePictureManager;
 
     /**
@@ -2055,9 +2059,11 @@ public final class ImageCapture extends UseCase {
     private void clearPipelineWithNode(boolean keepTakePictureManager) {
         Log.d(TAG, "clearPipelineWithNode");
         checkMainThread();
-        mImagePipeline.close();
-        mImagePipeline = null;
-        if (!keepTakePictureManager) {
+        if (mImagePipeline != null) {
+            mImagePipeline.close();
+            mImagePipeline = null;
+        }
+        if (!keepTakePictureManager && mTakePictureManager != null) {
             mTakePictureManager.abortRequests();
             mTakePictureManager = null;
         }
@@ -2104,7 +2110,7 @@ public final class ImageCapture extends UseCase {
     @VisibleForTesting
     @NonNull
     TakePictureManager getTakePictureManager() {
-        return mTakePictureManager;
+        return requireNonNull(mTakePictureManager);
     }
 
     // ===== New architecture end =====
