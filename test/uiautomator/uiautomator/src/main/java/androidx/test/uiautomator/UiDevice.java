@@ -898,20 +898,13 @@ public class UiDevice implements Searchable {
                 return false;
             }
         }
-        Runnable emptyRunnable = new Runnable() {
-            @Override
-            public void run() {
+        Runnable emptyRunnable = () -> {};
+        AccessibilityEventFilter checkWindowUpdate = t -> {
+            if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+                return packageName == null || (t.getPackageName() != null
+                        && packageName.contentEquals(t.getPackageName()));
             }
-        };
-        AccessibilityEventFilter checkWindowUpdate = new AccessibilityEventFilter() {
-            @Override
-            public boolean accept(AccessibilityEvent t) {
-                if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                    return packageName == null || (t.getPackageName() != null
-                            && packageName.contentEquals(t.getPackageName()));
-                }
-                return false;
-            }
+            return false;
         };
         Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
                 packageName));
