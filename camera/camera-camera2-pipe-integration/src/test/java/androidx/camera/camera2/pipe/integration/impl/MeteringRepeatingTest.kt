@@ -16,19 +16,24 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.test.core.app.ApplicationProvider
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowDisplayManager
+import org.robolectric.shadows.ShadowDisplayManager.removeDisplay
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -80,6 +85,12 @@ class MeteringRepeatingTest {
                 )
             )
         }
+
+        @JvmStatic
+        @BeforeClass
+        fun classSetUp() {
+            DisplayInfoManager.invalidateLazyFields()
+        }
     }
 
     private lateinit var meteringRepeating: MeteringRepeating
@@ -101,6 +112,18 @@ class MeteringRepeatingTest {
             ),
             DisplayInfoManager(ApplicationProvider.getApplicationContext())
         ).build()
+    }
+
+    @After
+    fun tearDown() {
+        val displayManager = (ApplicationProvider.getApplicationContext() as Context)
+            .getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+
+        displayManager?.let {
+            for (display in it.displays) {
+                removeDisplay(display.displayId)
+            }
+        }
     }
 
     @Test
