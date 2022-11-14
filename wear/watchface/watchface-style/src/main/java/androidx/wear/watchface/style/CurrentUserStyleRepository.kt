@@ -19,9 +19,11 @@ package androidx.wear.watchface.style
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Icon
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -422,8 +424,10 @@ public class UserStyleData(
  *
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  * Empty if the watch face doesn't support user styling. Note we allow at most one
- * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
- * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
+ * [UserStyleSetting.CustomValueUserStyleSetting] in the list. Prior to android T ot most one
+ * [UserStyleSetting.ComplicationSlotsUserStyleSetting] is allowed, however from android T it's
+ * possible with hierarchical styles for there to be more than one, but at most one can be active at
+ * any given time.
  */
 public class UserStyleSchema constructor(
     userStyleSettings: List<UserStyleSetting>
@@ -521,9 +525,12 @@ public class UserStyleSchema constructor(
             }
         }
 
-        // This requirement makes it easier to implement companion editors.
-        require(complicationSlotsUserStyleSettingCount <= 1) {
-            "At most only one ComplicationSlotsUserStyleSetting is allowed"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            validateComplicationSettings(rootUserStyleSettings, null)
+        } else {
+            require(complicationSlotsUserStyleSettingCount <= 1) {
+               "Prior to Android T, at most only one ComplicationSlotsUserStyleSetting is allowed"
+            }
         }
 
         // There's a hard limit to how big Schema + UserStyle can be and since this data is sent
@@ -532,6 +539,28 @@ public class UserStyleSchema constructor(
         // we are initially restricting there to be at most one CustomValueUserStyleSetting.
         require(customValueUserStyleSettingCount <= 1) {
             "At most only one CustomValueUserStyleSetting is allowed"
+        }
+    }
+
+    private fun validateComplicationSettings(
+        settings: Collection<UserStyleSetting>,
+        initialPrevSetting: UserStyleSetting.ComplicationSlotsUserStyleSetting?
+    ) {
+        var prevSetting = initialPrevSetting
+        for (setting in settings) {
+            if (setting is UserStyleSetting.ComplicationSlotsUserStyleSetting) {
+                require(prevSetting == null) {
+                    "From Android T multiple ComplicationSlotsUserStyleSettings are allowed, but" +
+                        " at most one can be active for any permutation of UserStyle. Note: " +
+                        "$setting and $prevSetting"
+                }
+                prevSetting = setting
+            }
+        }
+        for (setting in settings) {
+            for (option in setting.options) {
+                validateComplicationSettings(option.childSettings, prevSetting)
+            }
         }
     }
 
@@ -638,6 +667,40 @@ public class UserStyleSchema constructor(
     private class NullOutputStream : OutputStream() {
         override fun write(value: Int) {}
     }
+
+    private fun findActiveComplicationSetting(
+        settings: Collection<UserStyleSetting>,
+        userStyle: UserStyle
+    ): UserStyleSetting.ComplicationSlotsUserStyleSetting? {
+        for (setting in settings) {
+            if (setting is UserStyleSetting.ComplicationSlotsUserStyleSetting) {
+                return setting
+            }
+            findActiveComplicationSetting(userStyle[setting]!!.childSettings, userStyle)?.let {
+                return it
+            }
+        }
+        return null
+    }
+
+    /**
+     * At most one [UserStyleSetting.ComplicationSlotsUserStyleSetting] can be active at a time
+     * based on the hierarchy of styles for any given [UserStyle]. This function finds the current
+     * active [UserStyleSetting.ComplicationSlotsUserStyleSetting] based upon the [userStyle] and,
+     * if there is one, it returns the corresponding selected [ComplicationSlotsOption]. Otherwise
+     * it returns `null`.
+     *
+     * @param userStyle The [UserStyle] for which the function will search for the selected
+     * [ComplicationSlotsOption], if any.
+     * @return The selected [ComplicationSlotsOption] for the [userStyle] if any, or `null`
+     * otherwise.
+     */
+    public fun findComplicationSlotsOptionForUserStyle(
+        userStyle: UserStyle
+    ): ComplicationSlotsOption? =
+        findActiveComplicationSetting(rootUserStyleSettings, userStyle)?.let {
+            userStyle[it] as ComplicationSlotsOption
+        }
 }
 
 /**
