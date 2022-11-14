@@ -70,6 +70,10 @@ class PreviewTest(
 
     private lateinit var baseCameraSelector: CameraSelector
 
+    private lateinit var extensionsCameraSelector: CameraSelector
+
+    private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
+
     private val surfaceTextureLatch = CountDownLatch(1)
     private val frameReceivedLatch = CountDownLatch(1)
     private var isSurfaceTextureReleased = false
@@ -106,8 +110,7 @@ class PreviewTest(
     }
 
     @Before
-    @Throws(Exception::class)
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
                 lensFacing,
@@ -123,6 +126,15 @@ class PreviewTest(
         )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+
+        extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            baseCameraSelector,
+            extensionMode
+        )
+
+        withContext(Dispatchers.Main) {
+            fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
+        }
     }
 
     @After
@@ -156,17 +168,9 @@ class PreviewTest(
                 SurfaceTextureProvider.createSurfaceTextureProvider(createSurfaceTextureCallback())
             )
 
-            val fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
-
-            val extensionEnabledCameraSelector =
-                extensionsManager.getExtensionEnabledCameraSelector(
-                    baseCameraSelector,
-                    extensionMode
-                )
-
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
-                extensionEnabledCameraSelector,
+                extensionsCameraSelector,
                 preview
             )
         }
@@ -176,6 +180,20 @@ class PreviewTest(
 
         // Waits for 10 frames are collected
         assertThat(frameReceivedLatch.await(10000, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
+        val preview = Preview.Builder().build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionsCameraSelector,
+                preview)
+        }
+
+        assertThat(preview.currentConfig.isHigResolutionDisabled(false)).isTrue()
     }
 
     private fun createSurfaceTextureCallback(): SurfaceTextureProvider.SurfaceTextureCallback =

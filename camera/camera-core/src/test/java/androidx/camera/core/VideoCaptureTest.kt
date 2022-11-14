@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Looper
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -40,6 +41,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.junit.Assert
 
 @RunWith(RobolectricTestRunner::class)
 @Suppress("DEPRECATION")
@@ -86,5 +88,31 @@ class VideoCaptureTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         verify(callback).onError(eq(VideoCapture.ERROR_INVALID_CAMERA), anyString(), any())
+    }
+
+    @Test
+    fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            VideoCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetResolutionWithResolutionSelector() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            VideoCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            VideoCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
     }
 }

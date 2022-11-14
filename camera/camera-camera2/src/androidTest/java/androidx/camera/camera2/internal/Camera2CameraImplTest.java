@@ -52,6 +52,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
+import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -651,13 +652,17 @@ public final class Camera2CameraImplTest {
     private UseCase createUseCase(int template, boolean isZslDisabled) {
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
-                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase")
+                                new Camera2SessionOptionUnpacker()).setTargetName("UseCase")
                         .setZslDisabled(isZslDisabled);
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
+        return createUseCase(configBuilder.getUseCaseConfig(), template);
+    }
+
+    private UseCase createUseCase(@NonNull FakeUseCaseConfig config, int template) {
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(
                         CameraSelector.LENS_FACING_BACK).build();
-        TestUseCase testUseCase = new TestUseCase(template, configBuilder.getUseCaseConfig(),
+        TestUseCase testUseCase = new TestUseCase(template, config,
                 selector, mMockOnImageAvailableListener, mMockRepeatingCaptureCallback);
         testUseCase.updateSuggestedResolution(new Size(640, 480));
         mFakeUseCases.add(testUseCase);
@@ -932,6 +937,38 @@ public final class Camera2CameraImplTest {
         assertThat(
                 mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void zslDisabled_whenHighResolutionIsEnabled() throws InterruptedException {
+        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
+                /* isZslDisabled = */false);
+
+        // Creates a test use case with high resolution enabled.
+        ResolutionSelector highResolutionSelector =
+                new ResolutionSelector.Builder().setHighResolutionEnabled(true).build();
+        FakeUseCaseConfig.Builder configBuilder =
+                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
+                        new Camera2SessionOptionUnpacker()).setTargetName(
+                        "UseCase").setResolutionSelector(highResolutionSelector);
+        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
+        UseCase highResolutionUseCase = createUseCase(configBuilder.getUseCaseConfig(),
+                CameraDevice.TEMPLATE_PREVIEW);
+
+        // Checks zsl is disabled after UseCase#onAttach() is called to merge/update config.
+        assertThat(highResolutionUseCase.getCurrentConfig().isZslDisabled(false)).isTrue();
+
+        if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
+            return;
+        }
+
+        mCamera2CameraImpl.attachUseCases(Arrays.asList(zsl, highResolutionUseCase));
+        mCamera2CameraImpl.onUseCaseActive(zsl);
+        mCamera2CameraImpl.onUseCaseActive(highResolutionUseCase);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
+        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+                .isTrue();
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
