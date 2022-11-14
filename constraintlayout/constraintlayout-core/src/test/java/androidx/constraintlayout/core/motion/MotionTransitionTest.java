@@ -102,7 +102,7 @@ public class MotionTransitionTest {
 
     @Test
     public void testTransition() {
-        Transition transition = new Transition();
+        Transition transition = new Transition(dp -> dp);
         ConstraintWidgetContainer cwc1 = makeLayout1();
         ConstraintWidgetContainer cwc2 = makeLayout2();
 
@@ -151,7 +151,7 @@ public class MotionTransitionTest {
 
     @Test
     public void testTransitionJson() {
-        Transition transition = new Transition();
+        Transition transition = new Transition(dp -> dp);
         ConstraintWidgetContainer cwc1 = makeLayout1();
         ConstraintWidgetContainer cwc2 = makeLayout2();
 
@@ -196,7 +196,7 @@ public class MotionTransitionTest {
 
         try {
             CLObject json = CLParser.parse(jstr);
-            TransitionParser.parse(json, transition, dp -> dp);
+            TransitionParser.parse(json, transition);
         } catch (CLParsingException e) {
             e.printStackTrace();
         }
@@ -245,7 +245,7 @@ public class MotionTransitionTest {
 
     @Test
     public void testTransitionJson2() throws CLParsingException {
-        Transition transition = new Transition();
+        Transition transition = new Transition(dp -> dp);
         ConstraintWidgetContainer cwc1 = makeLayout(100, 100, 100, 100);
         ConstraintWidgetContainer cwc2 = makeLayout(500, 900, 100, 100);
         // button1 move down 800 and to the right 400
@@ -291,7 +291,7 @@ public class MotionTransitionTest {
 
         CLObject json = CLParser.parse(jsonString);
 
-        TransitionParser.parse(json, transition, dp -> dp);
+        TransitionParser.parse(json, transition);
 
         assertTrue(transition.hasOnSwipe());
         // because a drag of 80 pixels (dy) is 1/10 the distance to travel  it returns 0.1
@@ -610,7 +610,7 @@ public class MotionTransitionTest {
 
     Transition setUpOnSwipe(String onSwipeString) throws CLParsingException {
 
-        Transition transition = new Transition();
+        Transition transition = new Transition(dp -> dp);
         ConstraintWidgetContainer cwc1 = makeLayout(100, 100, 100, 100);
         ConstraintWidgetContainer cwc2 = makeLayout(500, 900, 100, 100);
         // button1 move down 800 and to the right 400
@@ -647,7 +647,7 @@ public class MotionTransitionTest {
 
         CLObject json = CLParser.parse(jsonString);
 
-        TransitionParser.parse(json, transition, dp -> dp);
+        TransitionParser.parse(json, transition);
         return transition;
     }
 

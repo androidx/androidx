@@ -98,7 +98,7 @@ public class ConstraintSetParserTest {
                 + "                }\n"
                 + "            }";
 
-        Transition transition = new Transition();
+        Transition transition = new Transition(dp -> dp);
         ConstraintSetParser.parseJSON(jsonString, transition, 0);
     }
 }
