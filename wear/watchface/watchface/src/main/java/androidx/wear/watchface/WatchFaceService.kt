@@ -2488,7 +2488,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 "The estimated wire size of the supplied UserStyleSchemas for watch face " +
                     "$packageName is too big at $estimatedBytes bytes. UserStyleSchemas get sent " +
                     "to the companion over bluetooth and should be as small as possible for this " +
-                    "to be performant."
+                    "to be performant. The maximum size is " + MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES
             }
         }
 

@@ -69,6 +69,7 @@ package androidx.wear.watchface.style {
 
   public final class UserStyleSchema {
     ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
+    method public androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption? findComplicationSlotsOptionForUserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
     method public byte[] getDigestHash();
     method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getRootUserStyleSettings();

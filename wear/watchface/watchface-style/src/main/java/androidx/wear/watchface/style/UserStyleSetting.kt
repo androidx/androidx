@@ -878,8 +878,11 @@ public sealed class UserStyleSetting private constructor(
      * The ComplicationsManager listens for style changes with this setting and when a
      * [ComplicationSlotsOption] is selected the overrides are automatically applied. Note its
      * suggested that the default [ComplicationSlotOverlay] (the first entry in the list) does
-     * not apply any overrides. Only a single [ComplicationSlotsUserStyleSetting] is permitted in
-     * the [UserStyleSchema].
+     * not apply any overrides.
+     *
+     * From android T multiple [ComplicationSlotsUserStyleSetting] are allowed in a style hierarchy
+     * as long as at  most one is active for any permutation of [UserStyle]. Prior to android T only
+     * a single ComplicationSlotsUserStyleSetting was allowed.
      *
      * Not to be confused with complication data source selection.
      */
