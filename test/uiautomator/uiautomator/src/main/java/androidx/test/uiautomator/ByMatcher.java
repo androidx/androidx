@@ -34,9 +34,9 @@ class ByMatcher {
 
     private static final String TAG = ByMatcher.class.getSimpleName();
 
-    private UiDevice mDevice;
-    private BySelector mSelector;
-    private boolean mShortCircuit;
+    private final UiDevice mDevice;
+    private final BySelector mSelector;
+    private final boolean mShortCircuit;
 
     /**
      * Constructs a new {@link ByMatcher} instance. Used by

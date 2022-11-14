@@ -200,7 +200,7 @@ public class UiDevice implements Searchable {
     /** Proxy class which acts as an {@link AccessibilityEventFilter} and forwards calls to an
      * {@link EventCondition} instance. */
     private static class EventForwardingFilter implements AccessibilityEventFilter {
-        private EventCondition<?> mCondition;
+        private final EventCondition<?> mCondition;
 
         public EventForwardingFilter(EventCondition<?> condition) {
             mCondition = condition;
