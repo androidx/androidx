@@ -21,6 +21,7 @@ import android.content.res.TypedArray
 import android.os.Trace
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.core.util.Consumer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +63,7 @@ class EmojiPickerView @JvmOverloads constructor(
 
     private lateinit var headerView: RecyclerView
     private lateinit var bodyView: RecyclerView
+    private var onEmojiPickedListener: Consumer<EmojiViewItem>? = null
 
     init {
         val typedArray: TypedArray =
@@ -84,11 +86,12 @@ class EmojiPickerView @JvmOverloads constructor(
         }
     }
 
-    private fun getEmojiPickerBodyAdapter(
+    private fun createEmojiPickerBodyAdapter(
         context: Context,
         emojiGridColumns: Int,
         emojiGridRows: Float,
-        categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>
+        categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>,
+        onEmojiPickedListener: Consumer<EmojiViewItem>?
     ): EmojiPickerBodyAdapter {
         val categoryNames = mutableListOf<String>()
         val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
@@ -102,7 +105,8 @@ class EmojiPickerView @JvmOverloads constructor(
             context,
             emojiGridColumns,
             emojiGridRows,
-            categoryNames.toTypedArray()
+            categoryNames.toTypedArray(),
+            onEmojiPickedListener
         )
         adapter.updateEmojis(createEmojiViewData(categorizedEmojis))
 
@@ -121,7 +125,7 @@ class EmojiPickerView @JvmOverloads constructor(
                         EmojiViewData(
                             categoryIndex,
                             idInCategory,
-                            eachEmoji.primary,
+                            eachEmoji.emoji,
                             eachEmoji.variants.toTypedArray()
                         )
                     )
@@ -151,8 +155,21 @@ class EmojiPickerView @JvmOverloads constructor(
         // set bodyView
         bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
-        bodyView.adapter = getEmojiPickerBodyAdapter(
-            context, emojiGridColumns, emojiGridRows, categorizedEmojiData
-        )
+        bodyView.adapter =
+            createEmojiPickerBodyAdapter(
+                context,
+                emojiGridColumns,
+                emojiGridRows,
+                categorizedEmojiData,
+                onEmojiPickedListener
+            )
+    }
+
+    /**
+     * This function is used to set the custom behavior after clicking on an emoji icon. Clients
+     * could specify their own behavior inside this function.
+     */
+    fun setOnEmojiPickedListener(onEmojiPickedListener: Consumer<EmojiViewItem>?) {
+        this.onEmojiPickedListener = onEmojiPickedListener
     }
 }

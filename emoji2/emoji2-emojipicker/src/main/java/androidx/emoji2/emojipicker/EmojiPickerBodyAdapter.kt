@@ -26,6 +26,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.tracing.Trace
@@ -35,7 +36,8 @@ internal class EmojiPickerBodyAdapter(
     context: Context,
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
-    private val categoryNames: Array<String>
+    private val categoryNames: Array<String>,
+    private val onEmojiPickedListener: Consumer<EmojiViewItem>?
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
     private val context = context
@@ -58,47 +60,58 @@ internal class EmojiPickerBodyAdapter(
         Trace.beginSection("EmojiPickerBodyAdapter.onCreateViewHolder")
         return try {
             val view: View
-            if (viewType == CategorySeparatorViewData.TYPE) {
-                view = layoutInflater.inflate(
-                    R.layout.category_text_view,
-                    parent,
-                    /* attachToRoot= */ false
-                )
-                view.layoutParams =
-                    LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-            } else if (viewType == EmptyCategoryViewData.TYPE) {
-                view = layoutInflater.inflate(
-                    R.layout.emoji_picker_empty_category_text_view,
-                    parent,
-                    /* attachToRoot= */ false
-                )
-                view.layoutParams =
-                    LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-                view.minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
-            } else if (viewType == EmojiViewData.TYPE) {
-                return EmojiViewHolder(
-                    parent,
-                    layoutInflater,
-                    getParentWidth(parent) / emojiGridColumns,
-                    (parent.measuredHeight / emojiGridRows).toInt(),
-                )
-            } else if (viewType == DummyViewData.TYPE) {
-                view = View(context)
-                view.layoutParams = LayoutParams(
-                    getParentWidth(parent) / emojiGridColumns,
-                    (parent.measuredHeight / emojiGridRows).toInt()
-                )
-            } else {
-                Log.e(
-                    "EmojiPickerBodyAdapter",
-                    "EmojiPickerBodyAdapter gets unsupported view type."
-                )
-                view = View(context)
-                view.layoutParams =
-                    LayoutParams(
+            when (viewType) {
+                CategorySeparatorViewData.TYPE -> {
+                    view = layoutInflater.inflate(
+                        R.layout.category_text_view,
+                        parent,
+                        /* attachToRoot= */ false
+                    )
+                    view.layoutParams =
+                        LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                }
+
+                EmptyCategoryViewData.TYPE -> {
+                    view = layoutInflater.inflate(
+                        R.layout.emoji_picker_empty_category_text_view,
+                        parent,
+                        /* attachToRoot= */ false
+                    )
+                    view.layoutParams =
+                        LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                    view.minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
+                }
+
+                EmojiViewData.TYPE -> {
+                    return EmojiViewHolder(
+                        parent,
+                        layoutInflater,
+                        getParentWidth(parent) / emojiGridColumns,
+                        (parent.measuredHeight / emojiGridRows).toInt(),
+                        onEmojiPickedListener
+                    )
+                }
+
+                DummyViewData.TYPE -> {
+                    view = View(context)
+                    view.layoutParams = LayoutParams(
                         getParentWidth(parent) / emojiGridColumns,
                         (parent.measuredHeight / emojiGridRows).toInt()
                     )
+                }
+
+                else -> {
+                    Log.e(
+                        "EmojiPickerBodyAdapter",
+                        "EmojiPickerBodyAdapter gets unsupported view type."
+                    )
+                    view = View(context)
+                    view.layoutParams =
+                        LayoutParams(
+                            getParentWidth(parent) / emojiGridColumns,
+                            (parent.measuredHeight / emojiGridRows).toInt()
+                        )
+                }
             }
             object : ViewHolder(view) {}
         } finally {
