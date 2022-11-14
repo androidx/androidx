@@ -111,7 +111,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -137,7 +137,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -160,7 +160,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -195,7 +195,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -233,7 +233,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 maxSize = itemSizeDp * 5
             ) {
                 items(listOf(0, 1, 2, 3), key = { it }) {
-                    item(it, size = if (it == 1) size else itemSizeDp)
+                    Item(it, size = if (it == 1) size else itemSizeDp)
                 }
             }
         }
@@ -275,7 +275,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it, animSpec = if (it == 1 || it == 3) AnimSpec else null)
+                    Item(it, animSpec = if (it == 1 || it == 3) AnimSpec else null)
                 }
             }
         }
@@ -303,7 +303,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             LazyList {
                 items(list, key = { it }) {
                     val duration = if (it == 1 || it == 3) Duration * 2 else Duration
-                    item(it, animSpec = tween(duration.toInt(), easing = LinearEasing))
+                    Item(it, animSpec = tween(duration.toInt(), easing = LinearEasing))
                 }
             }
         }
@@ -331,8 +331,8 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
-                    item(it + 1)
+                    Item(it)
+                    Item(it + 1)
                 }
             }
         }
@@ -365,8 +365,8 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
-                    item(it + 1, animSpec = null)
+                    Item(it)
+                    Item(it + 1, animSpec = null)
                 }
             }
         }
@@ -396,7 +396,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 maxSize = itemSizeDp * 5
             ) {
                 items(listOf(1, 2, 3), key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -428,7 +428,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList(maxSize = itemSizeDp * 3) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -473,7 +473,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList(maxSize = itemSizeDp * 3f, startIndex = 3) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -518,7 +518,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList(arrangement = Arrangement.spacedBy(spacingDp)) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -547,7 +547,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 arrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -599,7 +599,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 arrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -648,7 +648,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 items(list, key = { it }) {
                     val size =
                         if (it == 3) itemSize2Dp else if (it == 1) itemSize3Dp else itemSizeDp
-                    item(it, size = size)
+                    Item(it, size = size)
                 }
             }
         }
@@ -708,7 +708,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 items(list, key = { it }) {
                     val size =
                         if (it == 0) itemSize2Dp else if (it == 4) itemSize3Dp else itemSizeDp
-                    item(it, size = size)
+                    Item(it, size = size)
                 }
             }
         }
@@ -769,7 +769,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 items(listOf(1, 2, 3), key = { it }) {
                     val crossAxisSize =
                         if (it == 1) itemSizeDp else if (it == 2) itemSize2Dp else itemSize3Dp
-                    item(it, crossAxisSize = crossAxisSize)
+                    Item(it, crossAxisSize = crossAxisSize)
                 }
             }
         }
@@ -821,7 +821,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     listOf(1, 2, 3).forEach {
                         val crossAxisSize =
                             if (it == 1) itemSizeDp else if (it == 2) itemSize2Dp else itemSize3Dp
-                        item(it, crossAxisSize = crossAxisSize)
+                        Item(it, crossAxisSize = crossAxisSize)
                     }
                 }
             }
@@ -863,7 +863,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     items(listOf(1, 2, 3), key = { it }) {
                         val crossAxisSize =
                             if (it == 1) itemSizeDp else if (it == 2) itemSize2Dp else itemSize3Dp
-                        item(it, crossAxisSize = crossAxisSize)
+                        Item(it, crossAxisSize = crossAxisSize)
                     }
                 }
             }
@@ -911,7 +911,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList(startPadding = startPaddingDp, endPadding = endPaddingDp) {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -949,7 +949,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList {
                 items(list, key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
             LaunchedEffect(Unit) {
@@ -982,7 +982,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.setContent {
             LazyList(maxSize = itemSizeDp * 3) {
                 items(listOf(0, 1, 2, 3, 4, 5, 6, 7), key = { it }) {
-                    item(it)
+                    Item(it)
                 }
             }
         }
@@ -999,6 +999,39 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize / 2,
                 2 to itemSize * 3 / 2,
                 3 to itemSize * 5 / 2,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun itemWithSpecsIsMovingOut() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3))
+        rule.setContent {
+            LazyList(maxSize = itemSizeDp * 2) {
+                items(list, key = { it }) {
+                    Item(it, animSpec = if (it == 1) AnimSpec else null)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            list = listOf(0, 2, 3, 1)
+        }
+
+        onAnimationFrame { fraction ->
+            val listSize = itemSize * 2
+            val item1Offset = itemSize + (itemSize * 2f * fraction).roundToInt()
+            val expected = mutableListOf<Pair<Any, Int>>().apply {
+                add(0 to 0)
+                if (item1Offset < listSize) {
+                    add(1 to item1Offset)
+                } else {
+                    rule.onNodeWithTag("1").assertIsNotDisplayed()
+                }
+            }
+            assertPositions(
+                expected = expected.toTypedArray(),
                 fraction = fraction
             )
         }
@@ -1161,7 +1194,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Composable
-    private fun TvLazyListItemScope.item(
+    private fun TvLazyListItemScope.Item(
         tag: Int,
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = size,
