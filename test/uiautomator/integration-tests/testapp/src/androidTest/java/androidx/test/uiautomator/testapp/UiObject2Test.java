@@ -260,7 +260,7 @@ public class UiObject2Test extends BaseTest {
         UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         List<UiObject2> children = nestedObject.getChildren();
         assertEquals(2, children.size());
-        Set<String> childrenClassNames = new HashSet<String>();
+        Set<String> childrenClassNames = new HashSet<>();
         childrenClassNames.add(children.get(0).getClassName());
         childrenClassNames.add(children.get(1).getClassName());
         assertTrue(childrenClassNames.contains("android.widget.TextView"));

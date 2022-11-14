@@ -393,7 +393,7 @@ class InteractionController {
 
         // Collect all accessibility events generated during the swipe command and get the
         // last event
-        ArrayList<AccessibilityEvent> events = new ArrayList<AccessibilityEvent>();
+        ArrayList<AccessibilityEvent> events = new ArrayList<>();
         runAndWaitForEvents(command,
                 new EventCollectingPredicate(AccessibilityEvent.TYPE_VIEW_SCROLLED, events),
                 Configurator.getInstance().getScrollAcknowledgmentTimeout());
