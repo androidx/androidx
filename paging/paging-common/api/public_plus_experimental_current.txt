@@ -46,7 +46,7 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPagingApi {
   }
 
   public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {

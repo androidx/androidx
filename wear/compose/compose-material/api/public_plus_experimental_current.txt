@@ -189,7 +189,7 @@ package androidx.wear.compose.material {
   public final class DefaultTimeSourceKt {
   }
 
-  @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") public @interface ExperimentalWearMaterialApi {
+  @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
   }
 
   @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FixedThreshold implements androidx.wear.compose.material.ThresholdConfig {

@@ -21,4 +21,5 @@ package androidx.benchmark
  * of the BenchmarkRule JUnit4 API.
  */
 @RequiresOptIn
+@Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalBenchmarkStateApi
