@@ -97,7 +97,19 @@ public class PerfettoHelper(
                 val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                 // Move the config to a directory that unbundled perfetto has permissions for.
                 Shell.executeScriptSilent("rm -f $path")
-                Shell.executeScriptSilent("mv $configFilePath $path")
+                if (Build.VERSION.SDK_INT >= 24) {
+                    Shell.executeScriptSilent("mv $configFilePath $path")
+                } else {
+                    // Observed stderr output (though command still completes successfully) on:
+                    // google/shamu/shamu:6.0.1/MOB31T/3671974:userdebug/dev-keys
+                    // Doesn't repro on all API 23 devices :|
+                    Shell.executeScriptCaptureStdoutStderr("mv $configFilePath $path").also {
+                        check(
+                            it.stdout.isBlank() &&
+                                (it.stderr.isBlank() || it.stderr.startsWith("mv: chown"))
+                        )
+                    }
+                }
                 path
             } else {
                 configFilePath
