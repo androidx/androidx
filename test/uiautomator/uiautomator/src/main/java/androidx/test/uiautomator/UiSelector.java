@@ -880,39 +880,24 @@ public class UiSelector {
      * @return true if is leaf.
      */
     boolean isLeaf() {
-        if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CHILD) < 0 &&
-                mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PARENT) < 0) {
-            return true;
-        }
-        return false;
+        return mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CHILD) < 0
+                && mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PARENT) < 0;
     }
 
     boolean hasChildSelector() {
-        if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CHILD) < 0) {
-            return false;
-        }
-        return true;
+        return mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CHILD) >= 0;
     }
 
     boolean hasPatternSelector() {
-        if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PATTERN) < 0) {
-            return false;
-        }
-        return true;
+        return mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PATTERN) >= 0;
     }
 
     boolean hasContainerSelector() {
-        if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CONTAINER) < 0) {
-            return false;
-        }
-        return true;
+        return mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_CONTAINER) >= 0;
     }
 
     boolean hasParentSelector() {
-        if (mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PARENT) < 0) {
-            return false;
-        }
-        return true;
+        return mSelectorAttributes.indexOfKey(UiSelector.SELECTOR_PARENT) >= 0;
     }
 
     /**

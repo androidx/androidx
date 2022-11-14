@@ -86,10 +86,7 @@ public class UiScrollable extends UiCollection {
      * @return true if found else false
      */
     protected boolean exists(@NonNull UiSelector selector) {
-        if(getQueryController().findAccessibilityNodeInfo(selector) != null) {
-            return true;
-        }
-        return false;
+        return getQueryController().findAccessibilityNodeInfo(selector) != null;
     }
 
     /**
