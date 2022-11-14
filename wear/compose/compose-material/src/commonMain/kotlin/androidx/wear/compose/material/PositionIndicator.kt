@@ -462,63 +462,63 @@ public fun PositionIndicator(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        // We need to invert reverseDirection when the screen is round and we are on
-                        // the left.
+                .fillMaxSize()
+                .drawWithContent {
+                    // We need to invert reverseDirection when the screen is round and we are on
+                    // the left.
                         val actualReverseDirection =
                             if (isScreenRound && !indicatorOnTheRight) {
-                                !reverseDirection
-                            } else {
-                                reverseDirection
-                            }
+                        !reverseDirection
+                    } else {
+                        reverseDirection
+                    }
 
-                        val indicatorPosition = if (actualReverseDirection) {
-                            1 - animatedDisplayState.value.position
-                        } else {
-                            animatedDisplayState.value.position
-                        }
+                    val indicatorPosition = if (actualReverseDirection) {
+                        1 - animatedDisplayState.value.position
+                    } else {
+                        animatedDisplayState.value.position
+                    }
 
-                        val indicatorWidthPx = indicatorWidth.toPx()
+                    val indicatorWidthPx = indicatorWidth.toPx()
 
-                        // We want position = 0 be the indicator aligned at the top of its area and
-                        // position = 1 be aligned at the bottom of the area.
+                    // We want position = 0 be the indicator aligned at the top of its area and
+                    // position = 1 be aligned at the bottom of the area.
                         val indicatorStart =
                             indicatorPosition * (1 - animatedDisplayState.value.size)
 
                         val diameter = max(containerSize.width, containerSize.height)
 
-                        val paddingHorizontalPx = paddingHorizontal.toPx()
-                        if (isScreenRound) {
-                            val usableHalf = diameter / 2f - paddingHorizontalPx
-                            val sweepDegrees =
-                                (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
+                    val paddingHorizontalPx = paddingHorizontal.toPx()
+                    if (isScreenRound) {
+                        val usableHalf = diameter / 2f - paddingHorizontalPx
+                        val sweepDegrees =
+                            (2 * asin((indicatorHeight.toPx() / 2) / usableHalf)).toDegrees()
 
-                            drawCurvedIndicator(
-                                color,
-                                background,
-                                paddingHorizontalPx,
-                                indicatorOnTheRight,
-                                sweepDegrees,
-                                indicatorWidthPx,
-                                indicatorStart,
-                                animatedDisplayState.value.size,
-                                highlightAlpha.value
-                            )
-                        } else {
-                            drawStraightIndicator(
-                                color,
-                                background,
-                                paddingHorizontalPx,
-                                indicatorOnTheRight,
-                                indicatorWidthPx,
-                                indicatorHeightPx = indicatorHeight.toPx(),
-                                indicatorStart,
-                                animatedDisplayState.value.size,
-                                highlightAlpha.value
-                            )
-                        }
+                        drawCurvedIndicator(
+                            color,
+                            background,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
+                            sweepDegrees,
+                            indicatorWidthPx,
+                            indicatorStart,
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
+                        )
+                    } else {
+                        drawStraightIndicator(
+                            color,
+                            background,
+                            paddingHorizontalPx,
+                            indicatorOnTheRight,
+                            indicatorWidthPx,
+                            indicatorHeightPx = indicatorHeight.toPx(),
+                            indicatorStart,
+                            animatedDisplayState.value.size,
+                            highlightAlpha.value
+                        )
                     }
+                }
             )
         }
     }
@@ -730,8 +730,10 @@ internal class ScalingLazyColumnStateAdapter(
         // of list item offset.
         val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
         val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleFraction =
-            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceAtMost(1f)
+            (1f - ((lastItemEndOffset - viewportEndOffset) /
+                lastItem.size.coerceAtLeast(1))).coerceAtMost(1f)
 
         return lastItem.index.toFloat() + lastItemVisibleFraction
     }
@@ -751,8 +753,10 @@ internal class ScalingLazyColumnStateAdapter(
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
         val viewportStartOffset = - (state.viewportHeightPx.value!! / 2f)
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
-            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceAtLeast(0f)
+            ((viewportStartOffset - firstItemStartOffset) /
+                firstItem.size.coerceAtLeast(1)).coerceAtLeast(0f)
 
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
@@ -823,18 +827,22 @@ internal class LazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        // Coerce item sizes to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleSize =
-            (state.layoutInfo.viewportEndOffset - lastItem.offset).coerceAtMost(lastItem.size)
+            (state.layoutInfo.viewportEndOffset - lastItem.offset)
+                .coerceAtMost(lastItem.size).coerceAtLeast(1)
         return lastItem.index.toFloat() +
-            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
+            lastItemVisibleSize.toFloat() / lastItem.size.coerceAtLeast(1).toFloat()
     }
 
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
+        // Coerce item size to at least 1 to avoid divide by zero for zero height items
         return firstItem.index.toFloat() -
-            firstItemOffset.coerceAtMost(0).toFloat() / firstItem.size.toFloat()
+            firstItemOffset.coerceAtMost(0).toFloat() /
+            firstItem.size.coerceAtLeast(1).toFloat()
     }
 }
 
