@@ -52,7 +52,7 @@ internal class JniBindings {
             listener: SurfaceControlCompat.TransactionCommittedListener
         )
 
-        external fun nExtractFenceFd(
+        external fun nDupFenceFd(
             syncFence: SyncFence
         ): Int
 

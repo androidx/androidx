@@ -560,6 +560,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                         transaction
                     )
                     transaction.commit()
+                    syncFenceCompat?.close()
                 }
             },
             mFrontBufferSyncStrategy
