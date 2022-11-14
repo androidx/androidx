@@ -36,7 +36,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceOutput;
-import androidx.camera.core.SurfaceOutput.GlTransformOptions;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.CameraInternal;
@@ -60,7 +59,6 @@ import androidx.core.util.Preconditions;
 @SuppressWarnings("UnusedVariable")
 public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
 
-    private final GlTransformOptions mGlTransformOptions;
     @NonNull
     final SurfaceProcessorInternal mSurfaceProcessor;
     @NonNull
@@ -74,15 +72,12 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
     /**
      * Constructs the {@link SurfaceProcessorNode}.
      *
-     * @param cameraInternal     the associated camera instance.
-     * @param glTransformOptions the OpenGL transformation options.
-     * @param surfaceProcessor   the interface to wrap around.
+     * @param cameraInternal   the associated camera instance.
+     * @param surfaceProcessor the interface to wrap around.
      */
     public SurfaceProcessorNode(@NonNull CameraInternal cameraInternal,
-            @NonNull GlTransformOptions glTransformOptions,
             @NonNull SurfaceProcessorInternal surfaceProcessor) {
         mCameraInternal = cameraInternal;
-        mGlTransformOptions = glTransformOptions;
         mSurfaceProcessor = surfaceProcessor;
     }
 
@@ -112,63 +107,43 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
         final Runnable onSurfaceInvalidated = inputSurface::invalidate;
 
         SettableSurface outputSurface;
-        switch (mGlTransformOptions) {
-            case APPLY_CROP_ROTATE_AND_MIRRORING:
-                Size resolution = inputSurface.getSize();
-                Rect cropRect = inputSurface.getCropRect();
-                int rotationDegrees = inputSurface.getRotationDegrees();
-                boolean mirroring = inputSurface.getMirroring();
+        Size resolution = inputSurface.getSize();
+        Rect cropRect = inputSurface.getCropRect();
+        int rotationDegrees = inputSurface.getRotationDegrees();
+        boolean mirroring = inputSurface.getMirroring();
 
-                // Calculate rotated resolution and cropRect
-                Size rotatedCroppedSize = is90or270(rotationDegrees)
-                        ? new Size(/*width=*/cropRect.height(), /*height=*/cropRect.width())
-                        : rectToSize(cropRect);
+        // Calculate rotated resolution and cropRect
+        Size rotatedCroppedSize = is90or270(rotationDegrees)
+                ? new Size(/*width=*/cropRect.height(), /*height=*/cropRect.width())
+                : rectToSize(cropRect);
 
-                // Calculate sensorToBufferTransform
-                android.graphics.Matrix sensorToBufferTransform =
-                        new android.graphics.Matrix(inputSurface.getSensorToBufferTransform());
-                android.graphics.Matrix imageTransform = getRectToRect(sizeToRectF(resolution),
-                        new RectF(cropRect), rotationDegrees, mirroring);
-                sensorToBufferTransform.postConcat(imageTransform);
+        // Calculate sensorToBufferTransform
+        android.graphics.Matrix sensorToBufferTransform =
+                new android.graphics.Matrix(inputSurface.getSensorToBufferTransform());
+        android.graphics.Matrix imageTransform = getRectToRect(sizeToRectF(resolution),
+                new RectF(cropRect), rotationDegrees, mirroring);
+        sensorToBufferTransform.postConcat(imageTransform);
 
-                outputSurface = new SettableSurface(
-                        inputSurface.getTargets(),
-                        rotatedCroppedSize,
-                        inputSurface.getFormat(),
-                        sensorToBufferTransform,
-                        // The Surface transform cannot be carried over during buffer copy.
-                        /*hasEmbeddedTransform=*/false,
-                        sizeToRect(rotatedCroppedSize),
-                        /*rotationDegrees=*/0,
-                        /*mirroring=*/false,
-                        onSurfaceInvalidated);
-                break;
-            case USE_SURFACE_TEXTURE_TRANSFORM:
-                // No transform output as placeholder.
-                outputSurface = new SettableSurface(
-                        inputSurface.getTargets(),
-                        inputSurface.getSize(),
-                        inputSurface.getFormat(),
-                        inputSurface.getSensorToBufferTransform(),
-                        // The Surface transform cannot be carried over during buffer copy.
-                        /*hasEmbeddedTransform=*/false,
-                        inputSurface.getCropRect(),
-                        inputSurface.getRotationDegrees(),
-                        inputSurface.getMirroring(),
-                        onSurfaceInvalidated);
-                break;
-            default:
-                throw new AssertionError("Unknown GlTransformOptions: " + mGlTransformOptions);
-        }
+        outputSurface = new SettableSurface(
+                inputSurface.getTargets(),
+                rotatedCroppedSize,
+                inputSurface.getFormat(),
+                sensorToBufferTransform,
+                // The Surface transform cannot be carried over during buffer copy.
+                /*hasEmbeddedTransform=*/false,
+                sizeToRect(rotatedCroppedSize),
+                /*rotationDegrees=*/0,
+                /*mirroring=*/false,
+                onSurfaceInvalidated);
+
         return outputSurface;
     }
 
     private void sendSurfacesToProcessorWhenReady(@NonNull SettableSurface input,
             @NonNull SettableSurface output) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
-        Futures.addCallback(output.createSurfaceOutputFuture(mGlTransformOptions,
-                        input.getSize(), input.getCropRect(), input.getRotationDegrees(),
-                        input.getMirroring()),
+        Futures.addCallback(output.createSurfaceOutputFuture(input.getSize(), input.getCropRect(),
+                        input.getRotationDegrees(), input.getMirroring()),
                 new FutureCallback<SurfaceOutput>() {
                     @Override
                     public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {

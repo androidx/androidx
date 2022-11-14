@@ -24,9 +24,6 @@ import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect.PREVIEW
-import androidx.camera.core.SurfaceOutput.GlTransformOptions
-import androidx.camera.core.SurfaceOutput.GlTransformOptions.APPLY_CROP_ROTATE_AND_MIRRORING
-import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
@@ -94,33 +91,11 @@ class SurfaceProcessorNodeTest {
     }
 
     @Test
-    fun transformInput_useSurfaceTextureTransform_outputHasTheSameProperty() {
-        // Arrange.
-        createSurfaceProcessorNode()
-        createInputEdge()
-        val inputSurface = inputEdge.surfaces[0]
-
-        // Act.
-        val outputEdge = node.transform(inputEdge)
-
-        // Assert: without transformation, the output has the same property as the input.
-        assertThat(outputEdge.surfaces).hasSize(1)
-        val outputSurface = outputEdge.surfaces[0]
-        assertThat(outputSurface.size).isEqualTo(inputSurface.size)
-        assertThat(outputSurface.format).isEqualTo(inputSurface.format)
-        assertThat(outputSurface.targets).isEqualTo(inputSurface.targets)
-        assertThat(outputSurface.cropRect).isEqualTo(inputSurface.cropRect)
-        assertThat(outputSurface.rotationDegrees).isEqualTo(inputSurface.rotationDegrees)
-        assertThat(outputSurface.mirroring).isEqualTo(inputSurface.mirroring)
-        assertThat(outputSurface.hasEmbeddedTransform()).isFalse()
-    }
-
-    @Test
     fun transformInput_applyCropRotateAndMirroring_outputIsCroppedAndRotated() {
         val cropRect = Rect(200, 100, 600, 400)
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
-            createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+            createSurfaceProcessorNode()
             createInputEdge(
                 size = rectToSize(cropRect),
                 cropRect = cropRect,
@@ -153,7 +128,7 @@ class SurfaceProcessorNodeTest {
     fun transformInput_applyCropRotateAndMirroring_outputHasNoMirroring() {
         for (mirroring in arrayOf(false, true)) {
             // Arrange.
-            createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+            createSurfaceProcessorNode()
             createInputEdge(mirroring = mirroring)
 
             // Act.
@@ -173,7 +148,7 @@ class SurfaceProcessorNodeTest {
     @Test
     fun transformInput_applyCropRotateAndMirroring_initialTransformInfoIsPropagated() {
         // Arrange.
-        createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createSurfaceProcessorNode()
         createInputEdge(rotationDegrees = 90, cropRect = Rect(0, 0, 600, 400))
 
         // Act.
@@ -192,7 +167,7 @@ class SurfaceProcessorNodeTest {
     @Test
     fun setRotationToInput_applyCropRotateAndMirroring_rotationIsPropagated() {
         // Arrange.
-        createSurfaceProcessorNode(APPLY_CROP_ROTATE_AND_MIRRORING)
+        createSurfaceProcessorNode()
         createInputEdge(rotationDegrees = 90)
         val inputSurface = inputEdge.surfaces[0]
         val outputEdge = node.transform(inputEdge)
@@ -269,12 +244,9 @@ class SurfaceProcessorNodeTest {
         inputEdge = SurfaceEdge.create(listOf(surface))
     }
 
-    private fun createSurfaceProcessorNode(
-        glTransformOptions: GlTransformOptions = USE_SURFACE_TEXTURE_TRANSFORM
-    ) {
+    private fun createSurfaceProcessorNode() {
         node = SurfaceProcessorNode(
             FakeCamera(),
-            glTransformOptions,
             surfaceProcessorInternal
         )
     }
