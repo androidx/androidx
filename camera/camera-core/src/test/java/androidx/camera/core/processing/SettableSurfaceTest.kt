@@ -26,7 +26,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput
-import androidx.camera.core.SurfaceOutput.GlTransformOptions.USE_SURFACE_TEXTURE_TRANSFORM
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
 import androidx.camera.core.SurfaceRequest.TransformationInfo
@@ -310,7 +309,6 @@ class SettableSurfaceTest {
 
     private fun createSurfaceOutputFuture(settableSurface: SettableSurface) =
         settableSurface.createSurfaceOutputFuture(
-            USE_SURFACE_TEXTURE_TRANSFORM,
             INPUT_SIZE,
             sizeToRect(INPUT_SIZE),
             /*rotationDegrees=*/0,

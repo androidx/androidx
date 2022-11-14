@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.SurfaceOutput;
-import androidx.camera.core.SurfaceOutput.GlTransformOptions;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.SurfaceRequest.TransformationInfo;
@@ -254,7 +253,6 @@ public class SettableSurface extends DeferrableSurface {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
-     * @param glTransformOptions OpenGL transformation options for SurfaceOutput
      * @param resolution         resolution of input image buffer
      * @param cropRect           crop rect of input image buffer
      * @param rotationDegrees    expected rotation to the input image buffer
@@ -262,8 +260,7 @@ public class SettableSurface extends DeferrableSurface {
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(
-            @NonNull GlTransformOptions glTransformOptions, @NonNull Size resolution,
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size resolution,
             @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
@@ -276,9 +273,9 @@ public class SettableSurface extends DeferrableSurface {
                     } catch (SurfaceClosedException e) {
                         return Futures.immediateFailedFuture(e);
                     }
-                    SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(
-                            surface, getTargets(), getFormat(), getSize(), glTransformOptions,
-                            resolution, cropRect, rotationDegrees, mirroring);
+                    SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
+                            getTargets(), getFormat(), getSize(), resolution, cropRect,
+                            rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
                             directExecutor());
                     mConsumerToNotify = surfaceOutputImpl;
