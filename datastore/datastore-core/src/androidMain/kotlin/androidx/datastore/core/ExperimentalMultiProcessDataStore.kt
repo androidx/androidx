@@ -21,4 +21,5 @@ package androidx.datastore.core
     message = "This API is experimental and is likely to change in the future."
 )
 @Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalMultiProcessDataStore

@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.tv.foundation {
 
-  @kotlin.RequiresOptIn(message="This tv-foundation API is experimental and likely to change or be removed in the future.") public @interface ExperimentalTvFoundationApi {
+  @kotlin.RequiresOptIn(message="This tv-foundation API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvFoundationApi {
   }
 
   public final class PivotOffsets {
