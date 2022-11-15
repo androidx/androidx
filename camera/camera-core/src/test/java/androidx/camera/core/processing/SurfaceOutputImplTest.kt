@@ -100,6 +100,27 @@ class SurfaceOutputImplTest {
     }
 
     @Test
+    fun updateMatrix_containsOpenGlFlipping() {
+        // Arrange.
+        val surfaceOut = createFakeSurfaceOutputImpl()
+        val input = FloatArray(16).also {
+            android.opengl.Matrix.setIdentityM(it, 0)
+        }
+
+        // Act.
+        val result = FloatArray(16)
+        surfaceOut.updateTransformMatrix(result, input)
+
+        // Assert: the result contains the flipping for OpenGL.
+        val expected = FloatArray(16).also {
+            android.opengl.Matrix.setIdentityM(it, 0)
+            android.opengl.Matrix.translateM(it, 0, 0f, 1f, 0f)
+            android.opengl.Matrix.scaleM(it, 0, 1f, -1f, 1f)
+        }
+        assertThat(result).usingTolerance(1E-4).containsExactly(expected)
+    }
+
+    @Test
     fun closedSurface_noLongerReceivesCloseRequest() {
         // Arrange.
         val surfaceOutImpl = createFakeSurfaceOutputImpl()

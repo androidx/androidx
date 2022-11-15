@@ -323,7 +323,7 @@ public final class Preview extends UseCase {
                 /*hasEmbeddedTransform=*/true,
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
-                /*mirroring=*/true,
+                /*mirroring=*/isFrontCamera(camera),
                 this::notifyReset);
         SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
         SurfaceEdge outputEdge = mNode.transform(inputEdge);
@@ -341,6 +341,11 @@ public final class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
         return sessionConfigBuilder;
+    }
+
+    private static boolean isFrontCamera(@NonNull CameraInternal camera) {
+        Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
+        return lensFacing != null && lensFacing == CameraSelector.LENS_FACING_FRONT;
     }
 
     /**

@@ -24,6 +24,7 @@ import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
@@ -44,6 +45,7 @@ import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
@@ -51,6 +53,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.Collections
 import java.util.concurrent.ExecutionException
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,8 +61,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import kotlin.jvm.Throws
-import org.junit.Assert
 
 private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -72,27 +73,34 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
     minSdk = Build.VERSION_CODES.LOLLIPOP
 )
 class PreviewTest {
+
     var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
-    private lateinit var camera: FakeCamera
+    private lateinit var backCamera: FakeCamera
+    private lateinit var frontCamera: FakeCamera
     private lateinit var cameraXConfig: CameraXConfig
     private lateinit var context: Context
+    private lateinit var previewToDetach: Preview
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
         appSurfaceTexture = SurfaceTexture(0)
         appSurface = Surface(appSurfaceTexture)
-        camera = FakeCamera()
+        backCamera = FakeCamera("back")
+        frontCamera = FakeCamera("front", null, FakeCameraInfoInternal(0, LENS_FACING_FRONT))
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(
-                    camera.cameraInfoInternal.cameraId
-                ) { camera }
+                    backCamera.cameraInfoInternal.cameraId
+                ) { backCamera }
+                cameraFactory.insertDefaultFrontCamera(
+                    frontCamera.cameraInfoInternal.cameraId
+                ) { frontCamera }
                 cameraFactory
             }
         cameraXConfig = CameraXConfig.Builder.fromConfig(
@@ -111,6 +119,9 @@ class PreviewTest {
             this?.removeUseCases(useCases)
         }
         cameraUseCaseAdapter = null
+        if (::previewToDetach.isInitialized) {
+            previewToDetach.onDetached()
+        }
         CameraXUtil.shutdown().get()
     }
 
@@ -252,14 +263,22 @@ class PreviewTest {
     }
 
     @Test
-    fun createPreviewWithProcessor_mirroringIsTrue() {
+    fun backCameraWithProcessor_notMirrored() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
-
         // Act: create pipeline
-        val preview = createPreview(processor)
+        val preview = createPreview(processor, backCamera)
+        // Assert
+        assertThat(preview.getCameraSurface().mirroring).isFalse()
+    }
 
-        // Assert: preview is mirrored by default.
+    @Test
+    fun frontCameraWithProcessor_mirrored() {
+        // Arrange.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        // Act: create pipeline
+        val preview = createPreview(processor, frontCamera)
+        // Assert
         assertThat(preview.getCameraSurface().mirroring).isTrue()
     }
 
@@ -281,9 +300,6 @@ class PreviewTest {
         shadowOf(getMainLooper()).idle()
         // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
         assertThat(preview.getCameraSurface().rotationDegrees).isEqualTo(180)
-
-        // Clean up
-        preview.onDetached()
     }
 
     private fun Preview.getCameraSurface(): SettableSurface {
@@ -540,21 +556,24 @@ class PreviewTest {
         return Pair(surfaceRequest!!, transformationInfo!!)
     }
 
-    private fun createPreview(surfaceProcessor: SurfaceProcessorInternal? = null): Preview {
-        val preview = Preview.Builder()
+    private fun createPreview(
+        surfaceProcessor: SurfaceProcessorInternal? = null,
+        camera: FakeCamera = backCamera
+    ): Preview {
+        previewToDetach = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .build()
-        preview.processor = surfaceProcessor
-        preview.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
+        previewToDetach.processor = surfaceProcessor
+        previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(
             cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
                 UseCaseConfigFactory.CaptureType.PREVIEW,
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
             )!! as OptionsBundle
         )
-        preview.onAttach(camera, null, previewConfig)
+        previewToDetach.onAttach(camera, null, previewConfig)
 
-        preview.onSuggestedResolutionUpdated(Size(640, 480))
-        return preview
+        previewToDetach.onSuggestedResolutionUpdated(Size(640, 480))
+        return previewToDetach
     }
 }
