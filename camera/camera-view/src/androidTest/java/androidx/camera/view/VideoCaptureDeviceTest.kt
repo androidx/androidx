@@ -47,6 +47,7 @@ import androidx.camera.view.video.AudioConfig
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -341,6 +342,7 @@ class VideoCaptureDeviceTest(
         file.delete()
     }
 
+    @FlakyTest(bugId = 259294631)
     @Test
     fun canRecordToFile_rightAfterPreviousRecordingStopped() {
         // Arrange.
