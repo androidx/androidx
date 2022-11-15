@@ -16,23 +16,18 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.AndroidTypeNames.CURSOR
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.ArrayLiteral
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
-import androidx.room.ext.S
-import androidx.room.ext.T
-import androidx.room.ext.W
+import androidx.room.ext.RoomMemberNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
 import androidx.room.writer.EntityCursorConverterWriter
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.TypeName
 
 class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) {
 
@@ -47,12 +42,15 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
         private var indexVars: List<ColumnIndexVar>? = null
 
         override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
-            indexVars = entity.columnNames.map {
+            indexVars = entity.columnNames.map { columnName ->
                 ColumnIndexVar(
-                    column = it,
-                    indexVar = CodeBlock.of(
-                        "$T.getColumnIndex($N, $S)",
-                        CURSOR_UTIL.toJavaPoet(), cursorVarName, it
+                    column = columnName,
+                    indexVar = XCodeBlock.of(
+                        scope.language,
+                        "%M(%L, %S)",
+                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
+                        cursorVarName,
+                        columnName
                     ).toString()
                 )
             }
@@ -76,24 +74,27 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             // solely used in the shared converter method and whose getColumnIndex() is overridden
             // to return the resolved column index.
             cursorDelegateVarName = scope.getTmpVar("_wrappedCursor")
-            val entityColumnNamesParam = CodeBlock.of(
-                "new $T[] { $L }",
-                CommonTypeNames.STRING.toJavaPoet(),
-                CodeBlock.join(entity.columnNames.map { CodeBlock.of(S, it) }, ",$W")
+            val entityColumnNamesParam = ArrayLiteral(
+                scope.language,
+                CommonTypeNames.STRING,
+                *entity.columnNames.toTypedArray()
             )
-            val entityColumnIndicesParam = CodeBlock.of(
-                "new $T[] { $L }",
-                TypeName.INT,
-                CodeBlock.join(indices.map { CodeBlock.of(L, it.indexVar) }, ",$W")
+            val entityColumnIndicesParam = ArrayLiteral(
+                scope.language,
+                XTypeName.PRIMITIVE_INT,
+                *indices.map { it.indexVar }.toTypedArray()
             )
-            scope.builder().addStatement(
-                "final $T $N = $T.wrapMappedColumns($N, $L, $L)",
-                CURSOR.toJavaPoet(),
-                cursorDelegateVarName,
-                CURSOR_UTIL.toJavaPoet(),
-                cursorVarName,
-                entityColumnNamesParam,
-                entityColumnIndicesParam
+            scope.builder.addLocalVariable(
+                checkNotNull(cursorDelegateVarName),
+                AndroidTypeNames.CURSOR,
+                assignExpr = XCodeBlock.of(
+                    scope.language,
+                    "%M(%L, %L, %L)",
+                    RoomMemberNames.CURSOR_UTIL_WRAP_MAPPED_COLUMNS,
+                    cursorVarName,
+                    entityColumnNamesParam,
+                    entityColumnIndicesParam
+                )
             )
         }
         functionSpec = scope.writer.getOrCreateFunction(EntityCursorConverterWriter(entity))

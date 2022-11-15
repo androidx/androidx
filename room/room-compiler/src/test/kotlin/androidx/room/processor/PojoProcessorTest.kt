@@ -2100,7 +2100,8 @@ class PojoProcessorTest {
                     fieldName = "isbn",
                     jvmName = "getIsbn",
                     type = stringType,
-                    callType = CallType.SYNTHETIC_METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(
@@ -2121,7 +2122,8 @@ class PojoProcessorTest {
                     fieldName = "isbn2",
                     jvmName = "getIsbn2",
                     type = stringType.makeNullable(),
-                    callType = CallType.SYNTHETIC_METHOD
+                    callType = CallType.SYNTHETIC_METHOD,
+                    isMutableField = true
                 )
             )
             Truth.assertThat(

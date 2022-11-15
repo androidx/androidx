@@ -27,11 +27,18 @@ public class MyDao_Impl(
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
             public override fun createQuery(): String =
-                "INSERT OR ABORT INTO `MyEntity` (`pk`,`variable`) VALUES (?,?)"
+                "INSERT OR ABORT INTO `MyEntity` (`pk`,`variablePrimitive`,`variableString`,`variableNullableString`) VALUES (?,?,?,?)"
 
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
-                statement.bindLong(2, entity.variable)
+                statement.bindLong(2, entity.variablePrimitive)
+                statement.bindString(3, entity.variableString)
+                val _tmpVariableNullableString: String? = entity.variableNullableString
+                if (_tmpVariableNullableString == null) {
+                    statement.bindNull(4)
+                } else {
+                    statement.bindString(4, _tmpVariableNullableString)
+                }
             }
         }
     }
@@ -54,13 +61,22 @@ public class MyDao_Impl(
         val _cursor: Cursor = query(__db, _statement, false, null)
         try {
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfVariable: Int = getColumnIndexOrThrow(_cursor, "variable")
+            val _cursorIndexOfVariablePrimitive: Int = getColumnIndexOrThrow(_cursor, "variablePrimitive")
+            val _cursorIndexOfVariableString: Int = getColumnIndexOrThrow(_cursor, "variableString")
+            val _cursorIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_cursor,
+                "variableNullableString")
             val _result: MyEntity
             if (_cursor.moveToFirst()) {
                 val _tmpPk: Int
                 _tmpPk = _cursor.getInt(_cursorIndexOfPk)
                 _result = MyEntity(_tmpPk)
-                _result.variable = _cursor.getLong(_cursorIndexOfVariable)
+                _result.variablePrimitive = _cursor.getLong(_cursorIndexOfVariablePrimitive)
+                _result.variableString = _cursor.getString(_cursorIndexOfVariableString)
+                if (_cursor.isNull(_cursorIndexOfVariableNullableString)) {
+                    _result.variableNullableString = null
+                } else {
+                    _result.variableNullableString = _cursor.getString(_cursorIndexOfVariableNullableString)
+                }
             } else {
                 error("Cursor was empty, but expected a single item.")
             }
