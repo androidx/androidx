@@ -368,4 +368,14 @@ public class AppSearchSchemaCtsTest {
 
         assertThat(schemaString).isEqualTo(expectedString);
     }
+
+    @Test
+    public void testStringPropertyConfig_setTokenizerType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(5).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(2).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new StringPropertyConfig.Builder("subject").setTokenizerType(-1).build());
+    }
 }

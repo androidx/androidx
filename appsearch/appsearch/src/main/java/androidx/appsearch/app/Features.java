@@ -69,6 +69,12 @@ public interface Features {
     String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_RFC822}.
+     */
+    String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.
