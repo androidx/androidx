@@ -21,6 +21,7 @@ from datetime import date
 import glob
 import pathlib
 import re
+import shutil
 import subprocess
 import toml
 
@@ -495,13 +496,15 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
     return
 
 
-def update_tracing_perfetto(old_version, new_version=None, core_path=FRAMEWORKS_SUPPORT_FP):
+def update_tracing_perfetto(old_version, new_version=None, core_path=FRAMEWORKS_SUPPORT_FP,
+                            force_unstripped_binaries=False):
     """Updates tracing-perfetto version and artifacts (including building new binaries)
 
     Args:
         old_version: old version of the existing library
         new_version: new version of the library; defaults to incrementing the old_version
         core_path: path to frameworks/support directory
+        force_unstripped_binaries: flag allowing to force unstripped variant of binaries
     Returns:
         Nothing
     """
@@ -551,6 +554,36 @@ def update_tracing_perfetto(old_version, new_version=None, core_path=FRAMEWORKS_
     dst_dir.mkdir()
     subprocess.check_call(
         ["unzip", "-xjqq", project_zip_file, '**/%s/**' % new_version, "-d", dst_dir])
+
+    # force unstripped binaries if the flag is enabled
+    if force_unstripped_binaries:
+        # locate unstripped binaries
+        out_dir = pathlib.Path(core_path, "../../out")
+        arm64_lib_file = out_dir.joinpath(single(subprocess.check_output(
+            'find . -type f -name "libtracing_perfetto.so"'
+            ' -and -path "*RelWithDebInfo/*/obj/arm64*"'
+            ' -exec stat -c "%Y %n" {} \; |'
+            ' sort | tail -1 | cut -d " " -f2-',
+            cwd=out_dir,
+            shell=True).splitlines()).decode())
+        base_dir = arm64_lib_file.parent.parent.parent
+        obj_dir = base_dir.joinpath('obj')
+        if not obj_dir.exists():
+            raise RuntimeError('Expected path %s to exist' % repr(obj_dir))
+        jni_dir = base_dir.joinpath('jni')
+
+        # prepare a jni folder to inject into the destination aar
+        if (jni_dir.exists()):
+            shutil.rmtree(jni_dir)
+        shutil.copytree(obj_dir, jni_dir)
+
+        # inject the jni folder into the aar
+        dst_aar = os.path.join(dst_dir, 'tracing-perfetto-binary-%s.aar' % new_version)
+        subprocess.check_call(['zip', '-qq', '-r', dst_aar, 'jni'], cwd=base_dir)
+
+        # clean up
+        if (jni_dir.exists()):
+            shutil.rmtree(jni_dir)
 
     # update SHA
     for arch in ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']:
