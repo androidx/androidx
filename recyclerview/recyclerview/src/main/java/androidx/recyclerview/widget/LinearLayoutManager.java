@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -293,6 +294,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
             @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // Set the class name so this is treated as a list. This helps accessibility services
+        // distinguish lists from one row or one column grids.
+        info.setClassName(ListView.class.getName());
+
         // TODO(b/251823537)
         if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
