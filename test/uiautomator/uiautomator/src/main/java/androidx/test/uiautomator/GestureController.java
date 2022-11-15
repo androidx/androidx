@@ -57,7 +57,7 @@ class GestureController {
         }
     }
 
-    private UiDevice mDevice;
+    private final UiDevice mDevice;
 
     /** Comparator for sorting PointerGestures by start times. */
     private static final Comparator<PointerGesture> START_TIME_COMPARATOR =
@@ -254,7 +254,7 @@ class GestureController {
 
     /** Runnable wrapper around a {@link GestureController#performGesture} call. */
     private class GestureRunnable implements Runnable {
-        private PointerGesture[] mGestures;
+        private final PointerGesture[] mGestures;
 
         public GestureRunnable(PointerGesture[] gestures) {
             mGestures = gestures;
