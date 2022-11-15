@@ -3406,4 +3406,54 @@ public abstract class AppSearchSessionCtsTestBase {
             assertThat(matches.get(0).getSubmatch()).isEqualTo("🐟");
         }
     }
+
+    @Test
+    public void testRfc822() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.TOKENIZER_TYPE_RFC822));
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("address")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_RFC822)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setForceOverride(true).addSchemas(emailSchema).build()).get();
+
+        GenericDocument email = new GenericDocument.Builder<>("NS", "alex1", "Email")
+                .setPropertyString("address", "Alex Saveliev <alex.sav@google.com>")
+                .build();
+        mDb1.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+
+        SearchResults sr = mDb1.search("com", new SearchSpec.Builder().build());
+        List<SearchResult> page = sr.getNextPageAsync().get();
+
+        // RFC tokenization will produce the following tokens for
+        // "Alex Saveliev <alex.sav@google.com>" : ["Alex Saveliev <alex.sav@google.com>", "Alex",
+        // "Saveliev", "alex.sav", "alex.sav@google.com", "alex.sav", "google", "com"]. Therefore,
+        // a query for "com" should match the document.
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("alex1");
+
+        // Plain tokenizer will not match this
+        AppSearchSchema plainEmailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("address")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        // Flipping the tokenizer type is a backwards compatible change. The index will be
+        // rebuilt with the email doc being tokenized in the new way.
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(plainEmailSchema).build()).get();
+
+        sr = mDb1.search("com", new SearchSpec.Builder().build());
+
+        // Plain tokenization will produce the following tokens for
+        // "Alex Saveliev <alex.sav@google.com>" : ["Alex", "Saveliev", "<", "alex.sav",
+        // "google.com", ">"]. So "com" will not match any of the tokens produced.
+        assertThat(sr.getNextPageAsync().get()).hasSize(0);
+    }
 }

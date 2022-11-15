@@ -937,8 +937,30 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.StringProperty(tokenizerType=0) String tokNone;\n"
-                        + "  @Document.StringProperty(tokenizerType=1) String tokPlain;\n"
+                        + "\n"
+                        // NONE index type will generate a NONE tokenizerType type.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=0) "
+                        + "  String tokNoneInvalid;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=0) "
+                        + "  String tokPlainInvalid;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=0) "
+                        + "  String tokRfc822Invalid;\n"
+                        + "\n"
+                        // Indexing type exact.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=1) "
+                        + "  String tokNone;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=1) "
+                        + "  String tokPlain;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=1) "
+                        + "  String tokRfc822;\n"
+                        + "\n"
+                        // Indexing type prefix.
+                        + "  @Document.StringProperty(tokenizerType=0, indexingType=2) "
+                        + "  String tokNonePrefix;\n"
+                        + "  @Document.StringProperty(tokenizerType=1, indexingType=2) "
+                        + "  String tokPlainPrefix;\n"
+                        + "  @Document.StringProperty(tokenizerType=3, indexingType=2) "
+                        + "  String tokRfc822Prefix;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
