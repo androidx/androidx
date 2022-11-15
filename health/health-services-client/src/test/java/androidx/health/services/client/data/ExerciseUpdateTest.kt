@@ -59,9 +59,12 @@ internal class ExerciseUpdateTest {
             exerciseConfig = ExerciseConfig(
                 WALKING,
                 setOf(CALORIES_TOTAL),
-                isAutoPauseAndResumeEnabled = true,
+                isAutoPauseAndResumeEnabled = false,
                 isGpsEnabled = false,
-                exerciseGoals = listOf(goal)
+                exerciseGoals = listOf(goal),
+                exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
+                    GolfShotTrackingPlaceInfo.FAIRWAY
+                )
             ),
             activeDurationCheckpoint = ActiveDurationCheckpoint(42.instant(), 30.duration()),
             updateDurationFromBoot = 42.duration(),
@@ -81,6 +84,61 @@ internal class ExerciseUpdateTest {
             .isEqualTo(CALORIES_TOTAL)
         assertThat(markerSummary.achievedGoal.dataTypeCondition.dataType).isEqualTo(CALORIES_TOTAL)
         assertThat(update.exerciseConfig!!.exerciseType).isEqualTo(WALKING)
+        assertThat(
+            update.exerciseConfig!!.exerciseTypeConfig!!.golfShotTrackingPlaceInfo).isEqualTo(
+            GolfShotTrackingPlaceInfo.FAIRWAY)
+        assertThat(update.activeDurationCheckpoint!!.activeDuration).isEqualTo(30.duration())
+        assertThat(update.exerciseStateInfo.state).isEqualTo(ExerciseState.ACTIVE)
+    }
+
+    @Test
+    fun exerciseTypeConfigNull_protoRoundTrip() {
+        val goal = createOneTimeGoal(
+            DataTypeCondition(CALORIES_TOTAL, 125.0, GREATER_THAN_OR_EQUAL)
+        )
+        val proto = ExerciseUpdate(
+            latestMetrics = DataPointContainer(
+                listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
+            ),
+            latestAchievedGoals = setOf(goal),
+            latestMilestoneMarkerSummaries = setOf(
+                MilestoneMarkerSummary(
+                    15.instant(),
+                    40.instant(),
+                    20.duration(),
+                    goal,
+                    DataPointContainer(
+                        listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
+                    )
+                )
+            ),
+            exerciseStateInfo = ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN),
+            exerciseConfig = ExerciseConfig(
+                WALKING,
+                setOf(CALORIES_TOTAL),
+                isAutoPauseAndResumeEnabled = false,
+                isGpsEnabled = false,
+                exerciseGoals = listOf(goal),
+            ),
+            activeDurationCheckpoint = ActiveDurationCheckpoint(42.instant(), 30.duration()),
+            updateDurationFromBoot = 42.duration(),
+            startTime = 10.instant()
+        ).proto
+
+        val update = ExerciseUpdate(proto)
+
+        val caloriesDataPoint = update.latestMetrics.getData(DataType.CALORIES).first()
+        val markerSummary = update.latestMilestoneMarkerSummaries.first()
+        assertThat(update.startTime).isEqualTo(10.instant())
+        assertThat(update.getUpdateDurationFromBoot()).isEqualTo(42.duration())
+        assertThat(caloriesDataPoint.value).isEqualTo(130.0)
+        assertThat(caloriesDataPoint.startDurationFromBoot).isEqualTo(15.duration())
+        assertThat(caloriesDataPoint.endDurationFromBoot).isEqualTo(35.duration())
+        assertThat(update.latestAchievedGoals.first().dataTypeCondition.dataType)
+            .isEqualTo(CALORIES_TOTAL)
+        assertThat(markerSummary.achievedGoal.dataTypeCondition.dataType).isEqualTo(CALORIES_TOTAL)
+        assertThat(update.exerciseConfig!!.exerciseType).isEqualTo(WALKING)
+        assertThat(update.exerciseConfig!!.exerciseTypeConfig).isNull()
         assertThat(update.activeDurationCheckpoint!!.activeDuration).isEqualTo(30.duration())
         assertThat(update.exerciseStateInfo.state).isEqualTo(ExerciseState.ACTIVE)
     }

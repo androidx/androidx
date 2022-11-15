@@ -25,6 +25,7 @@ import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.data.ExerciseState
 import androidx.health.services.client.data.ExerciseEndReason
 import androidx.health.services.client.data.ExerciseType
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
 import com.google.common.util.concurrent.ListenableFuture
@@ -281,4 +282,24 @@ public interface ExerciseClient {
      * @return a [ListenableFuture] containing the [ExerciseCapabilities] for this device
      */
     public fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities>
+
+    /**
+     * Updates the configurable exercise type attributes for the current exercise.
+     *
+     * This can be used to update the configurable attributes for the ongoing exercise, as defined
+     * in [ExerciseTypeConfig]. Minimum Exercise API version for this function is 3.
+     *
+     * @param exerciseTypeConfig a configuration containing the new values for the configurable
+     * attributes
+     * @return a [ListenableFuture] that completes when the configuration has been updated.
+     * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
+     * implemented this method. Developers should use [ServiceBackedExerciseClient], which is
+     * guaranteed to have this method implemented.
+     * @see ServiceBackedExerciseClient
+     */
+    public fun updateExerciseTypeConfigAsync(
+        exerciseTypeConfig: ExerciseTypeConfig
+    ): ListenableFuture<Void> {
+        throw NotImplementedError()
+    }
 }
