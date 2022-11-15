@@ -62,7 +62,7 @@ class QueryController {
 
     String mLastTraversedText = "";
 
-    private OnAccessibilityEventListener mEventListener = event -> {
+    private final OnAccessibilityEventListener mEventListener = event -> {
         synchronized (mLock) {
             switch(event.getEventType()) {
                 case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:

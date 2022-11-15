@@ -30,7 +30,7 @@ import androidx.annotation.NonNull;
  */
 class InstrumentationAutomationSupport implements IAutomationSupport {
 
-    private Instrumentation mInstrumentation;
+    private final Instrumentation mInstrumentation;
 
     InstrumentationAutomationSupport(Instrumentation instrumentation) {
         mInstrumentation = instrumentation;
