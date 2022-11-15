@@ -163,4 +163,10 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     public int getHeightAlignment() {
         return mVideoEncoderInfo.getHeightAlignment();
     }
+
+    @NonNull
+    @Override
+    public Range<Integer> getSupportedBitrateRange() {
+        return mVideoEncoderInfo.getSupportedBitrateRange();
+    }
 }

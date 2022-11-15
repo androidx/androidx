@@ -103,6 +103,12 @@ public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncode
     }
 
     @NonNull
+    @Override
+    public Range<Integer> getSupportedBitrateRange() {
+        return mVideoCapabilities.getBitrateRange();
+    }
+
+    @NonNull
     private static IllegalArgumentException toIllegalArgumentException(@NonNull Throwable t) {
         if (t instanceof IllegalArgumentException) {
             return (IllegalArgumentException) t;

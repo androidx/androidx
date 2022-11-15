@@ -103,6 +103,7 @@ import org.mockito.Mockito.timeout
 private const val GENERAL_TIMEOUT = 5000L
 private const val STATUS_TIMEOUT = 15000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
+private const val BITRATE_AUTO = 0
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -171,8 +172,6 @@ class RecorderTest(
         ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
-        recorder = Recorder.Builder().build()
-
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
         val cameraInfo = cameraUseCaseAdapter.cameraInfo
@@ -236,7 +235,6 @@ class RecorderTest(
             surfaceTexturePreview,
             preview
         )
-        recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
 
         mockVideoRecordEventConsumer = MockConsumer<VideoRecordEvent>()
     }
@@ -255,49 +253,32 @@ class RecorderTest(
 
     @Test
     fun canRecordToFile() {
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(BITRATE_AUTO, enableAudio = true)
+    }
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+    @Test
+    fun recordingWithSetTargetVideoEncodingBitRate() {
+        testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(6_000_000)
+        verifyConfiguredVideoBitrate()
+    }
 
-        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+    @Test
+    fun recordingWithSetTargetVideoEncodingBitRateOutOfRange() {
+        testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(1000_000_000)
+        verifyConfiguredVideoBitrate()
+    }
 
-        recording.stopSafely()
-
-        mockVideoRecordEventConsumer.verifyAcceptCall(
-            VideoRecordEvent.Finalize::class.java,
-            true,
-            GENERAL_TIMEOUT
-        )
-
-        val uri = Uri.fromFile(file)
-        checkFileHasAudioAndVideo(uri)
-
-        // Check the output Uri from the finalize event match the Uri from the given file.
-        val captor = ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
-            VideoRecordEvent::class.java.isInstance(
-                argument
-            )
+    @Test
+    fun recordingWithNegativeBitRate() {
+        initializeRecorder()
+        assertThrows(IllegalArgumentException::class.java) {
+            Recorder.Builder().setTargetVideoEncodingBitRate(-5).build()
         }
-
-        mockVideoRecordEventConsumer.verifyAcceptCall(
-            VideoRecordEvent::class.java,
-            false,
-            CallTimesAtLeast(1),
-            captor
-        )
-
-        val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
-
-        file.delete()
     }
 
     @Test
     fun canRecordToMediaStore() {
+        initializeRecorder()
         assumeTrue(
             "Ignore the test since the MediaStore.Video has compatibility issues.",
             DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
@@ -346,6 +327,7 @@ class RecorderTest(
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun canRecordToFileDescriptor() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val pfd = ParcelFileDescriptor.open(
@@ -378,6 +360,7 @@ class RecorderTest(
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun recordToFileDescriptor_withClosedFileDescriptor_receiveError() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
@@ -411,6 +394,7 @@ class RecorderTest(
     @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 25)
     @SuppressLint("NewApi") // Intentionally testing behavior of calling from invalid API level
     fun prepareRecordingWithFileDescriptor_throwsExceptionBeforeApi26() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         ParcelFileDescriptor.open(
             file,
@@ -426,6 +410,7 @@ class RecorderTest(
 
     @Test
     fun canPauseResume() {
+        initializeRecorder()
         invokeSurfaceRequest()
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
@@ -466,6 +451,7 @@ class RecorderTest(
 
     @Test
     fun canStartRecordingPaused_whenRecorderInitializing() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
@@ -493,6 +479,7 @@ class RecorderTest(
 
     @Test
     fun canReceiveRecordingStats() {
+        initializeRecorder()
         invokeSurfaceRequest()
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
@@ -573,6 +560,7 @@ class RecorderTest(
 
     @Test
     fun setFileSizeLimit() {
+        initializeRecorder()
         val fileSizeLimit = 500L * 1024L // 500 KB
         runFileSizeLimitTest(fileSizeLimit)
     }
@@ -582,22 +570,26 @@ class RecorderTest(
     // written to it.
     @Test
     fun setFileSizeLimitLowerThanInitialDataSize() {
+        initializeRecorder()
         val fileSizeLimit = 1L // 1 byte
         runFileSizeLimitTest(fileSizeLimit)
     }
 
     @Test
     fun setLocation() {
+        initializeRecorder()
         runLocationTest(createLocation(25.033267462243586, 121.56454121737946))
     }
 
     @Test
     fun setNegativeLocation() {
+        initializeRecorder()
         runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
     @Test
     fun stop_withErrorWhenDurationLimitReached() {
+        initializeRecorder()
         val videoRecordEventListener = MockConsumer<VideoRecordEvent>()
         invokeSurfaceRequest()
         val durationLimitMs = 3000L
@@ -638,6 +630,7 @@ class RecorderTest(
 
     @Test
     fun checkStreamState() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -680,6 +673,7 @@ class RecorderTest(
 
     @Test
     fun start_throwsExceptionWhenActive() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val outputOptions = FileOutputOptions.Builder(file).build()
@@ -699,6 +693,7 @@ class RecorderTest(
 
     @Test
     fun start_whenSourceActiveNonStreaming() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
@@ -724,6 +719,7 @@ class RecorderTest(
 
     @Test
     fun start_finalizeImmediatelyWhenSourceInactive() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -762,6 +758,7 @@ class RecorderTest(
 
     @Test
     fun pause_whenSourceActiveNonStreaming() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
@@ -813,6 +810,7 @@ class RecorderTest(
 
     @Test
     fun pause_noOpWhenAlreadyPaused() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -859,6 +857,7 @@ class RecorderTest(
 
     @Test
     fun pause_throwsExceptionWhenStopping() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -880,6 +879,7 @@ class RecorderTest(
 
     @Test
     fun resume_noOpWhenNotPaused() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -921,6 +921,7 @@ class RecorderTest(
 
     @Test
     fun resume_throwsExceptionWhenStopping() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -942,6 +943,7 @@ class RecorderTest(
 
     @Test
     fun stop_beforeSurfaceRequested() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         val recording =
@@ -975,6 +977,7 @@ class RecorderTest(
 
     @Test
     fun stop_fromAutoCloseable() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         // Recording will be stopped by AutoCloseable.close() upon exiting use{} block
@@ -996,6 +999,7 @@ class RecorderTest(
 
     @Test
     fun stop_WhenUseCaseDetached() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -1022,6 +1026,7 @@ class RecorderTest(
     @Suppress("UNUSED_VALUE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     @Test
     fun stop_whenRecordingIsGarbageCollected() {
+        initializeRecorder()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         var recording: Recording? = recorder
@@ -1053,6 +1058,7 @@ class RecorderTest(
 
     @Test
     fun stop_noOpWhenStopping() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -1076,6 +1082,7 @@ class RecorderTest(
 
     @Test
     fun optionsOverridesDefaults() {
+        initializeRecorder()
         val qualitySelector = QualitySelector.from(Quality.HIGHEST)
         val recorder = Recorder.Builder()
             .setQualitySelector(qualitySelector)
@@ -1086,6 +1093,7 @@ class RecorderTest(
 
     @Test
     fun canRetrieveProvidedExecutorFromRecorder() {
+        initializeRecorder()
         val myExecutor = Executor { command -> command?.run() }
         val recorder = Recorder.Builder()
             .setExecutor(myExecutor)
@@ -1096,6 +1104,7 @@ class RecorderTest(
 
     @Test
     fun cannotRetrieveExecutorWhenExecutorNotProvided() {
+        initializeRecorder()
         val recorder = Recorder.Builder().build()
 
         assertThat(recorder.executor).isNull()
@@ -1103,6 +1112,7 @@ class RecorderTest(
 
     @Test
     fun canRecordWithoutAudio() {
+        initializeRecorder()
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
@@ -1140,6 +1150,7 @@ class RecorderTest(
 
     @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
+        initializeRecorder()
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
         try {
@@ -1161,6 +1172,7 @@ class RecorderTest(
 
     @Test
     fun canRecoverFromErrorState(): Unit = runBlocking {
+        initializeRecorder()
         // Create a video encoder factory that will fail on first 2 create encoder requests.
         // Recorder initialization should fail by 1st encoder creation fail.
         // 1st recording request should fail by 2nd encoder creation fail.
@@ -1227,6 +1239,7 @@ class RecorderTest(
     @Test
     @SdkSuppress(minSdkVersion = 31)
     fun audioRecordIsAttributed() = runBlocking {
+        initializeRecorder()
         val notedTag = CompletableDeferred<String>()
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         appOps.setOnOpNotedCallback(
@@ -1283,6 +1296,74 @@ class RecorderTest(
             }
             recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_STREAMING)
         }
+    }
+
+    private fun initializeRecorder(bitrate: Int = BITRATE_AUTO) {
+        recorder = Recorder.Builder().apply {
+            if (bitrate != BITRATE_AUTO) {
+                setTargetVideoEncodingBitRate(bitrate)
+            }
+        }.build()
+        recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
+    }
+
+    private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(
+        bitrate: Int,
+        enableAudio: Boolean = false
+    ) {
+        initializeRecorder(bitrate)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val recording =
+            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
+                .apply { if (enableAudio) withAudioEnabled() }
+                .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer)
+
+        mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+        recording.stopSafely()
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
+        val uri = Uri.fromFile(file)
+        if (enableAudio) {
+            checkFileHasAudioAndVideo(uri)
+        } else {
+            checkFileVideo(uri, true)
+        }
+
+        // Check the output Uri from the finalize event match the Uri from the given file.
+        val captor = ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
+            VideoRecordEvent::class.java.isInstance(
+                argument
+            )
+        }
+
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent::class.java,
+            false,
+            CallTimesAtLeast(1),
+            captor
+        )
+
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
+
+        file.delete()
+    }
+
+    private fun verifyConfiguredVideoBitrate() {
+        assertThat(recorder.mFirstRecordingVideoBitrate).isIn(
+            com.google.common.collect.Range.closed(
+                recorder.mVideoEncoderBitrateRange.lower,
+                recorder.mVideoEncoderBitrateRange.upper
+            )
+        )
     }
 
     private fun checkFileHasAudioAndVideo(uri: Uri) {

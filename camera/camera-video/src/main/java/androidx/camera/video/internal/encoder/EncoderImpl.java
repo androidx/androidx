@@ -240,6 +240,7 @@ public class EncoderImpl implements Encoder {
         mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
         mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
+        clampVideoBitrateIfNotSupported(mMediaCodec.getCodecInfo(), mMediaFormat);
         Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
         mEncoderInfo = createEncoderInfo(mIsVideoEncoder, mMediaCodec.getCodecInfo(),
                 encoderConfig.getMimeType());
@@ -258,6 +259,45 @@ public class EncoderImpl implements Encoder {
         mReleasedCompleter = Preconditions.checkNotNull(releaseFutureRef.get());
 
         setState(CONFIGURED);
+    }
+
+    /**
+     * If video bitrate in MediaFormat is not supported by supplied MediaCodecInfo,
+     * clamp bitrate in MediaFormat
+     *
+     * @param mediaCodecInfo MediaCodecInfo object
+     * @param mediaFormat    MediaFormat object
+     */
+    private void clampVideoBitrateIfNotSupported(@NonNull MediaCodecInfo mediaCodecInfo,
+            @NonNull MediaFormat mediaFormat) {
+
+        if (!mediaCodecInfo.isEncoder() || !mIsVideoEncoder) {
+            return;
+        }
+
+        try {
+            String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
+            MediaCodecInfo.CodecCapabilities caps = mediaCodecInfo.getCapabilitiesForType(mime);
+            Preconditions.checkArgument(caps != null,
+                    "MIME type is not supported");
+
+            if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
+                // We only handle video bitrate issues at this moment.
+                MediaCodecInfo.VideoCapabilities videoCaps = caps.getVideoCapabilities();
+                Preconditions.checkArgument(videoCaps != null,
+                        "Not video codec");
+
+                int origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
+                int newBitrate = videoCaps.getBitrateRange().clamp(origBitrate);
+                if (origBitrate != newBitrate) {
+                    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
+                    Logger.d(mTag, "updated bitrate from " + origBitrate
+                            + " to " + newBitrate);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            Logger.w(mTag, "Unexpected error while validating video bitrate", e);
+        }
     }
 
     @ExecutedBy("mEncoderExecutor")
@@ -306,6 +346,15 @@ public class EncoderImpl implements Encoder {
     @Override
     public EncoderInfo getEncoderInfo() {
         return mEncoderInfo;
+    }
+
+    @Override
+    public int getConfiguredBitrate() {
+        int configuredBitrate = 0;
+        if (mMediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
+            configuredBitrate = mMediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
+        }
+        return configuredBitrate;
     }
 
     /**
