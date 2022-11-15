@@ -1225,7 +1225,7 @@ public abstract class WatchFaceService : WallpaperService() {
                  * there's no point drawing.
                  */
                 if (watchFaceImpl?.renderer?.shouldAnimate() != false) {
-                    draw()
+                    draw(watchFaceImpl)
                 }
             }
         }
@@ -1415,7 +1415,8 @@ public abstract class WatchFaceService : WallpaperService() {
                     // loaded yet (if that did happen then draw would be a NOP). The watch face will
                     // render at least once upon loading so we don't need to do anything special
                     // here.
-                    draw()
+                    val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
+                    draw(watchFaceImpl)
                 } catch (t: Throwable) {
                     Log.e(TAG, "ambientTickUpdate failed", t)
                 } finally {
@@ -2454,7 +2455,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        internal fun draw() {
+        internal fun draw(watchFaceImpl: WatchFaceImpl?) {
             try {
                 if (TRACE_DRAW) {
                     Trace.beginSection("onDraw")
@@ -2462,8 +2463,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (LOG_VERBOSE) {
                     Log.v(TAG, "drawing frame")
                 }
-
-                val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
                 watchFaceImpl?.onDraw()
             } finally {
                 if (TRACE_DRAW) {

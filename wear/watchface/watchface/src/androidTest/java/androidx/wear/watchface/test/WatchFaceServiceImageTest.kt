@@ -415,7 +415,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         handler.post {
-            engineWrapper.draw()
+            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
@@ -430,7 +430,7 @@ public class WatchFaceServiceImageTest {
 
         handler.post {
             setAmbient(true)
-            engineWrapper.draw()
+            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
@@ -526,7 +526,7 @@ public class WatchFaceServiceImageTest {
 
         handler.post {
             assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value).isEqualTo(newId)
-            engineWrapper.draw()
+            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
@@ -544,7 +544,7 @@ public class WatchFaceServiceImageTest {
         )
 
         handler.post {
-            engineWrapper.draw()
+            engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
@@ -939,7 +939,7 @@ public class WatchFaceServiceImageTest {
             engineWrapper.deferredWatchFaceImpl.await()
         }
 
-        handler.post { engineWrapper.draw() }
+        handler.post { engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull()) }
 
         assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         try {
