@@ -142,6 +142,11 @@ object CollectionTypeNames {
     val INT_SPARSE_ARRAY = XClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
+object KotlinCollectionMemberNames {
+    val ARRAY_OF_NULLS = XClassName.get("kotlin", "LibraryKt")
+        .packageMember("arrayOfNulls")
+}
+
 object CommonTypeNames {
     val LIST = List::class.asClassName()
     val MUTABLE_LIST = List::class.asMutableClassName()
@@ -501,6 +506,18 @@ private fun getArrayOfFunction(type: XTypeName) = when (type) {
     XTypeName.PRIMITIVE_FLOAT -> "floatArrayOf"
     XTypeName.PRIMITIVE_DOUBLE -> "doubleArrayOf"
     else -> "arrayOf"
+}
+
+fun getToArrayFunction(type: XTypeName) = when (type) {
+    XTypeName.PRIMITIVE_BOOLEAN -> "toBooleanArray()"
+    XTypeName.PRIMITIVE_BYTE -> "toByteArray()"
+    XTypeName.PRIMITIVE_SHORT -> "toShortArray()"
+    XTypeName.PRIMITIVE_INT -> "toIntArray()"
+    XTypeName.PRIMITIVE_LONG -> "toLongArray()"
+    XTypeName.PRIMITIVE_CHAR -> "toCharArray()"
+    XTypeName.PRIMITIVE_FLOAT -> "toFloatArray()"
+    XTypeName.PRIMITIVE_DOUBLE -> "toDoubleArray()"
+    else -> error("Provided type expected to be primitive. Found: $type")
 }
 
 /**

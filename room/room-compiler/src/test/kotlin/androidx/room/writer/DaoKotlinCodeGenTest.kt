@@ -1141,6 +1141,61 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_array() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val dbSource = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+                abstract fun getDao(): MyDao
+            }
+            """.trimIndent()
+        )
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfArray(): Array<MyEntity>
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableEntityArray(): Array<MyEntity?>
+
+              @Query("SELECT pk FROM MyEntity")
+              fun queryOfArrayWithLong(): Array<Long>
+
+              @Query("SELECT pk FROM MyEntity")
+              fun queryOfArrayWithNullLong(): Array<Long?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfLongArray(): LongArray
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfShortArray(): ShortArray
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String,
+                val other2: Long
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, dbSource),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun abstractClassWithParam() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
