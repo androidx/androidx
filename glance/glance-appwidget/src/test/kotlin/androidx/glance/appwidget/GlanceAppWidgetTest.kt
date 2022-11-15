@@ -31,20 +31,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
 import androidx.core.os.bundleOf
+import androidx.glance.GlanceId
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
+import androidx.glance.session.GlanceSessionManager
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
 import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -446,6 +452,31 @@ class GlanceAppWidgetTest {
             DpSize(140.dp, 110.dp),
             DpSize(100.dp, 150.dp)
         )
+    }
+
+    @Test
+    fun cancellingProvideContentEmitsNullContent() = runBlocking {
+        val widget = object : GlanceAppWidget() {
+            override suspend fun provideGlance(context: Context, id: GlanceId) {
+                val provideContentJob = launch { provideContent { Content() } }
+                delay(100)
+                provideContentJob.cancel()
+            }
+            override val sessionManager = GlanceSessionManager
+            @Composable
+            override fun Content() { }
+        }
+        widget.runGlance(context, AppWidgetId(0)).take(3).collectIndexed { index, content ->
+            when (index) {
+                // Initial state of content is null
+                0 -> assertThat(content).isNull()
+                // Content is non-null when provideContent is called
+                1 -> assertThat(content).isNotNull()
+                // Content is null again when provideContent is cancelled
+                2 -> assertThat(content).isNull()
+                else -> throw Error("Invalid index $index")
+            }
+        }
     }
 
     private fun createPortraitContext() =

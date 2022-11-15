@@ -33,8 +33,10 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -194,11 +196,10 @@ class TestSession(
 
     var provideGlanceCalled = 0
     override suspend fun provideGlance(
-        context: Context,
-        setContent: SetContentFn
-    ) {
+        context: Context
+    ): Flow<@Composable @GlanceComposable () -> Unit> {
         provideGlanceCalled++
-        setContent(content)
+        return flowOf(content)
     }
 
     override suspend fun processEmittableTree(context: Context, root: EmittableWithChildren) {

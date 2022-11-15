@@ -23,6 +23,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.flow.Flow
 
 typealias SetContentFn = suspend (@Composable @GlanceComposable () -> Unit) -> Unit
 
@@ -46,8 +47,7 @@ abstract class Session(val key: String) {
      */
     abstract suspend fun provideGlance(
         context: Context,
-        setContent: SetContentFn,
-    )
+    ): Flow<@Composable @GlanceComposable () -> Unit>
 
     /**
      * Process the Emittable tree that results from the running the composable provided by

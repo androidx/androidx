@@ -28,9 +28,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
 import androidx.glance.layout.EmittableBox
+import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import androidx.glance.state.ConfigManager
 import androidx.glance.text.EmittableText
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -75,12 +75,16 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun provideGlanceCallsSetContent() = runTest {
-        var wasCalled = false
-        session.provideGlance(context) {
-            wasCalled = true
-        }
-        assertThat(wasCalled).isTrue()
+    fun provideGlanceRunsGlance() = runTest {
+        session.provideGlance(context).first()
+    }
+
+    @Test
+    fun provideGlanceEmitsIgnoreResultForNullContent() = runTest {
+        // The session starts out with null content, so we can check that here.
+        val initialContent = session.provideGlance(context).first()
+        val root = runTestingComposition(initialContent)
+        assertThat(root.shouldIgnoreResult()).isTrue()
     }
 
     @Test
@@ -96,6 +100,16 @@ class AppWidgetSessionTest {
             val text = assertIs<TextView>(it)
             assertThat(text.text).isEqualTo("hello")
         }
+    }
+
+    @Test
+    fun processEmittableTree_ignoresResult() = runTest {
+        val root = RemoteViewsRoot(maxDepth = 1).apply {
+            children += EmittableIgnoreResult()
+        }
+
+        session.processEmittableTree(context, root)
+        assertThat(session.lastRemoteViews).isNull()
     }
 
     @Test
