@@ -18,15 +18,19 @@ package androidx.room.vo
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.capitalize
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.types.StatementValueBinder
+import java.util.Locale
 
 data class FieldGetter(
     val fieldName: String,
     val jvmName: String,
     val type: XType,
-    val callType: CallType
+    val callType: CallType,
+    val isMutableField: Boolean
 ) {
     fun writeGet(ownerVar: String, outVar: String, builder: XCodeBlock.Builder) {
         builder.addLocalVariable(
@@ -43,8 +47,25 @@ data class FieldGetter(
         binder: StatementValueBinder,
         scope: CodeGenScope
     ) {
-        val varExpr = getterExpression(ownerVar, scope.language).toString()
-        binder.bindToStmt(stmtParamVar, indexVar, varExpr, scope)
+        val varExpr = getterExpression(ownerVar, scope.language)
+        // A temporary local val is needed in Kotlin if the field or property is mutable (var)
+        // and is nullable since otherwise smart cast will fail indicating that the property
+        // might have changed when binding to statement.
+        val needTempVal = scope.language == CodeLanguage.KOTLIN &&
+            (callType == CallType.FIELD || callType == CallType.SYNTHETIC_METHOD) &&
+            type.nullability != XNullability.NONNULL &&
+            isMutableField
+        if (needTempVal) {
+            val tmpField = scope.getTmpVar("_tmp${fieldName.capitalize(Locale.US)}")
+            scope.builder.addLocalVariable(
+                name = tmpField,
+                typeName = type.asTypeName(),
+                assignExpr = varExpr
+            )
+            binder.bindToStmt(stmtParamVar, indexVar, tmpField, scope)
+        } else {
+            binder.bindToStmt(stmtParamVar, indexVar, varExpr.toString(), scope)
+        }
     }
 
     private fun getterExpression(ownerVar: String, codeLanguage: CodeLanguage): XCodeBlock {

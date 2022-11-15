@@ -435,7 +435,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun assignGetterSetter(f: Field, name: String, type: XType) {
-        f.getter = FieldGetter(f.name, name, type, CallType.FIELD)
+        f.getter = FieldGetter(f.name, name, type, CallType.FIELD, true)
         f.setter = FieldSetter(f.name, name, type, CallType.FIELD)
     }
 
