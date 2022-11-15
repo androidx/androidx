@@ -165,6 +165,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectSize() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -801,6 +802,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
@@ -812,6 +814,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -844,6 +847,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageCapture = ImageCapture.Builder()
@@ -864,6 +868,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(newConfig.targetResolution).isEqualTo(expectedTargetResolution)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeWithoutSettingRotation() {
         val useCase = ImageCapture.Builder()
@@ -878,6 +883,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeSetRotationBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -897,6 +903,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure

@@ -224,6 +224,7 @@ public class ImageAnalysisTest {
         getMergedImageAnalysisConfig(null, null, -1, false).getTargetResolution();
     }
 
+    @SuppressWarnings("deprecation") // legacy resolution API
     @NonNull
     private ImageAnalysisConfig getMergedImageAnalysisConfig(
             @Nullable Size appResolution,
@@ -454,6 +455,7 @@ public class ImageAnalysisTest {
         assertCanReceiveAnalysisImage(mImageAnalysis);
     }
 
+    @SuppressWarnings("deprecation") // test for legacy resolution API
     @Test
     public void throwException_whenSetBothTargetResolutionAndAspectRatio() {
         assertThrows(IllegalArgumentException.class,
@@ -463,6 +465,7 @@ public class ImageAnalysisTest {
                         .build());
     }
 
+    @SuppressWarnings("deprecation") // test for legacy resolution API
     @Test
     public void throwException_whenSetTargetResolutionWithResolutionSelector() {
         assertThrows(IllegalArgumentException.class,
@@ -472,6 +475,7 @@ public class ImageAnalysisTest {
                         .build());
     }
 
+    @SuppressWarnings("deprecation") // test for legacy resolution API
     @Test
     public void throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         assertThrows(IllegalArgumentException.class,

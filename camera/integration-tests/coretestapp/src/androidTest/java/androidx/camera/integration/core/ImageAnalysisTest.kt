@@ -258,6 +258,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageAnalysis.Builder()
@@ -270,6 +271,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -299,6 +301,7 @@ internal class ImageAnalysisTest(
         assertThat(imageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder()

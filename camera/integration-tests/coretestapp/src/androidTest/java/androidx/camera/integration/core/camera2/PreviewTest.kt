@@ -327,6 +327,7 @@ class PreviewTest(
         Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() {
         val useCase = Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
@@ -335,6 +336,7 @@ class PreviewTest(
         Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))

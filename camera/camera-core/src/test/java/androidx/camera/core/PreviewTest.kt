@@ -631,6 +631,7 @@ class PreviewTest {
         assertThat(receivedAfterAttach).isTrue()
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -639,6 +640,7 @@ class PreviewTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetResolutionWithResolutionSelector() {
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -648,6 +650,7 @@ class PreviewTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         Assert.assertThrows(IllegalArgumentException::class.java) {
