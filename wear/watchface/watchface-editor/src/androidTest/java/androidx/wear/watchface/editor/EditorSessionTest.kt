@@ -148,9 +148,10 @@ private const val PROVIDER_CHOOSER_RESULT_EXTRA_VALUE = "PROVIDER_CHOOSER_RESULT
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
 
-internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
-internal val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
-internal val blueStyleOption = ListOption(Option.Id("blue_style"), "Blue", icon = null)
+internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", "Red", icon = null)
+internal val greenStyleOption =
+    ListOption(Option.Id("green_style"), "Green", "Green", icon = null)
+internal val blueStyleOption = ListOption(Option.Id("blue_style"), "Blue", "Blue", icon = null)
 internal val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     UserStyleSetting.Id("color_style_setting"),
@@ -161,9 +162,12 @@ internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     listOf(WatchFaceLayer.BASE)
 )
 
-internal val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
-internal val modernStyleOption = ListOption(Option.Id("modern_style"), "Modern", icon = null)
-internal val gothicStyleOption = ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+internal val classicStyleOption =
+    ListOption(Option.Id("classic_style"), "Classic", "Classic", icon = null)
+internal val modernStyleOption =
+    ListOption(Option.Id("modern_style"), "Modern", "Modern", icon = null)
+internal val gothicStyleOption =
+    ListOption(Option.Id("gothic_style"), "Gothic", "Gothic", icon = null)
 internal val watchHandStyleList =
     listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 internal val watchHandStyleSetting = UserStyleSetting.ListUserStyleSetting(
@@ -206,6 +210,7 @@ private val bothComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
         "Left And Right",
+        "Show left and right complications",
         null,
         // An empty list means use the initial config.
         emptyList()
@@ -214,6 +219,7 @@ private val leftOnlyComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("LEFT_COMPLICATION"),
         "Left",
+        "Show left complication only",
         null,
         listOf(
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
@@ -225,6 +231,7 @@ private val rightOnlyComplicationsOption =
     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
         Option.Id("RIGHT_COMPLICATION"),
         "Right",
+        "Show right complication only",
         null,
         listOf(
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
@@ -2413,8 +2420,8 @@ public class EditorSessionTest {
 
     @Test
     public fun cantAssignUnrelatedUserStyle() {
-        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
-        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val redOption = ListOption(Option.Id("red"), "Red", "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", "Green", icon = null)
         val colorStyleList = listOf(redOption, greenOption)
         val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id("color_id"),
@@ -2446,8 +2453,8 @@ public class EditorSessionTest {
 
     @Test
     public fun cantAssignUnrelatedUserStyle_compareAndSet() {
-        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
-        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val redOption = ListOption(Option.Id("red"), "Red", "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", "Green", icon = null)
         val colorStyleList = listOf(redOption, greenOption)
         val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id("color_id"),

@@ -269,25 +269,29 @@ public class UserStyleSettingTest {
                 icon = null,
                 listOf(
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("both"),
+                        Option.Id("both"),
+                        "left and right complications",
                         "left and right complications",
                         icon = null,
                         listOf(leftComplicationSlot, rightComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("left"),
+                        Option.Id("left"),
+                        "left complication",
                         "left complication",
                         icon = null,
                         listOf(leftComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("right"),
+                        Option.Id("right"),
+                        "right complication",
                         "right complication",
                         icon = null,
                         listOf(rightComplicationSlot),
                     ),
                     UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("both"),
+                        Option.Id("both"),
+                        "right and left complications",
                         "right and left complications",
                         icon = null,
                         listOf(rightComplicationSlot, leftComplicationSlot),
@@ -310,20 +314,24 @@ public class UserStyleSettingTest {
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("plain"),
                         "plain hands",
+                        "plain hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("florescent"),
+                        "florescent hands",
                         "florescent hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("thick"),
                         "thick hands",
+                        "thick hands",
                         icon = null
                     ),
                     UserStyleSetting.ListUserStyleSetting.ListOption(
                         UserStyleSetting.Option.Id("plain"),
+                        "simple hands",
                         "simple hands",
                         icon = null
                     )
@@ -391,6 +399,7 @@ public class UserStyleSettingTest {
             ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
         val option = UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
             Option.Id("both"),
+            "right and left complications",
             "right and left complications",
             icon = null,
             listOf(rightComplicationSlot, leftComplicationSlot),

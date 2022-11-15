@@ -21,6 +21,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.style.test.R
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +40,7 @@ public class UserStyleSettingWithStringResourcesTest {
                 setLocale(Locale.ENGLISH)
             }
         )
+
     private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
         UserStyleSetting.Id("color_style_setting"),
         context.resources,
@@ -47,11 +52,13 @@ public class UserStyleSettingWithStringResourcesTest {
                 UserStyleSetting.Option.Id("red_style"),
                 context.resources,
                 R.string.red_style_name,
+                R.string.red_style_name,
                 null
             ),
             UserStyleSetting.ListUserStyleSetting.ListOption(
                 UserStyleSetting.Option.Id("green_style"),
                 context.resources,
+                R.string.green_style_name,
                 R.string.green_style_name,
                 null
             )
@@ -105,5 +112,101 @@ public class UserStyleSettingWithStringResourcesTest {
                     UserStyleSetting.ListUserStyleSetting.ListOption
                 ).displayName
         ).isEqualTo("Stile verde")
+    }
+
+    @Test
+    public fun listOptionsWithIndices() {
+        val listUserStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("list"),
+            context.resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
+            icon = null,
+            options = listOf(
+                ListOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                ),
+                ListOption(
+                    UserStyleSetting.Option.Id("two"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                ),
+                ListOption(
+                    UserStyleSetting.Option.Id("three"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null
+                )
+            ),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val option0 = listUserStyleSetting.options[0] as ListOption
+        Truth.assertThat(option0.displayName).isEqualTo("Option 1")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("List option 1")
+
+        val option1 = listUserStyleSetting.options[1] as ListOption
+        Truth.assertThat(option1.displayName).isEqualTo("Option 2")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("List option 2")
+
+        val option2 = listUserStyleSetting.options[2] as ListOption
+        Truth.assertThat(option2.displayName).isEqualTo("Option 3")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("List option 3")
+    }
+
+    @Test
+    public fun complicationSlotsOptionsWithIndices() {
+        val complicationSetting = ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting1"),
+            displayName = "Complications",
+            description = "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("one"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                ),
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("two"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                ),
+                ComplicationSlotsOption(
+                    UserStyleSetting.Option.Id("three"),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name,
+                    icon = null,
+                    emptyList()
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        val option0 = complicationSetting.options[0] as ComplicationSlotsOption
+        Truth.assertThat(option0.displayName).isEqualTo("Option 1")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("List option 1")
+
+        val option1 = complicationSetting.options[1] as ComplicationSlotsOption
+        Truth.assertThat(option1.displayName).isEqualTo("Option 2")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("List option 2")
+
+        val option2 = complicationSetting.options[2] as ComplicationSlotsOption
+        Truth.assertThat(option2.displayName).isEqualTo("Option 3")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("List option 3")
     }
 }

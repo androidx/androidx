@@ -37,14 +37,26 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-private val redStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
+private val redStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("red_style"),
+    "Red",
+    "Red",
+    icon = null
+)
 
-private val greenStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
+private val greenStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("green_style"),
+    "Green",
+    "Green",
+    icon = null
+)
 
-private val blueStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
+private val blueStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("blue_style"),
+    "Blue",
+    "Blue",
+    icon = null
+)
 
 private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
@@ -57,14 +69,26 @@ private val colorStyleSetting = ListUserStyleSetting(
     listOf(WatchFaceLayer.BASE)
 )
 
-private val classicStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", icon = null)
+private val classicStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("classic_style"),
+    "Classic",
+    "Classic",
+    icon = null
+)
 
-private val modernStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", icon = null)
+private val modernStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("modern_style"),
+    "Modern",
+    "Modern",
+    icon = null
+)
 
-private val gothicStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+private val gothicStyleOption = ListUserStyleSetting.ListOption(
+    Option.Id("gothic_style"),
+    "Gothic",
+    "Gothic",
+    icon = null
+)
 
 private val watchHandStyleList =
     listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
@@ -352,20 +376,24 @@ class CurrentUserStyleRepositoryTest {
         val option0 = ListUserStyleSetting.ListOption(
             Option.Id("0"),
             "option 0",
+            "option 0",
             icon = null
         )
         val option1 = ListUserStyleSetting.ListOption(
             Option.Id("1"),
+            "option 1",
             "option 1",
             icon = null
         )
         val option0Copy = ListUserStyleSetting.ListOption(
             Option.Id("0"),
             "option #0",
+            "option #0",
             icon = null
         )
         val option1Copy = ListUserStyleSetting.ListOption(
             Option.Id("1"),
+            "option #1",
             "option #1",
             icon = null
         )
@@ -686,10 +714,10 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun hierarchicalStyle() {
         val twelveHourClockOption =
-            ListUserStyleSetting.ListOption(Option.Id("12_style"), "12", icon = null)
+            ListUserStyleSetting.ListOption(Option.Id("12_style"), "12", "12", icon = null)
 
         val twentyFourHourClockOption =
-            ListUserStyleSetting.ListOption(Option.Id("24_style"), "24", icon = null)
+            ListUserStyleSetting.ListOption(Option.Id("24_style"), "24", "24", icon = null)
 
         val digitalClockStyleSetting = ListUserStyleSetting(
             UserStyleSetting.Id("digital_clock_style"),
@@ -703,12 +731,14 @@ class CurrentUserStyleRepositoryTest {
         val digitalWatchFaceType = ListUserStyleSetting.ListOption(
             Option.Id("digital"),
            "Digital",
+            "Digital",
             icon = null,
             childSettings = listOf(digitalClockStyleSetting, colorStyleSetting)
         )
 
         val analogWatchFaceType = ListUserStyleSetting.ListOption(
             Option.Id("analog"),
+            "Analog",
             "Analog",
             icon = null,
             childSettings = listOf(watchHandLengthStyleSetting, watchHandStyleSetting)
@@ -747,6 +777,7 @@ class CurrentUserStyleRepositoryTest {
         val leftAndRightComplications = ComplicationSlotsOption(
             Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
             displayName = "Both",
+            screenReaderName = "Both complications",
             icon = null,
             emptyList()
         )
@@ -769,12 +800,14 @@ class CurrentUserStyleRepositoryTest {
         val optionA1 = ListUserStyleSetting.ListOption(
             Option.Id("a1_style"),
             displayName = "A1",
+            screenReaderName = "A1 style",
             icon = null,
             childSettings = listOf(complicationSetting1, complicationSetting2)
         )
         val optionA2 = ListUserStyleSetting.ListOption(
             Option.Id("a2_style"),
             displayName = "A2",
+            screenReaderName = "A2 style",
             icon = null,
             childSettings = listOf(complicationSetting2)
         )
@@ -802,6 +835,7 @@ class CurrentUserStyleRepositoryTest {
         val leftAndRightComplications = ComplicationSlotsOption(
             Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
             displayName = "Both",
+            screenReaderName = "Both complications",
             icon = null,
             emptyList()
         )
@@ -824,12 +858,14 @@ class CurrentUserStyleRepositoryTest {
         val optionA1 = ListUserStyleSetting.ListOption(
             Option.Id("a1_style"),
             displayName = "A1",
+            screenReaderName = "A1 style",
             icon = null,
             childSettings = listOf(complicationSetting1)
         )
         val optionA2 = ListUserStyleSetting.ListOption(
             Option.Id("a2_style"),
             displayName = "A2",
+            screenReaderName = "A2 style",
             icon = null
         )
 
@@ -871,12 +907,14 @@ class CurrentUserStyleRepositoryTest {
         val leftAndRightComplications = ComplicationSlotsOption(
             Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
             displayName = "Both",
+            screenReaderName = "Both complications",
             icon = null,
             emptyList()
         )
         val noComplications = ComplicationSlotsOption(
             Option.Id("NO_COMPLICATIONS"),
             displayName = "None",
+            screenReaderName = "No complications",
             icon = null,
             listOf(
                 ComplicationSlotOverlay(leftComplicationID, enabled = false),
@@ -895,12 +933,14 @@ class CurrentUserStyleRepositoryTest {
         val leftComplication = ComplicationSlotsOption(
             Option.Id("LEFT_COMPLICATION"),
             displayName = "Left",
+            screenReaderName = "Left complication",
             icon = null,
             listOf(ComplicationSlotOverlay(rightComplicationID, enabled = false))
         )
         val rightComplication = ComplicationSlotsOption(
             Option.Id("RIGHT_COMPLICATION"),
             displayName = "Right",
+            screenReaderName = "Right complication",
             icon = null,
             listOf(ComplicationSlotOverlay(leftComplicationID, enabled = false))
         )
@@ -916,12 +956,14 @@ class CurrentUserStyleRepositoryTest {
         val normal = ComplicationSlotsOption(
             Option.Id("Normal"),
             displayName = "Normal",
+            screenReaderName = "Normal",
             icon = null,
             emptyList()
         )
         val traversal = ComplicationSlotsOption(
             Option.Id("Traversal"),
             displayName = "Traversal",
+            screenReaderName = "Traversal",
             icon = null,
             listOf(
                 ComplicationSlotOverlay(leftComplicationID, accessibilityTraversalIndex = 3),
@@ -940,17 +982,23 @@ class CurrentUserStyleRepositoryTest {
         val optionA1 = ListUserStyleSetting.ListOption(
             Option.Id("a1_style"),
             displayName = "A1",
+            screenReaderName = "A1 style",
             icon = null,
             childSettings = listOf(complicationSetting1)
         )
         val optionA2 = ListUserStyleSetting.ListOption(
             Option.Id("a2_style"),
             displayName = "A2",
+            screenReaderName = "A2 style",
             icon = null,
             childSettings = listOf(complicationSetting2)
         )
-        val optionA3 =
-            ListUserStyleSetting.ListOption(Option.Id("a3_style"), "A3", icon = null)
+        val optionA3 = ListUserStyleSetting.ListOption(
+            Option.Id("a3_style"),
+            "A3",
+            screenReaderName = "A3 style",
+            icon = null
+        )
 
         val a123Choice = ListUserStyleSetting(
             UserStyleSetting.Id("a123"),
@@ -964,11 +1012,16 @@ class CurrentUserStyleRepositoryTest {
         val optionB1 = ListUserStyleSetting.ListOption(
             Option.Id("b1_style"),
             displayName = "B1",
+            screenReaderName = "B1 style",
             icon = null,
             childSettings = listOf(complicationSetting3)
         )
-        val optionB2 =
-            ListUserStyleSetting.ListOption(Option.Id("b2_style"), "B2", icon = null)
+        val optionB2 = ListUserStyleSetting.ListOption(
+            Option.Id("b2_style"),
+            "B2",
+            screenReaderName = "B2 style",
+            icon = null
+        )
 
         val b12Choice = ListUserStyleSetting(
             UserStyleSetting.Id("b12"),
@@ -982,12 +1035,14 @@ class CurrentUserStyleRepositoryTest {
         val rootOptionA = ListUserStyleSetting.ListOption(
             Option.Id("a_style"),
             displayName = "A",
+            screenReaderName = "A style",
             icon = null,
             childSettings = listOf(a123Choice)
         )
         val rootOptionB = ListUserStyleSetting.ListOption(
             Option.Id("b_style"),
             displayName = "B",
+            screenReaderName = "B style",
             icon = null,
             childSettings = listOf(b12Choice)
         )
