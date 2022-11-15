@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.util.HashMap;
-import java.util.Map;
+import androidx.annotation.RestrictTo
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class MethodCallsLogger {
-    private Map<String, Integer> mCalledMethods = new HashMap<>();
+public open class MethodCallsLogger() {
+    private val calledMethods: MutableMap<String, Int> = HashMap()
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public boolean approveCall(@NonNull String name, int type) {
-        Integer nullableMask = mCalledMethods.get(name);
-        int mask = nullableMask != null ? nullableMask : 0;
-        boolean wasCalled = (mask & type) != 0;
-        mCalledMethods.put(name, mask | type);
-        return !wasCalled;
+    public open fun approveCall(name: String, type: Int): Boolean {
+        val nullableMask = calledMethods[name]
+        val mask = nullableMask ?: 0
+        val wasCalled = mask and type != 0
+        calledMethods[name] = mask or type
+        return !wasCalled
     }
 }
