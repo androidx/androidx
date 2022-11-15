@@ -18,7 +18,9 @@ package androidx.car.app.model.constraints;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.annotation.NonNull;
 import androidx.car.app.TestUtils;
+import androidx.car.app.messaging.model.ConversationCallback;
 import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.ItemList;
@@ -97,6 +99,17 @@ public class RowListConstraintsTest {
                         .setId("id")
                         .setTitle(CarText.create("title"))
                         .setMessages(new ArrayList<>())
+                        .setConversationCallback(new ConversationCallback() {
+                            @Override
+                            public void onMarkAsRead() {
+                                // do nothing
+                            }
+
+                            @Override
+                            public void onTextReply(@NonNull String replyText) {
+                                // do nothing
+                            }
+                        })
                         .build()
                 )
                 .build();
