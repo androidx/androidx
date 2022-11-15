@@ -99,7 +99,6 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SettableSurface;
-import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.video.StreamInfo.StreamState;
@@ -531,9 +530,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     getRelativeRotation(camera),
                     /*mirroring=*/false,
                     onSurfaceInvalidated);
-            SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
-            SurfaceEdge outputEdge = mNode.transform(inputEdge);
-            SettableSurface appSurface = outputEdge.getSurfaces().get(0);
+            SurfaceProcessorNode.OutConfig outConfig =
+                    SurfaceProcessorNode.OutConfig.of(cameraSurface);
+            SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
+                    cameraSurface,
+                    singletonList(outConfig));
+            SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
+            SettableSurface appSurface = requireNonNull(nodeOutput.get(outConfig));
             mSurfaceRequest = appSurface.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraSurface;
             cameraSurface.getTerminationFuture().addListener(() -> {

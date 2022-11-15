@@ -24,6 +24,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.arch.core.util.Function
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraXConfig
@@ -583,9 +584,9 @@ class VideoCaptureTest {
         addAndAttachUseCases(videoCapture)
 
         // Assert: surfaceOutput received.
-        assertThat(processor.surfaceOutput).isNotNull()
+        assertThat(processor.surfaceOutputs).hasSize(1)
         assertThat(processor.isReleased).isFalse()
-        assertThat(processor.isOutputSurfaceRequestedToClose).isFalse()
+        assertThat(processor.isOutputSurfaceRequestedToClose[VIDEO_CAPTURE]).isNull()
         assertThat(processor.isInputSurfaceReleased).isFalse()
         assertThat(appSurfaceReadyToRelease).isFalse()
         // processor surface is provided to camera.
@@ -597,12 +598,12 @@ class VideoCaptureTest {
 
         // Assert: processor and processor surface is released.
         assertThat(processor.isReleased).isTrue()
-        assertThat(processor.isOutputSurfaceRequestedToClose).isTrue()
+        assertThat(processor.isOutputSurfaceRequestedToClose[VIDEO_CAPTURE]).isTrue()
         assertThat(processor.isInputSurfaceReleased).isTrue()
         assertThat(appSurfaceReadyToRelease).isFalse()
 
         // Act: close SurfaceOutput
-        processor.surfaceOutput!!.close()
+        processor.surfaceOutputs[VIDEO_CAPTURE]!!.close()
         shadowOf(Looper.getMainLooper()).idle()
         assertThat(appSurfaceReadyToRelease).isTrue()
     }

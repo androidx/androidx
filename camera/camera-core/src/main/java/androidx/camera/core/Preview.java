@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
@@ -83,7 +84,6 @@ import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SettableSurface;
-import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
@@ -255,7 +255,7 @@ public final class Preview extends UseCase {
         // Create nodes and edges.
         mNode = new SurfaceProcessorNode(camera, mSurfaceProcessor);
         SettableSurface cameraSurface = new SettableSurface(
-                CameraEffect.PREVIEW,
+                PREVIEW,
                 resolution,
                 ImageFormat.PRIVATE,
                 new Matrix(),
@@ -264,9 +264,12 @@ public final class Preview extends UseCase {
                 getRelativeRotation(camera),
                 /*mirroring=*/isFrontCamera(camera),
                 this::notifyReset);
-        SurfaceEdge inputEdge = SurfaceEdge.create(singletonList(cameraSurface));
-        SurfaceEdge outputEdge = mNode.transform(inputEdge);
-        SettableSurface appSurface = outputEdge.getSurfaces().get(0);
+        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(cameraSurface);
+        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
+                cameraSurface,
+                singletonList(outConfig));
+        SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
+        SettableSurface appSurface = requireNonNull(nodeOutput.get(outConfig));
 
         // Send the app Surface to the app.
         mSessionDeferrableSurface = cameraSurface;

@@ -129,6 +129,17 @@ public class TransformUtils {
     }
 
     /**
+     * Gets the size after cropping and rotating.
+     *
+     * @return rotated size
+     * @throws IllegalArgumentException if the rotation degrees is not a multiple of.
+     */
+    @NonNull
+    public static Size getRotatedSize(@NonNull Rect cropRect, int rotationDegrees) {
+        return rotateSize(rectToSize(cropRect), rotationDegrees);
+    }
+
+    /**
      * Converts the degrees to within 360 degrees [0 - 359].
      */
     public static int within360(int degrees) {
