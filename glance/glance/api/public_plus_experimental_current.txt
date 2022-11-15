@@ -580,14 +580,12 @@ package androidx.glance.template {
   }
 
   public final class SingleEntityTemplateData {
-    ctor public SingleEntityTemplateData(optional boolean displayHeader, optional androidx.glance.template.HeaderBlock? headerBlock, optional androidx.glance.template.TextBlock? textBlock, optional androidx.glance.template.ImageBlock? imageBlock, optional androidx.glance.template.ActionBlock? actionBlock);
+    ctor public SingleEntityTemplateData(optional androidx.glance.template.HeaderBlock? headerBlock, optional androidx.glance.template.TextBlock? textBlock, optional androidx.glance.template.ImageBlock? imageBlock, optional androidx.glance.template.ActionBlock? actionBlock);
     method public androidx.glance.template.ActionBlock? getActionBlock();
-    method public boolean getDisplayHeader();
     method public androidx.glance.template.HeaderBlock? getHeaderBlock();
     method public androidx.glance.template.ImageBlock? getImageBlock();
     method public androidx.glance.template.TextBlock? getTextBlock();
     property public final androidx.glance.template.ActionBlock? actionBlock;
-    property public final boolean displayHeader;
     property public final androidx.glance.template.HeaderBlock? headerBlock;
     property public final androidx.glance.template.ImageBlock? imageBlock;
     property public final androidx.glance.template.TextBlock? textBlock;
