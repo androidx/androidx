@@ -27,7 +27,7 @@
 
     <!-- Styles of the List Template widgets -->
     <string name="list_style_with_header_action">List Template with header and action demo</string>
-    <string name="list_style_with_header">List Template with header demo</string>
+    <string name="list_style_with_header">List Template with header and custom theme demo</string>
     <string name="list_style_no_header">List Template with no header demo</string>
     <string name="list_style_brief">List Template with no header demo in brief info</string>
 

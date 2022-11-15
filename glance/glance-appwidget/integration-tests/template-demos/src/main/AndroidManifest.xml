@@ -91,7 +91,7 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.template.demos.FullHeaderListReceiver"
+            android:name="androidx.glance.appwidget.template.demos.FullHeaderThemedListReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/list_style_with_header">
