@@ -870,7 +870,18 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person);
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface ConversationCallback {
+    method public void onMarkAsRead();
+    method public void onTextReply(String);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public interface ConversationCallbackDelegate {
+    method public void sendMarkAsRead(androidx.car.app.OnDoneCallback);
+    method public void sendTextReply(String, androidx.car.app.OnDoneCallback);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class ConversationItem implements androidx.car.app.model.Item {
+    method public androidx.car.app.messaging.model.ConversationCallbackDelegate getConversationCallbackDelegate();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public String getId();
     method public java.util.List<androidx.car.app.messaging.model.CarMessage!> getMessages();
@@ -881,6 +892,7 @@ package androidx.car.app.messaging.model {
   public static final class ConversationItem.Builder {
     ctor public ConversationItem.Builder();
     method public androidx.car.app.messaging.model.ConversationItem build();
+    method public androidx.car.app.messaging.model.ConversationItem.Builder setConversationCallback(androidx.car.app.messaging.model.ConversationCallback);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setGroupConversation(boolean);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setId(String);
