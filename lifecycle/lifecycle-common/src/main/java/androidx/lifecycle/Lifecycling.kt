@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import androidx.annotation.RestrictTo
+import java.lang.reflect.Constructor
+import java.lang.reflect.InvocationTargetException
 
 /**
  * Internal class to handle lifecycle conversion etc.
@@ -34,182 +25,154 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class Lifecycling {
+public object Lifecycling {
+    private const val REFLECTIVE_CALLBACK = 1
+    private const val GENERATED_CALLBACK = 2
+    private val callbackCache: MutableMap<Class<*>, Int> = HashMap()
+    private val classToAdapters: MutableMap<Class<*>, List<Constructor<out GeneratedAdapter>>> =
+        HashMap()
 
-    private static final int REFLECTIVE_CALLBACK = 1;
-    private static final int GENERATED_CALLBACK = 2;
-
-    private static Map<Class<?>, Integer> sCallbackCache = new HashMap<>();
-    private static Map<Class<?>, List<Constructor<? extends GeneratedAdapter>>> sClassToAdapters =
-            new HashMap<>();
-
-    // Left for binary compatibility when lifecycle-common goes up 2.1 as transitive dep
-    // but lifecycle-runtime stays 2.0
-
-    /**
-     * @deprecated Left for compatibility with lifecycle-runtime:2.0
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @NonNull
-    static GenericLifecycleObserver getCallback(final Object object) {
-        final LifecycleEventObserver observer = lifecycleEventObserver(object);
-        return new GenericLifecycleObserver() {
-            @Override
-            public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
-                observer.onStateChanged(source, event);
-            }
-        };
-    }
-
-    @NonNull
-    @SuppressWarnings("deprecation")
-    static LifecycleEventObserver lifecycleEventObserver(Object object) {
-        boolean isLifecycleEventObserver = object instanceof LifecycleEventObserver;
-        boolean isDefaultLifecycleObserver = object instanceof DefaultLifecycleObserver;
+    @JvmStatic
+    @Suppress("DEPRECATION")
+    public fun lifecycleEventObserver(`object`: Any): LifecycleEventObserver {
+        val isLifecycleEventObserver = `object` is LifecycleEventObserver
+        val isDefaultLifecycleObserver = `object` is DefaultLifecycleObserver
         if (isLifecycleEventObserver && isDefaultLifecycleObserver) {
-            return new DefaultLifecycleObserverAdapter((DefaultLifecycleObserver) object,
-                    (LifecycleEventObserver) object);
+            return DefaultLifecycleObserverAdapter(
+                `object` as DefaultLifecycleObserver,
+                `object` as LifecycleEventObserver
+            )
         }
         if (isDefaultLifecycleObserver) {
-            return new DefaultLifecycleObserverAdapter((DefaultLifecycleObserver) object, null);
+            return DefaultLifecycleObserverAdapter(`object` as DefaultLifecycleObserver, null)
         }
-
         if (isLifecycleEventObserver) {
-            return (LifecycleEventObserver) object;
+            return `object` as LifecycleEventObserver
         }
-
-        final Class<?> klass = object.getClass();
-        int type = getObserverConstructorType(klass);
+        val klass: Class<*> = `object`.javaClass
+        val type = getObserverConstructorType(klass)
         if (type == GENERATED_CALLBACK) {
-            List<Constructor<? extends GeneratedAdapter>> constructors =
-                    sClassToAdapters.get(klass);
-            if (constructors.size() == 1) {
-                GeneratedAdapter generatedAdapter = createGeneratedAdapter(
-                        constructors.get(0), object);
-                return new SingleGeneratedAdapterObserver(generatedAdapter);
+            val constructors = classToAdapters[klass]!!
+            if (constructors.size == 1) {
+                val generatedAdapter = createGeneratedAdapter(
+                    constructors[0], `object`
+                )
+                return SingleGeneratedAdapterObserver(generatedAdapter)
             }
-            GeneratedAdapter[] adapters = new GeneratedAdapter[constructors.size()];
-            for (int i = 0; i < constructors.size(); i++) {
-                adapters[i] = createGeneratedAdapter(constructors.get(i), object);
+            val adapters: Array<GeneratedAdapter> = Array(constructors.size) { i ->
+                createGeneratedAdapter(constructors[i], `object`)
             }
-            return new CompositeGeneratedAdaptersObserver(adapters);
+            return CompositeGeneratedAdaptersObserver(adapters)
         }
-        return new ReflectiveGenericLifecycleObserver(object);
+        return ReflectiveGenericLifecycleObserver(`object`)
     }
 
-    private static GeneratedAdapter createGeneratedAdapter(
-            Constructor<? extends GeneratedAdapter> constructor, Object object) {
-        //noinspection TryWithIdenticalCatches
-        try {
-            return constructor.newInstance(object);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+    private fun createGeneratedAdapter(
+        constructor: Constructor<out GeneratedAdapter>,
+        `object`: Any
+    ): GeneratedAdapter {
+        return try {
+            constructor.newInstance(`object`)
+        } catch (e: IllegalAccessException) {
+            throw RuntimeException(e)
+        } catch (e: InstantiationException) {
+            throw RuntimeException(e)
+        } catch (e: InvocationTargetException) {
+            throw RuntimeException(e)
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Nullable
-    private static Constructor<? extends GeneratedAdapter> generatedConstructor(Class<?> klass) {
-        try {
-            Package aPackage = klass.getPackage();
-            String name = klass.getCanonicalName();
-            final String fullPackage = aPackage != null ? aPackage.getName() : "";
-            final String adapterName = getAdapterName(fullPackage.isEmpty() ? name :
-                    name.substring(fullPackage.length() + 1));
-
-            @SuppressWarnings("unchecked") final Class<? extends GeneratedAdapter> aClass =
-                    (Class<? extends GeneratedAdapter>) Class.forName(
-                            fullPackage.isEmpty() ? adapterName : fullPackage + "." + adapterName);
-            Constructor<? extends GeneratedAdapter> constructor =
-                    aClass.getDeclaredConstructor(klass);
-            if (!constructor.isAccessible()) {
-                constructor.setAccessible(true);
+    @Suppress("DEPRECATION")
+    private fun generatedConstructor(klass: Class<*>): Constructor<out GeneratedAdapter>? {
+        return try {
+            val aPackage = klass.getPackage()
+            val name = klass.canonicalName
+            val fullPackage = if (aPackage != null) aPackage.name else ""
+            val adapterName =
+                getAdapterName(
+                    if (fullPackage.isEmpty()) name
+                    else name.substring(fullPackage.length + 1)
+                )
+            @Suppress("UNCHECKED_CAST")
+            val aClass = Class.forName(
+                if (fullPackage.isEmpty()) adapterName else "$fullPackage.$adapterName"
+            ) as Class<out GeneratedAdapter>
+            val constructor = aClass.getDeclaredConstructor(klass)
+            if (!constructor.isAccessible) {
+                constructor.isAccessible = true
             }
-            return constructor;
-        } catch (ClassNotFoundException e) {
-            return null;
-        } catch (NoSuchMethodException e) {
+            constructor
+        } catch (e: ClassNotFoundException) {
+            null
+        } catch (e: NoSuchMethodException) {
             // this should not happen
-            throw new RuntimeException(e);
+            throw RuntimeException(e)
         }
     }
 
-    private static int getObserverConstructorType(Class<?> klass) {
-        Integer callbackCache = sCallbackCache.get(klass);
+    private fun getObserverConstructorType(klass: Class<*>): Int {
+        val callbackCache = callbackCache[klass]
         if (callbackCache != null) {
-            return callbackCache;
+            return callbackCache
         }
-        int type = resolveObserverCallbackType(klass);
-        sCallbackCache.put(klass, type);
-        return type;
+        val type = resolveObserverCallbackType(klass)
+        this.callbackCache[klass] = type
+        return type
     }
 
-    private static int resolveObserverCallbackType(Class<?> klass) {
+    private fun resolveObserverCallbackType(klass: Class<*>): Int {
         // anonymous class bug:35073837
-        if (klass.getCanonicalName() == null) {
-            return REFLECTIVE_CALLBACK;
+        if (klass.canonicalName == null) {
+            return REFLECTIVE_CALLBACK
         }
-
-        Constructor<? extends GeneratedAdapter> constructor = generatedConstructor(klass);
+        val constructor = generatedConstructor(klass)
         if (constructor != null) {
-            sClassToAdapters.put(klass, Collections
-                    .<Constructor<? extends GeneratedAdapter>>singletonList(constructor));
-            return GENERATED_CALLBACK;
+            classToAdapters[klass] = listOf(constructor)
+            return GENERATED_CALLBACK
         }
-
-        @SuppressWarnings("deprecation")
-        boolean hasLifecycleMethods = ClassesInfoCache.sInstance.hasLifecycleMethods(klass);
+        @Suppress("DEPRECATION")
+        val hasLifecycleMethods = ClassesInfoCache.sInstance.hasLifecycleMethods(klass)
         if (hasLifecycleMethods) {
-            return REFLECTIVE_CALLBACK;
+            return REFLECTIVE_CALLBACK
         }
-
-        Class<?> superclass = klass.getSuperclass();
-        List<Constructor<? extends GeneratedAdapter>> adapterConstructors = null;
+        val superclass = klass.superclass
+        var adapterConstructors: MutableList<Constructor<out GeneratedAdapter>>? = null
         if (isLifecycleParent(superclass)) {
             if (getObserverConstructorType(superclass) == REFLECTIVE_CALLBACK) {
-                return REFLECTIVE_CALLBACK;
+                return REFLECTIVE_CALLBACK
             }
-            adapterConstructors = new ArrayList<>(sClassToAdapters.get(superclass));
+            adapterConstructors = ArrayList(
+                classToAdapters[superclass]!!
+            )
         }
-
-        for (Class<?> intrface : klass.getInterfaces()) {
+        for (intrface in klass.interfaces) {
             if (!isLifecycleParent(intrface)) {
-                continue;
+                continue
             }
             if (getObserverConstructorType(intrface) == REFLECTIVE_CALLBACK) {
-                return REFLECTIVE_CALLBACK;
+                return REFLECTIVE_CALLBACK
             }
             if (adapterConstructors == null) {
-                adapterConstructors = new ArrayList<>();
+                adapterConstructors = ArrayList()
             }
-            adapterConstructors.addAll(sClassToAdapters.get(intrface));
+            adapterConstructors.addAll(classToAdapters[intrface]!!)
         }
         if (adapterConstructors != null) {
-            sClassToAdapters.put(klass, adapterConstructors);
-            return GENERATED_CALLBACK;
+            classToAdapters[klass] = adapterConstructors
+            return GENERATED_CALLBACK
         }
-
-        return REFLECTIVE_CALLBACK;
+        return REFLECTIVE_CALLBACK
     }
 
-    private static boolean isLifecycleParent(Class<?> klass) {
-        return klass != null && LifecycleObserver.class.isAssignableFrom(klass);
+    private fun isLifecycleParent(klass: Class<*>?): Boolean {
+        return klass != null && LifecycleObserver::class.java.isAssignableFrom(klass)
     }
 
     /**
      * Create a name for an adapter class.
      */
-    @NonNull
-    public static String getAdapterName(@NonNull String className) {
-        return className.replace(".", "_") + "_LifecycleAdapter";
-    }
-
-    private Lifecycling() {
+    @JvmStatic
+    public fun getAdapterName(className: String): String {
+        return className.replace(".", "_") + "_LifecycleAdapter"
     }
 }

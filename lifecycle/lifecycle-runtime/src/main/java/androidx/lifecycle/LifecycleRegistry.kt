@@ -304,7 +304,7 @@ open class LifecycleRegistry private constructor(
         var lifecycleObserver: LifecycleEventObserver
 
         init {
-            lifecycleObserver = Lifecycling.lifecycleEventObserver(observer)
+            lifecycleObserver = Lifecycling.lifecycleEventObserver(observer!!)
             state = initialState
         }
 
