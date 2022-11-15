@@ -27,6 +27,7 @@ dependencies {
     api(project(":fragment:fragment-ktx"))
     api(libs.testCore)
     api(libs.kotlinStdlib)
+    api(project(":fragment:fragment-testing-manifest"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
