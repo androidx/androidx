@@ -28,6 +28,7 @@ import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -440,6 +441,8 @@ public class UiDeviceTest extends BaseTest {
         validateMainActivityXml(xml);
     }
 
+
+    @FlakyTest(bugId = 259299647)
     @Test
     public void testWaitForWindowUpdate() {
         launchTestActivity(WaitTestActivity.class);
