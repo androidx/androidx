@@ -44,7 +44,8 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressFinishesActivity() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        // Since this activity finishes manually, we do not want to use withUse here
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val countDownLatch = withActivity {
                 onBackPressed()
                 finishCountDownLatch
