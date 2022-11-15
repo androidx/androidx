@@ -18,7 +18,6 @@ package androidx.health.services.client.impl.request
 
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
-import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
 import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
@@ -43,11 +42,7 @@ class UpdateExerciseTypeConfigRequest(
         @JvmField
         val CREATOR: Parcelable.Creator<UpdateExerciseTypeConfigRequest> = newCreator { bytes ->
             val proto = RequestsProto.UpdateExerciseTypeConfigRequest.parseFrom(bytes)
-            UpdateExerciseTypeConfigRequest(
-                proto.packageName,
-                ExerciseTypeConfig.createGolfExerciseTypeConfig(
-                    GolfShotTrackingPlaceInfo.fromProto(proto.config.golfShotTrackingPlaceInfo))
-                )
+            UpdateExerciseTypeConfigRequest(proto.packageName, ExerciseTypeConfig(proto.config))
         }
     }
 }
