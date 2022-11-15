@@ -77,19 +77,18 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
     }
 
     private fun addSuppressWarnings(builder: XTypeSpec.Builder) {
-        val suppressionKeys = arrayOf("unchecked", "deprecation")
         builder.apply(
             javaTypeBuilder = {
                 addAnnotation(
                     com.squareup.javapoet.AnnotationSpec.builder(SuppressWarnings::class.java)
-                        .addMember("value", "{$S, $S}", *suppressionKeys)
+                        .addMember("value", "{$S, $S}", "unchecked", "deprecation")
                         .build()
                 )
             },
             kotlinTypeBuilder = {
                 addAnnotation(
                     com.squareup.kotlinpoet.AnnotationSpec.builder(Suppress::class)
-                        .addMember("names = [%S, %S]", *suppressionKeys)
+                        .addMember("names = [%S, %S]", "UNCHECKED_CAST", "DEPRECATION")
                         .build()
                 )
             }

@@ -15,7 +15,7 @@ import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["unchecked", "deprecation"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
