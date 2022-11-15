@@ -79,6 +79,9 @@ public class BySelector {
         mScrollable    = original.mScrollable;
         mSelected      = original.mSelected;
 
+        mMinDepth = original.mMinDepth;
+        mMaxDepth = original.mMaxDepth;
+
         for (BySelector childSelector : original.mChildSelectors) {
             mChildSelectors.add(new BySelector(childSelector));
         }
