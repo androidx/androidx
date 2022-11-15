@@ -81,6 +81,7 @@ class SdkSandboxManagerCompatTest {
         }
 
         verify(context, Mockito.atLeastOnce()).assets
+        verify(context, Mockito.atLeastOnce()).classLoader
         verifyNoMoreInteractions(context)
     }
 

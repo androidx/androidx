@@ -28,9 +28,9 @@ import org.xmlpull.v1.XmlPullParserException
  *
  * The expected XML structure is:
  * <compat-config>
- *     <dex-path>assets/RuntimeEnabledSdk-sdk.package.name/classes.dex</dex-path>
- *     <dex-path>assets/RuntimeEnabledSdk-sdk.package.name/classes2.dex</dex-path>
- *     <java-resource-path>assets/RuntimeEnabledSdk-sdk.package.name/</java-resource-path>
+ *     <dex-path>RuntimeEnabledSdk-sdk.package.name/dex/classes.dex</dex-path>
+ *     <dex-path>RuntimeEnabledSdk-sdk.package.name/dex/classes2.dex</dex-path>
+ *     <java-resources-root-path>RuntimeEnabledSdk-sdk.package.name/res</java-resources-root-path>
  *     <compat-entrypoint>com.sdk.EntryPointClass</compat-entrypoint>
  * </compat-config>
  *
@@ -59,6 +59,7 @@ internal class LocalSdkConfigParser private constructor(
                     val dexPath = xmlParser.nextText()
                     dexPaths.add(dexPath)
                 }
+
                 RESOURCE_ROOT_ELEMENT_NAME -> {
                     if (javaResourcesRoot != null) {
                         throw XmlPullParserException(
@@ -67,6 +68,7 @@ internal class LocalSdkConfigParser private constructor(
                     }
                     javaResourcesRoot = xmlParser.nextText()
                 }
+
                 ENTRYPOINT_ELEMENT_NAME -> {
                     if (entryPoint != null) {
                         throw XmlPullParserException(
@@ -75,6 +77,7 @@ internal class LocalSdkConfigParser private constructor(
                     }
                     entryPoint = xmlParser.nextText()
                 }
+
                 else -> xmlParser.skipCurrentTag()
             }
         }
@@ -94,7 +97,7 @@ internal class LocalSdkConfigParser private constructor(
         private val NAMESPACE: String? = null // We don't use namespaces
         private const val CONFIG_ELEMENT_NAME = "compat-config"
         private const val DEX_PATH_ELEMENT_NAME = "dex-path"
-        private const val RESOURCE_ROOT_ELEMENT_NAME = "java-resource-path"
+        private const val RESOURCE_ROOT_ELEMENT_NAME = "java-resources-root-path"
         private const val ENTRYPOINT_ELEMENT_NAME = "compat-entrypoint"
 
         fun parse(inputStream: InputStream): LocalSdkConfig {

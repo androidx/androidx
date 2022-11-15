@@ -40,7 +40,7 @@ class LocalSdkConfigParserTest {
                     <unknown-tag>new inner tag</unknown-tag>
                 </future-version-tag>
                 <dex-path>2.dex</dex-path>
-                <java-resource-path>javaResPath/</java-resource-path>
+                <java-resources-root-path>javaResPath/</java-resources-root-path>
             </compat-config>
         """.trimIndent()
 
@@ -61,7 +61,6 @@ class LocalSdkConfigParserTest {
         val xml = """
             <compat-config>
                 <dex-path>1.dex</dex-path>
-                <java-resource-path>path1/</java-resource-path>
             </compat-config>
         """.trimIndent()
 
@@ -79,7 +78,6 @@ class LocalSdkConfigParserTest {
                 <compat-entrypoint>compat.sdk.provider</compat-entrypoint>
                 <compat-entrypoint>compat.sdk.provider2</compat-entrypoint>
                 <dex-path>1.dex</dex-path>
-                <java-resource-path>path1/</java-resource-path>
             </compat-config>
         """.trimIndent()
 
@@ -95,7 +93,6 @@ class LocalSdkConfigParserTest {
         val xml = """
             <compat-config>
                 <compat-entrypoint>compat.sdk.provider</compat-entrypoint>
-                <java-resource-path>path1/</java-resource-path>
             </compat-config>
         """.trimIndent()
 
@@ -133,15 +130,15 @@ class LocalSdkConfigParserTest {
             <compat-config>
                 <compat-entrypoint>compat.sdk.provider</compat-entrypoint>
                 <dex-path>1.dex</dex-path>
-                <java-resource-path>path1/</java-resource-path>
-                <java-resource-path>path2/</java-resource-path>
+                <java-resources-root-path>path1/</java-resources-root-path>
+                <java-resources-root-path>path2/</java-resources-root-path>
             </compat-config>
         """.trimIndent()
 
         assertThrows<XmlPullParserException> {
             tryParse(xml)
         }.hasMessageThat().isEqualTo(
-            "Duplicate java-resource-path tag found"
+            "Duplicate java-resources-root-path tag found"
         )
     }
 

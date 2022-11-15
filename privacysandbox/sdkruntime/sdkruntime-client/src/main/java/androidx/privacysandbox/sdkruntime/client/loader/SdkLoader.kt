@@ -36,12 +36,21 @@ internal class SdkLoader internal constructor(
         fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader
     }
 
+    /**
+     * Loading SDK in separate classloader:
+     *  1. Create classloader for sdk;
+     *  2. Performing handshake to determine api version;
+     *  3. Select [LocalSdk] implementation that could work with that api version.
+     *
+     * @param sdkConfig sdk to load
+     * @return LocalSdk implementation for loaded SDK
+     */
     fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdk {
         val classLoader = classLoaderFactory.loadSdk(sdkConfig, getParentClassLoader())
         return createLocalSdk(classLoader, sdkConfig.entryPoint)
     }
 
-    private fun getParentClassLoader(): ClassLoader = javaClass.classLoader!!.parent!!
+    private fun getParentClassLoader(): ClassLoader = appContext.classLoader.parent!!
 
     private fun createLocalSdk(classLoader: ClassLoader?, sdkProviderClassName: String): LocalSdk {
         try {
@@ -64,9 +73,30 @@ internal class SdkLoader internal constructor(
     }
 
     companion object {
+        /**
+         * Build chain of [ClassLoaderFactory] that could load SDKs with their resources.
+         * Order is important because classloaders normally delegate calls to parent classloader
+         * first:
+         *  1. [JavaResourcesLoadingClassLoaderFactory] - to provide java resources to classes
+         *  loaded by child classloaders;
+         *  2. [InMemorySdkClassLoaderFactory] - to load SDK classes.
+         *
+         * @return SdkLoader that could load SDKs with their resources.
+         */
         fun create(context: Context): SdkLoader {
-            val classLoaderFactory = InMemorySdkClassLoaderFactory.create(context)
+            val classLoaderFactory = JavaResourcesLoadingClassLoaderFactory(context.classLoader)
+                .andThen(
+                    InMemorySdkClassLoaderFactory.create(context)
+                )
             return SdkLoader(classLoaderFactory, context)
+        }
+
+        private fun ClassLoaderFactory.andThen(next: ClassLoaderFactory): ClassLoaderFactory {
+            val prev = this
+            return object : ClassLoaderFactory {
+                override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader =
+                    next.loadSdk(sdkConfig, prev.loadSdk(sdkConfig, parent))
+            }
         }
     }
 }
