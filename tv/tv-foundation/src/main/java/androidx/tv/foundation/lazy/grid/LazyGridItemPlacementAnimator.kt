@@ -81,7 +81,7 @@ internal class LazyGridItemPlacementAnimator(
         positionedItems: MutableList<TvLazyGridPositionedItem>,
         measuredItemProvider: LazyMeasuredItemProvider,
     ) {
-        if (!positionedItems.fastAny { it.hasAnimations }) {
+        if (!positionedItems.fastAny { it.hasAnimations } && keyToItemInfoMap.isEmpty()) {
             // no animations specified - no work needed
             reset()
             return
