@@ -293,6 +293,8 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
+     *
+     * @return A mapping of schema types to lists of projection strings.
      */
     @NonNull
     public Map<String, List<String>> getProjections() {
@@ -314,6 +316,8 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
+     *
+     * @return A mapping of schema types to lists of projection {@link PropertyPath} objects.
      */
     @NonNull
     public Map<String, List<PropertyPath>> getProjectionPaths() {
@@ -624,6 +628,9 @@ public final class SearchSpec {
          * it will be ignored for that result. Property paths cannot be null.
          *
          * @see #addProjectionPaths
+         *
+         * @param schema a string corresponding to the schema to add projections to.
+         * @param propertyPaths the projections to add.
          */
         @NonNull
         public SearchSpec.Builder addProjection(
@@ -699,6 +706,9 @@ public final class SearchSpec {
          *   subject: "IMPORTANT"
          * }
          * }</pre>
+         *
+         * @param schema a string corresponding to the schema to add projections to.
+         * @param propertyPaths the projections to add.
          */
         @NonNull
         public SearchSpec.Builder addProjectionPaths(
