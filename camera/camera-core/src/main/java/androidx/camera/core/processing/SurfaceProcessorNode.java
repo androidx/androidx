@@ -142,6 +142,11 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
     private void sendSurfacesToProcessorWhenReady(@NonNull SettableSurface input,
             @NonNull SettableSurface output) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
+        setupRotationUpdates(
+                surfaceRequest,
+                output,
+                input.getMirroring(),
+                input.getRotationDegrees());
         Futures.addCallback(output.createSurfaceOutputFuture(input.getSize(), input.getCropRect(),
                         input.getRotationDegrees(), input.getMirroring()),
                 new FutureCallback<SurfaceOutput>() {
@@ -150,7 +155,6 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
                         Preconditions.checkNotNull(surfaceOutput);
                         mSurfaceProcessor.onOutputSurface(surfaceOutput);
                         mSurfaceProcessor.onInputSurface(surfaceRequest);
-                        setupSurfaceUpdatePipeline(input, surfaceRequest, output, surfaceOutput);
                     }
 
                     @Override
@@ -163,18 +167,35 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
                 }, mainThreadExecutor());
     }
 
-    void setupSurfaceUpdatePipeline(@NonNull SettableSurface input,
-            @NonNull SurfaceRequest inputSurfaceRequest, @NonNull SettableSurface output,
-            @NonNull SurfaceOutput surfaceOutput) {
+    /**
+     * Propagates rotation updates from the input edge to the output edge.
+     *
+     * <p>Transformation info, such as rotation and crop rect, can be updated after the
+     * connection is established. When that happens, the node should update the output
+     * transformation via e.g. {@link SurfaceRequest#updateTransformationInfo} without recreating
+     * the pipeline.
+     *
+     * <p>Currently, we only propagates the rotation. When the
+     * input edge's rotation changes, we re-calculate the delta and notify the output edge.
+     *
+     * @param inputSurfaceRequest {@link SurfaceRequest} of the input edge.
+     * @param outputSurface       {@link SettableSurface} of the output edge.
+     * @param mirrored            whether the node mirrors the buffer.
+     * @param rotatedDegrees      how much the node rotates the buffer.
+     */
+    void setupRotationUpdates(
+            @NonNull SurfaceRequest inputSurfaceRequest,
+            @NonNull SettableSurface outputSurface,
+            boolean mirrored,
+            int rotatedDegrees) {
         inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
-            // Calculate rotation degrees
-            // To obtain the required rotation degrees of output surface, the rotation degrees of
-            // surfaceOutput has to be eliminated.
-            int rotationDegrees = info.getRotationDegrees() - surfaceOutput.getRotationDegrees();
-            if (input.getMirroring()) {
+            // To obtain the rotation degrees delta, the rotation performed by the node must be
+            // eliminated.
+            int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
+            if (mirrored) {
                 rotationDegrees = -rotationDegrees;
             }
-            output.setRotationDegrees(within360(rotationDegrees));
+            outputSurface.setRotationDegrees(within360(rotationDegrees));
         });
     }
 
