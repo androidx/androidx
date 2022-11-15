@@ -18,8 +18,8 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.CommonTypeNames.ARRAY_LIST
-import androidx.room.ext.KotlinCollectionTypeNames.MUTABLE_LIST
 import androidx.room.solver.CodeGenScope
 
 class ListQueryResultAdapter(
@@ -29,7 +29,7 @@ class ListQueryResultAdapter(
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            val listTypeName = MUTABLE_LIST.parametrizedBy(typeArg.asTypeName())
+            val listTypeName = CommonTypeNames.MUTABLE_LIST.parametrizedBy(typeArg.asTypeName())
             addLocalVariable(
                 name = outVarName,
                 typeName = listTypeName,
