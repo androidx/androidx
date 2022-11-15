@@ -17,6 +17,7 @@ package androidx.health.services.client {
     method public void setUpdateCallback(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public void setUpdateCallback(java.util.concurrent.Executor executor, androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startExerciseAsync(androidx.health.services.client.data.ExerciseConfig configuration);
+    method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void> updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig);
   }
 
   public final class ExerciseClientExtensionKt {
@@ -33,6 +34,7 @@ package androidx.health.services.client {
     method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? removeGoalFromActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? resumeExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? startExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseConfig configuration, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? updateExerciseTypeConfig(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
   }
 
   public interface ExerciseUpdateCallback {
@@ -308,12 +310,17 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
     method public java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> getExerciseGoals();
     method public android.os.Bundle getExerciseParams();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method public androidx.health.services.client.data.ExerciseTypeConfig? getExerciseTypeConfig();
     method public float getSwimmingPoolLengthMeters();
     method public boolean isAutoPauseAndResumeEnabled();
     method public boolean isGpsEnabled();
@@ -321,6 +328,7 @@ package androidx.health.services.client.data {
     property public final java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals;
     property public final android.os.Bundle exerciseParams;
     property public final androidx.health.services.client.data.ExerciseType exerciseType;
+    property public final androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig;
     property public final boolean isAutoPauseAndResumeEnabled;
     property public final boolean isGpsEnabled;
     property public final float swimmingPoolLengthMeters;
@@ -334,6 +342,7 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseGoals(java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseTypeConfig(androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean isGpsEnabled);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setSwimmingPoolLengthMeters(float swimmingPoolLength);
@@ -554,6 +563,17 @@ package androidx.health.services.client.data {
     property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
     property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
     property public final boolean supportsAutoPauseAndResume;
+  }
+
+  public final class ExerciseTypeConfig {
+    method public static androidx.health.services.client.data.ExerciseTypeConfig createGolfExerciseTypeConfig(int golfShotTrackingPlaceInfo);
+    method public int getGolfShotTrackingPlaceInfo();
+    property public final int golfShotTrackingPlaceInfo;
+    field public static final androidx.health.services.client.data.ExerciseTypeConfig.Companion Companion;
+  }
+
+  public static final class ExerciseTypeConfig.Companion {
+    method public androidx.health.services.client.data.ExerciseTypeConfig createGolfExerciseTypeConfig(int golfShotTrackingPlaceInfo);
   }
 
   public final class ExerciseUpdate {

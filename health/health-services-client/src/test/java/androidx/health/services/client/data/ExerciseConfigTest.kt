@@ -43,6 +43,8 @@ class ExerciseConfigTest {
                     DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
                 ),
             ),
+            exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
+                GolfShotTrackingPlaceInfo.FAIRWAY)
         ).toProto()
 
         val config = ExerciseConfig(proto)
@@ -57,6 +59,51 @@ class ExerciseConfigTest {
         assertThat(config.exerciseGoals[1].dataTypeCondition.dataType).isEqualTo(DISTANCE_TOTAL)
         assertThat(config.exerciseGoals[1].dataTypeCondition.threshold).isEqualTo(150.0)
         assertThat(config.exerciseGoals[1].dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
+        assertThat((config.exerciseTypeConfig)?.golfShotTrackingPlaceInfo).isEqualTo(
+         GolfShotTrackingPlaceInfo.FAIRWAY)
+    }
+
+    @Test
+    fun exerciseTypeConfigNull_protoRoundTrip() {
+        val proto = ExerciseConfig(
+            ExerciseType.RUNNING,
+            setOf(LOCATION, DISTANCE_TOTAL, HEART_RATE_BPM),
+            isAutoPauseAndResumeEnabled = true,
+            isGpsEnabled = true,
+            exerciseGoals = listOf(
+                ExerciseGoal.createOneTimeGoal(
+                    DataTypeCondition(DISTANCE_TOTAL, 50.0, GREATER_THAN)
+                ),
+                ExerciseGoal.createOneTimeGoal(
+                    DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
+                ),
+            )
+        ).toProto()
+
+        val config = ExerciseConfig(proto)
+
+        assertThat(config.exerciseType).isEqualTo(ExerciseType.RUNNING)
+        assertThat(config.dataTypes).containsExactly(LOCATION, HEART_RATE_BPM, DISTANCE_TOTAL)
+        assertThat(config.isAutoPauseAndResumeEnabled).isEqualTo(true)
+        assertThat(config.isGpsEnabled).isEqualTo(true)
+        assertThat(config.exerciseGoals[0].dataTypeCondition.dataType).isEqualTo(DISTANCE_TOTAL)
+        assertThat(config.exerciseGoals[0].dataTypeCondition.threshold).isEqualTo(50.0)
+        assertThat(config.exerciseGoals[0].dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
+        assertThat(config.exerciseGoals[1].dataTypeCondition.dataType).isEqualTo(DISTANCE_TOTAL)
+        assertThat(config.exerciseGoals[1].dataTypeCondition.threshold).isEqualTo(150.0)
+        assertThat(config.exerciseGoals[1].dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
+        assertThat((config.exerciseTypeConfig)).isNull()
+    }
+
+    @Test
+    fun builder_exerciseTypeConfigNull() {
+        val exerciseTypeConfigNotSetExerciseConfig =
+            ExerciseConfig.builder(ExerciseType.UNKNOWN).build()
+        val setNullExerciseTypeConfigExerciseConfig =
+            ExerciseConfig.builder(ExerciseType.UNKNOWN).setExerciseTypeConfig(null).build()
+
+        assertThat(exerciseTypeConfigNotSetExerciseConfig.exerciseTypeConfig).isNull()
+        assertThat(setNullExerciseTypeConfigExerciseConfig.exerciseTypeConfig).isNull()
     }
 
     @Test

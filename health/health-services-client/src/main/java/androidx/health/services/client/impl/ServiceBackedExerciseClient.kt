@@ -27,6 +27,7 @@ import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.IpcConstants.EXERCISE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
@@ -42,6 +43,7 @@ import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -215,6 +217,20 @@ internal class ServiceBackedExerciseClient(
             { response -> response!!.exerciseCapabilities },
             ContextCompat.getMainExecutor(context)
         )
+
+    override fun updateExerciseTypeConfigAsync(
+        exerciseTypeConfig: ExerciseTypeConfig
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.updateExerciseTypeConfigForActiveExercise(
+                    UpdateExerciseTypeConfigRequest(packageName, exerciseTypeConfig),
+                    StatusCallback(resultFuture)
+                )
+            },
+            3
+        )
+    }
 
     internal companion object {
         internal const val CLIENT = "HealthServicesExerciseClient"

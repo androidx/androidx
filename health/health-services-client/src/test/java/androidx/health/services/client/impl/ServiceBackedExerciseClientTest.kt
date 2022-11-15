@@ -31,6 +31,8 @@ import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.WarmUpConfig
+import androidx.health.services.client.data.ExerciseTypeConfig
+import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
 import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
 import androidx.health.services.client.impl.internal.IExerciseInfoCallback
 import androidx.health.services.client.impl.internal.IStatusCallback
@@ -41,6 +43,7 @@ import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import androidx.health.services.client.impl.response.AvailabilityResponse
 import androidx.health.services.client.impl.response.ExerciseCapabilitiesResponse
 import androidx.test.core.app.ApplicationProvider
@@ -107,7 +110,7 @@ class ServiceBackedExerciseClientTest {
             ExerciseType.WALKING,
             setOf(HEART_RATE_BPM),
             isAutoPauseAndResumeEnabled = false,
-            isGpsEnabled = false
+            isGpsEnabled = false,
         )
         val availabilityEvent = ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
             AvailabilityResponse(HEART_RATE_BPM, ACQUIRING)
@@ -152,6 +155,34 @@ class ServiceBackedExerciseClientTest {
             setOf(HEART_RATE_BPM, HEART_RATE_BPM_STATS),
             isAutoPauseAndResumeEnabled = false,
             isGpsEnabled = false
+        )
+        val availabilityEvent = ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
+            // Currently the proto form of HEART_RATE_BPM and HEART_RATE_BPM_STATS is identical. The
+            // APK doesn't know about _STATS, so pass the sample type to mimic that behavior.
+            AvailabilityResponse(HEART_RATE_BPM, ACQUIRING)
+        )
+        client.setUpdateCallback(callback)
+        client.startExerciseAsync(exerciseConfig)
+        shadowOf(getMainLooper()).idle()
+
+        fakeService.listener!!.onExerciseUpdateListenerEvent(availabilityEvent)
+        shadowOf(getMainLooper()).idle()
+
+        // When both the sample type and stat type are requested, both should be notified
+        assertThat(callback.availabilities).containsEntry(HEART_RATE_BPM, ACQUIRING)
+        assertThat(callback.availabilities).containsEntry(HEART_RATE_BPM_STATS, ACQUIRING)
+    }
+
+    @Test
+    fun withExerciseTypeConfig_statsAndSample_startExercise() {
+        val exerciseConfig = ExerciseConfig(
+            ExerciseType.GOLF,
+            setOf(HEART_RATE_BPM, HEART_RATE_BPM_STATS),
+            isAutoPauseAndResumeEnabled = false,
+            isGpsEnabled = false,
+            exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
+                GolfShotTrackingPlaceInfo.FAIRWAY
+            )
         )
         val availabilityEvent = ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
             // Currently the proto form of HEART_RATE_BPM and HEART_RATE_BPM_STATS is identical. The
@@ -300,6 +331,13 @@ class ServiceBackedExerciseClientTest {
         }
 
         override fun flushExercise(request: FlushRequest?, statusCallback: IStatusCallback?) {
+            throw NotImplementedError()
+        }
+
+        override fun updateExerciseTypeConfigForActiveExercise(
+            updateExerciseTypeConfigRequest: UpdateExerciseTypeConfigRequest?,
+            statuscallback: IStatusCallback?
+        ) {
             throw NotImplementedError()
         }
     }
