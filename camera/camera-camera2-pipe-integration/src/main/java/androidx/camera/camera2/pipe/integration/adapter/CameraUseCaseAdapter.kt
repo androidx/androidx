@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -80,6 +81,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_PREVIEW
             )
+
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
@@ -92,6 +94,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         when (captureType) {
             UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+
             UseCaseConfigFactory.CaptureType.PREVIEW,
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE ->
@@ -216,6 +219,13 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                     insertOption(
                         SESSION_PHYSICAL_CAMERA_ID_OPTION,
                         physicalCameraId
+                    )
+                }
+
+                camera2Config.getStreamUseCase()?.let { streamUseCase ->
+                    insertOption(
+                        STREAM_USE_CASE_OPTION,
+                        streamUseCase
                     )
                 }
             }

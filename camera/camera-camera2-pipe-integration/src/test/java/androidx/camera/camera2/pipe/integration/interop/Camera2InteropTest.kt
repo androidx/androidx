@@ -81,6 +81,35 @@ class Camera2InteropTest {
     }
 
     @Test
+    fun canExtendWithStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+        Camera2Interop.Extender(builder).setStreamUseCase(3)
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            3
+        )
+    }
+
+    @Test
+    fun defaultConfigDoesNotSetStreamUseCase() {
+        // Arrange
+        val builder = FakeConfig.Builder()
+
+        // Act
+        val config = Camera2ImplConfig(builder.build())
+
+        // Assert
+        assertThat(config.getStreamUseCase(-1)).isEqualTo(
+            -1
+        )
+    }
+
+    @Test
     fun canExtendWithSessionCaptureCallback() {
         // Arrange
         val builder = FakeConfig.Builder()
