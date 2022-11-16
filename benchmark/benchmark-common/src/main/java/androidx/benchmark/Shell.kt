@@ -107,27 +107,63 @@ object Shell {
             }
     }
 
+    /**
+     * Get a checksum for a given path
+     *
+     * Note: Does not check for stderr, as this method is used during ShellImpl init, so stderr not
+     * yet available
+     */
     @RequiresApi(21)
-    fun chmodExecutable(absoluteFilePath: String) {
-        // use unsafe commands, as this is used in Shell.executeScript
+    internal fun getChecksum(path: String): String {
+        val sum = if (Build.VERSION.SDK_INT >= 23) {
+            ShellImpl.executeCommandUnsafe("md5sum $path").substringBefore(" ")
+        } else {
+            // this isn't good, but it's good enough for API 22
+            val out = ShellImpl.executeCommandUnsafe("ls -l $path").split(Regex("\\s+"))[3]
+            println("value is $out")
+            out
+        }
+        check(sum.isNotBlank()) {
+            "Checksum for $path was blank"
+        }
+        return sum
+    }
+
+    /**
+     * Copy file and make executable
+     *
+     * Note: this operation does checksum validation of dst, since it's used during setup of the
+     * shell script used to capture stderr, so stderr isn't available.
+     */
+    @RequiresApi(21)
+    private fun moveToTmpAndMakeExecutable(src: String, dst: String) {
+        ShellImpl.executeCommandUnsafe("cp $src $dst")
         if (Build.VERSION.SDK_INT >= 23) {
-            ShellImpl.executeCommandUnsafe("chmod +x $absoluteFilePath")
+            ShellImpl.executeCommandUnsafe("chmod +x $dst")
         } else {
             // chmod with support for +x only added in API 23
             // While 777 is technically more permissive, this is only used for scripts and temporary
             // files in tests, so we don't worry about permissions / access here
-            ShellImpl.executeCommandUnsafe("chmod 777 $absoluteFilePath")
+            ShellImpl.executeCommandUnsafe("chmod 777 $dst")
         }
-    }
 
-    @RequiresApi(21)
-    fun moveToTmpAndMakeExecutable(src: String, dst: String) {
-        ShellImpl.executeCommandUnsafe("cp $src $dst")
-        chmodExecutable(dst)
+        // validate checksums instead of checking stderr, since it's not yet safe to
+        // read from stderr. This detects the problem where root left a stale executable
+        // that can't be modified by shell at the dst path
+        val srcSum = getChecksum(src)
+        val dstSum = getChecksum(dst)
+        if (srcSum != dstSum) {
+            throw IllegalStateException("Failed to verify copied executable $dst, " +
+                "md5 sums $srcSum, $dstSum don't match. Check if root owns" +
+                " $dst and if so, delete it with `adb root`-ed shell session.")
+        }
     }
 
     /**
      * Writes the inputStream to an executable file with the given name in `/data/local/tmp`
+     *
+     * Note: this operation does not validate command success, since it's used during setup of shell
+     * scripting code used to parse stderr. This means callers should validate.
      */
     @RequiresApi(21)
     fun createRunnableExecutable(name: String, inputStream: InputStream): String {
@@ -467,7 +503,8 @@ private object ShellImpl {
         // These variables are used in executeCommand and executeScript, so we keep them as var
         // instead of val and use a separate initializer
         isSessionRooted = executeCommandUnsafe("id").contains("uid=0(root)")
-        // use a script below, since `su` command failure is unrecoverable on some API levels
+        // use a script below, since direct `su` command failure brings down this process
+        // on some API levels (and can fail even on userdebug builds)
         isSuAvailable = createShellScript(
             script = "su root id",
             stdin = null

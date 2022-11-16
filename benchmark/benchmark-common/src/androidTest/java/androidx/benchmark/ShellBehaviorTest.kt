@@ -62,12 +62,16 @@ class ShellBehaviorTest {
     @Test
     fun pidof() {
         // Should only be one process - this one!
-        val pidofString = Shell.executeScriptCaptureStdout("pidof ${Packages.TEST}").trim()
+        val output = Shell.executeScriptCaptureStdoutStderr("pidof ${Packages.TEST}")
+        val pidofString = output.stdout.trim()
 
         when {
             Build.VERSION.SDK_INT < 23 -> {
-                // command doesn't exist (and we don't try and read stderr here)
-                assertEquals("", pidofString)
+                // command doesn't exist
+                assertTrue(
+                    output.stdout.isBlank() && output.stderr.isNotBlank(),
+                    "saw output $output"
+                )
             }
             Build.VERSION.SDK_INT == 23 -> {
                 // on API 23 specifically, pidof prints... all processes, ignoring the arg...
