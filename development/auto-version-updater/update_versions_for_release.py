@@ -28,6 +28,7 @@ import toml
 # Import the JetpadClient from the parent directory
 sys.path.append("..")
 from JetpadClient import *
+from update_tracing_perfetto import update_tracing_perfetto
 
 # cd into directory of script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -78,42 +79,6 @@ def ask_yes_or_no(question):
             if reply[0] == 'y': return True
             if reply[0] == 'n': return False
         print("Please respond with y/n")
-
-
-def sed(pattern, replacement, file):
-    """ Performs an in-place string replacement of pattern in a target file
-
-    Args:
-        pattern: pattern to replace
-        replacement: replacement for the pattern matches
-        file: target file
-
-    Returns:
-        Nothing
-    """
-
-    with open(file) as f:
-        file_contents = f.read()
-    new_file_contents = re.sub(pattern, replacement, file_contents)
-    with open(file, "w") as f:
-        f.write(new_file_contents)
-
-
-def single(list):
-    """ Returns the only item from a list of just one item
-
-    Raises a ValueError if the list does not contain exactly one element
-
-    Args:
-        list: a list of one item
-
-    Returns:
-        The only item from a single-item-list
-    """
-
-    if len(list) != 1:
-        raise ValueError('Expected a list of size 1. Found: %s' % list)
-    return list[0]
 
 
 def run_update_api():
@@ -496,113 +461,6 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
     return
 
 
-def update_tracing_perfetto(old_version, new_version=None, core_path=FRAMEWORKS_SUPPORT_FP,
-                            force_unstripped_binaries=False):
-    """Updates tracing-perfetto version and artifacts (including building new binaries)
-
-    Args:
-        old_version: old version of the existing library
-        new_version: new version of the library; defaults to incrementing the old_version
-        core_path: path to frameworks/support directory
-        force_unstripped_binaries: flag allowing to force unstripped variant of binaries
-    Returns:
-        Nothing
-    """
-
-    print("Updating tracing-perfetto, this can take a while...")
-
-    # update version in code
-    if not new_version:
-        new_version = increment_version(old_version)
-
-    sed('tracingPerfettoVersion = "%s"' % old_version,
-        'tracingPerfettoVersion = "%s"' % new_version,
-        os.path.join(core_path, 'benchmark/benchmark-macro/src/androidTest/java/androidx/benchmark/'
-                                'macro/perfetto/PerfettoSdkHandshakeTest.kt'))
-    sed('TRACING_PERFETTO = "%s"' % old_version,
-        'TRACING_PERFETTO = "%s"' % new_version,
-        os.path.join(core_path, 'libraryversions.toml'))
-    sed('#define VERSION "%s"' % old_version,
-        '#define VERSION "%s"' % new_version,
-        os.path.join(core_path, 'tracing/tracing-perfetto-binary/src/main/cpp/tracing_perfetto.cc'))
-    sed('const val libraryVersion = "%s"' % old_version,
-        'const val libraryVersion = "%s"' % new_version,
-        os.path.join(core_path, 'tracing/tracing-perfetto/src/androidTest/java/androidx/tracing/'
-                                'perfetto/jni/test/PerfettoNativeTest.kt'))
-    sed('const val version = "%s"' % old_version,
-        'const val version = "%s"' % new_version,
-        os.path.join(core_path, 'tracing/tracing-perfetto/src/main/java/androidx/tracing/perfetto/'
-                                'jni/PerfettoNative.kt'))
-
-    # build new binaries
-    subprocess.check_call(["./gradlew",
-                           ":tracing:tracing-perfetto-binary:createProjectZip",
-                           "-DTRACING_PERFETTO_REUSE_PREBUILTS_AAR=false"],
-                          cwd=core_path)
-
-    # copy binaries to prebuilts
-    project_zip_dir = os.path.join(core_path, '../../out/dist/per-project-zips')
-    project_zip_file = os.path.join(
-        project_zip_dir,
-        single(glob.glob('%s/*tracing*perfetto*binary*%s*.zip' % (project_zip_dir, new_version))))
-    dst_dir = pathlib.Path(os.path.join(
-        core_path,
-        "../../prebuilts/androidx/internal/androidx/tracing/tracing-perfetto-binary",
-        new_version))
-    if dst_dir.exists():
-        shutil.rmtree(dst_dir)
-    dst_dir.mkdir()
-    subprocess.check_call(
-        ["unzip", "-xjqq", project_zip_file, '**/%s/**' % new_version, "-d", dst_dir])
-
-    # force unstripped binaries if the flag is enabled
-    if force_unstripped_binaries:
-        # locate unstripped binaries
-        out_dir = pathlib.Path(core_path, "../../out")
-        arm64_lib_file = out_dir.joinpath(single(subprocess.check_output(
-            'find . -type f -name "libtracing_perfetto.so"'
-            ' -and -path "*RelWithDebInfo/*/obj/arm64*"'
-            ' -exec stat -c "%Y %n" {} \; |'
-            ' sort | tail -1 | cut -d " " -f2-',
-            cwd=out_dir,
-            shell=True).splitlines()).decode())
-        base_dir = arm64_lib_file.parent.parent.parent
-        obj_dir = base_dir.joinpath('obj')
-        if not obj_dir.exists():
-            raise RuntimeError('Expected path %s to exist' % repr(obj_dir))
-        jni_dir = base_dir.joinpath('jni')
-
-        # prepare a jni folder to inject into the destination aar
-        if (jni_dir.exists()):
-            shutil.rmtree(jni_dir)
-        shutil.copytree(obj_dir, jni_dir)
-
-        # inject the jni folder into the aar
-        dst_aar = os.path.join(dst_dir, 'tracing-perfetto-binary-%s.aar' % new_version)
-        subprocess.check_call(['zip', '-qq', '-r', dst_aar, 'jni'], cwd=base_dir)
-
-        # clean up
-        if (jni_dir.exists()):
-            shutil.rmtree(jni_dir)
-
-    # update SHA
-    for arch in ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']:
-        checksum = subprocess.check_output(
-            'unzip -cxqq "*tracing*binary*%s*.aar" "**/%s/libtracing_perfetto.so" | shasum -a256 |'
-            ' awk \'{print $1}\' | tr -d "\n"' % (new_version, arch),
-            cwd=dst_dir,
-            shell=True
-        ).decode()
-        if not re.fullmatch('^[0-9a-z]{64}$', checksum):
-            raise ValueError('Expecting a sha256 sum. Got: %s' % checksum)
-        sed(
-            '"%s" to "[0-9a-z]{64}"' % arch,
-            '"%s" to "%s"' % (arch, checksum),
-            os.path.join(core_path, 'tracing/tracing-perfetto/src/main/java/androidx/tracing/'
-                                    'perfetto/jni/PerfettoNative.kt'))
-
-    print("Updated tracing-perfetto.")
-
 def commit_updates(release_date):
     for dir in [FRAMEWORKS_SUPPORT_FP, PREBUILTS_ANDROIDX_INTERNAL_FP]:
         subprocess.check_call(["git", "add", "."], cwd=dir, stderr=subprocess.STDOUT)
@@ -644,7 +502,9 @@ def main(args):
                 if tracing_perfetto_updated:
                     updated = True
                 else:
-                    update_tracing_perfetto(artifact["version"])
+                    current_version = artifact["version"]
+                    target_version = increment_version(current_version)
+                    update_tracing_perfetto(current_version, target_version, FRAMEWORKS_SUPPORT_FP)
                     tracing_perfetto_updated = True
 
             if not updated:
