@@ -2173,19 +2173,21 @@ class ComplicationData : Parcelable, Serializable {
 
         private fun isTypeSupported(type: Int) = type in VALID_TYPES
 
-        /** The unparceling logic needs to remain backward compatible. */
+        /**
+         * The unparceling logic needs to remain backward compatible.
+         * Validates that a value of the given field type can be assigned
+         * to the given complication type.
+         */
         internal fun checkFieldValidForTypeWithoutThrowingException(
-            field: String,
-            @ComplicationType type: Int,
+            fieldType: String,
+            @ComplicationType complicationType: Int,
         ) {
-            if (!isTypeSupported(type)) {
-                Log.w(TAG, "Type $type can not be recognized")
+            if (!isTypeSupported(complicationType)) {
+                Log.w(TAG, "Type $complicationType can not be recognized")
                 return
             }
-            if (!isFieldValidForType(field, type)) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "Field $field is not supported for type $type")
-                }
+            if (!isFieldValidForType(fieldType, complicationType)) {
+                Log.d(TAG, "Field $fieldType is not supported for type $complicationType")
             }
         }
 
