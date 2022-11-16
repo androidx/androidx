@@ -43,7 +43,6 @@ import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -59,7 +58,8 @@ internal val defaultQuirks = Quirks(emptyList())
 class CameraInfoAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val cameraConfig: CameraConfig,
-    private val cameraState: CameraStateAdapter,
+    private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val cameraCallbackMap: CameraCallbackMap,
 ) : CameraInfoInternal {
     private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
@@ -94,16 +94,13 @@ class CameraInfoAdapter @Inject constructor(
         )
     }
 
-    override fun getZoomState(): LiveData<ZoomState> = cameraState.zoomStateLiveData
-    override fun getTorchState(): LiveData<Int> = cameraState.torchStateLiveData
+    override fun getZoomState(): LiveData<ZoomState> = cameraControlStateAdapter.zoomStateLiveData
+    override fun getTorchState(): LiveData<Int> = cameraControlStateAdapter.torchStateLiveData
 
     @SuppressLint("UnsafeOptInUsageError")
-    override fun getExposureState(): ExposureState = cameraState.exposureState
+    override fun getExposureState(): ExposureState = cameraControlStateAdapter.exposureState
 
-    override fun getCameraState(): LiveData<CameraState> {
-        Log.warn { "TODO: CameraState is not yet supported." }
-        return MutableLiveData(CameraState.create(CameraState.Type.CLOSED))
-    }
+    override fun getCameraState(): LiveData<CameraState> = cameraStateAdapter.cameraState
 
     override fun addSessionCaptureCallback(executor: Executor, callback: CameraCaptureCallback) =
         cameraCallbackMap.addCaptureCallback(callback, executor)

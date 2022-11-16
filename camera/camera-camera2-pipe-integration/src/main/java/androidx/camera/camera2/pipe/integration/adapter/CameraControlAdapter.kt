@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
-    private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val evCompControl: EvCompControl,
     private val flashControl: FlashControl,
     private val torchControl: TorchControl,
@@ -131,7 +131,7 @@ class CameraControlAdapter @Inject constructor(
                     zoomControl.minZoom,
                     zoomControl.maxZoom
                 )
-                cameraStateAdapter.setZoomState(zoomValue)
+                cameraControlStateAdapter.setZoomState(zoomValue)
             }
         }.asListenableFuture()
     }
