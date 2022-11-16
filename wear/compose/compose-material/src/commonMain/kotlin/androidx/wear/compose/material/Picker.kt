@@ -456,6 +456,12 @@ public class PickerState constructor(
     public override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
 
+    override val canScrollForward: Boolean
+        get() = scalingLazyListState.canScrollForward
+
+    override val canScrollBackward: Boolean
+        get() = scalingLazyListState.canScrollBackward
+
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
         require(numberOfOptions > 0) { "The picker should have at least one item." }
         require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
