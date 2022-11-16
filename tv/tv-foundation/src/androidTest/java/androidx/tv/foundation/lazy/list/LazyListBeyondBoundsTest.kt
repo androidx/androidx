@@ -101,9 +101,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'contains' with 'containsExactly'.
-            assertThat(placedItems).contains(0)
-            assertThat(visibleItems).contains(0)
+            assertThat(placedItems).containsExactly(0)
+            assertThat(visibleItems).containsExactly(0)
         }
     }
 
@@ -122,9 +121,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(0, 1)
-            assertThat(visibleItems).containsAtLeast(0, 1)
+            assertThat(placedItems).containsExactly(0, 1)
+            assertThat(visibleItems).containsExactly(0, 1)
         }
     }
 
@@ -143,9 +141,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(0, 1, 2)
-            assertThat(visibleItems).containsAtLeast(0, 1, 2)
+            assertThat(placedItems).containsExactly(0, 1, 2)
+            assertThat(visibleItems).containsExactly(0, 1, 2)
         }
     }
 
@@ -185,13 +182,11 @@ class LazyListBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that the beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                    assertThat(placedItems).containsAtLeast(4, 5, 6, 7)
-                    assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                    assertThat(placedItems).containsExactly(4, 5, 6, 7)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
                 } else {
-                    // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                    assertThat(placedItems).containsAtLeast(5, 6, 7, 8)
-                    assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                    assertThat(placedItems).containsExactly(5, 6, 7, 8)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
                 placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
@@ -202,9 +197,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(5, 6, 7)
-            assertThat(visibleItems).containsAtLeast(5, 6, 7)
+            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
 
@@ -250,13 +244,11 @@ class LazyListBeyondBoundsTest(param: Param) {
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        assertThat(placedItems).containsAtLeast(3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     } else {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        assertThat(placedItems).containsAtLeast(5, 6, 7, 8, 9)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
                     placedItems.clear()
                     // Return true to stop the search.
@@ -267,9 +259,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(5, 6, 7)
-            assertThat(visibleItems).containsAtLeast(5, 6, 7)
+            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
 
@@ -316,13 +307,11 @@ class LazyListBeyondBoundsTest(param: Param) {
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        assertThat(placedItems).containsAtLeast(0, 1, 2, 3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     } else {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        assertThat(placedItems).containsAtLeast(5, 6, 7, 8, 9, 10)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
                     placedItems.clear()
                     // Return true to end the search.
@@ -333,8 +322,7 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(5, 6, 7)
+            assertThat(placedItems).containsExactly(5, 6, 7)
         }
     }
 
@@ -364,11 +352,15 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 5 }
+                        .onPlaced { placedItems += index + 6 }
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
+        rule.runOnIdle {
+            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(visibleItems).containsExactly(5, 6, 7)
+            placedItems.clear()
+        }
 
         // Act.
         rule.runOnUiThread {
@@ -377,18 +369,16 @@ class LazyListBeyondBoundsTest(param: Param) {
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Above, Below -> {
                         assertThat(placedItems).containsExactlyElementsIn(visibleItems)
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        assertThat(placedItems).containsAtLeast(5, 6, 7)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(5, 6, 7)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
                     Before, After -> {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
                         if (expectedExtraItemsBeforeVisibleBounds()) {
-                            assertThat(placedItems).containsAtLeast(4, 5, 6, 7)
-                            assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                            assertThat(placedItems).containsExactly(4, 5, 6, 7)
+                            assertThat(visibleItems).containsExactly(5, 6, 7)
                         } else {
-                            assertThat(placedItems).containsAtLeast(5, 6, 7, 8)
-                            assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                            assertThat(placedItems).containsExactly(5, 6, 7, 8)
+                            assertThat(visibleItems).containsExactly(5, 6, 7)
                         }
                     }
                 }
@@ -408,9 +398,8 @@ class LazyListBeyondBoundsTest(param: Param) {
                     assertThat(beyondBoundsLayoutCount).isEqualTo(1)
 
                     // Assert that the beyond bounds items are removed.
-                    // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                    assertThat(placedItems).containsAtLeast(5, 6, 7)
-                    assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                    assertThat(placedItems).containsExactly(5, 6, 7)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
                 else -> error("Unsupported BeyondBoundsLayoutDirection")
             }
@@ -466,9 +455,8 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-            assertThat(placedItems).containsAtLeast(5, 6, 7)
-            assertThat(visibleItems).containsAtLeast(5, 6, 7)
+            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
 
