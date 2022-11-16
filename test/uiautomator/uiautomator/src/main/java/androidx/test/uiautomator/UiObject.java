@@ -895,10 +895,7 @@ public class UiObject {
      */
     public boolean waitForExists(long timeout) {
         Log.d(TAG, String.format("Waiting %dms for %s.", timeout, mUiSelector));
-        if(findAccessibilityNodeInfo(timeout) != null) {
-            return true;
-        }
-        return false;
+        return findAccessibilityNodeInfo(timeout) != null;
     }
 
     /**

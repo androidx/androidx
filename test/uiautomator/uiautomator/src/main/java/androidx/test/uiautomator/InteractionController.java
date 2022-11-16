@@ -135,11 +135,7 @@ class InteractionController {
                 mMask &= ~t.getEventType();
 
                 // Since we're waiting for all events to be matched at least once
-                if (mMask != 0)
-                    return false;
-
-                // all matched
-                return true;
+                return mMask == 0;
             }
 
             // no match yet
