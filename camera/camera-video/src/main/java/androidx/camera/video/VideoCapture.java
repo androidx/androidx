@@ -126,7 +126,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -294,43 +294,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         String cameraId = getCameraId();
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
 
-        // SuggestedResolution gives the upper bound of allowed resolution size.
-        // Try to find a resolution that is smaller but has higher priority.
-        Size[] supportedResolutions = null;
-        List<Pair<Integer, Size[]>> supportedResolutionsPairs =
-                config.getSupportedResolutions(null);
-        if (supportedResolutionsPairs != null) {
-            for (Pair<Integer, Size[]> pair : supportedResolutionsPairs) {
-                if (pair.first == getImageFormat() && pair.second != null) {
-                    supportedResolutions = pair.second;
-                    break;
-                }
-            }
-        }
-        Size finalSelectedResolution = suggestedResolution;
-        if (supportedResolutions != null) {
-            int suggestedSize = suggestedResolution.getWidth() * suggestedResolution.getHeight();
-            // The supportedResolutions is sorted by preferred order of QualitySelector.
-            for (Size resolution : supportedResolutions) {
-                if (Objects.equals(resolution, suggestedResolution)) {
-                    break;
-                } else if (resolution.getWidth() * resolution.getHeight() < suggestedSize) {
-                    Logger.d(TAG, "Find a higher priority resolution: " + resolution);
-                    finalSelectedResolution = resolution;
-                    break;
-                }
-            }
-        }
-
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
+        mSessionConfigBuilder = createPipeline(cameraId, config, suggestedResolution);
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
 
-        return finalSelectedResolution;
+        return suggestedResolution;
     }
 
 
@@ -1079,9 +1051,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     "Unable to find supported quality by QualitySelector");
         }
 
+        int aspectRatio = mediaSpec.getVideoSpec().getAspectRatio();
+        Map<Quality, Size> qualityToSizeMap = QualitySelector.getQualityToResolutionMap(cameraInfo);
+        QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
+                cameraInfo.getSupportedResolutions(getImageFormat()), qualityToSizeMap);
         List<Size> supportedResolutions = new ArrayList<>();
         for (Quality selectedQuality : selectedQualities) {
-            supportedResolutions.add(QualitySelector.getResolution(cameraInfo, selectedQuality));
+            supportedResolutions.addAll(
+                    qualityRatioTable.getResolutions(selectedQuality, aspectRatio));
         }
         Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);
 

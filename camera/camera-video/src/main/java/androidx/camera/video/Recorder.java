@@ -269,7 +269,7 @@ public final class Recorder implements VideoOutput {
     private static final VideoSpec VIDEO_SPEC_DEFAULT =
             VideoSpec.builder()
                     .setQualitySelector(DEFAULT_QUALITY_SELECTOR)
-                    .setAspectRatio(VideoSpec.ASPECT_RATIO_16_9)
+                    .setAspectRatio(VideoSpec.ASPECT_RATIO_AUTO)
                     .build();
     private static final MediaSpec MEDIA_SPEC_DEFAULT =
             MediaSpec.builder()
