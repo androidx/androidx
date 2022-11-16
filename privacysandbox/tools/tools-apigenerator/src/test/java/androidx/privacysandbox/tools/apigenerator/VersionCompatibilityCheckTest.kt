@@ -23,7 +23,6 @@ import androidx.testutils.assertThrows
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -46,7 +45,6 @@ class VersionCompatibilityCheckTest {
     private val validMetadataContent = Metadata.toolMetadata.toByteArray()
 
     @Test
-    @Ignore("b/255740194")
     fun sdkDescriptorWithMissingMetadata_throws() {
         assertThrows<IllegalArgumentException> {
             runGeneratorWithResources(mapOf())
@@ -54,7 +52,6 @@ class VersionCompatibilityCheckTest {
     }
 
     @Test
-    @Ignore("b/255740194")
     fun sdkDescriptorWithMetadataInWrongPath_throws() {
         assertThrows<IllegalArgumentException> {
             runGeneratorWithResources(
@@ -64,7 +61,6 @@ class VersionCompatibilityCheckTest {
     }
 
     @Test
-    @Ignore("b/255740194")
     fun sdkDescriptorWithInvalidMetadataContent_throws() {
         assertThrows<IllegalArgumentException> {
             runGeneratorWithResources(
@@ -74,7 +70,6 @@ class VersionCompatibilityCheckTest {
     }
 
     @Test
-    @Ignore("b/255740194")
     fun sdkDescriptorWithIncompatibleVersion_throws() {
         val sdkMetadata = ToolMetadata.newBuilder()
             .setCodeGenerationVersion(999)
@@ -89,7 +84,6 @@ class VersionCompatibilityCheckTest {
     }
 
     @Test
-    @Ignore("b/255740194")
     fun sdkDescriptorWithLowerVersion_isCompatible() {
         val sdkMetadata = ToolMetadata.newBuilder()
             .setCodeGenerationVersion(0)
