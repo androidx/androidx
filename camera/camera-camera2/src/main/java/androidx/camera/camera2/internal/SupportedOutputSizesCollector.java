@@ -173,13 +173,7 @@ final class SupportedOutputSizesCollector {
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
-        // Removes the duplicate items
-        List<Size> resultList = new ArrayList<>();
-        for (Size size: outputSizes) {
-            if (!resultList.contains(size)) {
-                resultList.add(size);
-            }
-        }
+        List<Size> resultList = Arrays.asList(outputSizes);
 
         if (resultList.isEmpty()) {
             throw new IllegalArgumentException(
@@ -700,6 +694,12 @@ final class SupportedOutputSizesCollector {
 
                 indexBigEnough = i;
             } else {
+                // If duplicated miniBoundingSize items exist in the list, the size will be added
+                // into the removeSizes list. Removes it from the removeSizes list to keep the
+                // miniBoundingSize items in the final result list.
+                if (indexBigEnough >= 0) {
+                    removeSizes.remove(supportedSizesList.get(indexBigEnough));
+                }
                 break;
             }
         }
