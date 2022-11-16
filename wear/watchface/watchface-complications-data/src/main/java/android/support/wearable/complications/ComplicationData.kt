@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:OptIn(ComplicationExperimental::class)
+
 package android.support.wearable.complications
 
 import android.annotation.SuppressLint
@@ -31,8 +34,11 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicy
+import androidx.wear.watchface.complications.data.DynamicFloat
+import androidx.wear.watchface.complications.data.toDynamicFloat
 import java.io.IOException
 import java.io.InvalidObjectException
 import java.io.ObjectInputStream
@@ -171,6 +177,11 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 oos.writeFloat(complicationData.rangedValue)
             }
+            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
+                oos.writeNullable(complicationData.rangedDynamicValue) {
+                    oos.writeByteArray(it.asByteArray())
+                }
+            }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
                 oos.writeInt(complicationData.rangedValueType)
             }
@@ -184,49 +195,16 @@ class ComplicationData : Parcelable, Serializable {
                 oos.writeFloat(complicationData.targetValue)
             }
             if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
-                val colors = complicationData.colorRamp
-                if (colors != null) {
-                    oos.writeBoolean(true)
-                    oos.writeInt(colors.size)
-                    for (color in colors) {
-                        oos.writeInt(color)
-                    }
-                } else {
-                    oos.writeBoolean(false)
-                }
+                oos.writeNullable(complicationData.colorRamp, oos::writeIntArray)
             }
             if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
-                val isColorRampSmoothShaded = complicationData.isColorRampInterpolated
-                if (isColorRampSmoothShaded != null) {
-                    oos.writeBoolean(true)
-                    oos.writeBoolean(isColorRampSmoothShaded)
-                } else {
-                    oos.writeBoolean(false)
-                }
+                oos.writeNullable(complicationData.isColorRampInterpolated, oos::writeBoolean)
             }
             if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
-                val weights = complicationData.elementWeights
-                if (weights != null) {
-                    oos.writeBoolean(true)
-                    oos.writeInt(weights.size)
-                    for (weight in weights) {
-                        oos.writeFloat(weight)
-                    }
-                } else {
-                    oos.writeBoolean(false)
-                }
+                oos.writeNullable(complicationData.elementWeights, oos::writeFloatArray)
             }
             if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
-                val colors = complicationData.elementColors
-                if (colors != null) {
-                    oos.writeBoolean(true)
-                    oos.writeInt(colors.size)
-                    for (color in colors) {
-                        oos.writeInt(color)
-                    }
-                } else {
-                    oos.writeBoolean(false)
-                }
+                oos.writeNullable(complicationData.elementColors, oos::writeIntArray)
             }
             if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
                 oos.writeInt(complicationData.elementBackgroundColor)
@@ -242,31 +220,13 @@ class ComplicationData : Parcelable, Serializable {
                 oos.writeInt(complicationData.listStyleHint)
             }
             if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
-                val bytes = complicationData.interactiveLayout
-                if (bytes == null) {
-                    oos.writeInt(0)
-                } else {
-                    oos.writeInt(bytes.size)
-                    oos.write(bytes)
-                }
+                oos.writeByteArray(complicationData.interactiveLayout ?: byteArrayOf())
             }
             if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
-                val bytes = complicationData.ambientLayout
-                if (bytes == null) {
-                    oos.writeInt(0)
-                } else {
-                    oos.writeInt(bytes.size)
-                    oos.write(bytes)
-                }
+                oos.writeByteArray(complicationData.ambientLayout ?: byteArrayOf())
             }
             if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
-                val bytes = complicationData.layoutResources
-                if (bytes == null) {
-                    oos.writeInt(0)
-                } else {
-                    oos.writeInt(bytes.size)
-                    oos.write(bytes)
-                }
+                oos.writeByteArray(complicationData.layoutResources ?: byteArrayOf())
             }
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) {
                 val componentName = complicationData.dataSource
@@ -286,32 +246,18 @@ class ComplicationData : Parcelable, Serializable {
             val end = complicationData.fields.getLong(FIELD_TIMELINE_END_TIME, -1)
             oos.writeLong(end)
             oos.writeInt(complicationData.fields.getInt(FIELD_TIMELINE_ENTRY_TYPE))
-            val listEntries = complicationData.listEntries
-            val listEntriesLength = listEntries?.size ?: 0
-            oos.writeInt(listEntriesLength)
-            if (listEntries != null) {
-                for (data in listEntries) {
-                    SerializedForm(data).writeObject(oos)
-                }
+            oos.writeList(complicationData.listEntries ?: listOf()) {
+                SerializedForm(it).writeObject(oos)
             }
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
-                val placeholder = complicationData.placeholder
-                if (placeholder == null) {
-                    oos.writeBoolean(false)
-                } else {
-                    oos.writeBoolean(true)
-                    SerializedForm(placeholder).writeObject(oos)
+                oos.writeNullable(complicationData.placeholder) {
+                    SerializedForm(it).writeObject(oos)
                 }
             }
 
             // This has to be last, since it's recursive.
-            val timeline = complicationData.timelineEntries
-            val timelineLength = timeline?.size ?: 0
-            oos.writeInt(timelineLength)
-            if (timeline != null) {
-                for (data in timeline) {
-                    SerializedForm(data).writeObject(oos)
-                }
+            oos.writeList(complicationData.timelineEntries ?: listOf()) {
+                SerializedForm(it).writeObject(oos)
             }
         }
 
@@ -371,6 +317,11 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 fields.putFloat(FIELD_VALUE, ois.readFloat())
             }
+            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
+                ois.readNullable { ois.readByteArray() }?.let {
+                    fields.putByteArray(FIELD_DYNAMIC_VALUE, it)
+                }
+            }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
                 fields.putInt(FIELD_VALUE_TYPE, ois.readInt())
             }
@@ -383,32 +334,25 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_TARGET_VALUE, type)) {
                 fields.putFloat(FIELD_TARGET_VALUE, ois.readFloat())
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP, type) && ois.readBoolean()) {
-                val numColors = ois.readInt()
-                val colors = IntArray(numColors)
-                for (i in 0 until numColors) {
-                    colors[i] = ois.readInt()
+            if (isFieldValidForType(FIELD_COLOR_RAMP, type)) {
+                ois.readNullable { ois.readIntArray() }?.let {
+                    fields.putIntArray(FIELD_COLOR_RAMP, it)
                 }
-                fields.putIntArray(FIELD_COLOR_RAMP, colors)
             }
-            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) && ois.readBoolean()) {
-                fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, ois.readBoolean())
-            }
-            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type) && ois.readBoolean()) {
-                val numWeights = ois.readInt()
-                val weights = FloatArray(numWeights)
-                for (i in 0 until numWeights) {
-                    weights[i] = ois.readFloat()
+            if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+                ois.readNullable { ois.readBoolean() }?.let {
+                    fields.putBoolean(FIELD_COLOR_RAMP_INTERPOLATED, it)
                 }
-                fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, weights)
             }
-            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type) && ois.readBoolean()) {
-                val numColors = ois.readInt()
-                val colors = IntArray(numColors)
-                for (i in 0 until numColors) {
-                    colors[i] = ois.readInt()
+            if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
+                ois.readNullable { ois.readFloatArray() }?.let {
+                    fields.putFloatArray(FIELD_ELEMENT_WEIGHTS, it)
                 }
-                fields.putIntArray(FIELD_ELEMENT_COLORS, colors)
+            }
+            if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
+                ois.readNullable { ois.readIntArray() }?.let {
+                    fields.putIntArray(FIELD_ELEMENT_COLORS, it)
+                }
             }
             if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
                 fields.putInt(FIELD_ELEMENT_BACKGROUND_COLOR, ois.readInt())
@@ -475,47 +419,29 @@ class ComplicationData : Parcelable, Serializable {
             if (timelineEntryType != 0) {
                 fields.putInt(FIELD_TIMELINE_ENTRY_TYPE, timelineEntryType)
             }
-            val listEntriesLength = ois.readInt()
-            if (listEntriesLength != 0) {
-                val parcels = arrayOfNulls<Parcelable>(listEntriesLength)
-                for (i in 0 until listEntriesLength) {
-                    val entry = SerializedForm()
-                    entry.readObject(ois)
-                    parcels[i] = entry.complicationData!!.fields
-                }
-                fields.putParcelableArray(EXP_FIELD_LIST_ENTRIES, parcels)
-            }
+            ois.readList { SerializedForm().apply { readObject(ois) } }
+                .map { it.complicationData!!.fields }
+                .takeIf { it.isNotEmpty() }
+                ?.let { fields.putParcelableArray(EXP_FIELD_LIST_ENTRIES, it.toTypedArray()) }
             if (isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type)) {
-                if (ois.readBoolean()) {
-                    val serializedPlaceholder = SerializedForm()
-                    serializedPlaceholder.readObject(ois)
-                    fields.putInt(
-                        FIELD_PLACEHOLDER_TYPE,
-                        serializedPlaceholder.complicationData!!.type
-                    )
-                    fields.putBundle(
-                        FIELD_PLACEHOLDER_FIELDS,
-                        serializedPlaceholder.complicationData!!.fields
-                    )
+                ois.readNullable { SerializedForm().apply { readObject(ois) } }?.let {
+                    fields.putInt(FIELD_PLACEHOLDER_TYPE, it.complicationData!!.type)
+                    fields.putBundle(FIELD_PLACEHOLDER_FIELDS, it.complicationData!!.fields)
                 }
             }
-            val timelineLength = ois.readInt()
-            if (timelineLength != 0) {
-                val parcels = arrayOfNulls<Parcelable>(timelineLength)
-                for (i in 0 until timelineLength) {
-                    val entry = SerializedForm()
-                    entry.readObject(ois)
-                    parcels[i] = entry.complicationData!!.fields
+            ois.readList { SerializedForm().apply { readObject(ois) } }
+                .map { it.complicationData!!.fields }
+                .takeIf { it.isNotEmpty() }
+                ?.let {
+                    fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, it.toTypedArray())
                 }
-                fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, parcels)
-            }
             complicationData = ComplicationData(type, fields)
         }
 
         fun readResolve(): Any = complicationData!!
 
         companion object {
-            private const val VERSION_NUMBER = 19
+            private const val VERSION_NUMBER = 20
             internal fun putIfNotNull(fields: Bundle, field: String, value: Parcelable?) {
                 if (value != null) {
                     fields.putParcelable(field, value)
@@ -650,7 +576,7 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a ranged max value. I.e. if [rangedValue] can
+     * Returns true if the ComplicationData contains a ranged value. I.e. if [rangedValue] can
      * succeed.
      */
     fun hasRangedValue(): Boolean = isFieldValidForType(FIELD_VALUE, type)
@@ -658,13 +584,31 @@ class ComplicationData : Parcelable, Serializable {
     /**
      * Returns the *value* field for this complication.
      *
-     * Valid only if the type of this complication data is [TYPE_RANGED_VALUE], otherwise returns
-     * zero.
+     * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] and
+     * [TYPE_GOAL_PROGRESS], otherwise returns zero.
      */
     val rangedValue: Float
         get() {
             checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE, type)
             return fields.getFloat(FIELD_VALUE)
+        }
+
+    /**
+     * Returns true if the ComplicationData contains a ranged dynamic value. I.e. if
+     * [rangedDynamicValue] can succeed.
+     */
+    fun hasRangedDynamicValue(): Boolean = isFieldValidForType(FIELD_DYNAMIC_VALUE, type)
+
+    /**
+     * Returns the *dynamicValue* field for this complication.
+     *
+     * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] and
+     * [TYPE_GOAL_PROGRESS].
+     */
+    val rangedDynamicValue: DynamicFloat?
+        get() {
+            checkFieldValidForTypeWithoutThrowingException(FIELD_DYNAMIC_VALUE, type)
+            return fields.getByteArray(FIELD_DYNAMIC_VALUE)?.toDynamicFloat()
         }
 
     /**
@@ -1317,7 +1261,18 @@ class ComplicationData : Parcelable, Serializable {
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setRangedValue(value: Float) = apply { putFloatField(FIELD_VALUE, value) }
+        fun setRangedValue(value: Float?) = apply { putOrRemoveField(FIELD_VALUE, value) }
+
+        /**
+         * Sets the *dynamicValue* field. It is evaluated to a value with the same limitations as
+         * [setRangedValue].
+         *
+         * Returns this Builder to allow chaining.
+         *
+         * @throws IllegalStateException if this field is not valid for the complication type
+         */
+        fun setRangedDynamicValue(value: DynamicFloat?) =
+            apply { putOrRemoveField(FIELD_DYNAMIC_VALUE, value?.asByteArray()) }
 
         /**
          * Sets the *value type* field which provides meta data about the value. This is
@@ -1709,6 +1664,11 @@ class ComplicationData : Parcelable, Serializable {
                         " is provided."
                 }
             }
+            for (requiredOneOfFieldGroup in REQUIRED_ONE_OF_FIELDS[type]!!) {
+                check(requiredOneOfFieldGroup.count { fields.containsKey(it) } >= 1) {
+                    "One of $requiredOneOfFieldGroup must be provided."
+                }
+            }
             return ComplicationData(this)
         }
 
@@ -1737,8 +1697,10 @@ class ComplicationData : Parcelable, Serializable {
             when (obj) {
                 is Boolean -> fields.putBoolean(field, obj)
                 is Int -> fields.putInt(field, obj)
+                is Float -> fields.putFloat(field, obj)
                 is String -> fields.putString(field, obj)
                 is Parcelable -> fields.putParcelable(field, obj)
+                is ByteArray -> fields.putByteArray(field, obj)
                 is IntArray -> fields.putIntArray(field, obj)
                 is FloatArray -> fields.putFloatArray(field, obj)
                 else -> throw IllegalArgumentException("Unexpected object type: " + obj.javaClass)
@@ -1961,6 +1923,7 @@ class ComplicationData : Parcelable, Serializable {
         private const val FIELD_TIMELINE_ENTRIES = "TIMELINE"
         private const val FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE"
         private const val FIELD_VALUE = "VALUE"
+        private const val FIELD_DYNAMIC_VALUE = "DYNAMIC_VALUE"
         private const val FIELD_VALUE_TYPE = "VALUE_TYPE"
 
         // Experimental fields, these are subject to change without notice.
@@ -1999,7 +1962,7 @@ class ComplicationData : Parcelable, Serializable {
             TYPE_EMPTY to setOf(),
             TYPE_SHORT_TEXT to setOf(FIELD_SHORT_TEXT),
             TYPE_LONG_TEXT to setOf(FIELD_LONG_TEXT),
-            TYPE_RANGED_VALUE to setOf(FIELD_VALUE, FIELD_MIN_VALUE, FIELD_MAX_VALUE),
+            TYPE_RANGED_VALUE to setOf(FIELD_MIN_VALUE, FIELD_MAX_VALUE),
             TYPE_ICON to setOf(FIELD_ICON),
             TYPE_SMALL_IMAGE to setOf(FIELD_SMALL_IMAGE, FIELD_IMAGE_STYLE),
             TYPE_LARGE_IMAGE to setOf(FIELD_LARGE_IMAGE),
@@ -2008,18 +1971,39 @@ class ComplicationData : Parcelable, Serializable {
             EXP_TYPE_PROTO_LAYOUT to setOf(
                 EXP_FIELD_PROTO_LAYOUT_AMBIENT,
                 EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
-                EXP_FIELD_PROTO_LAYOUT_RESOURCES
+                EXP_FIELD_PROTO_LAYOUT_RESOURCES,
             ),
             EXP_TYPE_LIST to setOf(EXP_FIELD_LIST_ENTRIES),
-            TYPE_GOAL_PROGRESS to setOf(FIELD_VALUE, FIELD_TARGET_VALUE),
+            TYPE_GOAL_PROGRESS to setOf(FIELD_TARGET_VALUE),
             TYPE_WEIGHTED_ELEMENTS to setOf(
                 FIELD_ELEMENT_WEIGHTS,
                 FIELD_ELEMENT_COLORS,
-                FIELD_ELEMENT_BACKGROUND_COLOR
+                FIELD_ELEMENT_BACKGROUND_COLOR,
             ),
         )
 
-        // Used for validation. OPTIONAL_FIELDS[i] is an array containing all the fields which are
+        // Used for validation. REQUIRED_ONE_OF_FIELDS[i] is a list of field groups of which at
+        // least one field must be populated for @ComplicationType i.
+        // If a field is also in REQUIRED_FIELDS[i], it is not required if another field in the one
+        // of group is populated.
+        private val REQUIRED_ONE_OF_FIELDS: Map<Int, Set<Set<String>>> = mapOf(
+            TYPE_NOT_CONFIGURED to setOf(),
+            TYPE_EMPTY to setOf(),
+            TYPE_SHORT_TEXT to setOf(),
+            TYPE_LONG_TEXT to setOf(),
+            TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
+            TYPE_ICON to setOf(),
+            TYPE_SMALL_IMAGE to setOf(),
+            TYPE_LARGE_IMAGE to setOf(),
+            TYPE_NO_PERMISSION to setOf(),
+            TYPE_NO_DATA to setOf(),
+            EXP_TYPE_PROTO_LAYOUT to setOf(),
+            EXP_TYPE_LIST to setOf(),
+            TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
+            TYPE_WEIGHTED_ELEMENTS to setOf(),
+        )
+
+        // Used for validation. OPTIONAL_FIELDS[i] is a list containing all the fields which are
         // valid but not required for type i.
         private val OPTIONAL_FIELDS: Map<Int, Set<String>> = mapOf(
             TYPE_NOT_CONFIGURED to setOf(),
@@ -2035,7 +2019,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_LONG_TEXT to setOf(
                 FIELD_LONG_TITLE,
@@ -2048,7 +2032,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_RANGED_VALUE to setOf(
                 FIELD_SHORT_TEXT,
@@ -2065,7 +2049,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_COLOR_RAMP_INTERPOLATED,
                 FIELD_PERSISTENCE_POLICY,
                 FIELD_DISPLAY_POLICY,
-                FIELD_VALUE_TYPE
+                FIELD_VALUE_TYPE,
             ),
             TYPE_ICON to setOf(
                 FIELD_TAP_ACTION,
@@ -2073,7 +2057,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_SMALL_IMAGE to setOf(
                 FIELD_TAP_ACTION,
@@ -2081,14 +2065,14 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_LARGE_IMAGE to setOf(
                 FIELD_TAP_ACTION,
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_NO_PERMISSION to setOf(
                 FIELD_SHORT_TEXT,
@@ -2101,7 +2085,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_NO_DATA to setOf(
                 FIELD_CONTENT_DESCRIPTION,
@@ -2121,17 +2105,18 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                 FIELD_TAP_ACTION,
                 FIELD_VALUE,
+                FIELD_DYNAMIC_VALUE,
                 FIELD_VALUE_TYPE,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             EXP_TYPE_PROTO_LAYOUT to setOf(
                 FIELD_TAP_ACTION,
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             EXP_TYPE_LIST to setOf(
                 FIELD_TAP_ACTION,
@@ -2139,7 +2124,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_GOAL_PROGRESS to setOf(
                 FIELD_SHORT_TEXT,
@@ -2155,7 +2140,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_COLOR_RAMP,
                 FIELD_COLOR_RAMP_INTERPOLATED,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
             TYPE_WEIGHTED_ELEMENTS to setOf(
                 FIELD_SHORT_TEXT,
@@ -2169,7 +2154,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_CONTENT_DESCRIPTION,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY
+                FIELD_DISPLAY_POLICY,
             ),
         )
 
@@ -2181,18 +2166,9 @@ class ComplicationData : Parcelable, Serializable {
         }
 
         fun isFieldValidForType(field: String, @ComplicationType type: Int): Boolean {
-            val requiredFields = REQUIRED_FIELDS[type] ?: return false
-            for (requiredField in requiredFields) {
-                if (requiredField == field) {
-                    return true
-                }
-            }
-            for (optionalField in OPTIONAL_FIELDS[type]!!) {
-                if (optionalField == field) {
-                    return true
-                }
-            }
-            return false
+            return REQUIRED_FIELDS[type]!!.contains(field) ||
+                REQUIRED_ONE_OF_FIELDS[type]!!.any { it.contains(field) } ||
+                OPTIONAL_FIELDS[type]!!.contains(field)
         }
 
         private fun isTypeSupported(type: Int) = type in VALID_TYPES
@@ -2235,3 +2211,59 @@ class ComplicationData : Parcelable, Serializable {
             else "REDACTED"
     }
 }
+
+/** Writes a [ByteArray] by writing the size, then the bytes. To be used with [readByteArray]. */
+internal fun ObjectOutputStream.writeByteArray(value: ByteArray) {
+    writeInt(value.size)
+    write(value)
+}
+
+/** Reads a [ByteArray] written with [writeByteArray]. */
+internal fun ObjectInputStream.readByteArray() = ByteArray(readInt()).also { readFully(it) }
+
+/** Writes an [IntArray] by writing the size, then the bytes. To be used with [readIntArray]. */
+internal fun ObjectOutputStream.writeIntArray(value: IntArray) {
+    writeInt(value.size)
+    value.forEach(this::writeInt)
+}
+
+/** Reads an [IntArray] written with [writeIntArray]. */
+internal fun ObjectInputStream.readIntArray() = IntArray(readInt()).also {
+    for (i in it.indices) it[i] = readInt()
+}
+
+/** Writes a [FloatArray] by writing the size, then the bytes. To be used with [readFloatArray]. */
+internal fun ObjectOutputStream.writeFloatArray(value: FloatArray) {
+    writeInt(value.size)
+    value.forEach(this::writeFloat)
+}
+
+/** Reads a [FloatArray] written with [writeFloatArray]. */
+internal fun ObjectInputStream.readFloatArray() = FloatArray(readInt()).also {
+    for (i in it.indices) it[i] = readFloat()
+}
+
+/** Writes a generic [List] by writing the size, then the objects. To be used with [readList]. */
+internal fun <T> ObjectOutputStream.writeList(value: List<T>, writer: (T) -> Unit) {
+    writeInt(value.size)
+    value.forEach(writer)
+}
+
+/** Reads a list written with [readList]. */
+internal fun <T> ObjectInputStream.readList(reader: () -> T) = List(readInt()) { reader() }
+
+/**
+ * Writes a nullable object by writing a boolean, then the object. To be used with [readNullable].
+ */
+internal fun <T> ObjectOutputStream.writeNullable(value: T?, writer: (T) -> Unit) {
+    if (value != null) {
+        writeBoolean(true)
+        writer(value)
+    } else {
+        writeBoolean(false)
+    }
+}
+
+/** Reads a nullable value written with [writeNullable]. */
+internal fun <T> ObjectInputStream.readNullable(reader: () -> T): T? =
+    if (readBoolean()) reader() else null

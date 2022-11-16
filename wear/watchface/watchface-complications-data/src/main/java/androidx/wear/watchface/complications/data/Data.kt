@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ComplicationExperimental::class)
+
 package androidx.wear.watchface.complications.data
 
 import android.app.PendingIntent
@@ -23,17 +25,20 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import androidx.annotation.ColorInt
-import androidx.annotation.IntDef
 import androidx.annotation.FloatRange
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.complications.data.GoalProgressComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.RangedValueComplicationData.Companion.TYPE_RATING
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion.PLACEHOLDER
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Companion.getMaxElements
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Element
 import java.time.Instant
 
-/** The wire format for [ComplicationData]. */
-internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
-
-/** The builder for [WireComplicationData]. */
-internal typealias WireComplicationDataBuilder =
+typealias WireComplicationData = android.support.wearable.complications.ComplicationData
+typealias WireComplicationDataBuilder =
     android.support.wearable.complications.ComplicationData.Builder
 
 internal const val TAG = "Data.kt"
@@ -248,7 +253,7 @@ public class NoDataComplicationData internal constructor(
     cachedWireComplicationData,
     dataSource = null,
     persistencePolicy =
-        placeholder?.persistencePolicy ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
+    placeholder?.persistencePolicy ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
     displayPolicy = placeholder?.displayPolicy ?: ComplicationDisplayPolicies.ALWAYS_DISPLAY
 ) {
 
@@ -907,8 +912,8 @@ public class ColorRamp(
  * Type used for complications including a numerical value within a range, such as a percentage.
  * The value may be accompanied by an icon and/or short text and title.
  *
- * The [value], [min], and [max] fields are required for this type and the value within the
- * range is expected to always be displayed.
+ * The [min] and [max] fields are required for this type, as well as one of [value] or
+ * [dynamicValue]. The value within the range is expected to always be displayed.
  *
  * The icon, title, and text fields are optional and the watch face may choose which of these
  * fields to display, if any.
@@ -923,6 +928,9 @@ public class ColorRamp(
  * [PLACEHOLDER]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder rather
  * than rendering normally, its suggested to be drawn as a grey arc with a percentage value selected
  * by the renderer. The semantic meaning of value is described by [valueType].
+ * @property dynamicValue The [DynamicFloat] optionally set by the data source. If present the
+ * system will dynamically evaluate this and store the result in [value]. Watch faces can typically
+ * ignore this field.
  * @property min The minimum [Float] value for this complication.
  * @property max The maximum [Float] value for this complication.
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
@@ -958,6 +966,10 @@ public class ColorRamp(
  */
 public class RangedValueComplicationData internal constructor(
     public val value: Float,
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ComplicationExperimental
+    @get:ComplicationExperimental
+    public val dynamicValue: DynamicFloat?,
     public val min: Float,
     public val max: Float,
     public val monochromaticImage: MonochromaticImage?,
@@ -989,22 +1001,55 @@ public class RangedValueComplicationData internal constructor(
     /**
      * Builder for [RangedValueComplicationData].
      *
-     * You must at a minimum set the [value], [min], [max] and [contentDescription] fields and at
-     * least one of [monochromaticImage], [smallImage], [text] or [title].
-     *
-     * @param value The value of the ranged complication which should be in the range
-     * [[min]] .. [[max]]. The semantic meaning of value can be specified via [setValueType].
-     * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
-     * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For [TYPE_PERCENTAGE]
-     * this must be 100f.
-     * @param contentDescription Localized description for use by screen readers
+     * You must at a minimum set the [min], [max] and [contentDescription] fields, at least one of
+     * [value] or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text]
+     * or [title].
      */
-    public class Builder(
+    public class Builder
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
         private val value: Float,
+        private val dynamicValue: DynamicFloat?,
         private val min: Float,
         private val max: Float,
         private var contentDescription: ComplicationText
     ) : BaseBuilder<Builder, RangedValueComplicationData>() {
+        /**
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [Float] value.
+         *
+         * @param value The value of the ranged complication which should be in the range [[min]] ..
+         * [[max]]. The semantic meaning of value can be specified via [setValueType].
+         * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
+         * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
+         * [TYPE_PERCENTAGE] this must be 0f.
+         * @param contentDescription Localized description for use by screen readers
+         */
+        public constructor(
+            value: Float,
+            min: Float,
+            max: Float,
+            contentDescription: ComplicationText
+        ) : this(value, dynamicValue = null, min, max, contentDescription)
+
+        /**
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [DynamicFloat] value.
+         *
+         * @param dynamicValue The [DynamicFloat] of the ranged complication which will be evaluated
+         * into a value dynamically, and should be in the range [[min]] .. [[max]]. The semantic
+         * meaning of value can be specified via [setValueType].
+         * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
+         * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
+         * [TYPE_PERCENTAGE] this must be 0f.
+         * @param contentDescription Localized description for use by screen readers
+         */
+        @ComplicationExperimental
+        public constructor(
+            dynamicValue: DynamicFloat,
+            min: Float,
+            max: Float,
+            contentDescription: ComplicationText
+        ) : this(value = min /* sensible default */, dynamicValue, min, max, contentDescription)
+
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var monochromaticImage: MonochromaticImage? = null
@@ -1012,6 +1057,7 @@ public class RangedValueComplicationData internal constructor(
         private var title: ComplicationText? = null
         private var text: ComplicationText? = null
         private var colorRamp: ColorRamp? = null
+
         @RangedValueType
         private var valueType: Int = TYPE_UNDEFINED
 
@@ -1082,6 +1128,7 @@ public class RangedValueComplicationData internal constructor(
             }
             return RangedValueComplicationData(
                 value,
+                dynamicValue,
                 min,
                 max,
                 monochromaticImage,
@@ -1114,6 +1161,7 @@ public class RangedValueComplicationData internal constructor(
 
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setRangedValue(value)
+        builder.setRangedDynamicValue(dynamicValue)
         builder.setRangedMinValue(min)
         builder.setRangedMaxValue(max)
         monochromaticImage?.addToWireComplicationData(builder)
@@ -1143,6 +1191,7 @@ public class RangedValueComplicationData internal constructor(
         other as RangedValueComplicationData
 
         if (value != other.value) return false
+        if (dynamicValue != other.dynamicValue) return false
         if (valueType != other.valueType) return false
         if (min != other.min) return false
         if (max != other.max) return false
@@ -1164,6 +1213,7 @@ public class RangedValueComplicationData internal constructor(
 
     override fun hashCode(): Int {
         var result = value.hashCode()
+        result = 31 * result + (dynamicValue?.hashCode() ?: 0)
         result = 31 * result + valueType
         result = 31 * result + min.hashCode()
         result = 31 * result + max.hashCode()
@@ -1188,7 +1238,13 @@ public class RangedValueComplicationData internal constructor(
         } else {
             value.toString()
         }
-        return "RangedValueComplicationData(value=$valueString, valueType=$valueType, min=$min, " +
+        val dynamicValueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            dynamicValue.toString()
+        }
+        return "RangedValueComplicationData(value=$valueString, " +
+            "dynamicValue=$dynamicValueString, valueType=$valueType, min=$min, " +
             "max=$max, monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
             "title=$title, text=$text, contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
@@ -1255,8 +1311,8 @@ public class RangedValueComplicationData internal constructor(
  * color to indicate progress past the goal). The value may be accompanied by an icon and/or short
  * text and title.
  *
- * The [value], and [targetValue] fields are required for this type and the progress is expected to
- * always be displayed.
+ * The [targetValue] field is required for this type, as well as one of [value] or
+ * [dynamicValue]. The progress is expected to always be displayed.
  *
  * The icon, title, and text fields are optional and the watch face may choose which of these
  * fields to display, if any.
@@ -1269,12 +1325,16 @@ public class RangedValueComplicationData internal constructor(
  *
  * If you want to represent a score for something that's not based on the user (e.g. air quality
  * index) then you should instead use a [RangedValueComplicationData] and pass
- * [RangedValueComplicationData.TYPE_RATING] into [RangedValueComplicationData.Builder.setValueType].
+ * [RangedValueComplicationData.TYPE_RATING] into
+ * [RangedValueComplicationData.Builder.setValueType].
  *
  * @property value The [Float] value of this complication which is >= 0f, this value may be larger
  * than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
  * rather than rendering normally, its suggested to be drawn as a grey arc with a percentage value
  * selected by the renderer.
+ * @property dynamicValue The [DynamicFloat] optionally set by the data source. If present the
+ * system will dynamically evaluate this and store the result in [value]. Watch faces can typically
+ * ignore this field.
  * @property targetValue The target [Float] value for this complication.
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
  * face. If the monochromaticImage is equal to [MonochromaticImage.PLACEHOLDER] the renderer must
@@ -1308,6 +1368,10 @@ public class RangedValueComplicationData internal constructor(
 public class GoalProgressComplicationData
 internal constructor(
     public val value: Float,
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ComplicationExperimental
+    @get:ComplicationExperimental
+    public val dynamicValue: DynamicFloat?,
     public val targetValue: Float,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
@@ -1333,19 +1397,52 @@ internal constructor(
     /**
      * Builder for [GoalProgressComplicationData].
      *
-     * You must at a minimum set the [value], [targetValue] and [contentDescription] fields and at
-     * least one of [monochromaticImage], [smallImage], [text] or [title].
-     *
-     * @param value The value of the ranged complication which should be >= 0.
-     * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
-     * @param contentDescription Localized description for use by screen readers
+     * You must at a minimum set the [targetValue] and [contentDescription] fields, one of [value]
+     * or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text] or
+     * [title].
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    public class Builder(
+    public class Builder
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
         private val value: Float,
+        private val dynamicValue: DynamicFloat?,
         private val targetValue: Float,
         private var contentDescription: ComplicationText
     ) : BaseBuilder<Builder, GoalProgressComplicationData>() {
+        /**
+         * Creates a [Builder] for a [GoalProgressComplicationData] with a [Float] value.
+         *
+         * @param value The value of the goal complication which should be >= 0.
+         * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
+         * @param contentDescription Localized description for use by screen readers
+         */
+        public constructor(
+            value: Float,
+            targetValue: Float,
+            contentDescription: ComplicationText
+        ) : this(value, dynamicValue = null, targetValue, contentDescription)
+
+        /**
+         * Creates a [Builder] for a [GoalProgressComplicationData] with a [DynamicFloat] value.
+         *
+         * @param dynamicValue The [DynamicFloat] of the goal complication which will be evaluated
+         * into a value dynamically, and should be >= 0.
+         * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
+         * @param contentDescription Localized description for use by screen readers
+         */
+        @ComplicationExperimental
+        public constructor(
+            dynamicValue: DynamicFloat,
+            targetValue: Float,
+            contentDescription: ComplicationText
+        ) : this(
+            value = 0f /* sensible default */,
+            dynamicValue,
+            targetValue,
+            contentDescription
+        )
+
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var monochromaticImage: MonochromaticImage? = null
@@ -1408,6 +1505,7 @@ internal constructor(
             }
             return GoalProgressComplicationData(
                 value,
+                dynamicValue,
                 targetValue,
                 monochromaticImage,
                 smallImage,
@@ -1438,6 +1536,7 @@ internal constructor(
 
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setRangedValue(value)
+        builder.setRangedDynamicValue(dynamicValue)
         builder.setTargetValue(targetValue)
         monochromaticImage?.addToWireComplicationData(builder)
         smallImage?.addToWireComplicationData(builder)
@@ -1465,6 +1564,7 @@ internal constructor(
         other as GoalProgressComplicationData
 
         if (value != other.value) return false
+        if (dynamicValue != other.dynamicValue) return false
         if (targetValue != other.targetValue) return false
         if (monochromaticImage != other.monochromaticImage) return false
         if (smallImage != other.smallImage) return false
@@ -1484,6 +1584,7 @@ internal constructor(
 
     override fun hashCode(): Int {
         var result = value.hashCode()
+        result = 31 * result + (dynamicValue?.hashCode() ?: 0)
         result = 31 * result + targetValue.hashCode()
         result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
         result = 31 * result + (smallImage?.hashCode() ?: 0)
@@ -1506,7 +1607,13 @@ internal constructor(
         } else {
             value.toString()
         }
-        return "GoalProgressComplicationData(value=$valueString, targetValue=$targetValue, " +
+        val dynamicValueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            dynamicValue.toString()
+        }
+        return "GoalProgressComplicationData(value=$valueString, " +
+            "dynamicValue=$dynamicValueString, targetValue=$targetValue, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, title=$title, " +
             "text=$text, contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
@@ -1684,7 +1791,8 @@ internal constructor(
         elements: List<Element>,
         private var contentDescription: ComplicationText
     ) : BaseBuilder<Builder, WeightedElementsComplicationData>() {
-        @ColorInt private var elementBackgroundColor: Int = Color.TRANSPARENT
+        @ColorInt
+        private var elementBackgroundColor: Int = Color.TRANSPARENT
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var monochromaticImage: MonochromaticImage? = null
@@ -2564,6 +2672,7 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             RangedValueComplicationData.TYPE.toWireComplicationType() ->
                 RangedValueComplicationData.Builder(
                     value = rangedValue,
+                    dynamicValue = rangedDynamicValue,
                     min = rangedMinValue,
                     max = rangedMaxValue,
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
@@ -2622,6 +2731,7 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             GoalProgressComplicationData.TYPE.toWireComplicationType() ->
                 GoalProgressComplicationData.Builder(
                     value = rangedValue,
+                    dynamicValue = rangedDynamicValue,
                     targetValue = targetValue,
                     contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
                 ).apply {
@@ -2738,7 +2848,9 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
 
             RangedValueComplicationData.TYPE.toWireComplicationType() ->
                 RangedValueComplicationData.Builder(
-                    value = rangedValue, min = rangedMinValue,
+                    value = rangedValue,
+                    dynamicValue = rangedDynamicValue,
+                    min = rangedMinValue,
                     max = rangedMaxValue,
                     contentDescription = contentDescription?.toApiComplicationText()
                         ?: ComplicationText.EMPTY
@@ -2813,6 +2925,7 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
             GoalProgressComplicationData.TYPE.toWireComplicationType() ->
                 GoalProgressComplicationData.Builder(
                     value = rangedValue,
+                    dynamicValue = rangedDynamicValue,
                     targetValue = targetValue,
                     contentDescription = contentDescription?.toApiComplicationText()
                         ?: ComplicationText.EMPTY

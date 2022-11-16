@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ComplicationExperimental::class)
+
 package android.support.wearable.complications
 
 import android.app.PendingIntent
@@ -23,7 +25,9 @@ import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
+import androidx.wear.watchface.complications.data.toDynamicFloat
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Assert.assertThrows
@@ -79,7 +83,7 @@ public class ComplicationDataTest {
     }
 
     @Test
-    public fun testRangedValueFields() {
+    public fun testRangedValueFieldsWithFixedValue() {
         // GIVEN complication data of the RANGED_VALUE type created by the Builder...
         val data =
             ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
@@ -93,6 +97,30 @@ public class ComplicationDataTest {
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
         Assert.assertEquals(data.rangedValue, 57f, 0f)
+        Assert.assertNull(data.rangedDynamicValue)
+        Assert.assertEquals(data.rangedMinValue, 5f, 0f)
+        Assert.assertEquals(data.rangedMaxValue, 150f, 0f)
+        Truth.assertThat(data.shortTitle!!.getTextAt(mResources, 0))
+            .isEqualTo("title")
+        Truth.assertThat(data.shortText!!.getTextAt(mResources, 0))
+            .isEqualTo("text")
+    }
+
+    @Test
+    public fun testRangedValueFieldsWithDynamicValue() {
+        // GIVEN complication data of the RANGED_VALUE type created by the Builder...
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
+                .setRangedMinValue(5f)
+                .setRangedMaxValue(150f)
+                .setShortTitle(ComplicationText.plainText("title"))
+                .setShortText(ComplicationText.plainText("text"))
+                .build()
+
+        // WHEN the relevant getters are called on the resulting data
+        // THEN the correct values are returned.
+        Truth.assertThat(data.rangedDynamicValue!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
         Assert.assertEquals(data.rangedMinValue, 5f, 0f)
         Assert.assertEquals(data.rangedMaxValue, 150f, 0f)
         Truth.assertThat(data.shortTitle!!.getTextAt(mResources, 0))
@@ -128,7 +156,7 @@ public class ComplicationDataTest {
     }
 
     @Test
-    public fun testRangedValueMustContainValue() {
+    public fun testRangedValueMustContainFixedOrDynamicValue() {
         // GIVEN a complication builder of the RANGED_VALUE type, with the value field not
         // populated...
         val builder =
@@ -1106,7 +1134,7 @@ public class ComplicationDataTest {
                         .setLongText(
                             ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING)
                         )
-                            .build()
+                        .build()
                 )
                 .build()
         timelineEntry.timelineStartEpochSecond = 100

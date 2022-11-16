@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ComplicationExperimental::class)
+
 package androidx.wear.watchface.complications.data
 
 import android.annotation.SuppressLint
@@ -399,7 +401,7 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
-    public fun rangedValueComplicationData() {
+    public fun rangedValueComplicationData_withFixedValue() {
         val data = RangedValueComplicationData.Builder(
             value = 95f, min = 0f, max = 100f,
             contentDescription = "content description".complicationText
@@ -426,6 +428,7 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.max).isEqualTo(100f)
         assertThat(deserialized.min).isEqualTo(0f)
         assertThat(deserialized.value).isEqualTo(95f)
+        assertThat(deserialized.dynamicValue).isNull()
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
@@ -452,7 +455,95 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isEqualTo(data2.hashCode())
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
-            "RangedValueComplicationData(value=95.0, valueType=0, min=0.0, max=100.0, " +
+            "RangedValueComplicationData(value=95.0, dynamicValue=null, " +
+                "valueType=0, min=0.0, max=100.0, " +
+                "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
+                "mSurroundingText=battery, mTimeDependentText=null}, text=null, " +
+                "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(" +
+                "startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, persistencePolicy=0, " +
+                "displayPolicy=0)"
+        )
+    }
+
+    @Test
+    public fun rangedValueComplicationData_withDynamicValue() {
+        val data = RangedValueComplicationData.Builder(
+            dynamicValue = byteArrayOf(42, 107).toDynamicFloat(),
+            min = 5f,
+            max = 100f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                    .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
+                    .setRangedValue(5f) // min as a sensible default
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
+                    .setRangedMinValue(5f)
+                    .setRangedMaxValue(100f)
+                    .setShortTitle(WireComplicationText.plainText("battery"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as RangedValueComplicationData
+        assertThat(deserialized.max).isEqualTo(100f)
+        assertThat(deserialized.min).isEqualTo(5f)
+        assertThat(deserialized.dynamicValue!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        assertThat(deserialized.value).isEqualTo(5f) // min as a sensible default
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("battery")
+
+        val sameData = RangedValueComplicationData.Builder(
+            dynamicValue = byteArrayOf(42, 107).toDynamicFloat(),
+            min = 5f,
+            max = 100f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        val diffDataFixedValue = RangedValueComplicationData.Builder(
+            value = 5f, // Even though it's the sensible default
+            min = 5f,
+            max = 100f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        val diffDataDynamicValue = RangedValueComplicationData.Builder(
+            dynamicValue = byteArrayOf(43, 108).toDynamicFloat(),
+            min = 5f,
+            max = 100f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+
+        assertThat(data).isEqualTo(sameData)
+        assertThat(data).isNotEqualTo(diffDataFixedValue)
+        assertThat(data).isNotEqualTo(diffDataDynamicValue)
+        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(diffDataFixedValue.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(diffDataDynamicValue.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "RangedValueComplicationData(value=5.0, " +
+                "dynamicValue=DynamicFloatPlaceholder[42, 107], " +
+                "valueType=0, min=5.0, max=100.0, " +
                 "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
                 "mSurroundingText=battery, mTimeDependentText=null}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
@@ -535,7 +626,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isEqualTo(data2.hashCode())
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
-            "RangedValueComplicationData(value=95.0, valueType=1, min=0.0, max=100.0, " +
+            "RangedValueComplicationData(value=95.0, dynamicValue=null, " +
+                "valueType=1, min=0.0, max=100.0, " +
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=URI uri=someuri), " +
                 "ambientImage=null), smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), " +
                 "type=PHOTO, ambientImage=null), title=ComplicationText{mSurroundingText=battery," +
@@ -550,7 +642,144 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
-    public fun goalProgressComplicationData_with_ColorRamp() {
+    public fun goalProgressComplicationData_withFixedValue() {
+        val data = GoalProgressComplicationData.Builder(
+            value = 1200f, targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                    .setRangedValue(1200f)
+                    .setTargetValue(10000f)
+                    .setShortTitle(WireComplicationText.plainText("steps"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as GoalProgressComplicationData
+        assertThat(deserialized.value).isEqualTo(1200f)
+        assertThat(deserialized.dynamicValue).isNull()
+        assertThat(deserialized.targetValue).isEqualTo(10000f)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("steps")
+
+        val sameData = GoalProgressComplicationData.Builder(
+            value = 1200f, targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+
+        val diffData = GoalProgressComplicationData.Builder(
+            value = 1201f, targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceB)
+            .build()
+
+        assertThat(data).isEqualTo(sameData)
+        assertThat(data).isNotEqualTo(diffData)
+        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(diffData.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "GoalProgressComplicationData(value=1200.0, dynamicValue=null, " +
+                "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
+                "title=ComplicationText{mSurroundingText=steps, mTimeDependentText=null}, " +
+                "text=null, " +
+                "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
+                "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
+                "persistencePolicy=0, displayPolicy=0)"
+        )
+    }
+
+    @Test
+    public fun goalProgressComplicationData_withDynamicValue() {
+        val data = GoalProgressComplicationData.Builder(
+            dynamicValue = byteArrayOf(42, 107).toDynamicFloat(),
+            targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                    .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
+                    .setRangedValue(0f) // sensible default
+                    .setTargetValue(10000f)
+                    .setShortTitle(WireComplicationText.plainText("steps"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSourceA)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as GoalProgressComplicationData
+        assertThat(deserialized.dynamicValue!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        assertThat(deserialized.value).isEqualTo(0f) // sensible default
+        assertThat(deserialized.targetValue).isEqualTo(10000f)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("steps")
+
+        val sameData = GoalProgressComplicationData.Builder(
+            dynamicValue = byteArrayOf(42, 107).toDynamicFloat(),
+            targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceA)
+            .build()
+
+        val diffData = GoalProgressComplicationData.Builder(
+            dynamicValue = byteArrayOf(43, 108).toDynamicFloat(),
+            targetValue = 10000f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("steps".complicationText)
+            .setDataSource(dataSourceB)
+            .build()
+
+        assertThat(data).isEqualTo(sameData)
+        assertThat(data).isNotEqualTo(diffData)
+        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(diffData.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "GoalProgressComplicationData(value=0.0, " +
+                "dynamicValue=DynamicFloatPlaceholder[42, 107], " +
+                "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
+                "title=ComplicationText{mSurroundingText=steps, mTimeDependentText=null}, " +
+                "text=null, " +
+                "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
+                "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z), dataSource=" +
+                "ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
+                "persistencePolicy=0, displayPolicy=0)"
+        )
+    }
+
+    @Test
+    public fun goalProgressComplicationData_withColorRamp() {
         val data = GoalProgressComplicationData.Builder(
             value = 1200f, targetValue = 10000f,
             contentDescription = "content description".complicationText
@@ -605,9 +834,10 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isEqualTo(data2.hashCode())
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
-            "GoalProgressComplicationData(value=1200.0, targetValue=10000.0, " +
-                "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
-                "mSurroundingText=steps, mTimeDependentText=null}, text=null, " +
+            "GoalProgressComplicationData(value=1200.0, dynamicValue=null, " +
+                "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
+                "title=ComplicationText{mSurroundingText=steps, mTimeDependentText=null}, " +
+                "text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
@@ -620,7 +850,7 @@ public class AsWireComplicationDataTest {
 
     @RequiresApi(Build.VERSION_CODES.P)
     @Test
-    public fun goalProgressComplicationData_with_ColorRamp_and_Images() {
+    public fun goalProgressComplicationData_withColorRampAndImages() {
         val data = GoalProgressComplicationData.Builder(
             value = 1200f, targetValue = 10000f,
             contentDescription = "content description".complicationText
@@ -687,7 +917,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isEqualTo(data2.hashCode())
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
-            "GoalProgressComplicationData(value=1200.0, targetValue=10000.0, " +
+            "GoalProgressComplicationData(value=1200.0, dynamicValue=null, " +
+                "targetValue=10000.0, " +
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=URI uri=someuri), " +
                 "ambientImage=null), smallImage=SmallImage(image=Icon(typ=URI uri=someuri2), " +
                 "type=PHOTO, ambientImage=null), title=ComplicationText{mSurroundingText=steps, " +
@@ -703,7 +934,7 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
-    public fun rangedValueComplicationData_with_ColorRamp() {
+    public fun rangedValueComplicationData_withColorRamp() {
         val data = RangedValueComplicationData.Builder(
             value = 95f, min = 0f, max = 100f,
             contentDescription = "content description".complicationText
@@ -761,7 +992,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isEqualTo(data2.hashCode())
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
-            "RangedValueComplicationData(value=95.0, valueType=0, min=0.0, max=100.0, " +
+            "RangedValueComplicationData(value=95.0, dynamicValue=null, " +
+                "valueType=0, min=0.0, max=100.0, " +
                 "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
                 "mSurroundingText=battery, mTimeDependentText=null}, text=null, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
@@ -1093,6 +1325,7 @@ public class AsWireComplicationDataTest {
 
         assertThat(deserialized.smallImage.image.type).isEqualTo(Icon.TYPE_BITMAP)
         val getBitmap = deserialized.smallImage.image.javaClass.getDeclaredMethod("getBitmap")
+
         @SuppressLint("BanUncheckedReflection")
         val bitmap = getBitmap.invoke(deserialized.smallImage.image) as Bitmap
 
@@ -1455,8 +1688,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=RangedValueComplicationData(" +
-                "value=3.4028235E38, valueType=0, min=0.0, max=100.0, monochromaticImage=null, " +
-                "smallImage=null, title=null, text=ComplicationText{" +
+                "value=3.4028235E38, dynamicValue=null, valueType=0, min=0.0, max=100.0, " +
+                "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null}, " +
                 "contentDescription=ComplicationText{mSurroundingText=" +
                 "content description, mTimeDependentText=null}), " +
@@ -1538,8 +1771,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=GoalProgressComplicationData(" +
-                "value=3.4028235E38, targetValue=10000.0, monochromaticImage=null, " +
-                "smallImage=null, title=null, text=ComplicationText{" +
+                "value=3.4028235E38, dynamicValue=null, targetValue=10000.0, " +
+                "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null}, " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
@@ -1722,8 +1955,8 @@ public class AsWireComplicationDataTest {
         assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=RangedValueComplicationData(" +
-                "value=3.4028235E38, valueType=1, min=0.0, max=100.0, monochromaticImage=null, " +
-                "smallImage=null, title=null, text=ComplicationText{" +
+                "value=3.4028235E38, dynamicValue=null, valueType=1, min=0.0, max=100.0, " +
+                "monochromaticImage=null, smallImage=null, title=null, text=ComplicationText{" +
                 "mSurroundingText=__placeholder__, mTimeDependentText=null}, " +
                 "contentDescription=ComplicationText{mSurroundingText=" +
                 "content description, mTimeDependentText=null}), " +
@@ -2018,10 +2251,26 @@ public class FromWireComplicationDataTest {
     }
 
     @Test
-    public fun rangedValueComplicationData() {
+    public fun rangedValueComplicationData_withFixedValue() {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
                 .setRangedValue(95f)
+                .setRangedMinValue(0f)
+                .setRangedMaxValue(100f)
+                .setShortTitle(WireComplicationText.plainText("battery"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                .build(),
+            ComplicationType.RANGED_VALUE
+        )
+    }
+
+    @Test
+    public fun rangedValueComplicationData_withDynamicValue() {
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_RANGED_VALUE)
+                .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
                 .setRangedMinValue(0f)
                 .setRangedMaxValue(100f)
                 .setShortTitle(WireComplicationText.plainText("battery"))
@@ -2050,10 +2299,27 @@ public class FromWireComplicationDataTest {
     }
 
     @Test
-    public fun goalProgressComplicationData() {
+    public fun goalProgressComplicationData_withFixedValue() {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
                 .setRangedValue(1200f)
+                .setTargetValue(10000f)
+                .setShortTitle(WireComplicationText.plainText("steps"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
+                .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
+                .setColorRampIsSmoothShaded(false)
+                .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                .build(),
+            ComplicationType.GOAL_PROGRESS
+        )
+    }
+
+    @Test
+    public fun goalProgressComplicationData_withDynamicValue() {
+        assertRoundtrip(
+            WireComplicationDataBuilder(WireComplicationData.TYPE_GOAL_PROGRESS)
+                .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
                 .setTargetValue(10000f)
                 .setShortTitle(WireComplicationText.plainText("steps"))
                 .setContentDescription(WireComplicationText.plainText("content description"))
@@ -3006,13 +3272,14 @@ public class RedactionTest {
             .setTitle("title".complicationText)
             .build()
 
-        assertThat(data.toString()).isEqualTo("LongTextComplicationData(text=" +
-            "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, title=" +
-            "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
-            "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText" +
-            "{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
-            "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange" +
-            "(REDACTED), dataSource=null, persistencePolicy=0, displayPolicy=0)"
+        assertThat(data.toString()).isEqualTo(
+            "LongTextComplicationData(text=" +
+                "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, title=" +
+                "ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+                "monochromaticImage=null, smallImage=null, contentDescription=ComplicationText" +
+                "{mSurroundingText=REDACTED, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=TimeRange" +
+                "(REDACTED), dataSource=null, persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=4, mFields=REDACTED}"
@@ -3031,14 +3298,15 @@ public class RedactionTest {
             .setTitle("title".complicationText)
             .build()
 
-        assertThat(data.toString()).isEqualTo("RangedValueComplicationData(value=REDACTED, " +
-            "valueType=0, min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
-            "title=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
-            "text=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
-            "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
-            "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
-            "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, " +
-            "colorRamp=null, persistencePolicy=0, displayPolicy=0)"
+        assertThat(data.toString()).isEqualTo(
+            "RangedValueComplicationData(value=REDACTED, dynamicValue=REDACTED, " +
+                "valueType=0, min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
+                "title=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+                "text=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+                "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, " +
+                "colorRamp=null, persistencePolicy=0, displayPolicy=0)"
         )
         assertThat(data.asWireComplicationData().toString()).isEqualTo(
             "ComplicationData{mType=5, mFields=REDACTED}"
@@ -3057,10 +3325,10 @@ public class RedactionTest {
             .build()
 
         assertThat(data.toString()).isEqualTo(
-            "GoalProgressComplicationData(value=REDACTED, targetValue=10000.0, " +
-                "monochromaticImage=null, smallImage=null, title=ComplicationText{" +
-                "mSurroundingText=REDACTED, mTimeDependentText=null}, text=null, " +
-                "contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
+            "GoalProgressComplicationData(value=REDACTED, dynamicValue=REDACTED, " +
+                "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
+                "title=ComplicationText{mSurroundingText=REDACTED, mTimeDependentText=null}, " +
+                "text=null, contentDescription=ComplicationText{mSurroundingText=REDACTED, " +
                 "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
                 "tapAction=null, validTimeRange=TimeRange(REDACTED), dataSource=null, " +
                 "colorRamp=ColorRamp(colors=[-65536, -16711936, -16776961], interpolated=true), " +
