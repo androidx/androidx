@@ -10,8 +10,8 @@ package androidx.webkit {
   }
 
   public class ProcessGlobalConfig {
-    method public void apply();
-    method public static androidx.webkit.ProcessGlobalConfig createInstance();
+    ctor public ProcessGlobalConfig();
+    method public static void apply(androidx.webkit.ProcessGlobalConfig);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX, enforcement="androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)") public androidx.webkit.ProcessGlobalConfig setDataDirectorySuffix(android.content.Context, String);
   }
 
