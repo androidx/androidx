@@ -21,10 +21,10 @@ import androidx.annotation.VisibleForTesting
 /**
  * During the create public key credential flow, this is returned when an authenticator response
  * exception contains a NotReadableError from fido, which indicates there was some I/O read
- * operation that failed.
+ * operation that failed. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
  * @see CreatePublicKeyCredentialException
- *
  * @hide
  */
 class CreatePublicKeyCredentialNotReadableException @JvmOverloads constructor(
@@ -34,9 +34,8 @@ class CreatePublicKeyCredentialNotReadableException @JvmOverloads constructor(
     errorMessage) {
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_EXCEPTION: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL" +
-                "_NOT_READABLE_EXCEPTION"
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_EXCEPTION"
     }
 }

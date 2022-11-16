@@ -20,11 +20,10 @@ import androidx.annotation.VisibleForTesting
 
 /**
  * During the create public key credential flow, this is returned when an authenticator response
- * exception contains and abort-err from the fido spec, indicating the operation was aborted. The
- * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException).
+ * exception contains an abort-err from the fido spec, indicating the operation was aborted. The
+ * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
  * @see CreatePublicKeyCredentialException
- *
  * @hide
  */
 class CreatePublicKeyCredentialAbortException @JvmOverloads constructor(
@@ -34,9 +33,8 @@ class CreatePublicKeyCredentialAbortException @JvmOverloads constructor(
     errorMessage) {
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_EXCEPTION: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL" +
-                "_ABORT_EXCEPTION"
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_EXCEPTION"
     }
 }

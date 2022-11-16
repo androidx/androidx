@@ -20,10 +20,11 @@ import androidx.annotation.VisibleForTesting
 
 /**
  * This create public key credential operation failed with no more detailed information. This could
- * be something such as out of memory or some other transient reason.
+ * be something such as out of memory or some other transient reason - either from fido directly
+ * or through the public key credential flow in general. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
  * @see CreatePublicKeyCredentialException
- *
  * @hide
  */
 class CreatePublicKeyCredentialUnknownException @JvmOverloads constructor(
@@ -34,7 +35,7 @@ class CreatePublicKeyCredentialUnknownException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_EXCEPTION: String =
             "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_EXCEPTION"
     }

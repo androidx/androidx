@@ -16,6 +16,23 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
+import CreatePublicKeyCredentialDataCloneException
+import CreatePublicKeyCredentialHierarchyRequestException
+import CreatePublicKeyCredentialInUseAttributeException
+import CreatePublicKeyCredentialInvalidCharacterException
+import CreatePublicKeyCredentialInvalidModificationException
+import CreatePublicKeyCredentialInvalidNodeTypeException
+import CreatePublicKeyCredentialNamespaceException
+import CreatePublicKeyCredentialNoModificationAllowedException
+import CreatePublicKeyCredentialNotFoundException
+import CreatePublicKeyCredentialOperationException
+import CreatePublicKeyCredentialOptOutException
+import CreatePublicKeyCredentialQuotaExceededException
+import CreatePublicKeyCredentialReadOnlyException
+import CreatePublicKeyCredentialSyntaxException
+import CreatePublicKeyCredentialTransactionInactiveException
+import CreatePublicKeyCredentialVersionException
+import CreatePublicKeyCredentialWrongDocumentException
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialException
 
@@ -31,6 +48,31 @@ import androidx.credentials.exceptions.CreateCredentialException
  * @see CreatePublicKeyCredentialNotReadableException
  * @see CreatePublicKeyCredentialAbortException
  * @see CreatePublicKeyCredentialConstraintException
+ * @see CreatePublicKeyCredentialDataException
+ * @see CreatePublicKeyCredentialEncodingException
+ * @see CreatePublicKeyCredentialInvalidStateException
+ * @see CreatePublicKeyCredentialNetworkException
+ * @see CreatePublicKeyCredentialNotAllowedException
+ * @see CreatePublicKeyCredentialNotSupportedException
+ * @see CreatePublicKeyCredentialSecurityException
+ * @see CreatePublicKeyCredentialTimeoutException
+ * @see CreatePublicKeyCredentialDataCloneException
+ * @see CreatePublicKeyCredentialHierarchyRequestException
+ * @see CreatePublicKeyCredentialInUseAttributeException
+ * @see CreatePublicKeyCredentialInvalidCharacterException
+ * @see CreatePublicKeyCredentialInvalidModificationException
+ * @see CreatePublicKeyCredentialInvalidNodeTypeException
+ * @see CreatePublicKeyCredentialNamespaceException
+ * @see CreatePublicKeyCredentialNoModificationAllowedException
+ * @see CreatePublicKeyCredentialNotFoundException
+ * @see CreatePublicKeyCredentialOperationException
+ * @see CreatePublicKeyCredentialOptOutException
+ * @see CreatePublicKeyCredentialQuotaExceededException
+ * @see CreatePublicKeyCredentialReadOnlyException
+ * @see CreatePublicKeyCredentialSyntaxException
+ * @see CreatePublicKeyCredentialTransactionInactiveException
+ * @see CreatePublicKeyCredentialVersionException
+ * @see CreatePublicKeyCredentialWrongDocumentException
  *
  * @property errorMessage a human-readable string that describes the error
  * @throws NullPointerException if [type] is null
