@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
@@ -178,12 +179,191 @@ public abstract class AppSearchSessionInternalTestBase {
                         .build()).get();
         assertThat(suggestions).containsExactly(resultFoo, resultFool);
 
-        // non exist namespace has 2 results.
+        // non exist namespace has empty result
         suggestions = mDb1.searchSuggestionAsync(
                 /*suggestionQueryExpression=*/"f",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
                         .addFilterNamespaces("nonExistNamespace").build()).get();
         assertThat(suggestions).isEmpty();
+    }
+
+    @Test
+    public void testSearchSuggestion_schemaFilter() throws Exception {
+        // Schema registration
+        AppSearchSchema schemaType1 = new AppSearchSchema.Builder("Type1").addProperty(
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        AppSearchSchema schemaType2 = new AppSearchSchema.Builder("Type2").addProperty(
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        AppSearchSchema schemaType3 = new AppSearchSchema.Builder("Type3").addProperty(
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemaType1, schemaType2, schemaType3).build()).get();
+
+        // Index documents
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "Type1")
+                .setPropertyString("body", "fo foo")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "Type2")
+                .setPropertyString("body", "foo")
+                .build();
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace", "id3", "Type3")
+                .setPropertyString("body", "fool")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2, doc3).build()));
+
+        SearchSuggestionResult resultFo =
+                new SearchSuggestionResult.Builder().setSuggestedResult("fo").build();
+        SearchSuggestionResult resultFoo =
+                new SearchSuggestionResult.Builder().setSuggestedResult("foo").build();
+        SearchSuggestionResult resultFool =
+                new SearchSuggestionResult.Builder().setSuggestedResult("fool").build();
+
+        // Type1 has 2 results.
+        List<SearchSuggestionResult> suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"f",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type1").build()).get();
+        assertThat(suggestions).containsExactly(resultFoo, resultFo).inOrder();
+
+        // Type2 has 1 result.
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"f",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type2").build()).get();
+        assertThat(suggestions).containsExactly(resultFoo).inOrder();
+
+        // Type2 and 3 has 2 results.
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"f",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type2", "Type3")
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultFoo, resultFool);
+
+        // non exist type has empty result.
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"f",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("nonExistType").build()).get();
+        assertThat(suggestions).isEmpty();
+    }
+
+    @Test
+    public void testSearchSuggestion_propertyFilter() throws Exception {
+        // Schema registration
+        AppSearchSchema schemaType1 = new AppSearchSchema.Builder("Type1").addProperty(
+                        new StringPropertyConfig.Builder("propertyone")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build()).addProperty(
+                        new StringPropertyConfig.Builder("propertytwo")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        AppSearchSchema schemaType2 = new AppSearchSchema.Builder("Type2").addProperty(
+                        new StringPropertyConfig.Builder("propertythree")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build()).addProperty(
+                        new StringPropertyConfig.Builder("propertyfour")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schemaType1, schemaType2).build()).get();
+
+        // Index documents
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "Type1")
+                .setPropertyString("propertyone", "termone")
+                .setPropertyString("propertytwo", "termtwo")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "Type2")
+                .setPropertyString("propertythree", "termthree")
+                .setPropertyString("propertyfour", "termfour")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
+
+        SearchSuggestionResult resultOne =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termone").build();
+        SearchSuggestionResult resultTwo =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termtwo").build();
+        SearchSuggestionResult resultThree =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termthree").build();
+        SearchSuggestionResult resultFour =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termfour").build();
+
+        // Only search for type1/propertyone
+        List<SearchSuggestionResult> suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type1")
+                        .addFilterProperties("Type1", ImmutableList.of("propertyone"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne);
+
+        // Only search for type1/propertyone and type1/propertytwo
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type1")
+                        .addFilterProperties("Type1",
+                                ImmutableList.of("propertyone", "propertytwo"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultTwo);
+
+        // Only search for type1/propertyone and type2/propertythree
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type1", "Type2")
+                        .addFilterProperties("Type1", ImmutableList.of("propertyone"))
+                        .addFilterProperties("Type2", ImmutableList.of("propertythree"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultThree);
+
+        // Only search for type1/propertyone and type2/propertyfour, in addFilterPropertyPaths
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterSchemas("Type1", "Type2")
+                        .addFilterProperties("Type1", ImmutableList.of("propertyone"))
+                        .addFilterPropertyPaths("Type2",
+                                ImmutableList.of(new PropertyPath("propertyfour")))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultFour);
+
+        // Only search for type1/propertyone and everything in type2
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterProperties("Type1", ImmutableList.of("propertyone"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultThree, resultFour);
     }
 
     @Test
