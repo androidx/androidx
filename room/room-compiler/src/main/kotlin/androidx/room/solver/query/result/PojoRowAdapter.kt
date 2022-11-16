@@ -16,7 +16,6 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -69,14 +68,18 @@ class PojoRowAdapter(
             if (nonNulls.isNotEmpty()) {
                 context.logger.e(
                     ProcessorErrors.pojoMissingNonNull(
-                        pojoTypeName = pojo.typeName.toJavaPoet(),
+                        pojoTypeName = pojo.typeName.toString(context.codeLanguage),
                         missingPojoFields = nonNulls.map { it.name },
                         allQueryColumns = info.columns.map { it.name }
                     )
                 )
             }
             if (matchedFields.isEmpty()) {
-                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.typeName))
+                context.logger.e(
+                    ProcessorErrors.cannotFindQueryResultAdapter(
+                        out.asTypeName().toString(context.codeLanguage)
+                    )
+                )
             }
         } else {
             matchedFields = remainingFields.map { it }

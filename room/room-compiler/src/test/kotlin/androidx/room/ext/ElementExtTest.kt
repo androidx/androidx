@@ -16,14 +16,14 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -210,34 +210,9 @@ class ElementExtTest(
                 .first {
                     it.jvmName == "method"
                 }
-            assertThat(field.type.typeName).isEqualTo(TypeName.INT)
-            assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
-            assertThat(element.type.typeName).isEqualTo(ClassName.get("foo.bar", "Baz"))
-        }
-    }
-
-    @Test
-    fun primitiveTypes() {
-        // check that we can also find primitive types from the common API
-        val primitiveTypeNames = listOf(
-            TypeName.BOOLEAN,
-            TypeName.BYTE,
-            TypeName.SHORT,
-            TypeName.INT,
-            TypeName.LONG,
-            TypeName.CHAR,
-            TypeName.FLOAT,
-            TypeName.DOUBLE
-        )
-        runTest { invocation ->
-            val processingEnv = invocation.processingEnv
-            primitiveTypeNames.forEach { primitiveTypeName ->
-                val typeMirror = processingEnv.requireType(primitiveTypeName)
-                assertThat(typeMirror.typeName).isEqualTo(primitiveTypeName)
-                assertThat(
-                    typeMirror.boxed().typeName
-                ).isEqualTo(primitiveTypeName.box())
-            }
+            assertThat(field.type.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(method.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(element.type.asTypeName()).isEqualTo(XClassName.get("foo.bar", "Baz"))
         }
     }
 

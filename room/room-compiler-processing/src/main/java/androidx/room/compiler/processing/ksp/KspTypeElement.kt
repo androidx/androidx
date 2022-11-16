@@ -121,6 +121,13 @@ internal sealed class KspTypeElement(
         }
     }
 
+    @Deprecated(
+        "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith = ReplaceWith(
+            "asClassName().toJavaPoet()",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val className: ClassName by lazy {
         xClassName.java
     }

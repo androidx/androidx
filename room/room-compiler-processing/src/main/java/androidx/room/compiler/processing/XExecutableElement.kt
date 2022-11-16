@@ -31,7 +31,7 @@ interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
      *   be an [XTypeElement].
      *   * When running with KSP, if this function is in source, the value will **NOT** be an
      *   [XTypeElement]. If you need the generated synthetic java class name, you can use
-     *   [XMemberContainer.className] property.
+     *   [XMemberContainer.asClassName] property.
      */
     override val enclosingElement: XMemberContainer
 

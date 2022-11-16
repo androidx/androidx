@@ -40,7 +40,7 @@ class UpCastTypeConverter(
         // normally, we don't need to generate any code here but if the upcast is converting from
         // a primitive to boxed; we need to. Otherwise, output value won't become an object and
         // that might break the rest of the code generation (e.g. checking nullable on primitive)
-        return if (to.typeName.isBoxedPrimitive && from.typeName.isPrimitive) {
+        return if (to.asTypeName().isBoxedPrimitive && from.asTypeName().isPrimitive) {
             super.doConvert(inputVarName, scope)
         } else {
             inputVarName

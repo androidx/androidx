@@ -31,6 +31,7 @@ import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
@@ -227,8 +228,8 @@ class DaoWriter(
             },
         ).apply {
             returns(
-                List::class.asClassName().parametrizedBy(
-                    Class::class.asClassName().parametrizedBy(XTypeName.ANY_WILDCARD)
+                CommonTypeNames.LIST.parametrizedBy(
+                    CommonTypeNames.JAVA_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
                 )
             )
             addCode(body)

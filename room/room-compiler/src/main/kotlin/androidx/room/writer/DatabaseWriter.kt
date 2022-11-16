@@ -26,7 +26,6 @@ import androidx.room.compiler.codegen.XPropertySpec.Companion.apply
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
@@ -67,7 +66,7 @@ class DatabaseWriter(
     private fun createCreateTypeConvertersMap(): XFunSpec {
         val scope = CodeGenScope(this)
         val classOfAnyTypeName = CommonTypeNames.JAVA_CLASS.parametrizedBy(
-            XTypeName.getProducerExtendsName(Any::class.asClassName())
+            XTypeName.getProducerExtendsName(KotlinTypeNames.ANY)
         )
         val typeConvertersTypeName = CommonTypeNames.HASH_MAP.parametrizedBy(
             classOfAnyTypeName,

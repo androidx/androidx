@@ -20,7 +20,7 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
@@ -56,7 +56,7 @@ class EntityUpdateAdapterWriter private constructor(
                     visibility = VisibilityModifier.PUBLIC,
                     isOverride = true
                 ).apply {
-                    returns(String::class.asClassName())
+                    returns(CommonTypeNames.STRING)
                     val pojoCols = pojo.columnNames.joinToString(",") {
                         "`$it` = ?"
                     }

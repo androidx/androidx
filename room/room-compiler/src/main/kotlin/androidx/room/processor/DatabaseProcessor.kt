@@ -18,12 +18,12 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.RoomTypeNames.ROOM_DB
+import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
@@ -42,7 +42,6 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
-import com.squareup.javapoet.TypeName
 import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Path
@@ -52,9 +51,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     val context = baseContext.fork(element)
 
     val roomDatabaseType: XType by lazy {
-        context.processingEnv.requireType(
-            ROOM_DB.toJavaPoet().packageName() + "." + ROOM_DB.toJavaPoet().simpleName()
-        )
+        context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
     }
 
     fun process(): Database {
@@ -94,7 +91,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            it.enclosingElement.className == ROOM_DB.toJavaPoet()
+            it.enclosingElement.asClassName() == RoomTypeNames.ROOM_DB
         }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
@@ -168,7 +165,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         return autoMigrationList.mapNotNull {
             val databaseSchemaFolderPath = Path.of(
                 context.schemaOutFolderPath!!,
-                element.className.canonicalName()
+                element.asClassName().canonicalName
             )
             val autoMigration = it.value
             val validatedFromSchemaFile = getValidatedSchemaFile(
@@ -319,13 +316,13 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             .filter { it.value.size > 1 } // get the ones with duplicate names
             .forEach {
                 // do not report duplicates from the same entity
-                if (it.value.distinctBy { it.second.typeName.toJavaPoet() }.size > 1) {
+                if (it.value.distinctBy { it.second.typeName }.size > 1) {
                     context.logger.e(
                         element,
                         ProcessorErrors.duplicateIndexInDatabase(
                             it.key,
                             it.value.map {
-                                "${it.second.typeName.toJavaPoet()} > ${it.first}"
+                                "${it.second.typeName.toString(context.codeLanguage)} > ${it.first}"
                             }
                         )
                     )
@@ -338,11 +335,11 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods: List<DaoMethod>,
         entities: List<Entity>
     ) {
-        val entityTypeNames = entities.map { it.typeName.toJavaPoet() }.toSet()
+        val entityTypeNames = entities.map { it.typeName }.toSet()
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key.toJavaPoet(),
+                    val error = ProcessorErrors.duplicateDao(it.key.toString(context.codeLanguage),
                         it.value.map { it.element.jvmName }
                     )
                     it.value.forEach { daoMethod ->
@@ -358,7 +355,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         val check = fun(
             element: XElement,
             dao: Dao,
-            typeName: TypeName?
+            typeName: XTypeName?
         ) {
             typeName?.let {
                 if (!entityTypeNames.contains(typeName)) {
@@ -366,8 +363,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                         element,
                         ProcessorErrors.shortcutEntityIsNotInDatabase(
                             database = dbElement.qualifiedName,
-                            dao = dao.typeName.toJavaPoet().toString(),
-                            entity = typeName.toString()
+                            dao = dao.typeName.toString(context.codeLanguage),
+                            entity = typeName.toString(context.codeLanguage)
                         )
                     )
                 }
@@ -376,12 +373,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.forEach { daoMethod ->
             daoMethod.dao.deleteOrUpdateShortcutMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.entityTypeName.toJavaPoet())
+                    check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
             daoMethod.dao.insertOrUpsertShortcutMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.entityTypeName.toJavaPoet())
+                    check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
         }
@@ -395,14 +392,14 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         val entitiesInfo = entities.map {
             Triple(
                 it.tableName.lowercase(Locale.US),
-                it.typeName.toJavaPoet().toString(),
+                it.typeName.toString(context.codeLanguage),
                 it.element
             )
         }
         val viewsInfo = views.map {
             Triple(
                 it.viewName.lowercase(Locale.US),
-                it.typeName.toJavaPoet().toString(),
+                it.typeName.toString(context.codeLanguage),
                 it.element
             )
         }
@@ -456,7 +453,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 context.logger.e(
                     element,
                     ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
-                        it.typeName
+                        it.asTypeName().toString(context.codeLanguage)
                     )
                 )
                 null
@@ -476,7 +473,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 context.logger.e(
                     element,
                     ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
-                        it.typeName
+                        it.asTypeName().toString(context.codeLanguage)
                     )
                 )
                 null

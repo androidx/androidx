@@ -158,6 +158,20 @@ interface XProcessingEnv {
 
     fun findType(klass: KClass<*>) = findType(klass.java.canonicalName!!)
 
+    fun requireTypeElement(typeName: XTypeName): XTypeElement {
+        if (typeName.isPrimitive) {
+            return requireTypeElement(typeName.java)
+        }
+        return when (backend) {
+            Backend.JAVAC -> requireTypeElement(typeName.java)
+            Backend.KSP -> {
+                val kClassName = typeName.kotlin as? KClassName
+                    ?: error("cannot find required type element ${typeName.kotlin}")
+                requireTypeElement(kClassName.canonicalName)
+            }
+        }
+    }
+
     fun requireTypeElement(typeName: TypeName) = requireTypeElement(typeName.toString())
 
     fun requireTypeElement(klass: KClass<*>) = requireTypeElement(klass.java.canonicalName!!)
@@ -165,6 +179,8 @@ interface XProcessingEnv {
     fun findTypeElement(typeName: TypeName) = findTypeElement(typeName.toString())
 
     fun findTypeElement(klass: KClass<*>) = findTypeElement(klass.java.canonicalName!!)
+
+    fun getArrayType(typeName: XTypeName) = getArrayType(requireType(typeName))
 
     fun getArrayType(typeName: TypeName) = getArrayType(requireType(typeName))
 

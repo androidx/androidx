@@ -17,13 +17,11 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.expansion.isCoreSelect
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -269,13 +267,20 @@ enum class SQLTypeAffinity {
 
     fun getTypeMirrors(env: XProcessingEnv): List<XType>? {
         return when (this) {
-            TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING.toJavaPoet())
-            INTEGER -> withBoxedAndNullableTypes(
-                env, TypeName.INT, TypeName.BYTE, TypeName.CHAR,
-                TypeName.LONG, TypeName.SHORT
+            TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING)
+            INTEGER -> withBoxedAndNullableTypes(env,
+                XTypeName.PRIMITIVE_INT, XTypeName.PRIMITIVE_BYTE, XTypeName.PRIMITIVE_CHAR,
+                XTypeName.PRIMITIVE_LONG, XTypeName.PRIMITIVE_SHORT
             )
-            REAL -> withBoxedAndNullableTypes(env, TypeName.DOUBLE, TypeName.FLOAT)
-            BLOB -> withBoxedAndNullableTypes(env, ArrayTypeName.of(TypeName.BYTE))
+
+            REAL -> withBoxedAndNullableTypes(env,
+                XTypeName.PRIMITIVE_DOUBLE, XTypeName.PRIMITIVE_FLOAT
+            )
+
+            BLOB -> withBoxedAndNullableTypes(env,
+                XTypeName.getArrayName(XTypeName.PRIMITIVE_BYTE)
+            )
+
             else -> null
         }
     }
@@ -289,7 +294,7 @@ enum class SQLTypeAffinity {
      */
     private fun withBoxedAndNullableTypes(
         env: XProcessingEnv,
-        vararg typeNames: TypeName
+        vararg typeNames: XTypeName
     ): List<XType> {
         return typeNames.flatMap { typeName ->
             sequence {

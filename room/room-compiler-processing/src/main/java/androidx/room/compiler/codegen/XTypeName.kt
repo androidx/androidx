@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.codegen
 
+import com.squareup.kotlinpoet.asClassName as asKClassName
+import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import androidx.room.compiler.processing.XNullability
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -33,8 +35,6 @@ import com.squareup.kotlinpoet.MUTABLE_MAP_ENTRY
 import com.squareup.kotlinpoet.MUTABLE_SET
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT_ARRAY
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
@@ -62,6 +62,9 @@ open class XTypeName protected constructor(
     val isPrimitive: Boolean
         get() = java.isPrimitive
 
+    val isBoxedPrimitive: Boolean
+        get() = java.isBoxedPrimitive
+
     /**
      * Returns the raw [XTypeName] if this is a parametrized type name, or itself if not.
      *
@@ -82,9 +85,17 @@ open class XTypeName protected constructor(
         // TODO(b/248633751): Handle primitive to boxed when becoming nullable?
         return XTypeName(
             java = java,
-            kotlin = kotlin.copy(nullable = nullable),
+            kotlin = if (kotlin != UNAVAILABLE_KTYPE_NAME) {
+                kotlin.copy(nullable = nullable)
+            } else {
+                UNAVAILABLE_KTYPE_NAME
+            },
             nullability = if (nullable) XNullability.NULLABLE else XNullability.NONNULL
         )
+    }
+
+    fun equalsIgnoreNullability(other: XTypeName): Boolean {
+        return this.copy(nullable = false) == other.copy(nullable = false)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -113,6 +124,11 @@ open class XTypeName protected constructor(
         append("]")
     }
 
+    fun toString(codeLanguage: CodeLanguage) = when (codeLanguage) {
+        CodeLanguage.JAVA -> java.toString()
+        CodeLanguage.KOTLIN -> kotlin.toString()
+    }
+
     companion object {
         /**
          * A convenience [XTypeName] that represents [Unit] in Kotlin and `void` in Java.
@@ -121,6 +137,15 @@ open class XTypeName protected constructor(
             java = JTypeName.VOID,
             kotlin = com.squareup.kotlinpoet.UNIT
         )
+
+        /**
+         * A convenience [XTypeName] that represents [Any] in Kotlin and [Object] in Java.
+         */
+        val ANY_OBJECT = XTypeName(
+            java = JTypeName.OBJECT,
+            kotlin = com.squareup.kotlinpoet.ANY
+        )
+
         val PRIMITIVE_BOOLEAN = Boolean::class.asPrimitiveTypeName()
         val PRIMITIVE_BYTE = Byte::class.asPrimitiveTypeName()
         val PRIMITIVE_SHORT = Short::class.asPrimitiveTypeName()
@@ -129,6 +154,15 @@ open class XTypeName protected constructor(
         val PRIMITIVE_CHAR = Char::class.asPrimitiveTypeName()
         val PRIMITIVE_FLOAT = Float::class.asPrimitiveTypeName()
         val PRIMITIVE_DOUBLE = Double::class.asPrimitiveTypeName()
+
+        val BOXED_BOOLEAN = Boolean::class.asClassName()
+        val BOXED_BYTE = Byte::class.asClassName()
+        val BOXED_SHORT = Short::class.asClassName()
+        val BOXED_INT = Int::class.asClassName()
+        val BOXED_LONG = Long::class.asClassName()
+        val BOXED_CHAR = Char::class.asClassName()
+        val BOXED_FLOAT = Float::class.asClassName()
+        val BOXED_DOUBLE = Double::class.asClassName()
 
         val ANY_WILDCARD = XTypeName(
             java = JWildcardTypeName.subtypeOf(Object::class.java),
@@ -178,7 +212,14 @@ open class XTypeName protected constructor(
                     JArrayTypeName.of(componentTypeName.java) to
                         ARRAY.parameterizedBy(componentTypeName.kotlin)
             }
-            return XTypeName(java, kotlin)
+            return XTypeName(
+                java = java,
+                kotlin = if (componentTypeName.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                    kotlin
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                }
+            )
         }
 
         /**
@@ -191,7 +232,11 @@ open class XTypeName protected constructor(
         fun getConsumerSuperName(bound: XTypeName): XTypeName {
             return XTypeName(
                 java = JWildcardTypeName.supertypeOf(bound.java),
-                kotlin = KWildcardTypeName.consumerOf(bound.kotlin)
+                kotlin = if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                    KWildcardTypeName.consumerOf(bound.kotlin)
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                }
             )
         }
 
@@ -205,7 +250,11 @@ open class XTypeName protected constructor(
         fun getProducerExtendsName(bound: XTypeName): XTypeName {
             return XTypeName(
                 java = JWildcardTypeName.subtypeOf(bound.java),
-                kotlin = KWildcardTypeName.producerOf(bound.kotlin)
+                kotlin = if (bound.kotlin != UNAVAILABLE_KTYPE_NAME) {
+                    KWildcardTypeName.producerOf(bound.kotlin)
+                } else {
+                    UNAVAILABLE_KTYPE_NAME
+                }
             )
         }
     }
@@ -241,14 +290,25 @@ class XClassName internal constructor(
     ): XTypeName {
         return XTypeName(
             java = JParameterizedTypeName.get(java, *typeArguments.map { it.java }.toTypedArray()),
-            kotlin = kotlin.parameterizedBy(typeArguments.map { it.kotlin })
+            kotlin = if (
+                kotlin != UNAVAILABLE_KTYPE_NAME &&
+                typeArguments.none { it.kotlin == UNAVAILABLE_KTYPE_NAME }
+            ) {
+                kotlin.parameterizedBy(typeArguments.map { it.kotlin })
+            } else {
+                UNAVAILABLE_KTYPE_NAME
+            }
         )
     }
 
     override fun copy(nullable: Boolean): XClassName {
         return XClassName(
             java = java,
-            kotlin = kotlin.copy(nullable = nullable) as KClassName,
+            kotlin = if (kotlin != UNAVAILABLE_KTYPE_NAME) {
+                kotlin.copy(nullable = nullable) as KClassName
+            } else {
+                UNAVAILABLE_KTYPE_NAME
+            },
             nullability = if (nullable) XNullability.NULLABLE else XNullability.NONNULL
         )
     }
@@ -294,7 +354,7 @@ fun KClass<*>.asClassName(): XClassName {
     } else {
         JClassName.get(this.java)
     }
-    val kClassName = this.asClassName()
+    val kClassName = this.asKClassName()
     return XClassName(
         java = jClassName,
         kotlin = kClassName,
@@ -323,7 +383,7 @@ fun KClass<*>.asClassName(): XClassName {
 fun KClass<*>.asMutableClassName(): XClassName {
     val java = JClassName.get(this.java)
     val kotlin = when (this) {
-        Iterator::class -> MUTABLE_ITERABLE
+        Iterable::class -> MUTABLE_ITERABLE
         Collection::class -> MUTABLE_COLLECTION
         List::class -> MUTABLE_LIST
         Set::class -> MUTABLE_SET
@@ -358,7 +418,7 @@ internal fun KClass<*>.asPrimitiveTypeName(): XTypeName {
         "$this does not represent a primitive."
     }
     val jTypeName = getPrimitiveJTypeName(this.java)
-    val kTypeName = this.asTypeName()
+    val kTypeName = this.asKTypeName()
     return XTypeName(jTypeName, kTypeName)
 }
 

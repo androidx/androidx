@@ -46,7 +46,6 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.TypeWriter
-import com.squareup.javapoet.ClassName
 import java.io.File
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
@@ -79,7 +78,7 @@ object COMMON {
         loadJavaCode("common/input/UserSummary.java", "foo.bar.UserSummary")
     }
     val USER_TYPE_NAME by lazy {
-        ClassName.get("foo.bar", "User")
+        XClassName.get("foo.bar", "User")
     }
     val BOOK by lazy {
         loadJavaCode("common/input/Book.java", "foo.bar.Book")
@@ -102,7 +101,7 @@ object COMMON {
     }
 
     val NOT_AN_ENTITY_TYPE_NAME by lazy {
-        ClassName.get("foo.bar", "NotAnEntity")
+        XClassName.get("foo.bar", "NotAnEntity")
     }
 
     val MULTI_PKEY_ENTITY by lazy {

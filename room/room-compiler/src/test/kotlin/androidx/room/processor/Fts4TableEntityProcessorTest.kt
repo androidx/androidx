@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.FtsOptions
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.FtsVersion
@@ -50,7 +51,8 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public void setRowId(int id) { this.rowId = rowId; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.typeName.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.type.asTypeName().toString(CodeLanguage.JAVA),
+                `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)

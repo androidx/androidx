@@ -16,9 +16,8 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.AndroidTypeNames.CURSOR
+import androidx.room.ext.AndroidTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
@@ -36,5 +35,5 @@ class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderP
     }
 
     override fun matches(declared: XType): Boolean =
-        declared.typeArguments.isEmpty() && declared.typeName == CURSOR.toJavaPoet()
+        declared.typeArguments.isEmpty() && declared.asTypeName() == AndroidTypeNames.CURSOR
 }

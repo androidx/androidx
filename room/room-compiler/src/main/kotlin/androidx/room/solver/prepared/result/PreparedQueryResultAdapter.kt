@@ -19,13 +19,13 @@ package androidx.room.solver.prepared.result
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
@@ -81,7 +81,7 @@ class PreparedQueryResultAdapter(
                     if (returnType.isVoidObject()) {
                         addStatement("return null")
                     } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
-                        addStatement("return %T.INSTANCE", Unit::class.asClassName())
+                        addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                     }
                 } else {
                     val resultVar = scope.getTmpVar("_result")

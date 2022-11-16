@@ -338,7 +338,7 @@ class CustomConverterProcessorTest {
                     // instead of not running the code path in ksp tests
                     hasErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
                 } else {
-                    hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared(TypeName.INT))
+                    hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared("int"))
                 }
             }
         }

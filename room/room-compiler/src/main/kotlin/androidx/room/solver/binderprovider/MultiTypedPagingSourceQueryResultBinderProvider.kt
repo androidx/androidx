@@ -16,6 +16,7 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
@@ -78,7 +79,7 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
             return false
         }
 
-        if (declared.typeArguments.first().typeName != TypeName.INT.box()) {
+        if (declared.typeArguments.first().asTypeName() != XTypeName.BOXED_INT) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
         }
 

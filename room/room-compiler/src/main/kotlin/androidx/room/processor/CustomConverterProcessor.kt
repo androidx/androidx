@@ -59,7 +59,9 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                 if (typeElement == null) {
                     context.logger.e(
                         element,
-                        ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
+                        ProcessorErrors.typeConverterMustBeDeclared(
+                            it.asTypeName().toString(context.codeLanguage)
+                        )
                     )
                     emptyList()
                 } else {
@@ -84,7 +86,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
 
         private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
             converters
-                .groupBy { it.from.typeName to it.to.typeName }
+                .groupBy { it.from.asTypeName() to it.to.asTypeName() }
                 .filterValues { it.size > 1 }
                 .values.forEach { possiblyDuplicateConverters ->
                     possiblyDuplicateConverters.forEach { converter ->
@@ -157,9 +159,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             context.logger.e(methodElement, TYPE_CONVERTER_BAD_RETURN_TYPE)
             return null
         }
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, methodElement,
+            returnType, methodElement,
             TYPE_CONVERTER_UNBOUND_GENERIC
         )
         val params = methodElement.parameters
@@ -170,7 +171,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         val param = params.map {
             it.asMemberOf(container.type)
         }.first()
-        context.checker.notUnbound(param.typeName, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
+        context.checker.notUnbound(param, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
         return CustomTypeConverter(
             enclosingClass = container,
             isEnclosingClassKotlinObject = isContainerKotlinObject,

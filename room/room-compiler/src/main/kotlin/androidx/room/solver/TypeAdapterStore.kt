@@ -17,7 +17,6 @@
 package androidx.room.solver
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
@@ -40,8 +39,8 @@ import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
+import androidx.room.processor.ProcessorErrors
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
-import androidx.room.processor.ProcessorErrors.valueCollectionMustBeListOrSet
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -584,12 +583,12 @@ class TypeAdapterStore private constructor(
             ) ?: return null
 
             validateMapTypeArgs(
+                context = context,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 keyReader = findCursorValueReader(keyTypeArg, null),
                 valueReader = findCursorValueReader(valueTypeArg, null),
-                mapInfo = mapInfo,
-                logger = context.logger
+                mapInfo = mapInfo
             )
             return GuavaImmutableMultimapQueryResultAdapter(
                 context = context,
@@ -601,9 +600,9 @@ class TypeAdapterStore private constructor(
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
-            typeMirror.rawType.typeName == ARRAY_MAP.toJavaPoet() ||
-            typeMirror.rawType.typeName == LONG_SPARSE_ARRAY.toJavaPoet() ||
-            typeMirror.rawType.typeName == INT_SPARSE_ARRAY.toJavaPoet()
+            typeMirror.rawType.asTypeName().equalsIgnoreNullability(ARRAY_MAP) ||
+            typeMirror.rawType.asTypeName().equalsIgnoreNullability(LONG_SPARSE_ARRAY) ||
+            typeMirror.rawType.asTypeName().equalsIgnoreNullability(INT_SPARSE_ARRAY)
         ) {
             val mapType = when (typeMirror.rawType.asTypeName()) {
                 LONG_SPARSE_ARRAY -> MultimapQueryResultAdapter.MapType.LONG_SPARSE
@@ -650,7 +649,9 @@ class TypeAdapterStore private constructor(
                         MultimapQueryResultAdapter.CollectionValueType.SET
                     else -> {
                         context.logger.e(
-                            valueCollectionMustBeListOrSet(mapValueTypeArg.typeName)
+                            ProcessorErrors.valueCollectionMustBeListOrSet(
+                                mapValueTypeArg.asTypeName().toString(context.codeLanguage)
+                            )
                         )
                         return null
                     }
@@ -671,12 +672,12 @@ class TypeAdapterStore private constructor(
                 ) ?: return null
 
                 validateMapTypeArgs(
+                    context = context,
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = valueTypeArg,
                     keyReader = findCursorValueReader(keyTypeArg, null),
                     valueReader = findCursorValueReader(valueTypeArg, null),
-                    mapInfo = mapInfo,
-                    logger = context.logger
+                    mapInfo = mapInfo
                 )
                 return MapQueryResultAdapter(
                     context = context,
@@ -701,12 +702,12 @@ class TypeAdapterStore private constructor(
                 ) ?: return null
 
                 validateMapTypeArgs(
+                    context = context,
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
                     keyReader = findCursorValueReader(keyTypeArg, null),
                     valueReader = findCursorValueReader(mapValueTypeArg, null),
-                    mapInfo = mapInfo,
-                    logger = context.logger
+                    mapInfo = mapInfo
                 )
                 return MapQueryResultAdapter(
                     context = context,
@@ -737,7 +738,7 @@ class TypeAdapterStore private constructor(
         }
 
         val typeElement = typeMirror.typeElement
-        if (typeElement != null && !typeMirror.typeName.isPrimitive) {
+        if (typeElement != null && !typeMirror.asTypeName().isPrimitive) {
             if (typeMirror.typeArguments.isNotEmpty()) {
                 // TODO one day support this
                 return null

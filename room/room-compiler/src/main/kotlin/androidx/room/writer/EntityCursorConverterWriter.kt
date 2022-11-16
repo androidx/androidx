@@ -16,10 +16,10 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.capitalize
@@ -30,7 +30,7 @@ import androidx.room.vo.FieldWithIndex
 import java.util.Locale
 
 class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedFunctionSpec(
-    "entityCursorConverter_${entity.typeName.toJavaPoet().toString().stripNonJava()}"
+    "entityCursorConverter_${entity.typeName.toString(CodeLanguage.JAVA).stripNonJava()}"
 ) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"

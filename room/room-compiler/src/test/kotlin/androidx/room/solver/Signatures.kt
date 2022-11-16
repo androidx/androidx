@@ -16,6 +16,7 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.types.CompositeTypeConverter
@@ -33,7 +34,8 @@ private fun XNullability.toSignature() = when (this) {
 }
 
 fun XType.toSignature() =
-    "$typeName${nullability.toSignature()}".substringAfterLast(".")
+    (asTypeName().toString(CodeLanguage.JAVA) + nullability.toSignature())
+        .substringAfterLast(".")
 
 fun TypeConverter.toSignature(): String {
     return when (this) {
