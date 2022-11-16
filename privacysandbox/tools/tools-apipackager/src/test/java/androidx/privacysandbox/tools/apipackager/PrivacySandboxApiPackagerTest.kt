@@ -90,6 +90,7 @@ class PrivacySandboxApiPackagerTest {
                     |import androidx.privacysandbox.tools.PrivacySandboxCallback
                     |import androidx.privacysandbox.tools.PrivacySandboxService
                     |import androidx.privacysandbox.tools.PrivacySandboxValue
+                    |import androidx.privacysandbox.tools.core.GeneratedPublicApi
                     |
                     |@PrivacySandboxService
                     |interface MySdk
@@ -99,6 +100,11 @@ class PrivacySandboxApiPackagerTest {
                     |
                     |@PrivacySandboxCallback
                     |interface MySdkCallback
+                    |
+                    |@GeneratedPublicApi
+                    |object MySdkFactory {
+                    |    fun wrapToMySdk(): MySdk = throw RuntimeException("Stub!")
+                    |}
                 """.trimMargin()
             )
         )
@@ -111,9 +117,10 @@ class PrivacySandboxApiPackagerTest {
                 |import com.mysdk.MySdk
                 |import com.mysdk.Value
                 |import com.mysdk.MySdkCallback
+                |import com.mysdk.MySdkFactory.wrapToMySdk
                 |
                 |class App(
-                |    val sdk: MySdk,
+                |    val sdk: MySdk = wrapToMySdk(),
                 |    val sdkValue: Value,
                 |    val callback: MySdkCallback,
                 |)
