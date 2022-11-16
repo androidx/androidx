@@ -20,8 +20,13 @@ import androidx.paging.DifferCallback
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
 import androidx.paging.PagingSource
+import androidx.paging.LoadType.APPEND
+import androidx.paging.PagingConfig
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapLatest
 
 /**
  * Contains the public APIs for load operations in tests.
@@ -45,6 +50,80 @@ public class SnapshotLoader<Value : Any> internal constructor(
     public suspend fun refresh(): @JvmSuppressWildcards Unit {
         differ.awaitNotLoading()
         differ.refresh()
+        differ.awaitNotLoading()
+    }
+
+    /**
+     * Imitates scrolling down paged items, [appending][APPEND] data until the given
+     * predicate returns false.
+     *
+     * Note: This API loads an item before passing it into the predicate. This means the
+     * loaded pages may include the page which contains the item that does not match the
+     * predicate. For example, if pageSize = 2, the predicate
+     * {item: Int -> item < 3 } will return items [[1, 2],[3, 4]] where [3, 4] is the page
+     * containing the boundary item[3] not matching the predicate.
+     *
+     * The loaded pages are also dependent on [PagingConfig] settings such as
+     * [PagingConfig.prefetchDistance]:
+     * - if `prefetchDistance` > 0, the resulting appends will include prefetched items.
+     * For example, if pageSize = 2 and prefetchDistance = 2, the predicate
+     * {item: Int -> item < 3 } will load items [[1, 2], [3, 4], [5, 6]] where [5, 6] is the
+     * prefetched page.
+     *
+     * @param [predicate] the predicate to match (return true) to continue append scrolls
+     */
+    public suspend fun appendScrollWhile(
+        predicate: suspend (item: @JvmSuppressWildcards Value) -> @JvmSuppressWildcards Boolean
+    ): @JvmSuppressWildcards Unit {
+        differ.awaitNotLoading()
+        appendOrPrepend(LoadType.APPEND, predicate)
+        differ.awaitNotLoading()
+    }
+
+    private suspend fun appendOrPrepend(
+        loadType: LoadType,
+        predicate: suspend (item: Value) -> Boolean
+    ) {
+        do {
+            // Get and update the index to load from. Return if index is invalid.
+            val index = nextLoadIndexOrNull(loadType) ?: return
+            val item = loadItem(index)
+        } while (predicate(item))
+    }
+
+    /**
+     * Get and update the index to load from. Returns null if next index is out of bounds.
+     *
+     * This method is responsible for updating the [Generation.lastAccessedIndex] that is then sent
+     * to the differ to trigger load for that index.
+     */
+    private fun nextLoadIndexOrNull(loadType: LoadType): Int? {
+        val currGen = generations.value
+        return when (loadType) {
+            LoadType.PREPEND -> {
+                if (currGen.lastAccessedIndex.get() <= 0) {
+                    return null
+                }
+                currGen.lastAccessedIndex.decrementAndGet()
+            }
+            LoadType.APPEND -> {
+                if (currGen.lastAccessedIndex.get() >= differ.size - 1) {
+                    return null
+                }
+                currGen.lastAccessedIndex.incrementAndGet()
+            }
+        }
+    }
+
+    // Executes actual loading by accessing the PagingDataDiffer
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private suspend fun loadItem(index: Int): Value {
+        differ[index]
+
+        // awaits for the item to be loaded
+        return generations.mapLatest {
+            differ.peek(index)
+        }.filterNotNull().first()
     }
 
     /**
@@ -60,6 +139,11 @@ public class SnapshotLoader<Value : Any> internal constructor(
                 callbackCount = currGen.callbackCount + 1
             )
         }
+    }
+
+    private enum class LoadType {
+        PREPEND,
+        APPEND
     }
 }
 
