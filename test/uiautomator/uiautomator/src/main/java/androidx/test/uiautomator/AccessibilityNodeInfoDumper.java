@@ -184,20 +184,16 @@ class AccessibilityNodeInfoDumper {
         for (int i = 0; i < cs.length(); i++) {
             ch = cs.charAt(i);
 
-            if((ch >= 0x1 && ch <= 0x8) || (ch >= 0xB && ch <= 0xC) || (ch >= 0xE && ch <= 0x1F) ||
-                    (ch >= 0x7F && ch <= 0x84) || (ch >= 0x86 && ch <= 0x9f) ||
-                    (ch >= 0xFDD0 && ch <= 0xFDDF) || (ch >= 0x1FFFE && ch <= 0x1FFFF) ||
-                    (ch >= 0x2FFFE && ch <= 0x2FFFF) || (ch >= 0x3FFFE && ch <= 0x3FFFF) ||
-                    (ch >= 0x4FFFE && ch <= 0x4FFFF) || (ch >= 0x5FFFE && ch <= 0x5FFFF) ||
-                    (ch >= 0x6FFFE && ch <= 0x6FFFF) || (ch >= 0x7FFFE && ch <= 0x7FFFF) ||
-                    (ch >= 0x8FFFE && ch <= 0x8FFFF) || (ch >= 0x9FFFE && ch <= 0x9FFFF) ||
-                    (ch >= 0xAFFFE && ch <= 0xAFFFF) || (ch >= 0xBFFFE && ch <= 0xBFFFF) ||
-                    (ch >= 0xCFFFE && ch <= 0xCFFFF) || (ch >= 0xDFFFE && ch <= 0xDFFFF) ||
-                    (ch >= 0xEFFFE && ch <= 0xEFFFF) || (ch >= 0xFFFFE && ch <= 0xFFFFF) ||
-                    (ch >= 0x10FFFE && ch <= 0x10FFFF))
+            if ((ch >= 0x1 && ch <= 0x8)
+                    || (ch >= 0xB && ch <= 0xC)
+                    || (ch >= 0xE && ch <= 0x1F)
+                    || (ch >= 0x7F && ch <= 0x84)
+                    || (ch >= 0x86 && ch <= 0x9F)
+                    || (ch >= 0xFDD0 && ch <= 0xFDDF)) {
                 ret.append(".");
-            else
+            } else {
                 ret.append(ch);
+            }
         }
         return ret.toString();
     }
