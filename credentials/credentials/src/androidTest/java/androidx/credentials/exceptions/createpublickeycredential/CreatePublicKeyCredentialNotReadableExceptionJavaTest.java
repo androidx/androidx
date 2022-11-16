@@ -16,11 +16,11 @@
 
 package androidx.credentials.exceptions.createpublickeycredential;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotReadableException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.truth.Truth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +41,14 @@ public class CreatePublicKeyCredentialNotReadableExceptionJavaTest {
     }
 
     @Test
-    public void getter_type_success() {
+    public void getter_success() {
+        String expectedMessage = "msg";
         CreatePublicKeyCredentialNotReadableException exception = new
-                CreatePublicKeyCredentialNotReadableException("msg");
+                CreatePublicKeyCredentialNotReadableException(expectedMessage);
         String expectedType =
                 CreatePublicKeyCredentialNotReadableException
                         .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_EXCEPTION;
-        Truth.assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

@@ -18,7 +18,7 @@ package androidx.credentials.exceptions
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,10 +36,12 @@ class ClearCredentialInterruptedExceptionTest {
     }
 
     @Test
-    fun getter_type_success() {
-        val exception = ClearCredentialInterruptedException("msg")
+    fun getter_success() {
+        val expectedMessage = "msg"
+        val exception = ClearCredentialInterruptedException(expectedMessage)
         val expectedType =
             ClearCredentialInterruptedException.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }

@@ -14,34 +14,42 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions
+package androidx.credentials
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class GetCredentialCancellationExceptionTest {
-    @Test(expected = GetCredentialCancellationException::class)
-    fun construct_inputNonEmpty_success() {
-        throw GetCredentialCancellationException("msg")
-    }
-
-    @Test(expected = GetCredentialCancellationException::class)
-    fun construct_errorMessageNull_success() {
-        throw GetCredentialCancellationException(null)
+class CustomCredentialTest {
+    @Test
+    fun constructor_emptyType_throws() {
+        Assert.assertThrows(
+            "Expected empty type to throw IAE",
+            IllegalArgumentException::class.java
+        ) { CustomCredential("", Bundle()) }
     }
 
     @Test
-    fun getter_success() {
-        val expectedType =
-            GetCredentialCancellationException.TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION
-        val expectedMessage = "message"
-        val exception = GetCredentialCancellationException(expectedMessage)
-        assertThat(exception.type).isEqualTo(expectedType)
-        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    fun constructor_nonEmptyTypeNonNullBundle_success() {
+        CustomCredential("T", Bundle())
+    }
+
+    @Test
+    fun getter_frameworkProperties() {
+        val expectedType = "TYPE"
+        val expectedBundle = Bundle()
+        expectedBundle.putString("Test", "Test")
+        val option = CustomCredential(
+            expectedType,
+            expectedBundle
+        )
+        assertThat(option.type).isEqualTo(expectedType)
+        assertThat(equals(option.data, expectedBundle)).isTrue()
     }
 }

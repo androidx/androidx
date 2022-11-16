@@ -16,6 +16,8 @@
 
 package androidx.credentials.exceptions.createpublickeycredential;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -45,5 +47,15 @@ public class CreatePublicKeyCredentialExceptionJavaTest {
     @Test(expected = NullPointerException.class)
     public void construct_typeNull_throws() throws CreatePublicKeyCredentialException {
         throw new CreatePublicKeyCredentialException(null, "msg");
+    }
+
+    @Test
+    public void getter_success() {
+        String expectedType = "type";
+        String expectedMessage = "message";
+        CreatePublicKeyCredentialException exception = new
+                CreatePublicKeyCredentialException(expectedType , expectedMessage);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

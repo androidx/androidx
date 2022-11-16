@@ -16,10 +16,10 @@
 
 package androidx.credentials.exceptions;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.truth.Truth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,11 +38,13 @@ public class CreateCredentialCancellationExceptionJavaTest {
     }
 
     @Test
-    public void getter_type_success() {
-        CreateCredentialCancellationException exception = new
-                CreateCredentialCancellationException("msg");
+    public void getter_success() {
         String expectedType =
                 CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION;
-        Truth.assertThat(exception.getType()).isEqualTo(expectedType);
+        String expectedMessage = "message";
+        CreateCredentialCancellationException exception = new
+                CreateCredentialCancellationException(expectedMessage);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }
