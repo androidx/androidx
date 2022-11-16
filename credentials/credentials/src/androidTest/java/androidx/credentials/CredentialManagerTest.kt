@@ -59,7 +59,7 @@ class CredentialManagerTest {
     @Test
     fun testClearCredentialSession() = runBlocking<Unit> {
         assertThrows<UnsupportedOperationException> {
-            credentialManager.clearCredentialSession()
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
     }
 
@@ -98,7 +98,8 @@ class CredentialManagerTest {
     @Test
     fun testClearCredentialSessionAsync() {
         assertThrows<UnsupportedOperationException> {
-            credentialManager.clearCredentialSessionAsync(
+            credentialManager.clearCredentialStateAsync(
+                request = ClearCredentialStateRequest(),
                 cancellationSignal = null,
                 executor = Runnable::run,
                 callback = object : CredentialManagerCallback<Void> {
