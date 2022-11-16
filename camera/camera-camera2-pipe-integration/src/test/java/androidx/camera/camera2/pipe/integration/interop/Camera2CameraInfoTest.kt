@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.interop
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -198,7 +199,8 @@ class Camera2CameraInfoTest {
         return CameraInfoAdapter(
             cameraProperties,
             CameraConfig(cameraId),
-            CameraStateAdapter(
+            CameraStateAdapter(),
+            CameraControlStateAdapter(
                 ZoomControl(FakeZoomCompat()),
                 EvCompControl(FakeEvCompCompat()),
                 TorchControl(cameraProperties, useCaseThreads),
