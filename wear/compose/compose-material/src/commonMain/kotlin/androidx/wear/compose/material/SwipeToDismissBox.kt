@@ -17,7 +17,6 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
@@ -154,12 +153,7 @@ public fun SwipeToDismissBox(
 
                 val translationX = if (squeezeMode) squeezeOffset else slideOffset
 
-                val backgroundAlpha =
-                    lerp(
-                        MAX_BACKGROUND_SCRIM_ALPHA,
-                        MIN_BACKGROUND_SCRIM_ALPHA,
-                        BACKGROUND_SCRIM_EASING.transform(progress)
-                    )
+                val backgroundAlpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress)
                 val contentScrimAlpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
 
                 Modifiers(
@@ -590,8 +584,6 @@ private const val TOTAL_RESISTANCE = 1000f
 private const val SCALE_MAX = 1f
 private const val SCALE_MIN = 0.7f
 private const val MAX_CONTENT_SCRIM_ALPHA = 0.3f
-private const val MAX_BACKGROUND_SCRIM_ALPHA = 0.75f
-private const val MIN_BACKGROUND_SCRIM_ALPHA = 0f
-private val BACKGROUND_SCRIM_EASING = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+private const val MAX_BACKGROUND_SCRIM_ALPHA = 0.5f
 private val SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC =
     TweenSpec<Float>(200, 0, LinearOutSlowInEasing)
