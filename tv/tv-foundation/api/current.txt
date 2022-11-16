@@ -14,16 +14,6 @@ package androidx.tv.foundation {
 
 }
 
-package androidx.tv.foundation.lazy {
-
-  public final class LazyBeyondBoundsModifierKt {
-  }
-
-  public final class LazyListPinningModifierKt {
-  }
-
-}
-
 package androidx.tv.foundation.lazy.grid {
 
   public final class LazyGridDslKt {
@@ -181,6 +171,9 @@ package androidx.tv.foundation.lazy.layout {
 
 package androidx.tv.foundation.lazy.list {
 
+  public final class LazyBeyondBoundsModifierKt {
+  }
+
   public final class LazyDslKt {
     method @androidx.compose.runtime.Composable public static void TvLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.list.TvLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.list.TvLazyListScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TvLazyRow(optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.list.TvLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.list.TvLazyListScope,kotlin.Unit> content);
@@ -203,6 +196,9 @@ package androidx.tv.foundation.lazy.list {
   }
 
   public final class LazyListMeasureKt {
+  }
+
+  public final class LazyListPinnableContainerProviderKt {
   }
 
   public final class LazyListScrollPositionKt {

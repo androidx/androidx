@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.foundation.lazy
+package androidx.tv.foundation.lazy.list
 
 import androidx.compose.runtime.collection.mutableVectorOf
 

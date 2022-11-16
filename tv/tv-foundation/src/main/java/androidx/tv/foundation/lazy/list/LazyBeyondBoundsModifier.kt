@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.foundation.lazy
+package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
@@ -35,8 +35,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
-import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo.Interval
-import androidx.tv.foundation.lazy.list.TvLazyListState
+import androidx.tv.foundation.lazy.list.LazyListBeyondBoundsInfo.Interval
 
 /**
  * This modifier is used to measure and place additional items when the lazyList receives a
