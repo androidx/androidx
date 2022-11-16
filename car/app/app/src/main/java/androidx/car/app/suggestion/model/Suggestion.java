@@ -88,7 +88,7 @@ public final class Suggestion {
     }
 
     /**
-     * Returns an image to display with the suggestion or {@code null} if not set.
+     * Returns a {@code CarIcon} to display with the suggestion or {@code null} if not set.
      *
      * @see Builder#setIcon(CarIcon)
      */
@@ -226,7 +226,7 @@ public final class Suggestion {
         }
 
         /**
-         * Sets su suggestion image to display.
+         * Sets a suggestion image to display.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -234,6 +234,8 @@ public final class Suggestion {
          * images targeting a 128 x 128 dp bounding box. If the image exceeds this maximum size in
          * either one of the dimensions, it will be scaled down to be centered inside the
          * bounding box while preserving the aspect ratio.
+         *
+         * Icon images are expected to be tintable.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
