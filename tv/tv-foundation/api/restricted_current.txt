@@ -73,7 +73,6 @@ package androidx.tv.foundation.lazy.grid {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TvGridItemSpan {
     method public int getCurrentLineSpan();
-    property public final int currentLineSpan;
   }
 
   public sealed interface TvLazyGridItemInfo {
