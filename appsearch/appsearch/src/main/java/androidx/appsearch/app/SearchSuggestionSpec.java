@@ -15,12 +15,20 @@
  */
 
 package androidx.appsearch.app;
+import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
+
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.Document;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.util.BundleUtil;
+import androidx.collection.ArrayMap;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -30,6 +38,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents the specification logic for AppSearch. It can be used to set the filter
@@ -41,6 +51,8 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchSuggestionSpec {
     static final String NAMESPACE_FIELD = "namespace";
+    static final String SCHEMA_FIELD = "schema";
+    static final String PROPERTY_FIELD = "property";
     static final String MAXIMUM_RESULT_COUNT_FIELD = "maximumResultCount";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
     private final Bundle mBundle;
@@ -136,10 +148,46 @@ public class SearchSuggestionSpec {
         return mBundle.getInt(RANKING_STRATEGY_FIELD);
     }
 
+    /**
+     * Returns the list of schema to search the suggestion over.
+     *
+     * <p>If empty, will search over all schemas.
+     */
+    @NonNull
+    public List<String> getFilterSchemas() {
+        List<String> schemaTypes = mBundle.getStringArrayList(SCHEMA_FIELD);
+        if (schemaTypes == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(schemaTypes);
+    }
+
+    /**
+     * Returns the map of schema and target properties to search over.
+     *
+     * <p>If empty, will search over all schema and properties.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
+     * by this function, rather than calling it multiple times.
+     */
+    @NonNull
+    public Map<String, List<String>> getFilterProperties() {
+        Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
+                mBundle.getBundle(PROPERTY_FIELD));
+        Set<String> schemas = typePropertyPathsBundle.keySet();
+        Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
+        for (String schema : schemas) {
+            typePropertyPathsMap.put(schema, Preconditions.checkNotNull(
+                    typePropertyPathsBundle.getStringArrayList(schema)));
+        }
+        return typePropertyPathsMap;
+    }
 
     /** Builder for {@link SearchSuggestionSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mNamespaces = new ArrayList<>();
+        private ArrayList<String> mSchemas = new ArrayList<>();
+        private Bundle mTypePropertyFilters = new Bundle();
         private final int mTotalResultCount;
         private @SuggestionRankingStrategy int mRankingStrategy =
                 SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT;
@@ -199,11 +247,220 @@ public class SearchSuggestionSpec {
             return this;
         }
 
+        /**
+         * Adds a schema filter to {@link SearchSuggestionSpec} Entry. Only search for
+         * suggestions that has documents under the specified schema.
+         *
+         * <p>If unset, the query will search over all schema.
+         */
+        @NonNull
+        public Builder addFilterSchemas(@NonNull String... schemaTypes) {
+            Preconditions.checkNotNull(schemaTypes);
+            resetIfBuilt();
+            return addFilterSchemas(Arrays.asList(schemaTypes));
+        }
+
+        /**
+         * Adds a schema filter to {@link SearchSuggestionSpec} Entry. Only search for
+         * suggestions that has documents under the specified schema.
+         *
+         * <p>If unset, the query will search over all schema.
+         */
+        @NonNull
+        public Builder addFilterSchemas(@NonNull Collection<String> schemaTypes) {
+            Preconditions.checkNotNull(schemaTypes);
+            resetIfBuilt();
+            mSchemas.addAll(schemaTypes);
+            return this;
+        }
+
+// @exportToFramework:startStrip()
+
+        /**
+         * Adds a schema filter to {@link SearchSuggestionSpec} Entry. Only search for
+         * suggestions that has documents under the specified schema.
+         *
+         * <p>If unset, the query will search over all schema.
+         *
+         * @param documentClasses classes annotated with {@link Document}.
+         */
+        // Merged list available from getFilterSchemas()
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
+                throws AppSearchException {
+            Preconditions.checkNotNull(documentClasses);
+            resetIfBuilt();
+            return addFilterDocumentClasses(Arrays.asList(documentClasses));
+        }
+// @exportToFramework:endStrip()
+
+// @exportToFramework:startStrip()
+
+        /**
+         * Adds the Schema names of given document classes to the Schema type filter of
+         * {@link SearchSuggestionSpec} Entry. Only search for suggestions that has documents
+         * under the specified schema.
+         *
+         * <p>If unset, the query will search over all schema.
+         *
+         * @param documentClasses classes annotated with {@link Document}.
+         */
+        // Merged list available from getFilterSchemas
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder addFilterDocumentClasses(
+                @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
+            Preconditions.checkNotNull(documentClasses);
+            resetIfBuilt();
+            List<String> schemas = new ArrayList<>(documentClasses.size());
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            for (Class<?> documentClass : documentClasses) {
+                DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+                schemas.add(factory.getSchemaName());
+            }
+            addFilterSchemas(schemas);
+            return this;
+        }
+// @exportToFramework:endStrip()
+
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSuggestionSpec} Entry. Only search for suggestions that has content under
+         * the specified property. If property paths are added for a type, then only the
+         * properties referred to will be retrieved for results of that type.
+         *
+         * <p> If a property path that is specified isn't present in a result, it will be ignored
+         * for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
+         *
+         * @param schema the {@link AppSearchSchema} that contains the target properties
+         * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
+         *                      sequence of property names indicating which property in the
+         *                      document these snippets correspond to.
+         */
+        @NonNull
+        public Builder addFilterProperties(@NonNull String schema,
+                @NonNull Collection<String> propertyPaths) {
+            Preconditions.checkNotNull(schema);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                Preconditions.checkNotNull(propertyPath);
+                propertyPathsArrayList.add(propertyPath);
+            }
+            mTypePropertyFilters.putStringArrayList(schema, propertyPathsArrayList);
+            return this;
+        }
+
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSuggestionSpec} Entry. Only search for suggestions that has content under
+         * the specified property. If property paths are added for a type, then only the
+         * properties referred to will be retrieved for results of that type.
+         *
+         * <p> If a property path that is specified isn't present in a result, it will be ignored
+         * for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * @param schema the {@link AppSearchSchema} that contains the target properties
+         * @param propertyPaths The {@link PropertyPath} to search suggestion over
+         */
+        @NonNull
+        public Builder addFilterPropertyPaths(@NonNull String schema,
+                @NonNull Collection<PropertyPath> propertyPaths) {
+            Preconditions.checkNotNull(schema);
+            Preconditions.checkNotNull(propertyPaths);
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (PropertyPath propertyPath : propertyPaths) {
+                propertyPathsArrayList.add(propertyPath.toString());
+            }
+            return addFilterProperties(schema, propertyPathsArrayList);
+        }
+
+
+// @exportToFramework:startStrip()
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSuggestionSpec} Entry. Only search for suggestions that has content under
+         * the specified property. If property paths are added for a type, then only the
+         * properties referred to will be retrieved for results of that type.
+         *
+         * <p> If a property path that is specified isn't present in a result, it will be ignored
+         * for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * @param documentClass class annotated with {@link Document}.
+         * @param propertyPaths The String version of {@link PropertyPath}. A
+         * {@code dot-delimited sequence of property names indicating which property in the
+         * document these snippets correspond to.
+         */
+        @NonNull
+        public Builder addFilterProperties(@NonNull Class<?> documentClass,
+                @NonNull Collection<String> propertyPaths) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addFilterProperties(factory.getSchemaName(), propertyPaths);
+        }
+// @exportToFramework:endStrip()
+
+// @exportToFramework:startStrip()
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSuggestionSpec} Entry. Only search for suggestions that has content under
+         * the specified property. If property paths are added for a type, then only the
+         * properties referred to will be retrieved for results of that type.
+         *
+         * <p> If a property path that is specified isn't present in a result, it will be ignored
+         * for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * @param documentClass class annotated with {@link Document}.
+         * @param propertyPaths The {@link PropertyPath} to search suggestion over
+         */
+        @NonNull
+        public Builder addFilterPropertyPaths(@NonNull Class<?> documentClass,
+                @NonNull Collection<PropertyPath> propertyPaths) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addFilterPropertyPaths(factory.getSchemaName(), propertyPaths);
+        }
+// @exportToFramework:endStrip()
+
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
-        public SearchSuggestionSpec build() {
+        public SearchSuggestionSpec build() throws AppSearchException {
             Bundle bundle = new Bundle();
+            Set<String> schemaFilter = new ArraySet<>(mSchemas);
+            if (!mSchemas.isEmpty()) {
+                for (String schema : mTypePropertyFilters.keySet()) {
+                    if (!schemaFilter.contains(schema)) {
+                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                                "The schema: " + schema + " exists in the property filter but "
+                                        + "doesn't exist in the schema filter.");
+                    }
+                }
+            }
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
+            bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
+            bundle.putBundle(PROPERTY_FIELD, mTypePropertyFilters);
             bundle.putInt(MAXIMUM_RESULT_COUNT_FIELD, mTotalResultCount);
             bundle.putInt(RANKING_STRATEGY_FIELD, mRankingStrategy);
             mBuilt = true;
@@ -213,6 +470,8 @@ public class SearchSuggestionSpec {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mNamespaces = new ArrayList<>(mNamespaces);
+                mSchemas = new ArrayList<>(mSchemas);
+                mTypePropertyFilters = BundleUtil.deepCopy(mTypePropertyFilters);
                 mBuilt = false;
             }
         }

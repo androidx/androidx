@@ -1481,7 +1481,8 @@ public final class AppSearchImpl implements Closeable {
                     new SearchSuggestionSpecToProtoConverter(suggestionQueryExpression,
                             searchSuggestionSpec,
                             Collections.singleton(prefix),
-                            mNamespaceMapLocked);
+                            mNamespaceMapLocked,
+                            mSchemaMapLocked);
 
             if (searchSuggestionSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
