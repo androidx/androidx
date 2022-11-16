@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.isNotVoid
 import androidx.room.solver.query.result.QueryResultBinder
@@ -46,7 +46,7 @@ data class RawQueryMethod(
         val paramName: String,
         val typeName: XTypeName
     ) {
-        fun isString() = String::class.asClassName() == typeName
+        fun isString() = CommonTypeNames.STRING == typeName
         fun isSupportQuery() = SupportDbTypeNames.QUERY == typeName
     }
 }

@@ -17,7 +17,6 @@
 package androidx.room.vo
 
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -103,7 +102,7 @@ data class Field(
 
             if (
                 typeName == XTypeName.PRIMITIVE_BOOLEAN ||
-                typeName == Boolean::class.asClassName()
+                typeName == XTypeName.BOXED_BOOLEAN
             ) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
                     result.add(name.substring(2).decapitalize(Locale.US))
@@ -120,7 +119,7 @@ data class Field(
         nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
             if (
                 typeName == XTypeName.PRIMITIVE_BOOLEAN ||
-                typeName == Boolean::class.asClassName()
+                typeName == XTypeName.BOXED_BOOLEAN
             ) {
                 nameWithVariations.flatMap {
                     listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")

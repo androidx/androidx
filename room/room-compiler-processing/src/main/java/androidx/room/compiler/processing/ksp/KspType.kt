@@ -95,7 +95,7 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        if (typeName == TypeName.OBJECT) {
+        if (xTypeName == XTypeName.ANY_OBJECT) {
             // The object class doesn't have any supertypes.
             return@lazy emptyList<XType>()
         }
@@ -298,4 +298,6 @@ internal abstract class KspType(
         }
         return copyWithNullability(XNullability.NONNULL)
     }
+
+    override fun isTypeVariable() = false
 }

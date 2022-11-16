@@ -51,8 +51,7 @@ val KClass<*>.arrayTypeName: ArrayTypeName
 
 object SupportDbTypeNames {
     val DB = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
-    val SQLITE_STMT: XClassName =
-        XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
+    val SQLITE_STMT = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
     val SQLITE_OPEN_HELPER = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK =
         XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper", "Callback")
@@ -62,24 +61,17 @@ object SupportDbTypeNames {
 }
 
 object RoomTypeNames {
-    val STRING_UTIL: XClassName = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
-    val ROOM_DB: XClassName = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
+    val STRING_UTIL = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
+    val ROOM_DB = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CALLBACK = XClassName.get(ROOM_PACKAGE, "RoomDatabase", "Callback")
     val ROOM_DB_CONFIG = XClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
-    val INSERTION_ADAPTER: XClassName =
-        XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
-    val UPSERTION_ADAPTER: XClassName =
-        XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER: XClassName =
-        XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
-    val SHARED_SQLITE_STMT: XClassName =
-        XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
+    val INSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+    val SHARED_SQLITE_STMT = XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
-    val INVALIDATION_OBSERVER: ClassName =
-        ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
-    val ROOM_SQL_QUERY: XClassName =
-        XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
+    val ROOM_SQL_QUERY = XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
     val OPEN_HELPER = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "Delegate")
     val OPEN_HELPER_VALIDATION_RESULT =
@@ -93,14 +85,11 @@ object RoomTypeNames {
     val VIEW_INFO = XClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
         ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
-    val DB_UTIL: XClassName =
-        XClassName.get("$ROOM_PACKAGE.util", "DBUtil")
-    val CURSOR_UTIL: XClassName =
-        XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
+    val DB_UTIL = XClassName.get("$ROOM_PACKAGE.util", "DBUtil")
+    val CURSOR_UTIL = XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION = XClassName.get("$ROOM_PACKAGE.migration", "Migration")
     val AUTO_MIGRATION_SPEC = XClassName.get("$ROOM_PACKAGE.migration", "AutoMigrationSpec")
-    val UUID_UTIL: XClassName =
-        XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
+    val UUID_UTIL = XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER = XClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
 }
@@ -131,9 +120,9 @@ object LifecyclesTypeNames {
 }
 
 object AndroidTypeNames {
-    val CURSOR: XClassName = XClassName.get("android.database", "Cursor")
+    val CURSOR = XClassName.get("android.database", "Cursor")
     val BUILD = XClassName.get("android.os", "Build")
-    val CANCELLATION_SIGNAL: XClassName = XClassName.get("android.os", "CancellationSignal")
+    val CANCELLATION_SIGNAL = XClassName.get("android.os", "CancellationSignal")
 }
 
 object CollectionTypeNames {
@@ -143,6 +132,8 @@ object CollectionTypeNames {
 }
 
 object CommonTypeNames {
+    val VOID = Void::class.asClassName()
+    val COLLECTION = Collection::class.asClassName()
     val LIST = List::class.asClassName()
     val MUTABLE_LIST = List::class.asMutableClassName()
     val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
@@ -153,9 +144,8 @@ object CommonTypeNames {
     val MUTABLE_SET = Set::class.asMutableClassName()
     val HASH_SET = XClassName.get("java.util", "HashSet")
     val STRING = String::class.asClassName()
-    val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
-    val UUID = ClassName.get("java.util", "UUID")
+    val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
 }
@@ -241,9 +231,9 @@ object RoomCoroutinesTypeNames {
 }
 
 object KotlinTypeNames {
-    val UNIT = ClassName.get("kotlin", "Unit")
+    val ANY = Any::class.asClassName()
+    val UNIT = XClassName.get("kotlin", "Unit")
     val CONTINUATION = XClassName.get("kotlin.coroutines", "Continuation")
-    val COROUTINE_SCOPE = ClassName.get("kotlinx.coroutines", "CoroutineScope")
     val CHANNEL = ClassName.get("kotlinx.coroutines.channels", "Channel")
     val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
     val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")

@@ -223,9 +223,8 @@ class DaoProcessor(
             null
         }
 
-        val type = declaredType.typeName
         context.checker.notUnbound(
-            type, element,
+            declaredType, element,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES
         )
 
@@ -256,7 +255,7 @@ class DaoProcessor(
             context.logger.e(
                 element,
                 ProcessorErrors.daoMustHaveMatchingConstructor(
-                    element.qualifiedName, dbType.typeName.toString()
+                    element.qualifiedName, dbType.asTypeName().toString(context.codeLanguage)
                 )
             )
         }

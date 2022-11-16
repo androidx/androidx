@@ -22,8 +22,8 @@ import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
@@ -78,7 +78,7 @@ class EntityInsertionAdapterWriter private constructor(
                     visibility = VisibilityModifier.PUBLIC,
                     isOverride = true
                 ).apply {
-                    returns(String::class.asClassName())
+                    returns(CommonTypeNames.STRING)
                     val query = buildString {
                         if (onConflict.isNotEmpty()) {
                             append("INSERT OR $onConflict INTO `$tableName`")

@@ -18,7 +18,6 @@ package androidx.room.processor
 
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.vo.UpdateMethod
@@ -52,7 +51,7 @@ class UpdateMethodProcessor(
                 context.checker.check(
                     missingPrimaryKeys.isEmpty(), executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                        partialEntityName = pojo.typeName.toJavaPoet().toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = missingPrimaryKeys.map { it.columnName }
                     )
                 )

@@ -19,12 +19,16 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.CommonTypeNames.LIST
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
@@ -54,7 +58,6 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -102,7 +105,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-        val POJO: ClassName = ClassName.get("foo.bar", "MyClass.Pojo")
+        val POJO = XClassName.get("foo.bar", "MyClass.Pojo")
         @Parameterized.Parameters(name = "enableDbVerification={0}")
         @JvmStatic
         fun getParams() = arrayOf(true, false)
@@ -130,8 +133,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
-                parsedQuery.returnType.typeName,
-                `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
+                parsedQuery.returnType.asTypeName(),
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -145,7 +148,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, invocation ->
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.PRIMITIVE_LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("x"))
@@ -166,14 +169,14 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.PRIMITIVE_LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("ids"))
             assertThat(param.sqlName, `is`("ids"))
             assertThat(
-                param.type.typeName,
-                `is`(ArrayTypeName.of(TypeName.INT))
+                param.type.asTypeName(),
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -333,7 +336,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("select * from User")
-                abstract public <T> ${LIST.toJavaPoet()}<T> foo(int x);
+                abstract public <T> ${LIST.canonicalName}<T> foo(int x);
                 """
         ) { parsedQuery, invocation ->
             val expected: TypeName = ParameterizedTypeName.get(
@@ -431,8 +434,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, _ ->
             assertThat(
-                parsedQuery.returnType.typeName,
-                `is`(ClassName.get(Integer::class.java) as TypeName)
+                parsedQuery.returnType.asTypeName(),
+                `is`(XTypeName.BOXED_INT)
             )
         }
     }
@@ -451,9 +454,9 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, _ ->
             assertThat(
-                parsedQuery.parameters.first().type.typeName,
+                parsedQuery.parameters.first().type.asTypeName(),
                 `is`(
-                    TypeName.INT.box()
+                    XTypeName.BOXED_INT
                 )
             )
         }
@@ -470,7 +473,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors
-                        .cannotFindPreparedQueryResultAdapter(TypeName.FLOAT, QueryType.DELETE)
+                        .cannotFindPreparedQueryResultAdapter("float", QueryType.DELETE)
                 )
             }
         }
@@ -486,7 +489,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.PRIMITIVE_INT))
         }
     }
 
@@ -500,7 +503,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.UNIT_VOID))
         }
     }
 
@@ -511,13 +514,13 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("update user set name = :name")
                 abstract public void updateAllNames(String name);
                 """
-        ) { parsedQuery, invocation ->
+        ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("updateAllNames"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.UNIT_VOID))
             assertThat(
-                parsedQuery.parameters.first().type.typeName,
-                `is`(invocation.context.COMMON_TYPES.STRING.typeName)
+                parsedQuery.parameters.first().type.asTypeName(),
+                `is`(CommonTypeNames.STRING)
             )
         }
     }
@@ -529,13 +532,13 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("insert into user (name) values (:name)")
                 abstract public void insertUsername(String name);
                 """
-        ) { parsedQuery, invocation ->
+        ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.UNIT_VOID))
             assertThat(
-                parsedQuery.parameters.first().type.typeName,
-                `is`(invocation.context.COMMON_TYPES.STRING.typeName)
+                parsedQuery.parameters.first().type.asTypeName(),
+                `is`(CommonTypeNames.STRING)
             )
         }
     }
@@ -547,13 +550,13 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("insert into user (name) values (:name)")
                 abstract public long insertUsername(String name);
                 """
-        ) { parsedQuery, invocation ->
+        ) { parsedQuery, _ ->
             assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.PRIMITIVE_LONG))
             assertThat(
-                parsedQuery.parameters.first().type.typeName,
-                `is`(invocation.context.COMMON_TYPES.STRING.typeName)
+                parsedQuery.parameters.first().type.asTypeName(),
+                `is`(CommonTypeNames.STRING)
             )
         }
     }
@@ -566,11 +569,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int insert(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
+            assertThat(parsedQuery.returnType.asTypeName(), `is`(XTypeName.PRIMITIVE_INT))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors
-                        .cannotFindPreparedQueryResultAdapter(TypeName.INT, QueryType.INSERT)
+                        .cannotFindPreparedQueryResultAdapter("int", QueryType.INSERT)
                 )
             }
         }
@@ -611,10 +614,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.cannotFindPreparedQueryResultAdapter(
-                        ParameterizedTypeName.get(
-                            LifecyclesTypeNames.LIVE_DATA,
-                            TypeName.INT.box()
-                        ),
+                        "androidx.lifecycle.LiveData<java.lang.Integer>",
                         QueryType.DELETE
                     )
                 )
@@ -633,10 +633,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.cannotFindPreparedQueryResultAdapter(
-                        ParameterizedTypeName.get(
-                            LifecyclesTypeNames.LIVE_DATA,
-                            TypeName.INT.box()
-                        ),
+                        "androidx.lifecycle.LiveData<java.lang.Integer>",
                         QueryType.UPDATE
                     )
                 )
@@ -796,8 +793,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
-                parsedQuery.returnType.typeName,
-                `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
+                parsedQuery.returnType.asTypeName(),
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -814,8 +811,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             assertThat(parsedQuery.element.jvmName, `is`("getPojo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
-                parsedQuery.returnType.typeName,
-                `is`(COMMON.NOT_AN_ENTITY_TYPE_NAME as TypeName)
+                parsedQuery.returnType.asTypeName(),
+                `is`(COMMON.NOT_AN_ENTITY_TYPE_NAME)
             )
             val adapter = parsedQuery.queryResultBinder.adapter
             assertThat(checkNotNull(adapter))
@@ -873,12 +870,9 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val pojoRowAdapter = listAdapter.rowAdapters.single() as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
             assertThat(
-                pojoRowAdapter.relationCollectors[0].relationTypeName.toJavaPoet(),
+                pojoRowAdapter.relationCollectors[0].relationTypeName,
                 `is`(
-                    ParameterizedTypeName.get(
-                        ClassName.get(ArrayList::class.java),
-                        COMMON.USER_TYPE_NAME
-                    ) as TypeName
+                    CommonTypeNames.ARRAY_LIST.parametrizedBy(COMMON.USER_TYPE_NAME)
                 )
             )
             invocation.assertCompilationResult {
@@ -1098,15 +1092,15 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     cannotFindQueryResultAdapter(
-                        ClassName.get("foo.bar", "MyClass", "Pojo")
+                        XClassName.get("foo.bar", "MyClass", "Pojo").canonicalName
                     )
                 )
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeNames = listOf(POJO),
+                        pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("name", "lastName"),
                         pojoUnusedFields = mapOf(
-                            POJO to listOf(
+                            POJO.canonicalName to listOf(
                                 createField("nameX"),
                                 createField("lastNameX")
                             )
@@ -1133,7 +1127,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 hasErrorContaining("no such column: age")
                 hasErrorContaining(
                     cannotFindQueryResultAdapter(
-                        ClassName.get("foo.bar", "MyClass", "Pojo")
+                        XClassName.get("foo.bar", "MyClass", "Pojo").canonicalName
                     )
                 )
                 hasErrorCount(2)
@@ -1156,7 +1150,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeNames = listOf(POJO),
+                        pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("uid"),
                         pojoUnusedFields = emptyMap(),
                         allColumns = listOf("uid", "name", "lastName"),
@@ -1185,10 +1179,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeNames = listOf(POJO),
+                        pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = emptyList(),
                         allColumns = listOf("lastName"),
-                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
+                        pojoUnusedFields = mapOf(POJO.canonicalName to listOf(createField("name"))),
                     )
                 )
             }
@@ -1215,15 +1209,15 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeNames = listOf(POJO),
+                        pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = emptyList(),
-                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
+                        pojoUnusedFields = mapOf(POJO.canonicalName to listOf(createField("name"))),
                         allColumns = listOf("lastName"),
                     )
                 )
                 hasErrorContaining(
                     ProcessorErrors.pojoMissingNonNull(
-                        pojoTypeName = POJO,
+                        pojoTypeName = POJO.canonicalName,
                         missingPojoFields = listOf("name"),
                         allQueryColumns = listOf("lastName")
                     )
@@ -1251,10 +1245,12 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeNames = listOf(POJO),
+                        pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("uid"),
                         allColumns = listOf("uid", "name"),
-                        pojoUnusedFields = mapOf(POJO to listOf(createField("lastName")))
+                        pojoUnusedFields = mapOf(
+                            POJO.canonicalName to listOf(createField("lastName"))
+                        )
                     )
                 )
             }
@@ -1558,9 +1554,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
-                    )
+                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
                 )
             }
         }
@@ -1577,9 +1571,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
-                    )
+                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
                 )
             }
         }
@@ -1595,9 +1587,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
-                    )
+                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
                 )
             }
         }
@@ -1613,9 +1603,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
-                    )
+                    valueMayNeedMapInfo(String::class.asClassName().canonicalName)
                 )
             }
         }
@@ -1631,9 +1619,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1649,9 +1635,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1667,9 +1651,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1686,9 +1668,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    keyMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    keyMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -1705,9 +1685,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    valueMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -1809,7 +1787,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                     ProcessorErrors.ambiguousColumn(
                         "uid",
                         ProcessorErrors.AmbiguousColumnLocation.POJO,
-                        ClassName.get("foo.bar", "Id")
+                        "foo.bar.Id"
                     )
                 )
             }

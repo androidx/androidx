@@ -19,6 +19,9 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.RawQuery
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -35,9 +38,6 @@ import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVE
 import androidx.room.testing.context
 import androidx.room.vo.RawQueryMethod
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -62,8 +62,8 @@ class RawQueryMethodProcessorTest {
                 )
             )
             assertThat(
-                query.returnType.typeName,
-                `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
+                query.returnType.asTypeName(),
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -179,7 +179,7 @@ class RawQueryMethodProcessorTest {
 
     @Test
     fun pojo() {
-        val pojo: TypeName = ClassName.get("foo.bar.MyClass", "MyPojo")
+        val pojo = XClassName.get("foo.bar.MyClass", "MyPojo")
         singleQueryMethod(
             """
                 public class MyPojo {
@@ -201,7 +201,7 @@ class RawQueryMethodProcessorTest {
                     )
                 )
             )
-            assertThat(query.returnType.typeName, `is`(pojo))
+            assertThat(query.returnType.asTypeName(), `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
         }
     }
@@ -329,13 +329,13 @@ class RawQueryMethodProcessorTest {
     fun observed_notAnEntity() {
         singleQueryMethod(
             """
-                @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class})
+                @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME.canonicalName}.class})
                 abstract public int[] foo(SupportSQLiteQuery query);
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
+                    ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME.canonicalName)
                 )
             }
         }
@@ -424,7 +424,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -442,7 +442,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -460,7 +460,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }
@@ -477,9 +477,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -495,9 +493,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -513,9 +509,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "Long")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -532,9 +526,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.keyMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    ProcessorErrors.keyMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -551,9 +543,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.util", "Date")
-                    )
+                    ProcessorErrors.valueMayNeedMapInfo("java.util.Date")
                 )
             }
         }
@@ -571,7 +561,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        ClassName.get("java.lang", "String")
+                        String::class.asClassName().canonicalName
                     )
                 )
             }

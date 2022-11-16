@@ -29,7 +29,6 @@ import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.common.truth.Truth
-import com.squareup.javapoet.TypeName
 import createVerifierFromEntitiesAndViews
 import java.io.File
 import org.hamcrest.CoreMatchers.`is`
@@ -438,7 +437,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             assertThat(method.element.jvmName, `is`("getAllIds"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.cannotFindQueryResultAdapter(TypeName.VOID)
+                    ProcessorErrors.cannotFindQueryResultAdapter("void")
                 )
             }
         }

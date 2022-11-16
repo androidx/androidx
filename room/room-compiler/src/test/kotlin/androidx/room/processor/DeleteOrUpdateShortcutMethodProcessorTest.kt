@@ -18,16 +18,17 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.CommonTypeNames.STRING
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -36,10 +37,6 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
 import androidx.room.vo.DeleteOrUpdateShortcutMethod
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -75,7 +72,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 """
 
         const val DAO_SUFFIX = "}"
-        val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
+        val USER_TYPE_NAME: XTypeName = COMMON.USER_TYPE_NAME
         val USERNAME_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Username")
         val BOOK_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Book")
     }
@@ -109,12 +106,12 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
-            assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
+            assertThat(param.type.asTypeName(), `is`(USER_TYPE_NAME))
+            assertThat(param.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
             assertThat(
-                shortcut.entities["user"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["user"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -151,16 +148,16 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
 
             assertThat(shortcut.parameters.size, `is`(2))
             shortcut.parameters.forEach {
-                assertThat(it.type.typeName, `is`(USER_TYPE_NAME))
-                assertThat(it.pojoType?.typeName, `is`(USER_TYPE_NAME))
+                assertThat(it.type.asTypeName(), `is`(USER_TYPE_NAME))
+                assertThat(it.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
             }
             assertThat(shortcut.entities.size, `is`(2))
             assertThat(
-                shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["u1"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
             assertThat(
-                shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["u1"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
             assertThat(
@@ -193,17 +190,15 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 assertThat(shortcut.parameters.size, `is`(1))
                 val param = shortcut.parameters.first()
                 assertThat(
-                    param.type.typeName,
+                    param.type.asTypeName(),
                     `is`(
-                        ParameterizedTypeName.get(
-                            ClassName.get("java.util", "List"), USER_TYPE_NAME
-                        ) as TypeName
+                        CommonTypeNames.MUTABLE_LIST.parametrizedBy(USER_TYPE_NAME)
                     )
                 )
-                assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
+                assertThat(param.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities.size, `is`(1))
                 assertThat(
-                    shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
+                    shortcut.entities["users"]?.pojo?.typeName,
                     `is`(USER_TYPE_NAME)
                 )
             }
@@ -222,14 +217,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
-                param.type.typeName,
+                param.type.asTypeName(),
                 `is`(
-                    ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName
+                    XTypeName.getArrayName(COMMON.USER_TYPE_NAME)
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["users"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -247,17 +242,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
-                param.type.typeName,
+                param.type.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.util", "Set"),
-                        COMMON.USER_TYPE_NAME
-                    ) as TypeName
+                    CommonTypeNames.MUTABLE_SET.parametrizedBy(COMMON.USER_TYPE_NAME)
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["users"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -275,17 +267,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
-                param.type.typeName,
+                param.type.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.lang", "Iterable"),
-                        COMMON.USER_TYPE_NAME
-                    ) as TypeName
+                    Iterable::class.asMutableClassName().parametrizedBy(COMMON.USER_TYPE_NAME)
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["users"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -304,17 +293,16 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
-                param.type.typeName,
+                param.type.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        ClassName.get("foo.bar", "MyClass.MyList"),
-                        STRING.toJavaPoet(), COMMON.USER_TYPE_NAME
-                    ) as TypeName
+                    XClassName.get("foo.bar", "MyClass.MyList").parametrizedBy(
+                        CommonTypeNames.STRING, COMMON.USER_TYPE_NAME
+                    )
                 )
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(
-                shortcut.entities["users"]?.pojo?.typeName?.toJavaPoet(),
+                shortcut.entities["users"]?.pojo?.typeName,
                 `is`(USER_TYPE_NAME)
             )
         }
@@ -342,17 +330,17 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             ) { shortcut, _ ->
                 assertThat(shortcut.parameters.size, `is`(2))
                 assertThat(
-                    shortcut.parameters[0].type.typeName.toString(),
+                    shortcut.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA),
                     `is`("foo.bar.User")
                 )
                 assertThat(
-                    shortcut.parameters[1].type.typeName.toString(),
+                    shortcut.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA),
                     `is`("foo.bar.Book")
                 )
                 assertThat(shortcut.parameters.map { it.name }, `is`(listOf("u1", "b1")))
                 assertThat(shortcut.entities.size, `is`(2))
                 assertThat(
-                    shortcut.entities["u1"]?.pojo?.typeName?.toJavaPoet(),
+                    shortcut.entities["u1"]?.pojo?.typeName,
                     `is`(USER_TYPE_NAME)
                 )
                 assertThat(
@@ -453,7 +441,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             assertThat(param.pojoType?.asTypeName(), `is`(USERNAME_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
-            assertThat(shortcut.entities["username"]?.entityTypeName?.toJavaPoet(),
+            assertThat(shortcut.entities["username"]?.entityTypeName,
                 `is`(USER_TYPE_NAME))
             assertThat(
                 shortcut.entities["username"]?.pojo?.typeName,
@@ -620,9 +608,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.shortcutMethodArgumentMustBeAClass(
-                        TypeName.LONG
-                    )
+                    ProcessorErrors.shortcutMethodArgumentMustBeAClass("long")
                 )
             }
         }

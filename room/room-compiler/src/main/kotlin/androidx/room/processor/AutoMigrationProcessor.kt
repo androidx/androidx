@@ -79,7 +79,7 @@ class AutoMigrationProcessor(
             if (!implementsMigrationSpec) {
                 context.logger.e(
                     typeElement,
-                    autoMigrationElementMustImplementSpec(typeElement.className.simpleName())
+                    autoMigrationElementMustImplementSpec(typeElement.asClassName().canonicalName)
                 )
                 return null
             }
@@ -98,7 +98,7 @@ class AutoMigrationProcessor(
             return null
         }
 
-        val specClassName = specElement?.className?.simpleName()
+        val specClassName = specElement?.asClassName()?.simpleNames?.first()
         val deleteColumnEntries = specElement?.let { element ->
             element.getAnnotations(DeleteColumn::class).map {
                 AutoMigration.DeletedColumn(

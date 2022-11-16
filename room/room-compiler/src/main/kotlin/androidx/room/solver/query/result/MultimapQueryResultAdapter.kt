@@ -19,12 +19,10 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.implementsEqualsAndHashcode
-import androidx.room.log.RLog
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -79,14 +77,18 @@ abstract class MultimapQueryResultAdapter(
                     is SingleNamedColumnRowAdapter.SingleNamedColumnRowMapping ->
                         MAP_INFO to null
                     is PojoRowAdapter.PojoMapping ->
-                        POJO to it.pojo.typeName.toJavaPoet()
+                        POJO to it.pojo.typeName
                     is EntityRowAdapter.EntityMapping ->
-                        ENTITY to it.entity.typeName.toJavaPoet()
+                        ENTITY to it.entity.typeName
                     else -> error("Unknown mapping type: $it")
                 }
                 context.logger.w(
                     Warning.AMBIGUOUS_COLUMN_IN_RESULT,
-                    ProcessorErrors.ambiguousColumn(ambiguousColumnName, location, objectTypeName)
+                    ProcessorErrors.ambiguousColumn(
+                        columnName = ambiguousColumnName,
+                        location = location,
+                        typeName = objectTypeName?.toString(context.codeLanguage)
+                    )
                 )
             }
         }
@@ -115,37 +117,37 @@ abstract class MultimapQueryResultAdapter(
          * of a Dao method.
          */
         fun validateMapTypeArgs(
+            context: Context,
             keyTypeArg: XType,
             valueTypeArg: XType,
             keyReader: CursorValueReader?,
             valueReader: CursorValueReader?,
             mapInfo: MapInfo?,
-            logger: RLog
         ) {
 
             if (!keyTypeArg.implementsEqualsAndHashcode()) {
-                logger.w(
+                context.logger.w(
                     Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
                     ProcessorErrors.classMustImplementEqualsAndHashCode(
-                        keyTypeArg.typeName.toString()
+                        keyTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
 
             val hasKeyColumnName = mapInfo?.keyColumnName?.isNotEmpty() ?: false
             if (!hasKeyColumnName && keyReader != null) {
-                logger.e(
+                context.logger.e(
                     ProcessorErrors.keyMayNeedMapInfo(
-                        keyTypeArg.typeName
+                        keyTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
 
             val hasValueColumnName = mapInfo?.valueColumnName?.isNotEmpty() ?: false
             if (!hasValueColumnName && valueReader != null) {
-                logger.e(
+                context.logger.e(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        valueTypeArg.typeName
+                        valueTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }

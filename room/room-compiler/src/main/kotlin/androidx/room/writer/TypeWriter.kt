@@ -29,8 +29,9 @@ import androidx.room.compiler.processing.writeTo
 import androidx.room.ext.S
 import androidx.room.solver.CodeGenScope
 import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
+import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.KAnnotationSpec
-import com.squareup.kotlinpoet.javapoet.toKClassName
+import com.squareup.kotlinpoet.javapoet.KClassName
 import kotlin.reflect.KClass
 
 /**
@@ -101,18 +102,19 @@ abstract class TypeWriter(val codeLanguage: CodeLanguage) {
         processingEnv: XProcessingEnv
     ) {
         processingEnv.findGeneratedAnnotation()?.let {
+            val annotationName = it.asClassName().canonicalName
             val memberValue = RoomProcessor::class.java.canonicalName
             adapterTypeSpecBuilder.apply(
                 javaTypeBuilder = {
                     addAnnotation(
-                        JAnnotationSpec.builder(it.className)
+                        JAnnotationSpec.builder(JClassName.bestGuess(annotationName))
                             .addMember("value", "$S", memberValue)
                             .build()
                     )
                 },
                 kotlinTypeBuilder = {
                     addAnnotation(
-                        KAnnotationSpec.builder(it.className.toKClassName())
+                        KAnnotationSpec.builder(KClassName.bestGuess(annotationName))
                             .addMember("value = [%S]", memberValue)
                             .build()
                     )

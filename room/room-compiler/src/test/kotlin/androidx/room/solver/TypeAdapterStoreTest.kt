@@ -21,6 +21,7 @@ import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
@@ -185,12 +186,12 @@ class TypeAdapterStoreTest {
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
             assertThat(
-                composite.intoStatementConverter?.from?.typeName,
-                `is`(TypeName.BOOLEAN.box())
+                composite.intoStatementConverter?.from?.asTypeName(),
+                `is`(XTypeName.BOXED_BOOLEAN.copy(nullable = true))
             )
             assertThat(
-                composite.columnTypeAdapter.out.typeName,
-                `is`(TypeName.INT.box())
+                composite.columnTypeAdapter.out.asTypeName(),
+                `is`(XTypeName.BOXED_INT.copy(nullable = true))
             )
         }
     }

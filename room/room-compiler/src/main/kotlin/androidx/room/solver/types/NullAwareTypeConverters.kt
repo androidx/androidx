@@ -92,7 +92,8 @@ class RequireNotNullTypeConverter(
     }
 
     private fun XCodeBlock.Builder.addIllegalStateException() {
-        val message = "Expected non-null ${from.typeName}, but it was null."
+        val typeName = from.asTypeName().copy(nullable = false).toString(language)
+        val message = "Expected non-null $typeName, but it was null."
         when (language) {
             CodeLanguage.JAVA -> {
                 addStatement(

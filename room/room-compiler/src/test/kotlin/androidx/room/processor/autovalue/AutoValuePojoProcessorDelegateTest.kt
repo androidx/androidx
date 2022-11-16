@@ -16,6 +16,7 @@
 
 package androidx.room.processor.autovalue
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -26,21 +27,20 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.testing.context
 import androidx.room.vo.Pojo
 import com.google.auto.value.processor.AutoValueProcessor
-import com.squareup.javapoet.ClassName
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class AutoValuePojoProcessorDelegateTest {
 
     companion object {
-        val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
-        val AUTOVALUE_MY_POJO: ClassName = ClassName.get("foo.bar", "AutoValue_MyPojo")
+        val MY_POJO = XClassName.get("foo.bar", "MyPojo")
+        val AUTOVALUE_MY_POJO = XClassName.get("foo.bar", "AutoValue_MyPojo")
         val HEADER = """
             package foo.bar;
 
@@ -80,7 +80,7 @@ class AutoValuePojoProcessorDelegateTest {
                 long getId() { return this.id; }
                 """
         ) { pojo, invocation ->
-            assertThat(pojo.type.typeName, `is`(MY_POJO))
+            assertThat(pojo.type.asTypeName(), `is`(MY_POJO))
             assertThat(pojo.fields.size, `is`(1))
             assertThat(pojo.constructor?.element, `is`(notNullValue()))
             invocation.assertCompilationResult {
@@ -94,7 +94,7 @@ class AutoValuePojoProcessorDelegateTest {
         val libraryClasspath = compileFiles(
             sources = listOf(
                 Source.java(
-                    MY_POJO.toString(),
+                    MY_POJO.canonicalName,
                     """
                     $HEADER
                     @AutoValue.CopyAnnotations
@@ -275,8 +275,8 @@ class AutoValuePojoProcessorDelegateTest {
         classpathFiles: List<File> = emptyList(),
         handler: (Pojo, XTestInvocation) -> Unit
     ) {
-        val pojoSource = Source.java(MY_POJO.toString(), pojoCode)
-        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.toString(), autoValuePojoCode)
+        val pojoSource = Source.java(MY_POJO.canonicalName, pojoCode)
+        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.canonicalName, autoValuePojoCode)
         val all: List<Source> = sources.toList() + pojoSource + autoValuePojoSource
         runProcessorTest(
             sources = all,

@@ -200,4 +200,6 @@ internal abstract class JavacType(
                 "TypeMirror#toXProcessing(XProcessingEnv)?"
         )
     }
+
+    override fun isTypeVariable() = typeMirror.kind == TypeKind.TYPEVAR
 }

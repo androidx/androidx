@@ -18,7 +18,7 @@ package androidx.room.solver.types
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 
@@ -28,10 +28,10 @@ import androidx.room.solver.CodeGenScope
 object BoxedBooleanToBoxedIntConverter {
     fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
         val tBoolean = processingEnvironment.requireType(
-            Boolean::class.asClassName()
+            XTypeName.BOXED_BOOLEAN
         ).makeNullable()
         val tInt = processingEnvironment.requireType(
-            Int::class.asClassName()
+            XTypeName.BOXED_INT
         ).makeNullable()
         return listOf(
             object : SingleStatementTypeConverter(tBoolean, tInt) {
