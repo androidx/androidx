@@ -20,6 +20,11 @@ import os
 from update_versions_for_release import *
 from shutil import rmtree
 
+# Import functions from the parent directory
+sys.path.append("..")
+from update_tracing_perfetto import single
+from update_tracing_perfetto import sed
+
 class TestVersionUpdates(unittest.TestCase):
 
     def test_increment_version(self):
