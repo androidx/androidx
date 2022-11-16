@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -1756,6 +1757,67 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.onNodeWithTag("item")
             .assertMainAxisSizeIsEqualTo(with(rule.density) { (100 * 0.95f).roundToInt().toDp() })
             .assertCrossAxisSizeIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun fillingFullSize_nextItemIsNotComposed() {
+        val state = TvLazyListState()
+        state.prefetchingEnabled = false
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(itemSize),
+                state = state
+            ) {
+                items(3) { index ->
+                    Box(fillParentMaxMainAxis().crossAxisSize(1.dp).testTag("$index"))
+                }
+            }
+        }
+
+        repeat(3) { index ->
+            rule.onNodeWithTag("$index")
+                .assertIsDisplayed()
+            rule.onNodeWithTag("${index + 1}")
+                .assertDoesNotExist()
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun fillingFullSize_crossAxisSizeOfVisibleItemIsUsed() {
+        val state = TvLazyListState()
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(itemSize),
+                state = state
+            ) {
+                items(5) { index ->
+                    Box(fillParentMaxMainAxis().crossAxisSize(index.dp))
+                }
+            }
+        }
+
+        repeat(5) { index ->
+            rule.onNodeWithTag(LazyListTag)
+                .assertCrossAxisSizeIsEqualTo(index.dp)
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
     }
 
     // ********************* END OF TESTS *********************
