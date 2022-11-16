@@ -166,11 +166,7 @@ class AccessibilityNodeInfoDumper {
     }
 
     private static String safeCharSeqToString(CharSequence cs) {
-        if (cs == null)
-            return "";
-        else {
-            return stripInvalidXMLChars(cs);
-        }
+        return cs == null ? "" : stripInvalidXMLChars(cs);
     }
 
     private static String stripInvalidXMLChars(CharSequence cs) {
