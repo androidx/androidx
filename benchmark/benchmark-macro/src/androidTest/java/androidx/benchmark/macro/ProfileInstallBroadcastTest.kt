@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ProfileInstallBroadcastTest {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     fun installProfile() {
         assertNull(ProfileInstallBroadcast.installProfile(Packages.TARGET))

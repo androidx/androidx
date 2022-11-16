@@ -26,9 +26,9 @@ import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
-import org.jetbrains.annotations.TestOnly
 import java.io.File
 import java.io.IOException
+import org.jetbrains.annotations.TestOnly
 
 /**
  * PerfettoHelper is used to start and stop the perfetto tracing and move the
@@ -122,8 +122,10 @@ public class PerfettoHelper(
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput =
-                Shell.executeScriptCaptureStdout("$perfettoCmd; echo EXITCODE=$?").trim()
+            // Note: we intentionally don't check stderr, as benign warnings are printed
+            val perfettoCmdOutput = Shell.executeScriptCaptureStdoutStderr(
+                "$perfettoCmd; echo EXITCODE=$?"
+            ).stdout.trim()
 
             val expectedSuffix = "\nEXITCODE=0"
             if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
