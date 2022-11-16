@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
+import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.apicompiler.generator.SandboxApiVersion
 import androidx.privacysandbox.tools.apicompiler.generator.SdkCodeGenerator
 import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
@@ -38,13 +39,16 @@ class PrivacySandboxKspCompiler(
         const val USE_COMPAT_LIBRARY_OPTIONS_KEY = "use_sdk_runtime_compat_library"
     }
 
-    var invoked = false
-
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        if (invoked) {
+        // This method is called multiple times during compilation and the resolver will only return
+        // relevant files for each particular processing round. This instance might also be kept
+        // by KSP between rounds or for incremental compilation. This means that at some point
+        // KSP will always invoke this processor with no valid services, so we should just stop
+        // processing.
+        if (resolver.getSymbolsWithAnnotation(
+                PrivacySandboxService::class.qualifiedName!!).none()) {
             return emptyList()
         }
-        invoked = true
 
         val path = options[AIDL_COMPILER_PATH_OPTIONS_KEY]?.let(Paths::get)
         if (path == null) {
