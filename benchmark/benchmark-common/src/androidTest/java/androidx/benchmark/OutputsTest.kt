@@ -27,6 +27,7 @@ import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import org.junit.Assume.assumeTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -111,6 +112,26 @@ public class OutputsTest {
                 file.name,
                 Shell.executeScriptCaptureStdout("cat ${file.absolutePath}")
             )
+        } finally {
+            file.delete()
+        }
+    }
+
+    /**
+     * NOTE: this test checks that the instrumentation argument additionalTestOutputDir isn't set to
+     * an invalid / unusable location.
+     *
+     * Running through Studio/Gradle, this isn't defined by the library, it's defined by AGP.
+     *
+     * If this test fails, we need to handle the directory differently.
+     */
+    @Test
+    fun additionalTestOutputDir() {
+        val additionalTestOutputDir = Arguments.additionalTestOutputDir
+        assumeTrue(additionalTestOutputDir != null)
+        val file = File.createTempFile("testFile", null, File(additionalTestOutputDir!!))
+        try {
+            file.writeText("testString")
         } finally {
             file.delete()
         }

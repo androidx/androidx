@@ -94,46 +94,26 @@ public object Outputs {
     ): String {
         val sanitizedName = sanitizeFilename(fileName)
 
-        // We need to copy files over anytime `dirUsableByAppAndShell` is different from
-        // `outputDirectory`.
-        val override = dirUsableByAppAndShell != outputDirectory
         // We override the `additionalTestOutputDir` argument.
         // Context: b/181601156
         val file = File(dirUsableByAppAndShell, sanitizedName)
-        try {
-            block.invoke(file)
-        } finally {
-            var destination = file
-            if (override) {
-                // This respects the `additionalTestOutputDir` argument.
-                val actualOutputDirectory = outputDirectory
-                destination = File(actualOutputDirectory, sanitizedName)
-                Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-                try {
-                    destination.mkdirs()
-                    file.copyTo(destination, overwrite = true)
-                } catch (exception: Throwable) {
-                    // This can happen when `additionalTestOutputDir` being passed in cannot
-                    // be written to. The shell does not have permissions to do the necessary
-                    // setup, and this can cause `adb pull` to fail.
-                    val message = """
-                        Unable to copy files to ${destination.absolutePath}.
-                        Please pull the Macrobenchmark results manually by using:
-                        adb pull ${file.absolutePath}
-                    """.trimIndent()
-                    Log.e(BenchmarkState.TAG, message, exception)
+        block.invoke(file)
 
-                    // TODO(b/227510293): return failure/null to signal file isn't readable
-                    destination = file
-                }
-            }
-            InstrumentationResults.reportAdditionalFileToCopy(
-                key = reportKey,
-                absoluteFilePath = destination.absolutePath,
-                reportOnRunEndOnly = reportOnRunEndOnly
-            )
-            return destination.absolutePath
+        var destination = file
+        if (dirUsableByAppAndShell != outputDirectory) {
+            // We need to copy files over anytime `dirUsableByAppAndShell` is different from
+            // `outputDirectory`.
+            destination = File(outputDirectory, sanitizedName)
+            Log.d(BenchmarkState.TAG, "Copying $file to $destination")
+            outputDirectory.mkdirs()
+            file.copyTo(destination, overwrite = true)
         }
+        InstrumentationResults.reportAdditionalFileToCopy(
+            key = reportKey,
+            absoluteFilePath = destination.absolutePath,
+            reportOnRunEndOnly = reportOnRunEndOnly
+        )
+        return destination.absolutePath
     }
 
     public fun sanitizeFilename(filename: String): String {
