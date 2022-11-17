@@ -31,8 +31,11 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.time.Instant
 
-typealias WireComplicationData = android.support.wearable.complications.ComplicationData
-typealias WireComplicationDataBuilder =
+/** The wire format for [ComplicationData]. */
+internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
+
+/** The builder for [WireComplicationData]. */
+internal typealias WireComplicationDataBuilder =
     android.support.wearable.complications.ComplicationData.Builder
 
 internal const val TAG = "Data.kt"
