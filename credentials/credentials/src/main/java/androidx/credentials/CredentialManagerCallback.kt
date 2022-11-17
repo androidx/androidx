@@ -21,12 +21,13 @@ package androidx.credentials
  * in a failure.
  *
  * This interface may be used in cases where an asynchronous Credential Manager API may complete
- * either with a value or with a [CredentialManagerException] that indicates an error.
+ * either with a value, or an exception.
  *
  * @param R the type of the result that's being sent
+ * @param E the type of the exception being returned
  */
-interface CredentialManagerCallback<R> {
+interface CredentialManagerCallback<R : Any, E : Any> {
     fun onResult(result: R)
 
-    fun onError(e: CredentialManagerException) {}
+    fun onError(e: E)
 }

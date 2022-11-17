@@ -22,39 +22,45 @@ import androidx.annotation.VisibleForTesting
 /**
  * A privileged request to register a passkey from the user’s public key credential provider, where
  * the caller can modify the rp. Only callers with privileged permission, e.g. user’s default
- * brower, caBLE, can use this.
+ * brower, caBLE, can use this. These permissions will be introduced in an upcoming release.
+ * TODO("Add specific permission info/annotation")
  *
- * @property requestJson the privileged request in JSON format
+ * @property requestJson the privileged request in JSON format in the standard webauthn web json
+ * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
  * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default
- * @property rp the expected true RP ID which will override the one in the [requestJson]
- * @property clientDataHash a hash that is used to verify the [rp] Identity
- * @throws NullPointerException If any of [allowHybrid], [requestJson], [rp], or [clientDataHash] is
- * null. This is handled by the Kotlin runtime
- * @throws IllegalArgumentException If any of [requestJson], [rp], or [clientDataHash] is empty
- *
- * @hide
+ * true by default, with hybrid credentials defined
+ * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
+ * @property relyingParty the expected true RP ID which will override the one in the [requestJson], where
+ * rp is defined [here](https://w3c.github.io/webauthn/#rp-id)
+ * @property clientDataHash a hash that is used to verify the [relyingParty] Identity
+ * @throws NullPointerException If any of [requestJson], [relyingParty], or [clientDataHash] is
+ * null
+ * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash] is empty
  */
 class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
-    requestJson: String,
-    val rp: String,
+    val requestJson: String,
+    val relyingParty: String,
     val clientDataHash: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
-) : CreatePublicKeyCredentialBaseRequest(
-    requestJson,
+) : CreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(requestJson, rp, clientDataHash, allowHybrid),
+    toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
     false,
 ) {
 
     init {
-        require(rp.isNotEmpty()) { "rp must not be empty" }
+        require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
+        require(relyingParty.isNotEmpty()) { "rp must not be empty" }
         require(clientDataHash.isNotEmpty()) { "clientDataHash must not be empty" }
     }
 
     /** A builder for [CreatePublicKeyCredentialRequestPrivileged]. */
-    class Builder(var requestJson: String, var rp: String, var clientDataHash: String) {
+    class Builder(
+        private var requestJson: String,
+        private var relyingParty: String,
+        private var clientDataHash: String
+        ) {
 
         private var allowHybrid: Boolean = true
 
@@ -69,6 +75,7 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
         /**
          * Sets whether hybrid credentials are allowed to fulfill this request, true by default.
          */
+        @Suppress("MissingGetterMatchingBuilder")
         fun setAllowHybrid(allowHybrid: Boolean): Builder {
             this.allowHybrid = allowHybrid
             return this
@@ -77,13 +84,13 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
         /**
          * Sets the expected true RP ID which will override the one in the [requestJson].
          */
-        fun setRp(rp: String): Builder {
-            this.rp = rp
+        fun setRelyingParty(relyingParty: String): Builder {
+            this.relyingParty = relyingParty
             return this
         }
 
         /**
-         * Sets a hash that is used to verify the [rp] Identity.
+         * Sets a hash that is used to verify the [relyingParty] Identity.
          */
         fun setClientDataHash(clientDataHash: String): Builder {
             this.clientDataHash = clientDataHash
@@ -93,30 +100,32 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
         /** Builds a [CreatePublicKeyCredentialRequestPrivileged]. */
         fun build(): CreatePublicKeyCredentialRequestPrivileged {
             return CreatePublicKeyCredentialRequestPrivileged(this.requestJson,
-                this.rp, this.clientDataHash, this.allowHybrid)
+                this.relyingParty, this.clientDataHash, this.allowHybrid)
         }
     }
 
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_RP = "androidx.credentials.BUNDLE_KEY_RP"
+        const val BUNDLE_KEY_RELYING_PARTY = "androidx.credentials.BUNDLE_KEY_RELYING_PARTY"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 
         @JvmStatic
         internal fun toBundle(
             requestJson: String,
-            rp: String,
+            relyingParty: String,
             clientDataHash: String,
             allowHybrid: Boolean
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putString(BUNDLE_KEY_RP, rp)
+            bundle.putString(BUNDLE_KEY_RELYING_PARTY, relyingParty)
             bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
             return bundle

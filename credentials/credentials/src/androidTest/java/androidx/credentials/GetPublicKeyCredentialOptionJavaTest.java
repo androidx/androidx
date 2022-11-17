@@ -16,8 +16,8 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.GetPublicKeyCredentialBaseOption.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,8 +25,15 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
-import org.junit.Test;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class GetPublicKeyCredentialOptionJavaTest {
 
     @Test

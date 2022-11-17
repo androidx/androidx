@@ -17,6 +17,8 @@
 package androidx.credentials.playservices.controllers
 
 import androidx.credentials.CredentialManagerCallback
+import com.google.android.gms.common.api.CommonStatusCodes.INTERNAL_ERROR
+import com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR
 import java.util.concurrent.Executor
 
 /**
@@ -29,12 +31,17 @@ import java.util.concurrent.Executor
  * @param T2 the credential request type converted to play services
  * @param R2 the credential response type from play services
  * @param R1 the credential response type converted back to that used by credential manager
+ * @param E1 the credential error type to throw
  *
  * @hide
  */
 @Suppress("deprecation")
-abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any> : android.app
+abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
+    E1 : Any> : android.app
         .Fragment() {
+
+    protected var retryables: Set<Int> = setOf(INTERNAL_ERROR,
+        NETWORK_ERROR)
 
     /**
      * Invokes the flow that starts retrieving credential data. In this use case, we invoke
@@ -46,7 +53,7 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
      */
     abstract fun invokePlayServices(
         request: T1,
-        callback: CredentialManagerCallback<R1>,
+        callback: CredentialManagerCallback<R1, E1>,
         executor: Executor
     )
 
@@ -56,7 +63,7 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
      * @param request a credential provider request
      * @return a play service request
      */
-    protected abstract fun convertToPlayServices(request: T1): T2
+    protected abstract fun convertRequestToPlayServices(request: T1): T2
 
     /**
      * Allows converting from a play service response to a credential provider response.
@@ -64,5 +71,5 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
      * @param response a play service response
      * @return a credential provider response
      */
-    protected abstract fun convertToCredentialProvider(response: R2): R1
+    protected abstract fun convertResponseToCredentialManager(response: R2): R1
 }

@@ -16,8 +16,8 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.CreatePublicKeyCredentialBaseRequest.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
 

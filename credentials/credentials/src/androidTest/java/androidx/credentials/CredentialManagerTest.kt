@@ -16,6 +16,9 @@
 
 package androidx.credentials
 
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -71,8 +74,10 @@ class CredentialManagerTest {
                 activity = null,
                 cancellationSignal = null,
                 executor = Runnable::run,
-                callback = object : CredentialManagerCallback<CreateCredentialResponse> {
+                callback = object : CredentialManagerCallback<CreateCredentialResponse,
+                    CreateCredentialException> {
                     override fun onResult(result: CreateCredentialResponse) {}
+                    override fun onError(e: CreateCredentialException) {}
                 }
             )
         }
@@ -88,8 +93,10 @@ class CredentialManagerTest {
                 activity = null,
                 cancellationSignal = null,
                 executor = Runnable::run,
-                callback = object : CredentialManagerCallback<GetCredentialResponse> {
+                callback = object : CredentialManagerCallback<GetCredentialResponse,
+                    GetCredentialException> {
                     override fun onResult(result: GetCredentialResponse) {}
+                    override fun onError(e: GetCredentialException) {}
                 }
             )
         }
@@ -102,8 +109,9 @@ class CredentialManagerTest {
                 request = ClearCredentialStateRequest(),
                 cancellationSignal = null,
                 executor = Runnable::run,
-                callback = object : CredentialManagerCallback<Void> {
+                callback = object : CredentialManagerCallback<Void, ClearCredentialException> {
                     override fun onResult(result: Void) {}
+                    override fun onError(e: ClearCredentialException) {}
                 }
             )
         }

@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
@@ -37,12 +38,14 @@ class CredentialProviderCreatePublicKeyCredentialController :
             CreatePublicKeyCredentialRequest,
             PublicKeyCredentialCreationOptions,
             PublicKeyCredential,
-            CreateCredentialResponse>() {
+            CreateCredentialResponse,
+            CreateCredentialException>() {
 
     /**
      * The callback object state, used in the protected handleResponse method.
      */
-    private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse>
+    private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse,
+        CreateCredentialException>
 
     /**
      * The callback requires an executor to invoke it.
@@ -51,7 +54,7 @@ class CredentialProviderCreatePublicKeyCredentialController :
 
     override fun invokePlayServices(
         request: CreatePublicKeyCredentialRequest,
-        callback: CredentialManagerCallback<CreateCredentialResponse>,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
         executor: Executor
     ) {
         TODO("Not yet implemented")
@@ -67,12 +70,12 @@ class CredentialProviderCreatePublicKeyCredentialController :
         TODO("Not yet implemented")
     }
 
-    override fun convertToPlayServices(request: CreatePublicKeyCredentialRequest):
+    override fun convertRequestToPlayServices(request: CreatePublicKeyCredentialRequest):
         PublicKeyCredentialCreationOptions {
         TODO("Not yet implemented")
     }
 
-    override fun convertToCredentialProvider(response: PublicKeyCredential):
+    override fun convertResponseToCredentialManager(response: PublicKeyCredential):
         CreateCredentialResponse {
         TODO("Not yet implemented")
     }
@@ -110,11 +113,16 @@ class CredentialProviderCreatePublicKeyCredentialController :
             requestCode: Int,
             fragmentManager: android.app.FragmentManager
         ): CredentialProviderCreatePublicKeyCredentialController? {
+            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
             try {
-                return fragmentManager.findFragmentByTag(requestCode.toString())
-                    as CredentialProviderCreatePublicKeyCredentialController
+                return oldFragment as CredentialProviderCreatePublicKeyCredentialController
             } catch (e: Exception) {
-                Log.i(TAG, "Old fragment found of different type - replacement required")
+                Log.i(
+                    TAG,
+                    "Error with old fragment or null - replacement required")
+                if (oldFragment != null) {
+                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
+                }
                 // TODO("Ensure this is well tested for fragment issues")
                 return null
             }

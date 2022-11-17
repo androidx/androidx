@@ -22,29 +22,34 @@ import androidx.annotation.VisibleForTesting
 /**
  * A request to register a passkey from the user's public key credential provider.
  *
- * @property requestJson the request in JSON format
+ * @property requestJson the privileged request in JSON format in the standard webauthn web json
+ * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
  * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default
- * @throws NullPointerException If [requestJson] or [allowHybrid] is null. This is handled by the
- * Kotlin runtime
+ * true by default, with hybrid credentials defined
+ * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
+ * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
- *
- * @hide
  */
 class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
-    requestJson: String,
+    val requestJson: String,
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
-) : CreatePublicKeyCredentialBaseRequest(
-    requestJson,
+) : CreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     toBundle(requestJson, allowHybrid),
     false,
 ) {
+
+    init {
+        require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
+    }
+
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 
         @JvmStatic
         internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {

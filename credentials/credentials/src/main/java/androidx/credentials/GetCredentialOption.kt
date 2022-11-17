@@ -17,20 +17,22 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * Base class for getting a specific type of credentials.
  *
  * [GetCredentialRequest] will be composed of a list of [GetCredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
- *
- * @property type the credential type determined by the credential-type-specific subclass
- * @property data the request data in the [Bundle] format
- * @property requireSystemProvider true if must only be fulfilled by a system provider and false
- *                              otherwise
  */
 open class GetCredentialOption(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val data: Bundle,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val requireSystemProvider: Boolean,
 )

@@ -17,11 +17,16 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * Base class for a credential with which the user consented to authenticate to the app.
- *
- * @property type the credential type determined by the credential-type-specific subclass
- * @property data the credential data in the [Bundle] format.
  */
-open class Credential(val type: String, val data: Bundle)
+open class Credential(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val data: Bundle
+    )
