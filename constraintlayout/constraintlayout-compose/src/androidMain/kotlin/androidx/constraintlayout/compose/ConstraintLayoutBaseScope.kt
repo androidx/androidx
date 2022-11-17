@@ -21,19 +21,36 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.core.widgets.ConstraintWidget
+import androidx.constraintlayout.core.parser.CLArray
+import androidx.constraintlayout.core.parser.CLElement
+import androidx.constraintlayout.core.parser.CLNumber
+import androidx.constraintlayout.core.parser.CLObject
+import androidx.constraintlayout.core.parser.CLString
+import androidx.constraintlayout.core.state.ConstraintSetParser
 
 /**
  * Common scope for [ConstraintLayoutScope] and [ConstraintSetScope], the content being shared
  * between the inline DSL API and the ConstraintSet-based API.
  */
-abstract class ConstraintLayoutBaseScope {
+abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObject?) {
+    @Suppress("unused") // Needed to maintain binary compatibility
+    constructor() : this(null)
+
+    @Deprecated("Tasks is unused, it breaks the immutability promise.")
     protected val tasks = mutableListOf<(State) -> Unit>()
 
-    fun applyTo(state: State): Unit = tasks.forEach { it(state) }
+    internal val containerObject: CLObject = extendFrom?.clone() ?: CLObject(charArrayOf())
+
+    fun applyTo(state: State) {
+        ConstraintSetParser.populateState(
+            containerObject,
+            state,
+            ConstraintSetParser.LayoutVariables()
+        )
+    }
 
     open fun reset() {
-        tasks.clear()
+        containerObject.clear()
         helperId = HelpersStartId
         helpersHashCode = 0
     }
@@ -94,10 +111,8 @@ abstract class ConstraintLayoutBaseScope {
     fun constrain(
         ref: HorizontalChainReference,
         constrainBlock: HorizontalChainScope.() -> Unit
-    ): HorizontalChainScope = HorizontalChainScope(ref.id).apply {
-        constrainBlock()
-        this@ConstraintLayoutBaseScope.tasks.addAll(this.tasks)
-    }
+    ): HorizontalChainScope =
+        HorizontalChainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /**
      * Specifies additional constraints associated to the vertical chain identified with [ref].
@@ -105,10 +120,7 @@ abstract class ConstraintLayoutBaseScope {
     fun constrain(
         ref: VerticalChainReference,
         constrainBlock: VerticalChainScope.() -> Unit
-    ): VerticalChainScope = VerticalChainScope(ref.id).apply {
-        constrainBlock()
-        this@ConstraintLayoutBaseScope.tasks.addAll(this.tasks)
-    }
+    ): VerticalChainScope = VerticalChainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /**
      * Specifies the constraints associated to the layout identified with [ref].
@@ -116,35 +128,38 @@ abstract class ConstraintLayoutBaseScope {
     fun constrain(
         ref: ConstrainedLayoutReference,
         constrainBlock: ConstrainScope.() -> Unit
-    ): ConstrainScope = ConstrainScope(ref.id).apply {
-        constrainBlock()
-        this@ConstraintLayoutBaseScope.tasks.addAll(this.tasks)
-    }
+    ): ConstrainScope = ConstrainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /**
      * Creates a guideline at a specific offset from the start of the [ConstraintLayout].
      */
     fun createGuidelineFromStart(offset: Dp): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.verticalGuideline(id).apply {
-                if (state.isLtr) start(offset) else end(offset)
-            }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            putNumber("start", offset.value)
         }
+
         updateHelpersHashCode(1)
         updateHelpersHashCode(offset.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
      * Creates a guideline at a specific offset from the left of the [ConstraintLayout].
      */
     fun createGuidelineFromAbsoluteLeft(offset: Dp): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.verticalGuideline(id).apply { start(offset) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            putNumber("left", offset.value)
+        }
+
         updateHelpersHashCode(2)
         updateHelpersHashCode(offset.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -153,19 +168,21 @@ abstract class ConstraintLayoutBaseScope {
      * correspond to the end.
      */
     fun createGuidelineFromStart(fraction: Float): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.verticalGuideline(id).apply {
-                if (state.isLtr) {
-                    percent(fraction)
-                } else {
-                    percent(1f - fraction)
-                }
-            }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val percentParams = CLArray(charArrayOf()).apply {
+            add(CLString.from("start"))
+            add(CLNumber(fraction))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            put("percent", percentParams)
+        }
+
         updateHelpersHashCode(3)
         updateHelpersHashCode(fraction.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -173,39 +190,49 @@ abstract class ConstraintLayoutBaseScope {
      * A [fraction] of 0f will correspond to the left of the [ConstraintLayout], while 1f will
      * correspond to the right.
      */
-    // TODO(popam, b/157781990): this is not really percenide
     fun createGuidelineFromAbsoluteLeft(fraction: Float): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.verticalGuideline(id).apply { percent(fraction) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            putNumber("percent", fraction)
+        }
+
         updateHelpersHashCode(4)
         updateHelpersHashCode(fraction.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
      * Creates a guideline at a specific offset from the end of the [ConstraintLayout].
      */
     fun createGuidelineFromEnd(offset: Dp): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.verticalGuideline(id).apply {
-                if (state.isLtr) end(offset) else start(offset)
-            }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            putNumber("end", offset.value)
         }
+
         updateHelpersHashCode(5)
         updateHelpersHashCode(offset.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
      * Creates a guideline at a specific offset from the right of the [ConstraintLayout].
      */
     fun createGuidelineFromAbsoluteRight(offset: Dp): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.verticalGuideline(id).apply { end(offset) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            putNumber("right", offset.value)
+        }
+
         updateHelpersHashCode(6)
         updateHelpersHashCode(offset.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -214,7 +241,21 @@ abstract class ConstraintLayoutBaseScope {
      * correspond to the start.
      */
     fun createGuidelineFromEnd(fraction: Float): VerticalAnchor {
-        return createGuidelineFromStart(1f - fraction)
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val percentParams = CLArray(charArrayOf()).apply {
+            add(CLString.from("end"))
+            add(CLNumber(fraction))
+        }
+
+        ref.asCLContainer().apply {
+            putString("type", "vGuideline")
+            put("percent", percentParams)
+        }
+
+        updateHelpersHashCode(3)
+        updateHelpersHashCode(fraction.hashCode())
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -230,35 +271,50 @@ abstract class ConstraintLayoutBaseScope {
      * Creates a guideline at a specific offset from the top of the [ConstraintLayout].
      */
     fun createGuidelineFromTop(offset: Dp): HorizontalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.horizontalGuideline(id).apply { start(offset) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "hGuideline")
+            putNumber("start", offset.value)
+        }
+
         updateHelpersHashCode(7)
         updateHelpersHashCode(offset.hashCode())
-        return HorizontalAnchor(id, 0, LayoutReferenceImpl(id))
+        return HorizontalAnchor(ref.id, 0, ref)
     }
 
     /**
-     * Creates a guideline at a height percenide from the top of the [ConstraintLayout].
+     * Creates a guideline at a height fraction from the top of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the top of the [ConstraintLayout], while 1f will
      * correspond to the bottom.
      */
     fun createGuidelineFromTop(fraction: Float): HorizontalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.horizontalGuideline(id).apply { percent(fraction) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "hGuideline")
+            putNumber("percent", fraction)
+        }
+
         updateHelpersHashCode(8)
         updateHelpersHashCode(fraction.hashCode())
-        return HorizontalAnchor(id, 0, LayoutReferenceImpl(id))
+        return HorizontalAnchor(ref.id, 0, ref)
     }
 
     /**
      * Creates a guideline at a specific offset from the bottom of the [ConstraintLayout].
      */
     fun createGuidelineFromBottom(offset: Dp): HorizontalAnchor {
-        val id = createHelperId()
-        tasks.add { state -> state.horizontalGuideline(id).apply { end(offset) } }
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        ref.asCLContainer().apply {
+            putString("type", "hGuideline")
+            putNumber("end", offset.value)
+        }
+
         updateHelpersHashCode(9)
         updateHelpersHashCode(offset.hashCode())
-        return HorizontalAnchor(id, 0, LayoutReferenceImpl(id))
+        return HorizontalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -277,21 +333,24 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            val direction = if (state.isLtr) {
-                SolverDirection.LEFT
-            } else {
-                SolverDirection.RIGHT
-            }
-            state.barrier(id, direction).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "start")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(10)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -301,16 +360,24 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.barrier(id, SolverDirection.LEFT).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "left")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(11)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -320,16 +387,24 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): HorizontalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.barrier(id, SolverDirection.TOP).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "top")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(12)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return HorizontalAnchor(id, 0, LayoutReferenceImpl(id))
+        return HorizontalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -339,21 +414,24 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            val direction = if (state.isLtr) {
-                SolverDirection.RIGHT
-            } else {
-                SolverDirection.LEFT
-            }
-            state.barrier(id, direction).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "end")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(13)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -363,16 +441,24 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.barrier(id, SolverDirection.RIGHT).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "right")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(14)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return VerticalAnchor(id, 0, LayoutReferenceImpl(id))
+        return VerticalAnchor(ref.id, 0, ref)
     }
 
     /**
@@ -382,44 +468,53 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         margin: Dp = 0.dp
     ): HorizontalAnchor {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.barrier(id, SolverDirection.BOTTOM).apply {
-                add(*(elements.map { it.id }.toTypedArray()))
-            }.margin(state.convertDimension(margin))
+        val ref = LayoutReferenceImpl(createHelperId())
+
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            elementArray.add(CLString.from(it.id.toString()))
         }
+
+        ref.asCLContainer().apply {
+            putString("type", "barrier")
+            putString("direction", "bottom")
+            putNumber("margin", margin.value)
+            put("contains", elementArray)
+        }
+
         updateHelpersHashCode(15)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(margin.hashCode())
-        return HorizontalAnchor(id, 0, LayoutReferenceImpl(id))
+        return HorizontalAnchor(ref.id, 0, ref)
     }
 
     /**
-     * This creates a flow helper
      * Flow helpers allows a long sequence of Composable widgets to wrap onto
      * multiple rows or columns.
-     * [flowVertically] if set to true aranges the Composables from top to bottom.
+     *
+     * @param elements [LayoutReference]s to be laid out by the Flow helper
+     * @param flowVertically if set to true arranges the Composables from top to bottom.
      * Normally they are arranged from left to right.
-     * [verticalGap] defines the gap between views in the y axis
-     * [horizontalGap] defines the gap between views in the x axis
-     * [maxElement] defines the maximum element on a row before it if the
-     * [padding] sets padding around the content
-     * [wrapMode] sets the way reach maxElements is handled
-     * Flow.WRAP_NONE (default) -- no wrap behavior,
-     * Flow.WRAP_CHAIN - create additional chains
-     * [verticalAlign] set the way elements are aligned vertically. Center is default
-     * [horizontalAlign] set the way elements are aligned horizontally. Center is default
-     * [horizontalFlowBias] set the way elements are aligned vertically Center is default
-     * [verticalFlowBias] sets the top bottom bias of the vertical chain
-     * [verticalStyle] sets the style of a vertical chain (Spread,Packed, or SpreadInside)
-     * [horizontalStyle] set the style of the horizontal chain (Spread, Packed, or SpreadInside)
+     * @param verticalGap defines the gap between views in the y axis
+     * @param horizontalGap defines the gap between views in the x axis
+     * @param maxElement defines the maximum element on a row before it if the
+     * @param padding sets padding around the content
+     * @param wrapMode sets the way reach maxElements is handled
+     * [Wrap.None] (default) -- no wrap behavior,
+     * [Wrap.Chain] - create additional chains
+     * @param verticalAlign set the way elements are aligned vertically. Center is default
+     * @param horizontalAlign set the way elements are aligned horizontally. Center is default
+     * @param horizontalFlowBias set the way elements are aligned vertically Center is default
+     * @param verticalFlowBias sets the top bottom bias of the vertical chain
+     * @param verticalStyle sets the style of a vertical chain (Spread,Packed, or SpreadInside)
+     * @param horizontalStyle set the style of the horizontal chain (Spread, Packed, or SpreadInside)
      */
     fun createFlow(
         vararg elements: LayoutReference?,
         flowVertically: Boolean = false,
         verticalGap: Dp = 0.dp,
         horizontalGap: Dp = 0.dp,
-        maxElement: Int = 0,
+        maxElement: Int = 0, // TODO: shouldn't this be -1? (aka: UNKNOWN)?
         padding: Dp = 0.dp,
         wrapMode: Wrap = Wrap.None,
         verticalAlign: VerticalAlign = VerticalAlign.Center,
@@ -429,52 +524,47 @@ abstract class ConstraintLayoutBaseScope {
         verticalStyle: FlowStyle = FlowStyle.Packed,
         horizontalStyle: FlowStyle = FlowStyle.Packed,
     ): ConstrainedLayoutReference {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.getFlow(id, flowVertically).apply {
-                add(*(elements.map { it?.id }.toTypedArray()))
-                horizontalChainStyle = horizontalStyle.style
-                setVerticalChainStyle(verticalStyle.style)
-                verticalBias(verticalFlowBias)
-                horizontalBias(horizontalFlowBias)
-                setHorizontalAlign(horizontalAlign.mode)
-                setVerticalAlign(verticalAlign.mode)
-                setWrapMode(wrapMode.mode)
-                paddingLeft = state.convertDimension(padding)
-                paddingTop = state.convertDimension(padding)
-                paddingRight = state.convertDimension(padding)
-                paddingBottom = state.convertDimension(padding)
-                maxElementsWrap = maxElement
-                setHorizontalGap(state.convertDimension(horizontalGap))
-                setVerticalGap(state.convertDimension(verticalGap))
-            }
-        }
-        updateHelpersHashCode(16)
-        elements.forEach { updateHelpersHashCode(it.hashCode()) }
-
-        return ConstrainedLayoutReference(id)
+        return createFlow(
+            elements = elements,
+            flowVertically = flowVertically,
+            verticalGap = verticalGap,
+            horizontalGap = horizontalGap,
+            maxElement = maxElement,
+            paddingLeft = padding,
+            paddingTop = padding,
+            paddingRight = padding,
+            paddingBottom = padding,
+            wrapMode = wrapMode,
+            verticalAlign = verticalAlign,
+            horizontalAlign = horizontalAlign,
+            horizontalFlowBias = horizontalFlowBias,
+            verticalFlowBias = verticalFlowBias,
+            verticalStyle = verticalStyle,
+            horizontalStyle = horizontalStyle
+        )
     }
 
     /**
-     * This creates a flow helper
      * Flow helpers allows a long sequence of Composable widgets to wrap onto
      * multiple rows or columns.
-     * [flowVertically] if set to true aranges the Composables from top to bottom.
+     *
+     * @param elements [LayoutReference]s to be laid out by the Flow helper
+     * @param flowVertically if set to true aranges the Composables from top to bottom.
      * Normally they are arranged from left to right.
-     * [verticalGap] defines the gap between views in the y axis
-     * [horizontalGap] defines the gap between views in the x axis
-     * [maxElement] defines the maximum element on a row before it if the
-     * [paddingHorizontal] sets paddingLeft and paddingRight of the content
-     * [paddingVertical] sets paddingTop and paddingBottom of the content
-     * [wrapMode] sets the way reach maxElements is handled
-     * Flow.WRAP_NONE (default) -- no wrap behavior,
-     * Flow.WRAP_CHAIN - create additional chains
-     * [verticalAlign] set the way elements are aligned vertically. Center is default
-     * [horizontalAlign] set the way elements are aligned horizontally. Center is default
-     * [horizontalFlowBias] set the way elements are aligned vertically Center is default
-     * [verticalFlowBias] sets the top bottom bias of the vertical chain
-     * [verticalStyle] sets the style of a vertical chain (Spread,Packed, or SpreadInside)
-     * [horizontalStyle] set the style of the horizontal chain (Spread, Packed, or SpreadInside)
+     * @param verticalGap defines the gap between views in the y axis
+     * @param horizontalGap defines the gap between views in the x axis
+     * @param maxElement defines the maximum element on a row before it if the
+     * @param paddingHorizontal sets paddingLeft and paddingRight of the content
+     * @param paddingVertical sets paddingTop and paddingBottom of the content
+     * @param wrapMode sets the way reach maxElements is handled
+     * [Wrap.None] (default) -- no wrap behavior,
+     * [Wrap.Chain] - create additional chains
+     * @param verticalAlign set the way elements are aligned vertically. Center is default
+     * @param horizontalAlign set the way elements are aligned horizontally. Center is default
+     * @param horizontalFlowBias set the way elements are aligned vertically Center is default
+     * @param verticalFlowBias sets the top bottom bias of the vertical chain
+     * @param verticalStyle sets the style of a vertical chain (Spread,Packed, or SpreadInside)
+     * @param horizontalStyle set the style of the horizontal chain (Spread, Packed, or SpreadInside)
      */
     fun createFlow(
         vararg elements: LayoutReference?,
@@ -492,54 +582,49 @@ abstract class ConstraintLayoutBaseScope {
         verticalStyle: FlowStyle = FlowStyle.Packed,
         horizontalStyle: FlowStyle = FlowStyle.Packed,
     ): ConstrainedLayoutReference {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.getFlow(id, flowVertically).apply {
-                add(*(elements.map { it?.id }.toTypedArray()))
-                horizontalChainStyle = horizontalStyle.style
-                setVerticalChainStyle(verticalStyle.style)
-                verticalBias(verticalFlowBias)
-                horizontalBias(horizontalFlowBias)
-                setHorizontalAlign(horizontalAlign.mode)
-                setVerticalAlign(verticalAlign.mode)
-                setWrapMode(wrapMode.mode)
-                paddingLeft = state.convertDimension(paddingHorizontal)
-                paddingTop = state.convertDimension(paddingVertical)
-                paddingRight = state.convertDimension(paddingHorizontal)
-                paddingBottom = state.convertDimension(paddingVertical)
-                maxElementsWrap = maxElement
-                setHorizontalGap(state.convertDimension(horizontalGap))
-                setVerticalGap(state.convertDimension(verticalGap))
-            }
-        }
-        updateHelpersHashCode(16)
-        elements.forEach { updateHelpersHashCode(it.hashCode()) }
-
-        return ConstrainedLayoutReference(id)
+        return createFlow(
+            elements = elements,
+            flowVertically = flowVertically,
+            verticalGap = verticalGap,
+            horizontalGap = horizontalGap,
+            maxElement = maxElement,
+            paddingLeft = paddingHorizontal,
+            paddingTop = paddingVertical,
+            paddingRight = paddingHorizontal,
+            paddingBottom = paddingVertical,
+            wrapMode = wrapMode,
+            verticalAlign = verticalAlign,
+            horizontalAlign = horizontalAlign,
+            horizontalFlowBias = horizontalFlowBias,
+            verticalFlowBias = verticalFlowBias,
+            verticalStyle = verticalStyle,
+            horizontalStyle = horizontalStyle
+        )
     }
 
     /**
-     * This creates a flow helper
      * Flow helpers allows a long sequence of Composable widgets to wrap onto
      * multiple rows or columns.
-     * [flowVertically] if set to true aranges the Composables from top to bottom.
+     *
+     * @param elements [LayoutReference]s to be laid out by the Flow helper
+     * @param flowVertically if set to true aranges the Composables from top to bottom.
      * Normally they are arranged from left to right.
-     * [verticalGap] defines the gap between views in the y axis
-     * [horizontalGap] defines the gap between views in the x axis
-     * [maxElement] defines the maximum element on a row before it if the
-     * [paddingLeft] sets paddingLeft of the content
-     * [paddingTop] sets paddingTop of the content
-     * [paddingRight] sets paddingRight of the content
-     * [paddingBottom] sets paddingBottom of the content
-     * [wrapMode] sets the way reach maxElements is handled
-     * Flow.WRAP_NONE (default) -- no wrap behavior,
-     * Flow.WRAP_CHAIN - create additional chains
-     * [verticalAlign] set the way elements are aligned vertically. Center is default
-     * [horizontalAlign] set the way elements are aligned horizontally. Center is default
-     * [horizontalFlowBias] set the way elements are aligned vertically Center is default
-     * [verticalFlowBias] sets the top bottom bias of the vertical chain
-     * [verticalStyle] sets the style of a vertical chain (Spread,Packed, or SpreadInside)
-     * [horizontalStyle] set the style of the horizontal chain (Spread, Packed, or SpreadInside)
+     * @param verticalGap defines the gap between views in the y axis
+     * @param horizontalGap defines the gap between views in the x axis
+     * @param maxElement defines the maximum element on a row before it if the
+     * @param paddingLeft sets paddingLeft of the content
+     * @param paddingTop sets paddingTop of the content
+     * @param paddingRight sets paddingRight of the content
+     * @param paddingBottom sets paddingBottom of the content
+     * @param wrapMode sets the way reach maxElements is handled
+     * [Wrap.None] (default) -- no wrap behavior,
+     * [Wrap.Chain] - create additional chains
+     * @param verticalAlign set the way elements are aligned vertically. Center is default
+     * @param horizontalAlign set the way elements are aligned horizontally. Center is default
+     * @param horizontalFlowBias set the way elements are aligned vertically Center is default
+     * @param verticalFlowBias sets the top bottom bias of the vertical chain
+     * @param verticalStyle sets the style of a vertical chain (Spread,Packed, or SpreadInside)
+     * @param horizontalStyle set the style of the horizontal chain (Spread, Packed, or SpreadInside)
      */
     fun createFlow(
         vararg elements: LayoutReference?,
@@ -559,30 +644,38 @@ abstract class ConstraintLayoutBaseScope {
         verticalStyle: FlowStyle = FlowStyle.Packed,
         horizontalStyle: FlowStyle = FlowStyle.Packed,
     ): ConstrainedLayoutReference {
-        val id = createHelperId()
-        tasks.add { state ->
-            state.getFlow(id, flowVertically).apply {
-                add(*(elements.map { it?.id }.toTypedArray()))
-                horizontalChainStyle = horizontalStyle.style
-                setVerticalChainStyle(verticalStyle.style)
-                verticalBias(verticalFlowBias)
-                horizontalBias(horizontalFlowBias)
-                setHorizontalAlign(horizontalAlign.mode)
-                setVerticalAlign(verticalAlign.mode)
-                setWrapMode(wrapMode.mode)
-                setPaddingLeft(state.convertDimension(paddingLeft))
-                setPaddingTop(state.convertDimension(paddingTop))
-                setPaddingRight(state.convertDimension(paddingRight))
-                setPaddingBottom(state.convertDimension(paddingBottom))
-                maxElementsWrap = maxElement
-                setHorizontalGap(state.convertDimension(horizontalGap))
-                setVerticalGap(state.convertDimension(verticalGap))
+        val ref = ConstrainedLayoutReference(createHelperId())
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            if (it != null) {
+                elementArray.add(CLString.from(it.id.toString()))
             }
+        }
+        val paddingArray = CLArray(charArrayOf()).apply {
+            add(CLNumber(paddingLeft.value))
+            add(CLNumber(paddingTop.value))
+            add(CLNumber(paddingRight.value))
+            add(CLNumber(paddingBottom.value))
+        }
+        ref.asCLContainer().apply {
+            put("contains", elementArray)
+            putString("type", if (flowVertically) "vFlow" else "hFlow")
+            putNumber("vGap", verticalGap.value)
+            putNumber("hGap", horizontalGap.value)
+            putNumber("maxElement", maxElement.toFloat())
+            put("padding", paddingArray)
+            putString("wrap", wrapMode.name)
+            putString("vAlign", verticalAlign.name)
+            putString("hAlign", horizontalAlign.name)
+            putNumber("hFlowBias", horizontalFlowBias)
+            putNumber("vFlowBias", verticalFlowBias)
+            putString("vStyle", verticalStyle.name)
+            putString("hStyle", horizontalStyle.name)
         }
         updateHelpersHashCode(16)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
 
-        return ConstrainedLayoutReference(id)
+        return ref
     }
 
     /**
@@ -595,33 +688,38 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
     ): HorizontalChainReference {
-        val id = createHelperId()
-        tasks.add { state ->
-            val helper = state.helper(
-                id,
-                androidx.constraintlayout.core.state.State.Helper.HORIZONTAL_CHAIN
-            ) as androidx.constraintlayout.core.state.helpers.HorizontalChainReference
-            elements.forEach { chainElement ->
-                val elementParams = chainElement.getHelperParams() ?: ChainParams.Default
-                helper.addChainElement(
-                    chainElement.id,
-                    elementParams.weight,
-                    state.convertDimension(elementParams.startMargin).toFloat(),
-                    state.convertDimension(elementParams.endMargin).toFloat(),
-                    state.convertDimension(elementParams.startGoneMargin).toFloat(),
-                    state.convertDimension(elementParams.endGoneMargin).toFloat()
-                )
+        val ref = HorizontalChainReference(createHelperId())
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            val chainParams = it.getHelperParams<ChainParams>()
+            val elementContent: CLElement = if (chainParams != null) {
+                CLArray(charArrayOf()).apply {
+                    add(CLString.from(it.id.toString()))
+                    add(CLNumber(chainParams.weight))
+                    add(CLNumber(chainParams.startMargin.value))
+                    add(CLNumber(chainParams.endMargin.value))
+                    add(CLNumber(chainParams.startGoneMargin.value))
+                    add(CLNumber(chainParams.endGoneMargin.value))
+                }
+            } else {
+                CLString.from(it.id.toString())
             }
-            helper.style(chainStyle.style)
-            helper.apply()
-            if (chainStyle.bias != null) {
-                state.constraints(elements[0].id).horizontalBias(chainStyle.bias)
-            }
+            elementArray.add(elementContent)
         }
+        val styleArray = CLArray(charArrayOf())
+        styleArray.add(CLString.from(chainStyle.name))
+        styleArray.add(CLNumber(chainStyle.bias ?: 0.5f))
+
+        ref.asCLContainer().apply {
+            putString("type", "hChain")
+            put("contains", elementArray)
+            put("style", styleArray)
+        }
+
         updateHelpersHashCode(16)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(chainStyle.hashCode())
-        return HorizontalChainReference(id)
+        return ref
     }
 
     /**
@@ -634,33 +732,38 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: LayoutReference,
         chainStyle: ChainStyle = ChainStyle.Spread
     ): VerticalChainReference {
-        val id = createHelperId()
-        tasks.add { state ->
-            val helper = state.helper(
-                id,
-                androidx.constraintlayout.core.state.State.Helper.VERTICAL_CHAIN
-            ) as androidx.constraintlayout.core.state.helpers.VerticalChainReference
-            elements.forEach { chainElement ->
-                val elementParams = chainElement.getHelperParams() ?: ChainParams.Default
-                helper.addChainElement(
-                    chainElement.id,
-                    elementParams.weight,
-                    state.convertDimension(elementParams.topMargin).toFloat(),
-                    state.convertDimension(elementParams.bottomMargin).toFloat(),
-                    state.convertDimension(elementParams.topGoneMargin).toFloat(),
-                    state.convertDimension(elementParams.bottomGoneMargin).toFloat()
-                )
+        val ref = VerticalChainReference(createHelperId())
+        val elementArray = CLArray(charArrayOf())
+        elements.forEach {
+            val chainParams = it.getHelperParams<ChainParams>()
+            val elementContent: CLElement = if (chainParams != null) {
+                CLArray(charArrayOf()).apply {
+                    add(CLString.from(it.id.toString()))
+                    add(CLNumber(chainParams.weight))
+                    add(CLNumber(chainParams.topMargin.value))
+                    add(CLNumber(chainParams.bottomMargin.value))
+                    add(CLNumber(chainParams.topGoneMargin.value))
+                    add(CLNumber(chainParams.bottomGoneMargin.value))
+                }
+            } else {
+                CLString.from(it.id.toString())
             }
-            helper.style(chainStyle.style)
-            helper.apply()
-            if (chainStyle.bias != null) {
-                state.constraints(elements[0].id).verticalBias(chainStyle.bias)
-            }
+            elementArray.add(elementContent)
         }
+        val styleArray = CLArray(charArrayOf())
+        styleArray.add(CLString.from(chainStyle.name))
+        styleArray.add(CLNumber(chainStyle.bias ?: 0.5f))
+
+        ref.asCLContainer().apply {
+            putString("type", "vChain")
+            put("contains", elementArray)
+            put("style", styleArray)
+        }
+
         updateHelpersHashCode(17)
         elements.forEach { updateHelpersHashCode(it.hashCode()) }
         updateHelpersHashCode(chainStyle.hashCode())
-        return VerticalChainReference(id)
+        return ref
     }
 
     /**
@@ -803,6 +906,28 @@ abstract class ConstraintLayoutBaseScope {
             bottomGoneMargin = bottomGoneMargin,
             weight = weight
         )
+
+    internal fun LayoutReference.asCLContainer(): CLObject {
+        val idString = id.toString()
+        if (containerObject.getObjectOrNull(idString) == null) {
+            containerObject.put(idString, CLObject(charArrayOf()))
+        }
+        return containerObject.getObject(idString)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is ConstraintLayoutBaseScope) {
+            return containerObject == other.containerObject
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return containerObject.hashCode()
+    }
 }
 
 /**
@@ -1004,7 +1129,7 @@ class VerticalChainReference internal constructor(id: Any) : LayoutReference(id)
  */
 @Immutable
 class ChainStyle internal constructor(
-    internal val style: SolverChain,
+    internal val name: String,
     internal val bias: Float? = null
 ) {
     companion object {
@@ -1012,14 +1137,14 @@ class ChainStyle internal constructor(
          * A chain style that evenly distributes the contained layouts.
          */
         @Stable
-        val Spread = ChainStyle(SolverChain.SPREAD)
+        val Spread = ChainStyle("spread")
 
         /**
          * A chain style where the first and last layouts are affixed to the constraints
          * on each end of the chain and the rest are evenly distributed.
          */
         @Stable
-        val SpreadInside = ChainStyle(SolverChain.SPREAD_INSIDE)
+        val SpreadInside = ChainStyle("spread_inside")
 
         /**
          * A chain style where the contained layouts are packed together and placed to the
@@ -1033,7 +1158,7 @@ class ChainStyle internal constructor(
          * the available space according to a given [bias].
          */
         @Stable
-        fun Packed(bias: Float) = ChainStyle(SolverChain.PACKED, bias)
+        fun Packed(bias: Float) = ChainStyle("packed", bias)
     }
 }
 
@@ -1042,7 +1167,7 @@ class ChainStyle internal constructor(
  */
 @Immutable
 class Visibility internal constructor(
-    internal val solverValue: Int
+    internal val name: String
 ) {
     companion object {
         /**
@@ -1050,7 +1175,7 @@ class Visibility internal constructor(
          * transforms will apply normally.
          */
         @Stable
-        val Visible = Visibility(ConstraintWidget.VISIBLE)
+        val Visible = Visibility("visible")
 
         /**
          * The widget will not be painted in the [ConstraintLayout] but its dimensions and constraints
@@ -1059,14 +1184,14 @@ class Visibility internal constructor(
          * Equivalent to forcing the alpha to 0.0.
          */
         @Stable
-        val Invisible = Visibility(ConstraintWidget.INVISIBLE)
+        val Invisible = Visibility("invisible")
 
         /**
          * Like [Invisible], but the dimensions of the widget will collapse to (0,0), the
          * constraints will still apply.
          */
         @Stable
-        val Gone = Visibility(ConstraintWidget.GONE)
+        val Gone = Visibility("gone")
     }
 }
 
@@ -1075,15 +1200,12 @@ class Visibility internal constructor(
  */
 @Immutable
 class Wrap internal constructor(
-    internal val mode: Int
+    internal val name: String
 ) {
     companion object {
-        val None =
-            Wrap(androidx.constraintlayout.core.widgets.Flow.WRAP_NONE)
-        val Chain =
-            Wrap(androidx.constraintlayout.core.widgets.Flow.WRAP_CHAIN)
-        val Aligned =
-            Wrap(androidx.constraintlayout.core.widgets.Flow.WRAP_ALIGNED)
+        val None = Wrap("none")
+        val Chain = Wrap("chain")
+        val Aligned = Wrap("aligned")
     }
 }
 
@@ -1092,16 +1214,13 @@ class Wrap internal constructor(
  */
 @Immutable
 class VerticalAlign internal constructor(
-    internal val mode: Int
+    internal val name: String
 ) {
     companion object {
-        val Top = VerticalAlign(androidx.constraintlayout.core.widgets.Flow.VERTICAL_ALIGN_TOP)
-        val Bottom =
-            VerticalAlign(androidx.constraintlayout.core.widgets.Flow.VERTICAL_ALIGN_BOTTOM)
-        val Center =
-            VerticalAlign(androidx.constraintlayout.core.widgets.Flow.VERTICAL_ALIGN_CENTER)
-        val Baseline =
-            VerticalAlign(androidx.constraintlayout.core.widgets.Flow.VERTICAL_ALIGN_BASELINE)
+        val Top = VerticalAlign("top")
+        val Bottom = VerticalAlign("bottom")
+        val Center = VerticalAlign("center")
+        val Baseline = VerticalAlign("baseline")
     }
 }
 
@@ -1110,14 +1229,12 @@ class VerticalAlign internal constructor(
  */
 @Immutable
 class HorizontalAlign internal constructor(
-    internal val mode: Int
+    internal val name: String
 ) {
     companion object {
-        val Start =
-            HorizontalAlign(androidx.constraintlayout.core.widgets.Flow.HORIZONTAL_ALIGN_START)
-        val End = HorizontalAlign(androidx.constraintlayout.core.widgets.Flow.HORIZONTAL_ALIGN_END)
-        val Center =
-            HorizontalAlign(androidx.constraintlayout.core.widgets.Flow.HORIZONTAL_ALIGN_CENTER)
+        val Start = HorizontalAlign("start")
+        val End = HorizontalAlign("end")
+        val Center = HorizontalAlign("center")
     }
 }
 
@@ -1126,11 +1243,11 @@ class HorizontalAlign internal constructor(
  */
 @Immutable
 class FlowStyle internal constructor(
-    internal val style: Int
+    internal val name: String
 ) {
     companion object {
-        val Spread = FlowStyle(0)
-        val SpreadInside = FlowStyle(1)
-        val Packed = FlowStyle(2)
+        val Spread = FlowStyle("spread")
+        val SpreadInside = FlowStyle("spread_inside")
+        val Packed = FlowStyle("packed")
     }
 }

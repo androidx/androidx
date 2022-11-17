@@ -1649,16 +1649,16 @@ class ConstraintLayoutTest {
     fun testConstraintLayout_updates_whenConstraintSetChangesConstraints() = with(rule.density) {
         val box1Size = 20
         var first by mutableStateOf(true)
-        val constraintSet = ConstraintSet {
-            val box1 = createRefFor("box1")
-            val box2 = createRefFor("box2")
-            constrain(box2) {
-                if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
-            }
-        }
 
         var box2Position = IntOffset.Zero
         rule.setContent {
+            val constraintSet = ConstraintSet {
+                val box1 = createRefFor("box1")
+                val box2 = createRefFor("box2")
+                constrain(box2) {
+                    if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
+                }
+            }
             ConstraintLayout(constraintSet) {
                 Box(
                     Modifier
@@ -1684,6 +1684,55 @@ class ConstraintLayoutTest {
 
         rule.runOnIdle {
             assertEquals(IntOffset(0, box1Size), box2Position)
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_doesNotUpdate_withRememberConstraintSet() = with(rule.density) {
+        val box1Size = 20
+        var first by mutableStateOf(true)
+        var compCount = 0
+
+        var box2Position = IntOffset.Zero
+        rule.setContent {
+            // ConstraintSet should be immutable and shouldn't recompose if "remembered"
+            val constraintSet = remember {
+                ConstraintSet {
+                    val box1 = createRefFor("box1")
+                    val box2 = createRefFor("box2")
+                    constrain(box2) {
+                        if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
+                    }
+                }
+            }
+            compCount++
+            ConstraintLayout(constraintSet) {
+                Box(
+                    Modifier
+                        .size(box1Size.toDp())
+                        .layoutId("box1")
+                )
+                Box(
+                    Modifier
+                        .layoutId("box2")
+                        .onGloballyPositioned {
+                            box2Position = it
+                                .positionInRoot()
+                                .round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(IntOffset(box1Size, 0), box2Position)
+            assertEquals(1, compCount)
+            first = false
+        }
+
+        rule.runOnIdle {
+            assertEquals(IntOffset(box1Size, 0), box2Position)
+            assertEquals(2, compCount)
         }
     }
 

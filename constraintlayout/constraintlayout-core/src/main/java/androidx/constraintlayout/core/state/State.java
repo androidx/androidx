@@ -233,7 +233,7 @@ public class State {
      */
     public int convertDimension(Object value) {
         if (value instanceof Float) {
-            return ((Float) value).intValue();
+            return (int) (((Float) value) + 0.5f);
         }
         if (value instanceof Integer) {
             return (Integer) value;

@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.core.parser.CLObject
 import androidx.constraintlayout.core.state.CorePixelDp
 
 private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
@@ -240,45 +241,43 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      * Declare a custom Float [value] addressed by [name].
      */
     fun ConstrainScope.customFloat(name: String, value: Float) {
-        tasks.add { state ->
-            state.constraints(id).addCustomFloat(name, value)
+        if (!containerObject.has("custom")) {
+            containerObject.put("custom", CLObject(charArrayOf()))
         }
+        val customPropsObject = containerObject.getObjectOrNull("custom") ?: return
+        customPropsObject.putNumber(name, value)
     }
 
     /**
      * Declare a custom Color [value] addressed by [name].
      */
     fun ConstrainScope.customColor(name: String, value: Color) {
-        tasks.add { state ->
-            state.constraints(id).addCustomColor(name, value.toArgb())
+        if (!containerObject.has("custom")) {
+            containerObject.put("custom", CLObject(charArrayOf()))
         }
+        val customPropsObject = containerObject.getObjectOrNull("custom") ?: return
+        customPropsObject.putString(name, value.toJsonHexString())
     }
 
     /**
      * Declare a custom Int [value] addressed by [name].
      */
     fun ConstrainScope.customInt(name: String, value: Int) {
-        tasks.add { state ->
-            state.constraints(id).addCustomFloat(name, value.toFloat())
-        }
+        customFloat(name, value.toFloat())
     }
 
     /**
      * Declare a custom Dp [value] addressed by [name].
      */
     fun ConstrainScope.customDistance(name: String, value: Dp) {
-        tasks.add { state ->
-            state.constraints(id).addCustomFloat(name, value.value)
-        }
+        customFloat(name, value.value)
     }
 
     /**
      * Declare a custom TextUnit [value] addressed by [name].
      */
     fun ConstrainScope.customFontSize(name: String, value: TextUnit) {
-        tasks.add { state ->
-            state.constraints(id).addCustomFloat(name, value.value)
-        }
+        customFloat(name, value.value)
     }
 
     /**
@@ -293,7 +292,7 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
      */
     fun KeyAttributeScope.customColor(name: String, value: Color) {
         // Colors must be in the following format: "#AARRGGBB"
-        customPropertiesValue[name] = "#${value.toArgb().toUInt().toString(16)}"
+        customPropertiesValue[name] = value.toJsonHexString()
     }
 
     /**
@@ -316,6 +315,9 @@ class MotionSceneScope internal constructor(private val dpToPixel: CorePixelDp) 
     fun KeyAttributeScope.customFontSize(name: String, value: TextUnit) {
         customPropertiesValue[name] = value.value
     }
+
+    private fun Color.toJsonHexString() =
+        "#${this.toArgb().toUInt().toString(16)}"
 }
 
 data class ConstraintSetRef internal constructor(
