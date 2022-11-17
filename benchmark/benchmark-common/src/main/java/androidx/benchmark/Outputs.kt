@@ -42,14 +42,22 @@ public object Outputs {
     /**
      * The usable output directory, given permission issues with `adb shell` on Android R.
      * Both the app and the shell have access to this output folder.
+     *
+     * This dir can be read/written by app
+     * This dir can be read by shell (see [forceFilesForShellAccessible] for API 21/22!)
      */
     public val dirUsableByAppAndShell: File
+
+    /**
+     * Any file created by this process for the shell to use must be explicitly made filesystem
+     * globally readable, as prior to API 23 the shell didn't have access by default.
+     */
+    val forceFilesForShellAccessible: Boolean = Build.VERSION.SDK_INT in 21..22
 
     init {
         // Be explicit about the TimeZone for stable formatting
         formatter.timeZone = TimeZone.getTimeZone("UTC")
 
-        @Suppress("DEPRECATION")
         @SuppressLint("NewApi")
         dirUsableByAppAndShell = when {
             Build.VERSION.SDK_INT >= 29 -> {
@@ -70,12 +78,21 @@ public object Outputs {
                 "additionalTestOutputDir argument required to declare output dir."
         )
 
+        if (forceFilesForShellAccessible) {
+            // By default, shell doesn't have access to app dirs on 21/22 so we need to modify
+            // this so that the shell can output here too
+            dirUsableByAppAndShell.setReadable(true, false)
+            dirUsableByAppAndShell.setWritable(true, false)
+            dirUsableByAppAndShell.setExecutable(true, false)
+        }
+
         Log.d(BenchmarkState.TAG, "Usable output directory: $dirUsableByAppAndShell")
 
         outputDirectory = Arguments.additionalTestOutputDir?.let { File(it) }
             ?: dirUsableByAppAndShell
 
         Log.d(BenchmarkState.TAG, "Output Directory: $outputDirectory")
+        outputDirectory.mkdirs()
     }
 
     /**
@@ -93,21 +110,21 @@ public object Outputs {
         block: (file: File) -> Unit,
     ): String {
         val sanitizedName = sanitizeFilename(fileName)
+        val destination = File(outputDirectory, sanitizedName)
 
         // We override the `additionalTestOutputDir` argument.
         // Context: b/181601156
         val file = File(dirUsableByAppAndShell, sanitizedName)
         block.invoke(file)
+        check(file.exists()) { "File doesn't exist!" }
 
-        var destination = file
         if (dirUsableByAppAndShell != outputDirectory) {
             // We need to copy files over anytime `dirUsableByAppAndShell` is different from
             // `outputDirectory`.
-            destination = File(outputDirectory, sanitizedName)
             Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-            outputDirectory.mkdirs()
             file.copyTo(destination, overwrite = true)
         }
+
         InstrumentationResults.reportAdditionalFileToCopy(
             key = reportKey,
             absoluteFilePath = destination.absolutePath,

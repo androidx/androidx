@@ -72,6 +72,9 @@ public class PerfettoCapture(
                     listOf("*")
                 }
                 configProtoFile.writeBytes(perfettoConfig(atraceApps).validateAndEncode())
+                if (Outputs.forceFilesForShellAccessible) {
+                    configProtoFile.setReadable(true, /* ownerOnly = */ false)
+                }
             }
             userspaceTrace("start perfetto process") {
                 helper.startCollecting(configProtoFile.absolutePath, false)

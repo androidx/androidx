@@ -76,6 +76,7 @@ object Arguments {
         get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
+    internal val thermalThrottleSleepDurationSeconds: Long
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
@@ -164,6 +165,12 @@ object Arguments {
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }
+
+        thermalThrottleSleepDurationSeconds =
+            arguments.getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")?.ifBlank { null }
+                ?.toLong()
+                ?: 90
+
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         Log.d(BenchmarkState.TAG, "additionalTestOutputDir=$additionalTestOutputDir")
 
