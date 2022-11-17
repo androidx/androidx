@@ -31,24 +31,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * This class provides APIs to manage ads attribution using Privacy Sandbox.
  */
 abstract class MeasurementManager {
-    /** The state of Measurement API, as returned by getMeasurementApiStatus(). */
-    enum class MeasurementApiState {
-        /**
-         * This state indicates that Measurement APIs are unavailable. Invoking them will result
-         * in an {@link UnsupportedOperationException}.
-         */
-        MEASUREMENT_API_STATE_DISABLED,
-        /**
-         * This state indicates that Measurement APIs are enabled.
-         */
-        MEASUREMENT_API_STATE_ENABLED,
-        /**
-         * This state indicates that the library is behind the version of the platform API and
-         * the value returned by the platform is unknown to this version of the library.
-         */
-        UNKNOWN
-    }
-
     /**
      * Delete previous registrations.
      *
@@ -104,11 +86,12 @@ abstract class MeasurementManager {
     /**
      * Get Measurement API status.
      *
-     * <p>The call returns a value from {@link MeasurementApiState}.
+     * <p>The call returns an integer value (see {@link MEASUREMENT_API_STATE_DISABLED} and
+     * {@link MEASUREMENT_API_STATE_ENABLED} for possible values).
      */
     @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract suspend fun getMeasurementApiStatus(): MeasurementApiState
+    abstract suspend fun getMeasurementApiStatus(): Int
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
     private class Api33Ext4Impl(
@@ -243,34 +226,24 @@ abstract class MeasurementManager {
         @DoNotInline
         @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
         // TODO(b/259446937): Update this API to conform with API guidelines once clarified.
-        override suspend fun getMeasurementApiStatus(): MeasurementApiState {
-            return convertMeasurementApiState(getMeasurementApiStatusInternal())
-        }
-
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        private suspend fun getMeasurementApiStatusInternal(): Int = suspendCancellableCoroutine {
+        override suspend fun getMeasurementApiStatus(): Int = suspendCancellableCoroutine {
                 continuation ->
             mMeasurementManager.getMeasurementApiStatus(
                 Runnable::run,
                 continuation.asOutcomeReceiver())
         }
-
-        private fun convertMeasurementApiState(state: Int): MeasurementApiState {
-            return when (state) {
-                0 -> {
-                    MeasurementApiState.MEASUREMENT_API_STATE_DISABLED
-                }
-                1 -> {
-                    MeasurementApiState.MEASUREMENT_API_STATE_ENABLED
-                }
-                else -> {
-                    MeasurementApiState.UNKNOWN
-                }
-            }
-        }
     }
 
     companion object {
+        /**
+         * This state indicates that Measurement APIs are unavailable. Invoking them will result
+         * in an {@link UnsupportedOperationException}.
+         */
+        public const val MEASUREMENT_API_STATE_DISABLED = 0
+        /**
+         * This state indicates that Measurement APIs are enabled.
+         */
+        public const val MEASUREMENT_API_STATE_ENABLED = 1
 
         /**
          *  Creates [MeasurementManager].

@@ -30,7 +30,6 @@ import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion.obtain
-import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest
 import com.google.common.util.concurrent.ListenableFuture
@@ -113,12 +112,13 @@ abstract class MeasurementManagerFutures internal constructor() {
     /**
      * Get Measurement API status.
      *
-     * <p>The callback's {@code Integer} value is one of {@code MeasurementApiState}.
+     * <p>The call returns an integer value (see {@link MEASUREMENT_API_STATE_DISABLED} and
+     * {@link MEASUREMENT_API_STATE_ENABLED} for possible values).
      */
     @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun getMeasurementApiStatusAsync(): ListenableFuture<MeasurementApiState>
+    abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -176,7 +176,7 @@ abstract class MeasurementManagerFutures internal constructor() {
 
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-        override fun getMeasurementApiStatusAsync(): ListenableFuture<MeasurementApiState> {
+        override fun getMeasurementApiStatusAsync(): ListenableFuture<Int> {
             return CoroutineScope(Dispatchers.Main).async {
                 mMeasurementManager.getMeasurementApiStatus()
             }.asListenableFuture()
