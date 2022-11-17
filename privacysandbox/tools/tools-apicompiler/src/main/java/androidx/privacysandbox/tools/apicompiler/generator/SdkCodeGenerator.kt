@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
+import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
@@ -63,6 +64,7 @@ internal class SdkCodeGenerator(
         generateCallbackProxies()
         generateToolMetadata()
         generateSuspendFunctionUtilities()
+        generateServiceFactoryFile()
     }
 
     private fun generateAidlSources() {
@@ -116,6 +118,16 @@ internal class SdkCodeGenerator(
             Metadata.filePath.nameWithoutExtension,
             Metadata.filePath.extension,
         ).use { Metadata.toolMetadata.writeTo(it) }
+    }
+
+    private fun generateServiceFactoryFile() {
+        // The service factory stubs are generated so that the API Packager can include them in the
+        // API descriptors, and the client can use those symbols without running the API Generator.
+        // It's not intended to be used by the SDK code.
+        val serviceFactoryFileGenerator = ServiceFactoryFileGenerator(generateStubs = true)
+        api.services.forEach {
+            serviceFactoryFileGenerator.generate(it).also(::write)
+        }
     }
 
     private fun generateSuspendFunctionUtilities() {
