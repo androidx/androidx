@@ -539,6 +539,7 @@ package androidx.constraintlayout.compose {
     method public void setDebugMode(androidx.constraintlayout.compose.MotionLayoutDebugFlags motionDebugFlag);
     method public void snapTo(float newProgress);
     property public float currentProgress;
+    property @kotlin.PublishedApi internal final androidx.constraintlayout.compose.MotionLayoutDebugFlags debugMode;
     property public boolean isInDebugMode;
     field @kotlin.PublishedApi internal final androidx.constraintlayout.compose.MotionProgress motionProgress;
   }

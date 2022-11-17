@@ -686,12 +686,12 @@ package androidx.wear.compose.material {
     method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? snapTo(T? targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final T! currentValue;
-    property public final float direction;
+    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final float direction;
     property public final boolean isAnimationRunning;
-    property public final androidx.compose.runtime.State<java.lang.Float> offset;
-    property public final androidx.compose.runtime.State<java.lang.Float> overflow;
-    property public final androidx.wear.compose.material.SwipeProgress<T> progress;
-    property public final T! targetValue;
+    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> offset;
+    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> overflow;
+    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.wear.compose.material.SwipeProgress<T> progress;
+    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final T! targetValue;
     field public static final androidx.wear.compose.material.SwipeableState.Companion Companion;
   }
 
