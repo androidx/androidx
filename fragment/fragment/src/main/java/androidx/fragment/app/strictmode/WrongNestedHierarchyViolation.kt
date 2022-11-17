@@ -26,7 +26,7 @@ class WrongNestedHierarchyViolation internal constructor(
     /**
      * Gets the expected parent [Fragment] of the fragment causing the Violation.
      */
-    val parentFragment: Fragment,
+    val expectedParentFragment: Fragment,
     /**
      * Gets the unique ID of the container that the [Fragment] causing
      * the Violation would have been added to.
@@ -35,6 +35,6 @@ class WrongNestedHierarchyViolation internal constructor(
 ) : Violation(
     fragment,
     "Attempting to nest fragment $fragment within the view " +
-        "of parent fragment $parentFragment via container with ID $containerId " +
+        "of parent fragment $expectedParentFragment via container with ID $containerId " +
         "without using parent's childFragmentManager"
 )

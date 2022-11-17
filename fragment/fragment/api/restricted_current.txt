@@ -571,9 +571,9 @@ package androidx.fragment.app.strictmode {
 
   public final class WrongNestedHierarchyViolation extends androidx.fragment.app.strictmode.Violation {
     method public int getContainerId();
-    method public androidx.fragment.app.Fragment getParentFragment();
+    method public androidx.fragment.app.Fragment getExpectedParentFragment();
     property public final int containerId;
-    property public final androidx.fragment.app.Fragment parentFragment;
+    property public final androidx.fragment.app.Fragment expectedParentFragment;
   }
 
 }
