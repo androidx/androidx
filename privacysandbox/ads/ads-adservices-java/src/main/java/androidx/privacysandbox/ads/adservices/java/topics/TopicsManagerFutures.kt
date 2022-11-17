@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.ads.adservices.java.topics
 
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import androidx.privacysandbox.ads.adservices.topics.TopicsManager
 import androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest
@@ -24,17 +25,12 @@ import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.os.BuildCompat
 import com.google.common.util.concurrent.ListenableFuture
-import java.lang.SuppressWarnings
-import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
@@ -56,41 +52,17 @@ abstract class TopicsManagerFutures internal constructor() {
     @SuppressLint("ClassVerificationFailure", "NewApi")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
-        private val mTopicsManager: TopicsManager?
+        private val mTopicsManager: TopicsManager
     ) : TopicsManagerFutures() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
         override fun getTopicsAsync(
             request: GetTopicsRequest
         ): ListenableFuture<GetTopicsResponse> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mTopicsManager!!.getTopics(request)
+            return CoroutineScope(Dispatchers.Main).async {
+                mTopicsManager.getTopics(request)
             }.asListenableFuture()
         }
-    }
-
-    @SuppressWarnings("AsyncSuffixFuture")
-    @OptIn(ExperimentalCoroutinesApi::class)
-    internal fun <T> Deferred<T>.asListenableFuture(
-        tag: Any? = "Deferred.asListenableFuture"
-    ): ListenableFuture<T> {
-        val resolver: CallbackToFutureAdapter.Resolver<T> =
-            CallbackToFutureAdapter.Resolver<T> { completer ->
-                this.invokeOnCompletion {
-                    if (it != null) {
-                        if (it is CancellationException) {
-                            completer.setCancelled()
-                        } else {
-                            completer.setException(it)
-                        }
-                    } else {
-                        // Ignore exceptions - This should never throw in this situation.
-                        completer.set(this.getCompleted())
-                    }
-                }
-                tag
-            }
-        return CallbackToFutureAdapter.getFuture(resolver)
     }
 
     companion object {
@@ -105,11 +77,7 @@ abstract class TopicsManagerFutures internal constructor() {
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): TopicsManagerFutures? {
             // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
-                Api33Ext4JavaImpl(obtain(context))
-            } else {
-                null
-            }
+            return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }
 }

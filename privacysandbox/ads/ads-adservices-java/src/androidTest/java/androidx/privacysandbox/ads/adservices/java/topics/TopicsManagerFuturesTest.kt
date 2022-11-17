@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.truth.Truth.assertThat
+import java.lang.SuppressWarnings
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -63,6 +64,7 @@ class TopicsManagerFuturesTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
     fun testTopicsAsync() {
         val topicsManager = mockTopicsManager(mContext)
         setupTopicsResponse(topicsManager)
@@ -77,15 +79,15 @@ class TopicsManagerFuturesTest {
         val result: ListenableFuture<GetTopicsResponse> =
             managerCompat!!.getTopicsAsync(request)
 
+        // Verify that the result of the compat call is correct.
+        verifyResponse(result.get())
+
         // Verify that the compat code was invoked correctly.
         val captor = ArgumentCaptor.forClass(android.adservices.topics.GetTopicsRequest::class.java)
         verify(topicsManager).getTopics(captor.capture(), any(), any())
 
         // Verify that the request that the compat code makes to the platform is correct.
         verifyRequest(captor.value)
-
-        // Verify that the result of the compat call is correct.
-        verifyResponse(result.get())
     }
 
     @RequiresApi(34)
