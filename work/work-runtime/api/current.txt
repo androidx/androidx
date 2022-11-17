@@ -320,13 +320,23 @@ package androidx.work {
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.Data getProgress();
-    method @IntRange(from=0) public int getRunAttemptCount();
+    method @IntRange(from=0L) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
-    method public java.util.Set<java.lang.String!> getTags();
+    method public java.util.Set<java.lang.String> getTags();
+    property public final int generation;
+    property public final java.util.UUID id;
+    property public final androidx.work.Data outputData;
+    property public final androidx.work.Data progress;
+    property @IntRange(from=0L) public final int runAttemptCount;
+    property public final androidx.work.WorkInfo.State state;
+    property public final java.util.Set<java.lang.String> tags;
   }
 
   public enum WorkInfo.State {
-    method public boolean isFinished();
+    method public final boolean isFinished();
+    method public static androidx.work.WorkInfo.State valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.WorkInfo.State[] values();
+    property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;
     enum_constant public static final androidx.work.WorkInfo.State ENQUEUED;
