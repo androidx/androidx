@@ -35,11 +35,9 @@ class SplitActivityTrampoline : SplitActivityBase() {
         val placeholderIntent = Intent()
         placeholderIntent.component =
             componentName("androidx.window.sample.embedding.SplitActivityPlaceholder")
-        val placeholderRule = SplitPlaceholderRule.Builder(
-            activityFilters,
-            placeholderIntent,
-            minWidth = minSplitWidth(),
-            minSmallestWidth = 0)
+        val placeholderRule = SplitPlaceholderRule.Builder(activityFilters, placeholderIntent)
+            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+            .setMinSmallestWidthDp(0)
             .setFinishPrimaryWithPlaceholder(FINISH_ADJACENT)
             .setSplitRatio(SPLIT_RATIO)
             .build()

@@ -240,7 +240,9 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             pairFilters.add(SplitPairFilter(componentNameA, componentNameNotPip, null))
             val finishAWithB = viewBinding.finishPrimaryWithSecondaryCheckBox.isChecked
             val finishBWithA = viewBinding.finishSecondaryWithPrimaryCheckBox.isChecked
-            val rule = SplitPairRule.Builder(pairFilters, 0, 0)
+            val rule = SplitPairRule.Builder(pairFilters)
+                .setMinWidthDp(0)
+                .setMinSmallestWidthDp(0)
                 .setFinishPrimaryWithSecondary(
                     if (finishAWithB) SplitRule.FINISH_ALWAYS else SplitRule.FINISH_NEVER)
                 .setFinishSecondaryWithPrimary(
@@ -256,7 +258,9 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             activityFilters.add(ActivityFilter(componentNameB, null))
             val intent = Intent().setComponent(componentNamePlaceholder)
             val isSticky = viewBinding.useStickyPlaceHolderCheckBox.isChecked
-            val rule = SplitPlaceholderRule.Builder(activityFilters, intent, 0, 0)
+            val rule = SplitPlaceholderRule.Builder(activityFilters, intent)
+                .setMinWidthDp(0)
+                .setMinSmallestWidthDp(0)
                 .setSticky(isSticky)
                 .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(splitRatio)

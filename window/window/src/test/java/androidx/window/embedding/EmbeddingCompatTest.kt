@@ -30,7 +30,8 @@ import org.mockito.kotlin.verify
 class EmbeddingCompatTest {
 
     private val component = mock<ActivityEmbeddingComponent>()
-    private val embeddingCompat = EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER)
+    private val embeddingCompat = EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER,
+        mock())
 
     @Test
     fun setSplitInfoCallback_callsActualMethod() {

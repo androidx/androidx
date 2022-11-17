@@ -124,8 +124,8 @@ internal class SplitRuleParser {
         parser: XmlResourceParser
     ): SplitPairRule {
         val ratio: Float
-        val minWidth: Int
-        val minSmallestWidth: Int
+        val minWidthDp: Int
+        val minSmallestWidthDp: Int
         val layoutDir: Int
         val finishPrimaryWithSecondary: Int
         val finishSecondaryWithPrimary: Int
@@ -137,14 +137,14 @@ internal class SplitRuleParser {
             0
         ).apply {
             ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
-            minWidth = getDimension(
-                R.styleable.SplitPairRule_splitMinWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
-            minSmallestWidth = getDimension(
-                R.styleable.SplitPairRule_splitMinSmallestWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
+            minWidthDp = getInteger(
+                R.styleable.SplitPairRule_splitMinWidthDp,
+                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+            )
+            minSmallestWidthDp = getInteger(
+                R.styleable.SplitPairRule_splitMinSmallestWidthDp,
+                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+            )
             layoutDir = getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
                 LayoutDirection.LOCALE
@@ -156,7 +156,9 @@ internal class SplitRuleParser {
             clearTop =
                 getBoolean(R.styleable.SplitPairRule_clearTop, false)
         }
-        return SplitPairRule.Builder(emptySet(), minWidth, minSmallestWidth)
+        return SplitPairRule.Builder(emptySet())
+            .setMinWidthDp(minWidthDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
@@ -173,8 +175,8 @@ internal class SplitRuleParser {
         val stickyPlaceholder: Boolean
         val finishPrimaryWithPlaceholder: Int
         val ratio: Float
-        val minWidth: Int
-        val minSmallestWidth: Int
+        val minWidthDp: Int
+        val minSmallestWidthDp: Int
         val layoutDir: Int
         context.theme.obtainStyledAttributes(
             parser,
@@ -190,14 +192,14 @@ internal class SplitRuleParser {
             finishPrimaryWithPlaceholder =
                 getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder, FINISH_ALWAYS)
             ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
-            minWidth = getDimension(
-                R.styleable.SplitPlaceholderRule_splitMinWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
-            minSmallestWidth = getDimension(
-                R.styleable.SplitPlaceholderRule_splitMinSmallestWidth,
-                defaultMinWidth(context.resources)
-            ).toInt()
+            minWidthDp = getInteger(
+                R.styleable.SplitPlaceholderRule_splitMinWidthDp,
+                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+            )
+            minSmallestWidthDp = getInteger(
+                R.styleable.SplitPlaceholderRule_splitMinSmallestWidthDp,
+                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+            )
             layoutDir = getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
                 LayoutDirection.LOCALE
@@ -217,10 +219,11 @@ internal class SplitRuleParser {
 
         return SplitPlaceholderRule.Builder(
             emptySet(),
-            Intent().setComponent(placeholderActivityClassName),
-            minWidth,
-            minSmallestWidth
-        ).setSticky(stickyPlaceholder)
+            Intent().setComponent(placeholderActivityClassName)
+        )
+            .setMinWidthDp(minWidthDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setSticky(stickyPlaceholder)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(ratio)
             .setLayoutDirection(layoutDir)
@@ -319,12 +322,5 @@ internal class SplitRuleParser {
             return ComponentName(pkgString, b.toString())
         }
         return ComponentName(pkgString, clsString)
-    }
-
-    private fun defaultMinWidth(resources: Resources): Float {
-        // Get the screen's density scale
-        val scale: Float = resources.displayMetrics.density
-        // Convert the dps to pixels, based on density scale
-        return 600 * scale + 0.5f
     }
 }

@@ -16,10 +16,6 @@
 
 package androidx.window.embedding
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
-import android.view.WindowMetrics
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
@@ -28,6 +24,11 @@ import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.view.WindowMetrics
 import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.WindowExtensionsProvider
 
@@ -89,9 +90,9 @@ internal class EmbeddingAdapter(
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateParentMetricsPredicate(splitRule: SplitRule): Any {
+    private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any {
         return predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
-            splitRule.checkParentMetrics(windowMetrics)
+            splitRule.checkParentMetrics(context, windowMetrics)
         }
     }
 
@@ -111,6 +112,7 @@ internal class EmbeddingAdapter(
 
     @SuppressLint("WrongConstant") // Converting from Jetpack to Extensions constants
     private fun translateSplitPairRule(
+        context: Context,
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
@@ -121,7 +123,7 @@ internal class EmbeddingAdapter(
         ).newInstance(
             translateActivityPairPredicates(rule.filters),
             translateActivityIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(rule)
+            translateParentMetricsPredicate(context, rule)
         )
             .setSplitRatio(rule.splitRatio)
             .setLayoutDirection(rule.layoutDirection)
@@ -133,6 +135,7 @@ internal class EmbeddingAdapter(
 
     @SuppressLint("WrongConstant") // Converting from Jetpack to Extensions constants
     private fun translateSplitPlaceholderRule(
+        context: Context,
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
@@ -145,7 +148,7 @@ internal class EmbeddingAdapter(
             rule.placeholderIntent,
             translateActivityPredicates(rule.filters),
             translateIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(rule)
+            translateParentMetricsPredicate(context, rule)
         )
             .setSplitRatio(rule.splitRatio)
             .setLayoutDirection(rule.layoutDirection)
@@ -184,12 +187,13 @@ internal class EmbeddingAdapter(
             .build()
     }
 
-    fun translate(rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {
+    fun translate(context: Context, rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {
         val predicateClass = predicateAdapter.predicateClassOrNull() ?: return emptySet()
         return rules.map { rule ->
             when (rule) {
-                is SplitPairRule -> translateSplitPairRule(rule, predicateClass)
-                is SplitPlaceholderRule -> translateSplitPlaceholderRule(rule, predicateClass)
+                is SplitPairRule -> translateSplitPairRule(context, rule, predicateClass)
+                is SplitPlaceholderRule ->
+                    translateSplitPlaceholderRule(context, rule, predicateClass)
                 is ActivityRule -> translateActivityRule(rule, predicateClass)
                 else -> throw IllegalArgumentException("Unsupported rule type")
             }
