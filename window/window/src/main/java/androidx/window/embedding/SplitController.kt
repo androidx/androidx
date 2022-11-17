@@ -36,8 +36,9 @@ import kotlin.concurrent.withLock
  * [android.app.Activity] launches and do not apply to already running activities.
  * @see initialize
  */
-class SplitController private constructor() {
-    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend.getInstance()
+class SplitController private constructor(applicationContext: Context) {
+    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
+        .getInstance(applicationContext)
     private var staticRules: Set<EmbeddingRule> = emptySet()
 
     /**
@@ -189,13 +190,15 @@ class SplitController private constructor() {
 
         /**
          * Gets the shared instance of the class.
+         *
+         * @param context the [Context] to initialize the controller with.
          */
         @JvmStatic
-        fun getInstance(): SplitController {
+        fun getInstance(context: Context): SplitController {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
-                        globalInstance = SplitController()
+                        globalInstance = SplitController(context.applicationContext)
                     }
                 }
             }
@@ -210,10 +213,11 @@ class SplitController private constructor() {
          * startup before any activities complete initialization. The rule updates only apply to
          * future [android.app.Activity] launches and do not apply to already running activities.
          * <p>Note that it is not necessary to call this function in order to use [SplitController].
-         * If the app doesn't have any static rule, it can use [registerRule] to register rules at
+         * If the app doesn't have any static rule, it can use [addRule] to register rules at
          * any time.
          *
-         * @param context the context to read the split resource from.
+         * @param context the [Context] to read the split resource from, and to initialize the
+         * controller with.
          * @param staticRuleResourceId the resource containing the static split rules.
          * @throws IllegalArgumentException if any of the rules in the XML is malformed or if
          * there's a duplicated [tag][EmbeddingRule.tag].
@@ -222,7 +226,7 @@ class SplitController private constructor() {
         fun initialize(context: Context, staticRuleResourceId: Int) {
             val parser = SplitRuleParser()
             val configs = parser.parseSplitRules(context, staticRuleResourceId)
-            val controllerInstance = getInstance()
+            val controllerInstance = getInstance(context)
             controllerInstance.setStaticRules(configs ?: emptySet())
         }
     }

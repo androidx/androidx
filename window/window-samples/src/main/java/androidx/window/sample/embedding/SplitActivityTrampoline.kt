@@ -49,7 +49,7 @@ class SplitActivityTrampoline : SplitActivityBase() {
             .setFinishPrimaryWithPlaceholder(ADJACENT)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
-        SplitController.getInstance().addRule(placeholderRule)
+        SplitController.getInstance(this).addRule(placeholderRule)
         val activityIntent = Intent()
         activityIntent.component = componentName(
             "androidx.window.sample.embedding.SplitActivityTrampolineTarget")
