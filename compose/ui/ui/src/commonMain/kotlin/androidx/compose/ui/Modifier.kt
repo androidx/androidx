@@ -147,6 +147,7 @@ interface Modifier {
      * [androidx.compose.ui.node.ModifierNodeElement] to a [Modifier] chain.
      *
      * @see androidx.compose.ui.node.ModifierNodeElement
+     * @see androidx.compose.ui.node.CompositionLocalConsumerModifierNode
      * @see androidx.compose.ui.node.DelegatableNode
      * @see androidx.compose.ui.node.DelegatingNode
      * @see androidx.compose.ui.node.LayoutModifierNode

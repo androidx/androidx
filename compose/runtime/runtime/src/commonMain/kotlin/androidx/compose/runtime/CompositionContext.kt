@@ -16,11 +16,12 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.tooling.CompositionData
-import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import kotlin.coroutines.CoroutineContext
 
-private val EmptyCompositionLocalMap: CompositionLocalMap = persistentHashMapOf()
+private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
+    persistentCompositionLocalHashMapOf()
 
 /**
  * A [CompositionContext] is an opaque type that is used to logically "link" two compositions
@@ -52,7 +53,8 @@ abstract class CompositionContext internal constructor() {
     internal abstract fun registerComposition(composition: ControlledComposition)
     internal abstract fun unregisterComposition(composition: ControlledComposition)
 
-    internal open fun getCompositionLocalScope(): CompositionLocalMap = EmptyCompositionLocalMap
+    internal open fun getCompositionLocalScope(): PersistentCompositionLocalMap =
+        EmptyPersistentCompositionLocalMap
     internal open fun startComposing() {}
     internal open fun doneComposing() {}
 
