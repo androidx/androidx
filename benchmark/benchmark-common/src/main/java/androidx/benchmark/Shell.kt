@@ -476,6 +476,15 @@ object Shell {
     fun pathExists(absoluteFilePath: String): Boolean {
         return ShellImpl.executeCommandUnsafe("ls $absoluteFilePath").trim() == absoluteFilePath
     }
+
+    @RequiresApi(21)
+    fun amBroadcast(broadcastArguments: String): Int? {
+        // unsafe here for perf, since we validate the return value so we don't need to check stderr
+        return ShellImpl.executeCommandUnsafe("am broadcast $broadcastArguments")
+            .substringAfter("Broadcast completed: result=")
+            .trim()
+            .toIntOrNull()
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

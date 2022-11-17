@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
@@ -26,7 +27,8 @@ internal object ProfileInstallBroadcast {
     private val receiverName = ProfileInstallReceiver::class.java.name
 
     /**
-     * Returns null on success, or an error string otherwise.
+     * Returns null on success, error string on suppress-able error, or throws if profileinstaller
+     * not up to date.
      *
      * Returned error strings aren't thrown, to let the calling function decide strictness.
      */
@@ -36,13 +38,7 @@ internal object ProfileInstallBroadcast {
         // installed synchronously
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
         // Use an explicit broadcast given the app was force-stopped.
-        val result = Shell.executeScriptCaptureStdout(
-            "am broadcast -a $action $packageName/$receiverName"
-        )
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
-        when (result) {
+        when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
             null,
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast.
@@ -63,12 +59,25 @@ internal object ProfileInstallBroadcast {
                 )
             }
             ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION -> {
+                val sdkInt = Build.VERSION.SDK_INT
                 throw RuntimeException(
-                    "Baseline profiles aren't supported on this device version"
+                    if (sdkInt <= 23) {
+                        "Baseline profiles aren't supported on this device version," +
+                            " as all apps are fully ahead-of-time compiled."
+                    } else {
+                        "The device SDK version ($sdkInt) isn't supported" +
+                            " by the target app's copy of profileinstaller." +
+                            if (sdkInt in 31..33) {
+                                " Please use profileinstaller `1.2.1`" +
+                                    " or newer for API 31-33 support"
+                            } else {
+                                ""
+                            }
+                    }
                 )
             }
             ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND -> {
-                return "No baseline profile was found in the target apk."
+                    return "No baseline profile was found in the target apk."
             }
             ProfileInstaller.RESULT_NOT_WRITABLE,
             ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED,
@@ -103,12 +112,7 @@ internal object ProfileInstallBroadcast {
         val action = "androidx.profileinstaller.action.SKIP_FILE"
         val operationKey = "EXTRA_SKIP_FILE_OPERATION"
         val extras = "$operationKey $operation"
-        val result = Shell.executeScriptCaptureStdout(
-            "am broadcast -a $action -e $extras $packageName/$receiverName"
-        )
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
+        val result = Shell.amBroadcast("-a $action -e $extras $packageName/$receiverName")
         return when {
             result == null || result == 0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
@@ -143,13 +147,7 @@ internal object ProfileInstallBroadcast {
     fun saveProfile(packageName: String): String? {
         Log.d(TAG, "Profile Installer - Save Profile")
         val action = "androidx.profileinstaller.action.SAVE_PROFILE"
-        val result = Shell.executeScriptCaptureStdout(
-            "am broadcast -a $action $packageName/$receiverName"
-        )
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
-        return when (result) {
+        return when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
             null, 0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast.
@@ -176,20 +174,19 @@ internal object ProfileInstallBroadcast {
         }
     }
 
-    private fun benchmarkOperation(packageName: String, operation: String): String? {
+    private fun benchmarkOperation(
+        packageName: String,
+        @Suppress("SameParameterValue") operation: String
+    ): String? {
         Log.d(TAG, "Profile Installer - Benchmark Operation: $operation")
         // Redefining constants here, because these are only defined in the latest alpha for
         // ProfileInstaller.
         // Use an explicit broadcast given the app was force-stopped.
         val action = "androidx.profileinstaller.action.BENCHMARK_OPERATION"
         val operationKey = "EXTRA_BENCHMARK_OPERATION"
-        val extras = "$operationKey $operation"
-        val result = Shell.executeScriptCaptureStdout(
-            "am broadcast -a $action -e $extras $packageName/$receiverName"
+        val result = Shell.amBroadcast(
+            "-a $action -e $operationKey $operation $packageName/$receiverName"
         )
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
         return when (result) {
             null, 0, 16 /* BENCHMARK_OPERATION_UNKNOWN */ -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver

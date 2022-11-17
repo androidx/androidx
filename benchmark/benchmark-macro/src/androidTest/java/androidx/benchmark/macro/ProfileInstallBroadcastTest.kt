@@ -17,16 +17,23 @@
 package androidx.benchmark.macro
 
 import android.os.Build
+import androidx.benchmark.junit4.PerfettoTraceRule
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertNull
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ProfileInstallBroadcastTest {
+    @OptIn(ExperimentalPerfettoCaptureApi::class)
+    @get:Rule
+    val perfettoTraceRule = PerfettoTraceRule()
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     fun installProfile() {
