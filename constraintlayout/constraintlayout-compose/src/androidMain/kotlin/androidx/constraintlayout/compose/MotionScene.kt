@@ -47,6 +47,8 @@ interface MotionScene : CoreMotionScene {
 @ExperimentalMotionApi
 @Composable
 fun MotionScene(@Language("json5") content: String): MotionScene {
+    // TODO: Explore if we can make this a non-Composable, we have to make sure that it doesn't
+    //  break Link functionality
     return remember(content) {
         JSONMotionScene(content)
     }
