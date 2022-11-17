@@ -137,7 +137,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     public EdgeEffect mEdgeGlowBottom;
 
     /**
-     * Position of the last motion event.
+     * Position of the last motion event; only used with touch related events (usually to assist
+     * in movement changes in a drag gesture).
      */
     private int mLastMotionY;
 
@@ -189,10 +190,19 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private int mActivePointerId = INVALID_POINTER;
 
     /**
-     * Used during scrolling to retrieve the new offset within the window.
+     * Used during scrolling to retrieve the new offset within the window. Saves memory by saving
+     * x, y changes to this array (0 position = x, 1 position = y) vs. reallocating an x and y
+     * every time.
      */
     private final int[] mScrollOffset = new int[2];
+
+    /*
+     * Used during scrolling to retrieve the new consumed offset within the window.
+     * Uses same memory saving strategy as mScrollOffset.
+     */
     private final int[] mScrollConsumed = new int[2];
+
+    // Used to track the position of the touch only events relative to the container.
     private int mNestedYOffset;
 
     private int mLastScrollerY;
@@ -290,8 +300,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
-            @Nullable int[] offsetInWindow, int type) {
+    public boolean dispatchNestedPreScroll(
+            int dx,
+            int dy,
+            @Nullable int[] consumed,
+            @Nullable int[] offsetInWindow,
+            int type
+    ) {
         return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type);
     }
 
@@ -867,23 +882,26 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onTouchEvent(@NonNull MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent motionEvent) {
         initVelocityTrackerIfNotExists();
 
-        final int actionMasked = ev.getActionMasked();
+        final int actionMasked = motionEvent.getActionMasked();
 
         if (actionMasked == MotionEvent.ACTION_DOWN) {
             mNestedYOffset = 0;
         }
 
-        MotionEvent vtev = MotionEvent.obtain(ev);
-        vtev.offsetLocation(0, mNestedYOffset);
+        MotionEvent velocityTrackerMotionEvent = MotionEvent.obtain(motionEvent);
+        velocityTrackerMotionEvent.offsetLocation(0, mNestedYOffset);
 
         switch (actionMasked) {
             case MotionEvent.ACTION_DOWN: {
                 if (getChildCount() == 0) {
                     return false;
                 }
+
+                // If additional fingers touch the screen while a drag is in progress, this block
+                // of code will make sure the drag isn't interrupted.
                 if (mIsBeingDragged) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -899,22 +917,27 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     abortAnimatedScroll();
                 }
 
-                // Remember where the motion event started
-                mLastMotionY = (int) ev.getY();
-                mActivePointerId = ev.getPointerId(0);
-                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+                initializeTouchDrag(
+                        (int) motionEvent.getY(),
+                        motionEvent.getPointerId(0)
+                );
+
                 break;
             }
-            case MotionEvent.ACTION_MOVE:
-                final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
+
+            case MotionEvent.ACTION_MOVE: {
+                final int activePointerIndex = motionEvent.findPointerIndex(mActivePointerId);
                 if (activePointerIndex == -1) {
                     Log.e(TAG, "Invalid pointerId=" + mActivePointerId + " in onTouchEvent");
                     break;
                 }
 
-                final int y = (int) ev.getY(activePointerIndex);
+                final int y = (int) motionEvent.getY(activePointerIndex);
                 int deltaY = mLastMotionY - y;
-                deltaY -= releaseVerticalGlow(deltaY, ev.getX(activePointerIndex));
+                deltaY -= releaseVerticalGlow(deltaY, motionEvent.getX(activePointerIndex));
+
+                // Changes to dragged state if delta is greater than the slop (and not in
+                // the dragged state).
                 if (!mIsBeingDragged && Math.abs(deltaY) > mTouchSlop) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -927,70 +950,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         deltaY += mTouchSlop;
                     }
                 }
+
                 if (mIsBeingDragged) {
-                    // Start with nested pre scrolling
-                    if (dispatchNestedPreScroll(0, deltaY, mScrollConsumed, mScrollOffset,
-                            ViewCompat.TYPE_TOUCH)) {
-                        deltaY -= mScrollConsumed[1];
-                        mNestedYOffset += mScrollOffset[1];
-                    }
-
-                    // Scroll to follow the motion event
-                    mLastMotionY = y - mScrollOffset[1];
-
-                    final int oldY = getScrollY();
-                    final int range = getScrollRange();
-                    final int overscrollMode = getOverScrollMode();
-                    boolean canOverscroll = overscrollMode == View.OVER_SCROLL_ALWAYS
-                            || (overscrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
-
-                    // Calling overScrollByCompat will call onOverScrolled, which
-                    // calls onScrollChanged if applicable.
-                    boolean clearVelocityTracker =
-                            overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
-                                    0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH);
-
-                    final int scrolledDeltaY = getScrollY() - oldY;
-                    final int unconsumedY = deltaY - scrolledDeltaY;
-
-                    mScrollConsumed[1] = 0;
-
-                    dispatchNestedScroll(0, scrolledDeltaY, 0, unconsumedY, mScrollOffset,
-                            ViewCompat.TYPE_TOUCH, mScrollConsumed);
-
-                    mLastMotionY -= mScrollOffset[1];
-                    mNestedYOffset += mScrollOffset[1];
-
-                    if (canOverscroll) {
-                        deltaY -= mScrollConsumed[1];
-                        final int pulledToY = oldY + deltaY;
-                        if (pulledToY < 0) {
-                            EdgeEffectCompat.onPullDistance(mEdgeGlowTop,
-                                    (float) -deltaY / getHeight(),
-                                    ev.getX(activePointerIndex) / getWidth());
-                            if (!mEdgeGlowBottom.isFinished()) {
-                                mEdgeGlowBottom.onRelease();
-                            }
-                        } else if (pulledToY > range) {
-                            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom,
-                                    (float) deltaY / getHeight(),
-                                    1.f - ev.getX(activePointerIndex) / getWidth());
-                            if (!mEdgeGlowTop.isFinished()) {
-                                mEdgeGlowTop.onRelease();
-                            }
-                        }
-                        if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
-                            ViewCompat.postInvalidateOnAnimation(this);
-                            clearVelocityTracker = false;
-                        }
-                    }
-                    if (clearVelocityTracker) {
-                        // Break our velocity if we hit a scroll barrier.
-                        mVelocityTracker.clear();
-                    }
+                    final int x = (int) motionEvent.getX(activePointerIndex);
+                    int scrollOffset = scrollBy(deltaY, x, ViewCompat.TYPE_TOUCH, false);
+                    // Updates the global positions (used by later move events to properly scroll).
+                    mLastMotionY = y - scrollOffset;
+                    mNestedYOffset += scrollOffset;
                 }
                 break;
-            case MotionEvent.ACTION_UP:
+            }
+
+            case MotionEvent.ACTION_UP: {
                 final VelocityTracker velocityTracker = mVelocityTracker;
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
@@ -1004,37 +975,202 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         getScrollRange())) {
                     ViewCompat.postInvalidateOnAnimation(this);
                 }
-                mActivePointerId = INVALID_POINTER;
-                endDrag();
+                endTouchDrag();
                 break;
-            case MotionEvent.ACTION_CANCEL:
+            }
+
+            case MotionEvent.ACTION_CANCEL: {
                 if (mIsBeingDragged && getChildCount() > 0) {
                     if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0,
                             getScrollRange())) {
                         ViewCompat.postInvalidateOnAnimation(this);
                     }
                 }
-                mActivePointerId = INVALID_POINTER;
-                endDrag();
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN: {
-                final int index = ev.getActionIndex();
-                mLastMotionY = (int) ev.getY(index);
-                mActivePointerId = ev.getPointerId(index);
+                endTouchDrag();
                 break;
             }
-            case MotionEvent.ACTION_POINTER_UP:
-                onSecondaryPointerUp(ev);
-                mLastMotionY = (int) ev.getY(ev.findPointerIndex(mActivePointerId));
+
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                final int index = motionEvent.getActionIndex();
+                mLastMotionY = (int) motionEvent.getY(index);
+                mActivePointerId = motionEvent.getPointerId(index);
                 break;
+            }
+
+            case MotionEvent.ACTION_POINTER_UP: {
+                onSecondaryPointerUp(motionEvent);
+                mLastMotionY =
+                        (int) motionEvent.getY(motionEvent.findPointerIndex(mActivePointerId));
+                break;
+            }
         }
 
         if (mVelocityTracker != null) {
-            mVelocityTracker.addMovement(vtev);
+            mVelocityTracker.addMovement(velocityTrackerMotionEvent);
         }
-        vtev.recycle();
+        // Returns object back to be re-used by others.
+        velocityTrackerMotionEvent.recycle();
 
         return true;
+    }
+
+    private void initializeTouchDrag(int lastMotionY, int activePointerId) {
+        mLastMotionY = lastMotionY;
+        mActivePointerId = activePointerId;
+        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
+    }
+
+    // Ends drag in a nested scroll.
+    private void endTouchDrag() {
+        mActivePointerId = INVALID_POINTER;
+        mIsBeingDragged = false;
+
+        recycleVelocityTracker();
+        stopNestedScroll(ViewCompat.TYPE_TOUCH);
+
+        mEdgeGlowTop.onRelease();
+        mEdgeGlowBottom.onRelease();
+    }
+
+    /*
+     * Handles scroll events for both touch and non-touch events (mouse scroll wheel,
+     * rotary button, etc.).
+     *
+     * Note: This returns the total scroll offset for touch event which is required for calculating
+     * the scroll between move events. This returned value is NOT needed for non-touch events since
+     * a scroll is a one time event.
+     */
+    private int scrollBy(
+            int verticalScrollDistance,
+            int x,
+            int touchType,
+            boolean isSourceMouse
+    ) {
+        int totalScrollOffset = 0;
+
+        /*
+         * Starts nested scrolling for non-touch events (mouse scroll wheel, rotary button, etc.).
+         * This is in contrast to a touch event which would trigger the start of nested scrolling
+         * with a touch down event outside of this method, since for a single gesture scrollBy()
+         * might be called several times for a move event for a single drag gesture.
+         */
+        if (touchType == ViewCompat.TYPE_NON_TOUCH) {
+            startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, touchType);
+        }
+
+        // Dispatches scrolling delta amount available to parent (to consume what it needs).
+        // Note: The amounts the parent consumes are saved in arrays named mScrollConsumed and
+        // mScrollConsumed to save space.
+        if (dispatchNestedPreScroll(
+                0,
+                verticalScrollDistance,
+                mScrollConsumed,
+                mScrollOffset,
+                touchType)
+        ) {
+            // Deducts the scroll amount (y) consumed by the parent (x in position 0,
+            // y in position 1). Nested scroll only works with Y position (so we don't use x).
+            verticalScrollDistance -= mScrollConsumed[1];
+            totalScrollOffset += mScrollOffset[1];
+        }
+
+        // Retrieves the scroll y position (top position of this view) and scroll Y range (how far
+        // the scroll can go).
+        final int initialScrollY = getScrollY();
+        final int scrollRangeY = getScrollRange();
+
+        // Overscroll is for adding animations at the top/bottom of a view when the user scrolls
+        // beyond the beginning/end of the view. Overscroll is not used with a mouse.
+        boolean canOverscroll = canOverScroll() && !isSourceMouse;
+
+        // Scrolls content in the current View, but clamps it if it goes too far.
+        boolean hitScrollBarrier =
+                overScrollByCompat(
+                        0,
+                        verticalScrollDistance,
+                        0,
+                        initialScrollY,
+                        0,
+                        scrollRangeY,
+                        0,
+                        0,
+                        true
+                ) && !hasNestedScrollingParent(touchType);
+
+        // The position may have been adjusted in the previous call, so we must revise our values.
+        final int scrollYDelta = getScrollY() - initialScrollY;
+        final int unconsumedY = verticalScrollDistance - scrollYDelta;
+
+        // Reset the Y consumed scroll to zero
+        mScrollConsumed[1] = 0;
+
+        //  Dispatch the unconsumed delta Y to the children to consume.
+        dispatchNestedScroll(
+                0,
+                scrollYDelta,
+                0,
+                unconsumedY,
+                mScrollOffset,
+                touchType,
+                mScrollConsumed
+        );
+
+        totalScrollOffset += mScrollOffset[1];
+
+        // Handle overscroll of the children.
+        verticalScrollDistance -= mScrollConsumed[1];
+        int newScrollY = initialScrollY + verticalScrollDistance;
+
+        if (newScrollY < 0) {
+            if (canOverscroll) {
+                EdgeEffectCompat.onPullDistance(
+                        mEdgeGlowTop,
+                        (float) -verticalScrollDistance / getHeight(),
+                        (float) x / getWidth()
+                );
+
+                if (!mEdgeGlowBottom.isFinished()) {
+                    mEdgeGlowBottom.onRelease();
+                }
+            }
+
+        } else if (newScrollY > scrollRangeY) {
+            if (canOverscroll) {
+                EdgeEffectCompat.onPullDistance(
+                        mEdgeGlowBottom,
+                        (float) verticalScrollDistance / getHeight(),
+                        1.f - ((float) x / getWidth())
+                );
+
+                if (!mEdgeGlowTop.isFinished()) {
+                    mEdgeGlowTop.onRelease();
+                }
+            }
+        }
+
+        if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
+            ViewCompat.postInvalidateOnAnimation(this);
+            hitScrollBarrier = false;
+        }
+
+        if (hitScrollBarrier && (touchType == ViewCompat.TYPE_TOUCH)) {
+            // Break our velocity if we hit a scroll barrier.
+            mVelocityTracker.clear();
+        }
+
+        /*
+         * Ends nested scrolling for non-touch events (mouse scroll wheel, rotary button, etc.).
+         * As noted above, this is in contrast to a touch event.
+         */
+        if (touchType == ViewCompat.TYPE_NON_TOUCH) {
+            stopNestedScroll(touchType);
+
+            // Required for scrolling with Rotary Device stretch top/bottom to work properly
+            mEdgeGlowTop.onRelease();
+            mEdgeGlowBottom.onRelease();
+        }
+
+        return totalScrollOffset;
     }
 
     /**
@@ -1164,54 +1300,36 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onGenericMotionEvent(@NonNull MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_SCROLL && !mIsBeingDragged) {
-            final float vscroll;
-            if (MotionEventCompat.isFromSource(event, InputDevice.SOURCE_CLASS_POINTER)) {
-                vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-            } else if (MotionEventCompat.isFromSource(event, InputDevice.SOURCE_ROTARY_ENCODER)) {
-                vscroll = event.getAxisValue(MotionEvent.AXIS_SCROLL);
+    public boolean onGenericMotionEvent(@NonNull MotionEvent motionEvent) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_SCROLL && !mIsBeingDragged) {
+            final float verticalScroll;
+            final int x;
+
+            if (MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_CLASS_POINTER)) {
+                verticalScroll = motionEvent.getAxisValue(MotionEvent.AXIS_VSCROLL);
+                x = (int) motionEvent.getX();
+            } else if (
+                    MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_ROTARY_ENCODER)
+            ) {
+                verticalScroll = motionEvent.getAxisValue(MotionEvent.AXIS_SCROLL);
+                // Since a Wear rotary event doesn't have a true X and we want to support proper
+                // overscroll animations, we put the x at the center of the screen.
+                x = getWidth() / 2;
             } else {
-                vscroll = 0;
+                verticalScroll = 0;
+                x = 0;
             }
-            if (vscroll != 0) {
-                final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
-                final int range = getScrollRange();
-                int oldScrollY = getScrollY();
-                int newScrollY = oldScrollY - delta;
-                boolean absorbed = false;
-                if (newScrollY < 0) {
-                    // We don't want an EdgeEffect for mouse wheel operations
-                    final boolean canOverScroll = canOverScroll()
-                            && !MotionEventCompat.isFromSource(event, InputDevice.SOURCE_MOUSE);
-                    if (canOverScroll) {
-                        EdgeEffectCompat.onPullDistance(mEdgeGlowTop,
-                                -((float) newScrollY) / getHeight(),
-                                0.5f);
-                        mEdgeGlowTop.onRelease();
-                        invalidate();
-                        absorbed = true;
-                    }
-                    newScrollY = 0;
-                } else if (newScrollY > range) {
-                    // We don't want an EdgeEffect for mouse wheel operations
-                    final boolean canOverScroll = canOverScroll()
-                            && !MotionEventCompat.isFromSource(event, InputDevice.SOURCE_MOUSE);
-                    if (canOverScroll) {
-                        EdgeEffectCompat.onPullDistance(mEdgeGlowBottom,
-                                ((float) (newScrollY - range)) / getHeight(),
-                                0.5f);
-                        mEdgeGlowBottom.onRelease();
-                        invalidate();
-                        absorbed = true;
-                    }
-                    newScrollY = range;
-                }
-                if (newScrollY != oldScrollY) {
-                    super.scrollTo(getScrollX(), newScrollY);
-                    return true;
-                }
-                return absorbed;
+
+            if (verticalScroll != 0) {
+                // Rotary and Mouse scrolls are inverted from a touch scroll.
+                final int invertedDelta = (int) (verticalScroll * getVerticalScrollFactorCompat());
+
+                final boolean isSourceMouse =
+                        MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_MOUSE);
+
+                scrollBy(-invertedDelta, x, ViewCompat.TYPE_NON_TOUCH, isSourceMouse);
+
+                return true;
             }
         }
         return false;
@@ -1253,11 +1371,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int scrollRangeX, int scrollRangeY,
             int maxOverScrollX, int maxOverScrollY,
             boolean isTouchEvent) {
+
         final int overScrollMode = getOverScrollMode();
         final boolean canScrollHorizontal =
                 computeHorizontalScrollRange() > computeHorizontalScrollExtent();
         final boolean canScrollVertical =
                 computeVerticalScrollRange() > computeVerticalScrollExtent();
+
         final boolean overScrollHorizontal = overScrollMode == View.OVER_SCROLL_ALWAYS
                 || (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
         final boolean overScrollVertical = overScrollMode == View.OVER_SCROLL_ALWAYS
@@ -2169,16 +2289,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     0, 0); // overscroll
             runAnimatedScroll(true);
         }
-    }
-
-    private void endDrag() {
-        mIsBeingDragged = false;
-
-        recycleVelocityTracker();
-        stopNestedScroll(ViewCompat.TYPE_TOUCH);
-
-        mEdgeGlowTop.onRelease();
-        mEdgeGlowBottom.onRelease();
     }
 
     /**
