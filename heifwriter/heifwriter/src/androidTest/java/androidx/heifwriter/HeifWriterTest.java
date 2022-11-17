@@ -40,6 +40,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -120,6 +121,7 @@ public class HeifWriterTest extends TestBase {
         }
     }
 
+    @Ignore // b/239415930
     @Test
     @LargeTest
     public void testInputBuffer_NoGrid_NoHandler() throws Throwable {
@@ -130,6 +132,7 @@ public class HeifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
+    @Ignore // b/239415930
     @Test
     @LargeTest
     public void testInputBuffer_Grid_NoHandler() throws Throwable {
@@ -140,6 +143,7 @@ public class HeifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
+    @Ignore // b/239415930
     @Test
     @LargeTest
     public void testInputBuffer_NoGrid_Handler() throws Throwable {
@@ -150,6 +154,7 @@ public class HeifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
+    @Ignore // b/239415930
     @Test
     @LargeTest
     public void testInputBuffer_Grid_Handler() throws Throwable {
