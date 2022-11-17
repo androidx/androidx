@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.hardware.camera2.CaptureRequest
@@ -98,7 +99,8 @@ internal class Camera2CaptureSequenceProcessorTest {
     private val stream2 = streamGraph[stream2Config]!!
 
     private val fakeCameraDevice = FakeCameraDeviceWrapper(testCamera)
-    private val fakeCaptureSession = fakeCameraDevice.createFakeCaptureSession()
+    private val fakeCaptureSessionWrapper =
+        fakeCameraDevice.createFakeCaptureSession(null)
 
     @After
     fun teardown() {
@@ -137,7 +139,7 @@ internal class Camera2CaptureSequenceProcessorTest {
     @Test
     fun requestIsCreatedAndSubmitted() = runTest {
         val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
-            fakeCaptureSession,
+            fakeCaptureSessionWrapper,
             FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
@@ -163,8 +165,8 @@ internal class Camera2CaptureSequenceProcessorTest {
         val result = captureSequenceProcessor.submit(sequence!!)
 
         assertThat(result).isGreaterThan(0)
-        assertThat(fakeCaptureSession.lastCapture).hasSize(1)
-        assertThat(fakeCaptureSession.lastRepeating).isNull()
+        assertThat(fakeCaptureSessionWrapper.lastCapture).hasSize(1)
+        assertThat(fakeCaptureSessionWrapper.lastRepeating).isNull()
 
         // TODO: Add support for checking parameters when robolectric supports it.
     }
@@ -172,7 +174,7 @@ internal class Camera2CaptureSequenceProcessorTest {
     @Test
     fun requestIsSubmittedWithPartialSurfaces() = runTest {
         val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
-            fakeCaptureSession,
+            fakeCaptureSessionWrapper,
             FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
@@ -196,7 +198,7 @@ internal class Camera2CaptureSequenceProcessorTest {
     @Test
     fun requestIsNotSubmittedWithEmptySurfaceList() = runTest {
         val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
-            fakeCaptureSession,
+            fakeCaptureSessionWrapper,
             FakeThreads.fromTestScope(this),
             RequestTemplate(1),
             mapOf(
@@ -215,5 +217,33 @@ internal class Camera2CaptureSequenceProcessorTest {
         )
 
         assertThat(captureSequence).isNull()
+    }
+
+    @Test
+    fun requestMetaDataUnwrapsAsCameraCaptureSession() = runTest {
+        val captureSequenceProcessor = Camera2CaptureSequenceProcessor(
+            fakeCaptureSessionWrapper,
+            FakeThreads.fromTestScope(this),
+            RequestTemplate(1),
+            mapOf(
+                stream1.id to surface1
+            )
+        )
+        val captureSequence = captureSequenceProcessor.build(
+            isRepeating = false,
+            requests = listOf(Request(listOf(stream1.id, stream2.id))),
+            defaultParameters = mapOf<Any, Any?>(),
+            requiredParameters = mapOf<Any, Any?>(),
+            listeners = emptyList(),
+            sequenceListener = FakeCaptureSequenceListener()
+        )
+
+        assertThat(captureSequence).isNotNull()
+        assertThat(captureSequence!!.captureMetadataList).isNotEmpty()
+        captureSequence.captureMetadataList[0].unwrapAs(CameraCaptureSession::class)
+
+        assertThat(fakeCaptureSessionWrapper.unwrappedClasses.size).isEqualTo(1)
+        assertThat(fakeCaptureSessionWrapper.unwrappedClasses[0])
+            .isEqualTo(CameraCaptureSession::class)
     }
 }

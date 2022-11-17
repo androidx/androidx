@@ -196,6 +196,7 @@ internal class Camera2CaptureSequenceProcessor(
 
             @Suppress("SyntheticAccessor")
             val metadata = Camera2RequestMetadata(
+                session,
                 captureRequest,
                 defaultParameters,
                 requiredParameters,
@@ -280,6 +281,7 @@ internal class Camera2CaptureSequenceProcessor(
 @RequiresApi(21)
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class Camera2RequestMetadata(
+    private val cameraCaptureSessionWrapper: CameraCaptureSessionWrapper,
     private val captureRequest: CaptureRequest,
     private val defaultParameters: Map<*, Any?>,
     private val requiredParameters: Map<*, Any?>,
@@ -298,9 +300,11 @@ internal class Camera2RequestMetadata(
         requiredParameters.containsKey(key) -> {
             requiredParameters[key] as T?
         }
+
         request.extras.containsKey(key) -> {
             request.extras[key] as T?
         }
+
         else -> {
             defaultParameters[key] as T?
         }
@@ -311,6 +315,9 @@ internal class Camera2RequestMetadata(
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
         CaptureRequest::class -> captureRequest as T
+        CameraCaptureSession::class ->
+            cameraCaptureSessionWrapper.unwrapAs(CameraCaptureSession::class) as? T
+
         else -> null
     }
 }
