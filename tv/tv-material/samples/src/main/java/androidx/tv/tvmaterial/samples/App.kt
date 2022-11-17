@@ -29,18 +29,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun App() {
-    var selectedTab by remember { mutableStateOf(navigationMap[Navigation.FeaturedCarousel]) }
+    var selectedTab by remember { mutableStateOf(Navigation.FeaturedCarousel) }
 
     Column(
         modifier = Modifier.padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         TopNavigation(updateSelectedTab = { selectedTab = it })
-        when (reverseNavigationMap[selectedTab]) {
-            Navigation.FeaturedCarousel -> FeaturedCarousel()
-            Navigation.ImmersiveList -> SampleImmersiveList()
-            Navigation.LazyRowsAndColumns -> LazyRowsAndColumns()
-            else -> { }
-        }
+        selectedTab.action.invoke()
     }
 }
