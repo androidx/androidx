@@ -36,7 +36,6 @@ import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
@@ -66,6 +65,7 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -547,8 +547,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(error).isEqualTo(ImageCapture.ERROR_FILE_IO)
     }
 
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
     @Test
-    @OptIn(markerClass = [ExperimentalCamera2Interop::class])
+    @OptIn(
+        markerClass = [ExperimentalCamera2Interop::class]
+    )
     fun camera2InteropCaptureSessionCallbacks() = runBlocking {
         val stillCaptureCount = AtomicInteger(0)
         val captureCallback = object : CaptureCallback() {
@@ -566,7 +571,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             }
         }
         val builder = ImageCapture.Builder()
-        Camera2Interop.Extender(builder).setSessionCaptureCallback(captureCallback)
+        CameraPipeUtil.setCameraCaptureSessionCallback(implName, builder, captureCallback)
+
         val useCase = builder.build()
 
         withContext(Dispatchers.Main) {
@@ -1380,7 +1386,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         val imageCapture = builder
             .setSupportedResolutions(
-                listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480)))))
+                listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480))))
+            )
             .build()
 
         val preview = Preview.Builder().build()
@@ -1391,7 +1398,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             val cameraSelector =
                 getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
             camera = cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1426,7 +1434,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         val imageCapture = builder
             .setSupportedResolutions(
-                listOf(android.util.Pair(ImageFormat.JPEG, arrayOf(Size(640, 480)))))
+                listOf(android.util.Pair(ImageFormat.JPEG, arrayOf(Size(640, 480))))
+            )
             .build()
 
         val preview = Preview.Builder().build()
@@ -1436,7 +1445,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             val cameraSelector =
                 getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
             cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1536,13 +1546,18 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         simpleCaptureProcessor.close()
     }
 
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
     @Test
     fun unbindPreview_imageCapturingShouldSuccess() = runBlocking {
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
         val previewStreamReceived = CompletableDeferred<Boolean>()
         val preview = Preview.Builder().also {
-            Camera2Interop.Extender(it).setSessionCaptureCallback(
+            CameraPipeUtil.setCameraCaptureSessionCallback(
+                implName,
+                it,
                 object : CaptureCallback() {
                     override fun onCaptureCompleted(
                         session: CameraCaptureSession,
@@ -1551,13 +1566,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                     ) {
                         previewStreamReceived.complete(true)
                     }
-                }
-            )
+                })
         }.build()
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview)
+                fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview
+            )
         }
         assertWithMessage("Preview doesn't start").that(
             previewStreamReceived.awaitWithTimeoutOrNull()
