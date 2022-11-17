@@ -2,5 +2,7 @@ package com.sdkwithvalues
 
 import android.os.IBinder
 
-public fun wrapToSdkInterface(binder: IBinder): SdkInterface =
-        SdkInterfaceClientProxy(ISdkInterface.Stub.asInterface(binder))
+public object SdkInterfaceFactory {
+    public fun wrapToSdkInterface(binder: IBinder): SdkInterface =
+            SdkInterfaceClientProxy(ISdkInterface.Stub.asInterface(binder))
+}
