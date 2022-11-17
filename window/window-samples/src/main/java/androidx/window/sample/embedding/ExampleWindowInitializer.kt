@@ -27,7 +27,7 @@ import androidx.window.sample.R
 class ExampleWindowInitializer : Initializer<SplitController> {
     override fun create(context: Context): SplitController {
         SplitController.initialize(context, R.xml.main_split_config)
-        return SplitController.getInstance()
+        return SplitController.getInstance(context)
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> {

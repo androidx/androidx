@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
@@ -52,11 +53,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(): ExtensionEmbeddingBackend {
+        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
-                        val embeddingExtension = initAndVerifyEmbeddingExtension()
+                        val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
                         globalInstance = ExtensionEmbeddingBackend(embeddingExtension)
                     }
                 }
@@ -69,7 +70,10 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
          * implemented by OEM if available on this device. This also verifies if the loaded
          * implementation conforms to the declared API version.
          */
-        private fun initAndVerifyEmbeddingExtension(): EmbeddingInterfaceCompat? {
+        private fun initAndVerifyEmbeddingExtension(
+            // TODO(b/229656253) use applicationContext to load resource.
+            @Suppress("UNUSED_PARAMETER") applicationContext: Context
+        ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
                 if (isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
