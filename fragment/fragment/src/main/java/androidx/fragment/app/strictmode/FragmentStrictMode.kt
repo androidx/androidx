@@ -97,11 +97,11 @@ object FragmentStrictMode {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun onWrongNestedHierarchy(
         fragment: Fragment,
-        parentFragment: Fragment,
+        expectedParentFragment: Fragment,
         containerId: Int
     ) {
         val violation: Violation =
-            WrongNestedHierarchyViolation(fragment, parentFragment, containerId)
+            WrongNestedHierarchyViolation(fragment, expectedParentFragment, containerId)
         logIfDebuggingEnabled(violation)
         val policy = getNearestPolicy(fragment)
         if (policy.flags.contains(Flag.DETECT_WRONG_NESTED_HIERARCHY) &&
@@ -400,7 +400,7 @@ object FragmentStrictMode {
                 return this
             }
 
-            /** Detects nested fragments that do not use the parent's childFragmentManager.  */
+            /** Detects nested fragments that do not use the expected parent's childFragmentManager.  */
             @SuppressLint("BuilderSetStyle")
             fun detectWrongNestedHierarchy(): Builder {
                 flags.add(Flag.DETECT_WRONG_NESTED_HIERARCHY)
