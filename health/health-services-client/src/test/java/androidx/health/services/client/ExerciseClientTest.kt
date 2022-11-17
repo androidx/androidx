@@ -34,9 +34,8 @@ import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseTrackedStatus
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseTypeCapabilities
-import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate
-import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
+import androidx.health.services.client.data.GolfExerciseTypeConfig
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.IExerciseApiService
 import androidx.health.services.client.impl.IExerciseUpdateListener
@@ -743,7 +742,8 @@ class ExerciseClientTest {
     fun updateExerciseTypeConfigForActiveExercise() = runTest {
         service.exerciseConfig = ExerciseConfig.builder(ExerciseType.GOLF).build()
         val exerciseTypeConfig =
-            ExerciseTypeConfig.createGolfExerciseTypeConfig(GolfShotTrackingPlaceInfo.FAIRWAY)
+            GolfExerciseTypeConfig(GolfExerciseTypeConfig
+                .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
         val request =
             UpdateExerciseTypeConfigRequest(
                 CLIENT_CONFIGURATION.servicePackageName, exerciseTypeConfig

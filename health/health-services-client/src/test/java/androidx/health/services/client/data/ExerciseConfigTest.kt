@@ -43,8 +43,10 @@ class ExerciseConfigTest {
                     DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
                 ),
             ),
-            exerciseTypeConfig = ExerciseTypeConfig.createGolfExerciseTypeConfig(
-                GolfShotTrackingPlaceInfo.FAIRWAY)
+            exerciseTypeConfig = GolfExerciseTypeConfig(
+                GolfExerciseTypeConfig
+                    .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+            )
         ).toProto()
 
         val config = ExerciseConfig(proto)
@@ -59,8 +61,12 @@ class ExerciseConfigTest {
         assertThat(config.exerciseGoals[1].dataTypeCondition.dataType).isEqualTo(DISTANCE_TOTAL)
         assertThat(config.exerciseGoals[1].dataTypeCondition.threshold).isEqualTo(150.0)
         assertThat(config.exerciseGoals[1].dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
-        assertThat((config.exerciseTypeConfig)?.golfShotTrackingPlaceInfo).isEqualTo(
-         GolfShotTrackingPlaceInfo.FAIRWAY)
+        assertThat(config.exerciseTypeConfig!!).isInstanceOf(GolfExerciseTypeConfig::class.java)
+        assertThat(
+            (config.exerciseTypeConfig!! as GolfExerciseTypeConfig)
+            .golfShotTrackingPlaceInfo
+        ).isEqualTo(GolfExerciseTypeConfig
+            .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
     }
 
     @Test

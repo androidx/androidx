@@ -17,8 +17,7 @@
 package androidx.health.services.client.impl.request
 
 import android.os.Parcel
-import androidx.health.services.client.data.ExerciseTypeConfig
-import androidx.health.services.client.data.GolfShotTrackingPlaceInfo
+import androidx.health.services.client.data.GolfExerciseTypeConfig
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +30,10 @@ class UpdateExerciseTypeConfigRequestTest {
         val request =
             UpdateExerciseTypeConfigRequest(
                 "package",
-                ExerciseTypeConfig.createGolfExerciseTypeConfig(GolfShotTrackingPlaceInfo.TEE_BOX)
+                GolfExerciseTypeConfig(
+                    GolfExerciseTypeConfig
+                        .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
+                )
             )
         val parcel = Parcel.obtain()
 

@@ -316,9 +316,6 @@ package androidx.health.services.client.data {
   public final class ExerciseConfig {
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams);
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals);
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
     method public java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> getExerciseGoals();
@@ -569,15 +566,11 @@ package androidx.health.services.client.data {
     property public final boolean supportsAutoPauseAndResume;
   }
 
-  public final class ExerciseTypeConfig {
-    method public static androidx.health.services.client.data.ExerciseTypeConfig createGolfExerciseTypeConfig(int golfShotTrackingPlaceInfo);
-    method public int getGolfShotTrackingPlaceInfo();
-    property public final int golfShotTrackingPlaceInfo;
+  public abstract class ExerciseTypeConfig {
     field public static final androidx.health.services.client.data.ExerciseTypeConfig.Companion Companion;
   }
 
   public static final class ExerciseTypeConfig.Companion {
-    method public androidx.health.services.client.data.ExerciseTypeConfig createGolfExerciseTypeConfig(int golfShotTrackingPlaceInfo);
   }
 
   public final class ExerciseUpdate {
@@ -610,6 +603,25 @@ package androidx.health.services.client.data {
   }
 
   public static final class ExerciseUpdate.Companion {
+  }
+
+  public final class GolfExerciseTypeConfig extends androidx.health.services.client.data.ExerciseTypeConfig {
+    ctor public GolfExerciseTypeConfig(optional androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo);
+    method public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
+    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;
+  }
+
+  public static final class GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo {
+    method public int getPlaceInfoId();
+    property public final int placeInfoId;
+    field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.Companion Companion;
+    field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY;
+    field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN;
+    field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX;
+    field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED;
+  }
+
+  public static final class GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.Companion {
   }
 
   public final class HealthEvent {
