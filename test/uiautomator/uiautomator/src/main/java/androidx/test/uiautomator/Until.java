@@ -351,7 +351,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descContains(@NonNull String substring) {
-        return descMatches(String.format("^.*%s.*$", Pattern.quote(substring)));
+        return descMatches(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -360,7 +360,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descStartsWith(@NonNull String substring) {
-        return descMatches(String.format("^%s.*$", Pattern.quote(substring)));
+        return descMatches(RegexHelper.getPatternStartsWith(substring));
     }
 
     /**
@@ -369,7 +369,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> descEndsWith(@NonNull String substring) {
-        return descMatches(String.format("^.*%s$", Pattern.quote(substring)));
+        return descMatches(RegexHelper.getPatternEndsWith(substring));
     }
 
     /**
@@ -435,7 +435,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textContains(@NonNull String substring) {
-        return textMatches(String.format("^.*%s.*$", Pattern.quote(substring)));
+        return textMatches(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -444,7 +444,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textStartsWith(@NonNull String substring) {
-        return textMatches(String.format("^%s.*$", Pattern.quote(substring)));
+        return textMatches(RegexHelper.getPatternStartsWith(substring));
     }
 
     /**
@@ -453,7 +453,7 @@ public class Until {
      */
     @NonNull
     public static UiObject2Condition<Boolean> textEndsWith(@NonNull String substring) {
-        return textMatches(String.format("^.*%s$", Pattern.quote(substring)));
+        return textMatches(RegexHelper.getPatternEndsWith(substring));
     }
 
 

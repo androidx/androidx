@@ -177,8 +177,7 @@ public class BySelector {
     public @NonNull BySelector descContains(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring)),
-                Pattern.DOTALL));
+        return desc(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -192,8 +191,7 @@ public class BySelector {
     public @NonNull BySelector descStartsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(
-                Pattern.compile(String.format("^%s.*$", Pattern.quote(substring)), Pattern.DOTALL));
+        return desc(RegexHelper.getPatternStartsWith(substring));
     }
 
     /**
@@ -207,8 +205,7 @@ public class BySelector {
     public @NonNull BySelector descEndsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return desc(
-                Pattern.compile(String.format("^.*%s$", Pattern.quote(substring)), Pattern.DOTALL));
+        return desc(RegexHelper.getPatternEndsWith(substring));
     }
 
     /**
@@ -335,8 +332,7 @@ public class BySelector {
     public @NonNull BySelector textContains(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(substring)),
-                Pattern.DOTALL));
+        return text(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -350,8 +346,7 @@ public class BySelector {
     public @NonNull BySelector textStartsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(
-                Pattern.compile(String.format("^%s.*$", Pattern.quote(substring)), Pattern.DOTALL));
+        return text(RegexHelper.getPatternStartsWith(substring));
     }
 
     /**
@@ -365,8 +360,7 @@ public class BySelector {
     public @NonNull BySelector textEndsWith(@NonNull String substring) {
         checkNotNull(substring, "substring cannot be null");
 
-        return text(
-                Pattern.compile(String.format("^.*%s$", Pattern.quote(substring)), Pattern.DOTALL));
+        return text(RegexHelper.getPatternEndsWith(substring));
     }
 
     /** Sets the text value criteria for matching. A UI element will be considered a match if its
