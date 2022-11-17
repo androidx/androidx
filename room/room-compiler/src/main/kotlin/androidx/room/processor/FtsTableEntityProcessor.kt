@@ -176,7 +176,7 @@ class FtsTableEntityProcessor internal constructor(
             context.logger.e(
                 contentEntityElement,
                 ProcessorErrors.externalContentNotAnEntity(
-                    contentEntityElement.className.canonicalName()
+                    contentEntityElement.asClassName().canonicalName
                 )
             )
             return null

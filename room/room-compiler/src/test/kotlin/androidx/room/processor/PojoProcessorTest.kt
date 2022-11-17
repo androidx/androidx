@@ -687,7 +687,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("uid")))
-            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 
@@ -705,7 +705,7 @@ class PojoProcessorTest {
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
             assertThat(rel.projection, `is`(listOf("name")))
-            assertThat(rel.entity.typeName.toJavaPoet(), `is`(COMMON.USER_TYPE_NAME as TypeName))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME))
         }
     }
 

@@ -18,10 +18,10 @@ package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
@@ -131,19 +131,19 @@ class Context private constructor(
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
-            processingEnv.requireType("java.lang.Void")
+            processingEnv.requireType(CommonTypeNames.VOID)
         }
         val STRING: XType by lazy {
-            processingEnv.requireType(String::class.asClassName())
+            processingEnv.requireType(CommonTypeNames.STRING)
         }
         val READONLY_COLLECTION: XType by lazy {
-            processingEnv.requireType(Collection::class.asClassName())
+            processingEnv.requireType(CommonTypeNames.COLLECTION)
         }
         val LIST: XType by lazy {
-            processingEnv.requireType(List::class.asClassName())
+            processingEnv.requireType(CommonTypeNames.LIST)
         }
         val SET: XType by lazy {
-            processingEnv.requireType(Set::class.asClassName())
+            processingEnv.requireType(CommonTypeNames.SET)
         }
     }
 

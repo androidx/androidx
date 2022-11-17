@@ -21,7 +21,7 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
@@ -63,7 +63,7 @@ class EntityDeletionAdapterWriter private constructor(
                     visibility = VisibilityModifier.PUBLIC,
                     isOverride = true
                 ).apply {
-                    returns(String::class.asClassName())
+                    returns(CommonTypeNames.STRING)
                     val query = "DELETE FROM `$tableName` WHERE " +
                         fields.columnNames.joinToString(" AND ") { "`$it` = ?" }
                     addStatement("return %S", query)

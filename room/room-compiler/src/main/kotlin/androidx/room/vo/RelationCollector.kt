@@ -21,7 +21,6 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
@@ -31,8 +30,8 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
+import androidx.room.processor.ProcessorErrors
 import androidx.room.processor.ProcessorErrors.ISSUE_TRACKER_LINK
-import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.processor.ProcessorErrors.relationAffinityMismatch
 import androidx.room.processor.ProcessorErrors.relationJunctionChildAffinityMismatch
 import androidx.room.processor.ProcessorErrors.relationJunctionParentAffinityMismatch
@@ -44,7 +43,6 @@ import androidx.room.solver.types.CursorValueReader
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.writer.QueryWriter
 import androidx.room.writer.RelationCollectorFunctionWriter
-import java.nio.ByteBuffer
 import java.util.Locale
 
 /**
@@ -413,7 +411,9 @@ data class RelationCollector(
                 if (rowAdapter == null) {
                     context.logger.e(
                         relation.field.element,
-                        cannotFindQueryResultAdapter(relation.pojoType.typeName)
+                        ProcessorErrors.cannotFindQueryResultAdapter(
+                            relation.pojoType.asTypeName().toString(context.codeLanguage)
+                        )
                     )
                     null
                 } else {
@@ -544,14 +544,14 @@ data class RelationCollector(
                     if (canUseLongSparseArray) {
                         XTypeName.PRIMITIVE_LONG
                     } else {
-                        Long::class.asClassName()
+                        XTypeName.BOXED_LONG
                     }
-                SQLTypeAffinity.REAL -> Double::class.asClassName()
-                SQLTypeAffinity.TEXT -> String::class.asClassName()
-                SQLTypeAffinity.BLOB -> ByteBuffer::class.asClassName()
+                SQLTypeAffinity.REAL -> XTypeName.BOXED_DOUBLE
+                SQLTypeAffinity.TEXT -> CommonTypeNames.STRING
+                SQLTypeAffinity.BLOB -> CommonTypeNames.BYTE_BUFFER
                 else -> {
                     // no affinity default to String
-                    String::class.asClassName()
+                    CommonTypeNames.STRING
                 }
             }
         }

@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
@@ -60,7 +61,8 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                 public void $setterName(int id) { this.$fieldName = id; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.typeName.toString()).isEqualTo("foo.bar.MyEntity")
+            assertThat(entity.type.asTypeName().toString(CodeLanguage.JAVA))
+                .isEqualTo("foo.bar.MyEntity")
             assertThat(entity.fields.size).isEqualTo(1)
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)

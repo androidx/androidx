@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.TypeWriter
@@ -139,7 +140,7 @@ class EnumColumnTypeAdapter(
                     }
                 }.build()
                 builder.apply {
-                    returns(String::class.asClassName().copy(nullable = false))
+                    returns(CommonTypeNames.STRING.copy(nullable = false))
                     addParameter(
                         out.asTypeName().copy(nullable = false),
                         paramName
@@ -207,7 +208,7 @@ class EnumColumnTypeAdapter(
                 builder.apply {
                     returns(out.asTypeName().copy(nullable = false))
                     addParameter(
-                        String::class.asClassName().copy(nullable = false),
+                        CommonTypeNames.STRING.copy(nullable = false),
                         paramName
                     )
                     addCode(body)

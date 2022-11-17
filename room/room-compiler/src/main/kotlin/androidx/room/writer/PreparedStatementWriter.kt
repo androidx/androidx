@@ -20,7 +20,7 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.asClassName
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 
@@ -39,7 +39,7 @@ class PreparedStatementWriter(val queryWriter: QueryWriter) {
                     visibility = VisibilityModifier.PUBLIC,
                     isOverride = true
                 ).apply {
-                    returns(String::class.asClassName())
+                    returns(CommonTypeNames.STRING)
                     val queryName = scope.getTmpVar("_query")
                     val queryGenScope = scope.fork()
                     queryWriter.prepareQuery(queryName, queryGenScope)

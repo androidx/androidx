@@ -20,18 +20,19 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.isList
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.TypeName
 
 class InsertOrUpsertMethodAdapter private constructor(private val methodType: MethodType) {
     companion object {
@@ -142,7 +143,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
             } else if (returnType.isArray()) {
                 val param = returnType.componentType
                 if (param.isLong()) {
-                    if (param.typeName == TypeName.LONG) {
+                    if (param.asTypeName() == XTypeName.PRIMITIVE_LONG) {
                         ReturnType.ID_ARRAY
                     } else {
                         ReturnType.ID_ARRAY_BOX
@@ -215,7 +216,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
                 } else if (methodReturnType == ReturnType.VOID_OBJECT) {
                     addStatement("return null")
                 } else if (methodReturnType == ReturnType.UNIT && language == CodeLanguage.JAVA) {
-                    addStatement("return %T.INSTANCE", Unit::class.asClassName())
+                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
             nextControlFlow("finally").apply {
@@ -244,7 +245,7 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
         val returnTypeName: XTypeName
     ) {
         VOID("", XTypeName.UNIT_VOID), // return void
-        VOID_OBJECT("", Void::class.asClassName()), // return Void
+        VOID_OBJECT("", CommonTypeNames.VOID), // return Void
         UNIT("", XTypeName.UNIT_VOID), // return kotlin.Unit.INSTANCE
         SINGLE_ID("AndReturnId", XTypeName.PRIMITIVE_LONG), // return long
         ID_ARRAY(
@@ -253,11 +254,11 @@ class InsertOrUpsertMethodAdapter private constructor(private val methodType: Me
         ), // return long[]
         ID_ARRAY_BOX(
             "AndReturnIdsArrayBox",
-            XTypeName.getArrayName(Long::class.asClassName())
+            XTypeName.getArrayName(XTypeName.BOXED_LONG)
         ), // return Long[]
         ID_LIST(
             "AndReturnIdsList",
-            List::class.asClassName().parametrizedBy(Long::class.asClassName())
+            CommonTypeNames.LIST.parametrizedBy(XTypeName.BOXED_LONG)
         ), // return List<Long>
     }
 }

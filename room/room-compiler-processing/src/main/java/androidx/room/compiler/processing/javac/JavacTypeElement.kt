@@ -61,6 +61,13 @@ internal sealed class JavacTypeElement(
         element.qualifiedName.toString()
     }
 
+    @Deprecated(
+        "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith = ReplaceWith(
+            "asClassName().toJavaPoet()",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val className: ClassName by lazy {
         xClassName.java
     }

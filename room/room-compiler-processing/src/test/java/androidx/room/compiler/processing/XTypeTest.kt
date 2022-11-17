@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
+import androidx.room.compiler.processing.util.isCollection
 import androidx.room.compiler.processing.util.javaElementUtils
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
@@ -1376,5 +1377,64 @@ class XTypeTest {
             interface Bar
             """.trimIndent()
         ))) { it.checkType() }
+    }
+
+    @Test
+    fun isTypeVariable() {
+        val javaSubject = Source.java(
+            "test.JavaFoo",
+            """
+            package test;
+            class JavaFoo<T> {
+                T field;
+                T method(T param) {
+                    return null;
+                }
+            }
+            """.trimIndent()
+        )
+        val javaImplSubject = Source.java(
+            "test.JavaFooImpl",
+            """
+            package test;
+            class JavaFooImpl extends JavaFoo<String> {
+            }
+            """.trimIndent()
+        )
+        val kotlinSubject = Source.kotlin(
+            "Foo.kt",
+            """
+            package test
+            open class KotlinFoo<T> {
+                val field: T = TODO();
+                fun method(param: T): T {
+                    TODO()
+                }
+            }
+
+            class KotlinFooImpl : KotlinFoo<String>()
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaSubject, javaImplSubject, kotlinSubject)
+        ) { invocation ->
+            listOf("test.JavaFoo", "test.KotlinFoo").forEach { fqn ->
+                val typeElement = invocation.processingEnv.requireTypeElement(fqn)
+                typeElement.getDeclaredField("field").let {
+                    assertThat(it.type.isTypeVariable()).isTrue()
+                    val asMemberOf =
+                        it.asMemberOf(invocation.processingEnv.requireType(fqn + "Impl"))
+                    assertThat(asMemberOf.isTypeVariable()).isFalse()
+                }
+                typeElement.getDeclaredMethodByJvmName("method").let {
+                    assertThat(it.returnType.isTypeVariable()).isTrue()
+                    assertThat(it.parameters.single().type.isTypeVariable()).isTrue()
+                    val asMemberOf =
+                        it.asMemberOf(invocation.processingEnv.requireType(fqn + "Impl"))
+                    assertThat(asMemberOf.returnType.isTypeVariable()).isFalse()
+                    assertThat(asMemberOf.parameterTypes.single().isTypeVariable()).isFalse()
+                }
+            }
+        }
     }
 }

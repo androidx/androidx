@@ -19,9 +19,9 @@ package androidx.room.solver.transaction.binder
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.isNotKotlinUnit
 import androidx.room.ext.isNotVoid
 import androidx.room.solver.CodeGenScope
@@ -71,7 +71,7 @@ class InstantTransactionMethodBinder(
                 if (resultVar != null) {
                     addStatement("return %N", resultVar)
                 } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
-                    addStatement("return %T.INSTANCE", Unit::class.asClassName())
+                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
             nextControlFlow("finally").apply {

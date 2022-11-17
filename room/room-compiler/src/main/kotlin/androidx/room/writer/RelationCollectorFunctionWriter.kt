@@ -23,13 +23,12 @@ import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CollectionsSizeExprCode
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.MapKeySetExprCode
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
@@ -45,7 +44,7 @@ class RelationCollectorFunctionWriter(
     private val collector: RelationCollector
 ) : TypeWriter.SharedFunctionSpec(
     "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
-        "As${collector.relation.pojoTypeName.toJavaPoet().toString().stripNonJava()}"
+        "As${collector.relation.pojoTypeName.toString(CodeLanguage.JAVA).stripNonJava()}"
 ) {
     companion object {
         const val PARAM_MAP_VARIABLE = "_map"
@@ -61,7 +60,7 @@ class RelationCollectorFunctionWriter(
         val relation = collector.relation
         return "RelationCollectorMethodWriter" +
             "-${collector.mapTypeName}" +
-            "-${relation.entity.typeName.toJavaPoet()}" +
+            "-${relation.entity.typeName.toString(CodeLanguage.JAVA)}" +
             "-${relation.entityField.columnName}" +
             "-${relation.pojoTypeName}" +
             "-${relation.createLoadAllSql()}"
@@ -238,7 +237,7 @@ class RelationCollectorFunctionWriter(
                     )
                     indent()
                     addStatement("%L", getRecursiveCall(paramName))
-                    addStatement("return %T.INSTANCE", Unit::class.asClassName())
+                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                     unindent()
                     addStatement("})")
                 } else {
@@ -246,10 +245,10 @@ class RelationCollectorFunctionWriter(
                         language = language,
                         parameterTypeName = collector.mapTypeName,
                         parameterName = paramName,
-                        returnTypeName = Unit::class.asClassName(),
+                        returnTypeName = KotlinTypeNames.UNIT,
                     ) {
                         addStatement("%L", getRecursiveCall(paramName))
-                        addStatement("return %T.INSTANCE", Unit::class.asClassName())
+                        addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                     }
                     addStatement(
                         "%M(%L, %L, %L)",

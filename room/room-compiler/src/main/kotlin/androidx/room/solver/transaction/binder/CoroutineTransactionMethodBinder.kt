@@ -22,7 +22,6 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.Function1TypeSpec
 import androidx.room.ext.KotlinTypeNames
@@ -87,7 +86,7 @@ class CoroutineTransactionMethodBinder(
                     XTypeName.getConsumerSuperName(returnType.asTypeName())
                 ),
                 parameterName = innerContinuationParamName,
-                returnTypeName = Any::class.asClassName()
+                returnTypeName = KotlinTypeNames.ANY
             ) {
                 addStatement("%L", adapterScope.generate())
             }
