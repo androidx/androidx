@@ -13,48 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
-
-class DefaultLifecycleObserverAdapter implements LifecycleEventObserver {
-
-    private final DefaultLifecycleObserver mDefaultLifecycleObserver;
-    private final LifecycleEventObserver mLifecycleEventObserver;
-
-    DefaultLifecycleObserverAdapter(DefaultLifecycleObserver defaultLifecycleObserver,
-            LifecycleEventObserver lifecycleEventObserver) {
-        mDefaultLifecycleObserver = defaultLifecycleObserver;
-        mLifecycleEventObserver = lifecycleEventObserver;
-    }
-
-    @Override
-    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-        switch (event) {
-            case ON_CREATE:
-                mDefaultLifecycleObserver.onCreate(source);
-                break;
-            case ON_START:
-                mDefaultLifecycleObserver.onStart(source);
-                break;
-            case ON_RESUME:
-                mDefaultLifecycleObserver.onResume(source);
-                break;
-            case ON_PAUSE:
-                mDefaultLifecycleObserver.onPause(source);
-                break;
-            case ON_STOP:
-                mDefaultLifecycleObserver.onStop(source);
-                break;
-            case ON_DESTROY:
-                mDefaultLifecycleObserver.onDestroy(source);
-                break;
-            case ON_ANY:
-                throw new IllegalArgumentException("ON_ANY must not been send by anybody");
+internal class DefaultLifecycleObserverAdapter(
+    private val defaultLifecycleObserver: DefaultLifecycleObserver,
+    private val lifecycleEventObserver: LifecycleEventObserver?
+) : LifecycleEventObserver {
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> defaultLifecycleObserver.onCreate(source)
+            Lifecycle.Event.ON_START -> defaultLifecycleObserver.onStart(source)
+            Lifecycle.Event.ON_RESUME -> defaultLifecycleObserver.onResume(source)
+            Lifecycle.Event.ON_PAUSE -> defaultLifecycleObserver.onPause(source)
+            Lifecycle.Event.ON_STOP -> defaultLifecycleObserver.onStop(source)
+            Lifecycle.Event.ON_DESTROY -> defaultLifecycleObserver.onDestroy(source)
+            Lifecycle.Event.ON_ANY ->
+                throw IllegalArgumentException("ON_ANY must not been send by anybody")
         }
-        if (mLifecycleEventObserver != null) {
-            mLifecycleEventObserver.onStateChanged(source, event);
-        }
+        lifecycleEventObserver?.onStateChanged(source, event)
     }
 }
