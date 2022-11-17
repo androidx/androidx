@@ -35,7 +35,7 @@ import kotlin.coroutines.CoroutineContext
 public val Lifecycle.coroutineScope: LifecycleCoroutineScope
     get() {
         while (true) {
-            val existing = mInternalScopeRef.get() as LifecycleCoroutineScopeImpl?
+            val existing = internalScopeRef.get() as LifecycleCoroutineScopeImpl?
             if (existing != null) {
                 return existing
             }
@@ -43,7 +43,7 @@ public val Lifecycle.coroutineScope: LifecycleCoroutineScope
                 this,
                 SupervisorJob() + Dispatchers.Main.immediate
             )
-            if (mInternalScopeRef.compareAndSet(null, newScope)) {
+            if (internalScopeRef.compareAndSet(null, newScope)) {
                 newScope.register()
                 return newScope
             }
