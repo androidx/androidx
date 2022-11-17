@@ -70,6 +70,8 @@ public class ImageProcessingUtilTest {
     private static final int MAX_IMAGES = 4;
     private static final int JPEG_ENCODE_ERROR_TOLERANCE = 3;
 
+    private static final int PADDING_BYTES = 16;
+
     private ByteBuffer mRgbConvertedBuffer;
     private ByteBuffer mYRotatedBuffer;
     private ByteBuffer mURotatedBuffer;
@@ -442,6 +444,31 @@ public class ImageProcessingUtilTest {
                 YUV_RED_STUDIO_SWING_BT601[2]);
         assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(YUV_RED_STUDIO_SWING_BT601,
                 referenceColorRgb);
+    }
+
+    @Test
+    public void canCopyBetweenBitmapAndByteBufferWithDifferentStrides() {
+
+        // Create bitmap with a solid color
+        Bitmap bitmap1 = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+        bitmap1.eraseColor(Color.YELLOW);
+
+        int bufferStride = bitmap1.getRowBytes() + PADDING_BYTES;
+
+        // Same size bitmap with a different color
+        Bitmap bitmap2 = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+        bitmap2.eraseColor(Color.BLUE);
+
+        ByteBuffer bytebuffer = ByteBuffer.allocateDirect(bufferStride * bitmap1.getHeight());
+
+        // Copy bitmap1 into bytebuffer
+        ImageProcessingUtil.copyBitmapToByteBuffer(bitmap1, bytebuffer, bufferStride);
+
+        // Copy bytebuffer into bitmap2
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap2, bytebuffer, bufferStride);
+
+        // Assert second bitmap now has the same color as first bitmap
+        assertBitmapColor(bitmap2, Color.YELLOW, 0);
     }
 
     private void assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(int[] yuvColor,

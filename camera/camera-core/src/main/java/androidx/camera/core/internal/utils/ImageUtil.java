@@ -79,7 +79,8 @@ public final class ImageUtil {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         // Rewind the buffer just to be safe.
         planes[0].getBuffer().rewind();
-        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes[0].getBuffer());
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes[0].getBuffer(),
+                planes[0].getRowStride());
         return bitmap;
     }
 
@@ -91,7 +92,7 @@ public final class ImageUtil {
         checkArgument(bitmap.getConfig() == Bitmap.Config.ARGB_8888,
                 "Only accept Bitmap with ARGB_8888 format for now.");
         ByteBuffer byteBuffer = allocateDirect(bitmap.getAllocationByteCount());
-        ImageProcessingUtil.copyBitmapToByteBuffer(bitmap, byteBuffer);
+        ImageProcessingUtil.copyBitmapToByteBuffer(bitmap, byteBuffer, bitmap.getRowBytes());
         byteBuffer.rewind();
         return byteBuffer;
     }
