@@ -19,6 +19,7 @@ package androidx.tv.material.carousel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -434,6 +435,64 @@ class CarouselTest {
         }
 
         rule.onNodeWithTag(testTag).assertExists()
+    }
+
+    @Test
+    fun carousel_manualScrolling_withFocusableItemsOnTop() {
+        rule.setContent {
+            Column {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    repeat(3) {
+                        SampleButton("Row-button-${it + 1}")
+                    }
+                }
+                SampleCarousel { index ->
+                    SampleButton("Button-${index + 1}")
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag("pager")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // trigger recomposition on requesting focus
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Check that slide 1 is in view and button 1 has focus
+        rule.onNodeWithText("Button-1").assertIsDisplayed()
+        rule.onNodeWithText("Button-1").assertIsFocused()
+
+        // press dpad right to scroll to next slide
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(animationTime, false)
+        rule.waitForIdle()
+
+        // Check that slide 2 is in view and button 2 has focus
+        rule.onNodeWithText("Button-2").assertIsDisplayed()
+        // TODO: Fix button 2 isn't gaining focus
+        // rule.onNodeWithText("Button-2").assertIsFocused()
+
+        // Check if the first focusable element in parent has focus
+        rule.onNodeWithText("Row-button-1").assertIsNotFocused()
+
+        // press dpad left to scroll to previous slide
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
+
+        // Wait for slide to load
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(animationTime, false)
+        rule.waitForIdle()
+
+        // Check that slide 1 is in view and button 1 has focus
+        rule.onNodeWithText("Button-1").assertIsDisplayed()
+        rule.onNodeWithText("Button-1").assertIsFocused()
     }
 
     @Test

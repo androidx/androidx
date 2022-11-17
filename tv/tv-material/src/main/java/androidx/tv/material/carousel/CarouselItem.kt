@@ -81,16 +81,17 @@ fun CarouselItem(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(overlayVisible) {
-        snapshotFlow { overlayVisible.isIdle && overlayVisible.currentState }.first { it }
-        // slide has loaded completely.
-        if (focusState?.isFocused == true) {
-            // Using bringIntoViewRequester here instead of in Carousel.kt as when the focusable
-            // item is within an animation, bringIntoView scrolls excessively and loses focus.
-            // b/241591211
-            // By using bringIntoView inside the snapshotFlow, we ensure that the focusable has
-            // completed animating into position.
-            bringIntoViewRequester.bringIntoView()
-            focusManager.moveFocus(FocusDirection.Enter)
+        overlayVisible.onAnimationCompletion {
+            // slide has loaded completely.
+            if (focusState?.isFocused == true) {
+                // Using bringIntoViewRequester here instead of in Carousel.kt as when the focusable
+                // item is within an animation, bringIntoView scrolls excessively and loses focus.
+                // b/241591211
+                // By using bringIntoView inside the snapshotFlow, we ensure that the focusable has
+                // completed animating into position.
+                bringIntoViewRequester.bringIntoView()
+                focusManager.moveFocus(FocusDirection.Enter)
+            }
         }
     }
 
@@ -119,7 +120,9 @@ fun CarouselItem(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .onFocusChanged {
-                    if (it.isFocused) { focusManager.moveFocus(FocusDirection.Enter) }
+                    if (it.isFocused) {
+                        focusManager.moveFocus(FocusDirection.Enter)
+                    }
                 }
                 .focusable(),
             visibleState = overlayVisible,
@@ -129,6 +132,13 @@ fun CarouselItem(
             overlay.invoke()
         }
     }
+}
+
+private suspend fun MutableTransitionState<Boolean>.onAnimationCompletion(
+    action: suspend () -> Unit
+) {
+    snapshotFlow { isIdle && currentState }.first { it }
+    action.invoke()
 }
 
 @ExperimentalTvMaterialApi

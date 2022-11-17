@@ -17,6 +17,7 @@
 package androidx.tv.material.carousel
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -52,7 +53,6 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -102,7 +102,7 @@ fun Carousel(
     var focusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
-    val focusRequester = remember { FocusRequester() }
+    val carouselOuterBoxFocusRequester = remember { FocusRequester() }
     var isAutoScrollActive by remember { mutableStateOf(false) }
 
     AutoScrollSideEffect(
@@ -112,74 +112,38 @@ fun Carousel(
         focusState,
         onAutoScrollChange = { isAutoScrollActive = it })
     Box(modifier = modifier
-        .focusRequester(focusRequester)
+        .focusRequester(carouselOuterBoxFocusRequester)
         .onFocusChanged {
             focusState = it
             if (it.isFocused && isAutoScrollActive) {
                 focusManager.moveFocus(FocusDirection.Enter)
             }
         }
-        .focusProperties {
-            exit = {
-                val showPreviousSlideAndGetFocusRequester = {
-                    if (carouselState
-                            .isFirstSlide()
-                            .not()
-                    ) {
-                        carouselState.moveToPreviousSlide(slideCount)
-                        focusRequester
-                    } else {
-                        FocusRequester.Default
-                    }
-                }
-                val showNextSlideAndGetFocusRequester = {
-                    if (carouselState
-                            .isLastSlide(slideCount)
-                            .not()
-                    ) {
-                        carouselState.moveToNextSlide(slideCount)
-                        focusRequester
-                    } else {
-                        FocusRequester.Default
-                    }
-                }
-                when (it) {
-                    FocusDirection.Left -> {
-                        if (isLtr) {
-                            showPreviousSlideAndGetFocusRequester()
-                        } else {
-                            showNextSlideAndGetFocusRequester()
-                        }
-                    }
-                    FocusDirection.Right -> {
-                        if (isLtr) {
-                            showNextSlideAndGetFocusRequester()
-                        } else {
-                            showPreviousSlideAndGetFocusRequester()
-                        }
-                    }
-                    else -> FocusRequester.Default
-                }
-            }
-        }
+        .manualScrolling(carouselState, slideCount, isLtr)
         .focusable()) {
         AnimatedContent(
             targetState = carouselState.slideIndex,
             transitionSpec = { enterTransition.with(exitTransition) }
         ) {
-            Box(
-                modifier = Modifier
-                    .onPlaced {
-                        if (isAutoScrollActive.not()) {
-                            focusManager.moveFocus(FocusDirection.Enter)
-                        }
+            LaunchedEffect(Unit) {
+                this@AnimatedContent.onAnimationCompletion {
+                    if (isAutoScrollActive.not()) {
+                        carouselOuterBoxFocusRequester.requestFocus()
+                        focusManager.moveFocus(FocusDirection.Enter)
                     }
-            ) {
-                content.invoke(it)
+                }
             }
+            content.invoke(it)
         }
         this.carouselIndicator()
     }
+}
+
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalAnimationApi::class)
+private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspend () -> Unit) {
+    snapshotFlow { transition.currentState == transition.targetState }.first { it }
+    action.invoke()
 }
 
 @OptIn(ExperimentalTvMaterialApi::class)
@@ -212,6 +176,53 @@ private fun AutoScrollSideEffect(
     }
     onAutoScrollChange(doAutoScroll)
 }
+
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalTvMaterialApi::class, ExperimentalComposeUiApi::class)
+private fun Modifier.manualScrolling(
+    carouselState: CarouselState,
+    slideCount: Int,
+    isLtr: Boolean
+): Modifier =
+    this.focusProperties {
+        exit = {
+            val showPreviousSlideAndGetFocusRequester = {
+                if (carouselState.isFirstSlide().not()) {
+                    carouselState.moveToPreviousSlide(slideCount)
+                    FocusRequester.Cancel
+                } else {
+                    FocusRequester.Default
+                }
+            }
+            val showNextSlideAndGetFocusRequester = {
+                if (carouselState.isLastSlide(slideCount).not()) {
+                    carouselState.moveToNextSlide(slideCount)
+                    FocusRequester.Cancel
+                } else {
+                    FocusRequester.Default
+                }
+            }
+            when (it) {
+                FocusDirection.Left -> {
+                    if (isLtr) {
+                        showPreviousSlideAndGetFocusRequester()
+                    } else {
+                        showNextSlideAndGetFocusRequester()
+                    }
+                }
+
+                FocusDirection.Right -> {
+                    if (isLtr) {
+                        showNextSlideAndGetFocusRequester()
+                    } else {
+                        showPreviousSlideAndGetFocusRequester()
+                    }
+                }
+
+                else -> FocusRequester.Default
+            }
+        }
+    }
 
 @OptIn(ExperimentalTvMaterialApi::class)
 @Composable

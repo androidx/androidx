@@ -18,11 +18,17 @@ package androidx.tv.tvmaterial.samples
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -40,9 +46,41 @@ import androidx.tv.material.ExperimentalTvMaterialApi
 import androidx.tv.material.carousel.Carousel
 import androidx.tv.material.carousel.CarouselItem
 
+@Composable
+fun FeaturedCarouselContent() {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        item { SampleLazyRow() }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    repeat(3) {
+                        Box(modifier = Modifier
+                            .background(Color.Magenta.copy(alpha = 0.3f))
+                            .width(50.dp)
+                            .height(50.dp)
+                            .drawBorderOnFocus()
+                        )
+                    }
+                }
+                FeaturedCarousel()
+            }
+        }
+        items(2) { SampleLazyRow() }
+    }
+}
+
+@Composable
+fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
+    var isFocused by remember { mutableStateOf(false) }
+    return this
+        .border(5.dp, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
+        .onFocusChanged { isFocused = it.isFocused }
+        .focusable()
+}
+
 @OptIn(ExperimentalTvMaterialApi::class)
 @Composable
-fun FeaturedCarousel() {
+internal fun FeaturedCarousel() {
     val backgrounds = listOf(
         Color.Red.copy(alpha = 0.3f),
         Color.Yellow.copy(alpha = 0.3f),
@@ -77,7 +115,7 @@ private fun Card() {
         modifier = Modifier
             .fillMaxSize()
             .padding(40.dp),
-        contentAlignment = Alignment.CenterStart
+        contentAlignment = Alignment.BottomStart
     ) {
         var isFocused by remember { mutableStateOf(false) }
 
