@@ -647,9 +647,8 @@ class ExtensionWindowLayoutInfoBackendTest {
         /**
          * Creates an empty OEMWindowLayoutInfo. Note that before R context needs to be an
          * [Activity]. After R Context can be an [Activity] or a [UiContext] created with
-         * [Context#createWindowContext] but not InputMethodService.
+         * [Context#createWindowContext] or [InputMethodService].
          */
-         // TODO(b/237342281) Support InputMethodSerice to receive WindowLayoutInfo updates.
         @RequiresApi(Build.VERSION_CODES.R)
         private fun newTestOEMWindowLayoutInfo(@UiContext context: Context): OEMWindowLayoutInfo {
             val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(context).bounds

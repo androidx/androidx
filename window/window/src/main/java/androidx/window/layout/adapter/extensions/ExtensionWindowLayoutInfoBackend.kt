@@ -37,9 +37,8 @@ import kotlin.concurrent.withLock
  * A wrapper around [WindowLayoutComponent] that ensures
  * [WindowLayoutComponent.addWindowLayoutInfoListener] is called at most once per context while
  * there are active listeners. Context has to be an [Activity] or a [UiContext] created with
- * [Context#createWindowContext] but not InputMethodService.
+ * [Context#createWindowContext] or InputMethodService.
  */
-// TODO(b/237342281) Support InputMethodService to receive WindowLayoutInfo updates.
 internal class ExtensionWindowLayoutInfoBackend(
     private val component: WindowLayoutComponent,
     private val consumerAdapter: ConsumerAdapter
@@ -60,8 +59,7 @@ internal class ExtensionWindowLayoutInfoBackend(
      * registered for a given [Context] then the new listener will receive a replay of the last
      * known value.
      * @param context the host of a [android.view.Window] or an area on the screen. Has to be an
-     * [Activity] or a [UiContext] created with [Context#createWindowContext] but not
-     * InputMethodService.
+     * [Activity] or a [UiContext] created with [Context#createWindowContext] or InputMethodService.
      * @param executor an executor from the parent interface
      * @param callback the listener that will receive new values
      */
