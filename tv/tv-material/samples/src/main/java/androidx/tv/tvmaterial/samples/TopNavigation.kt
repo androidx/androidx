@@ -35,26 +35,18 @@ import androidx.tv.material.TabDefaults
 import androidx.tv.material.TabRow
 import androidx.tv.material.TabRowDefaults
 
-enum class Navigation {
-  FeaturedCarousel,
-  ImmersiveList,
-  LazyRowsAndColumns,
+enum class Navigation(val displayName: String, val action: @Composable () -> Unit) {
+  LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
+  FeaturedCarousel("Featured Carousel", { FeaturedCarousel() }),
+  ImmersiveList("Immersive List", { SampleImmersiveList() }),
 }
-
-val navigationMap =
-  hashMapOf(
-    Navigation.FeaturedCarousel to "Featured Carousel",
-    Navigation.ImmersiveList to "Immersive List",
-    Navigation.LazyRowsAndColumns to "Lazy Rows and Columns",
-  )
-val reverseNavigationMap = navigationMap.entries.associate { it.value to it.key }
 
 @Composable
 internal fun TopNavigation(
-  updateSelectedTab: (String) -> Unit = {},
+  updateSelectedTab: (Navigation) -> Unit = {},
 ) {
   var selectedTabIndex by remember { mutableStateOf(0) }
-  val tabs = navigationMap.entries.map { it.value }
+  val tabs = Navigation.values().map { it.displayName }
 
   // Pill indicator
   PillIndicatorTabRow(
@@ -63,7 +55,7 @@ internal fun TopNavigation(
     updateSelectedTab = { selectedTabIndex = it }
   )
 
-  LaunchedEffect(selectedTabIndex) { updateSelectedTab(tabs[selectedTabIndex]) }
+  LaunchedEffect(selectedTabIndex) { updateSelectedTab(Navigation.values()[selectedTabIndex]) }
 }
 
 /**
