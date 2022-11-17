@@ -99,7 +99,6 @@ class CameraFragment : Fragment() {
                     removeExtra(KEY_CAMERA_IMPLEMENTATION)
                     removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
                 }
-                cameraImpl = null
             }
         }
 
@@ -182,6 +181,9 @@ class CameraFragment : Fragment() {
      * content can not be got.
      */
     @OptIn(ExperimentalCamera2Interop::class)
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
     private fun Preview.Builder.addCaptureCompletedCallback() {
         val captureCallback = object : CameraCaptureSession.CaptureCallback() {
             override fun onCaptureCompleted(
@@ -197,6 +199,12 @@ class CameraFragment : Fragment() {
             }
         }
 
+        if (cameraImpl.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(this)
+                .setSessionCaptureCallback(captureCallback)
+        } else {
+            Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback)
+        }
         Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback)
     }
 
