@@ -20,6 +20,7 @@ import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
+import androidx.privacysandbox.tools.core.GeneratedPublicApi
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 import org.objectweb.asm.AnnotationVisitor
@@ -34,6 +35,7 @@ internal object AnnotationInspector {
         PrivacySandboxInterface::class,
         PrivacySandboxService::class,
         PrivacySandboxValue::class,
+        GeneratedPublicApi::class,
     )
 
     fun hasPrivacySandboxAnnotation(classFile: Path): Boolean {
