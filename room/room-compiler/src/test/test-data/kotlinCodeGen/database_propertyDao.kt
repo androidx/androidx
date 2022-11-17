@@ -24,7 +24,7 @@ import kotlin.collections.Map
 import kotlin.collections.Set
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["unchecked", "deprecation"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
 public class MyDatabase_Impl : MyDatabase() {
     private val _myDao: Lazy<MyDao> = lazy { MyDao_Impl(this) }
 

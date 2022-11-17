@@ -483,7 +483,7 @@ class TypeAdapterStore private constructor(
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val rowAdapter =
                 findRowAdapter(typeMirror.componentType, query) ?: return null
-            return ArrayQueryResultAdapter(rowAdapter)
+            return ArrayQueryResultAdapter(typeMirror, rowAdapter)
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)

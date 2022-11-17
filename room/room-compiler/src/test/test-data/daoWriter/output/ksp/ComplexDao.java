@@ -229,14 +229,15 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final int[] _result = new int[_cursor.getCount()];
+            final int[] _tmpResult = new int[_cursor.getCount()];
             int _index = 0;
-            while(_cursor.moveToNext()) {
+            while (_cursor.moveToNext()) {
                 final int _item_1;
                 _item_1 = _cursor.getInt(0);
-                _result[_index] = _item_1;
-                _index ++;
+                _tmpResult[_index] = _item_1;
+                _index++;
             }
+            final int[] _result = _tmpResult;
             return _result;
         } finally {
             _cursor.close();
