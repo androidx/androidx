@@ -17,8 +17,8 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.credentials.CreatePublicKeyCredentialBaseRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_ALLOW_HYBRID
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

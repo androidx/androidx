@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
 import java.util.concurrent.Executor
@@ -34,13 +35,15 @@ import java.util.concurrent.Executor
 class CredentialProviderCreatePasswordController : CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,
-        Intent,
-        CreateCredentialResponse>() {
+        Unit,
+        CreateCredentialResponse,
+        CreateCredentialException>() {
 
     /**
      * The callback object state, used in the protected handleResponse method.
      */
-    private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse>
+    private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse,
+        CreateCredentialException>
 
     /**
      * The callback requires an executor to invoke it.
@@ -49,7 +52,7 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
 
     override fun invokePlayServices(
         request: CreatePasswordRequest,
-        callback: CredentialManagerCallback<CreateCredentialResponse>,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
         executor: Executor
     ) {
         TODO("Not yet implemented")
@@ -65,11 +68,11 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
         TODO("Not yet implemented")
     }
 
-    override fun convertToPlayServices(request: CreatePasswordRequest): SavePasswordRequest {
+    override fun convertRequestToPlayServices(request: CreatePasswordRequest): SavePasswordRequest {
         TODO("Not yet implemented")
     }
 
-    override fun convertToCredentialProvider(response: Intent): CreateCredentialResponse {
+    override fun convertResponseToCredentialManager(response: Unit): CreateCredentialResponse {
         TODO("Not yet implemented")
     }
 
@@ -104,11 +107,14 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
             requestCode: Int,
             fragmentManager: android.app.FragmentManager
         ): CredentialProviderCreatePasswordController? {
+            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
             try {
-                return fragmentManager.findFragmentByTag(requestCode.toString())
-                    as CredentialProviderCreatePasswordController
+                return oldFragment as CredentialProviderCreatePasswordController
             } catch (e: Exception) {
-                Log.i(TAG, "Old fragment found of different type - replacement required")
+                Log.i(TAG, "Error with old fragment or null - replacement required")
+                if (oldFragment != null) {
+                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
+                }
                 // TODO("Ensure this is well tested for fragment issues")
                 return null
             }

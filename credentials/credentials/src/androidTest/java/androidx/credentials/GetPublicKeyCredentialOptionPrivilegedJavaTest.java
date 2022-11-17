@@ -16,10 +16,10 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.GetPublicKeyCredentialBaseOption.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_ALLOW_HYBRID;
 import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH;
-import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RP;
+import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RELYING_PARTY;
+import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -43,14 +43,14 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
     public void constructor_success() {
         new GetPublicKeyCredentialOptionPrivileged(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                        "RP", "ClientDataHash");
+                        "RelyingParty", "ClientDataHash");
     }
 
     @Test
     public void constructor_setsAllowHybridToTrueByDefault() {
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
                 new GetPublicKeyCredentialOptionPrivileged(
-                        "JSON", "RP", "HASH");
+                        "JSON", "RelyingParty", "HASH");
         boolean allowHybridActual = getPublicKeyCredentialOptionPrivileged.allowHybrid();
         assertThat(allowHybridActual).isTrue();
     }
@@ -60,7 +60,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         boolean allowHybridExpected = false;
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
                 new GetPublicKeyCredentialOptionPrivileged("testJson",
-                        "RP", "Hash", allowHybridExpected);
+                        "RelyingParty", "Hash", allowHybridExpected);
         boolean getAllowHybridActual = getPublicKeyCredentialOptionPrivileged.allowHybrid();
         assertThat(getAllowHybridActual).isEqualTo(allowHybridExpected);
     }
@@ -69,7 +69,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
     public void builder_build_defaultAllowHybrid_success() {
         GetPublicKeyCredentialOptionPrivileged defaultPrivilegedRequest = new
                 GetPublicKeyCredentialOptionPrivileged.Builder("{\"Data\":5}",
-                "RP", "HASH").build();
+                "RelyingParty", "HASH").build();
         assertThat(defaultPrivilegedRequest.allowHybrid()).isTrue();
     }
 
@@ -78,7 +78,8 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         boolean allowHybridExpected = false;
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
                 new GetPublicKeyCredentialOptionPrivileged.Builder("testJson",
-                        "RP", "Hash").setAllowHybrid(allowHybridExpected).build();
+                        "RelyingParty", "Hash")
+                        .setAllowHybrid(allowHybridExpected).build();
         boolean getAllowHybridActual = getPublicKeyCredentialOptionPrivileged.allowHybrid();
         assertThat(getAllowHybridActual).isEqualTo(allowHybridExpected);
     }
@@ -87,20 +88,21 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
     public void getter_requestJson_success() {
         String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
-                new GetPublicKeyCredentialOptionPrivileged(testJsonExpected, "RP", "HASH");
+                new GetPublicKeyCredentialOptionPrivileged(testJsonExpected,
+                        "RelyingParty", "HASH");
         String testJsonActual = getPublicKeyCredentialOptionPrivileged.getRequestJson();
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
     }
 
     @Test
-    public void getter_rp_success() {
-        String testRpExpected = "RP";
+    public void getter_relyingParty_success() {
+        String testRelyingPartyExpected = "RelyingParty";
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
                 new GetPublicKeyCredentialOptionPrivileged(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                        testRpExpected, "X342%4dfd7&");
-        String testRpActual = getPublicKeyCredentialOptionPrivileged.getRp();
-        assertThat(testRpActual).isEqualTo(testRpExpected);
+                        testRelyingPartyExpected, "X342%4dfd7&");
+        String testRelyingPartyActual = getPublicKeyCredentialOptionPrivileged.getRelyingParty();
+        assertThat(testRelyingPartyActual).isEqualTo(testRelyingPartyExpected);
     }
 
     @Test
@@ -109,7 +111,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         GetPublicKeyCredentialOptionPrivileged getPublicKeyCredentialOptionPrivileged =
                 new GetPublicKeyCredentialOptionPrivileged(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                        "RP", clientDataHashExpected);
+                        "RelyingParty", clientDataHashExpected);
         String clientDataHashActual = getPublicKeyCredentialOptionPrivileged.getClientDataHash();
         assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected);
     }
@@ -117,18 +119,18 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
     @Test
     public void getter_frameworkProperties_success() {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-        String rpExpected = "RP";
+        String relyingPartyExpected = "RelyingParty";
         String clientDataHashExpected = "X342%4dfd7&";
         boolean allowHybridExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-        expectedData.putString(BUNDLE_KEY_RP, rpExpected);
+        expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
         expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
 
         GetPublicKeyCredentialOptionPrivileged option =
                 new GetPublicKeyCredentialOptionPrivileged(
-                        requestJsonExpected, rpExpected, clientDataHashExpected,
+                        requestJsonExpected, relyingPartyExpected, clientDataHashExpected,
                         allowHybridExpected);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);

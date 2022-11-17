@@ -18,6 +18,8 @@ package androidx.credentials
 
 import android.app.Activity
 import android.os.CancellationSignal
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 import java.util.concurrent.Executor
 
 /**
@@ -58,7 +60,7 @@ interface CredentialProvider {
         activity: Activity?, // TODO("Update on optionality")
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<GetCredentialResponse>,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     )
 
     /**
@@ -75,7 +77,7 @@ interface CredentialProvider {
         activity: Activity?,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<CreateCredentialResponse>,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     )
 
     /** Determines whether the provider is available on this device, or not. */

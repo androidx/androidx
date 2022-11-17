@@ -17,12 +17,17 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * Base response class for the credential creation operation made with the
  * [CreateCredentialRequest].
- *
- * @property type the credential type determined by the credential-type-specific subclass
- * @property data the response data in the [Bundle] format
  */
-open class CreateCredentialResponse(val type: String, val data: Bundle)
+open class CreateCredentialResponse(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val data: Bundle
+    )

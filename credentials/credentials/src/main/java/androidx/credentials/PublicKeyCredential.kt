@@ -25,11 +25,8 @@ import androidx.annotation.VisibleForTesting
  * @property authenticationResponseJson the public key credential authentication response in
  * JSON format that follows the standard webauthn json format shown at
  * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
- * @throws NullPointerException If [authenticationResponseJson] is null. This is handled by the
- * kotlin runtime
+ * @throws NullPointerException If [authenticationResponseJson] is null
  * @throws IllegalArgumentException If [authenticationResponseJson] is empty
- *
- * @hide
  */
 class PublicKeyCredential constructor(
     val authenticationResponseJson: String
@@ -42,8 +39,11 @@ class PublicKeyCredential constructor(
         require(authenticationResponseJson.isNotEmpty()) {
             "authentication response JSON must not be empty" }
     }
+
+    /** @hide */
     companion object {
         /** The type value for public key credential related operations. */
+        /** @hide */
         const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
             "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
 

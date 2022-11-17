@@ -76,7 +76,7 @@ class GetPublicKeyCredentialOptionTest {
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
-            GetPublicKeyCredentialBaseOption.BUNDLE_KEY_REQUEST_JSON,
+            GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
         expectedData.putBoolean(
