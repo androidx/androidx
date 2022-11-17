@@ -16,15 +16,14 @@
 
 package androidx.window.embedding
 
-import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Rect
 import android.os.Build
-import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.annotation.DoNotInline
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
+import androidx.window.embedding.SplitRule.Companion.DEFAULT_SPLIT_MIN_DIMENSION_DP
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import kotlin.math.min
 
@@ -36,8 +35,8 @@ import kotlin.math.min
  * belong to the same application and are running in the same process. The rules are always
  * applied only to activities that will be started  after the rules were set.
  *
- * Note that regardless of whether the minimal requirements ([minWidth], [minHeight] or
- * [minSmallestWidth]) are met or not, [SplitAttributesCalculator.computeSplitAttributesForParams]
+ * Note that regardless of whether the minimal requirements ([minWidthDp], [minHeightDp] and
+ * [minSmallestWidthDp]) are met or not, [SplitAttributesCalculator.computeSplitAttributesForParams]
  * will still be called for the rule if the calculator is registered via
  * [SplitController.setSplitAttributesCalculator]. Whether this [SplitRule]'s minimum requirements
  * are satisfied is dispatched in
@@ -76,73 +75,57 @@ import kotlin.math.min
 open class SplitRule internal constructor(
     tag: String? = null,
     /**
-     * The smallest value of width of the parent task window when the split should be used, in
-     * pixels. Set to `0` to always show the split regardless of task window metrics.
-     * When the window size is smaller than requested here, activities in the secondary
-     * container will be stacked on top of the activities in the primary one, completely overlapping
-     * them.
+     * The smallest value of width of the parent task window when the split should be used, in DP.
+     * When the window size is smaller than requested here, activities in the secondary container
+     * will be stacked on top of the activities in the primary one, completely overlapping them.
+     *
+     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
+     * `0` means to always allow split.
      */
     @IntRange(from = 0)
-    val minWidth: Int,
+    val minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
 
     /**
-     * The smallest value of height of the parent task window when the split should be used, in
-     * pixels. Set to `0` to always show the split regardless of the task window metrics.
-     * When the window size is smaller than requested here, activities in the secondary
-     * container will be stacked on top of the activities in the primary one, completely overlapping
-     * them. It is useful if it's necessary to split the parent window horizontally for this
-     * [SplitRule].
+     * The smallest value of height of the parent task window when the split should be used, in DP.
+     * When the window size is smaller than requested here, activities in the secondary container
+     * will be stacked on top of the activities in the primary one, completely overlapping them.
+     * It is useful if it's necessary to split the parent window horizontally for this [SplitRule].
+     *
+     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
+     * `0` means to always allow split.
      *
      * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
      * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
      */
     @IntRange(from = 0)
-    val minHeight: Int,
+    val minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
 
     /**
      * The smallest value of the smallest possible width of the parent task window in any rotation
-     * when the split should be used, in pixels. Set to `0` to always show the split regardless of
-     * the task window metrics. When the window size is smaller than requested here, activities in
-     * the secondary container will be stacked on top of the activities in the primary one,
-     * completely overlapping them.
+     * when the split should be used, in DP. When the window size is smaller than requested here,
+     * activities in the secondary container will be stacked on top of the activities in the primary
+     * one, completely overlapping them.
+     *
+     * The default is [DEFAULT_SPLIT_MIN_DIMENSION_DP] if the app doesn't set.
+     * `0` means to always allow split.
      */
     @IntRange(from = 0)
-    val minSmallestWidth: Int,
+    val minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+
     /**
      * The default [SplitAttributes] to apply on the activity containers pair when the host task
-     * bounds satisfy [minWidth] or [minSmallestWidth] requirements.
+     * bounds satisfy [minWidthDp], [minHeightDp] and [minSmallestWidthDp] requirements.
      */
     val defaultSplitAttributes: SplitAttributes,
 ) : EmbeddingRule(tag) {
-    // TODO(b/229656253): remove this constructor when the deprecated constructors are removed.
-    @SuppressLint("Range") // The range is covered by boundary check.
-    internal constructor(
-        minWidth: Int,
-        minSmallestWidth: Int,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float,
-        @IntRange(from = 0, to = 3) layoutDirection: Int,
-    ) : this(
-        tag = null,
-        minWidth,
-        minHeight = 0, // Set as 0 to provide compatibility for deprecated constructors.
-        minSmallestWidth,
-        SplitAttributes.Builder()
-            .setSplitType(
-                if (splitRatio == 0.0f || splitRatio == 1.0f) {
-                    SplitAttributes.SplitType.expandContainers()
-                } else {
-                    SplitAttributes.SplitType.ratio(splitRatio)
-                }
-            ).setLayoutDirection(
-                when (layoutDirection) {
-                    LayoutDirection.LTR -> SplitAttributes.LayoutDirection.LEFT_TO_RIGHT
-                    LayoutDirection.RTL -> SplitAttributes.LayoutDirection.RIGHT_TO_LEFT
-                    LayoutDirection.LOCALE -> SplitAttributes.LayoutDirection.LOCALE
-                    else -> throw IllegalArgumentException(
-                        "Unsupported layout direction constant: $layoutDirection"
-                    )
-                }
-            ).build())
+
+    companion object {
+        /**
+         * The default min dimension in DP for allowing split if it is not set by apps. The value
+         * reflects [androidx.window.core.layout.WindowWidthSizeClass.MEDIUM].
+         */
+        const val DEFAULT_SPLIT_MIN_DIMENSION_DP = 600
+    }
 
     /**
      * Determines what happens with the associated container when all activities are finished in
@@ -198,25 +181,36 @@ open class SplitRule internal constructor(
     /**
      * Verifies if the provided parent bounds are large enough to apply the rule.
      */
-    internal fun checkParentMetrics(parentMetrics: WindowMetrics): Boolean {
+    internal fun checkParentMetrics(context: Context, parentMetrics: WindowMetrics): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             return false
         }
         val bounds = Api30Impl.getBounds(parentMetrics)
-        return checkParentBounds(bounds)
+        // TODO(b/257000820): Application displayMetrics should only be used as a fallback. Replace
+        // with Task density after we include it in WindowMetrics.
+        val density = context.resources.displayMetrics.density
+        return checkParentBounds(density, bounds)
     }
 
     /**
      * @see checkParentMetrics
      */
-    internal fun checkParentBounds(bounds: Rect): Boolean {
-        val validMinWidth = (minWidth == 0 || bounds.width() >= minWidth)
-        val validMinHeight = (minHeight == 0 || bounds.height() >= minHeight)
-        val validSmallestMinWidth = (
-            minSmallestWidth == 0 ||
-                min(bounds.width(), bounds.height()) >= minSmallestWidth
-            )
+    internal fun checkParentBounds(density: Float, bounds: Rect): Boolean {
+        val minWidthPx = convertDpToPx(density, minWidthDp)
+        val minHeightPx = convertDpToPx(density, minHeightDp)
+        val minSmallestWidthPx = convertDpToPx(density, minSmallestWidthDp)
+        val validMinWidth = minWidthDp == 0 || bounds.width() >= minWidthPx
+        val validMinHeight = minHeightDp == 0 || bounds.height() >= minHeightPx
+        val validSmallestMinWidth =
+            minSmallestWidthDp == 0 || min(bounds.width(), bounds.height()) >= minSmallestWidthPx
         return validMinWidth && validMinHeight && validSmallestMinWidth
+    }
+
+    /**
+     * Converts the dimension from Dp to pixels.
+     */
+    private fun convertDpToPx(density: Float, @IntRange(from = 0) dimensionDp: Int): Int {
+        return (dimensionDp * density + 0.5f).toInt()
     }
 
     @RequiresApi(30)
@@ -232,18 +226,18 @@ open class SplitRule internal constructor(
         if (other !is SplitRule) return false
 
         if (!super.equals(other)) return false
-        if (minWidth != other.minWidth) return false
-        if (minHeight != other.minHeight) return false
-        if (minSmallestWidth != other.minSmallestWidth) return false
+        if (minWidthDp != other.minWidthDp) return false
+        if (minHeightDp != other.minHeightDp) return false
+        if (minSmallestWidthDp != other.minSmallestWidthDp) return false
         if (defaultSplitAttributes != other.defaultSplitAttributes) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + minWidth
-        result = 31 * result + minHeight
-        result = 31 * result + minSmallestWidth
+        result = 31 * result + minWidthDp
+        result = 31 * result + minHeightDp
+        result = 31 * result + minSmallestWidthDp
         result = 31 * result + defaultSplitAttributes.hashCode()
         return result
     }

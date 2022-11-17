@@ -31,6 +31,7 @@ import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as Spli
 import androidx.window.layout.WindowMetrics as JetpackWindowMetrics
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.util.LayoutDirection
 import android.view.WindowMetrics
@@ -153,9 +154,9 @@ internal class EmbeddingAdapter(
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun translateParentMetricsPredicate(splitRule: SplitRule): Any =
+    private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any =
         predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
-            splitRule.checkParentMetrics(windowMetrics)
+            splitRule.checkParentMetrics(context, windowMetrics)
         }
 
     fun translateSplitAttributesCalculator(
@@ -209,6 +210,7 @@ internal class EmbeddingAdapter(
     }
 
     private fun translateSplitPairRule(
+        context: Context,
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
@@ -219,7 +221,7 @@ internal class EmbeddingAdapter(
         ).newInstance(
             translateActivityPairPredicates(rule.filters),
             translateActivityIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(rule)
+            translateParentMetricsPredicate(context, rule)
         )
             .safeSetDefaultSplitAttributes(rule.defaultSplitAttributes)
             .setShouldClearTop(rule.clearTop)
@@ -285,6 +287,7 @@ internal class EmbeddingAdapter(
         OEMSplitType.RatioSplitType(splitRatio.ratio)
 
     private fun translateSplitPlaceholderRule(
+        context: Context,
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
@@ -297,7 +300,7 @@ internal class EmbeddingAdapter(
             rule.placeholderIntent,
             translateActivityPredicates(rule.filters),
             translateIntentPredicates(rule.filters),
-            translateParentMetricsPredicate(rule)
+            translateParentMetricsPredicate(context, rule)
         )
             .setSticky(rule.isSticky)
             .safeSetFinishPrimaryWithPlaceholder(rule.finishPrimaryWithPlaceholder)
@@ -361,12 +364,13 @@ internal class EmbeddingAdapter(
         return builder.build()
     }
 
-    fun translate(rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {
+    fun translate(context: Context, rules: Set<EmbeddingRule>): Set<OEMEmbeddingRule> {
         val predicateClass = predicateAdapter.predicateClassOrNull() ?: return emptySet()
         return rules.map { rule ->
             when (rule) {
-                is SplitPairRule -> translateSplitPairRule(rule, predicateClass)
-                is SplitPlaceholderRule -> translateSplitPlaceholderRule(rule, predicateClass)
+                is SplitPairRule -> translateSplitPairRule(context, rule, predicateClass)
+                is SplitPlaceholderRule ->
+                    translateSplitPlaceholderRule(context, rule, predicateClass)
                 is ActivityRule -> translateActivityRule(rule, predicateClass)
                 else -> throw IllegalArgumentException("Unsupported rule type")
             }

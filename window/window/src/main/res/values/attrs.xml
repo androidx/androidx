@@ -24,12 +24,12 @@
      the secondary container takes more partition. -->
     <attr name="splitRatio" format="float" />
     <!-- The smallest value of width of the parent window when the split should be used. -->
-    <attr name="splitMinWidth" format="dimension" />
+    <attr name="splitMinWidthDp" format="integer" />
     <!-- The smallest value of height of the parent window when the split should be used. -->
-    <attr name="splitMinHeight" format="dimension" />
+    <attr name="splitMinHeightDp" format="integer" />
     <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
      the split should be used. -->
-    <attr name="splitMinSmallestWidth" format="dimension" />
+    <attr name="splitMinSmallestWidthDp" format="integer" />
     <attr name="splitLayoutDirection" format="enum">
         <!-- A layout direction that splits the task bounds vertically, and the direction is deduced
         from the language script of locale. The direction can be either rtl or ltr -->
@@ -81,9 +81,9 @@
          to "false". -->
         <attr name="clearTop" format="boolean" />
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinHeight"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinHeightDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
     </declare-styleable>
@@ -101,9 +101,9 @@
          primary container that created the split should also be finished. Defaults to "always". -->
         <attr name="finishPrimaryWithPlaceholder"/>
         <attr name="splitRatio"/>
-        <attr name="splitMinWidth"/>
-        <attr name="splitMinHeight"/>
-        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitMinWidthDp"/>
+        <attr name="splitMinHeightDp"/>
+        <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
     </declare-styleable>

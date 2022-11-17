@@ -60,14 +60,14 @@ class SplitPlaceholderRule : SplitRule {
         placeholderIntent: Intent,
         isSticky: Boolean,
         finishPrimaryWithPlaceholder: FinishBehavior = ALWAYS,
-        @IntRange(from = 0) minWidth: Int = 0,
-        @IntRange(from = 0) minHeight: Int = 0,
-        @IntRange(from = 0) minSmallestWidth: Int = 0,
+        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
+        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
         defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidth, minHeight, minSmallestWidth, defaultSplitAttributes) {
-        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
-        checkArgumentNonnegative(minHeight, "minHeight must be non-negative")
-        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, defaultSplitAttributes) {
+        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
+        checkArgumentNonnegative(minHeightDp, "minHeightDp must be non-negative")
+        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
         checkArgument(finishPrimaryWithPlaceholder != NEVER,
             "NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
@@ -81,24 +81,39 @@ class SplitPlaceholderRule : SplitRule {
      * Builder for [SplitPlaceholderRule].
      * @param filters See [SplitPlaceholderRule.filters].
      * @param placeholderIntent See [SplitPlaceholderRule.placeholderIntent].
-     * @param minWidth See [SplitPlaceholderRule.minWidth].
-     * @param minHeight See [SplitPlaceholderRule.minHeight]
-     * @param minSmallestWidth See [SplitPlaceholderRule.minSmallestWidth].
      */
     class Builder(
         private val filters: Set<ActivityFilter>,
-        private val placeholderIntent: Intent,
-        @IntRange(from = 0)
-        private val minWidth: Int,
-        @IntRange(from = 0)
-        private val minHeight: Int,
-        @IntRange(from = 0)
-        private val minSmallestWidth: Int,
+        private val placeholderIntent: Intent
     ) {
+        @IntRange(from = 0)
+        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minHeightDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        @IntRange(from = 0)
+        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
         private var finishPrimaryWithPlaceholder: FinishBehavior = ALWAYS
         private var isSticky: Boolean = false
         private var defaultSplitAttributes: SplitAttributes = SplitAttributes.Builder().build()
         private var tag: String? = null
+
+        /**
+         * @see SplitPlaceholderRule.minWidthDp
+         */
+        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
+            apply { this.minWidthDp = minWidthDp }
+
+        /**
+         * @see SplitPlaceholderRule.minHeightDp
+         */
+        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder =
+            apply { this.minHeightDp = minHeightDp }
+
+        /**
+         * @see SplitPlaceholderRule.minSmallestWidthDp
+         */
+        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply { this.minSmallestWidthDp = minSmallestWidthDp }
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -128,9 +143,9 @@ class SplitPlaceholderRule : SplitRule {
             placeholderIntent,
             isSticky,
             finishPrimaryWithPlaceholder,
-            minWidth,
-            minHeight,
-            minSmallestWidth,
+            minWidthDp,
+            minHeightDp,
+            minSmallestWidthDp,
             defaultSplitAttributes,
         )
     }
@@ -143,8 +158,11 @@ class SplitPlaceholderRule : SplitRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
-        return Builder(newSet.toSet(), placeholderIntent, minWidth, minHeight, minSmallestWidth)
+        return Builder(newSet.toSet(), placeholderIntent)
             .setTag(tag)
+            .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
+            .setMinSmallestWidthDp(minSmallestWidthDp)
             .setSticky(isSticky)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setDefaultSplitAttributes(defaultSplitAttributes)
@@ -177,9 +195,9 @@ class SplitPlaceholderRule : SplitRule {
          "SplitPlaceholderRule{" +
              "tag=$tag" +
              ", defaultSplitAttributes=$defaultSplitAttributes" +
-             ", minWidth=$minWidth" +
-             ", minHeight=$minHeight" +
-             ", minSmallestWidth=$minSmallestWidth" +
+             ", minWidthDp=$minWidthDp" +
+             ", minHeightDp=$minHeightDp" +
+             ", minSmallestWidthDp=$minSmallestWidthDp" +
              ", placeholderIntent=$placeholderIntent" +
              ", isSticky=$isSticky" +
              ", finishPrimaryWithPlaceholder=$finishPrimaryWithPlaceholder" +
