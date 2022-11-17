@@ -22,6 +22,7 @@ import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.verifyWithPolling
@@ -60,10 +61,12 @@ class PerfettoCaptureSweepTest(
         PerfettoHelper.stopAllPerfettoProcesses()
     }
 
+    @FlakyTest(bugId = 258216025)
     @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED)
     @Test
     fun captureAndValidateTrace_bundled() = captureAndValidateTrace(unbundled = false)
 
+    @FlakyTest(bugId = 258216025)
     @Test
     fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
 
