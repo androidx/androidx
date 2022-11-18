@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.tv.foundation.lazy.layout.animateScrollToItem
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -87,6 +88,8 @@ class TvLazyListState constructor(
      */
     private val scrollPosition =
         LazyListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
+
+    private val animateScrollScope = LazyListAnimateScrollScope(this)
 
     /**
      * The index of the first item that is visible.
@@ -309,7 +312,6 @@ class TvLazyListState constructor(
         }
         val info = layoutInfo
         if (info.visibleItemsInfo.isNotEmpty()) {
-            // check(isActive)
             val scrollingForward = delta < 0
             val indexToPrefetch = if (scrollingForward) {
                 info.visibleItemsInfo.last().index + 1
@@ -335,6 +337,21 @@ class TvLazyListState constructor(
         }
     }
 
+    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyListLayoutInfo) {
+        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
+            val expectedPrefetchIndex = if (wasScrollingForward) {
+                info.visibleItemsInfo.last().index + 1
+            } else {
+                info.visibleItemsInfo.first().index - 1
+            }
+            if (indexToPrefetch != expectedPrefetchIndex) {
+                indexToPrefetch = -1
+                currentPrefetchHandle?.cancel()
+                currentPrefetchHandle = null
+            }
+        }
+    }
+
     internal val prefetchState = LazyLayoutPrefetchState()
 
     /**
@@ -350,7 +367,7 @@ class TvLazyListState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        doSmoothScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(index, scrollOffset)
     }
 
     /**
@@ -368,21 +385,6 @@ class TvLazyListState constructor(
         numMeasurePasses++
 
         cancelPrefetchIfVisibleItemsChanged(result)
-    }
-
-    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyListLayoutInfo) {
-        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
-            val expectedPrefetchIndex = if (wasScrollingForward) {
-                info.visibleItemsInfo.last().index + 1
-            } else {
-                info.visibleItemsInfo.first().index - 1
-            }
-            if (indexToPrefetch != expectedPrefetchIndex) {
-                indexToPrefetch = -1
-                currentPrefetchHandle?.cancel()
-                currentPrefetchHandle = null
-            }
-        }
     }
 
     /**

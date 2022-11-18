@@ -57,27 +57,32 @@ sealed interface TvLazyListLayoutInfo {
      * The size of the viewport in pixels. It is the lazy list layout size including all the
      * content paddings.
      */
+    // DO NOT ADD DEFAULT get() HERE
     val viewportSize: IntSize
 
     /**
      * The orientation of the lazy list.
      */
+    // DO NOT ADD DEFAULT get() HERE
     val orientation: Orientation
 
     /**
      * True if the direction of scrolling and layout is reversed.
      */
+    // DO NOT ADD DEFAULT get() HERE
     val reverseLayout: Boolean
 
     /**
      * The content padding in pixels applied before the first item in the direction of scrolling.
      * For example it is a top content padding for LazyColumn with reverseLayout set to false.
      */
+    // DO NOT ADD DEFAULT get() HERE
     val beforeContentPadding: Int
 
     /**
      * The content padding in pixels applied after the last item in the direction of scrolling.
      * For example it is a bottom content padding for LazyColumn with reverseLayout set to false.
      */
+    // DO NOT ADD DEFAULT get() HERE
     val afterContentPadding: Int
 }

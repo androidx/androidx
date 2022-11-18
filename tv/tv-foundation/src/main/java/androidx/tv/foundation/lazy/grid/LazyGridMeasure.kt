@@ -41,7 +41,6 @@ internal fun measureLazyGrid(
     measuredLineProvider: LazyMeasuredLineProvider,
     measuredItemProvider: LazyMeasuredItemProvider,
     mainAxisAvailableSize: Int,
-    slotsPerLine: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
     spaceBetweenLines: Int,
@@ -55,6 +54,7 @@ internal fun measureLazyGrid(
     reverseLayout: Boolean,
     density: Density,
     placementAnimator: LazyGridItemPlacementAnimator,
+    spanLayoutProvider: LazyGridSpanLayoutProvider,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): TvLazyGridMeasureResult {
     require(beforeContentPadding >= 0)
@@ -245,10 +245,10 @@ internal fun measureLazyGrid(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            slotsPerLine = slotsPerLine,
             reverseLayout = reverseLayout,
             positionedItems = positionedItems,
-            measuredItemProvider = measuredItemProvider
+            measuredItemProvider = measuredItemProvider,
+            spanLayoutProvider = spanLayoutProvider
         )
 
         return TvLazyGridMeasureResult(
