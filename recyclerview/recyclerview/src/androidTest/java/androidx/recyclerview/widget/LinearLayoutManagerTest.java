@@ -1296,6 +1296,19 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
+    public void onInitializeAccessibilityNodeInfo_classNameAdded()
+            throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(0)), false);
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo));
+
+        assertEquals(nodeInfo.getClassName(), "android.widget.ListView");
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
     public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_notAddedWithEmptyList()
             throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false).adapter(new TestAdapter(0)), false);
