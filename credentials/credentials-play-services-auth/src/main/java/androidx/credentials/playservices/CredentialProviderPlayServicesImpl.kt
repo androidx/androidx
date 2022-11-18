@@ -68,6 +68,7 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         )
     }
 
+    @SuppressWarnings("deprecated")
     override fun onCreateCredential(
         request: CreateCredentialRequest,
         activity: Activity?,
@@ -92,11 +93,14 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
                 callback,
                 executor)
         } else if (request is CreatePublicKeyCredentialRequest) {
-            TODO("Not yet implemented")
+            // TODO("Add in")
         } else {
             throw UnsupportedOperationException(
                 "Unsupported request; not password or publickeycredential")
         }
+    }
+    override fun isAvailableOnDevice(): Boolean {
+        TODO("Not yet implemented")
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -118,10 +122,6 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
             }
         }
         return false
-    }
-
-    override fun isAvailableOnDevice(): Boolean {
-        TODO("Not yet implemented")
     }
 
     companion object {
