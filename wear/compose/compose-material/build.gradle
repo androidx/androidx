@@ -36,7 +36,7 @@ dependencies {
 
         implementation(libs.kotlinStdlib)
         implementation(project(":compose:animation:animation"))
-        implementation(project(":compose:material:material"))
+        implementation(project(":compose:material:material-icons-core"))
         implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
@@ -80,7 +80,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api("androidx.annotation:annotation:1.1.0")
 
                 implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:material:material"))
+                implementation(project(":compose:material:material-icons-core"))
                 implementation(project(":compose:material:material-ripple"))
                 implementation(project(":compose:ui:ui-util"))
                 implementation(project(":wear:compose:compose-foundation"))
