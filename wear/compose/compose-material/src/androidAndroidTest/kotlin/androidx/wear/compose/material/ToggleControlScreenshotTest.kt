@@ -18,6 +18,7 @@ package androidx.wear.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
@@ -124,7 +125,7 @@ class ToggleControlScreenshotTest {
 
     private fun verifyScreenshot(
         threshold: Double = 0.98,
-        content: @Composable () -> Unit
+        content: @Composable BoxScope.() -> Unit
     ) {
         rule.setContentWithTheme(composable = content)
         rule.onNodeWithTag(TEST_TAG)
