@@ -257,6 +257,8 @@ public class UiObject2 implements Searchable {
         if (bounds.contains(point.x, point.y)) {
             return true;
         }
+        Log.d(TAG, String.format("Clipping out-of-bound (%d, %d) into %s.", point.x, point.y,
+                bounds));
         point.x = Math.max(bounds.left, Math.min(point.x, bounds.right));
         point.y = Math.max(bounds.top, Math.min(point.y, bounds.bottom));
         return false;
