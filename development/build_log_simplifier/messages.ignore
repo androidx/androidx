@@ -792,3 +792,5 @@ objc\[.*\]: Class .*
 xcframework successfully .*
 # iOS benchmark invocation
 /usr/bin/xcodebuild
+# > Configure project :internal-testutils-ktx
+WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
