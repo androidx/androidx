@@ -19,6 +19,7 @@ package androidx.emoji2.emojipicker
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 /** A [ViewHolder] containing an emoji view and emoji data.  */
@@ -26,22 +27,30 @@ internal class EmojiViewHolder(
     parent: ViewGroup,
     layoutInflater: LayoutInflater,
     width: Int,
-    height: Int
+    height: Int,
+    onEmojiPickedListener: Consumer<EmojiViewItem>?
 ) : ViewHolder(
     layoutInflater
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot= */false)
 ) {
     private val emojiView: EmojiView
+    private lateinit var emojiViewItem: EmojiViewItem
 
     init {
         itemView.layoutParams = LayoutParams(width, height)
         emojiView = itemView.findViewById(R.id.emoji_view)
         emojiView.isClickable = true
+
+        // set emojiViewListener
+        emojiView.setOnClickListener {
+            onEmojiPickedListener?.accept(emojiViewItem)
+        }
     }
 
     fun bindEmoji(
         emojiViewItem: EmojiViewItem
     ) {
-        emojiView.emoji = emojiViewItem.primary
+        emojiView.emoji = emojiViewItem.emoji
+        this.emojiViewItem = emojiViewItem
     }
 }

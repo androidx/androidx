@@ -33,7 +33,7 @@ import kotlinx.coroutines.coroutineScope
  * @property categorizedEmojiData: a list that holds bundled emoji separated by category, filtered
  * by renderability check. This is the data source for EmojiPickerView.
  *
- * @property emojiVariantsLookup: a map of emoji variants in bundled emoji, keyed by the primary
+ * @property emojiVariantsLookup: a map of emoji variants in bundled emoji, keyed by the base
  * emoji. This allows faster variants lookup.
  */
 internal object BundledEmojiListLoader {
@@ -64,7 +64,7 @@ internal object BundledEmojiListLoader {
         emojiVariantsLookup ?: getCategorizedEmojiData()
             .flatMap { it.emojiDataList }
             .filter { it.variants.isNotEmpty() }
-            .associate { it.primary to it.variants }
+            .associate { it.emoji to it.variants }
             .also { emojiVariantsLookup = it }
 
     private suspend fun loadEmojiAsync(

@@ -83,7 +83,7 @@ internal class FileCache(context: Context) {
         targetFile.bufferedWriter()
             .use { out ->
                 for (emoji in data) {
-                    out.write(emoji.primary)
+                    out.write(emoji.emoji)
                     emoji.variants.forEach { out.write(",$it") }
                     out.newLine()
                 }
