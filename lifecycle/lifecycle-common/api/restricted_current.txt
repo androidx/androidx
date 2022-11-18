@@ -73,8 +73,9 @@ package androidx.lifecycle {
     method public androidx.lifecycle.Lifecycle getLifecycle();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Lifecycling {
-    method public static String getAdapterName(String);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Lifecycling {
+    method public static String getAdapterName(String className);
+    method public static androidx.lifecycle.LifecycleEventObserver lifecycleEventObserver(Object object);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MethodCallsLogger {
