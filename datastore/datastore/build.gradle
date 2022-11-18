@@ -23,17 +23,18 @@ plugins {
     id("com.android.library")
 }
 
-def enableNative = KmpPlatformsKt.enableNative(project)
-
 android {
     namespace "androidx.datastore.datastore"
 }
 
 androidXMultiplatform {
+    jvm()
+    mac()
+    ios()
+    linux()
     android()
-
     sourceSets {
-        androidMain {
+        commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
@@ -41,19 +42,43 @@ androidXMultiplatform {
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
             }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.okio)
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
 
         }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        androidMain {
+            dependsOn(jvmMain)
+        }
         androidAndroidTest {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
-
-                implementation(libs.junit)
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
                 implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
             }
