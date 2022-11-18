@@ -37,6 +37,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentScenarioDialogFragmentTest {
+
+    @Ignore // b/259726188
     @Test
     fun launchFragment() {
         with(launchFragment<SimpleDialogFragment>()) {
