@@ -27,6 +27,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.CoreMatchers.not
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,6 +49,7 @@ class FragmentScenarioDialogFragmentTest {
         }
     }
 
+    @Ignore // b/259727355
     @Test
     fun launchFragmentInContainer() {
         with(launchFragmentInContainer<SimpleDialogFragment>()) {
