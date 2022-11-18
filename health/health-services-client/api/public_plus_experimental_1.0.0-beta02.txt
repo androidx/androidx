@@ -21,20 +21,20 @@ package androidx.health.services.client {
   }
 
   public final class ExerciseClientExtensionKt {
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? addGoalToActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? clearUpdateCallback(androidx.health.services.client.ExerciseClient, androidx.health.services.client.ExerciseUpdateCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? endExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? flush(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? getCapabilities(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.ExerciseCapabilities>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? getCurrentExerciseInfo(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.ExerciseInfo>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? markLap(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? overrideAutoPauseAndResumeForActiveExercise(androidx.health.services.client.ExerciseClient, boolean enabled, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? pauseExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? prepareExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.WarmUpConfig configuration, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? removeGoalFromActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? resumeExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? startExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseConfig configuration, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? updateExerciseTypeConfig(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? addGoalToActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? clearUpdateCallback(androidx.health.services.client.ExerciseClient, androidx.health.services.client.ExerciseUpdateCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? endExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? flush(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? getCapabilities(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.ExerciseCapabilities>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? getCurrentExerciseInfo(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.ExerciseInfo>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? markLap(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? overrideAutoPauseAndResumeForActiveExercise(androidx.health.services.client.ExerciseClient, boolean enabled, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? pauseExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method public static suspend Object? prepareExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.WarmUpConfig configuration, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? removeGoalFromActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? resumeExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method public static suspend Object? startExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseConfig configuration, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? updateExerciseTypeConfig(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
   }
 
   public interface ExerciseUpdateCallback {
@@ -59,6 +59,10 @@ package androidx.health.services.client {
     property public abstract androidx.health.services.client.PassiveMonitoringClient passiveMonitoringClient;
   }
 
+  public final class ListenableFutureExtensionKt {
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend <T> Object? awaitWithException(com.google.common.util.concurrent.ListenableFuture<T>, kotlin.coroutines.Continuation<? super T>) throws java.lang.RuntimeException;
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureCallback {
     method public void onAvailabilityChanged(androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.data.Availability availability);
     method public void onDataReceived(androidx.health.services.client.data.DataPointContainer data);
@@ -74,8 +78,8 @@ package androidx.health.services.client {
   }
 
   public final class MeasureClientExtensionKt {
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? getCapabilities(androidx.health.services.client.MeasureClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.MeasureCapabilities>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? unregisterMeasureCallback(androidx.health.services.client.MeasureClient, androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? getCapabilities(androidx.health.services.client.MeasureClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.MeasureCapabilities>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? unregisterMeasureCallback(androidx.health.services.client.MeasureClient, androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PassiveListenerCallback {
@@ -109,11 +113,11 @@ package androidx.health.services.client {
   }
 
   public final class PassiveMonitoringClientExtensionKt {
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? clearPassiveListenerCallback(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? clearPassiveListenerService(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? flush(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? getCapabilities(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.PassiveMonitoringCapabilities>) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? setPassiveListenerService(androidx.health.services.client.PassiveMonitoringClient, Class<? extends androidx.health.services.client.PassiveListenerService> service, androidx.health.services.client.data.PassiveListenerConfig config, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? clearPassiveListenerCallback(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? clearPassiveListenerService(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? flush(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws java.lang.RuntimeException;
+    method @kotlin.jvm.Throws(exceptionClasses=RuntimeException::class) public static suspend Object? getCapabilities(androidx.health.services.client.PassiveMonitoringClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.PassiveMonitoringCapabilities>) throws java.lang.RuntimeException;
+    method public static suspend Object? setPassiveListenerService(androidx.health.services.client.PassiveMonitoringClient, Class<? extends androidx.health.services.client.PassiveListenerService> service, androidx.health.services.client.data.PassiveListenerConfig config, kotlin.coroutines.Continuation<? super java.lang.Void>);
   }
 
 }

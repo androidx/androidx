@@ -38,6 +38,6 @@ public class ExerciseInfoCallback(private val resultFuture: SettableFuture<Exerc
 
     @Throws(RemoteException::class)
     override fun onFailure(message: String) {
-        resultFuture.setException(RemoteException(message))
+        resultFuture.setException(RuntimeException(message))
     }
 }

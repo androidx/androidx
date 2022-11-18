@@ -15,7 +15,6 @@
  */
 package androidx.health.services.client
 
-import androidx.concurrent.futures.await
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
@@ -36,8 +35,8 @@ import androidx.health.services.client.data.WarmUpConfig
  * requested [DataType]s.
  *
  * If the calling app already has an active exercise in progress or if it does not have the
- * required permissions, then this call throws [android.os.RemoteException]. If another app owns
- * the active exercise then this call will succeed.
+ * required permissions, then this call throws [RuntimeException]. If another app owns the
+ * active exercise then this call will succeed.
  *
  * Sensors available for warmup are GPS [DataType.LOCATION] and HeartRate
  * [DataType.HEART_RATE_BPM]. Other [DataType]s requested for warmup based on exercise
@@ -55,13 +54,13 @@ import androidx.health.services.client.data.WarmUpConfig
  * availability or data will be sent until the app calls prepareExercise again.
  *
  * @param configuration the [WarmUpConfig] containing the desired exercise and data types
- * @throws [android.os.RemoteException] if the calling app already has an active exercise in
- * progress or if it does not have the required permissions or if Health Service fails to process
- * the call
+ * @throws RuntimeException if the calling app already has an active exercise in progress or
+ * if Health Service fails to process the call
+ * @throws SecurityException if the calling app does not have the required permissions
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.prepareExercise(configuration: WarmUpConfig) =
-    prepareExerciseAsync(configuration).await()
+public suspend fun ExerciseClient.prepareExercise(configuration: WarmUpConfig) {
+    prepareExerciseAsync(configuration).awaitWithException()
+}
 
 /**
  * Starts a new exercise.
@@ -75,23 +74,24 @@ public suspend fun ExerciseClient.prepareExercise(configuration: WarmUpConfig) =
  * use [getCurrentExerciseInfo] (described below) to check if they or another app has an
  * active exercise in-progress.
  *
- * If the client fails to maintain a live [ExerciseUpdateCallback] for at least five minutes
- * during the duration of the exercise, Health Services can decide to terminate the exercise. If
- * this occurs, clients can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED] along
- * with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER] to the [ExerciseUpdateCallback]
- * indicating that their exercise has been automatically ended due to the lack of callback.
+ * The exercise will be terminated and clients can expect to receive an [ExerciseUpdate] with
+ * [ExerciseState.ENDED] along with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER]
+ * (indicating that their exercise has been automatically ended due to the lack of callback) if
+ * there is ever a five minute period where no [ExerciseUpdateCallback] is registered. A notable
+ * example is if the process with the registered [ExerciseUpdateCallback] dies and does not
+ * re-register the [ExerciseUpdateCallback] within five minutes.
  *
  * Clients should only request [ExerciseType]s, [DataType]s, goals, and auto-pause enabled that
  * matches the [ExerciseCapabilities] returned by [getCapabilities] since Health Services
  * will reject requests asking for unsupported configurations.
  *
  * @param configuration the [ExerciseConfig] describing this exercise
- * @throws [android.os.RemoteException] if Health Service fails to process the call or if it does
- * not have the required permissions
+ * @throws RuntimeException if Health Service fails to process the call
+ * @throws SecurityException if the calling app does not have the required permissions
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.startExercise(configuration: ExerciseConfig) =
-    startExerciseAsync(configuration).await()
+public suspend fun ExerciseClient.startExercise(configuration: ExerciseConfig) {
+    startExerciseAsync(configuration).awaitWithException()
+}
 
 /**
  * Pauses the current exercise, if it is currently started.
@@ -107,13 +107,13 @@ public suspend fun ExerciseClient.startExercise(configuration: ExerciseConfig) =
  * is resumed.
  *
  * If the exercise is already paused then this method has no effect. If the exercise has ended
- * then [android.os.RemoteException] is thrown.
+ * then [RuntimeException] is thrown.
  *
- * @throws [android.os.RemoteException] if the exercise has ended or if Health Service fails to
- * process the call
+ * @throws RuntimeException if the exercise has ended or if Health Service fails to process
+ * the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.pauseExercise() = pauseExerciseAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.pauseExercise() = pauseExerciseAsync().awaitWithException()
 
 /**
  * Resumes the current exercise, if it is currently paused.
@@ -121,13 +121,13 @@ public suspend fun ExerciseClient.pauseExercise() = pauseExerciseAsync().await()
  * Once resumed active time and cumulative metrics such as distance will resume accumulating.
  *
  * If the exercise has been started but is not currently paused this method has no effect. If
- * the exercise has ended then [android.os.RemoteException] is thrown.
+ * the exercise has ended then [RuntimeException] is thrown.
  *
- * @throws [android.os.RemoteException] if the exercise has ended or if Health Service fails to
+ * @throws RuntimeException if the exercise has ended or if Health Service fails to
  * process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.resumeExercise() = resumeExerciseAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.resumeExercise() = resumeExerciseAsync().awaitWithException()
 
 /**
  * Ends the current exercise, if it has been started.
@@ -135,25 +135,25 @@ public suspend fun ExerciseClient.resumeExercise() = resumeExerciseAsync().await
  * Health Services will flush and then shut down the active sensors and return an
  * [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
  * [ExerciseEndReason.USER_END] to the [ExerciseUpdateCallback]. If the exercise has already
- * ended then this call fails with a [android.os.RemoteException].
+ * ended then this call fails with a [RuntimeException].
  *
  * No additional metrics will be produced for the exercise and any on device persisted data
  * about the exercise will be deleted after the summary has been sent back.
  *
- * @throws [android.os.RemoteException] if exercise has already ended or if Health Service fails to
+ * @throws RuntimeException if exercise has already ended or if Health Service fails to
  * process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.endExercise() = endExerciseAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.endExercise() = endExerciseAsync().awaitWithException()
 
 /**
  * Flushes the sensors for the active exercise. This call should be used sparingly and will be
  * subject to throttling by Health Services.
  *
- * @throws [android.os.RemoteException] if the Health Service fails to process the request
+ * @throws RuntimeException if the Health Service fails to process the request
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.flush() = flushAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.flush() = flushAsync().awaitWithException()
 
 /**
  * Ends the current lap, calls [ExerciseUpdateCallback.onLapSummaryReceived] with data spanning
@@ -164,11 +164,11 @@ public suspend fun ExerciseClient.flush() = flushAsync().await()
  * The metrics in the lap summary will start from either the start time of the exercise or the
  * last time a lap was marked to the time this method is being called.
  *
- * @throws [android.os.RemoteException] If there's no exercise being tracked or if Health Service
- * fails to process the call
+ * @throws RuntimeException If there's no exercise being tracked or if Health Service fails
+ * to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.markLap() = markLapAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.markLap() = markLapAsync().awaitWithException()
 
 /**
  * Returns the current [ExerciseInfo].
@@ -179,10 +179,11 @@ public suspend fun ExerciseClient.markLap() = markLapAsync().await()
  * from where it left off.
  *
  * @return a [ExerciseInfo] that contains information about the current exercise
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.getCurrentExerciseInfo() = getCurrentExerciseInfoAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.getCurrentExerciseInfo() =
+    getCurrentExerciseInfoAsync().awaitWithException()
 
 /**
  * Clears the callback set using [ExerciseClient.setUpdateCallback].
@@ -190,12 +191,12 @@ public suspend fun ExerciseClient.getCurrentExerciseInfo() = getCurrentExerciseI
  * If this callback is not already registered then this will be a no-op.
  *
  * @param callback the [ExerciseUpdateCallback] to clear
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
 @Suppress("ExecutorRegistration")
-@kotlin.jvm.Throws(android.os.RemoteException::class)
+@kotlin.jvm.Throws(RuntimeException::class)
 public suspend fun ExerciseClient.clearUpdateCallback(callback: ExerciseUpdateCallback) =
-    clearUpdateCallbackAsync(callback).await()
+    clearUpdateCallbackAsync(callback).awaitWithException()
 
 /**
  * Adds an [ExerciseGoal] for an active exercise.
@@ -204,11 +205,11 @@ public suspend fun ExerciseClient.clearUpdateCallback(callback: ExerciseUpdateCa
  * exercise is complete.
  *
  * @param exerciseGoal the [ExerciseGoal] to add to this exercise
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
+@kotlin.jvm.Throws(RuntimeException::class)
 public suspend fun ExerciseClient.addGoalToActiveExercise(exerciseGoal: ExerciseGoal<*>) =
-    addGoalToActiveExerciseAsync(exerciseGoal).await()
+    addGoalToActiveExerciseAsync(exerciseGoal).awaitWithException()
 
 /**
  * Removes an exercise goal for an active exercise.
@@ -218,23 +219,22 @@ public suspend fun ExerciseClient.addGoalToActiveExercise(exerciseGoal: Exercise
  * threshold of 10kms, and milestone B for every 2kms, currently at threshold of 8kms).
  *
  * @param exerciseGoal the [ExerciseGoal] to remove from this exercise
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.removeGoalFromActiveExercise(
-    exerciseGoal: ExerciseGoal<*>
-) = removeGoalFromActiveExerciseAsync(exerciseGoal).await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.removeGoalFromActiveExercise(exerciseGoal: ExerciseGoal<*>) =
+    removeGoalFromActiveExerciseAsync(exerciseGoal).awaitWithException()
 
 /**
  * Enables or disables auto pause/resume for the current exercise.
  *
  * @param enabled a boolean to indicate if should be enabled or disabled
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
+@kotlin.jvm.Throws(RuntimeException::class)
 public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
     enabled: Boolean
-) = overrideAutoPauseAndResumeForActiveExerciseAsync(enabled).await()
+) = overrideAutoPauseAndResumeForActiveExerciseAsync(enabled).awaitWithException()
 
 /**
  * Returns the [ExerciseCapabilities] of this client for the device.
@@ -245,10 +245,10 @@ public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
  * enabled for the rejected [ExerciseType].
  *
  * @return a the [ExerciseCapabilities] for this device
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
-public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().await()
+@kotlin.jvm.Throws(RuntimeException::class)
+public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().awaitWithException()
 
 /**
  * Updates the configurable exercise type attributes for the current exercise.
@@ -256,12 +256,10 @@ public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().awa
  * This can be used to update the configurable attributes for the ongoing exercise, as defined
  * in [ExerciseTypeConfig].
  *
- * @param exerciseTypeConfig a configuration containing the new values for the configurable
- * attributes
- *
- * @throws [android.os.RemoteException] if Health Service fails to process the call
+ * @param exerciseTypeConfig configuration containing the new values for the configurable attributes
+ * @throws RuntimeException if Health Service fails to process the call
  */
-@kotlin.jvm.Throws(android.os.RemoteException::class)
+@kotlin.jvm.Throws(RuntimeException::class)
 public suspend fun ExerciseClient.updateExerciseTypeConfig(
     exerciseTypeConfig: ExerciseTypeConfig
-) = updateExerciseTypeConfigAsync(exerciseTypeConfig).await()
+) = updateExerciseTypeConfigAsync(exerciseTypeConfig).awaitWithException()

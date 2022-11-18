@@ -78,12 +78,12 @@ public interface ExerciseClient {
      * [getCurrentExerciseInfoAsync] (described below) to check if they or another app has an active
      * exercise in-progress.
      *
-     * If the client fails to maintain a live [ExerciseUpdateCallback] for at least five minutes
-     * during the duration of the exercise, Health Services can decide to terminate the exercise. If
-     * this occurs, clients can expect to receive an [ExerciseUpdate] with [ExerciseState.ENDED]
-     * along with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER] to the
-     * [ExerciseUpdateCallback] indicating that their exercise has been automatically ended due to
-     * the lack of callback.
+     * The exercise will be terminated and clients can expect to receive an [ExerciseUpdate] with
+     * [ExerciseState.ENDED] along with the reason [ExerciseEndReason.AUTO_END_MISSING_LISTENER]
+     * (indicating that their exercise has been automatically ended due to the lack of callback) if
+     * there is ever a five minute period where no [ExerciseUpdateCallback] is registered. A notable
+     * example is if the process with the registered [ExerciseUpdateCallback] dies and does not
+     * re-register the [ExerciseUpdateCallback] within five minutes.
      *
      * Clients should only request [ExerciseType]s, [DataType]s, goals, and auto-pause enabled that
      * matches the [ExerciseCapabilities] returned by [getCapabilitiesAsync] since Health Services

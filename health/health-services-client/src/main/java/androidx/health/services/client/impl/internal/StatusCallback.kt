@@ -20,7 +20,7 @@ import android.os.RemoteException
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import com.google.common.util.concurrent.SettableFuture
-
+import java.lang.SecurityException
 /**
  * A generic callback for ipc invocations.
  *
@@ -36,9 +36,12 @@ internal open class StatusCallback(private val resultFuture: SettableFuture<Void
         resultFuture.set(null)
     }
 
-    @Throws(RemoteException::class)
+    @Throws(RuntimeException::class, SecurityException::class)
     @CallSuper
     override fun onFailure(msg: String) {
-        resultFuture.setException(RemoteException(msg))
+        if (msg.startsWith("Missing permissions"))
+            resultFuture.setException(SecurityException(msg))
+        else
+            resultFuture.setException(RuntimeException(msg))
     }
 }
