@@ -265,16 +265,10 @@ public class UiObject2 implements Searchable {
     /** Returns the visible bounds of a {@code node}. */
     @SuppressWarnings("RectIntersectReturnValueIgnored")
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
-        // Get the object bounds in screen coordinates
-        Rect ret = new Rect();
-        node.getBoundsInScreen(ret);
-
-        // Trim any portion of the bounds that are not on the screen
+        Rect screen = new Rect();
         final int displayId = getDisplayId();
         if (displayId == Display.DEFAULT_DISPLAY) {
-            final Rect screen =
-                    new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
-            ret.intersect(screen);
+            screen = new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
         } else {
             final DisplayManager dm =
                     (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
@@ -283,21 +277,12 @@ public class UiObject2 implements Searchable {
             if (display != null) {
                 final Point size = new Point();
                 display.getRealSize(size);
-                final Rect screen = new Rect(0, 0, size.x, size.y);
-                ret.intersect(screen);
+                screen = new Rect(0, 0, size.x, size.y);
+            } else {
+                Log.d(TAG, String.format("Unable to get the display with id %d.", displayId));
             }
         }
-
-        // On platforms that give us access to the node's window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Trim any portion of the bounds that are outside the window
-            Rect bounds = new Rect();
-            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
-            if (window != null) {
-                Api21Impl.getBoundsInScreen(window, bounds);
-                ret.intersect(bounds);
-            }
-        }
+        Rect ret = AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen);
 
         // Find the visible bounds of our first scrollable ancestor
         for (AccessibilityNodeInfo ancestor = node.getParent(); ancestor != null;

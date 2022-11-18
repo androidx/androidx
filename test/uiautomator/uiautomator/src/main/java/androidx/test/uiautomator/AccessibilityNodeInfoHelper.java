@@ -40,8 +40,19 @@ class AccessibilityNodeInfoHelper {
      * @param height pixel height of the display
      * @return null if node is null, else a Rect containing visible bounds
      */
-    @SuppressWarnings("RectIntersectReturnValueIgnored")
     static Rect getVisibleBoundsInScreen(AccessibilityNodeInfo node, int width, int height) {
+        return getVisibleBoundsInScreen(node, new Rect(0, 0, width, height));
+    }
+
+    /**
+     * Returns the node's bounds clipped to the size of the display
+     *
+     * @param node
+     * @param displayRect the display rect
+     * @return null if node is null, else a Rect containing visible bounds
+     */
+    @SuppressWarnings("RectIntersectReturnValueIgnored")
+    static Rect getVisibleBoundsInScreen(AccessibilityNodeInfo node, Rect displayRect) {
         if (node == null) {
             return null;
         }
@@ -49,12 +60,9 @@ class AccessibilityNodeInfoHelper {
         Rect nodeRect = new Rect();
         node.getBoundsInScreen(nodeRect);
 
-        Rect displayRect = new Rect();
-        displayRect.top = 0;
-        displayRect.left = 0;
-        displayRect.right = width;
-        displayRect.bottom = height;
-
+        if (displayRect == null) {
+            displayRect = new Rect();
+        }
         nodeRect.intersect(displayRect);
 
         // On platforms that give us access to the node's window
