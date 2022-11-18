@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -35,8 +36,10 @@ import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 internal val useCaseCameraIds = atomic(0)
@@ -85,7 +88,7 @@ class UseCaseCameraImpl @Inject constructor(
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
-    private val graphStateJob: Job
+    private val closed = atomic(false)
 
     override var runningUseCases = setOf<UseCase>()
         set(value) {
@@ -109,21 +112,27 @@ class UseCaseCameraImpl @Inject constructor(
         useCaseGraphConfig.apply {
             cameraStateAdapter.onGraphUpdated(graph)
         }
-        graphStateJob = threads.scope.launch {
+        threads.scope.launch {
             useCaseGraphConfig.apply {
                 graph.graphState.collect {
                     cameraStateAdapter.onGraphStateUpdated(graph, it)
+                    if (closed.value && it is GraphStateStopped) {
+                        cancel()
+                    }
                 }
             }
         }
     }
 
     override fun close(): Job {
-        graphStateJob.cancel()
-        return threads.scope.launch {
-            debug { "Closing $this" }
-            useCaseGraphConfig.graph.close()
-            useCaseSurfaceManager.stopAsync().await()
+        return if (closed.compareAndSet(expect = false, update = true)) {
+            threads.scope.launch {
+                debug { "Closing $this" }
+                useCaseGraphConfig.graph.close()
+                useCaseSurfaceManager.stopAsync().await()
+            }
+        } else {
+            CompletableDeferred(Unit)
         }
     }
 
