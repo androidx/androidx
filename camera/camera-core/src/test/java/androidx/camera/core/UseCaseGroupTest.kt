@@ -61,7 +61,7 @@ class UseCaseGroupTest {
 
         // Assert.
         assertThat(message).isEqualTo(
-            "androidx.camera.testing.fakes.FakePreviewEffect " +
+            "Effects androidx.camera.testing.fakes.FakePreviewEffect " +
                 "and androidx.camera.testing.fakes.FakePreviewEffect " +
                 "contain duplicate targets PREVIEW."
         )

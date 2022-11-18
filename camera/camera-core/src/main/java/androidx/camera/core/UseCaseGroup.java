@@ -142,13 +142,13 @@ public final class UseCaseGroup {
                 int targets = effect.getTargets();
                 if (!SUPPORTED_TARGETS.contains(targets)) {
                     throw new IllegalArgumentException(String.format(Locale.US,
-                            "Target %s is not in the supported list %s.",
+                            "Effects target %s is not in the supported list %s.",
                             getHumanReadableTargets(targets),
                             getHumanReadableSupportedTargets()));
                 }
                 if (targetEffectMap.containsKey(effect.getTargets())) {
                     throw new IllegalArgumentException(String.format(Locale.US,
-                            "%s and %s contain duplicate targets %s.",
+                            "Effects %s and %s contain duplicate targets %s.",
                             requireNonNull(
                                     targetEffectMap.get(effect.getTargets())).getClass().getName(),
                             effect.getClass().getName(),
