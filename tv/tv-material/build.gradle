@@ -68,11 +68,3 @@ androidx {
     description = "build TV applications using controls that adhere to Material Design Language."
     targetsJavaConsumers = false
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
-}

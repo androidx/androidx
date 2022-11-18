@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.constraintlayout.compose {
 
-  public interface BaselineAnchorable {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface BaselineAnchorable {
     method public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor anchor, optional float margin, optional float goneMargin);
   }
 
@@ -245,7 +245,7 @@ package androidx.constraintlayout.compose {
     property public abstract String constraintLayoutTag;
   }
 
-  @androidx.compose.runtime.Immutable public interface ConstraintSet {
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface ConstraintSet {
     method public void applyTo(androidx.constraintlayout.compose.State state, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
     method public default void applyTo(androidx.constraintlayout.core.state.Transition transition, int type);
     method public default boolean isDirty(java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables);
@@ -347,7 +347,7 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.HorizontalAlign Start;
   }
 
-  public interface HorizontalAnchorable {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface HorizontalAnchorable {
     method public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor, optional float margin, optional float goneMargin);
   }
 
@@ -625,7 +625,7 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.VerticalAlign Top;
   }
 
-  public interface VerticalAnchorable {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface VerticalAnchorable {
     method public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor anchor, optional float margin, optional float goneMargin);
   }
 

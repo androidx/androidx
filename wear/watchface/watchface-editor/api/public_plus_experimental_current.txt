@@ -34,7 +34,7 @@ package androidx.wear.watchface.editor {
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
   }
 
-  public interface EditorSession extends java.lang.AutoCloseable {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface EditorSession extends java.lang.AutoCloseable {
     method @RequiresApi(27) @UiThread public default static androidx.wear.watchface.editor.EditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
     method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public default static suspend Object? createOnWatchEditorSession(androidx.activity.ComponentActivity activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) throws kotlinx.coroutines.TimeoutCancellationException;
     method public Integer? getBackgroundComplicationSlotId();

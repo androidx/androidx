@@ -22,6 +22,7 @@ import androidx.health.connect.client.permission.HealthDataRequestPermissions
 import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
 
+@JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
 interface PermissionController {
 

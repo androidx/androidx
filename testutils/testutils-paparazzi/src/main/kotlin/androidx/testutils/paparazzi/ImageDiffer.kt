@@ -19,6 +19,7 @@ package androidx.testutils.paparazzi
 import androidx.testutils.paparazzi.ImageDiffer.DiffResult.Similar
 import java.awt.image.BufferedImage
 
+@JvmDefaultWithCompatibility
 /**
  *  Functional interface to compare two images and returns a [ImageDiffer.DiffResult] ADT containing
  *  comparison statistics and a difference image, if applicable.

@@ -29,6 +29,7 @@ import androidx.work.await
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 
+@JvmDefaultWithCompatibility
 /**
  * [SessionManager] is the entrypoint for Glance surfaces to start a session worker that will handle
  * their composition.

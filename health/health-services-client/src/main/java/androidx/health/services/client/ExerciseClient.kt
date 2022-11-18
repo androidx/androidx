@@ -31,6 +31,7 @@ import androidx.health.services.client.data.WarmUpConfig
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 
+@JvmDefaultWithCompatibility
 /** Client which provides a way to subscribe to the health data of a device during an exercise. */
 public interface ExerciseClient {
     /**

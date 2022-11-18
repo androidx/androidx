@@ -17,6 +17,7 @@ package androidx.glance
 
 import androidx.compose.runtime.Stable
 
+@JvmDefaultWithCompatibility
 /**
  * An ordered, immutable, collection of modifier element for the Glance library.
  *
@@ -65,6 +66,7 @@ interface GlanceModifier {
     infix fun then(other: GlanceModifier): GlanceModifier =
         if (other === GlanceModifier) this else CombinedGlanceModifier(this, other)
 
+    @JvmDefaultWithCompatibility
     /**
      * A single element contained within a [GlanceModifier] chain.
      */

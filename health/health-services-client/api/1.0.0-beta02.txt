@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.health.services.client {
 
-  public interface ExerciseClient {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface ExerciseClient {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> addGoalToActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> endExerciseAsync();
@@ -59,7 +59,7 @@ package androidx.health.services.client {
     property public abstract androidx.health.services.client.PassiveMonitoringClient passiveMonitoringClient;
   }
 
-  public interface MeasureCallback {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureCallback {
     method public void onAvailabilityChanged(androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.data.Availability availability);
     method public void onDataReceived(androidx.health.services.client.data.DataPointContainer data);
     method public default void onRegistered();
@@ -78,7 +78,7 @@ package androidx.health.services.client {
     method @kotlin.jvm.Throws(exceptionClasses=android.os.RemoteException::class) public static suspend Object? unregisterMeasureCallback(androidx.health.services.client.MeasureClient, androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws android.os.RemoteException;
   }
 
-  public interface PassiveListenerCallback {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface PassiveListenerCallback {
     method public default void onGoalCompleted(androidx.health.services.client.data.PassiveGoal goal);
     method public default void onHealthEventReceived(androidx.health.services.client.data.HealthEvent event);
     method public default void onNewDataPointsReceived(androidx.health.services.client.data.DataPointContainer dataPoints);
@@ -124,7 +124,7 @@ package androidx.health.services.client.data {
     ctor public AggregateDataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass);
   }
 
-  public interface Availability {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface Availability {
     method public int getId();
     property public abstract int id;
     field public static final androidx.health.services.client.data.Availability.Companion Companion;

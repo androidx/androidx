@@ -70,9 +70,6 @@ android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.wear.watchface"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 androidx {

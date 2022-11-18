@@ -281,7 +281,6 @@ tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-                "-Xjvm-default=all",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
                 "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"

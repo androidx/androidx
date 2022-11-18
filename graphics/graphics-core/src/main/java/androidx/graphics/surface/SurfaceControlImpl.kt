@@ -79,6 +79,7 @@ internal interface SurfaceControlImpl {
         fun build(): SurfaceControlImpl
     }
 
+    @JvmDefaultWithCompatibility
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     interface Transaction : AutoCloseable {
 

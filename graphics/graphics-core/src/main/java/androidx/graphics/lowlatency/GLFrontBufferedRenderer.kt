@@ -613,6 +613,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
     }
 
+    @JvmDefaultWithCompatibility
     /**
      * Provides callbacks for consumers to draw into the front and double buffered layers as well as
      * provide opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers
