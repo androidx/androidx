@@ -191,7 +191,7 @@
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/ime"/>
 
-        <!-- ActivityEmbedding Initializer -->
+        <!-- Activity embedding initializer -->
 
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -202,7 +202,7 @@
                 android:value="androidx.startup" />
         </provider>
 
-        <!-- The app supports ActivityEmbedding itself, so it doesn't need system override. -->
+        <!-- The app itself supports activity embedding, so a system override is not needed. -->
         <property
             android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
             android:value="false" />
