@@ -37,8 +37,7 @@ import java.util.concurrent.Executor
  */
 @Suppress("deprecation")
 abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
-    E1 : Any> : android.app
-        .Fragment() {
+    E1 : Any> : android.app.Fragment() {
 
     protected var retryables: Set<Int> = setOf(INTERNAL_ERROR,
         NETWORK_ERROR)

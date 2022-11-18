@@ -32,6 +32,7 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import java.util.concurrent.Executor
 
@@ -61,7 +62,10 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         if (cancellationReviewer(fragmentManager, cancellationSignal)) {
             return
         }
-        TODO("Not yet implemented")
+        // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
+        CredentialProviderBeginSignInController.getInstance(fragmentManager).invokePlayServices(
+            request, callback, executor
+        )
     }
 
     override fun onCreateCredential(
