@@ -36,6 +36,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -102,6 +103,7 @@ class CameraDisconnectTest(
         }
     }
 
+    @FlakyTest(bugId = 259726932)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun testCameraDisconnect() {
