@@ -118,6 +118,9 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
     namespace "androidx.wear.compose.material"
     lint {
         baseline = file("lint-baseline.xml")
