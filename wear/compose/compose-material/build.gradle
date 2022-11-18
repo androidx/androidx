@@ -138,11 +138,3 @@ androidx {
             " libraries."
     targetsJavaConsumers = false
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
-}

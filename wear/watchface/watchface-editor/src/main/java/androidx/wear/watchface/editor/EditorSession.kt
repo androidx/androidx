@@ -87,6 +87,7 @@ import kotlin.coroutines.resume
 
 private const val TAG = "EditorSession"
 
+@JvmDefaultWithCompatibility
 /**
  * Interface for manipulating watch face state during a watch face editing session. The editor
  * should adjust [userStyle] and call [openComplicationDataSourceChooser] to configure the watch

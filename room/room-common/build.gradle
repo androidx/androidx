@@ -22,12 +22,6 @@ plugins {
     id("kotlin")
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
-}
-
 dependencies {
     api("androidx.annotation:annotation:1.3.0")
     api(libs.kotlinStdlibJdk8)

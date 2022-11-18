@@ -22,12 +22,6 @@ plugins {
     id("kotlin")
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
-}
-
 dependencies {
     implementation(project(":room:room-common"))
     implementation(libs.kotlinStdlib)

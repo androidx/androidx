@@ -75,14 +75,6 @@ androidx {
     targetsJavaConsumers = false
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
-}
-
 // Functions and tasks to monitor changes in copied files.
 
 task generateMd5 {

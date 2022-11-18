@@ -144,6 +144,11 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType REFRESH;
   }
 
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface Logger {
+    method public boolean isLoggable(int level);
+    method public void log(int level, String message, optional Throwable? tr);
+  }
+
   @Deprecated public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor @Deprecated public PageKeyedDataSource();
     method @Deprecated public abstract void loadAfter(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);

@@ -51,6 +51,7 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 
+@JvmDefaultWithCompatibility
 @Dao
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
@@ -452,8 +453,9 @@ interface BooksDao {
         action: suspend (input: Book) -> Book
     ): Book = action(input)
 
+    // Commented out because of https://youtrack.jetbrains.com/issue/KT-48013
     // This is a private method to validate b/194706278
-    private fun getNullAuthor(): Author? = null
+    // private fun getNullAuthor(): Author? = null
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisher(): Map<Publisher, List<Book>>

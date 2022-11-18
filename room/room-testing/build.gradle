@@ -24,10 +24,6 @@ plugins {
 
 android {
     namespace "androidx.room.testing"
-
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 dependencies {

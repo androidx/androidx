@@ -43,6 +43,7 @@ import androidx.health.platform.client.HealthDataService
 import java.io.IOException
 import kotlin.reflect.KClass
 
+@JvmDefaultWithCompatibility
 /** Interface to access health and fitness records. */
 interface HealthConnectClient {
 

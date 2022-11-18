@@ -106,7 +106,7 @@ package androidx.wear.compose.foundation {
     method @androidx.compose.runtime.Composable public static void CurvedLayout(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional int angularDirection, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }
 
-  @androidx.compose.runtime.Stable public sealed interface CurvedModifier {
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public sealed interface CurvedModifier {
     method public default infix androidx.wear.compose.foundation.CurvedModifier then(androidx.wear.compose.foundation.CurvedModifier other);
     field public static final androidx.wear.compose.foundation.CurvedModifier.Companion Companion;
   }

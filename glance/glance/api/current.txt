@@ -48,7 +48,7 @@ package androidx.glance {
   public interface GlanceId {
   }
 
-  @androidx.compose.runtime.Stable public interface GlanceModifier {
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface GlanceModifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
@@ -64,7 +64,7 @@ package androidx.glance {
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
-  public static interface GlanceModifier.Element extends androidx.glance.GlanceModifier {
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface GlanceModifier.Element extends androidx.glance.GlanceModifier {
     method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.GlanceModifier.Element,java.lang.Boolean> predicate);
     method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.glance.GlanceModifier.Element,? extends R> operation);
