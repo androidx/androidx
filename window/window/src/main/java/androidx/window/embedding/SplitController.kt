@@ -114,14 +114,14 @@ class SplitController private constructor(applicationContext: Context) {
     }
 
     /**
-     * Indicates whether the split functionality is supported on the device. Note
-     * that the device might enable splits in all conditions, but it should be
-     * available in some states that the device supports. An example can be a
-     * foldable device with multiple screens can choose to collapse all splits for
-     * apps running on a small display, but enable when running on a larger
-     * one - on such devices this method will always return "true".
-     * If the split is not supported, activities will be launched on top, following
-     * the regular model.
+     * Indicates whether split functionality is supported on the device. Note
+     * that devices might not enable splits in all states or conditions. For
+     * example, a foldable device with multiple screens can choose to collapse
+     * splits when apps run on the device's small display, but enable splits
+     * when apps run on the device's large display. In cases like this,
+     * `isSplitSupported` always returns `true`, and if the split is collapsed,
+     * activities are launched on top, following the non-activity embedding
+     * model.
      */
     fun isSplitSupported(): Boolean {
         return embeddingBackend.isSplitSupported()
