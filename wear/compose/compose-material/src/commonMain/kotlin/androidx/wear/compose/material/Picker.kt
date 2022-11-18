@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
@@ -94,6 +95,9 @@ import kotlinx.coroutines.launch
  * 0.5. Use 0.0 to disable the gradient.
  * @param gradientColor Should be the color outside of the Picker, so there is continuity.
  * @param flingBehavior logic describing fling behavior.
+ * @param userScrollEnabled Determines whether the picker should be scrollable or not. When
+ * userScrollEnabled = true, picker is scrollable. This is different from [readOnly] as it changes
+ * the scrolling behaviour.
  * @param option A block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
@@ -113,6 +117,7 @@ public fun Picker(
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    userScrollEnabled: Boolean = true,
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
@@ -138,6 +143,7 @@ public fun Picker(
                 if (!state.isScrollInProgress && contentDescription != null) {
                     this.contentDescription = contentDescription
                 }
+                focused = !readOnly
             }.then(
                 if (!readOnly && gradientRatio > 0.0f) {
                         Modifier
@@ -189,7 +195,8 @@ public fun Picker(
                 space = separation
             ),
             flingBehavior = flingBehavior,
-            autoCentering = AutoCenteringParams(itemIndex = 0)
+            autoCentering = AutoCenteringParams(itemIndex = 0),
+            userScrollEnabled = userScrollEnabled
         )
         if (readOnly && readOnlyLabel != null) {
             readOnlyLabel()
@@ -210,6 +217,81 @@ public fun Picker(
         }
     }
 }
+
+/**
+ * A scrollable list of items to pick from. By default, items will be repeated
+ * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
+ *
+ * Example of a simple picker to select one of five options:
+ * @sample androidx.wear.compose.material.samples.SimplePicker
+ *
+ * Example of dual pickers, where clicking switches which one is editable and which is read-only:
+ * @sample androidx.wear.compose.material.samples.DualPicker
+ *
+ * @param state The state of the component
+ * @param contentDescription Text used by accessibility services to describe what the
+ * selected option represents. This text should be localized, such as by using
+ * [androidx.compose.ui.res.stringResource] or similar. Typically, the content description is
+ * inferred via derivedStateOf to avoid unnecessary recompositions, like this:
+ * val description by remember { derivedStateOf { /* expression using state.selectedOption */ } }
+ * @param modifier Modifier to be applied to the Picker
+ * @param readOnly Determines whether the Picker should display other available options for this
+ * field, inviting the user to scroll to change the value. When readOnly = true,
+ * only displays the currently selected option (and optionally a label). This is intended to be
+ * used for screens that display multiple Pickers, only one of which has the focus at a time.
+ * @param readOnlyLabel A slot for providing a label, displayed above the selected option
+ * when the [Picker] is read-only. The label is overlaid with the currently selected
+ * option within a Box, so it is recommended that the label is given [Alignment.TopCenter].
+ * @param onSelected Action triggered when the Picker is selected by clicking. Used by
+ * accessibility semantics, which facilitates implementation of multi-picker screens.
+ * @param scalingParams The parameters to configure the scaling and transparency effects for the
+ * component. See [ScalingParams]
+ * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
+ * useful for Text if it has plenty of whitespace.
+ * @param gradientRatio The size relative to the Picker height that the top and bottom gradients
+ * take. These gradients blur the picker content on the top and bottom. The default is 0.33,
+ * so the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
+ * 0.5. Use 0.0 to disable the gradient.
+ * @param gradientColor Should be the color outside of the Picker, so there is continuity.
+ * @param flingBehavior logic describing fling behavior.
+ * @param option A block which describes the content. Inside this block you can reference
+ * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
+ * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
+ * align with the centrally selected Picker value.
+ */
+@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+    "A newer overload is available with additional userScrollEnabled parameter which improves " +
+    "accessibility of [Picker].", level = DeprecationLevel.HIDDEN)
+@Composable
+public fun Picker(
+    state: PickerState,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    onSelected: () -> Unit = {},
+    scalingParams: ScalingParams = PickerDefaults.scalingParams(),
+    separation: Dp = 0.dp,
+    /* @FloatRange(from = 0.0, to = 0.5) */
+    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
+    gradientColor: Color = MaterialTheme.colors.background,
+    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+) = Picker(
+    state = state,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    readOnly = readOnly,
+    readOnlyLabel = readOnlyLabel,
+    onSelected = onSelected,
+    scalingParams = scalingParams,
+    separation = separation,
+    gradientRatio = gradientRatio,
+    gradientColor = gradientColor,
+    flingBehavior = flingBehavior,
+    userScrollEnabled = true,
+    option = option
+)
 
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
@@ -246,8 +328,8 @@ public fun Picker(
  * align with the centrally selected Picker value.
  */
 @Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
-  "A newer overload is available with additional contentDescription and onSelected parameters, " +
-  "which improves accessibility of [Picker].")
+  "A newer overload is available with additional contentDescription, onSelected and " +
+  "userScrollEnabled parameters, which improves accessibility of [Picker].")
 @Composable
 public fun Picker(
     state: PickerState,
@@ -272,6 +354,7 @@ public fun Picker(
     gradientRatio = gradientRatio,
     gradientColor = gradientColor,
     flingBehavior = flingBehavior,
+    userScrollEnabled = true,
     option = option
 )
 
