@@ -40,14 +40,20 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastForEach
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -110,6 +116,20 @@ fun Modifier.scrollableWithPivot(
             .then(if (enabled) ModifierLocalScrollableContainerProvider else Modifier)
     }
 )
+
+internal interface ScrollConfig {
+    fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset
+}
+
+@Composable
+internal fun platformScrollConfig(): ScrollConfig = AndroidConfig
+
+private object AndroidConfig : ScrollConfig {
+    override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
+        // 64 dp value is taken from ViewConfiguration.java, replace with better solution
+        return event.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta } * -64.dp.toPx()
+    }
+}
 
 @Suppress("ComposableModifierFactory")
 @Composable
@@ -324,4 +344,27 @@ internal val ModifierLocalScrollableContainer = modifierLocalOf { false }
 private object ModifierLocalScrollableContainerProvider : ModifierLocalProvider<Boolean> {
     override val key = ModifierLocalScrollableContainer
     override val value = true
+}
+
+/**
+ * Accumulates value starting with [initial] value and applying [operation] from left to right
+ * to current accumulator value and each element.
+ *
+ * Returns the specified [initial] value if the collection is empty.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ *
+ * @param [operation] function that takes current accumulator value and an element, and calculates the next accumulator value.
+ */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
+    contract { callsInPlace(operation) }
+    var accumulator = initial
+    fastForEach { e ->
+        accumulator = operation(accumulator, e)
+    }
+    return accumulator
 }

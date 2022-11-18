@@ -17,6 +17,7 @@
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -90,7 +91,10 @@ internal class LazyListScrollPosition(
     @ExperimentalFoundationApi
     fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyListItemProvider) {
         Snapshot.withoutReadObservation {
-            update(findLazyListIndexByKey(lastKnownFirstItemKey, index, itemProvider), scrollOffset)
+            update(
+                DataIndex(itemProvider.findIndexByKey(lastKnownFirstItemKey, index.value)),
+                scrollOffset
+            )
         }
     }
 
@@ -103,34 +107,31 @@ internal class LazyListScrollPosition(
             this.scrollOffset = scrollOffset
         }
     }
+}
 
-    private companion object {
-        /**
-         * Finds a position of the item with the given key in the lists. This logic allows us to
-         * detect when there were items added or removed before our current first item.
-         */
-        @ExperimentalFoundationApi
-        private fun findLazyListIndexByKey(
-            key: Any?,
-            lastKnownIndex: DataIndex,
-            itemProvider: LazyListItemProvider
-        ): DataIndex {
-            if (key == null) {
-                // there were no real item during the previous measure
-                return lastKnownIndex
-            }
-            if (lastKnownIndex.value < itemProvider.itemCount &&
-                key == itemProvider.getKey(lastKnownIndex.value)
-            ) {
-                // this item is still at the same index
-                return lastKnownIndex
-            }
-            val newIndex = itemProvider.keyToIndexMap[key]
-            if (newIndex != null) {
-                return DataIndex(newIndex)
-            }
-            // fallback to the previous index if we don't know the new index of the item
-            return lastKnownIndex
-        }
+/**
+ * Finds a position of the item with the given key in the lists. This logic allows us to
+ * detect when there were items added or removed before our current first item.
+ */
+@ExperimentalFoundationApi
+internal fun LazyLayoutItemProvider.findIndexByKey(
+    key: Any?,
+    lastKnownIndex: Int,
+): Int {
+    if (key == null) {
+        // there were no real item during the previous measure
+        return lastKnownIndex
     }
+    if (lastKnownIndex < itemCount &&
+        key == getKey(lastKnownIndex)
+    ) {
+        // this item is still at the same index
+        return lastKnownIndex
+    }
+    val newIndex = keyToIndexMap[key]
+    if (newIndex != null) {
+        return newIndex
+    }
+    // fallback to the previous index if we don't know the new index of the item
+    return lastKnownIndex
 }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -36,13 +37,13 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo
+import androidx.tv.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.tv.foundation.lazy.lazyListBeyondBoundsModifier
 import androidx.tv.foundation.lazy.lazyListPinningModifier
 import androidx.tv.foundation.scrollableWithPivot
@@ -63,6 +64,8 @@ internal fun LazyList(
     isVertical: Boolean,
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
+    /** Number of items to layout before and after the visible items */
+    beyondBoundsItemCount: Int = 0,
     /** offsets of child element within the parent and starting edge of the child from the pivot
      * defined by the parentOffset. */
     pivotOffsets: PivotOffsets,
@@ -77,7 +80,9 @@ internal fun LazyList(
     /** The content of the list */
     content: TvLazyListScope.() -> Unit
 ) {
-    val itemProvider = rememberItemProvider(state, content)
+    val itemProvider = rememberLazyListItemProvider(state, content)
+    val semanticState =
+        rememberLazyListSemanticState(state, itemProvider, reverseLayout, isVertical)
     val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
     val scope = rememberCoroutineScope()
     val placementAnimator = remember(state, isVertical) {
@@ -92,6 +97,7 @@ internal fun LazyList(
         contentPadding,
         reverseLayout,
         isVertical,
+        beyondBoundsItemCount,
         horizontalAlignment,
         verticalAlignment,
         horizontalArrangement,
@@ -107,12 +113,10 @@ internal fun LazyList(
         modifier = modifier
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
-            .lazyListSemantics(
+            .lazyLayoutSemantics(
                 itemProvider = itemProvider,
-                state = state,
-                coroutineScope = scope,
-                isVertical = isVertical,
-                reverseScrolling = reverseLayout,
+                state = semanticState,
+                orientation = orientation,
                 userScrollEnabled = userScrollEnabled
             )
             .clipScrollableContainer(orientation)
@@ -120,17 +124,11 @@ internal fun LazyList(
             .lazyListPinningModifier(state, beyondBoundsInfo)
             .scrollableWithPivot(
                 orientation = orientation,
-                reverseDirection = run {
-                    // A finger moves with the content, not with the viewport. Therefore,
-                    // always reverse once to have "natural" gesture that goes reversed to layout
-                    var reverseDirection = !reverseLayout
-                    // But if rtl and horizontal, things move the other way around
-                    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-                    if (isRtl && !isVertical) {
-                        reverseDirection = !reverseDirection
-                    }
-                    reverseDirection
-                },
+                reverseDirection = ScrollableDefaults.reverseDirection(
+                    LocalLayoutDirection.current,
+                    orientation,
+                    reverseLayout
+                ),
                 state = state,
                 enabled = userScrollEnabled,
                 pivotOffsets = pivotOffsets
@@ -170,6 +168,8 @@ private fun rememberLazyListMeasurePolicy(
     reverseLayout: Boolean,
     /** The layout orientation of the list */
     isVertical: Boolean,
+    /** Number of items to layout before and after the visible items */
+    beyondBoundsItemCount: Int,
     /** The alignment to align items horizontally. Required when isVertical is true */
     horizontalAlignment: Alignment.Horizontal? = null,
     /** The alignment to align items vertically. Required when isVertical is false */
@@ -317,6 +317,7 @@ private fun rememberLazyListMeasurePolicy(
             verticalArrangement = verticalArrangement,
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
+            beyondBoundsItemCount = beyondBoundsItemCount,
             density = this,
             placementAnimator = placementAnimator,
             beyondBoundsInfo = beyondBoundsInfo,
