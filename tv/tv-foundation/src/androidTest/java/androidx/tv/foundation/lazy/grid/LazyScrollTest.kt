@@ -251,7 +251,7 @@ class LazyScrollTest { // (private val orientation: Orientation)
         assertThat(state.canScrollBackward).isFalse()
     }
 
-    @Ignore // b/259588804
+    @Ignore("b/259608530")
     @Test
     fun canScrollBackward() = runBlocking {
         withContext(Dispatchers.Main + AutoTestFrameClock()) {
