@@ -56,6 +56,7 @@ import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -262,6 +263,10 @@ fun Record.toProto(): DataProto.DataPoint =
                         putValues("flow", it)
                     }
                 }
+                .build()
+        is MenstruationPeriodRecord ->
+            intervalProto()
+                .setDataType(protoDataType("MenstruationPeriod"))
                 .build()
         is OvulationTestRecord ->
             instantaneousProto()
