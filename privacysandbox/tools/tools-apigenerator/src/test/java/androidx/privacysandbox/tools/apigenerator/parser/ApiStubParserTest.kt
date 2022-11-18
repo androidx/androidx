@@ -49,6 +49,7 @@ class ApiStubParserTest {
                       fun doSomething(magicNumber: Int, awesomeString: String)
                       suspend fun getPayload(request: PayloadRequest): PayloadResponse
                       suspend fun getInterface(): MyInterface
+                      suspend fun processList(list: List<Long>): List<Long>
                     }
                     @PrivacySandboxInterface
                     interface MyInterface {
@@ -64,7 +65,7 @@ class ApiStubParserTest {
                     interface CustomCallback {
                       fun onComplete(status: Int)
                     }
-                """
+                """,
         )
 
         val expectedPayloadType = AnnotatedValue(
@@ -118,7 +119,18 @@ class ApiStubParserTest {
                         ),
                         returnType = expectedPayloadResponse.type,
                         isSuspend = true,
-                    )
+                    ),
+                    Method(
+                        name = "processList",
+                        parameters = listOf(
+                            Parameter(
+                                "list",
+                                Types.list(Types.long)
+                            )
+                        ),
+                        returnType = Types.list(Types.long),
+                        isSuspend = true,
+                    ),
                 )
             )
         val expectedInterface =
