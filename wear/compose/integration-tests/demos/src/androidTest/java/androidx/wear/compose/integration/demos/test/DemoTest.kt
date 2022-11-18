@@ -27,6 +27,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.integration.demos.Demo
 import androidx.wear.compose.integration.demos.DemoActivity
@@ -49,6 +50,7 @@ class DemoTest {
     @get:Rule
     val rule = createAndroidComposeRule<DemoActivity>()
 
+    @FlakyTest(bugId = 259724403)
     @Test
     fun navigateThroughAllDemos() {
         // Compose integration-tests are split into batches due to size,
