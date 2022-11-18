@@ -122,9 +122,7 @@ public abstract class CameraEffect {
      * @param imageProcessor a {@link ImageProcessor} implementation. Once the effect is active,
      *                       CameraX will send frames to the {@link ImageProcessor} on the
      *                       {@param executor}, and deliver the processed frames to the app.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected CameraEffect(
             @Targets int targets,
             @NonNull Executor executor,

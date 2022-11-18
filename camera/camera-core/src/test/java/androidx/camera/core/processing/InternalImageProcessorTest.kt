@@ -50,7 +50,7 @@ class InternalImageProcessorTest {
         try {
             imageProcessor.safeProcess(
                 ImageProcessorRequest(
-                    listOf(FakeImageProxy(FakeImageInfo())),
+                    FakeImageProxy(FakeImageInfo()),
                     PixelFormat.RGBA_8888
                 )
             )
@@ -77,7 +77,7 @@ class InternalImageProcessorTest {
 
         // Act.
         val outputImage = imageProcessor.safeProcess(
-            ImageProcessorRequest(listOf(imageToEffect), PixelFormat.RGBA_8888)
+            ImageProcessorRequest(imageToEffect, PixelFormat.RGBA_8888)
         ).outputImage
 
         // Assert.

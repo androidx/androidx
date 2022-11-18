@@ -58,7 +58,7 @@ public class GrayscaleImageEffect extends CameraEffect {
         @NonNull
         @Override
         public Response process(@NonNull Request request) {
-            mImageIn = request.getInputImages().get(0);
+            mImageIn = requireNonNull(request.getInputImage());
             Bitmap bitmapIn = ((RgbaImageProxy) mImageIn).createBitmap();
             Bitmap bitmapOut = createProcessedBitmap(bitmapIn);
             return () -> createOutputImage(bitmapOut, mImageIn);
