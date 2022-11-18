@@ -55,7 +55,7 @@ dependencies {
         testImplementation(libs.testRunner)
         testImplementation(libs.junit)
 
-        samples(project(":wear:compose:compose-material-samples"))
+        samples(project(":wear:compose:compose-material3-samples"))
     }
 }
 
@@ -108,7 +108,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         }
     }
     dependencies {
-        samples(project(":wear:compose:compose-material-samples"))
+        samples(project(":wear:compose:compose-material3-samples"))
     }
 }
 
@@ -119,24 +119,33 @@ android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+            project.rootDir.absolutePath + "/../../golden/wear/compose/material3"
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
-    namespace "androidx.wear.compose.material"
+    namespace "androidx.wear.compose.material3"
     lint {
         baseline = file("lint-baseline.xml")
     }
 }
 
 androidx {
-    name = "Android Wear Compose Material"
+    name = "Android Wear Compose Material 3"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.WEAR_COMPOSE_MATERIAL3
     mavenGroup = LibraryGroups.WEAR_COMPOSE
-    inceptionYear = "2021"
-    description = "WearOS Compose Material Library. This library makes it easier for developers " +
-            "to write Jetpack Compose applications for Wearable devices that implement Wear " +
-            "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
-            " libraries."
+    inceptionYear = "2022"
+    description = "WearOS Compose Material 3 Library. This library makes it easier for " +
+            "developers to write Jetpack Compose applications for Wearable devices that " +
+            "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
+            "the Jetpack Compose libraries."
     targetsJavaConsumers = false
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
 }
