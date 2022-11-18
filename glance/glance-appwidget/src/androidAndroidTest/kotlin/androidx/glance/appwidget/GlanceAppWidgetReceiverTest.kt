@@ -102,6 +102,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -755,6 +756,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/259718271
     @Test
     fun compoundButtonAction() {
         val checkbox = "checkbox"
