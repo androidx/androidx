@@ -24,16 +24,26 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * Controller class that will be used to get information about the currently active activity splits,
- * as well as provide interaction points to customize them and form new splits. A split is a pair of
- * containers that host activities in the same or different processes, combined under the same
- * parent window of the hosting task.
- * <p>A pair of activities can be put into split by providing a static or runtime split rule and
- * launching activity in the same task using [android.app.Activity.startActivity].
- * <p>This class is recommended to be configured in [androidx.startup.Initializer] or
- * [android.app.Application.onCreate], so that the rules are applied early in the application
- * startup before any activities complete initialization. The rule updates only apply to future
- * [android.app.Activity] launches and do not apply to already running activities.
+ * Controller class that gets information about the currently active activity
+ * splits and provides interaction points to customize the splits and form new
+ * splits.
+ *
+ * A split is a pair of containers that host activities in the same or different
+ * processes, combined under the same parent window of the hosting task.
+ *
+ * A pair of activities can be put into a split by providing a static or runtime
+ * split rule and then launching the activities in the same task using
+ * [Activity.startActivity()][android.app.Activity.startActivity].
+ *
+ * Configure this class with the Jetpack library
+ * [Initializer][androidx.startup.Initializer] or in
+ * [Application.onCreate()][android.app.Application.onCreate] so the rules are
+ * applied early in the application startup, before any activities complete
+ * initialization.
+ *
+ * Rule updates apply only to future activity launches, not to already running
+ * activities.
+ *
  * @see initialize
  */
 class SplitController private constructor() {
