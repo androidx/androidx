@@ -1928,6 +1928,64 @@ class ConstraintLayoutTest {
     }
 
     @Test
+    fun testConstraintSet_multipleRefs() = with(rule.density) {
+        val rootSize = 50
+        val boxSize = 20
+        val margin = 10
+        val positions = Array(3) { IntOffset.Zero }
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet {
+                    // Note that not enough IDs were provided, box2 will have a generated ID
+                    val (box0, box1, box2) = createRefsFor("box0", "box1")
+
+                    constrain(box0, box1) {
+                        width = boxSize.toDp().asDimension
+                        height = boxSize.toDp().asDimension
+                        top.linkTo(parent.top, margin.toDp())
+                        start.linkTo(parent.start, margin.toDp())
+                    }
+                    constrain(box2) {
+                        width = boxSize.toDp().asDimension
+                        height = boxSize.toDp().asDimension
+
+                        top.linkTo(box0.bottom)
+                        start.linkTo(box0.end)
+                    }
+                },
+                Modifier.size(rootSize.toDp())
+            ) {
+                Box(
+                    Modifier
+                        .layoutId("box0")
+                        .onGloballyPositioned {
+                            positions[0] = it.positionInRoot().round()
+                        }
+                )
+                Box(
+                    Modifier
+                        .layoutId("box1")
+                        .onGloballyPositioned {
+                            positions[1] = it.positionInRoot().round()
+                        }
+                )
+                Box(
+                    Modifier
+                        // Generated id, tho normally, the user wouldn't know what the ID is
+                        .layoutId("androidx.constraintlayout.id0")
+                        .onGloballyPositioned {
+                            positions[2] = it.positionInRoot().round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(IntOffset(margin, margin), positions[0])
+        assertEquals(IntOffset(margin, margin), positions[1])
+        assertEquals(IntOffset(margin + boxSize, margin + boxSize), positions[2])
+    }
+
+    @Test
     fun testLinkToBias_withInlineDsl_rtl() = with(rule.density) {
         val rootSize = 200
         val boxSize = 20

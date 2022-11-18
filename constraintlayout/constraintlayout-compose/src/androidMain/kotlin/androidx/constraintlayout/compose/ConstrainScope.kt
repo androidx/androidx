@@ -449,6 +449,14 @@ class ConstrainScope internal constructor(
         containerObject.remove("pivotY")
     }
 
+    /**
+     * Convenience extension variable to parse a [Dp] as a [Dimension] object.
+     *
+     * @see Dimension.value
+     */
+    val Dp.asDimension: Dimension
+        get() = Dimension.value(this)
+
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {
         override fun afterChange(property: KProperty<*>, oldValue: Dimension, newValue: Dimension) {
