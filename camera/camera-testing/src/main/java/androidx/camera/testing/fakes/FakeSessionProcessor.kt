@@ -18,10 +18,7 @@ package androidx.camera.testing.fakes
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.media.ImageReader
 import android.media.ImageWriter
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -54,12 +51,14 @@ class FakeSessionProcessor(
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
-    private var intermediaPreviewImageReader: ImageReader? = null
+    private var imageAnalysisProcessorSurface: DeferrableSurface? = null
+    private var intermediaPreviewImageReader: ImageReaderProxy? = null
     private var intermediaCaptureImageReader: ImageReaderProxy? = null
     private var intermediaPreviewImageWriter: ImageWriter? = null
 
     private val previewOutputConfigId = 1
     private val captureOutputConfigId = 2
+    private val analysisOutputConfigId = 3
 
     private var requestProcessor: RequestProcessor? = null
 
@@ -94,19 +93,18 @@ class FakeSessionProcessor(
         imageAnalysisSurfaceConfig: OutputSurface?
     ): SessionConfig {
         initSessionCalled.complete(SystemClock.elapsedRealtimeNanos())
-        val handler = Handler(Looper.getMainLooper())
-        var sessionBuilder = SessionConfig.Builder()
+        val sessionBuilder = SessionConfig.Builder()
 
         // Preview
         lateinit var previewTransformedSurface: Surface
         if (inputFormatPreview == null) { // no conversion, use origin surface.
             previewTransformedSurface = previewSurfaceConfig.surface
         } else {
-            intermediaPreviewImageReader = ImageReader.newInstance(
+            intermediaPreviewImageReader = ImageReaderProxys.createIsolatedReader(
                 previewSurfaceConfig.size.width, previewSurfaceConfig.size.height,
                 inputFormatPreview, 2
             )
-            previewTransformedSurface = intermediaPreviewImageReader!!.surface
+            previewTransformedSurface = intermediaPreviewImageReader!!.surface!!
 
             intermediaPreviewImageWriter = ImageWriter.newInstance(
                 previewSurfaceConfig.surface, 2
@@ -119,7 +117,7 @@ class FakeSessionProcessor(
                         intermediaPreviewImageWriter!!.queueInputImage(imageDequeued)
                     }
                 },
-                handler
+                CameraXExecutors.ioExecutor()
             )
         }
         previewProcessorSurface =
@@ -153,7 +151,7 @@ class FakeSessionProcessor(
                         )
                     }
                 },
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.ioExecutor()
             )
         }
         captureProcessorSurface =
@@ -167,6 +165,12 @@ class FakeSessionProcessor(
         )
         sessionBuilder.addSurface(captureProcessorSurface)
 
+        imageAnalysisSurfaceConfig?.let {
+            imageAnalysisProcessorSurface = SessionProcessorSurface(
+                it.surface, analysisOutputConfigId
+            )
+            sessionBuilder.addSurface(imageAnalysisProcessorSurface!!)
+        }
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
         val sessionConfig = sessionBuilder.build()
         blockRunAfterInitSession()
@@ -177,6 +181,7 @@ class FakeSessionProcessor(
         deInitSessionCalled.complete(SystemClock.elapsedRealtimeNanos())
         previewProcessorSurface.close()
         captureProcessorSurface.close()
+        imageAnalysisProcessorSurface?.close()
     }
 
     override fun setParameters(config: Config) {

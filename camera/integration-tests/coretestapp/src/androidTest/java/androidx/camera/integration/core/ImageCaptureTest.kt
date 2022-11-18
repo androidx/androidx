@@ -26,7 +26,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.location.Location
-import android.media.ImageWriter
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -34,7 +33,6 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
@@ -51,16 +49,11 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CameraConfig
-import androidx.camera.core.impl.CaptureBundle
-import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.CaptureProcessor
-import androidx.camera.core.impl.CaptureStage
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
-import androidx.camera.core.impl.ImageProxyBundle
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
@@ -70,7 +63,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.core.content.ContextCompat
@@ -83,7 +75,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -632,91 +623,23 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test(expected = IllegalArgumentException::class)
-    fun constructor_withBufferFormatAndCaptureProcessor_throwsException() {
-        val captureProcessor = object : CaptureProcessor {
-            override fun onOutputSurface(surface: Surface, imageFormat: Int) {}
-            override fun process(bundle: ImageProxyBundle) {}
-            override fun onResolutionUpdate(size: Size) {}
-        }
-        ImageCapture.Builder()
+    fun constructor_withBufferFormatAndSessionProcessorIsSet_throwsException(): Unit = runBlocking {
+        val sessionProcessor = FakeSessionProcessor(
+            inputFormatPreview = null, // null means using the same output surface
+            inputFormatCapture = ImageFormat.YUV_420_888
+        )
+
+        val imageCapture = ImageCapture.Builder()
             .setBufferFormat(ImageFormat.RAW_SENSOR)
-            .setCaptureProcessor(captureProcessor)
             .build()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun constructor_maxCaptureStageInvalid_throwsException() {
-        ImageCapture.Builder().setMaxCaptureStages(0).build()
-    }
-
-    @Test
-    fun captureStagesAbove1_withoutCaptureProcessor() = runBlocking {
-        val captureBundle = CaptureBundle {
-            listOf(
-                FakeCaptureStage(0, CaptureConfig.Builder().build()),
-                FakeCaptureStage(1, CaptureConfig.Builder().build())
-            )
-        }
-
-        val imageCapture = ImageCapture.Builder()
-            .setCaptureBundle(captureBundle)
-            .build()
-
+        val preview = Preview.Builder().build()
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
-        }
-
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
-
-        imageCapture.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image capture has failed.
-        callback.awaitCapturesAndAssert(errorsCount = 1)
-
-        val error = callback.errors.first()
-        assertThat(error).isInstanceOf(ImageCaptureException::class.java)
-        assertThat(error.cause).isInstanceOf(IllegalArgumentException::class.java)
-    }
-
-    @Test
-    fun captureStageExceedMaxCaptureStage_whenIssueTakePicture() = runBlocking {
-        // Initial the captureStages not greater than the maximum count to bypass the CaptureStage
-        // count checking during bindToLifeCycle.
-        val captureStages = mutableListOf<CaptureStage>()
-        captureStages.add(FakeCaptureStage(0, CaptureConfig.Builder().build()))
-
-        val captureBundle = CaptureBundle { captureStages.toList() }
-        val captureProcessor = object : CaptureProcessor {
-            override fun onOutputSurface(surface: Surface, imageFormat: Int) {}
-            override fun process(bundle: ImageProxyBundle) {}
-            override fun onResolutionUpdate(size: Size) {}
-        }
-        val imageCapture = ImageCapture.Builder()
-            .setMaxCaptureStages(1)
-            .setCaptureBundle(captureBundle)
-            .setCaptureProcessor(captureProcessor)
-            .build()
-
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
-        }
-
-        // Add an additional capture stage to test the case
-        // captureStage.size() >　mMaxCaptureStages during takePicture.
-        captureStages.add(FakeCaptureStage(1, CaptureConfig.Builder().build()))
-
-        val callback = FakeImageCaptureCallback(capturesCount = 2)
-
-        // Take 2 photos.
-        imageCapture.takePicture(mainExecutor, callback)
-        imageCapture.takePicture(mainExecutor, callback)
-
-        // It should get onError() callback twice.
-        callback.awaitCapturesAndAssert(errorsCount = 2)
-
-        callback.errors.forEach { error ->
-            assertThat(error.cause).isInstanceOf(IllegalArgumentException::class.java)
+            val cameraSelector =
+                getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner, cameraSelector, imageCapture, preview)
         }
     }
 
@@ -1343,40 +1266,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageProperties.format).isEqualTo(ImageFormat.YUV_420_888)
     }
 
-    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
-    // API level is at least 29.
     @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun returnJpegImage_whenCaptureProcessorIsSet() = runBlocking {
-        val builder = ImageCapture.Builder()
-        val simpleCaptureProcessor = SimpleCaptureProcessor()
-
-        // Set a CaptureProcessor to directly pass the image to output surface.
-        val useCase = builder.setCaptureProcessor(simpleCaptureProcessor).build()
-        var camera: Camera
-        withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
-        }
-
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
-        useCase.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-
-        val imageProperties = callback.results.first()
-
-        // Check the output image rotation degrees value is correct.
-        assertThat(imageProperties.rotationDegrees).isEqualTo(
-            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation)
-        )
-        // Check the output format is correct.
-        assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
-        simpleCaptureProcessor.close()
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet_outputFormantYuv() = runBlocking {
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
@@ -1414,7 +1305,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet_outputFormantJpeg() = runBlocking {
         assumeFalse(
             "Cuttlefish does not correctly handle Jpeg exif. Unable to test.",
@@ -1494,45 +1385,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         })
 
         return builder.build()
-    }
-
-    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
-    // API level is at least 29.
-    @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun returnJpegImage_whenSoftwareJpegIsEnabledWithCaptureProcessor() = runBlocking {
-        val builder = ImageCapture.Builder()
-        val simpleCaptureProcessor = SimpleCaptureProcessor()
-
-        // Set a CaptureProcessor to directly pass the image to output surface.
-        val useCase = builder.setCaptureProcessor(simpleCaptureProcessor).build()
-
-        // Enables software Jpeg
-        builder.mutableConfig.insertOption(
-            ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER,
-            true
-        )
-
-        var camera: Camera
-        withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
-        }
-
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
-        useCase.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-
-        val imageProperties = callback.results.first()
-
-        // Check the output image rotation degrees value is correct.
-        assertThat(imageProperties.rotationDegrees).isEqualTo(
-            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation)
-        )
-        // Check the output format is correct.
-        assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
-        simpleCaptureProcessor.close()
     }
 
     @kotlin.OptIn(
@@ -1692,42 +1544,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             }).isNotNull()
             assertThat(results.size).isEqualTo(savedImagesCount)
             assertThat(errors.size).isEqualTo(errorsCount)
-        }
-    }
-
-    private class SimpleCaptureProcessor : CaptureProcessor {
-
-        private var imageWriter: ImageWriter? = null
-
-        @RequiresApi(Build.VERSION_CODES.M)
-        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            imageWriter = ImageWriter.newInstance(surface, 2)
-        }
-
-        @RequiresApi(Build.VERSION_CODES.M)
-        override fun process(bundle: ImageProxyBundle) {
-            val imageProxyListenableFuture = bundle.getImageProxy(bundle.captureIds[0])
-            try {
-                val imageProxy = imageProxyListenableFuture.get()
-                // Directly passing the input YUV image to the output surface.
-                imageWriter!!.queueInputImage(imageProxy.image)
-            } catch (exception: ExecutionException) {
-                throw IllegalArgumentException(
-                    "Can't extract ImageProxy from the ImageProxyBundle.",
-                    exception
-                )
-            } catch (exception: InterruptedException) {
-                throw IllegalArgumentException(
-                    "Can't extract ImageProxy from the ImageProxyBundle.",
-                    exception
-                )
-            }
-        }
-
-        override fun onResolutionUpdate(size: Size) {}
-
-        override fun close() {
-            imageWriter?.close()
         }
     }
 
