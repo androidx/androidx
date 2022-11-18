@@ -51,6 +51,9 @@ android {
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
     namespace "androidx.wear.compose.navigation"
 }
 
