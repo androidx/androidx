@@ -34,14 +34,14 @@ import java.io.File
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
 @JvmOverloads
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
     iterations: Int = 3,
-    packageFilters: List<String> = emptyList(),
+    filterPredicate: ((String) -> Boolean)?,
     profileBlock: MacrobenchmarkScope.() -> Unit,
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
@@ -82,7 +82,7 @@ fun collectBaselineProfile(
         // Filter
         val profile = filterProfileRulesToTargetP(unfilteredProfile)
         // Report
-        reportResults(profile, packageFilters, uniqueName, startTime)
+        reportResults(profile, filterPredicate, uniqueName, startTime)
     } finally {
         killProcessBlock.invoke()
     }
@@ -102,7 +102,7 @@ fun collectStableBaselineProfile(
     stableIterations: Int,
     maxIterations: Int,
     strictStability: Boolean = false,
-    packageFilters: List<String> = emptyList(),
+    filterPredicate: ((String) -> Boolean)?,
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
@@ -184,7 +184,7 @@ fun collectStableBaselineProfile(
         }
 
         val profile = filterProfileRulesToTargetP(lastProfile)
-        reportResults(profile, packageFilters, uniqueName, startTime)
+        reportResults(profile, filterPredicate, uniqueName, startTime)
     } finally {
         killProcessBlock.invoke()
     }
@@ -224,7 +224,7 @@ private fun MacrobenchmarkScope.killProcessBlock(): () -> Unit {
  */
 private fun reportResults(
     profile: String,
-    packageFilters: List<String>,
+    filterPredicate: ((String) -> Boolean)?,
     uniqueFilePrefix: String,
     startTime: Long
 ) {
@@ -236,7 +236,7 @@ private fun reportResults(
     }
 
     // Filter profile if necessary based on filters
-    val filteredProfile = applyPackageFilters(profile, packageFilters)
+    val filteredProfile = applyPackageFilters(profile, filterPredicate)
 
     // Write a file with a timestamp to be able to disambiguate between runs with the same
     // unique name.
@@ -368,20 +368,12 @@ internal fun filterProfileRulesToTargetP(profile: String): String {
     return filteredRules.joinToString(separator = "\n")
 }
 
-private fun applyPackageFilters(profile: String, packageFilters: List<String>): String {
-    // Filters the profile output with the given set or rules.
-    // Note that the filter rules are package name but the profile file lines contain
-    // jvm method signature, ex: `HSPLandroidx/room/RoomDatabase;-><init>()V`.
-    // In order to simplify this for developers we transform the filters from regular package names.
-    return if (packageFilters.isEmpty()) profile else {
-        // Ensure that the package name ends with `/`
-        val fixedPackageFilters = packageFilters
-            .map { "${it.replace(".", "/")}${if (it.endsWith(".")) "" else "/"}" }
+private fun applyPackageFilters(profile: String, filterPredicate: ((String) -> Boolean)?): String {
+    return filterPredicate?.run {
         profile
             .lines()
-            .filter { line -> fixedPackageFilters.any { line.contains(it) } }
-            .joinToString(System.lineSeparator())
-    }
+            .filter(filterPredicate).joinToString(System.lineSeparator())
+    } ?: profile
 }
 
 private fun summaryRecord(record: Summary): String {
