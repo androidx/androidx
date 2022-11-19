@@ -294,11 +294,11 @@ public class MacrobenchmarkScope(
         if (Build.VERSION.SDK_INT >= 31) {
             dropKernelPageCacheSetProp()
         } else {
-            val result = Shell.executeScriptCaptureStdout(
+            val result = Shell.executeScriptCaptureStdoutStderr(
                 "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
-            ).trim()
+            )
             // Older user builds don't allow drop caches, should investigate workaround
-            if (result != "Success") {
+            if (result.stdout.trim() != "Success") {
                 if (DeviceInfo.isRooted && !Shell.isSessionRooted()) {
                     throw IllegalStateException("Failed to drop caches - run `adb root`")
                 }

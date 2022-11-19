@@ -270,4 +270,13 @@ class MacrobenchmarkScopeTest {
     fun dropShaderCachePublicApi() = validateDropShaderCacheWithRoot {
         dropShaderCache()
     }
+
+    @Test
+    fun dropKernelPageCache() {
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        scope.dropKernelPageCache() // shouldn't crash
+    }
 }
