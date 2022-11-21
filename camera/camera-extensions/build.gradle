@@ -40,6 +40,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":camera:camera-extensions-stub"))
+    testImplementation(libs.testCore)
     // To use the extensions-stub for testing directly.
 
     androidTestImplementation(libs.testExtJunit)

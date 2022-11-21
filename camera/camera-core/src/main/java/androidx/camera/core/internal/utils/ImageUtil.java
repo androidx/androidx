@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.utils.ExifData;
+import androidx.camera.core.impl.utils.ExifOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -163,23 +166,37 @@ public final class ImageUtil {
     /**
      * Converts YUV_420_888 {@link ImageProxy} to JPEG byte array. The input YUV_420_888 image
      * will be cropped if a non-null crop rectangle is specified. The output JPEG byte array will
-     * be compressed by the specified quality value.
+     * be compressed by the specified quality value. The rotationDegrees is set to the EXIF of
+     * the JPEG if it is not 0.
      */
     @NonNull
     public static byte[] yuvImageToJpegByteArray(@NonNull ImageProxy image,
-            @Nullable Rect cropRect, @IntRange(from = 1, to = 100) int jpegQuality)
-            throws CodecFailedException {
+            @Nullable Rect cropRect,
+            @IntRange(from = 1, to = 100)
+            int jpegQuality,
+            int rotationDegrees) throws CodecFailedException {
         if (image.getFormat() != ImageFormat.YUV_420_888) {
             throw new IllegalArgumentException(
                     "Incorrect image format of the input image proxy: " + image.getFormat());
         }
 
-        return ImageUtil.nv21ToJpeg(
-                ImageUtil.yuv_420_888toNv21(image),
-                image.getWidth(),
-                image.getHeight(),
-                cropRect,
-                jpegQuality);
+        byte[] yuvBytes = yuv_420_888toNv21(image);
+        YuvImage yuv = new YuvImage(yuvBytes, ImageFormat.NV21, image.getWidth(), image.getHeight(),
+                null);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        OutputStream out = new ExifOutputStream(
+                byteArrayOutputStream, ExifData.create(image, rotationDegrees));
+        if (cropRect == null) {
+            cropRect = new Rect(0, 0, image.getWidth(), image.getHeight());
+        }
+        boolean success =
+                yuv.compressToJpeg(cropRect, jpegQuality, out);
+        if (!success) {
+            throw new CodecFailedException("YuvImage failed to encode jpeg.",
+                    CodecFailedException.FailureType.ENCODE_FAILED);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     /** {@link android.media.Image} to NV21 byte array. */
@@ -364,21 +381,6 @@ public final class ImageUtil {
         return dispatchCropRect;
     }
 
-    private static byte[] nv21ToJpeg(@NonNull byte[] nv21, int width, int height,
-            @Nullable Rect cropRect, @IntRange(from = 1, to = 100) int jpegQuality)
-            throws CodecFailedException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        YuvImage yuv = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
-        boolean success =
-                yuv.compressToJpeg(cropRect == null ? new Rect(0, 0, width, height) : cropRect,
-                        jpegQuality, out);
-        if (!success) {
-            throw new CodecFailedException("YuvImage failed to encode jpeg.",
-                    CodecFailedException.FailureType.ENCODE_FAILED);
-        }
-        return out.toByteArray();
-    }
-
     private static boolean isCropAspectRatioHasEffect(@NonNull Size sourceSize,
             @NonNull Rational aspectRatio) {
         int sourceWidth = sourceSize.getWidth();
@@ -423,7 +425,7 @@ public final class ImageUtil {
             UNKNOWN
         }
 
-        private FailureType mFailureType;
+        private final FailureType mFailureType;
 
         CodecFailedException(@NonNull String message) {
             super(message);

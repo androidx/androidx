@@ -22,29 +22,19 @@ import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.impl.CaptureBundle
-import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
-import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
-import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -187,54 +177,5 @@ class ImageCaptureExtenderValidationTest(private val config: CameraIdExtensionMo
         // Compares the values obtained from ExtensionsManager and ImageCaptureExtenderImpl are
         // the same.
         assertThat(latencyInfo).isEqualTo(expectedLatencyInfo)
-    }
-
-    @LargeTest
-    @Test
-    fun returnCaptureStages_whenCaptureProcessorIsNotNull(): Unit = runBlocking {
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before starting the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).apply {
-            setOrientationNatural()
-        }
-
-        val activityScenario = launchCameraExtensionsActivity(
-            config.cameraId,
-            config.extensionMode
-        )
-
-        with(activityScenario) {
-            use {
-                var captureBundle: CaptureBundle? = null
-                withActivity {
-                    // Retrieves the CaptureProcessor from ImageCapture's config
-                    val captureProcessor = imageCapture!!.currentConfig.retrieveOption(
-                        ImageCaptureConfig.OPTION_CAPTURE_PROCESSOR, null
-                    )
-
-                    assumeTrue(captureProcessor != null)
-
-                    // Retrieves the CaptureBundle from ImageCapture's config
-                    captureBundle = imageCapture!!.currentConfig.retrieveOption(
-                        ImageCaptureConfig.OPTION_CAPTURE_BUNDLE
-                    )
-                }
-
-                waitForPreviewViewStreaming()
-
-                // Calls CaptureBundle#getCaptureStages() will call
-                // ImageCaptureExtenderImpl#getCaptureStages(). Checks the returned value is
-                // not empty.
-                assertThat(captureBundle!!.captureStages).isNotEmpty()
-            }
-        }
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 }
