@@ -160,9 +160,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun updateComplicationData(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
-    ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
-        "InteractiveWatchFaceImpl.updateComplicationData"
-    ) {
+    ): Unit = TraceEvent("InteractiveWatchFaceImpl.updateComplicationData").use {
         if ("user" != Build.TYPE) {
             Log.d(TAG, "updateComplicationData " + complicationDatumWireFormats.joinToString())
         }
