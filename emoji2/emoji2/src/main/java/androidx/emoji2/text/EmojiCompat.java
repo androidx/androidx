@@ -814,6 +814,30 @@ public class EmojiCompat {
     }
 
     /**
+     * If the character at {@code offset} is part of an emoji, returns the index range of that
+     * emoji, start index inclusively/end index exclusively so that
+     * {@code charSequence.subSequence(start, end)} will return that emoji.
+     * E.g., getEmojiStart/End("AB😀", 1) will return (-1,-1) since 'B' is not part an emoji;
+     *       getEmojiStart/End("AB😀", 3) will return [2,4), note that "😀" contains 2 Chars.
+     * Returns -1 otherwise.
+     * @param charSequence the whole sequence
+     * @param offset index of the emoji to look up
+     * @return the start index inclusively/end index exclusively
+     */
+    public int getEmojiStart(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) int offset) {
+        return mHelper.getEmojiStart(charSequence, offset);
+    }
+
+    /**
+     * see {@link #getEmojiStart(CharSequence, int)}.
+     */
+    public int getEmojiEnd(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) int offset) {
+        return mHelper.getEmojiEnd(charSequence, offset);
+    }
+
+    /**
      * Handles onKeyDown commands from a {@link KeyListener} and if {@code keyCode} is one of
      * {@link KeyEvent#KEYCODE_DEL} or {@link KeyEvent#KEYCODE_FORWARD_DEL} it tries to delete an
      * {@link EmojiSpan} from an {@link Editable}. Returns {@code true} if an {@link EmojiSpan} is
@@ -1582,6 +1606,16 @@ public class EmojiCompat {
             return false;
         }
 
+        int getEmojiStart(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
+            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
+            return -1;
+        }
+
+        int getEmojiEnd(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
+            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
+            return -1;
+        }
+
         CharSequence process(@NonNull final CharSequence charSequence,
                 @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
                 @IntRange(from = 0) final int maxEmojiCount, boolean replaceAll) {
@@ -1675,6 +1709,16 @@ public class EmojiCompat {
         @Override
         public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
             return mProcessor.getEmojiMatch(sequence, metadataVersion);
+        }
+
+        @Override
+        int getEmojiStart(@NonNull final CharSequence sequence, final int offset) {
+            return mProcessor.getEmojiStart(sequence, offset);
+        }
+
+        @Override
+        int getEmojiEnd(@NonNull final CharSequence sequence, final int offset) {
+            return mProcessor.getEmojiEnd(sequence, offset);
         }
 
         @Override
