@@ -75,7 +75,7 @@ internal class SdkCodeGenerator(
                     // Sources created by the AIDL compiler have to be copied to files created
                     // through the KSP APIs, so that they are included in downstream compilation.
                     val kspGeneratedFile = codeGenerator.createNewFile(
-                        Dependencies(false),
+                        Dependencies.ALL_FILES,
                         source.packageName,
                         source.interfaceName,
                         extensionName = "java"
@@ -113,7 +113,7 @@ internal class SdkCodeGenerator(
 
     private fun generateToolMetadata() {
         codeGenerator.createNewFile(
-            Dependencies(false),
+            Dependencies.ALL_FILES,
             Metadata.filePath.parent.toString(),
             Metadata.filePath.nameWithoutExtension,
             Metadata.filePath.extension,
@@ -138,8 +138,7 @@ internal class SdkCodeGenerator(
     }
 
     private fun write(spec: FileSpec) {
-
-        codeGenerator.createNewFile(Dependencies(false), spec.packageName, spec.name)
+        codeGenerator.createNewFile(Dependencies.ALL_FILES, spec.packageName, spec.name)
             .bufferedWriter().use(spec::writeTo)
     }
 
