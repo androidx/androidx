@@ -126,10 +126,17 @@ class MotionSceneScope internal constructor() {
     private var generatedCount = 0
 
     /**
+     * Count of generated ConstraintLayoutReference IDs.
+     */
+    private var generatedIdCount = 0
+
+    /**
      * Returns a new unique name. Should be used when the user does not provide a specific name
      * for their ConstraintSets/Transitions.
      */
     private fun nextName() = UNDEFINED_NAME_PREFIX + generatedCount++
+
+    private fun nextId() = UNDEFINED_NAME_PREFIX + "id${generatedIdCount++}"
 
     internal var constraintSetsByName = HashMap<String, ConstraintSet>()
     internal var transitionsByName = HashMap<String, Transition>()
@@ -241,6 +248,75 @@ class MotionSceneScope internal constructor() {
      * with [id].
      */
     fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
+
+    /**
+     * Convenient way to create multiple [ConstrainedLayoutReference] with one statement, the [ids]
+     * provided should match Composables within ConstraintLayout using [androidx.compose.ui.Modifier.layoutId].
+     *
+     * Example:
+     * ```
+     * val (box, text, button) = createRefsFor("box", "text", "button")
+     * ```
+     * Note that the number of ids should match the number of variables assigned.
+     *
+     * &nbsp;
+     *
+     * To create a singular [ConstrainedLayoutReference] see [createRefFor].
+     */
+    fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
+        ConstrainedLayoutReferences(arrayOf(*ids))
+
+    inner class ConstrainedLayoutReferences internal constructor(
+        private val ids: Array<Any>
+    ) {
+        operator fun component1(): ConstrainedLayoutReference =
+            ConstrainedLayoutReference(ids.getOrElse(0) { nextId() })
+
+        operator fun component2(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(1) { nextId() })
+
+        operator fun component3(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(2) { nextId() })
+
+        operator fun component4(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(3) { nextId() })
+
+        operator fun component5(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(4) { nextId() })
+
+        operator fun component6(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(5) { nextId() })
+
+        operator fun component7(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(6) { nextId() })
+
+        operator fun component8(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(7) { nextId() })
+
+        operator fun component9(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(8) { nextId() })
+
+        operator fun component10(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(9) { nextId() })
+
+        operator fun component11(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(10) { nextId() })
+
+        operator fun component12(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(11) { nextId() })
+
+        operator fun component13(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(12) { nextId() })
+
+        operator fun component14(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(13) { nextId() })
+
+        operator fun component15(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(14) { nextId() })
+
+        operator fun component16(): ConstrainedLayoutReference =
+            createRefFor(ids.getOrElse(15) { nextId() })
+    }
 
     /**
      * Declare a custom Float [value] addressed by [name].

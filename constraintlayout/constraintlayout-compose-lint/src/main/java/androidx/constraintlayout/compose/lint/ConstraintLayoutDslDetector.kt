@@ -34,9 +34,15 @@ import org.jetbrains.uast.UCallExpression
 
 private const val CL_COMPOSE_PACKAGE = "androidx.constraintlayout.compose"
 private const val CONSTRAINT_SET_SCOPE_CLASS_FQ = "$CL_COMPOSE_PACKAGE.ConstraintSetScope"
+private const val MOTION_SCENE_SCOPE_CLASS_FQ = "$CL_COMPOSE_PACKAGE.MotionSceneScope"
 private const val CREATE_REFS_FOR_NAME = "createRefsFor"
 
-class ConstraintSetScopeDetector : Detector(), SourceCodeScanner {
+class ConstraintLayoutDslDetector : Detector(), SourceCodeScanner {
+    private val knownOwnersOfCreateRefsFor = setOf(
+        CONSTRAINT_SET_SCOPE_CLASS_FQ,
+        MOTION_SCENE_SCOPE_CLASS_FQ
+    )
+
     override fun getApplicableUastTypes() = listOf(UCallExpression::class.java)
 
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
@@ -63,7 +69,10 @@ class ConstraintSetScopeDetector : Detector(), SourceCodeScanner {
             }
 
             // Element resolution is relatively expensive, do last
-            if (node.resolve()?.containingClass?.qualifiedName != CONSTRAINT_SET_SCOPE_CLASS_FQ) {
+            val classOwnerFqName = node.resolve()?.containingClass?.qualifiedName ?: return
+
+            // Make sure the method corresponds to an expected class
+            if (!knownOwnersOfCreateRefsFor.contains(classOwnerFqName)) {
                 return
             }
 
@@ -90,7 +99,7 @@ class ConstraintSetScopeDetector : Detector(), SourceCodeScanner {
             priority = 5,
             severity = Severity.ERROR,
             implementation = Implementation(
-                ConstraintSetScopeDetector::class.java,
+                ConstraintLayoutDslDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE)
             )
         )

@@ -23,16 +23,18 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+private const val COMPOSE_CONSTRAINTLAYOUT_FILE_PATH = "androidx/constraintlayout/compose"
+
 @RunWith(JUnit4::class)
-class ConstraintSetScopeDetectorTest : LintDetectorTest() {
-    override fun getDetector() = ConstraintSetScopeDetector()
+class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
+    override fun getDetector() = ConstraintLayoutDslDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(ConstraintSetScopeDetector.IncorrectReferencesDeclarationIssue)
+        mutableListOf(ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue)
 
     private val ConstraintSetScopeStub = compiledStub(
         filename = "ConstraintSetScope.kt",
-        filepath = "androidx/constraintlayout/compose",
+        filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
         checksum = 0x912b8878,
         source = """
             package androidx.constraintlayout.compose
@@ -172,6 +174,156 @@ class ConstraintSetScopeDetectorTest : LintDetectorTest() {
                 """
     )
 
+    private val MotionSceneScopeStub = compiledStub(
+        filename = "MotionSceneScope.kt",
+        filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
+        checksum = 0xc89561d0,
+        source = """
+            package androidx.constraintlayout.compose
+
+            import androidx.constraintlayout.compose.ConstrainedLayoutReference
+
+            private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
+
+            class MotionSceneScope {
+                /**
+                 * Count of generated ConstraintSet & Transition names.
+                 */
+                private var generatedCount = 0
+
+                /**
+                 * Count of generated ConstraintLayoutReference IDs.
+                 */
+                private var generatedIdCount = 0
+
+                private fun nextId() = UNDEFINED_NAME_PREFIX + "id" + generatedIdCount++
+
+                fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
+                    ConstrainedLayoutReferences(arrayOf(*ids))
+
+                inner class ConstrainedLayoutReferences internal constructor(
+                    private val ids: Array<Any>
+                ) {
+                    operator fun component1(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(0) { nextId() })
+                    operator fun component2(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(1) { nextId() })
+                    operator fun component3(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(2) { nextId() })
+                    operator fun component4(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(3) { nextId() })
+                    operator fun component5(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(4) { nextId() })
+                    operator fun component6(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(5) { nextId() })
+                    operator fun component7(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(6) { nextId() })
+                    operator fun component8(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(7) { nextId() })
+                    operator fun component9(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(8) { nextId() })
+                    operator fun component10(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(9) { nextId() })
+                    operator fun component11(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(10) { nextId() })
+                    operator fun component12(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(11) { nextId() })
+                    operator fun component13(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(12) { nextId() })
+                    operator fun component14(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(13) { nextId() })
+                    operator fun component15(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(14) { nextId() })
+                    operator fun component16(): ConstrainedLayoutReference =
+                        ConstrainedLayoutReference(ids.getOrElse(15) { nextId() })
+                }
+            }
+        """.trimIndent(),
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJ2KM3AZc6lmJiXUpSfmVKhl5yfV1xSlJiZ
+                V5KTWJlfWgIUyC3IL04VEvLNL8nMzwtOTs1LDU7OL0j1LuES5GJPrUjMLchJ
+                FWILSS0u8S5RYtBiAACRUOp0ZAAAAA==
+                """,
+        """
+                androidx/constraintlayout/compose/MotionSceneScope＄ConstrainedLayoutReferences.class:
+                H4sIAAAAAAAA/62YW1PbRhTH/ysbX4QBQ4AQLgGKCRfjGN+4l4YQKAZDKE5p
+                UnoTtkIERma8giFvTB/yDdoP0D70tZ1pJpl2psPw2Ld+oUyPjAiSgzIO0YBX
+                Z9dn/+e3Z4/slf9989c/AJLYY1iT1HypqOSPo7miyrWSpKhaQXpePNRoYP+g
+                yOXoalFTimo2J6tyNlc8kEPzF55yPlN23ZCfyiVZzcncC8YQ3JWOpGhBUnei
+                D7d35ZzmhYvBM6OoijbLsDyY+fCg01uZStXpoU2G1kGbN/oyxdJOdFfWtnV5
+                HpVUtahJuiiPrhW1tcNCYZrBpeS5D36G23tFraCo0d2j/SjRyCVVKkTTqlai
+                uUqO1lXL0JJ7Juf2jMnrUknal8mRYWDwXQTTSFYX2SGoAOpQLyKABsqG9kzh
+                oVGG5HWSEUAjmvwQcIOWMKgr16BFhButDDeuSEgAfrTp/rcY3HpkhvVrxH3f
+                zlMyxfI8VVa1GMO9waEqItgLkl6HsSe5YqFAqyhv3VypJD3nK1RS3QyBHVnL
+                SFxLq3n52K4W0gH04hMRPehjiH/4or3oZ6iTcrRGHlLlYy2dZ1i6Vg0PvVsV
+                AQxgUMQdDDHMfEy+vAhThV5RiefVERExgrsM6ZASkkIRStzD0kKBy5EP2ePQ
+                5QaHaItZmkFQaCvazHsfdyxIXA9yKZxwTDhhFU46Jpy0CqccE05ZhcccEx6z
+                Co87JjxuFZ5wTHjCKjzpmPCkLlx7WeL04bzs0N0yWiEdc046ViEdd046XiGd
+                cE46USGddE46WSGdck46VSE95px0+T5szBjfeKuyJuUlTaIvQWH/yEWHNaY3
+                XvrMpTObcKzoPapPIR9jrOv0pF0U2gRRCJ6eiPQvBBtFwec6H/M1+M5euNtO
+                T+LCKLvf4js9aQoEhXZfk7uJBkZdZ794hKB72R/0tAuj3qWzFwLZPpPtN9mi
+                ya412QGTXWey6012g8kOmuxGk91ksm+Y7GaT3WKyWy/sjVbzmh6f/eimdbkp
+                EzV6kuieAMPsR59H3rOVdO6q3Pm7exrN2ThUNWVfTqtHCle2C/Lc5TmUzmLz
+                xbzM0JAhybXD/W259EgiH4amTDEnFTalkqL3jUF/VtlRJe2wRHaoUvftedQS
+                oC6rSbm9VenAkAikVVUuzRckznVmMVs8LOXkRUV/r/m880DePtxZONZkOvgW
+                VYZbRqTNd/gRoxOlmypRQJN+wKQc/0A9D119QDCoH1Kp30j9Ghp1QaLeFnnr
+                1dsy0iS+RnA4/BLNw69wc3jkJdr/KIttU1tPTh7cRAPJNtM1R2M95xPRgU6g
+                bOkBWNnSwwvIl+d7IRs3i85BTl24TcN69J9IwkvX2PCfaM+4PqVL81pn+DVC
+                v8If7oz/hvrOMbdrrCbyGsOY8vyNkSe3PK8Q/Z0mufCU2iCEN2j3IsG8uLPs
+                pQTovK20RBBZF2aIswMhevXT64K7h/xGKWE15OFFnCw9cTFjLaa0EW7SBtft
+                NG6XgdtFuF2E22XBTVWJO2aDW+M0breB20243YTbbcEdrxJ3wgbX4zRur4Hb
+                S7i9hNtrwZ2sEnfKBtfrNG6fgdtHuH2E22fBna4Sd8YG1+c0br+B20+4/eU/
+                M+6nVeLOvsX92cCNl3GD16+Gjqt5ByjSDNXAAJEO0PPewFveXvL7rMx728Qb
+                v5L3nh3v9cvBhnfI4B0i3iH9+dTCO1cl73073uvXgw1v2OANE2+YeMMW3vkq
+                eR/Y8fqd5o0YvBHijRBvxMK7UCXvoh2v6DRv1OCNEm+UeKMW3s+r5F2y4611
+                mjdm8MaIN0a8MQtvukreZTvegNO8CYM3QbwJ4k1YeFeq5M3Y8dY5zZsyeFPE
+                myLelIV3tUreNTveeqd5xw3eceIdJ95xC+/DKnnX7XgbnOadNHgniXeSeCct
+                vF9UxevGDrUi9QRS+I74n0E/IH8Pha7/ZVfn1sUrnlrElfJTqDic7bmwFsVw
+                T6znKl9nf0WmMPGep9JeWfqqn+QX6b0VTRzOiLG+2EhqcipGRnxqbFQcXhCx
+                S8s6oOVuUHKyW3Cl8SiNL6nFpt58lcZjPNkC4/gaW1u4ydHJ8Q2Hv9x6ONo4
+                uji+5XjAscixxLHMkeFY41jnSHKMcUxwTHHMcMxy3OO4/z+8pxUSTxkAAA==
+                """,
+        """
+                androidx/constraintlayout/compose/MotionSceneScope.class:
+                H4sIAAAAAAAA/61VW08bRxT+Zm1ssxjHOOHqNCWBNuYS1qH0FmhScEpZ11wK
+                LWrES4fdCVlY76KdNYI31H/Qp773F7RSC1EjRSiP/VFVzqyXpBgrUqLI0pkz
+                35z5vpkz56z//e+f5wBmsMEwzT078B370LB8T4YBd7zQ5Ud+IySgvu9LYSz7
+                oeN7G5bwxIbl74s0GEN+lx9ww+XejrG6vSusMI0EQ2rO8ZzwPkOiNLaZRQdS
+                OpJIMyTDJ45kmKm9vdws0XriMDRthmulsdpr4Y0wcLwdWu9vxRYajmuLII1u
+                HTmlXzzXnWrVdewM8iTB9/eFRxJ3SpcVLovGArNZFHBVaVyjlOzQkQMeCtu0
+                K37DCxmYmUUf+juhYYDhesl8M9OQYioyZEK/uZjFB8gq8AZDtxUIIl8Xj+Wi
+                HzCI0lat9RHopG+f4NHKeaSwa1EoaYhAeJaQlNyRmh/sGLsi3FYh0uCe54dc
+                UUhjxQ9XGq5LUQnHlhmMMNzY80PX8Yzdg7pB2iLwuGuYnrqOdCyZxkcMvdYT
+                Ye3Fm9d4wOuCAhluly7fqM1rUGXdRknHxxhjWHm/F05j4ry4qTZcYz4I+BGh
+                d6hEaO/R6mOGsXaZN8fagFkYKOuYwl2Gauldir/dG0ed9YmOScwwXG0TQcXC
+                LbqMHD1vnKV3Em/TbFl0qYrU8CVDx2izq3OvCj8u+55aXATLIuQ2DzmdSKsf
+                JOijw5ShhmR7BB06alYmz6YE/XZ2XNK1AU3X8mfHupZRTqY5EqigfE8M52g6
+                cHY8rZXZPda90PHi95SW16oj+dRQqpxe18q0VshnhvRCKsMKFFXuvEU2CtOr
+                mXzXkFbOLmnruXyCvORPL37JqTViJaijBVLHm2Z0dKy9/+4qvmGZHreVbWqP
+                0pus+LZguFKjTSuN+rYIfuDbLiGFmm9xd5MHjprHYHGd3sSpC9M7cKRD0Pzr
+                BmYYbV191Y4XwrKmR09ccbmU6lz6ht8ILLHoKIHBmGLzEj3uUqEk6Yk1+s2h
+                P/L6ojFJ6aS/B7Lf0cygkTKMjvFTZP6MwmpkUxGYxjLZbDMAndBpLKgyjDdX
+                iUyjcfgZco9OcaXQc4Le8b8wODdeTP78NwaLJ7h+gg//aOEt/I93OOb9lbyb
+                SES8Jqkp3t6JwuhTjD/D5KPxiYnnTzF9ik8vkqXQG5H1NTfEZMobwWe0vhLH
+                3aJxNW4ANckP4nN80SYJ9y7ys5YkzEb8CayR1QmbpFgTPfg+2lXFOo0/Ev4V
+                xd7fQsLEAxNfk8W8MgsmKni4BSbxDRa3kJPQJb6VSEnMRU6fxLDEksRINL0p
+                0RU55kuxHmQmPAgAAA==
+                """,
+        """
+                androidx/constraintlayout/compose/MotionSceneScopeKt.class:
+                H4sIAAAAAAAA/2WQTU8CMRCG3y7yISqC32DiQe+sGm6ejGKyEVYDSkw4mLI0
+                pLC0ZLdL9Eb8Kf4MD4Z49EcZp0ZjopfpzNN3Zt72/ePlFUANuww1rvqRlv0H
+                N9AqNhGXyoT8USeGwHiiY+E2tZFatQOhRDvQE3FpsmAMxSGfcjfkauBe9YYi
+                IJpi2Lz1z+sXnl8/v/dPm/X76xZVdwxrjV9520RSDU4Yyj/Lq3+X55BlOGjo
+                aOAOhenZm9jlSmnDrZnY9bXxkzCkIaXGSJtQKrcpDO9zw4k542mKXshsoEFs
+                ZBOH+IO02SFl/SOGvfksk5/P8k6xsF8ozmcV55DdvT3dvD1nHOJWdcxoDNb/
+                /kF1ZBhWzqxrrkyHh4lg2G0lysix8NRUxrIXitNfwwz5tk6iQFzIkKTlb2nn
+                nxBHcLBgzaOCNDJUbVvzyGGHzgzxReCLlL/iFulAXbSB9EtdpDwse1ihiIKH
+                VRQ9lLDWBYuxjo0unBjpGJufnYegJwYCAAA=
+                """
+    )
+
     @Test
     fun createRefsForArgumentTest() {
         lint().files(
@@ -190,10 +342,22 @@ class ConstraintSetScopeDetectorTest : LintDetectorTest() {
                             val ids = arrayOf("box", "text")
                             val (box3, text3, image3) = createRefsFor(*ids)
                         }                   
-                    }                    
+                    }
+
+                    fun Test2() {
+                        val scopeApplier: MotionSceneScope.() -> Unit = {
+                            val (box, text) = createRefsFor("box", "text")
+                            val (box1, text1, image1) = createRefsFor("box", "text")
+                            val (box2, text2) = createRefsFor("box", "text", "image")
+                    
+                            val ids = arrayOf("box", "text")
+                            val (box3, text3, image3) = createRefsFor(*ids)
+                        }                   
+                    }
                 """.trimIndent()
             ),
-            ConstraintSetScopeStub
+            ConstraintSetScopeStub,
+            MotionSceneScopeStub
         )
             .run()
             .expect(
@@ -203,7 +367,13 @@ class ConstraintSetScopeDetectorTest : LintDetectorTest() {
 src/example/test.kt:9: Error: Arguments of createRefsFor (3) do not match assigned variables (2) [IncorrectReferencesDeclaration]
         val (box2, text2) = createRefsFor("box", "text", "image")
                             ~~~~~~~~~~~~~
-2 errors, 0 warnings"""
+src/example/test.kt:19: Error: Arguments of createRefsFor (2) do not match assigned variables (3) [IncorrectReferencesDeclaration]
+        val (box1, text1, image1) = createRefsFor("box", "text")
+                                    ~~~~~~~~~~~~~
+src/example/test.kt:20: Error: Arguments of createRefsFor (3) do not match assigned variables (2) [IncorrectReferencesDeclaration]
+        val (box2, text2) = createRefsFor("box", "text", "image")
+                            ~~~~~~~~~~~~~
+4 errors, 0 warnings"""
             )
     }
 }
