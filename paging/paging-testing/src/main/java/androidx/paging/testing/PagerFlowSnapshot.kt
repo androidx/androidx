@@ -17,6 +17,7 @@
 package androidx.paging.testing
 
 import androidx.paging.DifferCallback
+import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.NullPaddedList
@@ -33,7 +34,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Runs the [SnapshotLoader] load operations that are passed in and returns a List of loaded data.
+ * Runs the [SnapshotLoader] load operations that are passed in and returns a List of data
+ * that would be presented to the UI after all load operations are complete.
  *
  * @param coroutineScope The [CoroutineScope] to collect from this Flow<PagingData> and contains
  * the [CoroutineScope.coroutineContext] to load data from.
@@ -42,20 +44,20 @@ import kotlinx.coroutines.withContext
  */
 public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     coroutineScope: CoroutineScope,
-    loadOperations: suspend SnapshotLoader<Value>.() -> Unit
-): List<Value> {
+    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit
+): @JvmSuppressWildcards List<Value> {
 
     lateinit var loader: SnapshotLoader<Value>
 
     val callback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generation.value)
+            loader.onDataSetChanged(loader.generations.value)
         }
         override fun onInserted(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generation.value)
+            loader.onDataSetChanged(loader.generations.value)
         }
         override fun onRemoved(position: Int, count: Int) {
-            loader.onDataSetChanged(loader.generation.value)
+            loader.onDataSetChanged(loader.generations.value)
         }
     }
 
@@ -68,6 +70,19 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
             onListPresentable: () -> Unit
         ): Int? {
             onListPresentable()
+            /**
+             * On new generation, SnapshotLoader needs the latest [ItemSnapshotList]
+             * index last updated by the initial refresh so that it can
+             * prepend/append from then on based on that index.
+             *
+             * This last updated index is necessary because initial load
+             * key may not be 0, for example when [Pager].initialKey != 0
+             *
+             * Any subsequent SnapshotLoader loads are based on the index tracked by
+             * [SnapshotLoader] internally.
+             */
+            val lastLoadedIndex = snapshot().placeholdersBefore + snapshot().items.size - 1
+            loader.generations.value.lastAccessedIndex.set(lastLoadedIndex)
             return null
         }
     }
@@ -81,7 +96,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
       */
     val job = coroutineScope.launch {
         this@asSnapshot.collectLatest {
-            // TODO increase generation count
+            incrementGeneration(loader)
             differ.collectFrom(it)
         }
     }
@@ -118,4 +133,13 @@ internal suspend fun <Value : Any> PagingDataDiffer<Value>.awaitNotLoading() {
 private fun LoadStates.isIdle(): Boolean {
     return refresh is LoadState.NotLoading && append is LoadState.NotLoading &&
         prepend is LoadState.NotLoading
+}
+
+private fun <Value : Any> incrementGeneration(loader: SnapshotLoader<Value>) {
+    val currGen = loader.generations.value
+    if (currGen.id == loader.generations.value.id) {
+        loader.generations.value = Generation(
+            id = currGen.id + 1
+        )
+    }
 }
