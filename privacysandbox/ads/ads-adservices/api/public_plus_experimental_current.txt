@@ -41,25 +41,19 @@ package androidx.privacysandbox.ads.adservices.measurement {
   public abstract class MeasurementManager {
     ctor public MeasurementManager();
     method @DoNotInline public abstract suspend Object? deleteRegistrations(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest deletionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? getMeasurementApiStatus(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState>);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? getMeasurementApiStatus(kotlin.coroutines.Continuation<? super java.lang.Integer>);
     method public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
     method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerSource(android.net.Uri attributionSource, android.view.InputEvent? inputEvent, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerTrigger(android.net.Uri trigger, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebSource(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebTrigger(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion Companion;
+    field public static final int MEASUREMENT_API_STATE_DISABLED = 0; // 0x0
+    field public static final int MEASUREMENT_API_STATE_ENABLED = 1; // 0x1
   }
 
   public static final class MeasurementManager.Companion {
     method public androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
-  }
-
-  public enum MeasurementManager.MeasurementApiState {
-    method public static androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState[] values();
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState MEASUREMENT_API_STATE_DISABLED;
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState MEASUREMENT_API_STATE_ENABLED;
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState UNKNOWN;
   }
 
   public final class WebSourceParams {

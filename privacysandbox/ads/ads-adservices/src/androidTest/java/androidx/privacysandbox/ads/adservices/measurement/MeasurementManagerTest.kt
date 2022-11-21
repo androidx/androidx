@@ -23,7 +23,6 @@ import android.os.OutcomeReceiver
 import android.view.InputEvent
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion.obtain
-import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -235,10 +234,10 @@ class MeasurementManagerTest {
     fun testMeasurementApiStatus() {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
-        val state = MeasurementApiState.MEASUREMENT_API_STATE_ENABLED
+        val state = MeasurementManager.MEASUREMENT_API_STATE_ENABLED
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
-            receiver.onResult(state.ordinal)
+            receiver.onResult(state)
             null
         }
         doAnswer(answer).`when`(measurementManager).getMeasurementApiStatus(any(), any())
@@ -262,7 +261,7 @@ class MeasurementManagerTest {
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
-            receiver.onResult(2 /* Greater than values returned in SdkExtensions.AD_SERVICES = 4 */)
+            receiver.onResult(5 /* Greater than values returned in SdkExtensions.AD_SERVICES = 4 */)
             null
         }
         doAnswer(answer).`when`(measurementManager).getMeasurementApiStatus(any(), any())
@@ -277,7 +276,7 @@ class MeasurementManagerTest {
 
         // Verify that the request that the compat code makes to the platform is correct.
         // Since the compat code does not know the returned state, it sets it to UNKNOWN.
-        assertThat(actualResult == MeasurementApiState.UNKNOWN)
+        assertThat(actualResult == 5)
     }
 
     @RequiresApi(34)

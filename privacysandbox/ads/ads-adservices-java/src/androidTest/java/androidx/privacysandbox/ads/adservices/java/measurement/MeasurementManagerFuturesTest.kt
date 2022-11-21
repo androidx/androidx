@@ -24,7 +24,6 @@ import android.view.InputEvent
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures.Companion.from
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest
-import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.MeasurementApiState
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceParams
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams
@@ -234,10 +233,10 @@ class MeasurementManagerFuturesTest {
     fun testMeasurementApiStatusAsync() {
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = from(mContext)
-        val state = MeasurementApiState.MEASUREMENT_API_STATE_ENABLED
+        val state = MeasurementManager.MEASUREMENT_API_STATE_DISABLED
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
-            receiver.onResult(state.ordinal)
+            receiver.onResult(state)
             null
         }
         doAnswer(answer).`when`(measurementManager).getMeasurementApiStatus(any(), any())
