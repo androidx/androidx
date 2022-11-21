@@ -105,14 +105,16 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
      * Runs the input [loadOperations].
      *
      * Awaits for initial refresh to complete before invoking [loadOperations]. Automatically
-     * cancels the collection on this [Pager.flow] after [loadOperations] completes.
+     * cancels the collection on this [Pager.flow] after [loadOperations] completes and Paging
+     * is idle.
      *
      * Returns a List of loaded data.
      */
     return withContext(coroutineScope.coroutineContext) {
         differ.awaitNotLoading()
-
         loader.loadOperations()
+        differ.awaitNotLoading()
+
         job.cancelAndJoin()
 
         differ.snapshot().items
