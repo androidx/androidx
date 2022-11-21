@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.GeneratedPublicApi
+import androidx.privacysandbox.tools.internal.GeneratedPublicApi
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
