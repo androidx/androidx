@@ -336,6 +336,7 @@ package androidx.opengl {
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
     method public static java.util.Set<java.lang.String> parseExtensions(String queryString);
     field public static final androidx.opengl.EGLExt.Companion Companion;
+    field public static final String EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer";
     field public static final String EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer";
     field public static final String EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync";
     field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6
