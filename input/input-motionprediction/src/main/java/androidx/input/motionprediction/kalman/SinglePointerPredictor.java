@@ -35,7 +35,7 @@ import java.util.Locale;
  */
 @RestrictTo(LIBRARY)
 public class SinglePointerPredictor implements KalmanPredictor {
-    private static final String TAG = "KalmanInkPredictor";
+    private static final String TAG = "SinglePointerPredictor";
 
     // Influence of jank during each prediction sample
     private static final float JANK_INFLUENCE = 0.1f;
@@ -86,7 +86,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private double mPressure = 0;
 
     /**
-     * Kalman based ink predictor, predicting the location of the pen `predictionTarget`
+     * Kalman based predictor, predicting the location of the pen `predictionTarget`
      * milliseconds into the future.
      *
      * <p>This filter can provide solid prediction up to 25ms into the future. If you are not
