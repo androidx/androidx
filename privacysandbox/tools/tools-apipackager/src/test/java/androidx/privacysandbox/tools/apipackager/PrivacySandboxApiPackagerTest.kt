@@ -90,7 +90,7 @@ class PrivacySandboxApiPackagerTest {
                     |import androidx.privacysandbox.tools.PrivacySandboxCallback
                     |import androidx.privacysandbox.tools.PrivacySandboxService
                     |import androidx.privacysandbox.tools.PrivacySandboxValue
-                    |import androidx.privacysandbox.tools.core.GeneratedPublicApi
+                    |import androidx.privacysandbox.tools.internal.GeneratedPublicApi
                     |
                     |@PrivacySandboxService
                     |interface MySdk

@@ -20,7 +20,7 @@ import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
-import androidx.privacysandbox.tools.core.GeneratedPublicApi
+import androidx.privacysandbox.tools.internal.GeneratedPublicApi
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 import org.objectweb.asm.AnnotationVisitor

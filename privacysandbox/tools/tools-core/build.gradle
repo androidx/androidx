@@ -29,6 +29,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.protobufLite)
     api(libs.kotlinPoet)
+    implementation project(path: ':privacysandbox:tools:tools')
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
