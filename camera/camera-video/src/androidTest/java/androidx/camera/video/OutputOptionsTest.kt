@@ -118,12 +118,12 @@ class OutputOptionsTest {
     fun canBuildOutputOptions() {
         val outputOptions = FakeOutputOptions.Builder()
             .setFileSizeLimit(FILE_SIZE_LIMIT)
-            .setDurationLimit(DURATION_LIMIT)
+            .setDurationLimitMillis(DURATION_LIMIT)
             .build()
 
         assertThat(outputOptions).isNotNull()
         assertThat(outputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
-        assertThat(outputOptions.durationLimit).isEqualTo(DURATION_LIMIT)
+        assertThat(outputOptions.durationLimitMillis).isEqualTo(DURATION_LIMIT)
     }
 
     @Test
@@ -132,7 +132,7 @@ class OutputOptionsTest {
 
         assertThat(outputOptions.location).isNull()
         assertThat(outputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
-        assertThat(outputOptions.durationLimit).isEqualTo(OutputOptions.DURATION_UNLIMITED)
+        assertThat(outputOptions.durationLimitMillis).isEqualTo(OutputOptions.DURATION_UNLIMITED)
     }
 
     @Test
@@ -145,7 +145,7 @@ class OutputOptionsTest {
     @Test
     fun invalidDurationLimit_throwsException() {
         assertThrows(IllegalArgumentException::class.java) {
-            FakeOutputOptions.Builder().setDurationLimit(INVALID_DURATION_LIMIT)
+            FakeOutputOptions.Builder().setDurationLimitMillis(INVALID_DURATION_LIMIT)
         }
     }
 

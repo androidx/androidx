@@ -1472,9 +1472,9 @@ public final class Recorder implements VideoOutput {
             mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
-        if (recordingToStart.getOutputOptions().getDurationLimit() > 0) {
+        if (recordingToStart.getOutputOptions().getDurationLimitMillis() > 0) {
             mDurationLimitNs = TimeUnit.MILLISECONDS.toNanos(
-                    recordingToStart.getOutputOptions().getDurationLimit());
+                    recordingToStart.getOutputOptions().getDurationLimitMillis());
             Logger.d(TAG, "Duration limit in nanoseconds: " + mDurationLimitNs);
         } else {
             mDurationLimitNs = OutputOptions.DURATION_UNLIMITED;

@@ -597,7 +597,7 @@ class RecorderTest(
         val durationTolerance = 50L
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val outputOptions = FileOutputOptions.Builder(file)
-            .setDurationLimit(durationLimitMs)
+            .setDurationLimitMillis(durationLimitMs)
             .build()
 
         val recording = recorder
