@@ -67,6 +67,7 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1361,6 +1362,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         testControllerAfterSessionIsClosed(TAG);
     }
 
+    @Ignore("b/259936005")
     @LargeTest
     @Test
     public void controllerAfterSessionIsClosed_sessionService() throws Exception {
