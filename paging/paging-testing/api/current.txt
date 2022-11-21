@@ -6,6 +6,7 @@ package androidx.paging.testing {
   }
 
   public final class SnapshotLoader<Value> {
+    method public suspend Object? appendScrollWhile(kotlin.jvm.functions.Function2<Value,? super kotlin.coroutines.Continuation<java.lang.Boolean>,?> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
     method public suspend Object? refresh(kotlin.coroutines.Continuation<kotlin.Unit>);
   }
 
