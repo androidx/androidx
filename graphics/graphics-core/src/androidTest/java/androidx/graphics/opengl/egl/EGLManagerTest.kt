@@ -30,6 +30,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.opengl.EGLBindings
 import androidx.opengl.EGLExt
+import androidx.opengl.EGLExt.Companion.EGL_ANDROID_CLIENT_BUFFER
 import androidx.opengl.EGLExt.Companion.EGL_SYNC_CONDITION_KHR
 import androidx.opengl.EGLExt.Companion.EGL_SYNC_FENCE_KHR
 import androidx.opengl.EGLExt.Companion.EGL_SYNC_NATIVE_FENCE_ANDROID
@@ -399,9 +400,14 @@ class EGLManagerTest {
                 isExtensionSupported(EGL_KHR_IMAGE_BASE)
             val androidImageNativeBufferSupported =
                 isExtensionSupported(EGL_ANDROID_IMAGE_NATIVE_BUFFER)
+            val eglClientBufferSupported =
+                isExtensionSupported(EGL_ANDROID_CLIENT_BUFFER)
             // According to EGL spec both these extensions are required in order to support
             // eglGetNativeClientBufferAndroid
-            if (khrImageBaseSupported && androidImageNativeBufferSupported) {
+            if (khrImageBaseSupported &&
+                androidImageNativeBufferSupported &&
+                eglClientBufferSupported
+            ) {
                 assertTrue(EGLBindings.nSupportsEglGetNativeClientBufferAndroid())
             }
         }
