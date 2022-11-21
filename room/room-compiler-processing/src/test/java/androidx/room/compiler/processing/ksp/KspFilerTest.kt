@@ -32,10 +32,11 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
-import org.junit.Test
 import java.io.File
 import java.io.OutputStream
 import javax.tools.Diagnostic
+import kotlin.io.path.Path
+import org.junit.Test
 
 class KspFilerTest {
 
@@ -140,6 +141,29 @@ class KspFilerTest {
             assertThat(file).isEqualTo("Bar.kt")
             assertThat(classDeclarations.single())
                 .isEqualTo((classPathElement as KspTypeElement).declaration)
+        }
+    }
+
+    @Test
+    fun writeResource() {
+        runKspTest(
+            sources = emptyList()
+        ) { invocation ->
+            invocation.processingEnv.filer.writeResource(
+                filePath = Path("test.log"),
+                originatingElements = emptyList()
+            ).bufferedWriter(Charsets.UTF_8).use {
+                it.write("Hello!")
+            }
+            invocation.processingEnv.filer.writeResource(
+                filePath = Path("META-INF/services/com.test.Foo"),
+                originatingElements = emptyList()
+            ).bufferedWriter(Charsets.UTF_8).use {
+                it.write("Not a real service...")
+            }
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
         }
     }
 
