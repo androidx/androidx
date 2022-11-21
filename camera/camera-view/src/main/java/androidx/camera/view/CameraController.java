@@ -1164,13 +1164,14 @@ public abstract class CameraController {
      * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
-     * @param audioConfig the configuration of audio.
-     * @param executor the executor that the event listener will be run on.
-     * @param listener the event listener to handle video record events.
+     * @param audioConfig   the configuration of audio.
+     * @param executor      the executor that the event listener will be run on.
+     * @param listener      the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the audio config specifies audio should be enabled but the
-     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
+     * @throws SecurityException     if the audio config specifies audio should be enabled but the
+     *                               {@link android.Manifest.permission#RECORD_AUDIO} permission
+     *                               is denied.
      */
     @SuppressLint("MissingPermission")
     @ExperimentalVideo
@@ -1204,13 +1205,14 @@ public abstract class CameraController {
      * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
-     * @param audioConfig the configuration of audio.
-     * @param executor the executor that the event listener will be run on.
-     * @param listener the event listener to handle video record events.
+     * @param audioConfig   the configuration of audio.
+     * @param executor      the executor that the event listener will be run on.
+     * @param listener      the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the audio config specifies audio should be enabled but the
-     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
+     * @throws SecurityException     if the audio config specifies audio should be enabled but the
+     *                               {@link android.Manifest.permission#RECORD_AUDIO} permission
+     *                               is denied.
      */
     @SuppressLint("MissingPermission")
     @ExperimentalVideo
@@ -1242,13 +1244,14 @@ public abstract class CameraController {
      * permission; without it, starting a recording will fail with a {@link SecurityException}.
      *
      * @param outputOptions the options to store the newly captured video.
-     * @param audioConfig the configuration of audio.
-     * @param executor the executor that the event listener will be run on.
-     * @param listener the event listener to handle video record events.
+     * @param audioConfig   the configuration of audio.
+     * @param executor      the executor that the event listener will be run on.
+     * @param listener      the event listener to handle video record events.
      * @return a {@link Recording} that provides controls for new active recordings.
      * @throws IllegalStateException if there is an unfinished active recording.
-     * @throws SecurityException if the audio config specifies audio should be enabled but the
-     * {@link android.Manifest.permission#RECORD_AUDIO} permission is denied.
+     * @throws SecurityException     if the audio config specifies audio should be enabled but the
+     *                               {@link android.Manifest.permission#RECORD_AUDIO} permission
+     *                               is denied.
      */
     @SuppressLint("MissingPermission")
     @ExperimentalVideo
