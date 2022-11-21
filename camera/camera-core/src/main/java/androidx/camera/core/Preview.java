@@ -19,15 +19,12 @@ package androidx.camera.core;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
-import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_MAX_RESOLUTION;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_PREVIEW_CAPTURE_PROCESSOR;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_RGBA8888_SURFACE_REQUIRED;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
@@ -49,8 +46,6 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
@@ -66,18 +61,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.CaptureProcessor;
-import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.ImageInfoProcessor;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -88,7 +78,6 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
@@ -222,18 +211,15 @@ public final class Preview extends UseCase {
 
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
 
         // Close previous session's deferrable surface before creating new one
         clearPipeline();
-
-        boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
 
         // TODO: Can be improved by only restarting part of the pipeline when using the
         //  CaptureProcessor. e.g. only update the output Surface (between Processor/App), and
         //  still use the same input Surface (between Camera/Processor). It's just simpler for now.
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                isRGBA8888SurfaceRequired, this::notifyReset);
+                /* isRGBA8888Required */ false, this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (mSurfaceProvider != null) {
@@ -241,54 +227,7 @@ public final class Preview extends UseCase {
             sendSurfaceRequest();
         }
 
-        if (captureProcessor != null) {
-            CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
-            // TODO: To allow user to use an Executor for the processing.
-            HandlerThread handlerThread = new HandlerThread(
-                    CameraXThreads.TAG + "preview_processing");
-            handlerThread.start();
-
-            String tagBundleKey = Integer.toString(captureStage.hashCode());
-
-            ProcessingSurface processingSurface = new ProcessingSurface(
-                    resolution.getWidth(),
-                    resolution.getHeight(),
-                    config.getInputFormat(),
-                    new Handler(handlerThread.getLooper()),
-                    captureStage,
-                    captureProcessor,
-                    surfaceRequest.getDeferrableSurface(),
-                    tagBundleKey);
-
-            sessionConfigBuilder.addCameraCaptureCallback(
-                    processingSurface.getCameraCaptureCallback());
-
-            processingSurface.getTerminationFuture().addListener(handlerThread::quitSafely,
-                    CameraXExecutors.directExecutor());
-
-            mSessionDeferrableSurface = processingSurface;
-
-            // Use CaptureStage object as the key for TagBundle
-            sessionConfigBuilder.addTag(tagBundleKey, captureStage.getId());
-        } else {
-            final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
-
-            if (processor != null) {
-                sessionConfigBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
-                    @Override
-                    public void onCaptureCompleted(
-                            @NonNull CameraCaptureResult cameraCaptureResult) {
-                        super.onCaptureCompleted(cameraCaptureResult);
-                        if (processor.process(
-                                new CameraCaptureResultImageInfo(cameraCaptureResult))) {
-                            notifyUpdated();
-                        }
-                    }
-                });
-            }
-            mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
-        }
-
+        mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
         return sessionConfigBuilder;
     }
@@ -631,13 +570,8 @@ public final class Preview extends UseCase {
     @Override
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
-        if (builder.getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null)
-                != null) {
-            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
-        } else {
-            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-        }
+        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
         // Merges Preview's default max resolution setting when resolution selector is used
         ResolutionSelector resolutionSelector =
@@ -1204,41 +1138,6 @@ public final class Preview extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
-            return this;
-        }
-
-        /**
-         * Sets if the surface requires RGBA8888 format.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setIsRgba8888SurfaceRequired(boolean isRgba8888SurfaceRequired) {
-            getMutableConfig().insertOption(
-                    OPTION_RGBA8888_SURFACE_REQUIRED, isRgba8888SurfaceRequired);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setImageInfoProcessor(@NonNull ImageInfoProcessor processor) {
-            getMutableConfig().insertOption(IMAGE_INFO_PROCESSOR, processor);
-            return this;
-        }
-
-        /**
-         * Sets the {@link CaptureProcessor}.
-         *
-         * @param captureProcessor The requested capture processor for extension.
-         * @return The current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setCaptureProcessor(@NonNull CaptureProcessor captureProcessor) {
-            getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
             return this;
         }
 

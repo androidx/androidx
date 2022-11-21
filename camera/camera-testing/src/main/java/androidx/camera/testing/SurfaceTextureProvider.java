@@ -30,6 +30,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
@@ -132,6 +133,21 @@ public final class SurfaceTextureProvider {
      */
     @NonNull
     public static Preview.SurfaceProvider createAutoDrainingSurfaceTextureProvider() {
+        return createAutoDrainingSurfaceTextureProvider(null);
+    }
+
+    /**
+     * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture}.
+     *
+     * <p>This method also creates a backing OpenGL thread that will automatically drain frames
+     * from the SurfaceTexture as they become available.
+     *
+     * @param frameAvailableListener listener to be invoked when frame is updated.
+     */
+    @NonNull
+    public static Preview.SurfaceProvider createAutoDrainingSurfaceTextureProvider(
+            @Nullable SurfaceTexture.OnFrameAvailableListener frameAvailableListener
+    ) {
         return (surfaceRequest) -> {
             HandlerThread handlerThread = new HandlerThread(String.format("CameraX"
                     + "-AutoDrainThread-%x", surfaceRequest.hashCode()));
@@ -147,8 +163,12 @@ public final class SurfaceTextureProvider {
                 SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
                 surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
                         surfaceRequest.getResolution().getHeight());
-                surfaceTexture.setOnFrameAvailableListener(
-                        SurfaceTexture::updateTexImage, handler);
+                surfaceTexture.setOnFrameAvailableListener((st) -> {
+                    st.updateTexImage();
+                    if (frameAvailableListener != null) {
+                        frameAvailableListener.onFrameAvailable(st);
+                    }
+                }, handler);
 
                 Surface surface = new Surface(surfaceTexture);
                 surfaceRequest.provideSurface(surface,

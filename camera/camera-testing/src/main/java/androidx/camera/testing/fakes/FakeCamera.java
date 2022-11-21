@@ -25,6 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -68,6 +70,8 @@ public class FakeCamera implements CameraInternal {
     private SessionConfig mSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
+
+    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
 
     public FakeCamera() {
         this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,
@@ -374,5 +378,16 @@ public class FakeCamera implements CameraInternal {
         // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
         // notifySurfaceDetached calls.
         mConfiguredDeferrableSurfaces.clear();
+    }
+
+    @NonNull
+    @Override
+    public CameraConfig getExtendedConfig() {
+        return mCameraConfig;
+    }
+
+    @Override
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
+        mCameraConfig = cameraConfig;
     }
 }

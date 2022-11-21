@@ -24,6 +24,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.Locale;
@@ -36,7 +37,7 @@ import java.util.Locale;
  * {@link RectF}, a rotation degrees integer and a boolean flag for the rotation-direction
  * (clockwise v.s. counter-clockwise).
  *
- * TODO(b/179827713): merge this with {@link androidx.camera.core.internal.utils.ImageUtil}.
+ * TODO(b/179827713): merge this with {@link ImageUtil}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TransformUtils {

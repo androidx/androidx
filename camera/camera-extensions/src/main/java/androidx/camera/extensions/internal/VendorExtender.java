@@ -69,7 +69,7 @@ public interface VendorExtender {
     Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size);
 
     /**
-     * Gets the supported output resolutions for preview.
+     * Gets the supported output resolutions for preview. PRIVATE format must be supported.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *
@@ -84,7 +84,7 @@ public interface VendorExtender {
     List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions();
 
     /**
-     * Gets the supported output resolutions for image capture.
+     * Gets the supported output resolutions for image capture. JPEG format must be supported.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *

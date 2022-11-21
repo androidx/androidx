@@ -201,7 +201,7 @@ final class ImageSaver implements Runnable {
             }
         } else if (imageFormat == ImageFormat.YUV_420_888) {
             return ImageUtil.yuvImageToJpegByteArray(image, shouldCropImage ? image.getCropRect() :
-                    null, jpegQuality);
+                    null, jpegQuality, 0 /* rotationDegrees */);
         } else {
             Logger.w(TAG, "Unrecognized image format: " + imageFormat);
         }
