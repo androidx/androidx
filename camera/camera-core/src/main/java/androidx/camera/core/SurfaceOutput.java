@@ -37,10 +37,8 @@ import java.util.concurrent.Executor;
  * <p>Contains a {@link Surface} and its characteristics along with methods to manage the
  * lifecycle of the {@link Surface}.
  *
- * @hide
  * @see SurfaceProcessor#onOutputSurface(SurfaceOutput)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface SurfaceOutput {
 
     /**
@@ -62,13 +60,7 @@ public interface SurfaceOutput {
     /**
      * This field indicates that what purpose the {@link Surface} will be used for.
      *
-     * <ul>
-     * <li>{@link SurfaceProcessor#PREVIEW} if the {@link Surface} will be used for {@link Preview}.
-     * <li>{@link SurfaceProcessor#VIDEO_CAPTURE} if the {@link Surface} will be used for video
-     * capture.
-     * <li>{@link SurfaceProcessor#PREVIEW} | {@link SurfaceProcessor#VIDEO_CAPTURE} if the output
-     * {@link Surface} will be used for sharing a single stream for both preview and video capture.
-     * </ul>
+     * <p>{@link CameraEffect#PREVIEW} if the {@link Surface} will be used for {@link Preview}.
      */
     @CameraEffect.Targets
     int getTargets();
@@ -81,37 +73,60 @@ public interface SurfaceOutput {
 
     /**
      * Gets the format of the {@link Surface}.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     int getFormat();
 
     /**
      * Get the rotation degrees.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     int getRotationDegrees();
 
     /**
      * Call this method to mark the {@link Surface} as no longer in use.
      *
-     * <p>After this is called, the implementation should stop writing to the {@link Surface}
-     * provided via {@link #getSurface}
+     * <p>Once the {@link SurfaceProcessor} implementation receives a request to close the
+     * {@link Surface}, it should call this method to acknowledge after stop writing to the
+     * {@link Surface}. Writing to the {@link Surface} after calling this method might cause
+     * errors.
      */
     void close();
 
     /**
-     * Updates the 4 x 4 transformation matrix retrieved from {@link SurfaceTexture
-     * #getTransformMatrix}.
+     * Updates the 4 x 4 transformation matrix retrieved from the input {@link Surface}.
      *
-     * <p>This method applies an additional transformation on top of the value of
-     * {@link SurfaceTexture#getTransformMatrix}. The result is matrix of the same format, which
-     * is a transform matrix maps 2D homogeneous texture coordinates of the form (s, t, 0, 1)
-     * with s and t in the inclusive range [0, 1] to the texture coordinate that should be used
-     * to sample that location from the texture. The matrix is stored in column-major order so that
-     * it may be passed directly to OpenGL ES via the {@code glLoadMatrixf} or {@code
-     * glUniformMatrix4fv} functions.
+     * <p>When the input {@link Surface} of {@link SurfaceProcessor} is backed by a
+     * {@link SurfaceTexture}, use this method to update the texture transform matrix.
+     *
+     * <p>After retrieving the transform matrix from {@link SurfaceTexture#getTransformMatrix},
+     * the {@link SurfaceProcessor} implementation should always call this method to update the
+     * value. The result is a matrix of the same format, which is a transform matrix maps 2D
+     * homogeneous texture coordinates of the form (s, t, 0, 1) with s and t in the inclusive
+     * range [0, 1] to the texture coordinate that should be used to sample that location from
+     * the texture. The matrix is stored in column-major order so that it may be passed directly
+     * to OpenGL ES via the {@code glLoadMatrixf} or {@code glUniformMatrix4fv} functions.
      *
      * <p>The additional transformation is calculated based on the target rotation, target
      * resolution and the {@link ViewPort} associated with the target {@link UseCase}. The value
-     * could also include workarounds for device specific quirks.
+     * could also include workarounds for device specific bugs. For example, correcting a
+     * stretched camera output stream.
+     *
+     * <p>Code sample:
+     * <pre><code>
+     * float[] transform = new float[16];
+     * float[] updatedTransform = new float[16];
+     *
+     * surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> {
+     *     surfaceTexture.getTransformMatrix(transform);
+     *     outputSurface.updateTransformMatrix(updatedTransform, transform);
+     *     // Use the value of updatedTransform for OpenGL rendering.
+     * });
+     * </code></pre>
      *
      * @param updated  the array into which the 4x4 matrix will be stored. The array must
      *                 have exactly 16 elements.

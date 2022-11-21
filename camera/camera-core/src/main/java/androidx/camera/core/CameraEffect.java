@@ -17,8 +17,6 @@ package androidx.camera.core;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
-import android.os.Build;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,21 +30,49 @@ import java.util.concurrent.Executor;
 /**
  * An effect for one or multiple camera outputs.
  *
- * <p>A {@link CameraEffect} class contains 2 types of information, the processor and the
- * configuration.
+ * <p>This API allows the implementer to inject code into CameraX pipeline and apply visual
+ * effects, such as a portrait effect. The {@link CameraEffect} class contains two types of
+ * information, the processor and the configuration.
  * <ul>
- * <li> The processor is an implementation of either {@link SurfaceProcessor} or
+ * <li>The processor is an implementation of either {@link SurfaceProcessor} or
  * {@link ImageProcessor}. It consumes original camera frames from CameraX, applies the effect,
  * and returns the processed frames back to CameraX.
- * <li> The configuration provides information on how the processor should be injected into the
- * pipeline. For example, the target {@link UseCase}s where the effect should be applied.
+ * <li>The configuration provides information on how the processor should be injected into the
+ * pipeline. For example, the target {@link UseCase}s where the effect should be applied. It may
+ * also contain information about camera configuration. For example, the exposure level.
  * </ul>
  *
- * @hide
+ * <p>If CameraX fails to send frames to the {@link CameraEffect}, the error will be
+ * delivered to the app via error callbacks such as
+ * {@link ImageCapture.OnImageCapturedCallback#onError}. If {@link CameraEffect} fails to
+ * process and return the frames, for example, unable to allocate the resources for image
+ * processing, it must throw {@link Exception} in the processor implementation. The
+ * {@link Exception} will be caught and forwarded to the app via error callbacks. Please see the
+ * Javadoc of the processor interfaces for details.
+ *
+ * <p>Extend this class to create specific effects. The {@link Executor} provided in the
+ * constructors will be used by CameraX to call the processors.
+ *
+ * <p>Code sample for a portrait effect that targets the {@link Preview} {@link UseCase}:
+ *
+ * <pre><code>
+ * class PortraitPreviewEffect extends CameraEffect {
+ *     PortraitPreviewEffect() {
+ *         super(PREVIEW, getExecutor(), getSurfaceProcessor());
+ *     }
+ *
+ *     private static Executor getExecutor() {
+ *         // Returns an executor for calling the SurfaceProcessor
+ *     }
+ *
+ *     private static SurfaceProcessor getSurfaceProcessor() {
+ *         // Return a SurfaceProcessor implementation that applies a portrait effect.
+ *     }
+ * }
+ * </code></pre>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class CameraEffect {
+@RequiresApi(21)
+public abstract class CameraEffect {
 
     /**
      * Bitmask options for the effect targets.
@@ -54,8 +80,8 @@ public class CameraEffect {
      * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(flag = true, value = {PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = {PREVIEW, IMAGE_CAPTURE})
     public @interface Targets {
     }
 
@@ -66,7 +92,10 @@ public class CameraEffect {
 
     /**
      * Bitmask option to indicate that CameraX should apply this effect to {@code VideoCapture}.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int VIDEO_CAPTURE = 1 << 1;
 
     /**
@@ -93,7 +122,9 @@ public class CameraEffect {
      * @param imageProcessor a {@link ImageProcessor} implementation. Once the effect is active,
      *                       CameraX will send frames to the {@link ImageProcessor} on the
      *                       {@param executor}, and deliver the processed frames to the app.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected CameraEffect(
             @Targets int targets,
             @NonNull Executor executor,
@@ -141,7 +172,7 @@ public class CameraEffect {
     /**
      * Gets the {@link Executor} associated with this effect.
      *
-     * <p>This method returns the value set in {@link CameraEffect}'s constructor.
+     * <p>This method returns the value set in the constructor.
      */
     @NonNull
     public Executor getExecutor() {
@@ -158,8 +189,11 @@ public class CameraEffect {
 
     /**
      * Gets the {@link ImageProcessor} associated with this effect.
+     *
+     * @hide
      */
     @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ImageProcessor getImageProcessor() {
         return mImageProcessor;
     }

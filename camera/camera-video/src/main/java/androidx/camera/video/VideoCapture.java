@@ -45,6 +45,7 @@ import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideo
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
@@ -491,6 +492,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return null;
     }
 
+    @SuppressLint("WrongConstant")
     @MainThread
     @NonNull
     private SessionConfig.Builder createPipeline(@NonNull String cameraId,

@@ -35,6 +35,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
+import androidx.camera.core.ProcessingException;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -58,6 +60,8 @@ import androidx.core.util.Preconditions;
 // TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
 public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
+
+    private static final String TAG = "SurfaceProcessorNode";
 
     @NonNull
     final SurfaceProcessorInternal mSurfaceProcessor;
@@ -153,8 +157,12 @@ public class SurfaceProcessorNode implements Node<SurfaceEdge, SurfaceEdge> {
                     @Override
                     public void onSuccess(@Nullable SurfaceOutput surfaceOutput) {
                         Preconditions.checkNotNull(surfaceOutput);
-                        mSurfaceProcessor.onOutputSurface(surfaceOutput);
-                        mSurfaceProcessor.onInputSurface(surfaceRequest);
+                        try {
+                            mSurfaceProcessor.onOutputSurface(surfaceOutput);
+                            mSurfaceProcessor.onInputSurface(surfaceRequest);
+                        } catch (ProcessingException e) {
+                            Logger.e(TAG, "Failed to setup SurfaceProcessor input.", e);
+                        }
                     }
 
                     @Override
