@@ -184,6 +184,14 @@ class EGLExt private constructor() {
         const val EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base"
 
         /**
+         * Extension that allows creating an EGLClientBuffer from an Android [HardwareBuffer]
+         * object which can later be used to create an [EGLImageKHR] instance.
+         * See:
+         * https://registry.khronos.org/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
+         */
+        const val EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer"
+
+        /**
          * Extension that defines a new EGL resource type that is suitable for
          * sharing 2D arrays of image data between client APIs, the EGLImage,
          * and allows creating EGLImages from EGL native pixmaps.
