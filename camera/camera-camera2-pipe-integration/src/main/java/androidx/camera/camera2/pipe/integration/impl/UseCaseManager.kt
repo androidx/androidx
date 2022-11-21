@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.media.MediaCodec
+import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
@@ -26,8 +28,9 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
@@ -259,10 +262,14 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        return !attachedUseCases.contains(meteringRepeating) &&
-            runningUseCases.only { it is ImageCapture }
-    }
+        val meteringRepeatingEnabled = attachedUseCases.contains(meteringRepeating)
 
+        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
+        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
+        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
+
+        return !meteringRepeatingEnabled && (onlyVideoCapture || requireMeteringRepeating)
+    }
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
         meteringRepeating.setupSession()
@@ -272,11 +279,13 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun shouldRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        val onlyMeteringRepeatingEnabled = runningUseCases.only { it is MeteringRepeating }
-        val meteringRepeatingAndNonImageCaptureEnabled =
-            runningUseCases.any { it is MeteringRepeating } &&
-                runningUseCases.any { it !is MeteringRepeating && it !is ImageCapture }
-        return onlyMeteringRepeatingEnabled || meteringRepeatingAndNonImageCaptureEnabled
+        val meteringRepeatingEnabled = runningUseCases.contains(meteringRepeating)
+
+        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
+        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
+        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
+
+        return meteringRepeatingEnabled && !onlyVideoCapture && !requireMeteringRepeating
     }
 
     @GuardedBy("lock")
@@ -286,11 +295,31 @@ class UseCaseManager @Inject constructor(
         meteringRepeating.onDetached()
     }
 
-    /**
-     * Returns true when the collection only has elements (1 or more) that verify the predicate,
-     * false otherwise.
-     */
-    private fun <T> Collection<T>.only(predicate: (T) -> Boolean): Boolean {
-        return isNotEmpty() && all(predicate)
+    private fun Collection<UseCase>.onlyVideoCapture(): Boolean {
+        return isNotEmpty() && checkSurfaces { _, sessionSurfaces ->
+            sessionSurfaces.isNotEmpty() && sessionSurfaces.all {
+                it.containerClass == MediaCodec::class.java
+            }
+        }
+    }
+
+    private fun Collection<UseCase>.requireMeteringRepeating(): Boolean {
+        return isNotEmpty() && checkSurfaces { repeatingSurfaces, sessionSurfaces ->
+            // There is no repeating UseCases
+            sessionSurfaces.isNotEmpty() && repeatingSurfaces.isEmpty()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun Collection<UseCase>.checkSurfaces(
+        predicate: (
+            repeatingSurfaces: List<DeferrableSurface>,
+            sessionSurfaces: List<DeferrableSurface>
+        ) -> Boolean
+    ): Boolean = ValidatingBuilder().let { validatingBuilder ->
+        forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }
+        val sessionConfig = validatingBuilder.build()
+        val captureConfig = sessionConfig.repeatingCaptureConfig
+        return predicate(captureConfig.surfaces, sessionConfig.surfaces)
     }
 }
