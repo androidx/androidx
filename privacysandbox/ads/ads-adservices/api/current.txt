@@ -1,4 +1,25 @@
 // Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.adid {
+
+  public final class AdId {
+    method public String getAdId();
+    method public boolean isLimitAdTrackingEnabled();
+    property public final String adId;
+    property public final boolean isLimitAdTrackingEnabled;
+  }
+
+  public abstract class AdIdManager {
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public abstract suspend Object? getAdId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adid.AdId>);
+    method public static final androidx.privacysandbox.ads.adservices.adid.AdIdManager? obtain(android.content.Context context);
+    field public static final androidx.privacysandbox.ads.adservices.adid.AdIdManager.Companion Companion;
+  }
+
+  public static final class AdIdManager.Companion {
+    method public androidx.privacysandbox.ads.adservices.adid.AdIdManager? obtain(android.content.Context context);
+  }
+
+}
+
 package androidx.privacysandbox.ads.adservices.adselection {
 
   public final class AdSelectionConfig {
@@ -44,6 +65,34 @@ package androidx.privacysandbox.ads.adservices.adselection {
     method public long getAdSelectionId();
     property public final androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig;
     property public final long adSelectionId;
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.appsetid {
+
+  public final class AppSetId {
+    ctor public AppSetId(String id, int scope);
+    method public String getId();
+    method public int getScope();
+    property public final String id;
+    property public final int scope;
+    field public static final androidx.privacysandbox.ads.adservices.appsetid.AppSetId.Companion Companion;
+    field public static final int SCOPE_APP = 1; // 0x1
+    field public static final int SCOPE_DEVELOPER = 2; // 0x2
+  }
+
+  public static final class AppSetId.Companion {
+  }
+
+  public abstract class AppSetIdManager {
+    method @DoNotInline public abstract suspend Object? getAppSetId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.appsetid.AppSetId>);
+    method public static final androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager? obtain(android.content.Context context);
+    field public static final androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager.Companion Companion;
+  }
+
+  public static final class AppSetIdManager.Companion {
+    method public androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager? obtain(android.content.Context context);
   }
 
 }
