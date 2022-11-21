@@ -17,7 +17,10 @@
 package androidx.paging.testing
 
 import androidx.paging.DifferCallback
+import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
+import androidx.paging.PagingSource
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -29,18 +32,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 public class SnapshotLoader<Value : Any> internal constructor(
     private val differ: PagingDataDiffer<Value>
 ) {
-    internal val generation = MutableStateFlow(Generation(0))
+    internal val generations = MutableStateFlow(Generation())
 
-    // TODO add public loading APIs such as scrollTo(index)
+    /**
+     * Refresh the data that is presented on the UI.
+     *
+     * [refresh] triggers a new generation of [PagingData] / [PagingSource]
+     * to represent an updated snapshot of the backing dataset.
+     *
+     * This fake paging operation mimics UI-driven refresh signals such as swipe-to-refresh.
+     */
+    public suspend fun refresh(): @JvmSuppressWildcards Unit {
+        differ.awaitNotLoading()
+        differ.refresh()
+    }
 
-    // the callback to be invoked by DifferCallback on a single generation
-    // increase the callbackCount to notify SnapshotLoader that the dataset has updated
+    /**
+     * The callback to be invoked by DifferCallback on a single generation.
+     * Increase the callbackCount to notify SnapshotLoader that the dataset has updated
+     */
     internal fun onDataSetChanged(gen: Generation) {
-        val currGen = generation.value
+        val currGen = generations.value
         // we make sure the generation with the dataset change is still valid because we
         // want to disregard callbacks on stale generations
         if (gen.id == currGen.id) {
-            generation.value = gen.copy(
+            generations.value = gen.copy(
                 callbackCount = currGen.callbackCount + 1
             )
         }
@@ -48,9 +64,11 @@ public class SnapshotLoader<Value : Any> internal constructor(
 }
 
 internal data class Generation(
-    // Id of the current Paging generation. Incremented on each new generation (when a new
-    // PagingData is received).
-    val id: Int,
+    /**
+     * Id of the current Paging generation. Incremented on each new generation (when a new
+     * PagingData is received).
+     */
+    val id: Int = -1,
 
     /**
      * A count of the number of times Paging invokes a [DifferCallback] callback within a single
@@ -59,5 +77,10 @@ internal data class Generation(
      * The callbackCount enables [SnapshotLoader] to await for a requested item and continue
      * loading next item only after a callback is invoked.
      */
-    val callbackCount: Int = 0
+    val callbackCount: Int = 0,
+
+    /**
+     * Tracks the last accessed index on the differ for this generation
+      */
+    var lastAccessedIndex: AtomicInteger = AtomicInteger()
 )
