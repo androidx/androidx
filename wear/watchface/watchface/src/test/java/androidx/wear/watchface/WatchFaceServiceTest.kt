@@ -5801,7 +5801,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun setPendingInitialComplications() {
+    public fun setComplicationDataListMergesCorrectly() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -5829,15 +5829,17 @@ public class WatchFaceServiceTest {
                 .build()
         )
 
-        engineWrapper.setPendingInitialComplications(listOf(left1))
-        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left1)
+        engineWrapper.setComplicationDataList(listOf(left1))
+        // In initEngine we fill initial complication data using
+        // setComplicationViaWallpaperCommand, that's why lastComplications initially is not empty
+        assertThat(engineWrapper.complicationsFlow.value).contains(left1)
 
         // Check merges are working as expected.
-        engineWrapper.setPendingInitialComplications(listOf(right))
-        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left1, right)
+        engineWrapper.setComplicationDataList(listOf(right))
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(left1, right)
 
-        engineWrapper.setPendingInitialComplications(listOf(left2))
-        assertThat(engineWrapper.pendingInitialComplications).containsExactly(left2, right)
+        engineWrapper.setComplicationDataList(listOf(left2))
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(left2, right)
     }
 
     @Test
