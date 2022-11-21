@@ -24,4 +24,10 @@ internal data class AidlTypeSpec(
     val isList: Boolean = false
 ) {
     override fun toString() = innerType.simpleName + if (isList) "[]" else ""
+
+    /** Returns a new type spec representing a list of this type. */
+    fun listSpec(): AidlTypeSpec {
+        require(!isList) { "Nested lists are not supported." }
+        return AidlTypeSpec(innerType, requiresImport, isList = true)
+    }
 }
