@@ -23,6 +23,15 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
+  @RequiresApi(21) public abstract class CameraEffect {
+    ctor protected CameraEffect(int, java.util.concurrent.Executor, androidx.camera.core.SurfaceProcessor);
+    method public java.util.concurrent.Executor getExecutor();
+    method public androidx.camera.core.SurfaceProcessor? getSurfaceProcessor();
+    method public int getTargets();
+    field public static final int IMAGE_CAPTURE = 4; // 0x4
+    field public static final int PREVIEW = 1; // 0x1
+  }
+
   @RequiresApi(21) public interface CameraFilter {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
@@ -362,6 +371,10 @@ package androidx.camera.core {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
   }
 
+  public class ProcessingException extends java.lang.Exception {
+    ctor public ProcessingException();
+  }
+
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
     method public abstract android.graphics.Rect getCropRect();
     method public abstract android.util.Size getResolution();
@@ -371,6 +384,26 @@ package androidx.camera.core {
   @RequiresApi(21) public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public SurfaceOrientedMeteringPointFactory(float, float);
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
+  }
+
+  public interface SurfaceOutput {
+    method public void close();
+    method public android.util.Size getSize();
+    method public android.view.Surface getSurface(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceOutput.Event!>);
+    method public int getTargets();
+    method public void updateTransformMatrix(float[], float[]);
+  }
+
+  @com.google.auto.value.AutoValue public abstract static class SurfaceOutput.Event {
+    ctor public SurfaceOutput.Event();
+    method public abstract int getEventCode();
+    method public abstract androidx.camera.core.SurfaceOutput getSurfaceOutput();
+    field public static final int EVENT_REQUEST_CLOSE = 0; // 0x0
+  }
+
+  public interface SurfaceProcessor {
+    method public void onInputSurface(androidx.camera.core.SurfaceRequest) throws androidx.camera.core.ProcessingException;
+    method public void onOutputSurface(androidx.camera.core.SurfaceOutput) throws androidx.camera.core.ProcessingException;
   }
 
   @RequiresApi(21) public final class SurfaceRequest {
@@ -410,12 +443,14 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public final class UseCaseGroup {
+    method public java.util.List<androidx.camera.core.CameraEffect!> getEffects();
     method public java.util.List<androidx.camera.core.UseCase!> getUseCases();
     method public androidx.camera.core.ViewPort? getViewPort();
   }
 
   public static final class UseCaseGroup.Builder {
     ctor public UseCaseGroup.Builder();
+    method public androidx.camera.core.UseCaseGroup.Builder addEffect(androidx.camera.core.CameraEffect);
     method public androidx.camera.core.UseCaseGroup.Builder addUseCase(androidx.camera.core.UseCase);
     method public androidx.camera.core.UseCaseGroup build();
     method public androidx.camera.core.UseCaseGroup.Builder setViewPort(androidx.camera.core.ViewPort);

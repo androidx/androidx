@@ -26,7 +26,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
@@ -78,10 +77,7 @@ public final class UseCaseGroup {
 
     /**
      * Gets the {@link CameraEffect}s.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public List<CameraEffect> getEffects() {
         return mEffects;
@@ -127,10 +123,7 @@ public final class UseCaseGroup {
          *
          * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of
          * the {@link UseCase}s.
-         *
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public Builder addEffect(@NonNull CameraEffect cameraEffect) {
             mEffects.add(cameraEffect);
