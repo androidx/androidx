@@ -27,7 +27,6 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.VideoCaptureConfig;
 
 import java.util.Collection;
 
@@ -89,15 +88,10 @@ public final class StreamUseCaseUtil {
 
                 }
 
-                if (useCaseConfig instanceof VideoCaptureConfig) {
-                    if (hasImageCapture) {
-                        // If has both image and video capture, return preview video still case.
-                        return CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL;
-                    }
-                    hasVideoCapture = true;
-                    continue;
-
-                }
+                // TODO: Need to handle "hasVideoCapture". The original statement was removed in
+                //  aosp/2299682 because it uses the legacy core.VideoCapture API, which means the
+                //  statement's content will never be run. The new video.VideoCapture API should
+                //  used.
             }
 
             if (hasImageCapture) {
