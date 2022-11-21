@@ -55,6 +55,7 @@ androidx {
 android {
     namespace "androidx.core.uwb"
     defaultConfig {
+        minSdkVersion 33
         multiDexEnabled = true
     }
 }
