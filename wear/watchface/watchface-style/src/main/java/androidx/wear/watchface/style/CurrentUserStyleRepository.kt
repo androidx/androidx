@@ -684,15 +684,20 @@ public class UserStyleSchema constructor(
     }
 
     /**
-     * At most one [UserStyleSetting.ComplicationSlotsUserStyleSetting] can be active at a time
-     * based on the hierarchy of styles for any given [UserStyle]. This function finds the current
-     * active [UserStyleSetting.ComplicationSlotsUserStyleSetting] based upon the [userStyle] and,
-     * if there is one, it returns the corresponding selected [ComplicationSlotsOption]. Otherwise
-     * it returns `null`.
+     * When a UserStyleSchema contains hierarchical styles, only part of it is deemed to be active
+     * based on the user’s options in [userStyle]. Conversely if the UserStyleSchema doesn’t contain
+     * any hierarchical styles then all of it is considered to be active all the time.
+     *
+     * From the active portion of the UserStyleSchema we only allow there to be at most one
+     * [UserStyleSetting.ComplicationSlotsUserStyleSetting]. This function searches the active
+     * portion of the UserStyleSchema for the [UserStyleSetting.ComplicationSlotsUserStyleSetting],
+     * if one is found then it returns the selected [ComplicationSlotsOption] from that, based on
+     * the [userStyle]. If a [UserStyleSetting.ComplicationSlotsUserStyleSetting] is not found in
+     * the active portion of the UserStyleSchema it returns `null`.
      *
      * @param userStyle The [UserStyle] for which the function will search for the selected
      * [ComplicationSlotsOption], if any.
-     * @return The selected [ComplicationSlotsOption] for the [userStyle] if any, or `null`
+     * @return The selected [ComplicationSlotsOption] based on the [userStyle] if any, or `null`
      * otherwise.
      */
     public fun findComplicationSlotsOptionForUserStyle(
