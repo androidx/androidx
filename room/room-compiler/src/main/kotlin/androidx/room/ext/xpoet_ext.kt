@@ -156,7 +156,7 @@ object CommonTypeNames {
 }
 
 object GuavaBaseTypeNames {
-    val OPTIONAL = ClassName.get("com.google.common.base", "Optional")
+    val OPTIONAL = XClassName.get("com.google.common.base", "Optional")
 }
 
 object GuavaUtilConcurrentTypeNames {
