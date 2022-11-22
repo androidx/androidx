@@ -52,7 +52,7 @@ class ValueParserTest {
                     data class MySdkResponse(
                         val magicPayload: MagicPayload, val isTrulyMagic: Boolean)
                     @PrivacySandboxValue
-                    data class MagicPayload(val magicNumber: Long)
+                    data class MagicPayload(val magicList: List<Long>)
                 """
         )
         assertThat(parseSources(source)).isEqualTo(
@@ -92,9 +92,7 @@ class ValueParserTest {
                     ),
                     AnnotatedValue(
                         type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
-                        properties = listOf(
-                            ValueProperty("magicNumber", Types.long),
-                        )
+                        properties = listOf(ValueProperty("magicList", Types.list(Types.long)))
                     ),
                 )
             )
@@ -178,7 +176,7 @@ class ValueParserTest {
         )
         checkSourceFails(dataClass)
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest.foo: only primitives, data classes " +
+                "Error in com.mysdk.MySdkRequest.foo: only primitives, lists, data classes " +
                     "annotated with @PrivacySandboxValue and interfaces annotated with " +
                     "@PrivacySandboxInterface are supported as properties."
             )

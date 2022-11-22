@@ -43,6 +43,7 @@ class InterfaceParserTest {
                     @PrivacySandboxService
                     interface MySdk {
                         suspend fun doStuff(x: Int, y: Int): String
+                        suspend fun processList(list: List<Int>): List<String>
                         fun doMoreStuff()
                     }
                 """,
@@ -65,6 +66,17 @@ class InterfaceParserTest {
                                     )
                                 ),
                                 returnType = Types.string,
+                                isSuspend = true,
+                            ),
+                            Method(
+                                name = "processList",
+                                parameters = listOf(
+                                    Parameter(
+                                        name = "list",
+                                        type = Types.list(Types.int),
+                                    )
+                                ),
+                                returnType = Types.list(Types.string),
                                 isSuspend = true,
                             ), Method(
                                 name = "doMoreStuff",
@@ -220,9 +232,18 @@ class InterfaceParserTest {
     fun parameterWithGenerics_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
-                    "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
-                    "or @PrivacySandboxInterface are supported as parameter types."
+                "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
+                    "with @PrivacySandboxValue and interfaces annotated with " +
+                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
+                    "parameter types."
+            )
+    }
+
+    @Test
+    fun listParameterWithNonInvariantTypeArgument_fails() {
+        checkSourceFails(serviceMethod("suspend fun foo(x: List<in Int>)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only invariant type arguments are supported."
             )
     }
 
@@ -230,9 +251,10 @@ class InterfaceParserTest {
     fun parameterLambda_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
-                    "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback " +
-                    "or @PrivacySandboxInterface are supported as parameter types."
+                "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
+                    "with @PrivacySandboxValue and interfaces annotated with " +
+                    "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
+                    "parameter types."
             )
     }
 
@@ -251,7 +273,7 @@ class InterfaceParserTest {
                 """
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: only primitives, data classes annotated with " +
+            "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated with " +
                 "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
                 "supported as return types."
         )
@@ -361,12 +383,14 @@ class InterfaceParserTest {
                                         name = "request",
                                         type = Type(
                                             packageName = "com.mysdk",
-                                            simpleName = "MyInterface"),
+                                            simpleName = "MyInterface"
+                                        ),
                                     )
                                 ),
                                 returnType = Type(
                                     packageName = "com.mysdk",
-                                    simpleName = "MyInterface"),
+                                    simpleName = "MyInterface"
+                                ),
                                 isSuspend = true,
                             ),
                         )

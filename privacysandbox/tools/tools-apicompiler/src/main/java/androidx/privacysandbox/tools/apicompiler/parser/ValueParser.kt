@@ -25,13 +25,13 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.Nullability
 
-internal class ValueParser(private val logger: KSPLogger) {
+internal class ValueParser(private val logger: KSPLogger, private val typeParser: TypeParser) {
     fun parseValue(value: KSAnnotated): AnnotatedValue? {
         if (value !is KSClassDeclaration ||
             value.classKind != ClassKind.CLASS ||
-            !value.modifiers.contains(Modifier.DATA)) {
+            !value.modifiers.contains(Modifier.DATA)
+        ) {
             logger.error(
                 "Only data classes can be annotated with @PrivacySandboxValue."
             )
@@ -61,7 +61,7 @@ internal class ValueParser(private val logger: KSPLogger) {
         }
 
         return AnnotatedValue(
-            type = Converters.typeFromDeclaration(value),
+            type = typeParser.parseFromDeclaration(value),
             properties = value.getAllProperties().map(::parseProperty).toList()
         )
     }
@@ -71,17 +71,9 @@ internal class ValueParser(private val logger: KSPLogger) {
         if (property.isMutable) {
             logger.error("Error in $name: properties cannot be mutable.")
         }
-        val type = property.type.resolve()
-        if (type.isError) {
-            logger.error("Failed to resolve type for property $name.")
-        }
-        if (type.nullability == Nullability.NULLABLE) {
-            logger.error("Error in $name: nullable types are not supported.")
-        }
-
         return ValueProperty(
             name = property.simpleName.getShortName(),
-            type = Converters.typeFromDeclaration(type.declaration),
+            type = typeParser.parseFromTypeReference(property.type, name),
         )
     }
 }
