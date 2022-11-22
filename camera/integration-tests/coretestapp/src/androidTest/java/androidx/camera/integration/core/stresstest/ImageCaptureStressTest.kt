@@ -273,4 +273,24 @@ class ImageCaptureStressTest(
         val randomDelayDuration = (Random.nextInt(maxDelaySeconds) + 1).toLong()
         delay(TimeUnit.SECONDS.toMillis(randomDelayDuration))
     }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    fun launchActivity_thenTakeMultiplePictures_withoutWaitingPreviousResults() {
+        val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE
+
+        // Launches CameraXActivity and wait for the preview ready.
+        val activityScenario =
+            launchCameraXActivityAndWaitForPreviewReady(cameraId, useCaseCombination)
+
+        with(activityScenario) {
+            use {
+                // Checks whether multiple images can be captured successfully
+                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                    takePictureAndWaitForImageSavedIdle(3)
+                }
+            }
+        }
+    }
 }
