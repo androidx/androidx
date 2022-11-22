@@ -87,7 +87,7 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
-        WatchFaceService.awaitDeferredWatchFaceThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceThenRunOnUiThread(
             engine,
             "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
         ) { WatchFaceOverlayStyleWireFormat(
@@ -190,16 +190,18 @@ internal class InteractiveWatchFaceImpl(
 
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
         val engineCopy = engine
-        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engineCopy,
-            "InteractiveWatchFaceImpl.getComplicationDetails"
+            "InteractiveWatchFaceImpl.getComplicationDetails",
+            WatchFaceService.Companion.ExecutionThread.UI
         ) { it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds) }
     }
 
     override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {
-        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "InteractiveWatchFaceImpl.getUserStyleSchema"
+            "InteractiveWatchFaceImpl.getUserStyleSchema",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
         ) { it.userStyleRepository.schema.toWireFormat() }
     }
 
