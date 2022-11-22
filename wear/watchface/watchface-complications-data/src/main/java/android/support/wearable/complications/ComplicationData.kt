@@ -37,8 +37,8 @@ import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicy
-import androidx.wear.watchface.complications.data.DynamicFloat
-import androidx.wear.watchface.complications.data.toDynamicFloat
+import androidx.wear.watchface.complications.data.FloatExpression
+import androidx.wear.watchface.complications.data.toFloatExpression
 import java.io.IOException
 import java.io.InvalidObjectException
 import java.io.ObjectInputStream
@@ -177,8 +177,8 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 oos.writeFloat(complicationData.rangedValue)
             }
-            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
-                oos.writeNullable(complicationData.rangedDynamicValue) {
+            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
+                oos.writeNullable(complicationData.rangedValueExpression) {
                     oos.writeByteArray(it.asByteArray())
                 }
             }
@@ -317,9 +317,9 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 fields.putFloat(FIELD_VALUE, ois.readFloat())
             }
-            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
+            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
                 ois.readNullable { ois.readByteArray() }?.let {
-                    fields.putByteArray(FIELD_DYNAMIC_VALUE, it)
+                    fields.putByteArray(FIELD_VALUE_EXPRESSION, it)
                 }
             }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
@@ -594,21 +594,21 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a ranged dynamic value. I.e. if
-     * [rangedDynamicValue] can succeed.
+     * Returns true if the ComplicationData contains a ranged value expression. I.e. if
+     * [rangedValueExpression] can succeed.
      */
-    fun hasRangedDynamicValue(): Boolean = isFieldValidForType(FIELD_DYNAMIC_VALUE, type)
+    fun hasRangedValueExpression(): Boolean = isFieldValidForType(FIELD_VALUE_EXPRESSION, type)
 
     /**
-     * Returns the *dynamicValue* field for this complication.
+     * Returns the *valueExpression* field for this complication.
      *
      * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] and
      * [TYPE_GOAL_PROGRESS].
      */
-    val rangedDynamicValue: DynamicFloat?
+    val rangedValueExpression: FloatExpression?
         get() {
-            checkFieldValidForTypeWithoutThrowingException(FIELD_DYNAMIC_VALUE, type)
-            return fields.getByteArray(FIELD_DYNAMIC_VALUE)?.toDynamicFloat()
+            checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_EXPRESSION, type)
+            return fields.getByteArray(FIELD_VALUE_EXPRESSION)?.toFloatExpression()
         }
 
     /**
@@ -1264,15 +1264,15 @@ class ComplicationData : Parcelable, Serializable {
         fun setRangedValue(value: Float?) = apply { putOrRemoveField(FIELD_VALUE, value) }
 
         /**
-         * Sets the *dynamicValue* field. It is evaluated to a value with the same limitations as
+         * Sets the *valueExpression* field. It is evaluated to a value with the same limitations as
          * [setRangedValue].
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setRangedDynamicValue(value: DynamicFloat?) =
-            apply { putOrRemoveField(FIELD_DYNAMIC_VALUE, value?.asByteArray()) }
+        fun setRangedValueExpression(value: FloatExpression?) =
+            apply { putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.asByteArray()) }
 
         /**
          * Sets the *value type* field which provides meta data about the value. This is
@@ -1923,7 +1923,7 @@ class ComplicationData : Parcelable, Serializable {
         private const val FIELD_TIMELINE_ENTRIES = "TIMELINE"
         private const val FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE"
         private const val FIELD_VALUE = "VALUE"
-        private const val FIELD_DYNAMIC_VALUE = "DYNAMIC_VALUE"
+        private const val FIELD_VALUE_EXPRESSION = "VALUE_EXPRESSION"
         private const val FIELD_VALUE_TYPE = "VALUE_TYPE"
 
         // Experimental fields, these are subject to change without notice.
@@ -1991,7 +1991,7 @@ class ComplicationData : Parcelable, Serializable {
             TYPE_EMPTY to setOf(),
             TYPE_SHORT_TEXT to setOf(),
             TYPE_LONG_TEXT to setOf(),
-            TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
+            TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
             TYPE_ICON to setOf(),
             TYPE_SMALL_IMAGE to setOf(),
             TYPE_LARGE_IMAGE to setOf(),
@@ -1999,7 +1999,7 @@ class ComplicationData : Parcelable, Serializable {
             TYPE_NO_DATA to setOf(),
             EXP_TYPE_PROTO_LAYOUT to setOf(),
             EXP_TYPE_LIST to setOf(),
-            TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
+            TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
             TYPE_WEIGHTED_ELEMENTS to setOf(),
         )
 
@@ -2105,7 +2105,7 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                 FIELD_TAP_ACTION,
                 FIELD_VALUE,
-                FIELD_DYNAMIC_VALUE,
+                FIELD_VALUE_EXPRESSION,
                 FIELD_VALUE_TYPE,
                 FIELD_DATA_SOURCE,
                 FIELD_PERSISTENCE_POLICY,
