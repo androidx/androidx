@@ -487,7 +487,7 @@ class TypeAdapterStore private constructor(
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
-        } else if (typeMirror.rawType.typeName == GuavaBaseTypeNames.OPTIONAL) {
+        } else if (typeMirror.rawType.asTypeName() == GuavaBaseTypeNames.OPTIONAL) {
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
             // The Optional adapter will reappend the Optional type.
             val typeArg = typeMirror.typeArguments.first()
