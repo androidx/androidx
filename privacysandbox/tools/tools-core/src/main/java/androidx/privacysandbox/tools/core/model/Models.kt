@@ -41,4 +41,9 @@ object Types {
     val char = Type(packageName = "kotlin", simpleName = "Char")
     val short = Type(packageName = "kotlin", simpleName = "Short")
     val primitiveTypes = setOf(unit, boolean, int, long, float, double, string, char, short)
+    fun list(elementType: Type) = Type(
+        packageName = "kotlin.collections",
+        simpleName = "List",
+        typeParameters = listOf(elementType)
+    )
 }

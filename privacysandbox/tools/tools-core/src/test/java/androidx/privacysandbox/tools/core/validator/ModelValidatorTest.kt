@@ -239,12 +239,45 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitives, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
-                "supported as return types.",
-            "Error in com.mysdk.MySdk.receiveFoo: only primitives, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxCallback or " +
-                "@PrivacySandboxInterface are supported as parameter types."
+            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data classes annotated " +
+                "with @PrivacySandboxValue and interfaces annotated with " +
+                "@PrivacySandboxInterface are supported as return types.",
+            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data classes " +
+                "annotated with @PrivacySandboxValue and interfaces annotated with " +
+                "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as parameter " +
+                "types."
+        )
+    }
+
+    @Test
+    fun nestedList_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    methods = listOf(
+                        Method(
+                            name = "processNestedList",
+                            parameters = listOf(
+                                Parameter(
+                                    name = "foo",
+                                    type = Types.list(Types.list(Types.int))
+                                )
+                            ),
+                            returnType = Types.unit,
+                            isSuspend = true,
+                        ),
+                    ),
+                ),
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.MySdk.processNestedList: only primitives, lists, data classes " +
+                "annotated with @PrivacySandboxValue and interfaces annotated with " +
+                "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
+                "parameter types."
         )
     }
 
@@ -266,7 +299,7 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.bar: only primitives, data classes annotated with " +
+            "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
                 "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface " +
                 "are supported as properties."
         )
@@ -333,8 +366,8 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives, data classes annotated " +
-                "with @PrivacySandboxValue and interfaces annotated with " +
+            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data classes " +
+                "annotated with @PrivacySandboxValue and interfaces annotated with " +
                 "@PrivacySandboxInterface are supported as callback parameter types."
         )
     }
