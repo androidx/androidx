@@ -1278,6 +1278,38 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_immutable_list() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import com.google.common.collect.ImmutableList
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfList(): ImmutableList<MyEntity>
+
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableEntityList(): ImmutableList<MyEntity?>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun queryResultAdapter_map() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
