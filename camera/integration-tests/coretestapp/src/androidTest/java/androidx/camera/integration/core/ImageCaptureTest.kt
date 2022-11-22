@@ -1197,10 +1197,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageCapture.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
     }
 
-    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices whose
-    // API level is at least 29.
     @Test
-    @SdkSuppress(minSdkVersion = 29)
     fun returnJpegImage_whenSoftwareJpegIsEnabled() = runBlocking {
         val builder = ImageCapture.Builder()
 
@@ -1234,7 +1231,61 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 26)
+    fun canSaveJpegFileWithRotation_whenSoftwareJpegIsEnabled() = runBlocking {
+        val builder = ImageCapture.Builder()
+
+        // Enables software Jpeg
+        builder.mutableConfig.insertOption(
+            ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER,
+            true
+        )
+        val useCase = builder.build()
+        var camera: Camera
+        withContext(Dispatchers.Main) {
+            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        val saveLocation = File.createTempFile("test", ".jpg")
+        saveLocation.deleteOnExit()
+        val callback = FakeImageSavedCallback(capturesCount = 1)
+        useCase.takePicture(
+            ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+            mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured and saved.
+        callback.awaitCapturesAndAssert(savedImagesCount = 1)
+
+        // For YUV to JPEG case, the rotation will only be in Exif.
+        val exif = Exif.createFromFile(saveLocation)
+        assertThat(exif.rotation).isEqualTo(
+            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation))
+    }
+
+    @Test
+    fun returnYuvImage_withYuvBufferFormat() = runBlocking {
+        val builder = ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888)
+        val useCase = builder.build()
+        var camera: Camera
+        withContext(Dispatchers.Main) {
+            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        useCase.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+
+        val imageProperties = callback.results.first()
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.rotationDegrees).isEqualTo(
+            camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation)
+        )
+        // Check the output format is correct.
+        assertThat(imageProperties.format).isEqualTo(ImageFormat.YUV_420_888)
+    }
+
+    @Test
     fun returnYuvImage_whenSoftwareJpegIsEnabledWithYuvBufferFormat() = runBlocking {
         val builder = ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888)
 
@@ -1268,7 +1319,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
-    fun returnJpegImage_whenSessionProcessorIsSet_outputFormantYuv() = runBlocking {
+    fun returnJpegImage_whenSessionProcessorIsSet() = runBlocking {
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
             inputFormatPreview = null, // null means using the same output surface
@@ -1306,7 +1357,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
-    fun returnJpegImage_whenSessionProcessorIsSet_outputFormantJpeg() = runBlocking {
+    fun returnJpegImage_whenSessionProcessorIsSet_outputFormatJpeg() = runBlocking {
         assumeFalse(
             "Cuttlefish does not correctly handle Jpeg exif. Unable to test.",
             Build.MODEL.contains("Cuttlefish")

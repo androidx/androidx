@@ -21,8 +21,6 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Handler
 import android.os.Looper
-import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.Camera2CameraFactory
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
@@ -38,10 +36,8 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraThreadConfig
-import androidx.camera.core.impl.CaptureProcessor
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
-import androidx.camera.core.impl.ImageProxyBundle
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SurfaceCombination
@@ -370,23 +366,6 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
         fun awaitCapturesAndAssert(timeout: Long = CAPTURE_TIMEOUT) {
             assertThat(latch.await(timeout, TimeUnit.MILLISECONDS)).isTrue()
-        }
-    }
-
-    private class FakePreviewCaptureProcessor : CaptureProcessor {
-        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            // No-op
-        }
-
-        override fun process(bundle: ImageProxyBundle) {
-            bundle.captureIds.forEach {
-                val image = bundle.getImageProxy(it).get()
-                image.close()
-            }
-        }
-
-        override fun onResolutionUpdate(size: Size) {
-            // No-op
         }
     }
 }

@@ -71,8 +71,6 @@ public final class SurfaceRequest {
 
     @Nullable
     private final Range<Integer> mExpectedFrameRate;
-    private final boolean mRGBA8888Required;
-
     private final CameraInternal mCamera;
 
     // For the camera to retrieve the surface from the user
@@ -114,9 +112,8 @@ public final class SurfaceRequest {
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
-            boolean isRGBA8888Required,
             @NonNull Runnable onInvalidated) {
-        this(resolution, camera, isRGBA8888Required, /*expectedFrameRate=*/null, onInvalidated);
+        this(resolution, camera, /*expectedFrameRate=*/null, onInvalidated);
     }
 
     /**
@@ -129,13 +126,11 @@ public final class SurfaceRequest {
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
-            boolean isRGBA8888Required,
             @Nullable Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
         super();
         mResolution = resolution;
         mCamera = camera;
-        mRGBA8888Required = isRGBA8888Required;
         mExpectedFrameRate = expectedFrameRate;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
@@ -321,17 +316,6 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public CameraInternal getCamera() {
         return mCamera;
-    }
-
-    /**
-     * Returns whether a surface of RGBA_8888 pixel format is required.
-     *
-     * @return true if a surface of RGBA_8888 pixel format is required.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isRGBA8888Required() {
-        return mRGBA8888Required;
     }
 
     /**
