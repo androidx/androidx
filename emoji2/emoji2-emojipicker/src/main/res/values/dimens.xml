@@ -24,4 +24,11 @@
     <dimen name="emoji_picker_header_icon_underline_height">2dp</dimen>
     <dimen name="emoji_picker_header_height">50dp</dimen>
     <dimen name="emoji_picker_header_padding">8dp</dimen>
+    <dimen name="variant_availability_indicator_height">5dp</dimen>
+    <dimen name="variant_availability_indicator_width">5dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_vertical">3dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_start">3dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_padding_end">5dp</dimen>
+    <dimen name="emoji_picker_popup_view_elevation">2dp</dimen>
+    <dimen name="emoji_picker_popup_view_holder_corner_radius">10dp</dimen>
 </resources>

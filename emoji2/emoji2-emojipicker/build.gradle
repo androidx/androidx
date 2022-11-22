@@ -33,6 +33,8 @@ dependencies {
     implementation 'androidx.tracing:tracing-ktx:1.0.0'
     implementation 'androidx.test.ext:junit-ktx:1.1.3'
 
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
