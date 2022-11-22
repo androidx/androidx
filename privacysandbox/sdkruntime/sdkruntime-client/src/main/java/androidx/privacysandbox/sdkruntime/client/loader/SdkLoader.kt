@@ -16,17 +16,13 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkV1
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 
 /**
  * Load SDK bundled with App.
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SdkLoader internal constructor(
     private val classLoaderFactory: ClassLoaderFactory,
     private val appContext: Context
@@ -40,23 +36,25 @@ internal class SdkLoader internal constructor(
      * Loading SDK in separate classloader:
      *  1. Create classloader for sdk;
      *  2. Performing handshake to determine api version;
-     *  3. Select [LocalSdk] implementation that could work with that api version.
+     *  3. (optional) Update RPackage.packageId to support Android Resource remapping for SDK
+     *  4. Select [LocalSdk] implementation that could work with that api version.
      *
      * @param sdkConfig sdk to load
      * @return LocalSdk implementation for loaded SDK
      */
     fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdk {
         val classLoader = classLoaderFactory.loadSdk(sdkConfig, getParentClassLoader())
-        return createLocalSdk(classLoader, sdkConfig.entryPoint)
+        return createLocalSdk(classLoader, sdkConfig)
     }
 
     private fun getParentClassLoader(): ClassLoader = appContext.classLoader.parent!!
 
-    private fun createLocalSdk(classLoader: ClassLoader?, sdkProviderClassName: String): LocalSdk {
+    private fun createLocalSdk(classLoader: ClassLoader, sdkConfig: LocalSdkConfig): LocalSdk {
         try {
             val apiVersion = VersionHandshake.perform(classLoader)
+            ResourceRemapping.apply(classLoader, sdkConfig.resourceRemapping)
             if (apiVersion >= 1) {
-                return SdkV1.create(classLoader, sdkProviderClassName, appContext)
+                return SdkV1.create(classLoader, sdkConfig.entryPoint, appContext)
             }
         } catch (ex: Exception) {
             throw LoadSdkCompatException(

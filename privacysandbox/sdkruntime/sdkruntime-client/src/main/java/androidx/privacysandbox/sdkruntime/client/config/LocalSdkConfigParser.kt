@@ -16,7 +16,6 @@
 package androidx.privacysandbox.sdkruntime.client.config
 
 import android.util.Xml
-import androidx.annotation.RestrictTo
 import java.io.InputStream
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParser.END_TAG
@@ -32,11 +31,12 @@ import org.xmlpull.v1.XmlPullParserException
  *     <dex-path>RuntimeEnabledSdk-sdk.package.name/dex/classes2.dex</dex-path>
  *     <java-resources-root-path>RuntimeEnabledSdk-sdk.package.name/res</java-resources-root-path>
  *     <compat-entrypoint>com.sdk.EntryPointClass</compat-entrypoint>
+ *     <resource-id-remapping>
+ *         <r-package-class>com.test.sdk.RPackage</r-package-class>
+ *         <resources-package-id>123</resources-package-id>
+ *     </resource-id-remapping>
  * </compat-config>
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class LocalSdkConfigParser private constructor(
     private val xmlParser: XmlPullParser
 ) {
@@ -48,6 +48,7 @@ internal class LocalSdkConfigParser private constructor(
         val dexPaths = mutableListOf<String>()
         var javaResourcesRoot: String? = null
         var entryPoint: String? = null
+        var resourceRemapping: ResourceRemappingConfig? = null
 
         xmlParser.require(START_TAG, NAMESPACE, CONFIG_ELEMENT_NAME)
         while (xmlParser.next() != END_TAG) {
@@ -78,6 +79,15 @@ internal class LocalSdkConfigParser private constructor(
                     entryPoint = xmlParser.nextText()
                 }
 
+                RESOURCE_REMAPPING_ENTRY_ELEMENT_NAME -> {
+                    if (resourceRemapping != null) {
+                        throw XmlPullParserException(
+                            "Duplicate $RESOURCE_REMAPPING_ENTRY_ELEMENT_NAME tag found"
+                        )
+                    }
+                    resourceRemapping = readResourceRemappingConfig()
+                }
+
                 else -> xmlParser.skipCurrentTag()
             }
         }
@@ -90,7 +100,54 @@ internal class LocalSdkConfigParser private constructor(
             throw XmlPullParserException("No $DEX_PATH_ELEMENT_NAME tags found")
         }
 
-        return LocalSdkConfig(dexPaths, javaResourcesRoot, entryPoint)
+        return LocalSdkConfig(dexPaths, entryPoint, javaResourcesRoot, resourceRemapping)
+    }
+
+    private fun readResourceRemappingConfig(): ResourceRemappingConfig {
+        var rPackageClassName: String? = null
+        var packageId: Int? = null
+
+        xmlParser.require(START_TAG, NAMESPACE, RESOURCE_REMAPPING_ENTRY_ELEMENT_NAME)
+        while (xmlParser.next() != END_TAG) {
+            if (xmlParser.eventType != START_TAG) {
+                continue
+            }
+            when (xmlParser.name) {
+                RESOURCE_REMAPPING_CLASS_ELEMENT_NAME -> {
+                    if (rPackageClassName != null) {
+                        throw XmlPullParserException(
+                            "Duplicate $RESOURCE_REMAPPING_CLASS_ELEMENT_NAME tag found"
+                        )
+                    }
+                    rPackageClassName = xmlParser.nextText()
+                }
+
+                RESOURCE_REMAPPING_ID_ELEMENT_NAME -> {
+                    if (packageId != null) {
+                        throw XmlPullParserException(
+                            "Duplicate $RESOURCE_REMAPPING_ID_ELEMENT_NAME tag found"
+                        )
+                    }
+                    packageId = xmlParser.nextText().toInt()
+                }
+
+                else -> xmlParser.skipCurrentTag()
+            }
+        }
+        xmlParser.require(END_TAG, NAMESPACE, RESOURCE_REMAPPING_ENTRY_ELEMENT_NAME)
+
+        if (rPackageClassName == null) {
+            throw XmlPullParserException(
+                "No $RESOURCE_REMAPPING_CLASS_ELEMENT_NAME tag found"
+            )
+        }
+        if (packageId == null) {
+            throw XmlPullParserException(
+                "No $RESOURCE_REMAPPING_ID_ELEMENT_NAME tag found"
+            )
+        }
+
+        return ResourceRemappingConfig(rPackageClassName, packageId)
     }
 
     companion object {
@@ -99,6 +156,9 @@ internal class LocalSdkConfigParser private constructor(
         private const val DEX_PATH_ELEMENT_NAME = "dex-path"
         private const val RESOURCE_ROOT_ELEMENT_NAME = "java-resources-root-path"
         private const val ENTRYPOINT_ELEMENT_NAME = "compat-entrypoint"
+        private const val RESOURCE_REMAPPING_ENTRY_ELEMENT_NAME = "resource-id-remapping"
+        private const val RESOURCE_REMAPPING_CLASS_ELEMENT_NAME = "r-package-class"
+        private const val RESOURCE_REMAPPING_ID_ELEMENT_NAME = "resources-package-id"
 
         fun parse(inputStream: InputStream): LocalSdkConfig {
             val parser = Xml.newPullParser()

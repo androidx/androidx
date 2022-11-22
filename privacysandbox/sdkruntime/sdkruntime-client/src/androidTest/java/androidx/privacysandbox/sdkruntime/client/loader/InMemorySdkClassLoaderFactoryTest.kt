@@ -41,9 +41,9 @@ class InMemorySdkClassLoaderFactoryTest {
             ApplicationProvider.getApplicationContext()
         )
         testSdkInfo = LocalSdkConfig(
-            listOf("RuntimeEnabledSdks/V1/classes.dex"),
-            "RuntimeEnabledSdks/V1/",
-            "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider"
+            dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
+            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
+            javaResourcesRoot = "RuntimeEnabledSdks/V1/"
         )
     }
 
