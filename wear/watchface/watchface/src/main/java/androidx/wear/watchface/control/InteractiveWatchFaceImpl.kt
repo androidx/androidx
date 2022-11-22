@@ -189,10 +189,11 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
+        val engineCopy = engine
         return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
-            engine,
+            engineCopy,
             "InteractiveWatchFaceImpl.getComplicationDetails"
-        ) { it.complicationSlotsManager.getComplicationsState(it.surfaceHolder.surfaceFrame) }
+        ) { it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds) }
     }
 
     override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {

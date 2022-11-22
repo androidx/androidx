@@ -1137,8 +1137,7 @@ public abstract class WatchFaceService : WallpaperService() {
     internal class EarlyInitDetails(
         val complicationSlotsManager: ComplicationSlotsManager,
         val userStyleRepository: CurrentUserStyleRepository,
-        val userStyleFlavors: UserStyleFlavors,
-        val surfaceHolder: SurfaceHolder
+        val userStyleFlavors: UserStyleFlavors
     )
 
     /** @hide */
@@ -1182,7 +1181,7 @@ public abstract class WatchFaceService : WallpaperService() {
          * [deferredSurfaceHolder] will complete after [onSurfaceChanged], before then it's not
          * safe to create a UiThread OpenGL context.
          */
-        internal var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
+        private var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible || forceIsVisibleForTesting()
@@ -2028,6 +2027,15 @@ public abstract class WatchFaceService : WallpaperService() {
             asyncWatchFaceConstructionPending = true
             createdBy = _createdBy
 
+            // In case of overrideSurfaceHolder provided (tests) return its size instead of real
+            // metrics.
+            screenBounds = if (overrideSurfaceHolder != null) {
+                overrideSurfaceHolder.surfaceFrame
+            } else {
+                val displayMetrics = resources.displayMetrics
+                Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
+            }
+
             backgroundThreadCoroutineScope.launch {
                 val timeBefore = System.currentTimeMillis()
                 val currentUserStyleRepository =
@@ -2049,6 +2057,14 @@ public abstract class WatchFaceService : WallpaperService() {
                         createUserStyleFlavors(currentUserStyleRepository, complicationSlotsManager)
                     }
 
+                deferredEarlyInitDetails.complete(
+                    EarlyInitDetails(
+                        complicationSlotsManager,
+                        currentUserStyleRepository,
+                        userStyleFlavors
+                    )
+                )
+
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
                 val initComplicationsDone = CompletableDeferred<Unit>()
 
@@ -2067,14 +2083,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 try {
                     val surfaceHolder = overrideSurfaceHolder ?: deferredSurfaceHolder.await()
-                    deferredEarlyInitDetails.complete(
-                        EarlyInitDetails(
-                            complicationSlotsManager,
-                            currentUserStyleRepository,
-                            userStyleFlavors,
-                            surfaceHolder
-                        )
-                    )
 
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
@@ -2658,6 +2666,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
         }
+
+        internal lateinit var screenBounds: Rect
+            private set
 
         @UiThread
         internal fun dump(writer: IndentingPrintWriter) {
