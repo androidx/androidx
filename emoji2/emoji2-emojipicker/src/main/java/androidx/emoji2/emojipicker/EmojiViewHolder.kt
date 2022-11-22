@@ -24,6 +24,7 @@ import android.view.View.OnLongClickListener
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.view.accessibility.AccessibilityEvent
 import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -38,6 +39,7 @@ internal class EmojiViewHolder(
     layoutInflater: LayoutInflater,
     width: Int,
     height: Int,
+    stickyVariantProvider: StickyVariantProvider,
     onEmojiPickedListener: Consumer<EmojiViewItem>?,
     onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
 ) : ViewHolder(
@@ -72,13 +74,22 @@ internal class EmojiViewHolder(
                     setOnClickListener {
                         onEmojiPickedFromPopupListener(this@EmojiViewHolder, v)
                         onEmojiClickListener.onClick(it)
+                        // variants[0] is always the base (i.e., primary) emoji
+                        stickyVariantProvider.update(variants[0], v)
                         popupWindow.dismiss()
+                        // Hover on the base emoji after popup dismissed
+                        emojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
                     }
                 }.also {
                     popupView.addView(it)
                     it.layoutParams.width = emojiView.measuredWidth
                     it.layoutParams.height = emojiView.measuredHeight
                 }
+        }
+        popupView.post {
+            // Hover on the first emoji in the popup
+            (popupView.getChildAt(0) as FrameLayout).getChildAt(0)
+                .sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
         }
         true
     }

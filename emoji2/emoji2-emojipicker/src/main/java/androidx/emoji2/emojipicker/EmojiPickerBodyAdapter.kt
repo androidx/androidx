@@ -36,6 +36,7 @@ internal class EmojiPickerBodyAdapter(
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
     private val categoryNames: Array<String>,
+    private val stickyVariantProvider: StickyVariantProvider,
     private val onEmojiPickedListener: Consumer<EmojiViewItem>?
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
@@ -80,21 +81,17 @@ internal class EmojiPickerBodyAdapter(
                 }
 
                 EmojiViewData.TYPE -> {
-                    val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit =
-                        { emoji ->
-                            val position = this.bindingAdapterPosition
-                            flattenSource[position].apply {
-                                (this as EmojiViewData).primary = emoji
-                            }
-                            notifyItemChanged(position)
-                        }
                     return EmojiViewHolder(
                         parent,
                         layoutInflater,
                         getParentWidth(parent) / emojiGridColumns,
                         (parent.measuredHeight / emojiGridRows).toInt(),
+                        stickyVariantProvider,
                         onEmojiPickedListener,
-                        onEmojiPickedFromPopupListener
+                        onEmojiPickedFromPopupListener = { emoji ->
+                            (flattenSource[bindingAdapterPosition] as EmojiViewData).primary = emoji
+                            notifyItemChanged(bindingAdapterPosition)
+                        }
                     )
                 }
 

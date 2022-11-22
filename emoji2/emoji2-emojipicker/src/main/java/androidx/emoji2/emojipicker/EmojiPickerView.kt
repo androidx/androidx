@@ -61,6 +61,8 @@ class EmojiPickerView @JvmOverloads constructor(
             field = if (value > 0) value else EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         }
 
+    private val stickyVariantProvider = StickyVariantProvider(context)
+
     private lateinit var headerView: RecyclerView
     private lateinit var bodyView: RecyclerView
     private var onEmojiPickedListener: Consumer<EmojiViewItem>? = null
@@ -102,7 +104,11 @@ class EmojiPickerView @JvmOverloads constructor(
         for (i in categorizedEmojiData.indices) {
             categoryNames.add(categorizedEmojiData[i].categoryName)
             categorizedEmojis.add(
-                categorizedEmojiData[i].emojiDataList.toMutableList()
+                categorizedEmojiData[i].emojiDataList.map {
+                    stickyVariantProvider.stickyVariantMap[it.emoji]?.let { stickyVariant ->
+                        EmojiViewItem(stickyVariant, it.variants)
+                    } ?: it
+                }.toMutableList()
             )
         }
         val adapter = EmojiPickerBodyAdapter(
@@ -110,6 +116,7 @@ class EmojiPickerView @JvmOverloads constructor(
             emojiGridColumns,
             emojiGridRows,
             categoryNames.toTypedArray(),
+            stickyVariantProvider,
             onEmojiPickedListener
         )
         adapter.updateEmojis(createEmojiViewData(categorizedEmojis))
@@ -152,7 +159,7 @@ class EmojiPickerView @JvmOverloads constructor(
             LinearLayoutManager(
                 context,
                 LinearLayoutManager.HORIZONTAL,
-                /* reverseLayout= */ false
+                /* reverseLayout = */ false
             )
         headerView.adapter = EmojiPickerHeaderAdapter(context)
 
