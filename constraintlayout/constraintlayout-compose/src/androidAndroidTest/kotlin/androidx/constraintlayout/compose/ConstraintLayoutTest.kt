@@ -424,7 +424,7 @@ class ConstraintLayoutTest {
         val boxSize = 100
         val offset = 150
 
-        val position = Array(3) { Ref<Offset>() }
+        val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
 
         rule.setContent {
             ConstraintLayout(
@@ -441,7 +441,7 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[0].value = it.positionInRoot()
+                            position[0] = it.positionInRoot().round()
                         }
                 )
                 val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
@@ -453,7 +453,7 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[1].value = it.positionInRoot()
+                            position[1] = it.positionInRoot().round()
                         }
                 )
                 Box(
@@ -464,7 +464,7 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[2].value = it.positionInRoot()
+                            position[2] = it.positionInRoot().round()
                         }
                 )
             }
@@ -476,24 +476,24 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             assertEquals(
                 Offset(
-                    ((displayWidth - boxSize) / 2).toFloat(),
-                    ((displayHeight - boxSize) / 2).toFloat()
-                ),
-                position[0].value
+                    ((displayWidth - boxSize) / 2f),
+                    ((displayHeight - boxSize) / 2f)
+                ).round(),
+                position[0]
             )
             assertEquals(
                 Offset(
-                    (displayWidth / 2 + offset).toFloat(),
-                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
-                ),
-                position[1].value
+                    (displayWidth / 2f + offset),
+                    ((displayHeight - boxSize) / 2f - boxSize)
+                ).round(),
+                position[1]
             )
             assertEquals(
-                Offset(
-                    offset.toFloat(),
-                    (displayHeight - boxSize - offset).toFloat()
+                IntOffset(
+                    offset,
+                    (displayHeight - boxSize - offset)
                 ),
-                position[2].value
+                position[2]
             )
         }
     }
@@ -504,7 +504,7 @@ class ConstraintLayoutTest {
         val boxSize = 100
         val offset = 150
 
-        val position = Array(3) { Ref<Offset>() }
+        val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
 
         rule.setContent {
             ConstraintLayout(
@@ -540,7 +540,7 @@ class ConstraintLayoutTest {
                             .layoutId("box$i")
                             .size(boxSize.toDp(), boxSize.toDp())
                             .onGloballyPositioned {
-                                position[i].value = it.positionInRoot()
+                                position[i] = it.positionInRoot().round()
                             }
                     )
                 }
@@ -555,22 +555,22 @@ class ConstraintLayoutTest {
                 Offset(
                     (displayWidth - boxSize) / 2f,
                     (displayHeight - boxSize) / 2f
-                ),
-                position[0].value
+                ).round(),
+                position[0]
             )
             assertEquals(
                 Offset(
                     (displayWidth / 2f + offset),
-                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
-                ),
-                position[1].value
+                    ((displayHeight - boxSize) / 2f - boxSize)
+                ).round(),
+                position[1]
             )
             assertEquals(
-                Offset(
-                    offset.toFloat(),
-                    (displayHeight - boxSize - offset).toFloat()
+                IntOffset(
+                    offset,
+                    (displayHeight - boxSize - offset)
                 ),
-                position[2].value
+                position[2]
             )
         }
     }
