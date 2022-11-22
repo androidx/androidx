@@ -350,10 +350,20 @@ public abstract class WatchFaceService : WallpaperService() {
         public val XML_WATCH_FACE_METADATA =
             "androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
 
-        internal fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            engine: WatchFaceService.EngineWrapper?,
+        internal enum class ExecutionThread {
+            UI,
+            CURRENT
+        }
+        /**
+         * Waits for deferredValue using runBlocking, then executes the task on the thread
+         * specified by executionThread param.
+         */
+        private fun <R, V> awaitDeferredThenRunTaskOnThread(
+            engine: EngineWrapper?,
             traceName: String,
-            task: (watchFaceImpl: WatchFaceImpl) -> R
+            executionThread: ExecutionThread,
+            task: (deferredValue: V) -> R,
+            waitDeferred: suspend (engine: EngineWrapper) -> V
         ): R? = TraceEvent(traceName).use {
             if (engine == null) {
                 Log.w(TAG, "Task $traceName posted after close(), ignoring.")
@@ -362,9 +372,16 @@ public abstract class WatchFaceService : WallpaperService() {
             runBlocking {
                 try {
                     withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        val watchFaceImpl = engine.deferredWatchFaceImpl.await()
-                        withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                            task(watchFaceImpl)
+                        val deferredValue = waitDeferred(engine)
+                        when (executionThread) {
+                            ExecutionThread.UI -> {
+                                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                                    task(deferredValue)
+                                }
+                            }
+                            ExecutionThread.CURRENT -> {
+                                task(deferredValue)
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -374,29 +391,24 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        internal fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine: EngineWrapper?,
+            traceName: String,
+            task: (watchFaceImpl: WatchFaceImpl) -> R
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, ExecutionThread.UI, task) {
+            it.deferredWatchFaceImpl.await()
+        }
+
         /**
          * During startup tasks will run before those posted by
          * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking].
          */
-        internal fun <R> awaitDeferredWatchFaceThenRunOnBinderThread(
-            engine: WatchFaceService.EngineWrapper?,
+        internal fun <R> awaitDeferredWatchFaceThenRunOnUiThread(
+            engine: EngineWrapper?,
             traceName: String,
             task: (watchFace: WatchFace) -> R
-        ): R? = TraceEvent(traceName).use {
-            if (engine == null) {
-                Log.w(TAG, "Task $traceName posted after close(), ignoring.")
-                return null
-            }
-            runBlocking {
-                try {
-                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        task(engine.deferredWatchFace.await())
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Operation $traceName failed", e)
-                    throw e
-                }
-            }
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, ExecutionThread.UI, task) {
+            it.deferredWatchFace.await()
         }
 
         /**
@@ -404,25 +416,13 @@ public abstract class WatchFaceService : WallpaperService() {
          * [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
          * [awaitDeferredWatchFaceThenRunOnBinderThread].
          */
-        internal fun <R> awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
-            engine: WatchFaceService.EngineWrapper?,
+        internal fun <R> awaitDeferredEarlyInitDetailsThenRunOnThread(
+            engine: EngineWrapper?,
             traceName: String,
+            executionThread: ExecutionThread,
             task: (earlyInitDetails: EarlyInitDetails) -> R
-        ): R? = TraceEvent(traceName).use {
-            if (engine == null) {
-                Log.w(TAG, "Task $traceName ignored due to null engine.")
-                return null
-            }
-            runBlocking {
-                try {
-                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
-                        task(engine.deferredEarlyInitDetails.await())
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Operation $traceName failed", e)
-                    throw e
-                }
-            }
+        ): R? = awaitDeferredThenRunTaskOnThread(engine, traceName, executionThread, task) {
+            it.deferredEarlyInitDetails.await()
         }
     }
 

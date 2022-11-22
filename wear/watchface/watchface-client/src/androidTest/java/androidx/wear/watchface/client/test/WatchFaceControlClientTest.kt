@@ -39,7 +39,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
@@ -240,30 +239,6 @@ abstract class WatchFaceControlClientTestBase {
             throw TimeoutException("Timeout waiting for thing!")
         }
         return value!!
-    }
-
-    /**
-     * Updates the complications for [interactiveInstance] and waits until they have been applied.
-     */
-    protected fun updateComplicationsBlocking(
-        interactiveInstance: InteractiveWatchFaceClient,
-        slotIdToComplicationData: Map<Int, ComplicationData>
-    ) {
-        val slotIdToWatchForUpdates = slotIdToComplicationData.keys.first()
-        var slot: ComplicationSlot
-
-        runBlocking {
-            slot = engine.deferredWatchFaceImpl.await()
-                .complicationSlotsManager.complicationSlots[slotIdToWatchForUpdates]!!
-        }
-
-        val updateCountDownLatch = CountDownLatch(1)
-        handlerCoroutineScope.launch {
-            slot.complicationData.collect { updateCountDownLatch.countDown() }
-        }
-
-        interactiveInstance.updateComplicationData(slotIdToComplicationData)
-        assertTrue(updateCountDownLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
     }
 
     protected fun tapOnComplication(
@@ -471,8 +446,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     fun updateComplicationData() {
         val interactiveInstance = getOrCreateTestSubject()
 
-        updateComplicationsBlocking(
-            interactiveInstance,
+        interactiveInstance.updateComplicationData(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     rangedValueComplicationBuilder().build(),
@@ -1132,8 +1106,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
             surfaceHolder
         )
         val interactiveInstance = getOrCreateTestSubject(wallpaperService)
-        updateComplicationsBlocking(
-            interactiveInstance,
+        interactiveInstance.updateComplicationData(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     rangedValueComplicationBuilder()
@@ -1194,8 +1167,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
             )
         )
 
-        updateComplicationsBlocking(
-            interactiveInstance,
+        interactiveInstance.updateComplicationData(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     timelineComplication.toApiComplicationData()

@@ -87,9 +87,10 @@ internal class HeadlessWatchFaceImpl(
 
     override fun getComplicationState() = run {
         val engineCopy = engine
-        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engineCopy,
-            "HeadlessWatchFaceImpl.getComplicationState"
+            "HeadlessWatchFaceImpl.getComplicationState",
+            WatchFaceService.Companion.ExecutionThread.UI
         ) { it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds) }
     }
 
@@ -100,21 +101,24 @@ internal class HeadlessWatchFaceImpl(
         ) { it.renderComplicationToBitmap(params) }
 
     override fun getUserStyleSchema() =
-        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleSchema"
+            "HeadlessWatchFaceImpl.getUserStyleSchema",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
         ) { it.userStyleRepository.schema.toWireFormat() }
 
     override fun computeUserStyleSchemaDigestHash() =
-        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
+            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
         ) { it.userStyleRepository.schema.getDigestHash() }
 
     override fun getUserStyleFlavors() =
-        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleFlavors"
+            "HeadlessWatchFaceImpl.getUserStyleFlavors",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
         ) { it.userStyleFlavors.toWireFormat() }
 
     override fun release() {
