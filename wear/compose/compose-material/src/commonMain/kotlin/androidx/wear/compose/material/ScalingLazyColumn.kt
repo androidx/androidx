@@ -40,7 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import kotlinx.coroutines.flow.first
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -393,7 +392,13 @@ public fun ScalingLazyColumn(
                     .clipToBounds()
                     .verticalNegativePadding(extraPadding)
                     .onGloballyPositioned {
-                        initialized = true
+                        val layoutInfo = state.layoutInfo
+                        if (!initialized &&
+                            layoutInfo is DefaultScalingLazyListLayoutInfo &&
+                            layoutInfo.readyForInitialScroll
+                        ) {
+                            initialized = true
+                        }
                     },
                 horizontalAlignment = horizontalAlignment,
                 contentPadding = combinedPaddingValues,
@@ -428,12 +433,10 @@ public fun ScalingLazyColumn(
             }
             if (initialized) {
                 LaunchedEffect(state) {
-                    snapshotFlow {
-                        (state.layoutInfo as DefaultScalingLazyListLayoutInfo)
-                            .readyForInitialScroll
-                    }.first {
-                        it
-                    }
+                    // TODO(b/254115946) LaunchedEffect is run synchronously under testing,
+                    // which causes compose runtime issues. Work is under way to fix this -
+                    // the workaround for now is to call withFrameNanos{}
+                    withFrameNanos {}
                     state.scrollToInitialItem()
                 }
             }

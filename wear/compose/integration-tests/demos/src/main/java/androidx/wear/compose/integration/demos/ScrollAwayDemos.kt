@@ -61,8 +61,8 @@ fun ScrollAwayLazyColumnDemo() {
 @Composable
 fun ScrollAwayLazyColumnDemo2() {
     LazyColumnCardDemo(
-        offset = -195.dp,
-        itemIndex = 2,
+        offset = -100.dp,
+        itemIndex = 1,
         initialVisibleItemIndex = 2
     )
 }
