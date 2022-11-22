@@ -95,6 +95,10 @@ class EmojiPickerView @JvmOverloads constructor(
     ): EmojiPickerBodyAdapter {
         val categoryNames = mutableListOf<String>()
         val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
+        // add recent category as the first row
+        categoryNames.add(resources.getString(R.string.emoji_category_recent))
+        categorizedEmojis.add(mutableListOf())
+
         for (i in categorizedEmojiData.indices) {
             categoryNames.add(categorizedEmojiData[i].categoryName)
             categorizedEmojis.add(
