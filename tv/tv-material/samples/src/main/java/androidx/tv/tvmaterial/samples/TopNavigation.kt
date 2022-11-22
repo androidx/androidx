@@ -34,6 +34,7 @@ import androidx.tv.material.Tab
 import androidx.tv.material.TabDefaults
 import androidx.tv.material.TabRow
 import androidx.tv.material.TabRowDefaults
+import kotlinx.coroutines.delay
 
 enum class Navigation(val displayName: String, val action: @Composable () -> Unit) {
   LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
@@ -55,7 +56,12 @@ internal fun TopNavigation(
     updateSelectedTab = { selectedTabIndex = it }
   )
 
-  LaunchedEffect(selectedTabIndex) { updateSelectedTab(Navigation.values()[selectedTabIndex]) }
+  LaunchedEffect(selectedTabIndex) {
+    // Only update the tab after 250 milliseconds to avoid loading intermediate tabs while
+    // fast scrolling in the TabRow
+    delay(250)
+    updateSelectedTab(Navigation.values()[selectedTabIndex])
+  }
 }
 
 /**
