@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.credentials.Credential
@@ -64,7 +65,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
      */
     private lateinit var executor: Executor
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
+    @SuppressLint("ClassVerificationFailure")
     override fun invokePlayServices(
         request: GetCredentialRequest,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -77,15 +78,17 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             .beginSignIn(convertedRequest)
             .addOnSuccessListener { result: BeginSignInResult ->
                 try {
-                    startIntentSenderForResult(
-                        result.pendingIntent.intentSender,
-                        REQUEST_CODE_BEGIN_SIGN_IN,
-                        null, /* fillInIntent= */
-                        0, /* flagsMask= */
-                        0, /* flagsValue= */
-                        0, /* extraFlags= */
-                        null /* options= */
-                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        startIntentSenderForResult(
+                            result.pendingIntent.intentSender,
+                            REQUEST_CODE_BEGIN_SIGN_IN,
+                            null, /* fillInIntent= */
+                            0, /* flagsMask= */
+                            0, /* flagsValue= */
+                            0, /* extraFlags= */
+                            null /* options= */
+                        )
+                    }
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e(TAG, "Couldn't start One Tap UI in beginSignIn: " +
                         e.localizedMessage
