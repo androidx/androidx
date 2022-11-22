@@ -32,11 +32,7 @@ class SdkRuntimeLibrarySdkTest {
         val inputSources = loadSourcesFromDirectory(inputTestDataDir)
         val expectedKotlinSources = loadSourcesFromDirectory(outputTestDataDir)
 
-        val result = compileWithPrivacySandboxKspCompiler(
-            inputSources,
-            platformStubs = PlatformStubs.SDK_RUNTIME_LIBRARY,
-            extraProcessorOptions = mapOf("use_sdk_runtime_compat_library" to "true")
-        )
+        val result = compileWithPrivacySandboxKspCompiler(inputSources)
         assertThat(result).succeeds()
 
         val expectedAidlFilepath = listOf(
