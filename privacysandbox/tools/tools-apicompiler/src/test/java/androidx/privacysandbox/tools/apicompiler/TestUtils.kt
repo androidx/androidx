@@ -28,7 +28,7 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationResult
  */
 fun compileWithPrivacySandboxKspCompiler(
     sources: List<Source>,
-    platformStubs: PlatformStubs = PlatformStubs.API_33,
+    platformStubs: PlatformStubs = PlatformStubs.SDK_RUNTIME_LIBRARY,
     extraProcessorOptions: Map<String, String> = mapOf(),
 ): TestCompilationResult {
     val provider = PrivacySandboxKspCompiler.Provider()

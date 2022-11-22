@@ -36,7 +36,7 @@ class PrivacySandboxKspCompiler(
 ) : SymbolProcessor {
     companion object {
         const val AIDL_COMPILER_PATH_OPTIONS_KEY = "aidl_compiler_path"
-        const val USE_COMPAT_LIBRARY_OPTIONS_KEY = "use_sdk_runtime_compat_library"
+        const val SKIP_SDK_RUNTIME_COMPAT_LIBRARY_OPTIONS_KEY = "skip_sdk_runtime_compat_library"
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -56,9 +56,11 @@ class PrivacySandboxKspCompiler(
             return emptyList()
         }
 
-        val target = if (options[USE_COMPAT_LIBRARY_OPTIONS_KEY]?.lowercase() == "true") {
-            SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY
-        } else SandboxApiVersion.API_33
+        val skipCompatLibrary =
+            options[SKIP_SDK_RUNTIME_COMPAT_LIBRARY_OPTIONS_KEY]?.lowercase().toBoolean()
+        val target = if (skipCompatLibrary) {
+            SandboxApiVersion.API_33
+        } else SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY
 
         val parsedApi = ApiParser(resolver, logger).parseApi()
 
