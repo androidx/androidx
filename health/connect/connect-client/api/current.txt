@@ -667,18 +667,6 @@ package androidx.health.connect.client.records {
   public static final class HeightRecord.Companion {
   }
 
-  public final class HipCircumferenceRecord implements androidx.health.connect.client.records.Record {
-    ctor public HipCircumferenceRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Length circumference, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public androidx.health.connect.client.units.Length getCircumference();
-    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.time.Instant getTime();
-    method public java.time.ZoneOffset? getZoneOffset();
-    property public final androidx.health.connect.client.units.Length circumference;
-    property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.time.Instant time;
-    property public java.time.ZoneOffset? zoneOffset;
-  }
-
   public final class HydrationRecord implements androidx.health.connect.client.records.Record {
     ctor public HydrationRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.units.Volume volume, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
@@ -1211,18 +1199,6 @@ package androidx.health.connect.client.records {
   }
 
   public static final class Vo2MaxRecord.Companion {
-  }
-
-  public final class WaistCircumferenceRecord implements androidx.health.connect.client.records.Record {
-    ctor public WaistCircumferenceRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Length circumference, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public androidx.health.connect.client.units.Length getCircumference();
-    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.time.Instant getTime();
-    method public java.time.ZoneOffset? getZoneOffset();
-    property public final androidx.health.connect.client.units.Length circumference;
-    property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.time.Instant time;
-    property public java.time.ZoneOffset? zoneOffset;
   }
 
   public final class WeightRecord implements androidx.health.connect.client.records.Record {

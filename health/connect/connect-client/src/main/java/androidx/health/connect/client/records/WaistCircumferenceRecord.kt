@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.meters
@@ -26,6 +27,7 @@ import java.time.ZoneOffset
  *
  * See [Length] for supported units.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WaistCircumferenceRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
