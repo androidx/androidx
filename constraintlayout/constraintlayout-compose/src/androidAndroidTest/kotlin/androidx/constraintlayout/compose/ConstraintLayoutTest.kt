@@ -136,12 +136,12 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (displaySize.width / 2),
+                (displaySize.width / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (displaySize.width / 2 / 2),
+                (displaySize.width / 2f / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
@@ -197,12 +197,12 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (displaySize.width / 2),
+                (displaySize.width / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (displaySize.width / 2 / 2),
+                (displaySize.width / 2f / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
@@ -258,12 +258,12 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (displaySize.width / 2),
+                (displaySize.width / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (displaySize.width / 2 / 2),
+                (displaySize.width / 2f / 2f).roundToInt(),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
