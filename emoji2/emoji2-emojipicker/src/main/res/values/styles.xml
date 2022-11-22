@@ -40,4 +40,9 @@
         <item name="android:elevation">@dimen/emoji_picker_popup_view_elevation</item>
     </style>
 
+    <style name="VariantPopupAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up_and_fade_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_down_and_fade_out</item>
+    </style>
+
 </resources>

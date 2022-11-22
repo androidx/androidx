@@ -15,7 +15,17 @@
   limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFDDDDDD"/>
-    <corners android:radius="@dimen/emoji_picker_popup_view_holder_corner_radius"/>
-</shape>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true"
+    android:interpolator="@android:anim/decelerate_interpolator">
+    <alpha
+        android:duration="100"
+        android:fromAlpha="0.5" android:toAlpha="1" />
+
+    <scale
+        android:duration="100"
+        android:fromXScale="1.0" android:toXScale="1.0"
+        android:fromYScale="0.0" android:toYScale="1.0"
+        android:pivotX="0%"
+        android:pivotY="100%" />
+</set>
