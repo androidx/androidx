@@ -80,6 +80,7 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
             if (value != null) {
                 post {
                     drawEmoji(value)
+                    contentDescription = value
                     invalidate()
                 }
             }
