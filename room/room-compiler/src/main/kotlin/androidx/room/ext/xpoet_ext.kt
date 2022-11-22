@@ -159,6 +159,15 @@ object GuavaBaseTypeNames {
     val OPTIONAL = XClassName.get("com.google.common.base", "Optional")
 }
 
+object GuavaCollectionTypeNames {
+    val IMMUTABLE_LIST = XClassName.get("com.google.common.collect", "ImmutableList")
+    val IMMUTABLE_LIST_BUILDER = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableList",
+        "Builder"
+    )
+}
+
 object GuavaUtilConcurrentTypeNames {
     val LISTENABLE_FUTURE = ClassName.get("com.google.common.util.concurrent", "ListenableFuture")
 }
