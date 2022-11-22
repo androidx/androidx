@@ -35,11 +35,33 @@ interface MyInterface {
 
 @PrivacySandboxInterface
 interface MySecondInterface {
-    fun doMoreStuff(x: Int)
+    suspend fun doIntStuff(x: List<Int>): List<Int>
+
+    suspend fun doCharStuff(x: List<Char>): List<Char>
+
+    suspend fun doFloatStuff(x: List<Float>): List<Float>
+
+    suspend fun doLongStuff(x: List<Long>): List<Long>
+
+    suspend fun doDoubleStuff(x: List<Double>): List<Double>
+
+    suspend fun doBooleanStuff(x: List<Boolean>): List<Boolean>
+
+    suspend fun doShortStuff(x: List<Short>): List<Short>
+
+    suspend fun doStringStuff(x: List<String>): List<String>
+
+    suspend fun doValueStuff(x: List<Request>): List<Response>
 }
 
 @PrivacySandboxValue
-data class Request(val query: String, val myInterface: MyInterface)
+data class Request(
+    val query: String,
+    val extraValues: List<InnerValue>,
+    val myInterface: MyInterface)
+
+@PrivacySandboxValue
+data class InnerValue(val numbers: List<Int>)
 
 @PrivacySandboxValue
 data class Response(val response: String, val mySecondInterface: MySecondInterface)

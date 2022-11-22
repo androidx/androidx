@@ -21,6 +21,22 @@ public interface TestSandboxSdk {
 
     public fun echoString(input: String): Unit
 
+    public suspend fun processBooleanList(x: List<Boolean>): List<Boolean>
+
+    public suspend fun processCharList(x: List<Char>): List<Char>
+
+    public suspend fun processDoubleList(x: List<Double>): List<Double>
+
+    public suspend fun processFloatList(x: List<Float>): List<Float>
+
+    public suspend fun processIntList(x: List<Int>): List<Int>
+
+    public suspend fun processLongList(x: List<Long>): List<Long>
+
+    public suspend fun processShortList(x: List<Short>): List<Short>
+
+    public suspend fun processStringList(x: List<String>): List<String>
+
     public fun receiveAndReturnNothing(): Unit
 
     public suspend fun receiveAndReturnNothingAsync(): Unit

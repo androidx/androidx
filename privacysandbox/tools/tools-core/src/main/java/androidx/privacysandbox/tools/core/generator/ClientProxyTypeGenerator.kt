@@ -39,10 +39,10 @@ class ClientProxyTypeGenerator(
 
     fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val className = annotatedInterface.clientProxyNameSpec().simpleName
-        val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetSpec()
+        val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
 
         val classSpec = TypeSpec.classBuilder(className).build {
-            addSuperinterface(annotatedInterface.type.poetSpec())
+            addSuperinterface(annotatedInterface.type.poetTypeName())
 
             primaryConstructor(
                 listOf(
@@ -70,7 +70,7 @@ class ClientProxyTypeGenerator(
             addModifiers(KModifier.OVERRIDE)
             addModifiers(KModifier.SUSPEND)
             addParameters(method.parameters.map { it.poetSpec() })
-            returns(method.returnType.poetSpec())
+            returns(method.returnType.poetTypeName())
 
             addCode {
                 addControlFlow("return %M", suspendCancellableCoroutineMethod) {
