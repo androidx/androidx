@@ -353,53 +353,56 @@ public class ScalingLazyListLayoutInfoTest {
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemZeroOddHeightViewportOddHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 51, 199)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 41, false)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemZeroOddHeightViewportEvenHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 50, 199)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 40, false)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemZeroEvenHeightViewportOddHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 51, 200)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 41, true)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemZeroEvenHeightViewportEvenHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 50, 200)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 40, true)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemOneOddHeightViewportOddHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 51, 199)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 41, false)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemOneOddHeightViewportEvenHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 50, 199)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 40, false)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemOneEvenHeightViewportOddHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 51, 200)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 41, true)
     }
 
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemOneEvenHeightViewportEvenHeightItems() {
-        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 50, 200)
+        visibleItemsAreCorrectAfterScrollingPastEndOfItems(1, 40, true)
     }
 
     private fun visibleItemsAreCorrectAfterScrollingPastEndOfItems(
         autoCenterItem: Int,
         localItemSizePx: Int,
-        viewportSizePx: Int
+        viewPortSizeEven: Boolean
     ) {
         lateinit var state: ScalingLazyListState
         lateinit var scope: CoroutineScope
         rule.setContent {
             with(LocalDensity.current) {
+                val viewportSizePx =
+                    (((localItemSizePx * 4 + defaultItemSpacingPx * 3) / 2) * 2) +
+                        if (viewPortSizeEven) 0 else 1
                 scope = rememberCoroutineScope()
                 ScalingLazyColumn(
                     state = rememberScalingLazyListState(
@@ -504,7 +507,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(centerItemIndex).also { state = it },
                 modifier = Modifier.requiredSize(
-                    itemSizeDp * 4
+                    itemSizeDp * 4 + defaultItemSpacingDp * 3
                 ),
             ) {
                 items(6) {
