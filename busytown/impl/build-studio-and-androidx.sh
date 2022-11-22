@@ -108,7 +108,7 @@ function buildAndroidx() {
   else
     RETURN_CODE=1
   fi
-  $SCRIPTS_DIR/impl/parse_profile_htmls.sh
+  $SCRIPTS_DIR/impl/parse_profile_data.sh
 
   # zip build scan
   scanZip="$DIST_DIR/scan.zip"
