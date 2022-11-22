@@ -32,15 +32,13 @@ import androidx.emoji2.emojipicker.EmojiPickerConstants.RECENT_CATEGORY_INDEX
 
 /** RecyclerView adapter for emoji body.  */
 internal class EmojiPickerBodyAdapter(
-    context: Context,
+    private val context: Context,
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
     private val categoryNames: Array<String>,
     private val onEmojiPickedListener: Consumer<EmojiViewItem>?
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-    private val context = context
-
     private var flattenSource: ItemViewDataFlatList
 
     init {
@@ -64,7 +62,7 @@ internal class EmojiPickerBodyAdapter(
                     view = layoutInflater.inflate(
                         R.layout.category_text_view,
                         parent,
-                        /* attachToRoot= */ false
+                        /* attachToRoot = */ false
                     )
                     view.layoutParams =
                         LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -74,7 +72,7 @@ internal class EmojiPickerBodyAdapter(
                     view = layoutInflater.inflate(
                         R.layout.emoji_picker_empty_category_text_view,
                         parent,
-                        /* attachToRoot= */ false
+                        /* attachToRoot = */ false
                     )
                     view.layoutParams =
                         LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -82,12 +80,21 @@ internal class EmojiPickerBodyAdapter(
                 }
 
                 EmojiViewData.TYPE -> {
+                    val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit =
+                        { emoji ->
+                            val position = this.bindingAdapterPosition
+                            flattenSource[position].apply {
+                                (this as EmojiViewData).primary = emoji
+                            }
+                            notifyItemChanged(position)
+                        }
                     return EmojiViewHolder(
                         parent,
                         layoutInflater,
                         getParentWidth(parent) / emojiGridColumns,
                         (parent.measuredHeight / emojiGridRows).toInt(),
-                        onEmojiPickedListener
+                        onEmojiPickedListener,
+                        onEmojiPickedFromPopupListener
                     )
                 }
 

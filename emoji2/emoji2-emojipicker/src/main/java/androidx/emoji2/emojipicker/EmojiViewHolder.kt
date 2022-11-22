@@ -16,11 +16,21 @@
 
 package androidx.emoji2.emojipicker
 
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View.GONE
+import android.view.View.OnClickListener
+import android.view.View.OnLongClickListener
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.widget.FrameLayout
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.PopupWindow
 import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import kotlin.math.roundToInt
 
 /** A [ViewHolder] containing an emoji view and emoji data.  */
 internal class EmojiViewHolder(
@@ -28,29 +38,101 @@ internal class EmojiViewHolder(
     layoutInflater: LayoutInflater,
     width: Int,
     height: Int,
-    onEmojiPickedListener: Consumer<EmojiViewItem>?
+    onEmojiPickedListener: Consumer<EmojiViewItem>?,
+    onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
 ) : ViewHolder(
     layoutInflater
-        .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot= */false)
+        .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
+    private val onEmojiClickListener: OnClickListener = OnClickListener {
+        // TODO(scduan): Add other on click events (e.g, add to recent)
+        onEmojiPickedListener?.accept(emojiViewItem)
+    }
+
+    private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
+        val variants = emojiViewItem.variants
+        val popupView = layoutInflater
+            .inflate(R.layout.variant_popup, null, false)
+            .findViewById<GridLayout>(R.id.variant_popup)
+            .apply {
+                // Show 6 emojis in one row at most
+                this.columnCount = minOf(6, variants.size)
+                this.rowCount =
+                    variants.size / this.columnCount +
+                        if (variants.size % this.columnCount == 0) 0 else 1
+                this.orientation = GridLayout.HORIZONTAL
+            }
+        val popupWindow = showPopupWindow(emojiView, popupView)
+        for (v in variants) {
+            // Add variant emoji view to the popup view
+            layoutInflater
+                .inflate(R.layout.emoji_view_holder, null, false).apply {
+                    this as FrameLayout
+                    (getChildAt(0) as EmojiView).emoji = v
+                    setOnClickListener {
+                        onEmojiPickedFromPopupListener(this@EmojiViewHolder, v)
+                        onEmojiClickListener.onClick(it)
+                        popupWindow.dismiss()
+                    }
+                }.also {
+                    popupView.addView(it)
+                    it.layoutParams.width = emojiView.measuredWidth
+                    it.layoutParams.height = emojiView.measuredHeight
+                }
+        }
+        true
+    }
+
     private val emojiView: EmojiView
+    private val indicator: ImageView
     private lateinit var emojiViewItem: EmojiViewItem
 
     init {
         itemView.layoutParams = LayoutParams(width, height)
         emojiView = itemView.findViewById(R.id.emoji_view)
         emojiView.isClickable = true
-
-        // set emojiViewListener
-        emojiView.setOnClickListener {
-            onEmojiPickedListener?.accept(emojiViewItem)
-        }
+        emojiView.setOnClickListener(onEmojiClickListener)
+        indicator = itemView.findViewById(R.id.variant_availability_indicator)
     }
 
     fun bindEmoji(
-        emojiViewItem: EmojiViewItem
+        emojiViewItem: EmojiViewItem,
     ) {
         emojiView.emoji = emojiViewItem.emoji
         this.emojiViewItem = emojiViewItem
+
+        if (emojiViewItem.variants.isNotEmpty()) {
+            indicator.visibility = VISIBLE
+            emojiView.setOnLongClickListener(onEmojiLongClickListener)
+            emojiView.isLongClickable = true
+        } else {
+            indicator.visibility = GONE
+            emojiView.setOnLongClickListener(null)
+            emojiView.isLongClickable = false
+        }
+    }
+
+    private fun showPopupWindow(
+        parent: EmojiView,
+        popupView: GridLayout
+    ): PopupWindow {
+        val location = IntArray(2)
+        parent.getLocationInWindow(location)
+        // Make the popup view center align with the target emoji view.
+        val x =
+            location[0] + parent.width / 2f - popupView.columnCount * parent.width / 2f
+        val y = location[1] - popupView.rowCount * parent.height
+        return PopupWindow(
+            popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, false
+        ).also {
+            it.isOutsideTouchable = true
+            it.isTouchable = true
+            it.showAtLocation(
+                parent,
+                Gravity.NO_GRAVITY,
+                x.roundToInt(),
+                y
+            )
+        }
     }
 }

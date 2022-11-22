@@ -30,8 +30,9 @@ internal class EmojiViewData(
     /** The id of this emoji view in the category, usually is the position of the emoji.  */
     private val idInCategory: Int
 
-    /** Primary key which is used for labeling and for PRESS action.  */
-    val primary: String
+    /** Primary key which is used for labeling and for PRESS action. This value could be updated
+     * to one if its variants. */
+    var primary: String
 
     /** Secondary keys which are used for LONG_PRESS action.  */
     val secondaries: Array<String>

@@ -15,7 +15,6 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
     android:layout_height="0dp">
@@ -28,4 +27,11 @@
         android:importantForAccessibility="yes"
         android:textSize="30dp"
         tools:ignore="SpUsage" />
+    <ImageView
+        android:id="@+id/variant_availability_indicator"
+        android:visibility="gone"
+        android:src="@drawable/variant_availability_indicator"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:layout_gravity="bottom|end"/>
 </FrameLayout>
