@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Combines with {@link CreatePublicKeyCredentialRequestPrivilegedJavaTest} for full tests.
@@ -50,11 +49,11 @@ public class CreatePublicKeyCredentialRequestPrivilegedFailureInputsJavaTest {
     }
 
     @Parameterized.Parameters
-    public static Collection failureCases() {
+    public static Iterable<String[]> failureCases() {
         // Allows checking improper formations for builder and normal construction.
         // Handles both null and empty cases.
         // For successful cases, see the non parameterized tests.
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(new String[][] {
                 { "{\"hi\":21}", "rp", "", null, "rp", "hash"},
                 { "", "rp", "clientDataHash", "{\"hi\":21}", null, "hash"},
                 { "{\"hi\":21}", "", "clientDataHash", "{\"hi\":21}", "rp", null}
@@ -84,6 +83,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedFailureInputsJavaTest {
 
     @Test
     public void constructor_nullInput_throwsNullPointerException() {
+        convertAPIIssueToProperNull();
         assertThrows("If at least one arg null, should throw NullPointerException",
                 NullPointerException.class,
                 () -> new CreatePublicKeyCredentialRequestPrivileged(this.mNullRequestJson,
@@ -94,11 +94,28 @@ public class CreatePublicKeyCredentialRequestPrivilegedFailureInputsJavaTest {
 
     @Test
     public void builder_build_nullInput_throwsNullPointerException() {
+        convertAPIIssueToProperNull();
         assertThrows(
                 "If at least one arg null to builder, should throw NullPointerException",
                 NullPointerException.class,
                 () -> new CreatePublicKeyCredentialRequestPrivileged.Builder(mNullRequestJson,
                                 mNullRp, mNullClientDataHash).build()
         );
+    }
+
+    // Certain API levels have parameterized tests that automatically convert null to a string
+    // 'null' causing test failures. Until Parameterized tests fixes this bug, this is the
+    // workaround. Note this is *not* always the case but only for certain API levels (we have
+    // recorded 21, 22, and 23 as such levels).
+    private void convertAPIIssueToProperNull() {
+        if (mNullRequestJson != null && mNullRequestJson.equals("null")) {
+            mNullRequestJson = null;
+        }
+        if (mNullRp != null && mNullRp.equals("null")) {
+            mNullRp = null;
+        }
+        if (mNullClientDataHash != null && mNullClientDataHash.equals("null")) {
+            mNullClientDataHash = null;
+        }
     }
 }
