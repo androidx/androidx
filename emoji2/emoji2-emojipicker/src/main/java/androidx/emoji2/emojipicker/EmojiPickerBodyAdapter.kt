@@ -22,14 +22,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import androidx.annotation.IntRange
 import androidx.annotation.UiThread
-import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.tracing.Trace
+import androidx.emoji2.emojipicker.EmojiPickerConstants.RECENT_CATEGORY_INDEX
 
 /** RecyclerView adapter for emoji body.  */
 internal class EmojiPickerBodyAdapter(
@@ -129,13 +128,19 @@ internal class EmojiPickerBodyAdapter(
             if (categoryName.isEmpty()) {
                 categoryName = categoryNames[categoryIndex]
             }
+
             // Show category label.
             val categoryLabel = view.findViewById<AppCompatTextView>(R.id.category_name)
-            if (categoryName.isEmpty()) {
-                categoryLabel.visibility = View.GONE
-            } else {
-                categoryLabel.text = categoryName
+            if (categoryIndex == RECENT_CATEGORY_INDEX) {
+                categoryLabel.text = context.getString(R.string.emoji_category_recent)
                 categoryLabel.visibility = View.VISIBLE
+            } else {
+                if (categoryName.isEmpty()) {
+                    categoryLabel.visibility = View.GONE
+                } else {
+                    categoryLabel.text = categoryName
+                    categoryLabel.visibility = View.VISIBLE
+                }
             }
         } else if (viewType == EmptyCategoryViewData.TYPE) {
             // Show empty category description.
@@ -144,9 +149,9 @@ internal class EmojiPickerBodyAdapter(
             val item = flattenSource[position] as EmptyCategoryViewData
             var content = item.description
             if (content.isEmpty()) {
-                val categoryIndex: Int = getCategoryIndex(position)
+                val categoryIndex = flattenSource.getCategoryIndex(position)
                 content = context.getString(
-                    if (categoryIndex == EmojiPickerConstants.RECENT_CATEGORY_INDEX)
+                    if (categoryIndex == RECENT_CATEGORY_INDEX)
                         R.string.emoji_empty_recent_category
                     else R.string.emoji_empty_non_recent_category
                 )
@@ -170,16 +175,6 @@ internal class EmojiPickerBodyAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return flattenSource[position].type
-    }
-
-    @IntRange(from = 0)
-    fun getCategoryIndex(@IntRange(from = 0) position: Int): Int {
-        return getFlattenSource().getCategoryIndex(position)
-    }
-
-    @VisibleForTesting
-    fun getFlattenSource(): ItemViewDataFlatList {
-        return flattenSource
     }
 
     private fun getParentWidth(parent: ViewGroup): Int {

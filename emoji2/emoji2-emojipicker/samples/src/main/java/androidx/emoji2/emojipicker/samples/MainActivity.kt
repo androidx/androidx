@@ -17,11 +17,24 @@
 package androidx.emoji2.emojipicker.samples
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.emoji2.emojipicker.EmojiPickerView
+import androidx.emoji2.emojipicker.EmojiViewItem
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        internal const val LOG_TAG = "SAMPLE_APP"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
+
+        val view = findViewById<EmojiPickerView>(R.id.emoji_picker)
+        view.setOnEmojiPickedListener { emoji: EmojiViewItem ->
+            Log.d(LOG_TAG, String.format("emoji: %s", emoji.emoji))
+            Log.d(LOG_TAG, String.format("variants: %s", emoji.variants.toString()))
+        }
     }
 }
