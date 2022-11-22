@@ -630,7 +630,15 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)
+                sources = listOf(
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX2_OBSERVABLE,
+                    COMMON.RX3_OBSERVABLE,
+                    COMMON.PUBLISHER,
+                    rxTypeSrc,
+                    rxRoomSrc
+                )
             ) { invocation ->
                 val publisher = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -653,7 +661,15 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)
+                sources = listOf(
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX2_OBSERVABLE,
+                    COMMON.RX3_OBSERVABLE,
+                    COMMON.PUBLISHER,
+                    rxTypeSrc,
+                    rxRoomSrc
+                )
             ) { invocation ->
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
@@ -674,7 +690,15 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(rxTypeSrc, rxRoomSrc)
+                sources = listOf(
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX2_FLOWABLE,
+                    COMMON.RX3_FLOWABLE,
+                    COMMON.PUBLISHER,
+                    rxTypeSrc,
+                    rxRoomSrc
+                )
             ) { invocation ->
                 val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(observable, notNullValue())

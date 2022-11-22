@@ -16,15 +16,13 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.ArrayLiteral
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
-import androidx.room.ext.T
-import androidx.room.ext.arrayTypeName
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -43,31 +41,37 @@ class CoroutineFlowResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val dbField = dbProperty.toJavaPoet()
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            createRunQueryAndReturnStatements(
-                builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                dbField = dbField,
-                inTransaction = inTransaction,
-                scope = scope,
-                cancellationSignalVar = "null"
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    createRunQueryAndReturnStatements(
+                        builder = this,
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbProperty = dbProperty,
+                        inTransaction = inTransaction,
+                        scope = scope,
+                        cancellationSignalVar = "null"
+                    )
+                }.build()
             )
         }.apply {
             if (canReleaseQuery) {
-                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+                createFinalizeMethod(roomSQLiteQueryVar)
             }
         }.build()
 
-        scope.builder().apply {
-            val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
+        scope.builder.apply {
+            val arrayOfTableNamesLiteral = ArrayLiteral(
+                scope.language,
+                CommonTypeNames.STRING,
+                *tableNames.toTypedArray()
+            )
             addStatement(
-                "return $T.createFlow($N, $L, new $T{$L}, $L)",
-                COROUTINES_ROOM.toJavaPoet(),
-                dbField,
+                "return %T.createFlow(%N, %L, %L, %L)",
+                COROUTINES_ROOM,
+                dbProperty,
                 if (inTransaction) "true" else "false",
-                String::class.arrayTypeName,
-                tableNamesList,
+                arrayOfTableNamesLiteral,
                 callableImpl
             )
         }

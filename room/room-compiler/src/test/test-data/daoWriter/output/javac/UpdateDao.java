@@ -262,6 +262,7 @@ public final class UpdateDao_Impl implements UpdateDao {
   public Completable updateUserAndReturnCountCompletable(final User user) {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
+      @NonNull
       public Void call() throws Exception {
         __db.beginTransaction();
         try {
@@ -387,6 +388,7 @@ public final class UpdateDao_Impl implements UpdateDao {
   public Completable ageUserAllCompletable() {
     return Completable.fromCallable(new Callable<Void>() {
       @Override
+      @NonNull
       public Void call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();

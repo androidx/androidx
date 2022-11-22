@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compileFiles
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.jetbrains.kotlin.config.JvmDefaultMode
@@ -1588,7 +1589,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun dataSource() {
+    fun paging_dataSource() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
@@ -1616,6 +1617,467 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 databaseSrc,
                 COMMON.DATA_SOURCE_FACTORY,
                 COMMON.POSITIONAL_DATA_SOURCE
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun rx2CallableQuery() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+            import androidx.paging.rxjava2.*
+            import io.reactivex.*
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlowable(vararg arg: String?): Flowable<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getObservable(vararg arg: String?): Observable<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getSingle(vararg arg: String?): Single<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getMaybe(vararg arg: String?): Maybe<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlowableNullable(vararg arg: String?): Flowable<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getObservableNullable(vararg arg: String?): Observable<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getSingleNullable(vararg arg: String?): Single<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getMaybeNullable(vararg arg: String?): Maybe<MyEntity?>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX2_ROOM,
+                COMMON.RX2_PAGING_SOURCE,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_MAYBE,
+                COMMON.PUBLISHER,
+                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun rx3CallableQuery() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+            import androidx.paging.rxjava3.*
+            import io.reactivex.*
+            import io.reactivex.rxjava3.core.*
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlowable(vararg arg: String?): Flowable<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getObservable(vararg arg: String?): Observable<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getSingle(vararg arg: String?): Single<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getMaybe(vararg arg: String?): Maybe<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlowableNullable(vararg arg: String?): Flowable<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getObservableNullable(vararg arg: String?): Observable<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getSingleNullable(vararg arg: String?): Single<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getMaybeNullable(vararg arg: String?): Maybe<MyEntity?>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX3_ROOM,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_MAYBE,
+                COMMON.PUBLISHER,
+                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun rx2PreparedCallableQuery() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+            import androidx.paging.rxjava2.*
+            import io.reactivex.*
+
+            @Dao
+            interface MyDao {
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherSingle(id: String, name: String): Single<Long>
+
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherMaybe(id: String, name: String): Maybe<Long>
+
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherCompletable(id: String, name: String): Completable
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX2_ROOM,
+                COMMON.RX2_PAGING_SOURCE,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.PUBLISHER,
+                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun rx3PreparedCallableQuery() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+            import androidx.paging.rxjava3.*
+            import io.reactivex.*
+            import io.reactivex.rxjava3.core.*
+
+            @Dao
+            interface MyDao {
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherSingle(id: String, name: String): Single<Long>
+
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherMaybe(id: String, name: String): Maybe<Long>
+
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertPublisherCompletable(id: String, name: String): Completable
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX3_ROOM,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_MAYBE,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.PUBLISHER,
+                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun coroutines() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import kotlinx.coroutines.flow.Flow
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlow(vararg arg: String?): Flow<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getFlowNullable(vararg arg: String?): Flow<MyEntity?>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                suspend fun getSuspendList(vararg arg: String?): List<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                suspend fun getNullableSuspendList(vararg arg: String?): List<MyEntity?>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.FLOW,
+                COMMON.COROUTINES_ROOM
+            ),
+            expectedFilePath = getTestGoldenPath(testName),
+        )
+    }
+
+    @Test
+    fun shortcutMethods_rxJava() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import io.reactivex.*
+            import io.reactivex.rxjava3.core.*
+
+            @Dao
+            interface MyDao {
+                @Insert
+                fun insertRx2(vararg entities: MyEntity): io.reactivex.Single<List<Long>>
+
+                @Insert
+                fun insertRx3(vararg entities: MyEntity): io.reactivex.rxjava3.core.Single<List<Long>>
+
+                @Upsert
+                fun upsertRx2(vararg entities: MyEntity): io.reactivex.Single<List<Long>>
+
+                @Upsert
+                fun upsertRx3(vararg entities: MyEntity): io.reactivex.rxjava3.core.Single<List<Long>>
+
+                @Delete
+                fun deleteRx2(entity: MyEntity): io.reactivex.Single<Int>
+
+                @Delete
+                fun deleteRx3(entity: MyEntity): io.reactivex.rxjava3.core.Single<Int>
+
+                @Update
+                fun updateRx2(entity: MyEntity): io.reactivex.Single<Int>
+
+                @Update
+                fun updateRx3(entity: MyEntity): io.reactivex.rxjava3.core.Single<Int>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_MAYBE,
+                COMMON.PUBLISHER,
+                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
+                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun guavaCallable() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import com.google.common.util.concurrent.ListenableFuture
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getListenableFuture(vararg arg: String?): ListenableFuture<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getListenableFutureNullable(vararg arg: String?): ListenableFuture<MyEntity?>
+
+                @Insert
+                fun insertListenableFuture(vararg entities: MyEntity): ListenableFuture<List<Long>>
+
+                @Upsert
+                fun upsertListenableFuture(vararg entities: MyEntity): ListenableFuture<List<Long>>
+
+                @Delete
+                fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int>
+
+                @Update
+                fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.GUAVA_ROOM,
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
+    fun liveDataCallable() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.lifecycle.*
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getLiveData(vararg arg: String?): LiveData<MyEntity>
+
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                fun getLiveDataNullable(vararg arg: String?): LiveData<MyEntity?>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.COROUTINES_ROOM
+            ),
+            expectedFilePath = getTestGoldenPath(testName),
+            compiledFiles = compileFiles(listOf(COMMON.LIVE_DATA))
+        )
+    }
+
+    @Test
+    fun shortcutMethods_suspend() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+                @Insert
+                suspend fun insert(vararg entities: MyEntity): List<Long>
+
+                @Upsert
+                suspend fun upsert(vararg entities: MyEntity): List<Long>
+
+                @Delete
+                suspend fun delete(entity: MyEntity): Int
+
+                @Update
+                suspend fun update(entity: MyEntity): Int
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.COROUTINES_ROOM
             ),
             expectedFilePath = getTestGoldenPath(testName)
         )

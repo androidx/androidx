@@ -30,12 +30,7 @@ import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 import java.util.concurrent.Callable
-import javax.lang.model.element.Modifier
 import kotlin.reflect.KClass
 
 val L = "\$L"
@@ -109,8 +104,8 @@ object PagingTypeNames {
 }
 
 object LifecyclesTypeNames {
-    val LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE, "LiveData")
-    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(
+    val LIVE_DATA = XClassName.get(LIFECYCLE_PACKAGE, "LiveData")
+    val COMPUTABLE_LIVE_DATA = XClassName.get(
         LIFECYCLE_PACKAGE,
         "ComputableLiveData"
     )
@@ -187,46 +182,46 @@ object GuavaTypeNames {
 }
 
 object GuavaUtilConcurrentTypeNames {
-    val LISTENABLE_FUTURE = ClassName.get("com.google.common.util.concurrent", "ListenableFuture")
+    val LISTENABLE_FUTURE = XClassName.get("com.google.common.util.concurrent", "ListenableFuture")
 }
 
 object RxJava2TypeNames {
-    val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
-    val OBSERVABLE = ClassName.get("io.reactivex", "Observable")
-    val MAYBE = ClassName.get("io.reactivex", "Maybe")
-    val SINGLE = ClassName.get("io.reactivex", "Single")
-    val COMPLETABLE = ClassName.get("io.reactivex", "Completable")
+    val FLOWABLE = XClassName.get("io.reactivex", "Flowable")
+    val OBSERVABLE = XClassName.get("io.reactivex", "Observable")
+    val MAYBE = XClassName.get("io.reactivex", "Maybe")
+    val SINGLE = XClassName.get("io.reactivex", "Single")
+    val COMPLETABLE = XClassName.get("io.reactivex", "Completable")
 }
 
 object RxJava3TypeNames {
-    val FLOWABLE = ClassName.get("io.reactivex.rxjava3.core", "Flowable")
-    val OBSERVABLE = ClassName.get("io.reactivex.rxjava3.core", "Observable")
-    val MAYBE = ClassName.get("io.reactivex.rxjava3.core", "Maybe")
-    val SINGLE = ClassName.get("io.reactivex.rxjava3.core", "Single")
-    val COMPLETABLE = ClassName.get("io.reactivex.rxjava3.core", "Completable")
+    val FLOWABLE = XClassName.get("io.reactivex.rxjava3.core", "Flowable")
+    val OBSERVABLE = XClassName.get("io.reactivex.rxjava3.core", "Observable")
+    val MAYBE = XClassName.get("io.reactivex.rxjava3.core", "Maybe")
+    val SINGLE = XClassName.get("io.reactivex.rxjava3.core", "Single")
+    val COMPLETABLE = XClassName.get("io.reactivex.rxjava3.core", "Completable")
 }
 
 object ReactiveStreamsTypeNames {
-    val PUBLISHER = ClassName.get("org.reactivestreams", "Publisher")
+    val PUBLISHER = XClassName.get("org.reactivestreams", "Publisher")
 }
 
 object RoomGuavaTypeNames {
-    val GUAVA_ROOM = ClassName.get("$ROOM_PACKAGE.guava", "GuavaRoom")
+    val GUAVA_ROOM = XClassName.get("$ROOM_PACKAGE.guava", "GuavaRoom")
 }
 
 object RoomRxJava2TypeNames {
-    val RX_ROOM = ClassName.get(ROOM_PACKAGE, "RxRoom")
+    val RX_ROOM = XClassName.get(ROOM_PACKAGE, "RxRoom")
     val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
-    val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
+    val RX_EMPTY_RESULT_SET_EXCEPTION = XClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
 }
 
 object RoomRxJava3TypeNames {
-    val RX_ROOM = ClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
+    val RX_ROOM = XClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
     val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
     val RX_EMPTY_RESULT_SET_EXCEPTION =
-        ClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
+        XClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
 }
 
 object RoomPagingTypeNames {
@@ -264,10 +259,10 @@ object KotlinTypeNames {
     val ANY = Any::class.asClassName()
     val UNIT = XClassName.get("kotlin", "Unit")
     val CONTINUATION = XClassName.get("kotlin.coroutines", "Continuation")
-    val CHANNEL = ClassName.get("kotlinx.coroutines.channels", "Channel")
-    val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
-    val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
-    val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
+    val CHANNEL = XClassName.get("kotlinx.coroutines.channels", "Channel")
+    val RECEIVE_CHANNEL = XClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
+    val SEND_CHANNEL = XClassName.get("kotlinx.coroutines.channels", "SendChannel")
+    val FLOW = XClassName.get("kotlinx.coroutines.flow", "Flow")
     val LAZY = XClassName.get("kotlin", "Lazy")
 }
 
@@ -320,7 +315,7 @@ fun XTypeName.defaultValue(): String {
     }
 }
 
-fun CallableTypeSpec(
+fun CallableTypeSpecBuilder(
     language: CodeLanguage,
     parameterTypeName: XTypeName,
     callBody: XFunSpec.Builder.() -> Unit
@@ -341,24 +336,6 @@ fun CallableTypeSpec(
             },
             kotlinFunctionBuilder = { }
         ).build()
-    )
-}.build()
-
-// TODO(b/127483380): Remove once XPoet is more widely adopted.
-// @Deprecated("Use CallableTypeSpec, will be removed as part of XPoet migration.")
-fun CallableTypeSpecBuilder(
-    parameterTypeName: TypeName,
-    callBody: MethodSpec.Builder.() -> Unit
-) = TypeSpec.anonymousClassBuilder("").apply {
-    superclass(ParameterizedTypeName.get(Callable::class.typeName, parameterTypeName))
-    addMethod(
-        MethodSpec.methodBuilder("call").apply {
-            returns(parameterTypeName)
-            addException(Exception::class.typeName)
-            addModifiers(Modifier.PUBLIC)
-            addAnnotation(Override::class.java)
-            callBody()
-        }.build()
     )
 }
 

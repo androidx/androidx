@@ -16,7 +16,10 @@
 
 package androidx.room.processor
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XSuspendMethodType
@@ -25,10 +28,7 @@ import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
 import androidx.room.ext.DEFERRED_TYPES
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
-import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
@@ -138,7 +138,9 @@ fun MethodProcessorDelegate.isSuspendAndReturnsDeferredType(): Boolean {
         return false
     }
 
-    val deferredTypes = DEFERRED_TYPES.mapNotNull { context.processingEnv.findType(it) }
+    val deferredTypes = DEFERRED_TYPES.mapNotNull {
+        context.processingEnv.findType(it.canonicalName)
+    }
 
     val returnType = extractReturnType()
     val hasDeferredReturnType = deferredTypes.any { deferredType ->
@@ -238,15 +240,8 @@ class SuspendMethodProcessorDelegate(
     ) = createPreparedBinder(
         returnType = returnType,
         adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(returnType, query)
-    ) { callableImpl, dbField ->
-        addStatement(
-            "return $T.execute($N, $L, $L, $N)",
-            COROUTINES_ROOM.toJavaPoet(),
-            dbField,
-            "true", // inTransaction
-            callableImpl,
-            continuationParam.name
-        )
+    ) { callableImpl, dbProperty ->
+        addCoroutineExecuteStatement(callableImpl, dbProperty)
     }
 
     override fun findInsertMethodBinder(
@@ -255,15 +250,8 @@ class SuspendMethodProcessorDelegate(
     ) = createInsertBinder(
         typeArg = returnType,
         adapter = context.typeAdapterStore.findInsertAdapter(returnType, params)
-    ) { callableImpl, dbField ->
-        addStatement(
-            "return $T.execute($N, $L, $L, $N)",
-            COROUTINES_ROOM.toJavaPoet(),
-            dbField,
-            "true", // inTransaction
-            callableImpl,
-            continuationParam.name
-        )
+    ) { callableImpl, dbProperty ->
+        addCoroutineExecuteStatement(callableImpl, dbProperty)
     }
 
     override fun findUpsertMethodBinder(
@@ -272,30 +260,16 @@ class SuspendMethodProcessorDelegate(
     ) = createUpsertBinder(
         typeArg = returnType,
         adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params)
-    ) { callableImpl, dbField ->
-        addStatement(
-            "return $T.execute($N, $L, $L, $N)",
-            COROUTINES_ROOM.toJavaPoet(),
-            dbField,
-            "true", // inTransaction
-            callableImpl,
-            continuationParam.name
-        )
+    ) { callableImpl, dbProperty ->
+        addCoroutineExecuteStatement(callableImpl, dbProperty)
     }
 
     override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         createDeleteOrUpdateBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType)
-        ) { callableImpl, dbField ->
-            addStatement(
-                "return $T.execute($N, $L, $L, $N)",
-                COROUTINES_ROOM.toJavaPoet(),
-                dbField,
-                "true", // inTransaction
-                callableImpl,
-                continuationParam.name
-            )
+        ) { callableImpl, dbProperty ->
+            addCoroutineExecuteStatement(callableImpl, dbProperty)
         }
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
@@ -308,4 +282,27 @@ class SuspendMethodProcessorDelegate(
             continuationParamName = continuationParam.name,
             javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
         )
+
+    private fun XCodeBlock.Builder.addCoroutineExecuteStatement(
+        callableImpl: XTypeSpec,
+        dbProperty: XPropertySpec
+    ) {
+        when (context.codeLanguage) {
+            CodeLanguage.JAVA -> addStatement(
+                "return %T.execute(%N, %L, %L, %N)",
+                COROUTINES_ROOM,
+                dbProperty,
+                "true", // inTransaction
+                callableImpl,
+                continuationParam.name
+            )
+            CodeLanguage.KOTLIN -> addStatement(
+                "return %T.execute(%N, %L, %L)",
+                COROUTINES_ROOM,
+                dbProperty,
+                "true", // inTransaction
+                callableImpl
+            )
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.rxjava3;
-
-import androidx.annotation.NonNull;
+package androidx.room;
 
 /**
  * Thrown by Room when the query in a Single&lt;T&gt; DAO method needs to return a result but the
@@ -28,12 +26,12 @@ import androidx.annotation.NonNull;
  * exception is not thrown an an empty collection is emitted instead.
  */
 @SuppressWarnings("serial")
-public final class EmptyResultSetException extends RuntimeException {
+public class EmptyResultSetException extends RuntimeException {
     /**
      * Constructs a new EmptyResultSetException with the exception.
      * @param message The SQL query which didn't return any results.
      */
-    public EmptyResultSetException(@NonNull String message) {
+    public EmptyResultSetException(String message) {
         super(message);
     }
 }

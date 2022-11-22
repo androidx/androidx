@@ -16,17 +16,14 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Binder for deferred delete and update methods.
@@ -37,7 +34,7 @@ import com.squareup.javapoet.TypeSpec
  */
 class CallableDeleteOrUpdateMethodBinder private constructor(
     val typeArg: XType,
-    val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
+    val addStmntBlock: XCodeBlock.Builder.(callableImpl: XTypeSpec, dbField: XPropertySpec) -> Unit,
     adapter: DeleteOrUpdateMethodAdapter?
 ) : DeleteOrUpdateMethodBinder(adapter) {
 
@@ -45,7 +42,10 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
         fun createDeleteOrUpdateBinder(
             typeArg: XType,
             adapter: DeleteOrUpdateMethodAdapter?,
-            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+            addCodeBlock: XCodeBlock.Builder.(
+                callableImpl: XTypeSpec,
+                dbField: XPropertySpec
+            ) -> Unit
         ) = CallableDeleteOrUpdateMethodBinder(typeArg, addCodeBlock, adapter)
     }
 
@@ -56,18 +56,18 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
             adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
                 dbProperty = dbProperty,
                 scope = adapterScope
             )
-            addCode(adapterScope.builder().build())
+            addCode(adapterScope.generate())
         }.build()
 
-        scope.builder().apply {
-            addStmntBlock(callableImpl, dbProperty.toJavaPoet())
+        scope.builder.apply {
+            addStmntBlock(callableImpl, dbProperty)
         }
     }
 }
