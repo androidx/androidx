@@ -29,6 +29,8 @@ playground {
     selectProjectsFromAndroidX({ name ->
         if (name.startsWith(":lifecycle")) return true
         if (name.startsWith(":annotation")) return true
+        if (name.startsWith(":arch:core:core-common")) return true
+        if (name.startsWith(":arch:core:core-runtime")) return true
         if (name == ":internal-testutils-runtime") return true
         if (name == ":internal-testutils-truth") return true
         if (isNeededForComposePlayground(name)) return true
