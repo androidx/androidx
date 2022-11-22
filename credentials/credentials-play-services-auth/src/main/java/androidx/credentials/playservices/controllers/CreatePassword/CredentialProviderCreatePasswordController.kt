@@ -76,7 +76,7 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
             .savePassword(convertedRequest)
             .addOnSuccessListener { result: SavePasswordResult ->
                 try {
-                    if (Build.VERSION.SDK_INT >= 24) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         startIntentSenderForResult(
                             result.pendingIntent.intentSender,
                             REQUEST_CODE_GIS_SAVE_PASSWORD,
