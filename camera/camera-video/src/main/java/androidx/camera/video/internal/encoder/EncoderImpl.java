@@ -202,6 +202,7 @@ public class EncoderImpl implements Encoder {
     Long mLastDataStopTimestamp = null;
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     Future<?> mStopTimeoutFuture = null;
+    private MediaCodecCallback mMediaCodecCallback = null;
 
     private boolean mIsFlushedAfterEndOfStream = false;
     private boolean mSourceStoppedSignalled = false;
@@ -282,7 +283,12 @@ public class EncoderImpl implements Encoder {
             mStopTimeoutFuture.cancel(true);
             mStopTimeoutFuture = null;
         }
-        mMediaCodec.setCallback(new MediaCodecCallback());
+        if (mMediaCodecCallback != null) {
+            mMediaCodecCallback.stop();
+        }
+        mMediaCodecCallback = new MediaCodecCallback();
+        mMediaCodec.setCallback(mMediaCodecCallback);
+
         mMediaCodec.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
         if (mEncoderInput instanceof SurfaceInput) {
@@ -1014,6 +1020,7 @@ public class EncoderImpl implements Encoder {
         private long mLastSentAdjustedTimeUs = 0L;
         private boolean mIsOutputBufferInPauseState = false;
         private boolean mIsKeyFrameRequired = false;
+        private boolean mStopped = false;
 
         MediaCodecCallback() {
             if (mIsVideoEncoder) {
@@ -1032,6 +1039,10 @@ public class EncoderImpl implements Encoder {
         @Override
         public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
             mEncoderExecutor.execute(() -> {
+                if (mStopped) {
+                    Logger.w(mTag, "Receives input frame after codec is reset.");
+                    return;
+                }
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -1057,6 +1068,10 @@ public class EncoderImpl implements Encoder {
         public void onOutputBufferAvailable(@NonNull MediaCodec mediaCodec, int index,
                 @NonNull BufferInfo bufferInfo) {
             mEncoderExecutor.execute(() -> {
+                if (mStopped) {
+                    Logger.w(mTag, "Receives frame after codec is reset.");
+                    return;
+                }
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -1374,6 +1389,10 @@ public class EncoderImpl implements Encoder {
         public void onOutputFormatChanged(@NonNull MediaCodec mediaCodec,
                 @NonNull MediaFormat mediaFormat) {
             mEncoderExecutor.execute(() -> {
+                if (mStopped) {
+                    Logger.w(mTag, "Receives onOutputFormatChanged after codec is reset.");
+                    return;
+                }
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -1403,6 +1422,12 @@ public class EncoderImpl implements Encoder {
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
             });
+        }
+
+        /** Stop process further frame output. */
+        @ExecutedBy("mEncoderExecutor")
+        void stop() {
+            mStopped = true;
         }
     }
 
