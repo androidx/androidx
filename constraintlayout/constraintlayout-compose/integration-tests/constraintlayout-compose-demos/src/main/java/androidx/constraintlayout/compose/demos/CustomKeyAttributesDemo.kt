@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
-import androidx.constraintlayout.compose.MotionLayoutFlag
 import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.OnSwipe
 import androidx.constraintlayout.compose.SwipeDirection
@@ -95,11 +94,14 @@ fun CustomColorInKeyAttributesDemo() {
             }
         },
         progress = 0f,
-        motionLayoutFlags = setOf(MotionLayoutFlag.FullMeasure), // Needed to update text composable
         modifier = Modifier.fillMaxSize()
     ) {
         val background = motionColor(boxId, "background")
-        Box(modifier = Modifier.layoutId(boxId).background(background))
+        Box(
+            modifier = Modifier
+                .layoutId(boxId)
+                .background(background)
+        )
         Text(
             modifier = Modifier.layoutId(textId),
             text = "Color: ${background.toArgb().toUInt().toString(16)}"

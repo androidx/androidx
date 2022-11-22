@@ -41,6 +41,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
@@ -120,17 +121,42 @@ inline fun ConstraintLayout(
     val measurer = remember { Measurer(density) }
     val scope = remember { ConstraintLayoutScope() }
     val remeasureRequesterState = remember { mutableStateOf(false) }
-    val (measurePolicy, onHelpersChanged) = rememberConstraintLayoutMeasurePolicy(
-        optimizationLevel,
-        scope,
-        remeasureRequesterState,
-        measurer
-    )
+    val constraintSet = remember { ConstraintSetForInlineDsl(scope) }
+    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+
+    val measurePolicy = MeasurePolicy { measurables, constraints ->
+        contentTracker.value
+        val layoutSize = measurer.performMeasure(
+            constraints,
+            layoutDirection,
+            constraintSet,
+            measurables,
+            optimizationLevel
+        )
+        // We read the remeasurement requester state, to request remeasure when the value
+        // changes. This will happen when the scope helpers are changing at recomposition.
+        remeasureRequesterState.value
+
+        layout(layoutSize.width, layoutSize.height) {
+            with(measurer) { performLayout(measurables) }
+        }
+    }
+
+    val onHelpersChanged = {
+        // If the helpers have changed, we need to request remeasurement. To achieve this,
+        // we are changing this boolean state that is read during measurement.
+        remeasureRequesterState.value = !remeasureRequesterState.value
+        constraintSet.knownDirty = true
+    }
+
     @Suppress("Deprecation")
     MultiMeasureLayout(
         modifier = modifier.semantics { designInfoProvider = measurer },
         measurePolicy = measurePolicy,
         content = {
+            // Perform a reassignment to the State tracker, this will force readers to recompose at
+            // the same pass as the content. The only expected reader is our MeasurePolicy.
+            contentTracker.value = Unit
             val previousHelpersHashCode = scope.helpersHashCode
             scope.reset()
             scope.content()
@@ -144,46 +170,8 @@ inline fun ConstraintLayout(
     )
 }
 
-@Composable
 @PublishedApi
-internal fun rememberConstraintLayoutMeasurePolicy(
-    optimizationLevel: Int,
-    scope: ConstraintLayoutScope,
-    remeasureRequesterState: MutableState<Boolean>,
-    measurer: Measurer
-): Pair<MeasurePolicy, () -> Unit> {
-    val constraintSet = remember { ConstraintSetForInlineDsl(scope) }
-
-    return remember(optimizationLevel) {
-        val measurePolicy = MeasurePolicy { measurables, constraints ->
-            val layoutSize = measurer.performMeasure(
-                constraints,
-                layoutDirection,
-                constraintSet,
-                measurables,
-                optimizationLevel
-            )
-            // We read the remeasurement requester state, to request remeasure when the value
-            // changes. This will happen when the scope helpers are changing at recomposition.
-            remeasureRequesterState.value
-
-            layout(layoutSize.width, layoutSize.height) {
-                with(measurer) { performLayout(measurables) }
-            }
-        }
-
-        val onHelpersChanged = {
-            // If the helpers have changed, we need to request remeasurement. To achieve this,
-            // we are changing this boolean state that is read during measurement.
-            remeasureRequesterState.value = !remeasureRequesterState.value
-            constraintSet.knownDirty = true
-        }
-
-        measurePolicy to onHelpersChanged
-    }
-}
-
-private class ConstraintSetForInlineDsl(
+internal class ConstraintSetForInlineDsl(
     val scope: ConstraintLayoutScope
 ) : ConstraintSet, RememberObserver {
     private var handler: Handler? = null
@@ -263,7 +251,7 @@ inline fun ConstraintLayout(
     animateChanges: Boolean = false,
     animationSpec: AnimationSpec<Float> = tween<Float>(),
     noinline finishedAnimationListener: (() -> Unit)? = null,
-    noinline content: @Composable () -> Unit
+    crossinline content: @Composable () -> Unit
 ) {
     if (animateChanges) {
         var startConstraint by remember { mutableStateOf(constraintSet) }
@@ -304,14 +292,26 @@ inline fun ConstraintLayout(
             mutableStateOf(0L)
         }
 
+        val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
         val density = LocalDensity.current
         val measurer = remember { Measurer(density) }
-        val measurePolicy = rememberConstraintLayoutMeasurePolicy(
-            optimizationLevel,
-            needsUpdate,
-            constraintSet,
-            measurer
-        )
+        remember(constraintSet) {
+            measurer.parseDesignElements(constraintSet)
+            true
+        }
+        val measurePolicy = MeasurePolicy { measurables, constraints ->
+            contentTracker.value
+            val layoutSize = measurer.performMeasure(
+                constraints,
+                layoutDirection,
+                constraintSet,
+                measurables,
+                optimizationLevel
+            )
+            layout(layoutSize.width, layoutSize.height) {
+                with(measurer) { performLayout(measurables) }
+            }
+        }
         if (constraintSet is EditableJSONLayout) {
             constraintSet.setUpdateFlag(needsUpdate)
         }
@@ -340,33 +340,14 @@ inline fun ConstraintLayout(
                 modifier = modifier.semantics { designInfoProvider = measurer },
                 measurePolicy = measurePolicy,
                 content = {
+                    // Perform a reassignment to the State tracker, this will force readers to
+                    // recompose at the same pass as the content. The only expected reader is our
+                    // MeasurePolicy.
+                    contentTracker.value = Unit
                     measurer.createDesignElements()
                     content()
                 }
             )
-        }
-    }
-}
-
-@Composable
-@PublishedApi
-internal fun rememberConstraintLayoutMeasurePolicy(
-    optimizationLevel: Int,
-    needsUpdate: MutableState<Long>,
-    constraintSet: ConstraintSet,
-    measurer: Measurer
-) = remember(optimizationLevel, needsUpdate.value, constraintSet) {
-    measurer.parseDesignElements(constraintSet)
-    MeasurePolicy { measurables, constraints ->
-        val layoutSize = measurer.performMeasure(
-            constraints,
-            layoutDirection,
-            constraintSet,
-            measurables,
-            optimizationLevel
-        )
-        layout(layoutSize.width, layoutSize.height) {
-            with(measurer) { performLayout(measurables) }
         }
     }
 }
@@ -1409,24 +1390,6 @@ internal open class Measurer(
         root.optimizationLevel = optimizationLevel
         root.measure(root.optimizationLevel, 0, 0, 0, 0, 0, 0, 0, 0)
 
-        for (child in root.children) {
-            val measurable = child.companionWidget
-            if (measurable !is Measurable) continue
-            val placeable = placeables[measurable]
-            val currentWidth = placeable?.width
-            val currentHeight = placeable?.height
-            if (child.width != currentWidth || child.height != currentHeight) {
-                if (DEBUG) {
-                    Log.d(
-                        "CCL",
-                        "Final measurement for ${measurable.layoutId} " +
-                            "to confirm size ${child.width} ${child.height}"
-                    )
-                }
-                measurable.measure(Constraints.fixed(child.width, child.height))
-                    .also { placeables[measurable] = it }
-            }
-        }
         if (DEBUG) {
             Log.d("CCL", "ConstraintLayout is at the end ${root.width} ${root.height}")
         }

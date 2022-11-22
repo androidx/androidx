@@ -26,6 +26,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -56,12 +57,18 @@ enum class MotionLayoutFlag(@Suppress("UNUSED_PARAMETER") value: Long) {
     FullMeasure(1)
 }
 
+enum class MotionLayoutDebugFlags {
+    NONE,
+    SHOW_ALL,
+    UNKNOWN
+}
+
 /**
  * Layout that interpolate its children layout given two sets of constraint and
  * a progress (from 0 to 1)
  */
+@Suppress("UNUSED_PARAMETER")
 @ExperimentalMotionApi
-@Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun MotionLayout(
     start: ConstraintSet,
@@ -75,16 +82,18 @@ inline fun MotionLayout(
     crossinline content: @Composable MotionLayoutScope.() -> Unit
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
+    val showDebug = debug.firstOrNull() == MotionLayoutDebugFlags.SHOW_ALL
     MotionLayoutCore(
         start = start,
         end = end,
         transition = transition as? TransitionImpl,
         motionProgress = motionProgress,
-        debugFlag = debug.firstOrNull() ?: MotionLayoutDebugFlags.NONE,
         informationReceiver = null,
-        modifier = modifier,
         optimizationLevel = optimizationLevel,
-        motionLayoutFlags = motionLayoutFlags,
+        showBounds = showDebug,
+        showPaths = showDebug,
+        showKeyPositions = showDebug,
+        modifier = modifier,
         content = content
     )
 }
@@ -94,7 +103,6 @@ inline fun MotionLayout(
  * 1).
  */
 @ExperimentalMotionApi
-@Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -156,7 +164,7 @@ inline fun MotionLayout(
     )
 }
 
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("UNUSED_PARAMETER")
 @ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
@@ -172,16 +180,18 @@ inline fun MotionLayout(
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
+    val showDebug = debug.firstOrNull() == MotionLayoutDebugFlags.SHOW_ALL
     MotionLayoutCore(
         start = start,
         end = end,
         transition = transition as? TransitionImpl,
         motionProgress = motionProgress,
-        debugFlag = debug.firstOrNull() ?: MotionLayoutDebugFlags.NONE,
         informationReceiver = informationReceiver,
-        modifier = modifier,
         optimizationLevel = optimizationLevel,
-        motionLayoutFlags = motionLayoutFlags,
+        showBounds = showDebug,
+        showPaths = showDebug,
+        showKeyPositions = showDebug,
+        modifier = modifier,
         content = content
     )
 }
@@ -189,7 +199,7 @@ inline fun MotionLayout(
 @ExperimentalMotionApi
 @PublishedApi
 @Composable
-@Suppress("UnavailableSymbol")
+@Suppress("UnavailableSymbol", "UNUSED_PARAMETER")
 internal inline fun MotionLayoutCore(
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
@@ -276,11 +286,12 @@ internal inline fun MotionLayoutCore(
         end = end,
         transition = transition as? TransitionImpl,
         motionProgress = motionProgress,
-        debugFlag = debugFlag,
         informationReceiver = motionScene as? LayoutInformationReceiver,
-        modifier = modifier,
         optimizationLevel = optimizationLevel,
-        motionLayoutFlags = motionLayoutFlags,
+        showBounds = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
+        showPaths = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
+        showKeyPositions = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
+        modifier = modifier,
         content = content
     )
 }
@@ -293,11 +304,11 @@ internal inline fun MotionLayoutCore(
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
     progress: Float,
-    modifier: Modifier = Modifier,
-    debug: EnumSet<MotionLayoutDebugFlags> = EnumSet.of(MotionLayoutDebugFlags.NONE),
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     transitionName: String,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
+    optimizationLevel: Int,
+    motionLayoutFlags: Set<MotionLayoutFlag>,
+    debug: EnumSet<MotionLayoutDebugFlags>,
+    modifier: Modifier,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable MotionLayoutScope.() -> Unit,
 ) {
@@ -332,91 +343,12 @@ internal inline fun MotionLayoutCore(
 }
 
 @ExperimentalMotionApi
-@PublishedApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
-    start: ConstraintSet,
-    end: ConstraintSet,
-    modifier: Modifier = Modifier,
-    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl? = null,
-    motionProgress: MotionProgress,
-    debugFlag: MotionLayoutDebugFlags = MotionLayoutDebugFlags.NONE,
-    informationReceiver: LayoutInformationReceiver? = null,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
-    @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    // TODO: Merge this snippet with UpdateWithForcedIfNoUserChange
-    val needsUpdate = remember { mutableStateOf(0L) }
-    needsUpdate.value // Read the value to allow recomposition from informationReceiver
-    informationReceiver?.setUpdateFlag(needsUpdate)
-
-    UpdateWithForcedIfNoUserChange(
-        motionProgress = motionProgress,
-        informationReceiver = informationReceiver
-    )
-
-    var usedDebugMode = debugFlag
-    val forcedDebug = informationReceiver?.getForcedDrawDebug()
-    if (forcedDebug != null && forcedDebug != MotionLayoutDebugFlags.UNKNOWN) {
-        usedDebugMode = forcedDebug
-    }
-    val density = LocalDensity.current
-    val measurer = remember { MotionMeasurer(density) }
-    val scope = remember { MotionLayoutScope(measurer, motionProgress) }
-    val debug = EnumSet.of(usedDebugMode)
-    val measurePolicy =
-        rememberMotionLayoutMeasurePolicy(
-            optimizationLevel,
-            debug,
-            start,
-            end,
-            transition,
-            motionProgress,
-            motionLayoutFlags,
-            measurer
-        )
-
-    measurer.addLayoutInformationReceiver(informationReceiver)
-
-    val forcedScaleFactor = measurer.forcedScaleFactor
-
-    var debugModifications: Modifier = Modifier
-    if (!debug.contains(MotionLayoutDebugFlags.NONE) || !forcedScaleFactor.isNaN()) {
-        if (!forcedScaleFactor.isNaN()) {
-            debugModifications = debugModifications.scale(forcedScaleFactor)
-        }
-        debugModifications = debugModifications.drawBehind {
-            with(measurer) {
-                if (!forcedScaleFactor.isNaN()) {
-                    drawDebugBounds(forcedScaleFactor)
-                }
-                if (!debug.contains(MotionLayoutDebugFlags.NONE)) {
-                    drawDebug()
-                }
-            }
-        }
-    }
-    @Suppress("DEPRECATION")
-    (MultiMeasureLayout(
-        modifier = modifier
-            .then(debugModifications)
-            .motionPointerInput(measurePolicy, motionProgress, measurer)
-            .semantics { designInfoProvider = measurer },
-        measurePolicy = measurePolicy,
-        content = { scope.content() }
-    ))
-}
-
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
+    motionScene: MotionScene,
+    motionLayoutState: MotionLayoutState,
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutState: MotionLayoutState,
-    motionScene: MotionScene,
     crossinline content: @Composable MotionLayoutScope.() -> Unit
 ) {
     MotionLayoutCore(
@@ -424,6 +356,7 @@ inline fun MotionLayout(
         optimizationLevel = optimizationLevel,
         motionLayoutState = motionLayoutState as MotionLayoutStateImpl,
         motionScene = motionScene,
+        transitionName = "default",
         content = content
     )
 }
@@ -433,12 +366,12 @@ inline fun MotionLayout(
 @Composable
 @Suppress("UnavailableSymbol")
 internal inline fun MotionLayoutCore(
-    modifier: Modifier = Modifier,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutState: MotionLayoutStateImpl,
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
-    transitionName: String = "default",
+    transitionName: String,
+    motionLayoutState: MotionLayoutStateImpl,
+    optimizationLevel: Int,
+    modifier: Modifier,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable MotionLayoutScope.() -> Unit
 ) {
@@ -459,23 +392,137 @@ internal inline fun MotionLayoutCore(
     if (start == null || end == null) {
         return
     }
+    val showDebug = motionLayoutState.debugMode == MotionLayoutDebugFlags.SHOW_ALL
     MotionLayoutCore(
         start = start,
         end = end,
         transition = transition as? TransitionImpl,
         motionProgress = motionLayoutState.motionProgress,
-        debugFlag = motionLayoutState.debugMode,
         informationReceiver = motionScene as? JSONMotionScene,
-        modifier = modifier,
         optimizationLevel = optimizationLevel,
+        showBounds = showDebug,
+        showPaths = showDebug,
+        showKeyPositions = showDebug,
+        modifier = modifier,
         content = content
+    )
+}
+
+@ExperimentalMotionApi
+@PublishedApi
+@Composable
+@Suppress("UnavailableSymbol")
+internal inline fun MotionLayoutCore(
+    start: ConstraintSet,
+    end: ConstraintSet,
+    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl?,
+    motionProgress: MotionProgress,
+    informationReceiver: LayoutInformationReceiver?,
+    optimizationLevel: Int,
+    showBounds: Boolean,
+    showPaths: Boolean,
+    showKeyPositions: Boolean,
+    modifier: Modifier,
+    @Suppress("HiddenTypeParameter")
+    crossinline content: @Composable MotionLayoutScope.() -> Unit
+) {
+    // TODO: Merge this snippet with UpdateWithForcedIfNoUserChange
+    val needsUpdate = remember { mutableStateOf(0L) }
+    needsUpdate.value // Read the value to allow recomposition from informationReceiver
+    informationReceiver?.setUpdateFlag(needsUpdate)
+
+    UpdateWithForcedIfNoUserChange(
+        motionProgress = motionProgress,
+        informationReceiver = informationReceiver
+    )
+
+    /**
+     * MutableState used to track content recompositions. It's reassigned at the content's
+     * composition scope, so that any function reading it is recomposed with the content.
+     * NeverEqualPolicy is used so that we don't have to assign any particular value to trigger a
+     * State change.
+     */
+    val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+    val compositionSource =
+        remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val measurer = remember { MotionMeasurer(density) }
+    val scope = remember { MotionLayoutScope(measurer, motionProgress) }
+
+    remember(start, end, transition) {
+        measurer.initWith(
+            start = start,
+            end = end,
+            layoutDirection = layoutDirection,
+            transition = transition ?: TransitionImpl.EMPTY,
+            progress = motionProgress.currentProgress
+        )
+        true // Remember is required to return a non-Unit value
+    }
+
+    val measurePolicy = motionLayoutMeasurePolicy(
+        contentTracker = contentTracker,
+        compositionSource = compositionSource,
+        constraintSetStart = start,
+        constraintSetEnd = end,
+        transition = transition ?: TransitionImpl.EMPTY,
+        motionProgress = motionProgress,
+        measurer = measurer,
+        optimizationLevel = optimizationLevel
+    )
+
+    measurer.addLayoutInformationReceiver(informationReceiver)
+
+    val forcedDebug = informationReceiver?.getForcedDrawDebug()
+    val forcedScaleFactor = measurer.forcedScaleFactor
+
+    var doShowBounds = showBounds
+    var doShowPaths = showPaths
+    var doShowKeyPositions = showKeyPositions
+
+    if (forcedDebug != null) {
+        doShowBounds = forcedDebug === MotionLayoutDebugFlags.SHOW_ALL
+        doShowPaths = doShowBounds
+        doShowKeyPositions = doShowBounds
+    }
+
+    @Suppress("DEPRECATION")
+    MultiMeasureLayout(
+        modifier = modifier
+            .motionDebug(
+                measurer = measurer,
+                scaleFactor = forcedScaleFactor,
+                showBounds = doShowBounds,
+                showPaths = doShowPaths,
+                showKeyPositions = doShowKeyPositions
+            )
+            .motionPointerInput(
+                key = transition ?: TransitionImpl.EMPTY,
+                motionProgress = motionProgress,
+                measurer = measurer
+            )
+            .semantics { designInfoProvider = measurer },
+        measurePolicy = measurePolicy,
+        content = {
+            // Perform a reassignment to the State tracker, this will force readers to recompose at
+            // the same pass as the content. The only expected reader is our MeasurePolicy.
+            contentTracker.value = Unit
+
+            if (compositionSource.value == CompositionSource.Unknown) {
+                // Set the content as the original composition source if the MotionLayout was not
+                // recomposed by the caller or by itself
+                compositionSource.value = CompositionSource.Content
+            }
+            scope.content()
+        }
     )
 }
 
 @LayoutScopeMarker
 @ExperimentalMotionApi
 class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
-    @PublishedApi internal constructor(
+@PublishedApi internal constructor(
     private val measurer: MotionMeasurer,
     private val motionProgress: MotionProgress
 ) {
@@ -550,63 +597,42 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
     }
 }
 
-enum class MotionLayoutDebugFlags {
-    NONE,
-    SHOW_ALL,
-    UNKNOWN
-}
-
-@Composable
 @PublishedApi
 @ExperimentalMotionApi
-internal fun rememberMotionLayoutMeasurePolicy(
-    optimizationLevel: Int,
-    debug: EnumSet<MotionLayoutDebugFlags>,
+internal fun motionLayoutMeasurePolicy(
+    contentTracker: State<Unit>,
+    compositionSource: Ref<CompositionSource>,
     constraintSetStart: ConstraintSet,
     constraintSetEnd: ConstraintSet,
-    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl?,
+    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
     motionProgress: MotionProgress,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
-    measurer: MotionMeasurer
-): MeasurePolicy {
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    return remember(
-        optimizationLevel,
-        motionLayoutFlags,
-        debug,
-        constraintSetStart,
-        constraintSetEnd,
-        transition
-    ) {
-        measurer.initWith(
+    measurer: MotionMeasurer,
+    optimizationLevel: Int,
+): MeasurePolicy =
+    MeasurePolicy { measurables, constraints ->
+        // Do a state read, to guarantee that we control measure when the content recomposes without
+        // notifying our Composable caller
+        contentTracker.value
+
+        val layoutSize = measurer.performInterpolationMeasure(
+            constraints,
+            this.layoutDirection,
             constraintSetStart,
             constraintSetEnd,
-            density,
-            layoutDirection,
             transition,
-            motionProgress.currentProgress
+            measurables,
+            optimizationLevel,
+            motionProgress.currentProgress,
+            compositionSource.value ?: CompositionSource.Unknown
         )
-        MeasurePolicy { measurables, constraints ->
-            val layoutSize = measurer.performInterpolationMeasure(
-                constraints,
-                layoutDirection,
-                constraintSetStart,
-                constraintSetEnd,
-                transition,
-                measurables,
-                optimizationLevel,
-                motionProgress.currentProgress,
-                motionLayoutFlags
-            )
-            layout(layoutSize.width, layoutSize.height) {
-                with(measurer) {
-                    performLayout(measurables)
-                }
+        compositionSource.value = CompositionSource.Unknown // Reset after measuring
+
+        layout(layoutSize.width, layoutSize.height) {
+            with(measurer) {
+                performLayout(measurables)
             }
         }
     }
-}
 
 /**
  * Updates [motionProgress] from changes in [LayoutInformationReceiver.getForcedProgress].
@@ -644,10 +670,9 @@ internal fun UpdateWithForcedIfNoUserChange(
  * @param progress User progress, if changed, updates the underlying [MotionProgress]
  * @return A [MotionProgress] instance that may change from internal or external calls
  */
-@Suppress("NOTHING_TO_INLINE")
 @PublishedApi
 @Composable
-internal inline fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
+internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
     val motionProgress = remember {
         MotionProgress.fromMutableState(mutableStateOf(progress))
     }
@@ -658,4 +683,52 @@ internal inline fun createAndUpdateMotionProgress(progress: Float): MotionProgre
         motionProgress.updateProgress(progress)
     }
     return motionProgress
+}
+
+@PublishedApi
+@ExperimentalMotionApi
+internal fun Modifier.motionDebug(
+    measurer: MotionMeasurer,
+    scaleFactor: Float,
+    showBounds: Boolean,
+    showPaths: Boolean,
+    showKeyPositions: Boolean
+): Modifier {
+    var debugModifier: Modifier = this
+    if (!scaleFactor.isNaN()) {
+        debugModifier = debugModifier.scale(scaleFactor)
+    }
+    if (showBounds || showKeyPositions || showPaths) {
+        debugModifier = debugModifier.drawBehind {
+            with(measurer) {
+                drawDebug(
+                    drawBounds = showBounds,
+                    drawPaths = showPaths,
+                    drawKeyPositions = showKeyPositions
+                )
+            }
+        }
+    }
+    return debugModifier
+}
+
+/**
+ * Indicates where the composition was initiated.
+ *
+ * The source will help us identify possible pathways for optimization.
+ *
+ * E.g.: If the content was not recomposed, we can assume that previous measurements are still valid,
+ * so there's no need to recalculate the entire interpolation, only the current frame.
+ */
+@PublishedApi
+internal enum class CompositionSource {
+    // TODO: Add an explicit option for Composition initiated internally
+
+    Unknown,
+
+    /**
+     * Content recomposed, need to remeasure everything: **start**, **end** and **interpolated**
+     * states.
+     */
+    Content
 }

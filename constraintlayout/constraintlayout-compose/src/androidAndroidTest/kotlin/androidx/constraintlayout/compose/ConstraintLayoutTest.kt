@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
@@ -1959,14 +1960,18 @@ class ConstraintLayoutTest {
                     Modifier
                         .layoutId("box0")
                         .onGloballyPositioned {
-                            positions[0] = it.positionInRoot().round()
+                            positions[0] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
                 Box(
                     Modifier
                         .layoutId("box1")
                         .onGloballyPositioned {
-                            positions[1] = it.positionInRoot().round()
+                            positions[1] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
                 Box(
@@ -1974,7 +1979,9 @@ class ConstraintLayoutTest {
                         // Generated id, tho normally, the user wouldn't know what the ID is
                         .layoutId("androidx.constraintlayout.id0")
                         .onGloballyPositioned {
-                            positions[2] = it.positionInRoot().round()
+                            positions[2] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
             }
@@ -2053,6 +2060,177 @@ class ConstraintLayoutTest {
                 (rootSize - expectedBox1End - boxSize) * (1f - box2Bias) + expectedBox1End
             assertEquals(Offset(expectedBox2X, expectedBox1Y + boxSize).round(), box2Position)
         }
+    }
+
+    @Test
+    fun testContentRecomposition_withConstraintSet() = with(rule.density) {
+        var constraintLayoutCompCount = 0
+
+        val baseWidth = 10
+        val box0WidthMultiplier = mutableStateOf(2)
+        val boxHeight = 30
+        rule.setContent {
+            ++constraintLayoutCompCount
+            ConstraintLayout(
+                constraintSet = ConstraintSet {
+                    val (box0, box1) = createRefsFor("box0", "box1")
+                    constrain(box0) {
+                        // previously, preferredWrapContent would fail if only the content
+                        // recomposed
+                        width = Dimension.preferredWrapContent
+
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        horizontalBias = 0f
+
+                        top.linkTo(parent.top)
+                    }
+                    constrain(box1) {
+                        width = Dimension.fillToConstraints
+                        height = Dimension.wrapContent
+                        start.linkTo(box0.start)
+                        end.linkTo(box0.end)
+                        horizontalBias = 0f
+
+                        top.linkTo(box0.bottom)
+                    }
+                }
+            ) {
+                Box(
+                    Modifier
+                        .height(boxHeight.toDp())
+                        .width((baseWidth * box0WidthMultiplier.value).toDp())
+                        .layoutTestId("box0")
+                        .background(Color.Red)
+                )
+                Box(
+                    Modifier
+                        .height(boxHeight.toDp())
+                        .layoutTestId("box1")
+                        .background(Color.Blue)
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        box0WidthMultiplier.value = 3
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        box0WidthMultiplier.value = 1
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        assertEquals(1, constraintLayoutCompCount)
+    }
+
+    @Test
+    fun testContentRecomposition_withInlineModifier() = with(rule.density) {
+        var constraintLayoutCompCount = 0
+
+        val baseWidth = 10
+        val box0WidthMultiplier = mutableStateOf(2)
+        val boxHeight = 30
+        rule.setContent {
+            ++constraintLayoutCompCount
+            ConstraintLayout {
+                val (box0, box1) = createRefs()
+                Box(
+                    Modifier
+                        .height(boxHeight.toDp())
+                        .width((baseWidth * box0WidthMultiplier.value).toDp())
+                        .constrainAs(box0) {
+                            // previously, preferredWrapContent would fail if only the content
+                            // recomposed
+                            width = Dimension.preferredWrapContent
+
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            horizontalBias = 0f
+
+                            top.linkTo(parent.top)
+                        }
+                        .testTag("box0")
+                        .background(Color.Red)
+                )
+                Box(
+                    Modifier
+                        .height(boxHeight.toDp())
+                        .constrainAs(box1) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.wrapContent
+                            start.linkTo(box0.start)
+                            end.linkTo(box0.end)
+                            horizontalBias = 0f
+
+                            top.linkTo(box0.bottom)
+                        }
+                        .testTag("box1")
+                        .background(Color.Blue)
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        box0WidthMultiplier.value = 3
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        box0WidthMultiplier.value = 1
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box0").apply {
+            assertPositionInRootIsEqualTo(0.dp, 0.dp)
+            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+        rule.onNodeWithTag("box1").apply {
+            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+        }
+
+        assertEquals(1, constraintLayoutCompCount)
     }
 
     private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {
