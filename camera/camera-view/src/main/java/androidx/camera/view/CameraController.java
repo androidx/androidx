@@ -420,6 +420,9 @@ public abstract class CameraController {
 
     /**
      * Implemented by children to refresh after {@link UseCase} is changed.
+     *
+     * @throws IllegalStateException for invalid {@link UseCase} combinations.
+     * @throws RuntimeException      for invalid {@link CameraEffect} combinations.
      */
     @Nullable
     abstract Camera startCamera();
@@ -1928,21 +1931,19 @@ public abstract class CameraController {
     /**
      * @param restoreStateRunnable runnable to restore the controller to the previous good state if
      *                             the binding fails.
-     * @throws IllegalStateException if binding fails.
+     * @throws IllegalStateException for invalid {@link UseCase} combinations.
+     * @throws RuntimeException      for invalid {@link CameraEffect} combinations.
      */
     void startCameraAndTrackStates(@Nullable Runnable restoreStateRunnable) {
         try {
             mCamera = startCamera();
-        } catch (IllegalArgumentException exception) {
+        } catch (RuntimeException exception) {
+            // Restore the previous state before re-throwing the exception.
             if (restoreStateRunnable != null) {
                 restoreStateRunnable.run();
             }
-            // Catches the core exception and throw a more readable one.
-            String errorMessage =
-                    "The selected camera does not support the enabled use cases. Please "
-                            + "disable use case and/or select a different camera. e.g. "
-                            + "#setVideoCaptureEnabled(false)";
-            throw new IllegalStateException(errorMessage, exception);
+            // This exception will handled by the app.
+            throw exception;
         }
         if (!isCameraAttached()) {
             Logger.d(TAG, CAMERA_NOT_ATTACHED);
