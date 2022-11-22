@@ -64,11 +64,11 @@ class FullHeaderActionListDemoWidget : BaseListDemoWidget() {
 
 /**
  * List demo with list items in full details and list header without action button using data and
- * list template from [BaseListDemoWidget].
+ * list template from [BaseListDemoWidget] with custom theme.
  */
-class FullHeaderListDemoWidget : BaseListDemoWidget() {
+class FullHeaderListThemedDemoWidget : BaseListDemoWidget() {
     @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
+    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true, true)
 }
 
 /**
@@ -93,8 +93,8 @@ class FullActionListReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = FullHeaderActionListDemoWidget()
 }
 
-class FullHeaderListReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = FullHeaderListDemoWidget()
+class FullHeaderThemedListReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = FullHeaderListThemedDemoWidget()
 }
 
 class NoHeaderListReceiver : GlanceAppWidgetReceiver() {
@@ -124,14 +124,16 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
      * @param listStyle styling the list by [ListStyle] based data details
      * @param initialNumItems initial number of list items to generate in the demo
      * @param showHeader whether to show list header as a whole
+     * @param customTheme whether to override Glance system theme with custom theme
      */
     @Composable
     internal fun ListTemplateContent(
         listStyle: ListStyle,
         showHeader: Boolean = false,
+        customTheme: Boolean = false,
         initialNumItems: Int = MAX_ITEMS,
     ) {
-        GlanceTheme {
+        GlanceTheme(if (customTheme) PalmLeafScheme.colors else GlanceTheme.colors) {
             val state = currentState<Preferences>()
             val content = mutableListOf<ListTemplateItem>()
             for (i in 1..(state[CountKey] ?: initialNumItems)) {
