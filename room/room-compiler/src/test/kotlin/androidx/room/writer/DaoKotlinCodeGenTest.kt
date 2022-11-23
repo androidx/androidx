@@ -1336,6 +1336,48 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_guavaImmutableMultimap() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [Artist::class, Song::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+              abstract fun getDao(): MyDao
+            }
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
+                fun getArtistWithSongs(): com.google.common.collect.ImmutableSetMultimap<Artist, Song>
+
+                @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
+                fun getArtistWithSongIds(): com.google.common.collect.ImmutableListMultimap<Artist, Song>
+            }
+
+            @Entity
+            data class Artist(
+                @PrimaryKey
+                val artistId: String
+            )
+
+            @Entity
+            data class Song(
+                @PrimaryKey
+                val songId: String,
+                val artistKey: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun queryResultAdapter_map_ambiguousIndexAdapter() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
