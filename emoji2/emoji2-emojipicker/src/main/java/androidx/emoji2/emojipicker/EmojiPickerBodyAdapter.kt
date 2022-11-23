@@ -25,10 +25,10 @@ import android.view.ViewGroup.LayoutParams
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.util.Consumer
+import androidx.emoji2.emojipicker.EmojiPickerConstants.RECENT_CATEGORY_INDEX
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.tracing.Trace
-import androidx.emoji2.emojipicker.EmojiPickerConstants.RECENT_CATEGORY_INDEX
 
 /** RecyclerView adapter for emoji body.  */
 internal class EmojiPickerBodyAdapter(
@@ -36,8 +36,12 @@ internal class EmojiPickerBodyAdapter(
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
     private val categoryNames: Array<String>,
+    private val variantToBaseEmojiMap: Map<String, String>,
+    private val baseToVariantsEmojiMap: Map<String, List<String>>,
     private val stickyVariantProvider: StickyVariantProvider,
-    private val onEmojiPickedListener: Consumer<EmojiViewItem>?
+    private val onEmojiPickedListener: Consumer<EmojiViewItem>?,
+    private val recentEmojiList: MutableList<String>,
+    private val recentEmojiProvider: RecentEmojiProvider
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
     private var flattenSource: ItemViewDataFlatList
@@ -87,7 +91,24 @@ internal class EmojiPickerBodyAdapter(
                         getParentWidth(parent) / emojiGridColumns,
                         (parent.measuredHeight / emojiGridRows).toInt(),
                         stickyVariantProvider,
-                        onEmojiPickedListener,
+                        onEmojiPickedListener = { emojiViewItem ->
+                            recentEmojiProvider.insert(emojiViewItem.emoji)
+                            // update the recentEmojiList in the mean time
+                            recentEmojiList.remove(emojiViewItem.emoji)
+                            recentEmojiList.add(0, emojiViewItem.emoji)
+                            onEmojiPickedListener?.accept(emojiViewItem)
+                            // update the recent category to reload
+                            this@EmojiPickerBodyAdapter.updateRecent(recentEmojiList.map { emoji ->
+                                EmojiViewData(
+                                    RECENT_CATEGORY_INDEX,
+                                    recentEmojiList.indexOf(emoji),
+                                    emoji,
+                                    baseToVariantsEmojiMap[variantToBaseEmojiMap[emoji]]
+                                        ?.toTypedArray()
+                                        ?: arrayOf()
+                                )
+                            })
+                        },
                         onEmojiPickedFromPopupListener = { emoji ->
                             (flattenSource[bindingAdapterPosition] as EmojiViewData).primary = emoji
                             notifyItemChanged(bindingAdapterPosition)
@@ -191,5 +212,13 @@ internal class EmojiPickerBodyAdapter(
             emojiGridColumns
         )
         notifyDataSetChanged()
+    }
+
+    fun updateRecent(recents: List<ItemViewData>) {
+        flattenSource.updateSourcesByIndex(RECENT_CATEGORY_INDEX, recents)
+        notifyItemRangeChanged(
+            RECENT_CATEGORY_INDEX,
+            flattenSource.getCategorySize(RECENT_CATEGORY_INDEX)
+        )
     }
 }

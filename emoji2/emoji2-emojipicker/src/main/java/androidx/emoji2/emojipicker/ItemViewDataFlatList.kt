@@ -127,4 +127,29 @@ internal class ItemViewDataFlatList(
         }
         return currentCategoryIndex
     }
+
+    fun updateSourcesByIndex(index: Int, sources: List<ItemViewData>) {
+        if (numberOfCategories == 0) {
+            Log.wtf(LOG_TAG, "Couldn't update due to empty categorizes sources")
+            return
+        }
+        categorizedSources[index] = sources
+        updateIndex()
+    }
+
+    @IntRange(from = 0)
+    fun getCategorySize(categoryIndex: Int): Int {
+        if (categoryIndex >= numberOfCategories) {
+            Log.wtf(
+                LOG_TAG,
+                String.format(
+                    "Too large categoryIndex (%s vs %s)",
+                    categoryIndex,
+                    numberOfCategories
+                )
+            )
+            return 0
+        }
+        return categorySizes[categoryIndex]
+    }
 }

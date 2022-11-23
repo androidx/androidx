@@ -29,7 +29,6 @@ import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
-import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.math.roundToInt
 
@@ -40,15 +39,14 @@ internal class EmojiViewHolder(
     width: Int,
     height: Int,
     stickyVariantProvider: StickyVariantProvider,
-    onEmojiPickedListener: Consumer<EmojiViewItem>?,
+    onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
     onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
 ) : ViewHolder(
     layoutInflater
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
     private val onEmojiClickListener: OnClickListener = OnClickListener {
-        // TODO(scduan): Add other on click events (e.g, add to recent)
-        onEmojiPickedListener?.accept(emojiViewItem)
+        onEmojiPickedListener(this.emojiViewItem)
     }
 
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
