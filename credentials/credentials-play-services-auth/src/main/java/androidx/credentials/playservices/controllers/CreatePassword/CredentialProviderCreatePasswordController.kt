@@ -27,7 +27,7 @@ import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.CredentialManagerCallback
-import androidx.credentials.exceptions.CreateCredentialCanceledException
+import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
@@ -126,7 +126,7 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
         if (resultCode != Activity.RESULT_OK) {
             var exception: CreateCredentialException = CreateCredentialUnknownException()
             if (resultCode == Activity.RESULT_CANCELED) {
-                exception = CreateCredentialCanceledException()
+                exception = CreateCredentialCancellationException()
             }
             this.executor.execute { -> this.callback.onError(exception) }
             return

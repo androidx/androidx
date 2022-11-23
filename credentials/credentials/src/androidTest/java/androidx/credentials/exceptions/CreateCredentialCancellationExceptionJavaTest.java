@@ -26,22 +26,23 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CreateCredentialCanceledExceptionJavaTest {
-    @Test(expected = CreateCredentialCanceledException.class)
-    public void construct_inputNonEmpty_success() throws CreateCredentialCanceledException {
-        throw new CreateCredentialCanceledException("msg");
+public class CreateCredentialCancellationExceptionJavaTest {
+    @Test(expected = CreateCredentialCancellationException.class)
+    public void construct_inputNonEmpty_success() throws CreateCredentialCancellationException {
+        throw new CreateCredentialCancellationException("msg");
     }
 
-    @Test(expected = CreateCredentialCanceledException.class)
-    public void construct_errorMessageNull_success() throws CreateCredentialCanceledException {
-        throw new CreateCredentialCanceledException(null);
+    @Test(expected = CreateCredentialCancellationException.class)
+    public void construct_errorMessageNull_success() throws CreateCredentialCancellationException {
+        throw new CreateCredentialCancellationException(null);
     }
 
     @Test
     public void getter_type_success() {
-        CreateCredentialCanceledException exception = new CreateCredentialCanceledException("msg");
+        CreateCredentialCancellationException exception = new
+                CreateCredentialCancellationException("msg");
         String expectedType =
-                CreateCredentialCanceledException.TYPE_CREATE_CREDENTIAL_CANCELED_EXCEPTION;
+                CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION;
         Truth.assertThat(exception.getType()).isEqualTo(expectedType);
     }
 }
