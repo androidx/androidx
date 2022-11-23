@@ -62,6 +62,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("12_style"),
             resources,
             R.string.digital_clock_style_12,
+            R.string.digital_clock_style_12_screen_reader,
             Icon.createWithResource(this, R.drawable.red_style)
         )
     }
@@ -71,6 +72,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("24_style"),
             resources,
             R.string.digital_clock_style_24,
+            R.string.digital_clock_style_24_screen_reader,
             Icon.createWithResource(this, R.drawable.red_style)
         )
     }
@@ -133,6 +135,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id(RED_STYLE),
             resources,
             R.string.colors_style_red,
+            R.string.colors_style_red_screen_reader,
             Icon.createWithResource(this, R.drawable.red_style)
         )
     }
@@ -142,6 +145,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id(GREEN_STYLE),
             resources,
             R.string.colors_style_green,
+            R.string.colors_style_green_screen_reader,
             Icon.createWithResource(this, R.drawable.green_style)
         )
     }
@@ -151,6 +155,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id(BLUE_STYLE),
             resources,
             R.string.colors_style_blue,
+            R.string.colors_style_blue_screen_reader,
             Icon.createWithResource(this, R.drawable.blue_style)
         )
     }
@@ -236,6 +241,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("digital"),
             resources,
             R.string.style_digital_watch,
+            R.string.style_digital_watch_screen_reader,
             icon = Icon.createWithResource(this, R.drawable.d),
             childSettings = listOf(
                 digitalClockStyleSetting,
@@ -250,6 +256,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             UserStyleSetting.Option.Id("analog"),
             resources,
             R.string.style_analog_watch,
+            R.string.style_analog_watch_screen_reader,
             icon = Icon.createWithResource(this, R.drawable.a),
             childSettings = listOf(
                 colorStyleSetting,

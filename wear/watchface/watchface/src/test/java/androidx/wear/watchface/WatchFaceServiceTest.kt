@@ -195,13 +195,13 @@ public class WatchFaceServiceTest {
     private val complicationDrawableBackground = ComplicationDrawable(context)
 
     private val redStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", "Red", icon = null)
 
     private val greenStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
@@ -214,14 +214,26 @@ public class WatchFaceServiceTest {
         listOf(WatchFaceLayer.BASE)
     )
 
-    private val classicStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", icon = null)
+    private val classicStyleOption = ListUserStyleSetting.ListOption(
+        Option.Id("classic_style"),
+        "Classic",
+        "Classic",
+        icon = null
+    )
 
-    private val modernStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", icon = null)
+    private val modernStyleOption = ListUserStyleSetting.ListOption(
+        Option.Id("modern_style"),
+        "Modern",
+        "Modern",
+        icon = null
+    )
 
-    private val gothicStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+    private val gothicStyleOption = ListUserStyleSetting.ListOption(
+        Option.Id("gothic_style"),
+        "Gothic",
+        "Gothic",
+        icon = null
+    )
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
@@ -236,7 +248,7 @@ public class WatchFaceServiceTest {
     )
 
     private val badStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", "Bad", icon = null)
 
     @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val leftComplication =
@@ -356,6 +368,7 @@ public class WatchFaceServiceTest {
     private val leftAndRightComplicationsOption = ComplicationSlotsOption(
         Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
         "Left and Right",
+        "Left and Right complications",
         null,
         // An empty list means use the initial config.
         emptyList()
@@ -363,6 +376,7 @@ public class WatchFaceServiceTest {
     private val noComplicationsOption = ComplicationSlotsOption(
         Option.Id(NO_COMPLICATIONS),
         "None",
+        "No complications",
         null,
         listOf(
             ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -374,6 +388,7 @@ public class WatchFaceServiceTest {
     private val leftOnlyComplicationsOption = ComplicationSlotsOption(
         Option.Id(LEFT_COMPLICATION),
         "Left",
+        "Left complication",
         null,
         listOf(
             ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -385,6 +400,7 @@ public class WatchFaceServiceTest {
     private val rightOnlyComplicationsOption = ComplicationSlotsOption(
         Option.Id(RIGHT_COMPLICATION),
         "Right",
+        "Right complication",
         null,
         listOf(
             ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -2027,6 +2043,7 @@ public class WatchFaceServiceTest {
         val rightAndSelectComplicationsOption = ComplicationSlotsOption(
             Option.Id(RIGHT_AND_LEFT_COMPLICATIONS),
             "Right and Left",
+            "Right and Left complications",
             null,
             listOf(
                 ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -2648,6 +2665,7 @@ public class WatchFaceServiceTest {
                 ComplicationSlotsOption(
                     Option.Id("one"),
                     "one",
+                    "one",
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -2658,7 +2676,8 @@ public class WatchFaceServiceTest {
                 ),
                 ComplicationSlotsOption(
                     Option.Id("two"),
-                    "teo",
+                    "two",
+                    "two",
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -2720,16 +2739,23 @@ public class WatchFaceServiceTest {
         val option1 = ListUserStyleSetting.ListOption(
             Option.Id("1"),
             displayName = "1",
+            screenReaderName = "1",
             icon = null,
             childSettings = listOf(complicationsStyleSetting)
         )
         val option2 = ListUserStyleSetting.ListOption(
             Option.Id("2"),
             displayName = "2",
+            screenReaderName = "2",
             icon = null,
             childSettings = listOf(complicationsStyleSetting2)
         )
-        val option3 = ListUserStyleSetting.ListOption(Option.Id("3"), "3", icon = null)
+        val option3 = ListUserStyleSetting.ListOption(
+            Option.Id("3"),
+            displayName = "3",
+            screenReaderName = "3",
+            icon = null
+        )
         val choice = ListUserStyleSetting(
             UserStyleSetting.Id("123"),
             displayName = "123",
@@ -3919,6 +3945,7 @@ public class WatchFaceServiceTest {
         val rightComplicationBoundsOption = ComplicationSlotsOption(
             Option.Id(RIGHT_COMPLICATION),
             "Right",
+            "Right",
             null,
             listOf(
                 ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
@@ -3935,6 +3962,7 @@ public class WatchFaceServiceTest {
             complicationConfig = listOf(
                 ComplicationSlotsOption(
                     Option.Id("Default"),
+                    "Default",
                     "Default",
                     null,
                     emptyList()
@@ -4347,7 +4375,7 @@ public class WatchFaceServiceTest {
         val longOptionsList = ArrayList<ListUserStyleSetting.ListOption>()
         for (i in 0..10000) {
             longOptionsList.add(
-                ListUserStyleSetting.ListOption(Option.Id("id$i"), "Name", icon = null)
+                ListUserStyleSetting.ListOption(Option.Id("id$i"), "Name", "Name", icon = null)
             )
         }
         val tooLargeList = ListUserStyleSetting(
@@ -5412,6 +5440,7 @@ public class WatchFaceServiceTest {
         complicationSlotsManager.applyComplicationSlotsStyleCategoryOption(
             ComplicationSlotsOption(
                 Option.Id("123"),
+                "testOption",
                 "testOption",
                 icon = null,
                 complicationSlotOverlays = listOf(

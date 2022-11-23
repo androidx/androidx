@@ -56,12 +56,14 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
                     UserStyleSetting.Option.Id("yellow_style"),
                     resources,
                     R.string.colors_style_yellow,
+                    R.string.colors_style_yellow_screen_reader,
                     Icon.createWithResource(this, R.drawable.yellow_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     UserStyleSetting.Option.Id("blue_style"),
                     resources,
                     R.string.colors_style_blue,
+                    R.string.colors_style_blue_screen_reader,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
