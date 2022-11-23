@@ -19,7 +19,7 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.GuavaCollectionTypeNames
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.solver.CodeGenScope
 
 class ImmutableListQueryResultAdapter(
@@ -29,10 +29,10 @@ class ImmutableListQueryResultAdapter(
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            val collectionType = GuavaCollectionTypeNames.IMMUTABLE_LIST.parametrizedBy(
+            val collectionType = GuavaTypeNames.IMMUTABLE_LIST.parametrizedBy(
                 typeArg.asTypeName()
             )
-            val immutableListBuilderType = GuavaCollectionTypeNames
+            val immutableListBuilderType = GuavaTypeNames
                 .IMMUTABLE_LIST_BUILDER.parametrizedBy(typeArg.asTypeName())
             val immutableListBuilderName = scope.getTmpVar("_immutableListBuilder")
             addLocalVariable(
@@ -40,7 +40,7 @@ class ImmutableListQueryResultAdapter(
                 typeName = immutableListBuilderType,
                 assignExpr = XCodeBlock.ofNewInstance(
                     language = language,
-                    GuavaCollectionTypeNames.IMMUTABLE_LIST_BUILDER
+                    GuavaTypeNames.IMMUTABLE_LIST_BUILDER
                 )
             )
 
