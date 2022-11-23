@@ -13,10 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.paging
 
-package androidx.paging;
+import android.database.Cursor
+import androidx.paging.PagingState
+import androidx.room.RoomDatabase
+import androidx.room.RoomSQLiteQuery
 
-public abstract class ListenableFuturePagingSource<Integer, T>
-        extends androidx.paging.PagingSource<Integer, T> {
+@Suppress("UNUSED_PARAMETER")
+abstract class ListenableFuturePagingSource<K : Any, T : Any>(
+    private val sourceQuery: RoomSQLiteQuery,
+    private val db: RoomDatabase,
+    vararg tables: String
+) : androidx.paging.PagingSource<K, T>() {
+    override fun getRefreshKey(state: PagingState<K, T>): K? {
+        return null
+    }
 
+    override public suspend fun load(params: LoadParams<K>): LoadResult<K, T> {
+        return LoadResult.Invalid()
+    }
+    protected abstract fun convertRows(cursor: Cursor): List<T>
 }

@@ -16,6 +16,7 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
@@ -27,17 +28,15 @@ import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 
 class MultiTypedPagingSourceQueryResultBinderProvider(
     private val context: Context,
-    private val roomPagingClassName: ClassName,
-    pagingSourceTypeName: TypeName,
+    private val roomPagingClassName: XClassName,
+    pagingSourceTypeName: XClassName,
 ) : QueryResultBinderProvider {
 
     private val pagingSourceType: XRawType? by lazy {
-        context.processingEnv.findType(pagingSourceTypeName)?.rawType
+        context.processingEnv.findType(pagingSourceTypeName.canonicalName)?.rawType
     }
 
     override fun provide(
