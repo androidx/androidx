@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.test.InstrumentationTestCase;
 
+import androidx.annotation.NonNull;
+
 /**
  * UI Automator test case that is executed on the device.
  * @deprecated It is no longer necessary to extend UiAutomatorTestCase. You can use
@@ -60,7 +62,10 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
     @Deprecated
     public IAutomationSupport getAutomationSupport() {
         if (mAutomationSupport == null) {
-            mAutomationSupport = new InstrumentationAutomationSupport(getInstrumentation());
+            Instrumentation instrumentation =  getInstrumentation();
+            mAutomationSupport = (int resultCode, @NonNull Bundle status) -> {
+                instrumentation.sendStatus(resultCode, status);
+            };
         }
         return mAutomationSupport;
     }
