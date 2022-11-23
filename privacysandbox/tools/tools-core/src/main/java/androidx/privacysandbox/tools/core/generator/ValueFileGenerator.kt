@@ -25,7 +25,7 @@ import com.squareup.kotlinpoet.TypeSpec
 /**
  * Generates a file that defines a previously declared SDK value.
  */
-class ValueFileGenerator() {
+class ValueFileGenerator {
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(value.type.packageName, value.type.simpleName).build {
             addCommonSettings()
@@ -33,10 +33,10 @@ class ValueFileGenerator() {
         }
 
     private fun generateValue(value: AnnotatedValue) =
-        TypeSpec.classBuilder(value.type.poetSpec()).build {
+        TypeSpec.classBuilder(value.type.poetClassName()).build {
             addModifiers(KModifier.DATA)
             primaryConstructor(value.properties.map {
-                PropertySpec.builder(it.name, it.type.poetSpec())
+                PropertySpec.builder(it.name, it.type.poetTypeName())
                     .mutable(false)
                     .build()
             })

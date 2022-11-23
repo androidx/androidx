@@ -9,6 +9,7 @@ public object InnerSdkValueConverter {
                 id = parcelable.id,
                 message = parcelable.message,
                 myInterface = MyInterfaceClientProxy(parcelable.myInterface),
+                numbers = parcelable.numbers.toList(),
                 separator = parcelable.separator,
                 shouldBeAwesome = parcelable.shouldBeAwesome)
         return annotatedValue
@@ -22,6 +23,7 @@ public object InnerSdkValueConverter {
         parcelable.id = annotatedValue.id
         parcelable.message = annotatedValue.message
         parcelable.myInterface = (annotatedValue.myInterface as MyInterfaceClientProxy).remote
+        parcelable.numbers = annotatedValue.numbers.toIntArray()
         parcelable.separator = annotatedValue.separator
         parcelable.shouldBeAwesome = annotatedValue.shouldBeAwesome
         return parcelable

@@ -123,10 +123,11 @@ class AidlGenerator private constructor(
         check(parameter.type != Types.unit) {
             "Void cannot be a parameter type."
         }
+        val aidlType = getAidlTypeDeclaration(parameter.type)
         addParameter(
             parameter.name,
-            getAidlTypeDeclaration(parameter.type),
-            isIn = api.valueMap.containsKey(parameter.type)
+            aidlType,
+            isIn = api.valueMap.containsKey(parameter.type) || aidlType.isList
         )
     }
 
@@ -229,6 +230,7 @@ class AidlGenerator private constructor(
             // TODO: AIDL doesn't support short, make sure it's handled correctly.
             Short::class.qualifiedName -> primitive("int")
             Unit::class.qualifiedName -> primitive("void")
+            List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
             else -> throw IllegalArgumentException(
                 "Unsupported type conversion ${type.qualifiedName}"
             )
@@ -249,7 +251,8 @@ internal fun File.ensureDirectory() {
 
 fun AnnotatedInterface.aidlName() = "I${type.simpleName}"
 
-fun Type.transactionCallbackName() = "I${simpleName}TransactionCallback"
+fun Type.transactionCallbackName() =
+    "I${simpleName}${typeParameters.joinToString("") { it.simpleName }}TransactionCallback"
 
 internal fun AnnotatedValue.aidlType() =
     AidlTypeSpec(Type(type.packageName, "Parcelable${type.simpleName}"))

@@ -47,7 +47,7 @@ class AidlValueGeneratorTest {
             Type(packageName = "com.mysdk", simpleName = "OuterValue"),
             listOf(
                 ValueProperty("innerValue", innerValue.type),
-                ValueProperty("anotherInnerValue", innerValue.type),
+                ValueProperty("innerValueList", Types.list(innerValue.type)),
             )
         )
 
@@ -68,6 +68,14 @@ class AidlValueGeneratorTest {
                                 Parameter("inputValue", outerValue.type)
                             ),
                             returnType = Types.unit,
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "suspendMethodWithListsOfValues",
+                            parameters = listOf(
+                                Parameter("inputValues", Types.list(outerValue.type))
+                            ),
+                            returnType = Types.list(outerValue.type),
                             isSuspend = true,
                         ),
                         Method(
@@ -95,6 +103,7 @@ class AidlValueGeneratorTest {
                 "com.mysdk" to "ParcelableInnerValue",
                 "com.mysdk" to "IUnitTransactionCallback",
                 "com.mysdk" to "IOuterValueTransactionCallback",
+                "com.mysdk" to "IListOuterValueTransactionCallback",
                 "com.mysdk" to "ICancellationSignal",
                 "com.mysdk" to "PrivacySandboxThrowableParcel",
                 "com.mysdk" to "ParcelableStackFrame",

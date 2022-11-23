@@ -20,17 +20,19 @@ import androidx.privacysandbox.tools.core.generator.addCommonSettings
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.generator.build
+import androidx.privacysandbox.tools.core.generator.poetClassName
 import androidx.privacysandbox.tools.core.generator.poetSpec
+import androidx.privacysandbox.tools.core.generator.poetTypeName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
-internal class InterfaceFileGenerator() {
+internal class InterfaceFileGenerator {
 
     fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val annotatedInterfaceType =
-            TypeSpec.interfaceBuilder(annotatedInterface.type.poetSpec()).build {
+            TypeSpec.interfaceBuilder(annotatedInterface.type.poetClassName()).build {
                 addFunctions(annotatedInterface.methods.map(::generateInterfaceMethod))
             }
 
@@ -47,6 +49,6 @@ internal class InterfaceFileGenerator() {
                 addModifiers(KModifier.SUSPEND)
             }
             addParameters(method.parameters.map { it.poetSpec() })
-            returns(method.returnType.poetSpec())
+            returns(method.returnType.poetTypeName())
         }
 }
