@@ -36,12 +36,10 @@ import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -54,6 +52,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
@@ -63,7 +62,6 @@ import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -693,8 +691,6 @@ final class SupportedSurfaceCombination {
 
     @NonNull
     private Size[] doGetAllOutputSizesByFormat(int imageFormat) {
-        Size[] outputSizes;
-
         StreamConfigurationMap map =
                 mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
@@ -702,18 +698,9 @@ final class SupportedSurfaceCombination {
             throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
         }
 
-        if (Build.VERSION.SDK_INT < 23
-                && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
-            // This is a little tricky that 0x22 that is internal defined in
-            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
-            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
-            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
-            // retrieve the output sizes information.
-            outputSizes = map.getOutputSizes(SurfaceTexture.class);
-        } else {
-            outputSizes = map.getOutputSizes(imageFormat);
-        }
-
+        StreamConfigurationMapCompat mapCompat =
+                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        Size[] outputSizes = mapCompat.getOutputSizes(imageFormat);
         if (outputSizes == null) {
             throw new IllegalArgumentException(
                     "Can not get supported output size for the format: " + imageFormat);
@@ -815,7 +802,10 @@ final class SupportedSurfaceCombination {
             throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
         }
 
-        Size[] videoSizeArr = map.getOutputSizes(MediaRecorder.class);
+        StreamConfigurationMapCompat mapCompat =
+                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+
+        Size[] videoSizeArr = mapCompat.getOutputSizes(MediaRecorder.class);
 
         if (videoSizeArr == null) {
             return RESOLUTION_480P;
