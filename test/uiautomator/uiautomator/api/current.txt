@@ -117,10 +117,10 @@ package androidx.test.uiautomator {
     ctor public StaleObjectException();
   }
 
-  public class UiAutomatorInstrumentationTestRunner extends android.test.InstrumentationTestRunner {
-    ctor public UiAutomatorInstrumentationTestRunner();
-    method protected android.test.AndroidTestRunner! getAndroidTestRunner();
-    method protected void initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase!);
+  @Deprecated public class UiAutomatorInstrumentationTestRunner extends android.test.InstrumentationTestRunner {
+    ctor @Deprecated public UiAutomatorInstrumentationTestRunner();
+    method @Deprecated protected android.test.AndroidTestRunner! getAndroidTestRunner();
+    method @Deprecated protected void initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase!);
   }
 
   @Deprecated public class UiAutomatorTestCase extends android.test.InstrumentationTestCase {
