@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
@@ -62,6 +63,11 @@ import com.google.common.util.concurrent.ListenableFuture;
  * {@code PreviewView}(surface provider) <--> {@link SurfaceRequest} <--> {@link SettableSurface}
  *     <--> {@link SurfaceOutput} --> {@link SurfaceProcessor}(surface consumer)
  * </pre>
+ *
+ * TODO(b/241910577): rename this class to SurfaceEdge and make it compositing a
+ *  DeferrableSurface instead of inheriting it. This is because in a stream sharing scenario, a
+ *  downstream UseCase may reset and provide a different Surface, and a DeferrableSurface
+ *  cannot be attached to a different Surface.
  *
  * <p>For the full workflow, please see {@code SettableSurfaceTest
  * #linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E}
@@ -253,14 +259,14 @@ public class SettableSurface extends DeferrableSurface {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
-     * @param resolution         resolution of input image buffer
-     * @param cropRect           crop rect of input image buffer
-     * @param rotationDegrees    expected rotation to the input image buffer
-     * @param mirroring          expected mirroring to the input image buffer
+     * @param inputSize       resolution of input image buffer
+     * @param cropRect        crop rect of input image buffer
+     * @param rotationDegrees expected rotation to the input image buffer
+     * @param mirroring       expected mirroring to the input image buffer
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size resolution,
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
             @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
@@ -274,7 +280,7 @@ public class SettableSurface extends DeferrableSurface {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), getFormat(), getSize(), resolution, cropRect,
+                            getTargets(), getFormat(), getSize(), inputSize, cropRect,
                             rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
                             directExecutor());
@@ -331,6 +337,9 @@ public class SettableSurface extends DeferrableSurface {
 
     /**
      * The format of the {@link Surface}.
+     *
+     * TODO(259308680): hide the format. Currently the pipeline only supports
+     *  {@link ImageFormat#PRIVATE}.
      */
     public int getFormat() {
         return getPrescribedStreamFormat();

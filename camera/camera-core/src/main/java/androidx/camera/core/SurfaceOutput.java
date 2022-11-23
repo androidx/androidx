@@ -82,6 +82,9 @@ public interface SurfaceOutput {
     /**
      * Get the rotation degrees.
      *
+     * TODO(b/259308680): hide this from the {@link SurfaceOutput} interface. This is only used
+     * for testing.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
