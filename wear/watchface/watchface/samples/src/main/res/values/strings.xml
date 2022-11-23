@@ -54,6 +54,18 @@
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_yellow">Yellow</string>
 
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_red_screen_reader">Red color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_green_screen_reader">Green color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_blue_screen_reader">Blue color theme</string>
+
+    <!-- An option within the watch face color style theme settings -->
+    <string name="colors_style_yellow_screen_reader">Yellow color theme</string>
+
     <!-- Name of watchface style category for selecting the hand style [CHAR LIMIT=20] -->
     <string name="hand_style_setting" translatable="false">Hand Style</string>
 
@@ -63,11 +75,23 @@
     <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
     <string name="hand_style_classic" translatable="false">Classic</string>
 
+    <!-- An option with the watch face hand style settings  for use by screen readers -->
+    <string name="hand_style_classic_screen_reader" translatable="false">Classic watch hand
+    style</string>
+
     <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
     <string name="hand_style_modern" translatable="false">Modern</string>
 
+    <!-- An option with the watch face hand style settings  for use by screen readers -->
+    <string name="hand_style_modern_screen_reader" translatable="false">Modern watch hand
+    style</string>
+
     <!-- An option with the watch face hand style settings [CHAR LIMIT=20] -->
     <string name="hand_style_gothic" translatable="false">Gothic</string>
+
+    <!-- An option with the watch face hand style settings for use by screen readers -->
+    <string name="hand_style_gothic_screen_reader" translatable="false">Gothic watch hand
+    style</string>
 
     <!-- An option within the analog watch face to draw pips to mark each hour [CHAR LIMIT=20] -->
     <string name="watchface_pips_setting">Hour Pips</string>
@@ -171,14 +195,26 @@
     <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
     <string name="digital_clock_style_12">12</string>
 
-    <!-- Menu option for a 24 hour digital clock display. [CHAR LIMIT=20] -->
+    <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_12_screen_reader">12 hour clock</string>
+
+    <!-- Menu option for a 24 hour digital clock display used by screen reader. -->
     <string name="digital_clock_style_24">24</string>
+
+    <!-- Menu option for a 24 hour digital clock display used by screen reader.-->
+    <string name="digital_clock_style_24_screen_reader">24 hour clock</string>
 
     <!-- Menu option for selecting a digital clock [CHAR LIMIT=20] -->
     <string name="style_digital_watch">Digital</string>
 
+    <!-- Menu option for selecting a digital clock from a screen reader. -->
+    <string name="style_digital_watch_screen_reader">Digital watch style</string>
+
     <!-- Menu option for selecting an analog clock [CHAR LIMIT=20] -->
     <string name="style_analog_watch">Analog</string>
+
+    <!-- Menu option for selecting an analog clock  from a screen reader.-->
+    <string name="style_analog_watch_screen_reader">Analog watch style </string>
 
     <!-- Title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
     <string name="clock_type">Clock type</string>

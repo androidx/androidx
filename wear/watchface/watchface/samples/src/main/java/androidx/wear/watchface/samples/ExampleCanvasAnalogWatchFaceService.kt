@@ -90,18 +90,21 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                     Option.Id(RED_STYLE),
                     resources,
                     R.string.colors_style_red,
+                    R.string.colors_style_red_screen_reader,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(GREEN_STYLE),
                     resources,
                     R.string.colors_style_green,
+                    R.string.colors_style_green_screen_reader,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(BLUE_STYLE),
                     resources,
                     R.string.colors_style_blue,
+                    R.string.colors_style_blue_screen_reader,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),

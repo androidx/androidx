@@ -17,7 +17,9 @@
 
 <resources>
     <string name="red_style_name">Red Style</string>
+    <string name="red_style_name_screen_reader">Red watch face style</string>
     <string name="green_style_name">Green Style</string>
+    <string name="green_style_name_screen_reader">Green watch face style</string>
     <string name="colors_style_setting">Colors</string>
     <string name="colors_style_setting_description">Watchface colorization</string>
 
@@ -30,4 +32,7 @@
 
     <string name="complication_name" translatable="false">Name</string>
     <string name="complication_screen_reader_name" translatable="false">This is a name</string>
+
+    <string name="ith_option" translatable="false">Option %1$d</string>
+    <string name="ith_option_screen_reader_name" translatable="false">List option %1$d</string>
 </resources>

@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.List;
@@ -35,20 +36,11 @@ import java.util.List;
 @VersionedParcelize
 public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    ComplicationsUserStyleSettingWireFormat() {
-    }
+    @Nullable
+    @ParcelField(104)
+    public List<CharSequence> mPerOptionScreenReaderNames;
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
-    @Deprecated
-    public ComplicationsUserStyleSettingWireFormat(
-            @NonNull String id,
-            @NonNull CharSequence displayName,
-            @NonNull CharSequence description,
-            @Nullable Icon icon,
-            @NonNull List<OptionWireFormat> options,
-            int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+    ComplicationsUserStyleSettingWireFormat() {
     }
 
     public ComplicationsUserStyleSettingWireFormat(
@@ -60,8 +52,10 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers,
             @Nullable Bundle onWatchFaceEditorBundle,
-            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles,
+            @Nullable List<CharSequence> perOptionScreenReaderNames) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
                 onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        mPerOptionScreenReaderNames = perOptionScreenReaderNames;
     }
 }
