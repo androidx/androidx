@@ -62,6 +62,7 @@ class EmojiPickerView @JvmOverloads constructor(
         }
 
     private val stickyVariantProvider = StickyVariantProvider(context)
+    private var recentEmojiProvider = DefaultRecentEmojiProvider(context)
 
     private lateinit var headerView: RecyclerView
     private lateinit var bodyView: RecyclerView
@@ -93,13 +94,22 @@ class EmojiPickerView @JvmOverloads constructor(
         emojiGridColumns: Int,
         emojiGridRows: Float,
         categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>,
-        onEmojiPickedListener: Consumer<EmojiViewItem>?
+        variantToBaseEmojiMap: Map<String, String>,
+        baseToVariantsEmojiMap: Map<String, List<String>>,
+        onEmojiPickedListener: Consumer<EmojiViewItem>?,
+        recentEmojiList: MutableList<String>,
+        recentEmojiProvider: RecentEmojiProvider
     ): EmojiPickerBodyAdapter {
         val categoryNames = mutableListOf<String>()
         val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
         // add recent category as the first row
         categoryNames.add(resources.getString(R.string.emoji_category_recent))
-        categorizedEmojis.add(mutableListOf())
+        categorizedEmojis.add(recentEmojiList.map { emoji ->
+            EmojiViewItem(
+                emoji,
+                baseToVariantsEmojiMap[variantToBaseEmojiMap[emoji]] ?: listOf()
+            )
+        }.toMutableList())
 
         for (i in categorizedEmojiData.indices) {
             categoryNames.add(categorizedEmojiData[i].categoryName)
@@ -116,8 +126,12 @@ class EmojiPickerView @JvmOverloads constructor(
             emojiGridColumns,
             emojiGridRows,
             categoryNames.toTypedArray(),
+            variantToBaseEmojiMap,
+            baseToVariantsEmojiMap,
             stickyVariantProvider,
-            onEmojiPickedListener
+            onEmojiPickedListener,
+            recentEmojiList,
+            recentEmojiProvider
         )
         adapter.updateEmojis(createEmojiViewData(categorizedEmojis))
 
@@ -166,13 +180,20 @@ class EmojiPickerView @JvmOverloads constructor(
         // set bodyView
         bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
+        val variantToBaseEmojiMap = BundledEmojiListLoader.getPrimaryEmojiLookup()
+        val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()
+        val recentEmojiList = recentEmojiProvider.getRecentItemList().toMutableList()
         bodyView.adapter =
             createEmojiPickerBodyAdapter(
                 context,
                 emojiGridColumns,
                 emojiGridRows,
                 categorizedEmojiData,
-                onEmojiPickedListener
+                variantToBaseEmojiMap,
+                baseToVariantsEmojiMap,
+                onEmojiPickedListener,
+                recentEmojiList,
+                recentEmojiProvider
             )
     }
 

@@ -17,14 +17,12 @@
 package androidx.emoji2.emojipicker
 
 import androidx.emoji2.emojipicker.R as EmojiPickerViewR
-import androidx.test.espresso.Espresso.onView
 import org.hamcrest.Description
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -32,18 +30,11 @@ import androidx.core.view.isVisible
 import androidx.emoji2.emojipicker.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.BoundedMatcher
-import androidx.test.espresso.matcher.RootMatchers.hasWindowLayoutParams
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -97,55 +88,6 @@ class EmojiPickerViewTest {
             // Not long-clickable
             assertEquals(targetView.isLongClickable, false)
         }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 24)
-    fun testCustomEmojiPickerView_hasVariant() {
-        // 👃 has variants
-        val noseEmoji = "\uD83D\uDC43"
-        lateinit var bodyView: EmojiPickerBodyView
-        mActivityTestRule.scenario.onActivity {
-            bodyView = it.findViewById<EmojiPickerView>(R.id.emojiPickerTest)
-                .findViewById(EmojiPickerViewR.id.emoji_picker_body)
-        }
-        onView(withId(EmojiPickerViewR.id.emoji_picker_body))
-            .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(noseEmoji)))
-        val targetView = findViewByEmoji(bodyView, noseEmoji)
-        // Variant indicator visible
-        assertEquals(
-            (targetView.parent as FrameLayout).findViewById<ImageView>(
-                EmojiPickerViewR.id.variant_availability_indicator
-            ).visibility, VISIBLE
-        )
-        // Long-clickable
-        assertEquals(targetView.isLongClickable, true)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 24)
-    fun testStickyVariant_displayAndSaved() {
-        val noseEmoji = "\uD83D\uDC43"
-        val noseEmojiDark = "\uD83D\uDC43\uD83C\uDFFF"
-        lateinit var bodyView: EmojiPickerBodyView
-        mActivityTestRule.scenario.onActivity {
-            bodyView = it.findViewById<EmojiPickerView>(R.id.emojiPickerTest)
-                .findViewById(EmojiPickerViewR.id.emoji_picker_body)
-        }
-        // Scroll to the nose emoji, long click then select nose in dark skin tone
-        onView(withId(EmojiPickerViewR.id.emoji_picker_body))
-            .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(noseEmoji)))
-        onView(createEmojiViewMatcher(noseEmoji)).perform(longClick())
-        onView(createEmojiViewMatcher(noseEmojiDark))
-            .inRoot(hasWindowLayoutParams())
-            .perform(click())
-        assertNotNull(findViewByEmoji(bodyView, noseEmojiDark))
-        // Switch back to clear saved preference
-        onView(createEmojiViewMatcher(noseEmojiDark)).perform(longClick())
-        onView(createEmojiViewMatcher(noseEmoji))
-            .inRoot(hasWindowLayoutParams())
-            .perform(click())
-        assertNotNull(findViewByEmoji(bodyView, noseEmoji))
     }
 
     private fun findViewByEmoji(root: View, emoji: String) =
