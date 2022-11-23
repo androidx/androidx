@@ -18,8 +18,10 @@ package androidx.webkit;
 
 import android.content.Context;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
+import androidx.webkit.internal.ApiHelperForP;
 import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
@@ -28,7 +30,6 @@ import org.chromium.support_lib_boundary.ProcessGlobalConfigConstants;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -37,7 +38,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * WebView has some process-global configuration parameters that cannot be changed once WebView has
  * been loaded. This class allows apps to set these parameters.
  * <p>
- * If it is used, the configuration should be set and {@link #apply()} should be called prior to
+ * If it is used, the configuration should be set and
+ * {@link #apply(androidx.webkit.ProcessGlobalConfig)} should be called prior to
  * loading WebView into the calling process. Most of the methods in
  * {@link android.webkit} and {@link androidx.webkit} packages load WebView, so the
  * configuration should be applied before calling any of these methods.
@@ -45,13 +47,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * The following code configures the data directory suffix that WebView
  * uses and then applies the configuration. WebView uses this configuration when it is loaded.
  * <pre class="prettyprint">
- * ProcessGlobalConfig.createInstance()
- *                    .setDataDirectorySuffix("random_suffix")
- *                    .apply();
+ * ProcessGlobalConfig config = new ProcessGlobalConfig();
+ * config.setDataDirectorySuffix("random_suffix")
+ * ProcessGlobalConfig.apply(config);
  * </pre>
  * <p>
- * Restrictions are in place to ensure that {@link #createInstance()} can only be called once.
- * The setters and {@link #apply()} can also only be called once.
+ * {@link ProcessGlobalConfig#apply(androidx.webkit.ProcessGlobalConfig)} can only be called once.
  * <p>
  * Only a single thread should access this class at a given time.
  * <p>
@@ -61,87 +62,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ProcessGlobalConfig {
     private static final AtomicReference<HashMap<String, Object>> sProcessGlobalConfig =
             new AtomicReference<HashMap<String, Object>>();
-    private static AtomicBoolean sInstanceCreated = new AtomicBoolean(false);
-    private boolean mApplyCalled = false;
-    private String mDataDirectorySuffix;
+    private static final Object sLock = new Object();
+    @GuardedBy("sLock")
+    private static boolean sApplyCalled = false;
+    String mDataDirectorySuffix;
 
-    private ProcessGlobalConfig() {
-    }
-
-    /**
-     * Creates instance of {@link ProcessGlobalConfig}.
-     *
-     * This method can only be called once.
-     *
-     * @return {@link ProcessGlobalConfig} object where configuration can be set and applied
-     *
-     * @throws IllegalStateException if this method was called before
-     */
-    @NonNull
-    public static ProcessGlobalConfig createInstance() {
-        if (!sInstanceCreated.compareAndSet(false, true)) {
-            throw new IllegalStateException("ProcessGlobalConfig#createInstance was "
-                    + "called more than once, which is an illegal operation. The configuration "
-                    + "settings provided by ProcessGlobalConfig take effect only once, when "
-                    + "WebView is first loaded into the current process. Every process should "
-                    + "only ever create a single instance of ProcessGlobalConfig and apply it "
-                    + "once, before any calls to android.webkit APIs, such as during early app "
-                    + "startup."
-            );
-        }
-        return new ProcessGlobalConfig();
-    }
 
     /**
-     * Applies the configuration to be used by WebView on loading.
-     *
-     * If this method is not called, the configuration that is set will not be applied.
-     * This method can only be called once.
-     * <p>
-     * Calling this method will not cause WebView to be loaded and will not block the calling
-     * thread.
-     *
-     * @throws IllegalStateException if WebView has already been initialized
-     *                               in the current process or if this method was called before
+     * Creates a {@link ProcessGlobalConfig} object.
      */
-    public void apply() {
-        // TODO(crbug.com/1355297): We can check if we are storing the config in the place that
-        //  WebView is going to look for it, and throw if they are not the same.
-        //  For this, we would need to reflect into Android Framework internals to get
-        //  ActivityThread.currentApplication().getClassLoader() and see if it is the same as
-        //  this.getClass().getClassLoader(). This would add reflection that we might not add a
-        //  framework API for. Once we know what framework path we will take for
-        //  ProcessGlobalConfig, revisit this.
-        HashMap<String, Object> configMap = new HashMap<String, Object>();
-        if (mApplyCalled) {
-            throw new IllegalStateException("ProcessGlobalConfig#apply was "
-                    + "called more than once, which is an illegal operation. The configuration "
-                    + "settings provided by ProcessGlobalConfig take effect only once, when "
-                    + "WebView is first loaded into the current process. Every process should "
-                    + "only ever create a single instance of ProcessGlobalConfig and apply it "
-                    + "once, before any calls to android.webkit APIs, such as during early app "
-                    + "startup."
-            );
-        }
-        mApplyCalled = true;
-        if (webViewCurrentlyLoaded()) {
-            throw new IllegalStateException("WebView has already been loaded in the current "
-                    + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
-                    + "have no effect. ProcessGlobalConfig#apply needs to be called before any "
-                    + "calls to android.webkit APIs, such as during early app startup.");
-        }
-
-        final StartupApiFeature.P feature =
-                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
-        if (feature.isSupportedByFramework()) {
-            androidx.webkit.internal.ApiHelperForP.setDataDirectorySuffix(mDataDirectorySuffix);
-        } else {
-            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX, mDataDirectorySuffix);
-        }
-        if (!sProcessGlobalConfig.compareAndSet(null, configMap)) {
-            throw new RuntimeException("Attempting to set ProcessGlobalConfig"
-                    + "#sProcessGlobalConfig when it was already set");
-        }
+    public ProcessGlobalConfig() {
     }
 
     /**
@@ -172,6 +102,7 @@ public class ProcessGlobalConfig {
      * @param context a Context to access application assets This value cannot be null.
      * @param suffix The directory name suffix to be used for the current
      *               process. Must not contain a path separator and should not be empty.
+     * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws IllegalStateException if WebView has already been initialized
      *                               in the current process or if this method was called before
      * @throws IllegalArgumentException if the suffix contains a path separator or is empty.
@@ -182,11 +113,6 @@ public class ProcessGlobalConfig {
     @NonNull
     public ProcessGlobalConfig setDataDirectorySuffix(@NonNull Context context,
             @NonNull String suffix) {
-        if (mDataDirectorySuffix != null) {
-            throw new IllegalStateException(
-                    "ProcessGlobalConfig#setDataDirectorySuffix(String) was already "
-                            + "called");
-        }
         final StartupApiFeature.P feature =
                 WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
         if (!feature.isSupported(context)) {
@@ -203,7 +129,62 @@ public class ProcessGlobalConfig {
         return this;
     }
 
-    private boolean webViewCurrentlyLoaded() {
+    /**
+     * Applies the configuration to be used by WebView on loading.
+     *
+     * This method can only be called once.
+     * <p>
+     * Calling this method will not cause WebView to be loaded and will not block the calling
+     * thread.
+     *
+     * @param config the config to be applied
+     * @throws IllegalStateException if WebView has already been initialized
+     *                               in the current process or if this method was called before
+     */
+    public static void apply(@NonNull ProcessGlobalConfig config) {
+        // TODO(crbug.com/1355297): We can check if we are storing the config in the place that
+        //  WebView is going to look for it, and throw if they are not the same.
+        //  For this, we would need to reflect into Android Framework internals to get
+        //  ActivityThread.currentApplication().getClassLoader() and see if it is the same as
+        //  this.getClass().getClassLoader(). This would add reflection that we might not add a
+        //  framework API for. Once we know what framework path we will take for
+        //  ProcessGlobalConfig, revisit this.
+        synchronized (sLock) {
+            if (sApplyCalled) {
+                throw new IllegalStateException("ProcessGlobalConfig#apply was "
+                        + "called more than once, which is an illegal operation. The configuration "
+                        + "settings provided by ProcessGlobalConfig take effect only once, when "
+                        + "WebView is first loaded into the current process. Every process should "
+                        + "only ever create a single instance of ProcessGlobalConfig and apply it "
+                        + "once, before any calls to android.webkit APIs, such as during early app "
+                        + "startup."
+                );
+            }
+            sApplyCalled = true;
+        }
+        HashMap<String, Object> configMap = new HashMap<String, Object>();
+        if (webViewCurrentlyLoaded()) {
+            throw new IllegalStateException("WebView has already been loaded in the current "
+                    + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
+                    + "have no effect. ProcessGlobalConfig#apply needs to be called before any "
+                    + "calls to android.webkit APIs, such as during early app startup.");
+        }
+
+        final StartupApiFeature.P feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
+        if (feature.isSupportedByFramework()) {
+            ApiHelperForP.setDataDirectorySuffix(config.mDataDirectorySuffix);
+        } else {
+            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX,
+                    config.mDataDirectorySuffix);
+        }
+        if (!sProcessGlobalConfig.compareAndSet(null, configMap)) {
+            throw new RuntimeException("Attempting to set ProcessGlobalConfig"
+                    + "#sProcessGlobalConfig when it was already set");
+        }
+    }
+
+    private static boolean webViewCurrentlyLoaded() {
         // TODO(crbug.com/1355297): This is racy but it is the best we can do for now since we can't
         //  access the lock for sProviderInstance in WebView. Evaluate a framework path for
         //  ProcessGlobalConfig.
