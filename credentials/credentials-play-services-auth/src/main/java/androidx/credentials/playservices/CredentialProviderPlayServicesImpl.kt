@@ -34,6 +34,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
+import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
 import java.util.concurrent.Executor
 
 /**
@@ -93,7 +94,11 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
                 callback,
                 executor)
         } else if (request is CreatePublicKeyCredentialRequest) {
-            // TODO("Add in")
+            CredentialProviderCreatePublicKeyCredentialController.getInstance(
+                fragmentManager).invokePlayServices(
+                request,
+                callback,
+                executor)
         } else {
             throw UnsupportedOperationException(
                 "Unsupported request; not password or publickeycredential")
