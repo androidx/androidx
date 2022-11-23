@@ -46,6 +46,7 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 
     samples(project(":wear:compose:compose-foundation-samples"))
 }
