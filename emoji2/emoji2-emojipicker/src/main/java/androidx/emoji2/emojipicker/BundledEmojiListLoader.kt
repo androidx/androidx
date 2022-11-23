@@ -39,6 +39,7 @@ import kotlinx.coroutines.coroutineScope
 internal object BundledEmojiListLoader {
     private var categorizedEmojiData: List<EmojiDataCategory>? = null
     private var emojiVariantsLookup: Map<String, List<String>>? = null
+    private var primaryEmojiLookup: Map<String, String>? = null
 
     private var deferred: List<Deferred<EmojiDataCategory>>? = null
 
@@ -66,6 +67,14 @@ internal object BundledEmojiListLoader {
             .filter { it.variants.isNotEmpty() }
             .associate { it.emoji to it.variants }
             .also { emojiVariantsLookup = it }
+
+    internal suspend fun getPrimaryEmojiLookup() =
+        primaryEmojiLookup ?: getCategorizedEmojiData()
+            .flatMap { it.emojiDataList }
+            .filter { it.variants.isNotEmpty() }
+            .flatMap { it.variants.associateWith { _ -> it.emoji }.entries }
+            .associate { it.toPair() }
+            .also { primaryEmojiLookup = it }
 
     private suspend fun loadEmojiAsync(
         ta: TypedArray,
