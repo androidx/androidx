@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * Simple interface for predicting ink points.
+ * Simple interface for predicting motion points.
  *
  * @hide
  */
