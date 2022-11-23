@@ -97,24 +97,43 @@ public class ExifInterfaceTest {
     private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING =
             "webp_lossless_without_exif.webp";
+    private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA =
+            "webp_lossless_alpha_without_exif.webp";
     private static final String JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT =
             "jpeg_with_datetime_tag_primary_format.jpg";
     private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
             "jpeg_with_datetime_tag_secondary_format.jpg";
     private static final String HEIF_WITH_EXIF = "heif_with_exif.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
-            R.raw.jpeg_with_exif_byte_order_ii, R.raw.jpeg_with_exif_byte_order_mm,
-            R.raw.dng_with_exif_with_xmp, R.raw.jpeg_with_exif_with_xmp,
-            R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif, R.raw.webp_with_exif,
-            R.raw.webp_with_anim_without_exif, R.raw.webp_without_exif,
-            R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag_primary_format,
-            R.raw.jpeg_with_datetime_tag_secondary_format, R.raw.heif_with_exif};
+            R.raw.jpeg_with_exif_byte_order_ii,
+            R.raw.jpeg_with_exif_byte_order_mm,
+            R.raw.dng_with_exif_with_xmp,
+            R.raw.jpeg_with_exif_with_xmp,
+            R.raw.png_with_exif_byte_order_ii,
+            R.raw.png_without_exif,
+            R.raw.webp_with_exif,
+            R.raw.webp_with_anim_without_exif,
+            R.raw.webp_without_exif,
+            R.raw.webp_lossless_without_exif,
+            R.raw.webp_lossless_alpha_without_exif,
+            R.raw.jpeg_with_datetime_tag_primary_format,
+            R.raw.jpeg_with_datetime_tag_secondary_format,
+            R.raw.heif_with_exif};
     private static final String[] IMAGE_FILENAMES = new String[] {
-            JPEG_WITH_EXIF_BYTE_ORDER_II, JPEG_WITH_EXIF_BYTE_ORDER_MM, DNG_WITH_EXIF_WITH_XMP,
-            JPEG_WITH_EXIF_WITH_XMP, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
-            WEBP_WITH_EXIF, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA, WEBP_WITHOUT_EXIF,
-            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
-            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT, HEIF_WITH_EXIF};
+            JPEG_WITH_EXIF_BYTE_ORDER_II,
+            JPEG_WITH_EXIF_BYTE_ORDER_MM,
+            DNG_WITH_EXIF_WITH_XMP,
+            JPEG_WITH_EXIF_WITH_XMP,
+            PNG_WITH_EXIF_BYTE_ORDER_II,
+            PNG_WITHOUT_EXIF,
+            WEBP_WITH_EXIF,
+            WEBP_WITHOUT_EXIF_WITH_ANIM_DATA,
+            WEBP_WITHOUT_EXIF,
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING,
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA,
+            JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
+            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT,
+            HEIF_WITH_EXIF};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -485,6 +504,12 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
         writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING);
+    }
+
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifWithLosslessEncodingAndAlpha() throws Throwable {
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA);
     }
 
     /**
@@ -1474,6 +1499,7 @@ public class ExifInterfaceTest {
         assertEquals(expectedOptions.outMimeType, actualOptions.outMimeType);
         assertEquals(expectedBitmap.getWidth(), actualBitmap.getWidth());
         assertEquals(expectedBitmap.getHeight(), actualBitmap.getHeight());
+        assertEquals(expectedBitmap.hasAlpha(), actualBitmap.hasAlpha());
     }
 
     /**
