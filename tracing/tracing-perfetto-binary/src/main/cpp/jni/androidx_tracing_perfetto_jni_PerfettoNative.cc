@@ -18,6 +18,11 @@
 #include <android/log.h>
 #include "../tracing_perfetto.h"
 
+// Limit of 4096 should be safe as that's what android.os.Trace is using. See:
+// https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/
+// android_os_Trace.cpp;l=42;drc=8dae06607c3ca449516ca2564d40a7174481c2ae
+#define BUFFER_SIZE 4096 // Note: keep in sync with PerfettoSdkTraceTest
+
 extern "C" {
 
 static void JNICALL
@@ -29,9 +34,22 @@ Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeRegisterWithPerfetto(
 static void JNICALL
 Java_androidx_tracing_perfetto_jni_PerfettoNative_nativeTraceEventBegin(
         JNIEnv *env, __unused jclass clazz, jint key, jstring traceInfo) {
-    const char *traceInfoUtf = env->GetStringUTFChars(traceInfo, NULL);
-    tracing_perfetto::TraceEventBegin(key, traceInfoUtf);
-    env->ReleaseStringUTFChars(traceInfo, traceInfoUtf);
+    jsize lengthUtf = env->GetStringUTFLength(traceInfo);
+
+    jsize lengthUtfWithNull = lengthUtf + 1;
+    if (lengthUtfWithNull <= BUFFER_SIZE) {
+        // fast path
+        std::array<char, BUFFER_SIZE> traceInfoUtf;
+        jsize length = env->GetStringLength(traceInfo);
+        env->GetStringUTFRegion(traceInfo, 0, length, traceInfoUtf.data());
+        traceInfoUtf[lengthUtf] = '\0'; // terminate the string
+        tracing_perfetto::TraceEventBegin(key, traceInfoUtf.data());
+    } else {
+        // slow path
+        const char *traceInfoUtf = env->GetStringUTFChars(traceInfo, NULL);
+        tracing_perfetto::TraceEventBegin(key, traceInfoUtf);
+        env->ReleaseStringUTFChars(traceInfo, traceInfoUtf);
+    }
 }
 
 static void JNICALL
