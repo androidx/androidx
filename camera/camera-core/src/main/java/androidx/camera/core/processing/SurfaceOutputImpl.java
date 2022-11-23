@@ -196,10 +196,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         return mInputSize;
     }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
+    @VisibleForTesting
     public int getRotationDegrees() {
         return mRotationDegrees;
     }
