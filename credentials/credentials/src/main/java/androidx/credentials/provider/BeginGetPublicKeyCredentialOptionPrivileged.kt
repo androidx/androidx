@@ -71,7 +71,8 @@ class BeginGetPublicKeyCredentialOptionPrivileged @JvmOverloads internal constru
                 val clientDataHash = data.getString(
                     GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH)
                 val allowHybrid = data.get(
-                    GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_ALLOW_HYBRID)
+                    GetPublicKeyCredentialOptionPrivileged
+                        .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginGetPublicKeyCredentialOptionPrivileged(
                     requestJson!!,
                     rp!!,

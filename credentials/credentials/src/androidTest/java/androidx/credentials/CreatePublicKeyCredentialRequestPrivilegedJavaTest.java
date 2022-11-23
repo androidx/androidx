@@ -16,7 +16,7 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RELYING_PARTY;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON;
@@ -47,43 +47,49 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
     }
 
     @Test
-    public void constructor_setsAllowHybridToTrueByDefault() {
+    public void constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         CreatePublicKeyCredentialRequestPrivileged createPublicKeyCredentialRequestPrivileged =
                 new CreatePublicKeyCredentialRequestPrivileged(
                         "JSON", "relyingParty", "HASH");
-        boolean allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid();
-        assertThat(allowHybridActual).isTrue();
+        boolean preferImmediatelyAvailableCredentialsActual =
+                createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse();
     }
 
     @Test
-    public void constructor_setsAllowHybridToFalse() {
-        boolean allowHybridExpected = false;
+    public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
         CreatePublicKeyCredentialRequestPrivileged createPublicKeyCredentialRequestPrivileged =
                 new CreatePublicKeyCredentialRequestPrivileged("JSON",
                         "relyingParty",
                         "HASH",
-                        allowHybridExpected);
-        boolean allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid();
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected);
+                        preferImmediatelyAvailableCredentialsExpected);
+        boolean preferImmediatelyAvailableCredentialsActual =
+                createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+                preferImmediatelyAvailableCredentialsExpected);
     }
 
     @Test
-    public void builder_build_defaultAllowHybrid_true() {
+    public void builder_build_defaultPreferImmediatelyAvailableCredentials_false() {
         CreatePublicKeyCredentialRequestPrivileged defaultPrivilegedRequest = new
                 CreatePublicKeyCredentialRequestPrivileged.Builder("{\"Data\":5}",
                 "relyingParty", "HASH").build();
-        assertThat(defaultPrivilegedRequest.allowHybrid()).isTrue();
+        assertThat(defaultPrivilegedRequest.preferImmediatelyAvailableCredentials()).isFalse();
     }
 
     @Test
-    public void builder_build_nonDefaultAllowHybrid_false() {
-        boolean allowHybridExpected = false;
+    public void builder_build_nonDefaultPreferImmediatelyAvailableCredentials_true() {
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
         CreatePublicKeyCredentialRequestPrivileged createPublicKeyCredentialRequestPrivileged =
                 new CreatePublicKeyCredentialRequestPrivileged.Builder("JSON",
                         "relyingParty", "HASH")
-                        .setAllowHybrid(allowHybridExpected).build();
-        boolean allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid();
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected);
+                        .setPreferImmediatelyAvailableCredentials(
+                                preferImmediatelyAvailableCredentialsExpected).build();
+        boolean preferImmediatelyAvailableCredentialsActual =
+                createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+                preferImmediatelyAvailableCredentialsExpected);
     }
 
     @Test
@@ -98,14 +104,14 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
 
     @Test
     public void getter_relyingParty_success() {
-        String testrelyingPartyExpected = "relyingParty";
+        String testRelyingPartyExpected = "relyingParty";
         CreatePublicKeyCredentialRequestPrivileged createPublicKeyCredentialRequestPrivileged =
                 new CreatePublicKeyCredentialRequestPrivileged(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                        testrelyingPartyExpected, "X342%4dfd7&");
-        String testrelyingPartyActual = createPublicKeyCredentialRequestPrivileged
+                        testRelyingPartyExpected, "X342%4dfd7&");
+        String testRelyingPartyActual = createPublicKeyCredentialRequestPrivileged
                 .getRelyingParty();
-        assertThat(testrelyingPartyActual).isEqualTo(testrelyingPartyExpected);
+        assertThat(testRelyingPartyActual).isEqualTo(testRelyingPartyExpected);
     }
 
     @Test
@@ -114,7 +120,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         CreatePublicKeyCredentialRequestPrivileged createPublicKeyCredentialRequestPrivileged =
                 new CreatePublicKeyCredentialRequestPrivileged(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                         "relyingParty", clientDataHashExpected);
+                        "relyingParty", clientDataHashExpected);
         String clientDataHashActual =
                 createPublicKeyCredentialRequestPrivileged.getClientDataHash();
         assertThat(clientDataHashActual).isEqualTo(clientDataHashExpected);
@@ -125,7 +131,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         String relyingPartyExpected = "relyingParty";
         String clientDataHashExpected = "X342%4dfd7&";
-        boolean allowHybridExpected = false;
+        boolean preferImmediatelyAvailableCredentialsExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -134,12 +140,14 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
-        expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
+        expectedData.putBoolean(
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentialsExpected);
 
         CreatePublicKeyCredentialRequestPrivileged request =
                 new CreatePublicKeyCredentialRequestPrivileged(
                         requestJsonExpected, relyingPartyExpected, clientDataHashExpected,
-                        allowHybridExpected);
+                        preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedData)).isTrue();
@@ -165,6 +173,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         assertThat(convertedSubclassRequest.getRelyingParty()).isEqualTo(request.getRelyingParty());
         assertThat(convertedSubclassRequest.getClientDataHash())
                 .isEqualTo(request.getClientDataHash());
-        assertThat(convertedSubclassRequest.allowHybrid()).isEqualTo(request.allowHybrid());
+        assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials()).isEqualTo(
+                request.preferImmediatelyAvailableCredentials());
     }
 }

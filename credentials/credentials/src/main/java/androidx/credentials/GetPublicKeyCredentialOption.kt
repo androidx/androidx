@@ -24,20 +24,20 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the privileged request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @property allowHybrid defines whether hybrid credentials are allowed to fulfill this request,
- * true by default, with hybrid credentials defined
- * [here](https://w3c.github.io/webauthn/#dom-authenticatortransport-hybrid)
+ * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available credential instead of falling back to discovering remote
+ * credentials, and false (default) otherwise
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  */
 class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
-    @get:JvmName("allowHybrid")
-    val allowHybrid: Boolean = true,
+    @get:JvmName("preferImmediatelyAvailableCredentials")
+    val preferImmediatelyAvailableCredentials: Boolean = false,
 ) : GetCredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    requestData = toRequestDataBundle(requestJson, allowHybrid),
-    candidateQueryData = toRequestDataBundle(requestJson, allowHybrid),
+    requestData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
+    candidateQueryData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
     requireSystemProvider = false
 ) {
     init {
@@ -46,20 +46,25 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        internal const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+        internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
+            "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         internal const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION"
 
         @JvmStatic
-        internal fun toRequestDataBundle(requestJson: String, allowHybrid: Boolean): Bundle {
+        internal fun toRequestDataBundle(
+            requestJson: String,
+            preferImmediatelyAvailableCredentials: Boolean
+        ): Bundle {
             val bundle = Bundle()
             bundle.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
-            bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
+            bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentials)
             return bundle
         }
 
@@ -69,8 +74,10 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         internal fun createFrom(data: Bundle): GetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                val allowHybrid = data.get(BUNDLE_KEY_ALLOW_HYBRID)
-                return GetPublicKeyCredentialOption(requestJson!!, (allowHybrid!!) as Boolean)
+                val preferImmediatelyAvailableCredentials =
+                    data.get(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
+                return GetPublicKeyCredentialOption(requestJson!!,
+                    (preferImmediatelyAvailableCredentials!!) as Boolean)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

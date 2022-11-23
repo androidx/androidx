@@ -55,7 +55,8 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads internal constructor(
                 val requestJson = data.getString(
                     GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON)
                 val allowHybrid = data.get(
-                    GetPublicKeyCredentialOption.BUNDLE_KEY_ALLOW_HYBRID)
+                    GetPublicKeyCredentialOption
+                        .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return BeginGetPublicKeyCredentialOption(requestJson!!, (allowHybrid!!) as Boolean)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

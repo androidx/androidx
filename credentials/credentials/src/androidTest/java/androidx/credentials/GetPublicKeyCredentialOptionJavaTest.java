@@ -16,7 +16,7 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_ALLOW_HYBRID;
+import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -53,28 +53,31 @@ public class GetPublicKeyCredentialOptionJavaTest {
     }
 
     @Test
-    public void constructor_success()  {
+    public void constructor_success() {
         new GetPublicKeyCredentialOption(
-                        "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
     }
 
     @Test
-    public void constructor_setsAllowHybridToTrueByDefault() {
+    public void constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
                 new GetPublicKeyCredentialOption(
                         "JSON");
-        boolean allowHybridActual = getPublicKeyCredentialOpt.allowHybrid();
-        assertThat(allowHybridActual).isTrue();
+        boolean preferImmediatelyAvailableCredentialsActual =
+                getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse();
     }
 
     @Test
-    public void constructor_setsAllowHybridToFalse() {
-        boolean allowHybridExpected = false;
+    public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
         GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
                 new GetPublicKeyCredentialOption(
-                        "JSON", allowHybridExpected);
-        boolean allowHybridActual = getPublicKeyCredentialOpt.allowHybrid();
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected);
+                        "JSON", preferImmediatelyAvailableCredentialsExpected);
+        boolean preferImmediatelyAvailableCredentialsActual =
+                getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials();
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+                preferImmediatelyAvailableCredentialsExpected);
     }
 
     @Test
@@ -89,16 +92,18 @@ public class GetPublicKeyCredentialOptionJavaTest {
     @Test
     public void getter_frameworkProperties_success() {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-        boolean allowHybridExpected = false;
+        boolean preferImmediatelyAvailableCredentialsExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-        expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
+        expectedData.putBoolean(
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentialsExpected);
 
-        GetPublicKeyCredentialOption option =
-                new GetPublicKeyCredentialOption(requestJsonExpected, allowHybridExpected);
+        GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
+                requestJsonExpected, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
@@ -119,6 +124,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
         GetPublicKeyCredentialOption convertedSubclassOption =
                 (GetPublicKeyCredentialOption) convertedOption;
         assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
-        assertThat(convertedSubclassOption.allowHybrid()).isEqualTo(option.allowHybrid());
+        assertThat(convertedSubclassOption.preferImmediatelyAvailableCredentials()).isEqualTo(
+                option.preferImmediatelyAvailableCredentials());
     }
 }

@@ -40,52 +40,63 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
     }
 
     @Test
-    fun constructor_setsAllowHybridToTrueByDefault() {
+    fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged(
             "JSON", "RelyingParty", "HASH"
         )
-        val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        assertThat(allowHybridActual).isTrue()
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse()
     }
 
     @Test
-    fun constructor_setsAllowHybridToFalse() {
-        val allowHybridExpected = false
+    fun constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged(
             "testJson",
-            "RelyingParty", "Hash", allowHybridExpected
+            "RelyingParty", "Hash", preferImmediatelyAvailableCredentialsExpected
         )
-        val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+            preferImmediatelyAvailableCredentialsExpected
+        )
     }
 
     @Test
-    fun builder_build_defaultAllowHybrid_true() {
+    fun builder_build_defaultPreferImmediatelyAvailableCredentials_false() {
         val defaultPrivilegedRequest = CreatePublicKeyCredentialRequestPrivileged.Builder(
             "{\"Data\":5}",
             "RelyingParty", "HASH"
         ).build()
-        assertThat(defaultPrivilegedRequest.allowHybrid).isTrue()
+        assertThat(defaultPrivilegedRequest.preferImmediatelyAvailableCredentials).isFalse()
     }
 
     @Test
-    fun builder_build_nonDefaultAllowHybrid_false() {
-        val allowHybridExpected = false
+    fun builder_build_nonDefaultPreferImmediatelyAvailableCredentials_true() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val createPublicKeyCredentialRequestPrivileged = CreatePublicKeyCredentialRequestPrivileged
             .Builder(
                 "testJson",
                 "RelyingParty", "Hash"
-            ).setAllowHybrid(allowHybridExpected).build()
-        val allowHybridActual = createPublicKeyCredentialRequestPrivileged.allowHybrid
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+            )
+            .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentialsExpected)
+            .build()
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequestPrivileged.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
+            preferImmediatelyAvailableCredentialsExpected
+        )
     }
 
     @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val createPublicKeyCredentialReqPriv =
-            CreatePublicKeyCredentialRequestPrivileged(testJsonExpected, "RelyingParty",
-                "HASH")
+            CreatePublicKeyCredentialRequestPrivileged(
+                testJsonExpected, "RelyingParty",
+                "HASH"
+            )
         val testJsonActual = createPublicKeyCredentialReqPriv.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
@@ -119,7 +130,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val relyingPartyExpected = "RelyingParty"
         val clientDataHashExpected = "X342%4dfd7&"
-        val allowHybridExpected = false
+        val preferImmediatelyAvailableCredentialsExpected = false
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -130,22 +141,24 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
             CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
-        expectedData.putString(CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RELYING_PARTY,
-            relyingPartyExpected)
+        expectedData.putString(
+            CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RELYING_PARTY,
+            relyingPartyExpected
+        )
         expectedData.putString(
             CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHashExpected
         )
         expectedData.putBoolean(
-            CreatePublicKeyCredentialRequest.BUNDLE_KEY_ALLOW_HYBRID,
-            allowHybridExpected
+            CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         val request = CreatePublicKeyCredentialRequestPrivileged(
             requestJsonExpected,
             relyingPartyExpected,
             clientDataHashExpected,
-            allowHybridExpected
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -174,6 +187,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         assertThat(convertedSubclassRequest.relyingParty).isEqualTo(request.relyingParty)
         assertThat(convertedSubclassRequest.clientDataHash)
             .isEqualTo(request.clientDataHash)
-        assertThat(convertedSubclassRequest.allowHybrid).isEqualTo(request.allowHybrid)
+        assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials)
+            .isEqualTo(request.preferImmediatelyAvailableCredentials)
     }
 }

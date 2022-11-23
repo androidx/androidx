@@ -18,8 +18,8 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.credentials.CreateCredentialRequest.Companion.createFrom
-import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_ALLOW_HYBRID
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -47,23 +47,26 @@ class CreatePublicKeyCredentialRequestTest {
     }
 
     @Test
-    fun constructor_setsAllowHybridToTrueByDefault() {
+    fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
             "JSON"
         )
-        val allowHybridActual = createPublicKeyCredentialRequest.allowHybrid
-        assertThat(allowHybridActual).isTrue()
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual).isFalse()
     }
 
     @Test
-    fun constructor_setsAllowHybridToFalse() {
-        val allowHybridExpected = false
+    fun constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
+        val preferImmediatelyAvailableCredentialsExpected = true
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
             "testJson",
-            allowHybridExpected
+            preferImmediatelyAvailableCredentialsExpected
         )
-        val allowHybridActual = createPublicKeyCredentialRequest.allowHybrid
-        assertThat(allowHybridActual).isEqualTo(allowHybridExpected)
+        val preferImmediatelyAvailableCredentialsActual =
+            createPublicKeyCredentialRequest.preferImmediatelyAvailableCredentials
+        assertThat(preferImmediatelyAvailableCredentialsActual)
+            .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
     }
 
     @Test
@@ -77,7 +80,7 @@ class CreatePublicKeyCredentialRequestTest {
     @Test
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val allowHybridExpected = false
+        val preferImmediatelyAvailableCredentialsExpected = false
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -88,12 +91,13 @@ class CreatePublicKeyCredentialRequestTest {
             BUNDLE_KEY_REQUEST_JSON, requestJsonExpected
         )
         expectedData.putBoolean(
-            BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected
+            BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         val request = CreatePublicKeyCredentialRequest(
             requestJsonExpected,
-            allowHybridExpected
+            preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -116,6 +120,7 @@ class CreatePublicKeyCredentialRequestTest {
         )
         val convertedSubclassRequest = convertedRequest as CreatePublicKeyCredentialRequest
         assertThat(convertedSubclassRequest.requestJson).isEqualTo(request.requestJson)
-        assertThat(convertedSubclassRequest.allowHybrid).isEqualTo(request.allowHybrid)
+        assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials)
+            .isEqualTo(request.preferImmediatelyAvailableCredentials)
     }
 }
