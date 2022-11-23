@@ -24,7 +24,7 @@ import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
 import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.ext.isByteBuffer
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
@@ -121,7 +121,6 @@ import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -487,7 +486,7 @@ class TypeAdapterStore private constructor(
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
-        } else if (typeMirror.rawType.asTypeName() == GuavaBaseTypeNames.OPTIONAL) {
+        } else if (typeMirror.rawType.asTypeName() == GuavaTypeNames.OPTIONAL) {
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
             // The Optional adapter will reappend the Optional type.
             val typeArg = typeMirror.typeArguments.first()
@@ -559,9 +558,9 @@ class TypeAdapterStore private constructor(
             }
 
             val immutableClassName = if (typeMirror.isTypeOf(ImmutableListMultimap::class)) {
-                ClassName.get(ImmutableListMultimap::class.java)
+                GuavaTypeNames.IMMUTABLE_LIST_MULTIMAP
             } else if (typeMirror.isTypeOf(ImmutableSetMultimap::class)) {
-                ClassName.get(ImmutableSetMultimap::class.java)
+                GuavaTypeNames.IMMUTABLE_SET_MULTIMAP
             } else {
                 // Return type is base class ImmutableMultimap which is not recommended.
                 context.logger.e(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)

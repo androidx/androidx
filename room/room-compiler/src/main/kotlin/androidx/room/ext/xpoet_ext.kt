@@ -155,8 +155,31 @@ object CommonTypeNames {
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
 }
 
-object GuavaBaseTypeNames {
+object GuavaTypeNames {
     val OPTIONAL = XClassName.get("com.google.common.base", "Optional")
+    val IMMUTABLE_MULTIMAP_BUILDER = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableMultimap",
+        "Builder"
+    )
+    val IMMUTABLE_SET_MULTIMAP = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableSetMultimap"
+    )
+    val IMMUTABLE_SET_MULTIMAP_BUILDER = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableSetMultimap",
+        "Builder"
+    )
+    val IMMUTABLE_LIST_MULTIMAP = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableListMultimap"
+    )
+    val IMMUTABLE_LIST_MULTIMAP_BUILDER = XClassName.get(
+        "com.google.common.collect",
+        "ImmutableListMultimap",
+        "Builder"
+    )
 }
 
 object GuavaCollectionTypeNames {

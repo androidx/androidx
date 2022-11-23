@@ -18,7 +18,7 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -39,13 +39,13 @@ class GuavaOptionalQueryResultAdapter(
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addLocalVariable(
                 name = outVarName,
-                typeName = GuavaBaseTypeNames.OPTIONAL.parametrizedBy(
+                typeName = GuavaTypeNames.OPTIONAL.parametrizedBy(
                     typeArg.asTypeName()
                 ),
                 assignExpr = XCodeBlock.of(
                     language = language,
                     format = "%T.fromNullable(%L)",
-                    GuavaBaseTypeNames.OPTIONAL,
+                    GuavaTypeNames.OPTIONAL,
                     valueVarName
                 )
             )
