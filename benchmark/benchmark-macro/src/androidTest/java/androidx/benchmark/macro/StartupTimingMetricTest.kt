@@ -40,6 +40,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -181,6 +182,7 @@ class StartupTimingMetricTest {
         validateStartup_fullyDrawn(delayMs = 100)
     }
 
+    @Ignore // b/258335082
     @LargeTest
     @Test
     fun startupInAppNav_immediate() {
@@ -188,6 +190,7 @@ class StartupTimingMetricTest {
         validateStartup_fullyDrawn(delayMs = 0, useInAppNav = true)
     }
 
+    @Ignore // b/258335082
     @LargeTest
     @Test
     fun startupInAppNav_fullyDrawn() {
