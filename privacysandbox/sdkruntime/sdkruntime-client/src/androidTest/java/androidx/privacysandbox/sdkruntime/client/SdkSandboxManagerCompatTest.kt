@@ -15,13 +15,13 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
-import android.adservices.AdServicesVersion
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.Companion.obtain
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
@@ -165,7 +165,7 @@ class SdkSandboxManagerCompatTest {
     companion object SandboxApi {
         @DoNotInline
         private fun isSandboxAvailableOnApi33(): Boolean {
-            return AdServicesVersion.API_VERSION >= 2
+            return BuildCompat.isAtLeastU()
         }
     }
 }
