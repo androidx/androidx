@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions
+package androidx.credentials.exceptions.publickeycredential
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.CreateCredentialException
 
 /**
- * Represents an error encountered during a get flow with Credential Manager. See
- * [CredentialManager] for more details on how Credentials work for Credential Manager flows.
+ * A subclass of CreateCredentialException for unique errors specific only to PublicKeyCredentials.
+ * See [CredentialManager] for more details on how Credentials work for Credential Manager flows.
+ * See [GMS Error Codes](https://developers.google.com/android/reference/com/google/android/gms/fido/fido2/api/common/ErrorCode)
+ * for more details on some of the subclasses.
  *
  * @see CredentialManager
- * @see GetCredentialUnknownException
- * @see GetCredentialCancellationException
- * @see GetCredentialInterruptedException
+ * @see CreatePublicKeyCredentialInterruptedException
+ * @see CreatePublicKeyCredentialUnknownException
+ * @see CreatePublicKeyCredentialNotReadableException
+ * @see CreatePublicKeyCredentialAbortException
+ * @see CreatePublicKeyCredentialConstraintException
  *
  * @property errorMessage a human-readable string that describes the error
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
+ *
+ * @hide
  */
-open class GetCredentialException @JvmOverloads constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
-    val errorMessage: CharSequence? = null
-) : Exception(errorMessage?.toString()) {
+open class CreatePublicKeyCredentialException @JvmOverloads constructor(
+    type: String,
+    errorMessage: CharSequence? = null
+) : CreateCredentialException(type, errorMessage) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
     }

@@ -19,20 +19,20 @@ package androidx.credentials.exceptions
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the create credential flow, this is called when a user intentionally cancels an operation.
+ * During the create credential flow, this is returned when a user intentionally cancels an operation.
  * When this happens, the application should handle logic accordingly, typically under indication
  * the user does not want to see Credential Manager anymore.
  *
  * @see CreateCredentialException
  */
-class CreateCredentialCanceledException @JvmOverloads constructor(
+class CreateCredentialCancellationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_CANCELED_EXCEPTION, errorMessage) {
+) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
 
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val TYPE_CREATE_CREDENTIAL_CANCELED_EXCEPTION: String =
-            "androidx.credentials.TYPE_CREATE_CREDENTIAL_CANCELED_EXCEPTION"
+        const val TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION: String =
+            "androidx.credentials.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION"
     }
 }

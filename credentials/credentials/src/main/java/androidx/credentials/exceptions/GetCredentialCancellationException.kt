@@ -19,20 +19,20 @@ package androidx.credentials.exceptions
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the get credential flow, this is returned when some interruption occurs that may warrant
- * retrying or at least does not indicate a purposeful desire to close or tap away from credential
- * manager.
+ * During the get credential flow, this is returned when a user intentionally cancels an operation.
+ * When this happens, the application should handle logic accordingly, typically under indication
+ * the user does not want to see Credential Manager anymore.
  *
  * @see GetCredentialException
  */
-class GetCredentialInterruptedException @JvmOverloads constructor(
+class GetCredentialCancellationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
+) : GetCredentialException(TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
 
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION"
+        const val TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION: String =
+            "androidx.credentials.TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION"
     }
 }

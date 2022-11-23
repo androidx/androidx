@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions
+package androidx.credentials.exceptions.publickeycredential
 
 import androidx.annotation.VisibleForTesting
 
 /**
- * During the get credential flow, this is returned when some interruption occurs that may warrant
- * retrying or at least does not indicate a purposeful desire to close or tap away from credential
- * manager.
+ * During the create public key credential flow, this is returned when an authenticator response
+ * exception contains a constraint_err code or equivalent, indicating that some mutation operation
+ * occurring during a transaction failed by not satisfying constraints.
  *
- * @see GetCredentialException
+ * @see CreatePublicKeyCredentialException
+ *
+ * @hide
  */
-class GetCredentialInterruptedException @JvmOverloads constructor(
+class CreatePublicKeyCredentialConstraintException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
+) : CreatePublicKeyCredentialException(
+    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION,
+    errorMessage) {
 
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION"
+        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION: String =
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL" +
+                "_CONSTRAINT_EXCEPTION"
     }
 }
