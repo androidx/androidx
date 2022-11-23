@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
@@ -185,12 +186,27 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         return mFormat;
     }
 
+    @VisibleForTesting
+    public Rect getInputCropRect() {
+        return mInputCropRect;
+    }
+
+    @VisibleForTesting
+    public Size getInputSize() {
+        return mInputSize;
+    }
+
     /**
      * @inheritDoc
      */
     @Override
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    @VisibleForTesting
+    public boolean getMirroring() {
+        return mMirroring;
     }
 
     /**

@@ -24,6 +24,7 @@ import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
@@ -324,9 +325,9 @@ class PreviewTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: surfaceOutput received.
-        assertThat(processor.surfaceOutput).isNotNull()
+        assertThat(processor.surfaceOutputs).hasSize(1)
         assertThat(processor.isReleased).isFalse()
-        assertThat(processor.isOutputSurfaceRequestedToClose).isFalse()
+        assertThat(processor.isOutputSurfaceRequestedToClose[PREVIEW]).isNull()
         assertThat(processor.isInputSurfaceReleased).isFalse()
         assertThat(appSurfaceReadyToRelease).isFalse()
         // processor surface is provided to camera.
@@ -339,12 +340,12 @@ class PreviewTest {
 
         // Assert: processor and processor surface is released.
         assertThat(processor.isReleased).isTrue()
-        assertThat(processor.isOutputSurfaceRequestedToClose).isTrue()
+        assertThat(processor.isOutputSurfaceRequestedToClose[PREVIEW]).isTrue()
         assertThat(processor.isInputSurfaceReleased).isTrue()
         assertThat(appSurfaceReadyToRelease).isFalse()
 
         // Act: close SurfaceOutput
-        processor.surfaceOutput!!.close()
+        processor.surfaceOutputs[CameraEffect.PREVIEW]!!.close()
         shadowOf(getMainLooper()).idle()
         assertThat(appSurfaceReadyToRelease).isTrue()
     }
