@@ -138,6 +138,7 @@ internal class EmojiViewHolder(
         ).also {
             it.isOutsideTouchable = true
             it.isTouchable = true
+            it.animationStyle = R.style.VariantPopupAnimation
             it.showAtLocation(
                 parent,
                 Gravity.NO_GRAVITY,
