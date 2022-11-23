@@ -112,6 +112,35 @@ class CameraControllerDeviceTest(
         }
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun setInvalidEffectsCombination_throwsException() {
+        // Arrange: setup PreviewView and CameraController
+        var previewView: PreviewView? = null
+        activityScenario!!.onActivity {
+            // Arrange.
+            previewView = PreviewView(context)
+            it.setContentView(previewView)
+            previewView!!.controller = controller
+            controller!!.bindToLifecycle(FakeLifecycleOwner())
+            controller!!.initializationFuture.get()
+        }
+        waitUtilPreviewViewIsReady(previewView!!)
+
+        // Act: set the same effect twice, which is invalid.
+        val previewEffect = FakePreviewEffect(
+            mainThreadExecutor(),
+            FakeSurfaceProcessor(mainThreadExecutor())
+        )
+        instrumentation.runOnMainSync {
+            controller!!.setEffects(
+                listOf(
+                    previewEffect,
+                    previewEffect
+                )
+            )
+        }
+    }
+
     @Test
     fun setEffectBundle_effectSetOnUseCase() {
         // Arrange: setup PreviewView and CameraController
