@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -179,6 +180,7 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(numberOfOptions - 1)
     }
 
+    @SdkSuppress(minSdkVersion = 29) // b/260234023
     @Test
     fun uses_positive_separation_correctly() =
         uses_separation_correctly(1)
