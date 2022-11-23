@@ -42,35 +42,14 @@ import kotlin.math.min
  * are satisfied is dispatched in
  * [SplitAttributesCalculator.SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
  * The width and height could be verified in
- * [SplitAttributesCalculator.computeSplitAttributesForParams] as the sample[1] below shows.
+ * [SplitAttributesCalculator.computeSplitAttributesForParams] as the sample linked below shows.
  * It is useful if this rule is supported to split the parent container in different directions
  * with different device states.
  *
- * [1]:
- * ```
- * override computeSplitAttributesForParams(
- *     params: SplitAttributesCalculatorParams
- * ): SplitAttributes {
- *     val taskConfiguration = params.taskConfiguration
- *     val builder = SplitAttributes.Builder()
- *     if (taskConfiguration.screenWidthDp >= 600) {
- *         return builder
- *             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
- *             .build()
- *     } else if (taskConfiguration.screenHeightDp >= 600)
- *         return builder
- *             .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
- *             .build()
- *     } else {
- *         // Fallback to expand the secondary container
- *         return builder
- *             .setSplitType(SplitAttributes.SplitType.expandSecondaryContainer())
- *             .build()
- *     }
- * }
- * ```
  * It is useful if this [SplitRule] is supported to split the parent container in different
  * directions with different device states.
+ *
+ * @sample androidx.window.samples.embedding.splitWithOrientations
  */
 open class SplitRule internal constructor(
     tag: String? = null,

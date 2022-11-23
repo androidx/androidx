@@ -136,36 +136,10 @@ class SplitAttributes internal constructor(
              * the device is in portrait, and split the task bounds horizontally if the device is
              * in landscape.
              * This also can be used to expand containers with some device states via
-             * [SplitAttributesCalculator]. Below is an example how to always fill the task
-             * bounds if the device is in portrait:
-             * ```
-             * override computeSplitAttributesForParams(
-             *     params: SplitAttributesCalculatorParams
-             * ): SplitAttributes {
-             *     val tag = params.splitRuleTag
-             *     val bounds = params.parentWindowMetrics.bounds
-             *     val defaultSplitAttributes = params.defaultSplitAttributes
-             *     val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
+             * [SplitAttributesCalculator]. The sample linked below shows how to always fill the
+             * task bounds if the device is in portrait.
              *
-             *     val expandContainers = SplitAttributes,Builder()
-             *         .setSplitType(expandSecondaryContainer())
-             *         .build()
-             *     if (!isDefaultMinSizeSatisfied) {
-             *         return expandContainers
-             *     }
-             *     // Always expand containers for the splitRule tagged as
-             *     // TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT if the device is in portrait
-             *     // even if [isDefaultMinSizeSatisfied] reports true.
-             *     if (
-             *         bounds.height() > bounds.width() &&
-             *         TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT.equals(tag)
-             *     ) {
-             *         return expandContainers
-             *     }
-             *     // Otherwise, use the default splitAttributes.
-             *     return defaultSplitAttributes
-             * }
-             * ```
+             * @sample androidx.window.samples.embedding.expandContainersInPortrait
              */
             @JvmStatic
             fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS

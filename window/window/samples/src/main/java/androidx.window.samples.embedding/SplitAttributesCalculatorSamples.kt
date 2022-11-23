@@ -17,13 +17,13 @@
 package androidx.window.samples.embedding
 
 import android.app.Application
+import androidx.annotation.Sampled
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculator
 import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 
-// TODO(b/231499394): add @Sampled annotation and link to the Jetpack Window APIs
-
+@Sampled
 fun splitAttributesCalculatorSample() {
     SplitController.getInstance(context)
         .setSplitAttributesCalculator(
@@ -77,6 +77,7 @@ fun splitAttributesCalculatorSample() {
     })
 }
 
+@Sampled
 fun splitWithOrientations() {
     SplitController.getInstance(context)
         .setSplitAttributesCalculator(
@@ -106,6 +107,7 @@ fun splitWithOrientations() {
     })
 }
 
+@Sampled
 fun expandContainersInPortrait() {
     SplitController.getInstance(context)
         .setSplitAttributesCalculator(
