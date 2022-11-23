@@ -794,3 +794,5 @@ xcframework successfully .*
 /usr/bin/xcodebuild
 # > Configure project :internal-testutils-ktx
 WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
+# Building XCFrameworks (b/260140834)
+.*xcodebuild.*
