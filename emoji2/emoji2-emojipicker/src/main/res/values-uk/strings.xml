@@ -17,6 +17,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for emoji_category_recent (7142376595414250279) -->
+    <skip />
     <string name="emoji_category_emotions" msgid="1570830970240985537">"СМАЙЛИКИ Й ЕМОЦІЇ"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"ЛЮДИ"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ТВАРИНИ ТА ПРИРОДА"</string>
@@ -27,6 +29,5 @@
     <string name="emoji_category_symbols" msgid="5626171724310261787">"СИМВОЛИ"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"ПРАПОРИ"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Немає смайлів"</string>
-    <!-- no translation found for emoji_empty_recent_category (7863877827879290200) -->
-    <skip />
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Ви ще не використовували смайли"</string>
 </resources>
