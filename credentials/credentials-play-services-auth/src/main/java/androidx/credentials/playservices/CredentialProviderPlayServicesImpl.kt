@@ -116,7 +116,7 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
             cancellationSignal.setOnCancelListener {
                 // When this callback is notified, fragment manager may have fragments
                 fragmentManager.fragments.forEach { f ->
-                    f?.parentFragment?.fragmentManager?.beginTransaction()?.remove(f)
+                    fragmentManager.beginTransaction().remove(f)
                         ?.commitAllowingStateLoss()
                 }
             }
