@@ -180,9 +180,7 @@ object GuavaTypeNames {
         "ImmutableListMultimap",
         "Builder"
     )
-}
-
-object GuavaCollectionTypeNames {
+    val IMMUTABLE_MAP = XClassName.get("com.google.common.collect", "ImmutableMap")
     val IMMUTABLE_LIST = XClassName.get("com.google.common.collect", "ImmutableList")
     val IMMUTABLE_LIST_BUILDER = XClassName.get(
         "com.google.common.collect",
