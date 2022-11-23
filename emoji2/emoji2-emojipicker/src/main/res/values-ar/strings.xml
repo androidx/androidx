@@ -17,6 +17,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for emoji_category_recent (7142376595414250279) -->
+    <skip />
     <string name="emoji_category_emotions" msgid="1570830970240985537">"الوجوه المبتسمة والرموز التعبيرية"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"الأشخاص"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"الحيوانات والطبيعة"</string>
@@ -27,6 +29,5 @@
     <string name="emoji_category_symbols" msgid="5626171724310261787">"الرموز"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"الأعلام"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"لا تتوفر أي رموز تعبيرية."</string>
-    <!-- no translation found for emoji_empty_recent_category (7863877827879290200) -->
-    <skip />
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"لم تستخدم أي رموز تعبيرية حتى الآن."</string>
 </resources>
