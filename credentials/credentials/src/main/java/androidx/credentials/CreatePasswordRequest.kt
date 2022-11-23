@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * A request to save the user password credential with their password provider.
@@ -54,6 +55,17 @@ class CreatePasswordRequest constructor(
             bundle.putString(BUNDLE_KEY_ID, id)
             bundle.putString(BUNDLE_KEY_PASSWORD, password)
             return bundle
+        }
+
+        @JvmStatic
+        internal fun createFrom(data: Bundle): CreatePasswordRequest {
+            try {
+                val id = data.getString(BUNDLE_KEY_ID)
+                val password = data.getString(BUNDLE_KEY_PASSWORD)
+                return CreatePasswordRequest(id!!, password!!)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
         }
     }
 }

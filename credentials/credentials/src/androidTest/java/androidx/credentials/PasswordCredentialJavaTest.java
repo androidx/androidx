@@ -82,4 +82,17 @@ public class PasswordCredentialJavaTest {
         assertThat(credential.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertThat(TestUtilsKt.equals(credential.getData(), expectedData)).isTrue();
     }
+
+    @Test
+    public void frameworkConversion_success() {
+        CreatePasswordRequest credential = new CreatePasswordRequest("id", "password");
+
+        Credential convertedCredential = Credential.createFrom(
+                credential.getType(), credential.getData());
+
+        assertThat(convertedCredential).isInstanceOf(PasswordCredential.class);
+        PasswordCredential convertedSubclassCredential = (PasswordCredential) convertedCredential;
+        assertThat(convertedSubclassCredential.getPassword()).isEqualTo(credential.getPassword());
+        assertThat(convertedSubclassCredential.getId()).isEqualTo(credential.getId());
+    }
 }

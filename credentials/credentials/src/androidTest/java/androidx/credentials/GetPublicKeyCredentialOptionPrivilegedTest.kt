@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.GetCredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -118,6 +119,11 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            GetPublicKeyCredentialOptionPrivileged
+                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED
+        )
+        expectedData.putString(
             GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
@@ -140,5 +146,24 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.data, expectedData)).isTrue()
         assertThat(option.requireSystemProvider).isFalse()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val option = GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true)
+
+        val convertedOption = createFrom(
+            option.type, option.data, option.requireSystemProvider
+        )
+
+        assertThat(convertedOption).isInstanceOf(
+            GetPublicKeyCredentialOptionPrivileged::class.java
+        )
+        val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOptionPrivileged
+        assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
+        assertThat(convertedSubclassOption.allowHybrid).isEqualTo(option.allowHybrid)
+        assertThat(convertedSubclassOption.clientDataHash)
+            .isEqualTo(option.clientDataHash)
+        assertThat(convertedSubclassOption.relyingParty).isEqualTo(option.relyingParty)
     }
 }

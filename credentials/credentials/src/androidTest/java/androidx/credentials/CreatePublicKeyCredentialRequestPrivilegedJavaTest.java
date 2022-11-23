@@ -127,6 +127,10 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         String clientDataHashExpected = "X342%4dfd7&";
         boolean allowHybridExpected = false;
         Bundle expectedData = new Bundle();
+        expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                CreatePublicKeyCredentialRequestPrivileged
+                        .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
@@ -140,5 +144,25 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(request.getData(), expectedData)).isTrue();
         assertThat(request.getRequireSystemProvider()).isFalse();
+    }
+
+    @Test
+    public void frameworkConversion_success() {
+        CreatePublicKeyCredentialRequestPrivileged request =
+                new CreatePublicKeyCredentialRequestPrivileged(
+                        "json", "rp", "clientDataHash", true);
+
+        CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
+                request.getType(), request.getData(), request.getRequireSystemProvider()
+        );
+
+        assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequestPrivileged.class);
+        CreatePublicKeyCredentialRequestPrivileged convertedSubclassRequest =
+                (CreatePublicKeyCredentialRequestPrivileged) convertedRequest;
+        assertThat(convertedSubclassRequest.getRequestJson()).isEqualTo(request.getRequestJson());
+        assertThat(convertedSubclassRequest.getRelyingParty()).isEqualTo(request.getRelyingParty());
+        assertThat(convertedSubclassRequest.getClientDataHash())
+                .isEqualTo(request.getClientDataHash());
+        assertThat(convertedSubclassRequest.allowHybrid()).isEqualTo(request.allowHybrid());
     }
 }

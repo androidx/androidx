@@ -17,9 +17,10 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.GetCredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,7 +30,19 @@ class GetPasswordOptionTest {
     @Test
     fun getter_frameworkProperties() {
         val option = GetPasswordOption()
-        Truth.assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        Truth.assertThat(equals(option.data, Bundle.EMPTY)).isTrue()
+
+        assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+        assertThat(equals(option.data, Bundle.EMPTY)).isTrue()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val option = GetPasswordOption()
+
+        val convertedOption = createFrom(
+            option.type, option.data, option.requireSystemProvider
+        )
+
+        assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)
     }
 }

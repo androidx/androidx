@@ -91,6 +91,9 @@ public class GetPublicKeyCredentialOptionJavaTest {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         boolean allowHybridExpected = false;
         Bundle expectedData = new Bundle();
+        expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
 
@@ -100,5 +103,20 @@ public class GetPublicKeyCredentialOptionJavaTest {
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getData(), expectedData)).isTrue();
         assertThat(option.getRequireSystemProvider()).isFalse();
+    }
+
+    @Test
+    public void frameworkConversion_success() {
+        GetPublicKeyCredentialOption option =
+                new GetPublicKeyCredentialOption("json", true);
+
+        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+                option.getType(), option.getData(), option.getRequireSystemProvider());
+
+        assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOption.class);
+        GetPublicKeyCredentialOption convertedSubclassOption =
+                (GetPublicKeyCredentialOption) convertedOption;
+        assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
+        assertThat(convertedSubclassOption.allowHybrid()).isEqualTo(option.allowHybrid());
     }
 }

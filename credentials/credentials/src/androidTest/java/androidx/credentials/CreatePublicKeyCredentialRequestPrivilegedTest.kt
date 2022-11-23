@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialRequest.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -121,6 +122,11 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            CreatePublicKeyCredentialRequestPrivileged
+                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+        )
+        expectedData.putString(
             CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
@@ -145,5 +151,27 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(request.data, expectedData)).isTrue()
         assertThat(request.requireSystemProvider).isFalse()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val request = CreatePublicKeyCredentialRequestPrivileged(
+            "json", "rp", "clientDataHash", true
+        )
+
+        val convertedRequest = createFrom(
+            request.type, request.data, request.requireSystemProvider
+        )
+
+        assertThat(convertedRequest).isInstanceOf(
+            CreatePublicKeyCredentialRequestPrivileged::class.java
+        )
+        val convertedSubclassRequest =
+            convertedRequest as CreatePublicKeyCredentialRequestPrivileged
+        assertThat(convertedSubclassRequest.requestJson).isEqualTo(request.requestJson)
+        assertThat(convertedSubclassRequest.relyingParty).isEqualTo(request.relyingParty)
+        assertThat(convertedSubclassRequest.clientDataHash)
+            .isEqualTo(request.clientDataHash)
+        assertThat(convertedSubclassRequest.allowHybrid).isEqualTo(request.allowHybrid)
     }
 }

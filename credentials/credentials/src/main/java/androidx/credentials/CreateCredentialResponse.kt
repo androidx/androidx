@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Base response class for the credential creation operation made with the
@@ -29,5 +30,26 @@ open class CreateCredentialResponse(
     val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle
-    )
+    val data: Bundle,
+) {
+    /** @hide */
+    companion object {
+        /** @hide */
+        @JvmStatic
+        fun createFrom(type: String, data: Bundle): CreateCredentialResponse {
+            return try {
+                when (type) {
+                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
+                        CreatePasswordResponse.createFrom(data)
+                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
+                        CreatePublicKeyCredentialResponse.createFrom(data)
+                    else -> throw FrameworkClassParsingException()
+                }
+            } catch (e: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a response
+                // with the raw framework values.
+                CreateCredentialResponse(type, data)
+            }
+        }
+    }
+}

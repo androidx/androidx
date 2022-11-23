@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.credentials
+package androidx.credentials.internal
 
-import android.os.Bundle
-
-/** A response of a password saving flow. */
-class CreatePasswordResponse : CreateCredentialResponse(
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    Bundle(),
-) {
-    /** @hide */
-    companion object {
-        @Suppress("UNUSED_PARAMETER")
-        @JvmStatic
-        internal fun createFrom(data: Bundle): CreatePasswordResponse {
-            return CreatePasswordResponse()
-        }
-    }
-}
+/**
+ * Internal exception used to indicate a parsing error while converting from a framework type to
+ * a jetpack type.
+ *
+ * @hide
+ */
+internal class FrameworkClassParsingException : Exception()

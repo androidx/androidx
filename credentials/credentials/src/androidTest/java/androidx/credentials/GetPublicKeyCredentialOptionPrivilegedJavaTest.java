@@ -123,6 +123,10 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         String clientDataHashExpected = "X342%4dfd7&";
         boolean allowHybridExpected = false;
         Bundle expectedData = new Bundle();
+        expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                GetPublicKeyCredentialOptionPrivileged
+                        .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
@@ -136,5 +140,23 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getData(), expectedData)).isTrue();
         assertThat(option.getRequireSystemProvider()).isFalse();
+    }
+
+    @Test
+    public void frameworkConversion_success() {
+        GetPublicKeyCredentialOptionPrivileged option =
+                new GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true);
+
+        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+                option.getType(), option.getData(), option.getRequireSystemProvider());
+
+        assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOptionPrivileged.class);
+        GetPublicKeyCredentialOptionPrivileged convertedSubclassOption =
+                (GetPublicKeyCredentialOptionPrivileged) convertedOption;
+        assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
+        assertThat(convertedSubclassOption.allowHybrid()).isEqualTo(option.allowHybrid());
+        assertThat(convertedSubclassOption.getClientDataHash())
+                .isEqualTo(option.getClientDataHash());
+        assertThat(convertedSubclassOption.getRelyingParty()).isEqualTo(option.getRelyingParty());
     }
 }
