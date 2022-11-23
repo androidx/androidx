@@ -22,6 +22,7 @@ import android.os.Trace
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.util.Consumer
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -179,6 +180,24 @@ class EmojiPickerView @JvmOverloads constructor(
 
         // set bodyView
         bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
+        bodyView.layoutManager = GridLayoutManager(
+            getContext(),
+            emojiGridColumns,
+            LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */ false
+        ).apply {
+            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    val adapter = bodyView.adapter ?: return 1
+                    val viewType = adapter.getItemViewType(position)
+                    // The following viewTypes occupy entire row.
+                    return if (
+                        viewType == CategorySeparatorViewData.TYPE ||
+                        viewType == EmptyCategoryViewData.TYPE
+                    ) emojiGridColumns else 1
+                }
+            }
+        }
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
         val variantToBaseEmojiMap = BundledEmojiListLoader.getPrimaryEmojiLookup()
         val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()

@@ -17,7 +17,6 @@
 package androidx.emoji2.emojipicker
 
 import androidx.emoji2.emojipicker.R as EmojiPickerViewR
-import org.hamcrest.Description
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -34,6 +33,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.hamcrest.Description
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
