@@ -141,6 +141,7 @@ WEAR_INPUT = "1.2.0-alpha03"
 WEAR_INPUT_TESTING = "1.2.0-alpha03"
 WEAR_ONGOING = "1.1.0-alpha01"
 WEAR_PHONE_INTERACTIONS = "1.1.0-alpha04"
+WEAR_PROTOLAYOUT = "1.0.0-alpha01"
 WEAR_REMOTE_INTERACTIONS = "1.1.0-alpha01"
 WEAR_TILES = "1.2.0-alpha01"
 WEAR_WATCHFACE = "1.2.0-alpha05"
@@ -256,6 +257,7 @@ VIEWPAGER = { group = "androidx.viewpager", atomicGroupVersion = "versions.VIEWP
 VIEWPAGER2 = { group = "androidx.viewpager2", atomicGroupVersion = "versions.VIEWPAGER2" }
 WEAR = { group = "androidx.wear" }
 WEAR_COMPOSE = { group = "androidx.wear.compose", atomicGroupVersion = "versions.WEAR_COMPOSE" }
+WEAR_PROTOLAYOUT = { group = "androidx.wear.protolayout", atomicGroupVersion = "versions.WEAR_PROTOLAYOUT" }
 WEAR_TILES = { group = "androidx.wear.tiles", atomicGroupVersion = "versions.WEAR_TILES" }
 WEAR_WATCHFACE = { group = "androidx.wear.watchface", atomicGroupVersion = "versions.WEAR_WATCHFACE" }
 WEBKIT = { group = "androidx.webkit", atomicGroupVersion = "versions.WEBKIT" }
