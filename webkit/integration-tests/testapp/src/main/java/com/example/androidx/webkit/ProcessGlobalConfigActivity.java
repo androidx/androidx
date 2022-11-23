@@ -43,9 +43,10 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
-        ProcessGlobalConfig.createInstance()
-                .setDataDirectorySuffix(this, "per_process_webview_data_0")
-                .apply();
+        ProcessGlobalConfig config = new ProcessGlobalConfig();
+        config.setDataDirectorySuffix(this,
+                "per_process_webview_data_0");
+        ProcessGlobalConfig.apply(config);
         setContentView(R.layout.activity_process_global_config);
         WebView wv = findViewById(R.id.process_global_config_webview);
         wv.setWebViewClient(new WebViewClient());
