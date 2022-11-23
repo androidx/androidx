@@ -160,14 +160,14 @@ CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
 COLLECTION = { group = "androidx.collection", atomicGroupVersion = "versions.COLLECTION" }
-COMPOSE_ANIMATION = { group = "androidx.compose.animation", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_COMPILER = { group = "androidx.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }
-COMPOSE_DESKTOP = { group = "androidx.compose.desktop", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_MATERIAL = { group = "androidx.compose.material", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
-COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_ANIMATION = { group = "org.jetbrains.compose.animation", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_COMPILER = { group = "org.jetbrains.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }
+COMPOSE_DESKTOP = { group = "org.jetbrains.compose.desktop", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_FOUNDATION = { group = "org.jetbrains.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_MATERIAL = { group = "org.jetbrains.compose.material", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_MATERIAL3 = { group = "org.jetbrains.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
+COMPOSE_RUNTIME = { group = "org.jetbrains.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_UI = { group = "org.jetbrains.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
 CONCURRENT = { group = "androidx.concurrent", atomicGroupVersion = "versions.FUTURES" }
 CONSTRAINTLAYOUT = { group = "androidx.constraintlayout" }
 CONTENTPAGER = { group = "androidx.contentpager", atomicGroupVersion = "versions.CONTENTPAGER" }
