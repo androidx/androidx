@@ -187,7 +187,6 @@ public interface IUwbClient extends android.os.IInterface
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.RangingParameters.CREATOR);
                     androidx.core.uwb.backend.IRangingSessionCallback _arg1;
                     _arg1 = androidx.core.uwb.backend.IRangingSessionCallback.Stub.asInterface(data.readStrongBinder());
-                    data.enforceNoDataAvail();
                     this.startRanging(_arg0, _arg1);
                     reply.writeNoException();
                     break;
@@ -196,7 +195,6 @@ public interface IUwbClient extends android.os.IInterface
                 {
                     androidx.core.uwb.backend.IRangingSessionCallback _arg0;
                     _arg0 = androidx.core.uwb.backend.IRangingSessionCallback.Stub.asInterface(data.readStrongBinder());
-                    data.enforceNoDataAvail();
                     this.stopRanging(_arg0);
                     reply.writeNoException();
                     break;
@@ -205,7 +203,6 @@ public interface IUwbClient extends android.os.IInterface
                 {
                     androidx.core.uwb.backend.UwbAddress _arg0;
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.UwbAddress.CREATOR);
-                    data.enforceNoDataAvail();
                     this.addControlee(_arg0);
                     reply.writeNoException();
                     break;
@@ -214,7 +211,6 @@ public interface IUwbClient extends android.os.IInterface
                 {
                     androidx.core.uwb.backend.UwbAddress _arg0;
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.UwbAddress.CREATOR);
-                    data.enforceNoDataAvail();
                     this.removeControlee(_arg0);
                     reply.writeNoException();
                     break;

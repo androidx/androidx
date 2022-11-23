@@ -132,7 +132,6 @@ public interface IRangingSessionCallback extends android.os.IInterface
                 {
                     androidx.core.uwb.backend.UwbDevice _arg0;
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.UwbDevice.CREATOR);
-                    data.enforceNoDataAvail();
                     this.onRangingInitialized(_arg0);
                     break;
                 }
@@ -142,7 +141,6 @@ public interface IRangingSessionCallback extends android.os.IInterface
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.UwbDevice.CREATOR);
                     androidx.core.uwb.backend.RangingPosition _arg1;
                     _arg1 = data.readTypedObject(androidx.core.uwb.backend.RangingPosition.CREATOR);
-                    data.enforceNoDataAvail();
                     this.onRangingResult(_arg0, _arg1);
                     break;
                 }
@@ -152,7 +150,6 @@ public interface IRangingSessionCallback extends android.os.IInterface
                     _arg0 = data.readTypedObject(androidx.core.uwb.backend.UwbDevice.CREATOR);
                     int _arg1;
                     _arg1 = data.readInt();
-                    data.enforceNoDataAvail();
                     this.onRangingSuspended(_arg0, _arg1);
                     break;
                 }
