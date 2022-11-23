@@ -222,8 +222,25 @@ public class UiDevice implements Searchable {
      * and searching the hierarchy inefficient are removed.
      *
      * @param compressed true to enable compression; else, false to disable
+     * @deprecated Typo in function name, should use {@link #setCompressedLayoutHierarchy(boolean)}
+     * instead.
      */
+    @Deprecated
     public void setCompressedLayoutHeirarchy(boolean compressed) {
+        this.setCompressedLayoutHierarchy(compressed);
+    }
+
+    /**
+     * Enables or disables layout hierarchy compression.
+     *
+     * If compression is enabled, the layout hierarchy derived from the Accessibility
+     * framework will only contain nodes that are important for uiautomator
+     * testing. Any unnecessary surrounding layout nodes that make viewing
+     * and searching the hierarchy inefficient are removed.
+     *
+     * @param compressed true to enable compression; else, false to disable
+     */
+    public void setCompressedLayoutHierarchy(boolean compressed) {
         mCompressed = compressed;
         mCachedServiceFlags = -1; // Reset cached accessibility service flags to force an update.
     }
