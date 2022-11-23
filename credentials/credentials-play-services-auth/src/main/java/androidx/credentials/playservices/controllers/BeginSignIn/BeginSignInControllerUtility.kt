@@ -32,8 +32,11 @@ package androidx.credentials.playservices.controllers.BeginSignIn
  * limitations under the License.
  */
 
+import android.util.Log
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
+import androidx.credentials.GetPublicKeyCredentialOption
+import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility.Companion.convertToPlayAuthPasskeyRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 
 /**
@@ -44,8 +47,11 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 class BeginSignInControllerUtility {
 
     companion object {
+
+        private val TAG = BeginSignInControllerUtility::class.java.name
         internal fun constructBeginSignInRequest(request: GetCredentialRequest):
             BeginSignInRequest {
+            var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
             for (option in request.getCredentialOptions) {
                 if (option is GetPasswordOption) {
@@ -54,8 +60,15 @@ class BeginSignInControllerUtility {
                             .setSupported(true)
                             .build()
                     )
+                } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
+                    Log.i(TAG, "See request for passkey $option")
+                    requestBuilder.setPasskeysSignInRequestOptions(
+                        convertToPlayAuthPasskeyRequest(option)
+                    )
+                    isPublicKeyCredReqFound = true
+                    // TODO("Confirm logic for single vs multiple options of the same type")
                 }
-                // TODO("Add GoogleIDToken version and passkey version")
+            // TODO("Add GoogleIDToken version")
             }
             return requestBuilder
                 .setAutoSelectEnabled(request.isAutoSelectAllowed)
