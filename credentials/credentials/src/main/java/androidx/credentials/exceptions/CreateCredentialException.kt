@@ -35,7 +35,7 @@ import androidx.credentials.CredentialManager
 open class CreateCredentialException @JvmOverloads constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
+    val type: String,
     val errorMessage: CharSequence? = null
 ) : Exception(errorMessage?.toString()) {
     init {
