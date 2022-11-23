@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
@@ -92,6 +93,10 @@ class UseCaseCameraConfig(
         sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
             sessionConfig.surfaces.forEach { deferrableSurface ->
                 val outputConfig = CameraStream.Config.create(
+                    streamUseCase = getStreamUseCase(
+                        deferrableSurface,
+                        sessionConfigAdapter.surfaceToStreamUseCaseMap
+                    ),
                     size = deferrableSurface.prescribedSize,
                     format = StreamFormat(deferrableSurface.prescribedStreamFormat),
                     camera = CameraId(
@@ -146,6 +151,13 @@ class UseCaseCameraConfig(
             surfaceToStreamMap = surfaceToStreamMap,
             cameraStateAdapter = cameraStateAdapter,
         )
+    }
+
+    private fun getStreamUseCase(
+        deferrableSurface: DeferrableSurface,
+        mapping: Map<DeferrableSurface, Long>
+    ): OutputStream.StreamUseCase? {
+        return mapping[deferrableSurface]?.let { OutputStream.StreamUseCase(it) }
     }
 }
 
