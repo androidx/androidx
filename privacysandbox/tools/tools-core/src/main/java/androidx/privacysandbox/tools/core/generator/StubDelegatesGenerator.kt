@@ -48,7 +48,7 @@ class StubDelegatesGenerator(
                 listOf(
                     PropertySpec.builder(
                         "delegate",
-                        annotatedInterface.type.poetSpec(),
+                        annotatedInterface.type.poetTypeName(),
                     ).addModifiers(KModifier.PUBLIC).build()
                 ), KModifier.INTERNAL
             )

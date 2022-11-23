@@ -17,7 +17,7 @@
 package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.build
-import androidx.privacysandbox.tools.core.generator.poetSpec
+import androidx.privacysandbox.tools.core.generator.poetTypeName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.getOnlyService
@@ -77,7 +77,7 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
         return FunSpec.builder(createServiceFunctionName(service))
             .addModifiers(KModifier.ABSTRACT, KModifier.PROTECTED)
             .addParameter("context", contextClass)
-            .returns(service.type.poetSpec())
+            .returns(service.type.poetTypeName())
             .build()
     }
 }

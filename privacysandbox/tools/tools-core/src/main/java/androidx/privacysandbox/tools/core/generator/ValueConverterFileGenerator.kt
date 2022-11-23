@@ -47,7 +47,7 @@ class ValueConverterFileGenerator(private val binderConverter: BinderCodeConvert
 
     private fun generateToParcelable(value: AnnotatedValue) =
         FunSpec.builder(value.toParcelableNameSpec().simpleName).build {
-            addParameter("annotatedValue", value.type.poetSpec())
+            addParameter("annotatedValue", value.type.poetTypeName())
             returns(value.parcelableNameSpec())
             addStatement("val parcelable = %T()", value.parcelableNameSpec())
             value.properties.map(::generateToParcelablePropertyConversion).forEach(::addCode)
@@ -68,10 +68,10 @@ class ValueConverterFileGenerator(private val binderConverter: BinderCodeConvert
     private fun generateFromParcelable(value: AnnotatedValue) =
         FunSpec.builder(value.fromParcelableNameSpec().simpleName).build {
             addParameter("parcelable", value.parcelableNameSpec())
-            returns(value.type.poetSpec())
+            returns(value.type.poetTypeName())
             val parameters = value.properties.map(::generateFromParcelablePropertyConversion)
             addStatement {
-                add("val annotatedValue = %T(\n", value.type.poetSpec())
+                add("val annotatedValue = %T(\n", value.type.poetTypeName())
                 add(parameters.joinToCode(separator = ",\n"))
                 add(")")
             }

@@ -25,4 +25,20 @@ interface TestSandboxSdk {
     suspend fun doSomethingAsync(first: Int, second: String, third: Long): Boolean
 
     suspend fun receiveAndReturnNothingAsync()
+
+    suspend fun processIntList(x: List<Int>): List<Int>
+
+    suspend fun processCharList(x: List<Char>): List<Char>
+
+    suspend fun processFloatList(x: List<Float>): List<Float>
+
+    suspend fun processLongList(x: List<Long>): List<Long>
+
+    suspend fun processDoubleList(x: List<Double>): List<Double>
+
+    suspend fun processBooleanList(x: List<Boolean>): List<Boolean>
+
+    suspend fun processShortList(x: List<Short>): List<Short>
+
+    suspend fun processStringList(x: List<String>): List<String>
 }
