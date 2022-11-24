@@ -80,17 +80,6 @@ public interface SurfaceOutput {
     int getFormat();
 
     /**
-     * Get the rotation degrees.
-     *
-     * TODO(b/259308680): hide this from the {@link SurfaceOutput} interface. This is only used
-     * for testing.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    int getRotationDegrees();
-
-    /**
      * Call this method to mark the {@link Surface} as no longer in use.
      *
      * <p>Once the {@link SurfaceProcessor} implementation receives a request to close the
