@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
+import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
@@ -126,6 +127,11 @@ class CameraInfoAdapter @Inject constructor(
             CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN -> Timebase.UPTIME
             else -> Timebase.UPTIME
         }
+    }
+
+    override fun getSupportedResolutions(format: Int): List<Size> {
+        Log.warn { "TODO: getSupportedResolutions are not yet supported." }
+        return emptyList()
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"

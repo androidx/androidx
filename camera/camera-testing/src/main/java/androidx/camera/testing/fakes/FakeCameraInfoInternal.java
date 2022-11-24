@@ -18,6 +18,7 @@ package androidx.camera.testing.fakes;
 
 import android.util.Range;
 import android.util.Rational;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -43,7 +44,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -59,6 +63,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mLensFacing;
     private final MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private final MutableLiveData<ZoomState> mZoomLiveData;
+    private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
     private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
@@ -180,6 +185,13 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mTimebase;
     }
 
+    @NonNull
+    @Override
+    public List<Size> getSupportedResolutions(int format) {
+        List<Size> resolutions = mSupportedResolutionMap.get(format);
+        return resolutions != null ? resolutions : Collections.emptyList();
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -234,6 +246,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Set the timebase for testing */
     public void setTimebase(@NonNull Timebase timebase) {
         mTimebase = timebase;
+    }
+
+    /** Set the supported resolutions for testing */
+    public void setSupportedResolutions(int format, @NonNull List<Size> resolutions) {
+        mSupportedResolutionMap.put(format, resolutions);
     }
 
     /** Set the isPrivateReprocessingSupported flag for testing */

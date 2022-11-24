@@ -24,7 +24,6 @@ import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectR
 
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
@@ -36,13 +35,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ResolutionSelector;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SizeCoordinate;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -294,8 +293,6 @@ final class SupportedOutputSizesCollector {
 
     @NonNull
     private Size[] doGetOutputSizesByFormat(int imageFormat) {
-        Size[] outputSizes;
-
         StreamConfigurationMap map =
                 mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
@@ -303,18 +300,9 @@ final class SupportedOutputSizesCollector {
             throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
         }
 
-        if (Build.VERSION.SDK_INT < 23
-                && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
-            // This is a little tricky that 0x22 that is internal defined in
-            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
-            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
-            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
-            // retrieve the output sizes information.
-            outputSizes = map.getOutputSizes(SurfaceTexture.class);
-        } else {
-            outputSizes = map.getOutputSizes(imageFormat);
-        }
-
+        StreamConfigurationMapCompat mapCompat =
+                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        Size[] outputSizes = mapCompat.getOutputSizes(imageFormat);
         if (outputSizes == null) {
             throw new IllegalArgumentException(
                     "Can not get supported output size for the format: " + imageFormat);

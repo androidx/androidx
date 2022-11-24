@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
@@ -186,6 +187,10 @@ class Camera2CameraInfoTest {
             }
 
             override fun getTimebase(): Timebase {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedResolutions(format: Int): MutableList<Size> {
                 throw NotImplementedError("Not used in testing")
             }
         }
