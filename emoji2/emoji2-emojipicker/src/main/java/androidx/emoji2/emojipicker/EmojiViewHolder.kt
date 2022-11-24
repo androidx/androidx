@@ -45,8 +45,10 @@ internal class EmojiViewHolder(
     layoutInflater
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
-    private val onEmojiClickListener: OnClickListener = OnClickListener {
-        onEmojiPickedListener(this.emojiViewItem)
+    private val onEmojiClickListener: OnClickListener = OnClickListener { v ->
+        v.findViewById<EmojiView>(R.id.emoji_view).emoji?.let {
+            onEmojiPickedListener(EmojiViewItem(it.toString(), emojiViewItem.variants))
+        }
     }
 
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
