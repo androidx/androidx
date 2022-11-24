@@ -33,13 +33,15 @@ internal class StickyVariantProvider(context: Context) {
     private val sharedPreferences =
         context.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE)
 
-    internal val stickyVariantMap: Map<String, String> by lazy {
+    private val stickyVariantMap: Map<String, String> by lazy {
         sharedPreferences.getString(STICKY_VARIANT_PROVIDER_KEY, null)?.split(ENTRY_DELIMITER)
             ?.associate { entry ->
                 entry.split(KEY_VALUE_DELIMITER, limit = 2).takeIf { it.size == 2 }
                     ?.let { it[0] to it[1] } ?: ("" to "")
             } ?: mapOf()
     }
+
+    internal operator fun get(emoji: String): String = stickyVariantMap[emoji] ?: emoji
 
     internal fun update(baseEmoji: String, variantClicked: String) {
         stickyVariantMap.toMutableMap().apply {

@@ -17,15 +17,15 @@
 package androidx.emoji2.emojipicker
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import androidx.annotation.LayoutRes
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.util.Consumer
-import androidx.emoji2.emojipicker.EmojiPickerConstants.RECENT_CATEGORY_INDEX
+import androidx.core.view.ViewCompat
+import androidx.emoji2.emojipicker.Extensions.toItemType
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.tracing.Trace
@@ -35,57 +35,27 @@ internal class EmojiPickerBodyAdapter(
     private val context: Context,
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
-    private val categoryNames: Array<String>,
-    private val variantToBaseEmojiMap: Map<String, String>,
-    private val baseToVariantsEmojiMap: Map<String, List<String>>,
     private val stickyVariantProvider: StickyVariantProvider,
-    private val onEmojiPickedListener: Consumer<EmojiViewItem>?,
-    private val recentEmojiList: MutableList<String>,
-    private val recentEmojiProvider: RecentEmojiProvider
+    internal var flattenSource: ItemViewDataFlatList,
+    private val onEmojiPickedListener: EmojiPickerBodyAdapter.(EmojiViewItem) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-    private var flattenSource: ItemViewDataFlatList
-
-    init {
-        val categorizedEmojis: MutableList<MutableList<ItemViewData>> = mutableListOf()
-        for (i in categoryNames.indices) {
-            categorizedEmojis.add(mutableListOf())
-        }
-        flattenSource = ItemViewDataFlatList(
-            categorizedEmojis,
-            emojiGridColumns
-        )
-    }
 
     @UiThread
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         Trace.beginSection("EmojiPickerBodyAdapter.onCreateViewHolder")
         return try {
-            val view: View
-            when (viewType) {
-                CategorySeparatorViewData.TYPE -> {
-                    view = layoutInflater.inflate(
-                        R.layout.category_text_view,
-                        parent,
-                        /* attachToRoot = */ false
-                    )
-                    view.layoutParams =
-                        LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            when (viewType.toItemType()) {
+                ItemType.CATEGORY_TITLE -> createSimpleHolder(R.layout.category_text_view, parent)
+                ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
+                    R.layout.emoji_picker_empty_category_text_view,
+                    parent
+                ) {
+                    minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
                 }
 
-                EmptyCategoryViewData.TYPE -> {
-                    view = layoutInflater.inflate(
-                        R.layout.emoji_picker_empty_category_text_view,
-                        parent,
-                        /* attachToRoot = */ false
-                    )
-                    view.layoutParams =
-                        LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-                    view.minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
-                }
-
-                EmojiViewData.TYPE -> {
-                    return EmojiViewHolder(
+                ItemType.EMOJI -> {
+                    EmojiViewHolder(
                         context,
                         parent,
                         layoutInflater,
@@ -93,105 +63,53 @@ internal class EmojiPickerBodyAdapter(
                         (parent.measuredHeight / emojiGridRows).toInt(),
                         stickyVariantProvider,
                         onEmojiPickedListener = { emojiViewItem ->
-                            recentEmojiProvider.insert(emojiViewItem.emoji)
-                            // update the recentEmojiList in the mean time
-                            recentEmojiList.remove(emojiViewItem.emoji)
-                            recentEmojiList.add(0, emojiViewItem.emoji)
-                            onEmojiPickedListener?.accept(emojiViewItem)
-                            // update the recent category to reload
-                            this@EmojiPickerBodyAdapter.updateRecent(recentEmojiList.map { emoji ->
-                                EmojiViewData(
-                                    RECENT_CATEGORY_INDEX,
-                                    recentEmojiList.indexOf(emoji),
-                                    emoji,
-                                    baseToVariantsEmojiMap[variantToBaseEmojiMap[emoji]]
-                                        ?.toTypedArray()
-                                        ?: arrayOf()
-                                )
-                            })
+                            onEmojiPickedListener(emojiViewItem)
                         },
                         onEmojiPickedFromPopupListener = { emoji ->
-                            (flattenSource[bindingAdapterPosition] as EmojiViewData).primary = emoji
-                            notifyItemChanged(bindingAdapterPosition)
+                            with(flattenSource[bindingAdapterPosition] as EmojiViewData) {
+                                if (updateToVariants) {
+                                    primary = emoji
+                                    notifyItemChanged(bindingAdapterPosition)
+                                }
+                            }
                         }
                     )
                 }
 
-                DummyViewData.TYPE -> {
-                    view = View(context)
-                    view.layoutParams = LayoutParams(
-                        getParentWidth(parent) / emojiGridColumns,
-                        (parent.measuredHeight / emojiGridRows).toInt()
-                    )
-                }
-
-                else -> {
-                    Log.e(
-                        "EmojiPickerBodyAdapter",
-                        "EmojiPickerBodyAdapter gets unsupported view type."
-                    )
-                    view = View(context)
-                    view.layoutParams =
-                        LayoutParams(
-                            getParentWidth(parent) / emojiGridColumns,
-                            (parent.measuredHeight / emojiGridRows).toInt()
-                        )
-                }
+                ItemType.PLACEHOLDER_EMOJI -> object : ViewHolder(View(context)) {}
             }
-            object : ViewHolder(view) {}
         } finally {
             Trace.endSection()
         }
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val viewType = viewHolder.itemViewType
-        val view = viewHolder.itemView
-        if (viewType == CategorySeparatorViewData.TYPE) {
-            val categoryIndex = flattenSource.getCategoryIndex(position)
-            val item = flattenSource[position] as CategorySeparatorViewData
-            var categoryName = item.categoryName
-            if (categoryName.isEmpty()) {
-                categoryName = categoryNames[categoryIndex]
+        when (getItemViewType(position).toItemType()) {
+            ItemType.CATEGORY_TITLE ->
+                ViewCompat.requireViewById<AppCompatTextView>(
+                    viewHolder.itemView,
+                    R.id.category_name
+                ).text =
+                    (flattenSource[position] as CategoryTitle).title
+
+            ItemType.PLACEHOLDER_TEXT ->
+                ViewCompat.requireViewById<AppCompatTextView>(
+                    viewHolder.itemView,
+                    R.id.emoji_picker_empty_category_view
+                ).text =
+                    (flattenSource[position] as PlaceholderText).text
+
+            ItemType.EMOJI -> {
+                (viewHolder as EmojiViewHolder).bindEmoji(
+                    (flattenSource[position] as EmojiViewData).let {
+                        EmojiViewItem(
+                            it.primary,
+                            it.variants
+                        )
+                    })
             }
 
-            // Show category label.
-            val categoryLabel = view.findViewById<AppCompatTextView>(R.id.category_name)
-            if (categoryIndex == RECENT_CATEGORY_INDEX) {
-                categoryLabel.text = context.getString(R.string.emoji_category_recent)
-                categoryLabel.visibility = View.VISIBLE
-            } else {
-                if (categoryName.isEmpty()) {
-                    categoryLabel.visibility = View.GONE
-                } else {
-                    categoryLabel.text = categoryName
-                    categoryLabel.visibility = View.VISIBLE
-                }
-            }
-        } else if (viewType == EmptyCategoryViewData.TYPE) {
-            // Show empty category description.
-            val emptyCategoryView =
-                view.findViewById<AppCompatTextView>(R.id.emoji_picker_empty_category_view)
-            val item = flattenSource[position] as EmptyCategoryViewData
-            var content = item.description
-            if (content.isEmpty()) {
-                val categoryIndex = flattenSource.getCategoryIndex(position)
-                content = context.getString(
-                    if (categoryIndex == RECENT_CATEGORY_INDEX)
-                        R.string.emoji_empty_recent_category
-                    else R.string.emoji_empty_non_recent_category
-                )
-            }
-            emptyCategoryView.text = content
-        } else if (viewType == EmojiViewData.TYPE) {
-            val item = flattenSource[position] as EmojiViewData
-            val emojiViewHolder = viewHolder as EmojiViewHolder
-            emojiViewHolder.bindEmoji(
-                EmojiViewItem(
-                    item.primary,
-                    item.secondaries.toList()
-                )
-            )
+            ItemType.PLACEHOLDER_EMOJI -> {}
         }
     }
 
@@ -200,26 +118,29 @@ internal class EmojiPickerBodyAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return flattenSource[position].type
+        return flattenSource[position].viewType
     }
 
     private fun getParentWidth(parent: ViewGroup): Int {
         return parent.measuredWidth - parent.paddingLeft - parent.paddingRight
     }
 
-    fun updateEmojis(emojis: List<List<ItemViewData>>) {
-        flattenSource = ItemViewDataFlatList(
-            emojis,
-            emojiGridColumns
-        )
-        notifyDataSetChanged()
-    }
-
-    fun updateRecent(recents: List<ItemViewData>) {
-        flattenSource.updateSourcesByIndex(RECENT_CATEGORY_INDEX, recents)
-        notifyItemRangeChanged(
-            RECENT_CATEGORY_INDEX,
-            flattenSource.getCategorySize(RECENT_CATEGORY_INDEX)
-        )
-    }
+    private fun createSimpleHolder(
+        @LayoutRes layoutId: Int,
+        parent: ViewGroup,
+        init: (View.() -> Unit)? = null,
+    ) = object : ViewHolder(
+        layoutInflater.inflate(
+            layoutId,
+            parent,
+            /* attachToRoot = */ false
+        ).also {
+            it.layoutParams =
+                LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.WRAP_CONTENT
+                )
+            init?.invoke(it)
+        }
+    ) {}
 }
