@@ -61,7 +61,7 @@ import java.util.List;
  *    Please note that the output JPEG surface should be closed AFTER this processor is closed().
  * </pre>
  */
-@RequiresApi(26)
+@RequiresApi(21)
 class StillCaptureProcessor {
     private static final String TAG = "StillCaptureProcessor";
     private static final int MAX_IMAGES = 2;

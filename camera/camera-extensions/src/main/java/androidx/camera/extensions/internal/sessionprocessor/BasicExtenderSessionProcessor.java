@@ -62,7 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A {@link SessionProcessor} based on OEMs' basic extender implementation.
  */
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
-@RequiresApi(26) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private static final String TAG = "BasicSessionProcessor";
 

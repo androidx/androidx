@@ -39,7 +39,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
  *
  * <p>Please note that output preview surface must be closed AFTER this processor is closed.
  */
-@RequiresApi(26)
+@RequiresApi(21)
 class PreviewProcessor {
     private static final String TAG = "PreviewProcessor";
     @NonNull
