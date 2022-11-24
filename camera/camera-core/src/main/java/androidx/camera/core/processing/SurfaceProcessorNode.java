@@ -18,10 +18,12 @@ package androidx.camera.core.processing;
 
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
+import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.Rect;
 import android.util.Size;
@@ -132,8 +134,11 @@ public class SurfaceProcessorNode implements
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
-        // TODO(b/259308680): Checks that the aspect ratio of the rotated crop rect matches the
-        //  output size.
+        // The aspect ratio of the output must match the aspect ratio of the crop rect. Otherwise
+        // the output will be stretched.
+        Size rotatedCropSize = getRotatedSize(outConfig.getCropRect(), rotationDegrees);
+        checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
+
         outputSurface = new SettableSurface(
                 outConfig.getTargets(),
                 outConfig.getSize(),
