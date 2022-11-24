@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 
 enum class Navigation(val displayName: String, val action: @Composable () -> Unit) {
   LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
-  FeaturedCarousel("Featured Carousel", { FeaturedCarousel() }),
+  FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
   ImmersiveList("Immersive List", { SampleImmersiveList() }),
 }
 
