@@ -17,10 +17,12 @@
 package androidx.window.extensions.embedding;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.window.extensions.layout.WindowLayoutInfo;
 
 /**
@@ -119,6 +121,36 @@ public interface SplitAttributesCalculator {
             mIsDefaultMinSizeSatisfied = isDefaultMinSizeSatisfied;
             mParentWindowLayoutInfo = parentWindowLayoutInfo;
             mSplitRuleTag = splitRuleTag;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + ":{"
+                    + "windowMetrics=" + windowMetricsToString(mParentWindowMetrics)
+                    + ", configuration=" + mParentConfiguration
+                    + ", windowLayoutInfo=" + mParentWindowLayoutInfo
+                    + ", defaultSplitAttributes=" + mDefaultSplitAttributes
+                    + ", isDefaultMinSizeSatisfied=" + mIsDefaultMinSizeSatisfied
+                    + ", tag=" + mSplitRuleTag + "}";
+        }
+
+        private static String windowMetricsToString(@NonNull WindowMetrics windowMetrics) {
+            // TODO(b/187712731): Use WindowMetrics#toString after it's implemented in U.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                return Api30Impl.windowMetricsToString(windowMetrics);
+            }
+            throw new UnsupportedOperationException("WindowMetrics didn't exist in R.");
+        }
+
+        @RequiresApi(30)
+        private static final class Api30Impl {
+            static String windowMetricsToString(@NonNull WindowMetrics windowMetrics) {
+                return WindowMetrics.class.getSimpleName() + ":{"
+                        + "bounds=" + windowMetrics.getBounds()
+                        + ", windowInsets=" + windowMetrics.getWindowInsets()
+                        + "}";
+            }
         }
     }
 }

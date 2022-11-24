@@ -149,5 +149,14 @@ interface SplitAttributesCalculator {
          * @see SplitPlaceholderRule.Builder.setTag
          */
         val splitRuleTag: String?,
-    )
+    ) {
+        override fun toString(): String =
+            "${SplitAttributesCalculatorParams::class.java.simpleName}:{" +
+                "windowMetrics=$parentWindowMetrics" +
+                ", configuration=$parentConfiguration" +
+                ", windowLayoutInfo=$parentWindowLayoutInfo" +
+                ", defaultSplitAttributes=$defaultSplitAttributes" +
+                ", isDefaultMinSizeSatisfied=$isDefaultMinSizeSatisfied" +
+                ", tag=$splitRuleTag}"
+    }
 }
