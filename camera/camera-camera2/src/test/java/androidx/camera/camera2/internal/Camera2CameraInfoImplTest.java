@@ -32,6 +32,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -61,6 +63,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
+import org.robolectric.shadows.StreamConfigurationMapBuilder;
 import org.robolectric.util.ReflectionHelpers;
 
 import java.util.Arrays;
@@ -543,6 +546,22 @@ public class Camera2CameraInfoImplTest {
         assertThat(cameraInfo.isZslSupported()).isTrue();
     }
 
+    @Test
+    public void canReturnSupportedResolutions() throws CameraAccessExceptionCompat {
+        init(/* hasReprocessingCapabilities = */ true);
+
+        Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+        List<Size> resolutions = cameraInfo.getSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+
+        assertThat(resolutions).containsExactly(
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+        );
+    }
+
     private CameraManagerCompat initCameraManagerWithPhysicalIds(
             List<Pair<String, CameraCharacteristics>> cameraIdsAndCharacteristicsList) {
         FakeCameraManagerImpl cameraManagerImpl = new FakeCameraManagerImpl();
@@ -595,6 +614,18 @@ public class Camera2CameraInfoImplTest {
         shadowCharacteristics0.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA0_FLASH_INFO_BOOLEAN);
 
+        // Mock the supported resolutions
+        {
+            int formatPrivate = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+            StreamConfigurationMapBuilder streamMapBuilder =
+                    StreamConfigurationMapBuilder.newBuilder()
+                            .addOutputSize(formatPrivate, new Size(1920, 1080))
+                            .addOutputSize(formatPrivate, new Size(1280, 720))
+                            .addOutputSize(formatPrivate, new Size(640, 480));
+            shadowCharacteristics0.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    streamMapBuilder.build());
+        }
+
         // Mock the request capability
         if (hasReprocessingCapabilities) {
             shadowCharacteristics0.set(REQUEST_AVAILABLE_CAPABILITIES,
@@ -627,6 +658,17 @@ public class Camera2CameraInfoImplTest {
         // Mock the flash unit availability
         shadowCharacteristics1.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA1_FLASH_INFO_BOOLEAN);
+
+        // Mock the supported resolutions
+        {
+            int formatPrivate = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+            StreamConfigurationMapBuilder streamMapBuilder =
+                    StreamConfigurationMapBuilder.newBuilder()
+                            .addOutputSize(formatPrivate, new Size(1280, 720))
+                            .addOutputSize(formatPrivate, new Size(640, 480));
+            shadowCharacteristics1.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    streamMapBuilder.build());
+        }
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

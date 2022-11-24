@@ -22,10 +22,14 @@ import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOUR
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
+import static java.util.Objects.requireNonNull;
+
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -36,6 +40,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
@@ -61,6 +66,8 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -390,6 +397,17 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             default:
                 return Timebase.UPTIME;
         }
+    }
+
+    @NonNull
+    @Override
+    public List<Size> getSupportedResolutions(int format) {
+        StreamConfigurationMap map = requireNonNull(mCameraCharacteristicsCompat.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP));
+        StreamConfigurationMapCompat mapCompat =
+                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        Size[] size = mapCompat.getOutputSizes(format);
+        return size != null ? Arrays.asList(size) : Collections.emptyList();
     }
 
     @Override

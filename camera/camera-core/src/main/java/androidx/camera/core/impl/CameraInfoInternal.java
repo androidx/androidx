@@ -16,6 +16,10 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -24,6 +28,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -79,6 +84,15 @@ public interface CameraInfoInternal extends CameraInfo {
     /** Returns the {@link Timebase} of frame output by this camera. */
     @NonNull
     Timebase getTimebase();
+
+    /**
+     * Returns the supported resolutions of this camera based on the input image format.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}.
+     * @return a list of supported resolutions, or an empty list if the format is not supported.
+     */
+    @NonNull
+    List<Size> getSupportedResolutions(int format);
 
     /** {@inheritDoc} */
     @NonNull
