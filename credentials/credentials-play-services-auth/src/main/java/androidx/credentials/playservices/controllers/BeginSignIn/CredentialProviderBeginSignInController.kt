@@ -28,11 +28,13 @@ import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
+import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.playservices.controllers.BeginSignIn.BeginSignInControllerUtility.Companion.constructBeginSignInRequest
+import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInResult
@@ -182,9 +184,10 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             cred = PasswordCredential(response.id, response.password!!)
         } else if (response.googleIdToken != null) {
             TODO(" Implement GoogleIdTokenVersion")
-        }
-        // TODO("Implement PublicKeyCredential Version")
-        else {
+        } else if (response.publicKeyCredential != null) {
+            cred = PublicKeyCredential(
+                PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response))
+        } else {
             Log.i(TAG, "Credential returned but no google Id or password or passkey found")
         }
         if (cred == null) {
