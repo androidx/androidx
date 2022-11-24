@@ -207,6 +207,17 @@ public class TransformUtils {
     /**
      * Checks if aspect ratio matches while tolerating rounding error.
      *
+     * @see #isAspectRatioMatchingWithRoundingError(Size, boolean, Size, boolean)
+     */
+    public static boolean isAspectRatioMatchingWithRoundingError(
+            @NonNull Size size1, @NonNull Size size2) {
+        return isAspectRatioMatchingWithRoundingError(
+                size1, /*isAccurate1=*/ false, size2, /*isAccurate2=*/ false);
+    }
+
+    /**
+     * Checks if aspect ratio matches while tolerating rounding error.
+     *
      * <p> One example of the usage is comparing the viewport-based crop rect from different use
      * cases. The crop rect is rounded because pixels are integers, which may introduce an error
      * when we check if the aspect ratio matches. For example, when

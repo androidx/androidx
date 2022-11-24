@@ -29,6 +29,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
+import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig
@@ -111,8 +112,10 @@ class SurfaceProcessorNodeTest {
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
             createSurfaceProcessorNode()
+            val videoOutputSize = rotateSize(VIDEO_SIZE, rotationDegrees - ROTATION_DEGREES)
             createInputEdge(
-                previewRotationDegrees = rotationDegrees
+                previewRotationDegrees = rotationDegrees,
+                videoOutputSize = videoOutputSize
             )
             // The result cropRect should have zero left and top.
             val expectedCropRect = if (is90or270(rotationDegrees))
@@ -130,8 +133,8 @@ class SurfaceProcessorNodeTest {
             assertThat(previewOutput.cropRect).isEqualTo(expectedCropRect)
             assertThat(previewOutput.rotationDegrees).isEqualTo(0)
             val videoOutput = nodeOutput[videoOutConfig]!!
-            assertThat(videoOutput.size).isEqualTo(VIDEO_SIZE)
-            assertThat(videoOutput.cropRect).isEqualTo(sizeToRect(VIDEO_SIZE))
+            assertThat(videoOutput.size).isEqualTo(videoOutputSize)
+            assertThat(videoOutput.cropRect).isEqualTo(sizeToRect(videoOutputSize))
             assertThat(videoOutput.rotationDegrees).isEqualTo(0)
 
             // Clean up.
@@ -139,6 +142,15 @@ class SurfaceProcessorNodeTest {
             node.release()
             shadowOf(getMainLooper()).idle()
         }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cropSizeMismatchesOutputSize_throwsException() {
+        createSurfaceProcessorNode()
+        createInputEdge(
+            videoOutputSize = Size(VIDEO_SIZE.width - 2, VIDEO_SIZE.height + 2)
+        )
+        node.transform(nodeInput)
     }
 
     @Test
@@ -267,6 +279,7 @@ class SurfaceProcessorNodeTest {
         previewCropRect: Rect = PREVIEW_CROP_RECT,
         previewRotationDegrees: Int = ROTATION_DEGREES,
         mirroring: Boolean = MIRRORING,
+        videoOutputSize: Size = VIDEO_SIZE
     ) {
         val surface = SettableSurface(
             previewTarget,
@@ -281,7 +294,7 @@ class SurfaceProcessorNodeTest {
         videoOutConfig = OutConfig.of(
             VIDEO_CAPTURE,
             VIDEO_CROP_RECT,
-            VIDEO_SIZE
+            videoOutputSize
         )
         previewOutConfig = OutConfig.of(surface)
         nodeInput = SurfaceProcessorNode.In.of(
