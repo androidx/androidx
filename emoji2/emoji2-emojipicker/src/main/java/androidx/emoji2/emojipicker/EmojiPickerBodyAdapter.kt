@@ -86,6 +86,7 @@ internal class EmojiPickerBodyAdapter(
 
                 EmojiViewData.TYPE -> {
                     return EmojiViewHolder(
+                        context,
                         parent,
                         layoutInflater,
                         getParentWidth(parent) / emojiGridColumns,

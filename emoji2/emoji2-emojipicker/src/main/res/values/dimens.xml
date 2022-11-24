@@ -31,4 +31,5 @@
     <dimen name="emoji_picker_popup_view_holder_padding_end">5dp</dimen>
     <dimen name="emoji_picker_popup_view_elevation">2dp</dimen>
     <dimen name="emoji_picker_popup_view_holder_corner_radius">10dp</dimen>
+    <dimen name="emoji_picker_skin_tone_circle_radius">6dp</dimen>
 </resources>
