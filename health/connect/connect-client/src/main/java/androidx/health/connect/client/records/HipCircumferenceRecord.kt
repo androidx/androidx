@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.meters
@@ -22,6 +23,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's hip circumference. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HipCircumferenceRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
