@@ -18,27 +18,32 @@ package androidx.wear.watchface.complications.data
 
 import androidx.annotation.RestrictTo
 
-/** Placeholder for DynamicFloat implementation by tiles. */
+/**
+ * Placeholder for FloatExpression implementation by tiles.
+ * @hide
+ */
 // TODO(b/257413268): Replace this with the real implementation.
-@ComplicationExperimental
-abstract class DynamicFloat {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+abstract class FloatExpression {
     abstract fun asByteArray(): ByteArray
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         // Not checking for exact same class because it's not implemented yet.
-        if (other !is DynamicFloat) return false
+        if (other !is FloatExpression) return false
         return asByteArray().contentEquals(other.asByteArray())
     }
 
     override fun hashCode() = asByteArray().contentHashCode()
 
-    override fun toString() = "DynamicFloatPlaceholder${asByteArray().contentToString()}"
+    override fun toString() = "FloatExpressionPlaceholder${asByteArray().contentToString()}"
 }
 
-/** Placeholder parser for [DynamicFloat] from [ByteArray]. */
-@ComplicationExperimental
+/**
+ * Placeholder parser for [FloatExpression] from [ByteArray].
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun ByteArray.toDynamicFloat() = object : DynamicFloat() {
-    override fun asByteArray() = this@toDynamicFloat
+fun ByteArray.toFloatExpression() = object : FloatExpression() {
+    override fun asByteArray() = this@toFloatExpression
 }
