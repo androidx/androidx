@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
-import android.adservices.AdServicesVersion
 import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
@@ -26,6 +25,7 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
@@ -128,8 +128,9 @@ class SdkSandboxManagerCompat private constructor(
 
         companion object {
             @DoNotInline
+            @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
             fun isSandboxAvailable(): Boolean {
-                return AdServicesVersion.API_VERSION >= 2
+                return BuildCompat.isAtLeastU()
             }
         }
     }

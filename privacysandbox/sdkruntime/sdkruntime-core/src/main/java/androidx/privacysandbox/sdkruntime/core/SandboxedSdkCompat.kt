@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.adservices.AdServicesVersion
 import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.os.Build
@@ -24,6 +23,7 @@ import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.IBinder
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 
 /**
  * Compat wrapper for [SandboxedSdk].
@@ -72,8 +72,9 @@ sealed class SandboxedSdkCompat {
 
         companion object {
             @DoNotInline
+            @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
             fun isSandboxAvailable(): Boolean {
-                return AdServicesVersion.API_VERSION >= 2
+                return BuildCompat.isAtLeastU()
             }
 
             @DoNotInline

@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
-import android.adservices.AdServicesVersion
 import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
@@ -26,6 +25,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.OutcomeReceiver
+import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -136,7 +136,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
         private fun isSandboxAvailable(): Boolean {
             // TODO(b/249981547) Find a way how to skip test if no sandbox present
-            return AdServicesVersion.API_VERSION >= 2
+            return BuildCompat.isAtLeastU()
         }
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
