@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -23,10 +22,7 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) as measured by the root mean square of successive
  * differences (RMSSD) between normal heartbeats.
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityRmssdRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
