@@ -27,7 +27,7 @@ import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
-import androidx.wear.watchface.complications.data.toDynamicFloat
+import androidx.wear.watchface.complications.data.toFloatExpression
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Assert.assertThrows
@@ -97,7 +97,7 @@ public class ComplicationDataTest {
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
         Assert.assertEquals(data.rangedValue, 57f, 0f)
-        Assert.assertNull(data.rangedDynamicValue)
+        Assert.assertNull(data.rangedValueExpression)
         Assert.assertEquals(data.rangedMinValue, 5f, 0f)
         Assert.assertEquals(data.rangedMaxValue, 150f, 0f)
         Truth.assertThat(data.shortTitle!!.getTextAt(mResources, 0))
@@ -111,7 +111,7 @@ public class ComplicationDataTest {
         // GIVEN complication data of the RANGED_VALUE type created by the Builder...
         val data =
             ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
-                .setRangedDynamicValue(byteArrayOf(42, 107).toDynamicFloat())
+                .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
                 .setRangedMinValue(5f)
                 .setRangedMaxValue(150f)
                 .setShortTitle(ComplicationText.plainText("title"))
@@ -120,7 +120,7 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        Truth.assertThat(data.rangedDynamicValue!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        Truth.assertThat(data.rangedValueExpression!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
         Assert.assertEquals(data.rangedMinValue, 5f, 0f)
         Assert.assertEquals(data.rangedMaxValue, 150f, 0f)
         Truth.assertThat(data.shortTitle!!.getTextAt(mResources, 0))
