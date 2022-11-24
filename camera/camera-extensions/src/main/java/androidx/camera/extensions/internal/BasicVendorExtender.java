@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -289,11 +288,7 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
-        if (Build.VERSION.SDK_INT >= 26) {
-            return new BasicExtenderSessionProcessor(
-                    mPreviewExtenderImpl, mImageCaptureExtenderImpl, context);
-        } else {
-            throw new IllegalArgumentException("SessionProcessor is not supported");
-        }
+        return new BasicExtenderSessionProcessor(mPreviewExtenderImpl, mImageCaptureExtenderImpl,
+                context);
     }
 }
