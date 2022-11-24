@@ -21,6 +21,7 @@ import android.os.Parcel
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.watchface.complications.data.StringExpression
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
@@ -799,4 +800,30 @@ public class ComplicationTextTest {
         Truth.assertThat(text.getNextChangeTime(600000123))
             .isEqualTo(600060000)
     }
+
+    @Test
+    public fun stringExpressionToParcelRoundTrip() {
+        val text = ComplicationText(StringExpression(byteArrayOf(1, 2, 3)))
+
+        Truth.assertThat(text.toParcelRoundTrip()).isEqualTo(text)
+    }
+
+    @Test
+    public fun getTextAt_ignoresStringExpressionIfSurroundingStringPresent() {
+        val text = ComplicationText(
+            "hello" as CharSequence,
+            /* timeDependentText = */ null,
+            StringExpression(byteArrayOf(1, 2, 3))
+        )
+
+        Truth.assertThat(text.getTextAt(mResources, 132456789).toString())
+            .isEqualTo("hello")
+    }
+}
+
+fun ComplicationText.toParcelRoundTrip(): ComplicationText {
+    val parcel = Parcel.obtain()
+    writeToParcel(parcel, /* flags = */ 0)
+    parcel.setDataPosition(0)
+    return ComplicationText.CREATOR.createFromParcel(parcel)
 }
