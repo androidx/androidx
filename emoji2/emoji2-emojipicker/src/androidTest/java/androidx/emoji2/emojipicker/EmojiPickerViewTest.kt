@@ -259,9 +259,9 @@ class EmojiPickerViewTest {
     private fun disableRecent() {
         activityTestRule.scenario.onActivity {
             it.emojiPickerView.setRecentEmojiProvider(object : RecentEmojiProvider {
-                override fun insert(emoji: String) {}
+                override fun recordSelection(emoji: String) {}
 
-                override suspend fun getRecentItemList(): List<String> = listOf()
+                override suspend fun getRecentEmojiList(): List<String> = listOf()
             })
         }
     }

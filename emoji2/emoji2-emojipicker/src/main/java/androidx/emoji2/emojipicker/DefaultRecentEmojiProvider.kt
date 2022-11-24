@@ -41,11 +41,11 @@ internal class DefaultRecentEmojiProvider(
             ?.toMutableList()
             ?: mutableListOf()
 
-    override suspend fun getRecentItemList(): List<String> {
+    override suspend fun getRecentEmojiList(): List<String> {
         return recentEmojiList
     }
 
-    override fun insert(emoji: String) {
+    override fun recordSelection(emoji: String) {
         recentEmojiList.remove(emoji)
         recentEmojiList.add(0, emoji)
         saveToPreferences()
