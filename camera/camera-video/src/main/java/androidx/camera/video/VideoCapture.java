@@ -547,7 +547,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 }
             }, CameraXExecutors.mainThreadExecutor());
         } else {
-            mSurfaceRequest = new SurfaceRequest(resolution, camera, false, targetFpsRange,
+            mSurfaceRequest = new SurfaceRequest(resolution, camera, targetFpsRange,
                     onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
             // When camera buffers from a REALTIME device are passed directly to a video encoder

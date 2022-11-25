@@ -351,7 +351,7 @@ class SurfaceRequestTest {
         autoCleanup: Boolean = true,
         onInvalidated: () -> Unit = {},
     ): SurfaceRequest {
-        val request = SurfaceRequest(size, FakeCamera(), false, expectedFrameRate, onInvalidated)
+        val request = SurfaceRequest(size, FakeCamera(), expectedFrameRate, onInvalidated)
         if (autoCleanup) {
             surfaceRequests.add(request)
         }
