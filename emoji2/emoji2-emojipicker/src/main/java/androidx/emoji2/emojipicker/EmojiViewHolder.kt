@@ -16,6 +16,7 @@
 
 package androidx.emoji2.emojipicker
 
+import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View.GONE
@@ -25,7 +26,6 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.accessibility.AccessibilityEvent
-import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
@@ -34,13 +34,14 @@ import kotlin.math.roundToInt
 
 /** A [ViewHolder] containing an emoji view and emoji data.  */
 internal class EmojiViewHolder(
+    context: Context,
     parent: ViewGroup,
     layoutInflater: LayoutInflater,
     width: Int,
     height: Int,
-    stickyVariantProvider: StickyVariantProvider,
-    onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
-    onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
+    private val stickyVariantProvider: StickyVariantProvider,
+    private val onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
+    private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
 ) : ViewHolder(
     layoutInflater
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
@@ -52,44 +53,24 @@ internal class EmojiViewHolder(
     }
 
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
-        val variants = emojiViewItem.variants
-        val popupView = layoutInflater
-            .inflate(R.layout.variant_popup, null, false)
-            .findViewById<GridLayout>(R.id.variant_popup)
-            .apply {
-                // Show 6 emojis in one row at most
-                this.columnCount = minOf(6, variants.size)
-                this.rowCount =
-                    variants.size / this.columnCount +
-                        if (variants.size % this.columnCount == 0) 0 else 1
-                this.orientation = GridLayout.HORIZONTAL
-            }
-        val popupWindow = showPopupWindow(emojiView, popupView)
-        for (v in variants) {
-            // Add variant emoji view to the popup view
-            layoutInflater
-                .inflate(R.layout.emoji_view_holder, null, false).apply {
-                    this as FrameLayout
-                    (getChildAt(0) as EmojiView).emoji = v
-                    setOnClickListener {
-                        onEmojiPickedFromPopupListener(this@EmojiViewHolder, v)
-                        onEmojiClickListener.onClick(it)
-                        // variants[0] is always the base (i.e., primary) emoji
-                        stickyVariantProvider.update(variants[0], v)
-                        popupWindow.dismiss()
-                        // Hover on the base emoji after popup dismissed
-                        emojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
-                    }
-                }.also {
-                    popupView.addView(it)
-                    it.layoutParams.width = emojiView.measuredWidth
-                    it.layoutParams.height = emojiView.measuredHeight
+        showPopupWindow(layoutInflater, emojiView) {
+            PopupViewHelper(context).fillPopupView(
+                it,
+                layoutInflater,
+                emojiView.measuredWidth,
+                emojiView.measuredHeight,
+                emojiViewItem.variants,
+                clickListener = { view ->
+                    val emojiPickedInPopup = (view as EmojiView).emoji.toString()
+                    onEmojiPickedFromPopupListener(emojiPickedInPopup)
+                    onEmojiClickListener.onClick(view)
+                    // variants[0] is always the base (i.e., primary) emoji
+                    stickyVariantProvider.update(emojiViewItem.variants[0], emojiPickedInPopup)
+                    this.dismiss()
+                    // Hover on the base emoji after popup dismissed
+                    emojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
                 }
-        }
-        popupView.post {
-            // Hover on the first emoji in the popup
-            (popupView.getChildAt(0) as FrameLayout).getChildAt(0)
-                .sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
+            )
         }
         true
     }
@@ -124,22 +105,25 @@ internal class EmojiViewHolder(
     }
 
     private fun showPopupWindow(
+        layoutInflater: LayoutInflater,
         parent: EmojiView,
-        popupView: GridLayout
-    ): PopupWindow {
-        val location = IntArray(2)
-        parent.getLocationInWindow(location)
-        // Make the popup view center align with the target emoji view.
-        val x =
-            location[0] + parent.width / 2f - popupView.columnCount * parent.width / 2f
-        val y = location[1] - popupView.rowCount * parent.height
-        return PopupWindow(
-            popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, false
-        ).also {
-            it.isOutsideTouchable = true
-            it.isTouchable = true
-            it.animationStyle = R.style.VariantPopupAnimation
-            it.showAtLocation(
+        init: PopupWindow.(GridLayout) -> Unit
+    ) {
+        val popupView = layoutInflater
+            .inflate(R.layout.variant_popup, null, false)
+            .findViewById<GridLayout>(R.id.variant_popup)
+        PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, false).apply {
+            init(popupView)
+            val location = IntArray(2)
+            parent.getLocationInWindow(location)
+            // Make the popup view center align with the target emoji view.
+            val x =
+                location[0] + parent.width / 2f - popupView.columnCount * parent.width / 2f
+            val y = location[1] - popupView.rowCount * parent.height
+            isOutsideTouchable = true
+            isTouchable = true
+            animationStyle = R.style.VariantPopupAnimation
+            showAtLocation(
                 parent,
                 Gravity.NO_GRAVITY,
                 x.roundToInt(),
