@@ -21,7 +21,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.window.layout.WindowMetricsCalculator
-import androidx.window.demo.infolog.InfoLogAdapter
+import androidx.window.demo.common.infolog.InfoLogAdapter
 
 class WindowMetricsActivity : AppCompatActivity() {
 

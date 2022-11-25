@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,24 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.library")
+    id("kotlin-android")
 }
 
 android {
     defaultConfig {
-        applicationId "androidx.window.demo"
         minSdkVersion 23
     }
     buildFeatures {
         viewBinding true
     }
-    namespace "androidx.window.demo"
-    signingConfigs {
-        config {
-            keyAlias 'alias'
-            keyPassword 'password'
-            storeFile file('keystore.jks')
-            storePassword 'password'
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.config
-        }
-        debug {
-            signingConfig signingConfigs.config
-        }
-    }
+    namespace "androidx.window.demo.common"
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.core:core-ktx:1.3.2")
     implementation("androidx.activity:activity:1.2.0")
     implementation "androidx.recyclerview:recyclerview:1.2.1"
@@ -62,21 +43,5 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.0")
 
     implementation(project(":window:window-java"))
-    implementation(project(":window:window-demos:demo-common"))
     debugImplementation(libs.leakcanary)
-
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(project(":window:window-testing"))
-    androidTestImplementation(project(":window:window-demos:demo-common"))
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
-    }
 }

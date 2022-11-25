@@ -27,7 +27,7 @@ import androidx.window.area.WindowAreaStatus
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.area.WindowAreaControllerJavaAdapter
 import androidx.window.demo.databinding.ActivityRearDisplayBinding
-import androidx.window.demo.infolog.InfoLogAdapter
+import androidx.window.demo.common.infolog.InfoLogAdapter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

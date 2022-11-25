@@ -40,8 +40,8 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitPipActivityLayoutBinding
-import androidx.window.demo.util.PictureInPictureUtil.setPictureInPictureParams
-import androidx.window.demo.util.PictureInPictureUtil.startPictureInPicture
+import androidx.window.demo.common.util.PictureInPictureUtil.setPictureInPictureParams
+import androidx.window.demo.common.util.PictureInPictureUtil.startPictureInPicture
 
 /**
  * Sample showcase of split activity rules with picture-in-picture. Allows the user to select some

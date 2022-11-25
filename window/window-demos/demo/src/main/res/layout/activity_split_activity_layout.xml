@@ -166,5 +166,12 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Launch in untrusted mode" />
+
+        <Button
+            android:id="@+id/launch_uid2_untrusted_display_features"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch display features" />
     </LinearLayout>
 </ScrollView>

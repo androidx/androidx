@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.util
+package androidx.window.demo.common.util
 
 import android.app.Activity
 import android.app.PictureInPictureParams
@@ -24,7 +24,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.window.demo.R
+import androidx.window.demo.common.R
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object PictureInPictureLauncherO {

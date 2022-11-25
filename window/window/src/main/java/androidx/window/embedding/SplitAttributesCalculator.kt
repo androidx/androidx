@@ -46,7 +46,7 @@ import androidx.window.layout.WindowMetrics
  * In this case, the [SplitAttributes] can be customized by this callback, which takes effects after
  * calling [SplitController.setSplitAttributesCalculator]. Developers can also clear the callback
  * via [SplitController.clearSplitAttributesCalculator]. Then, developers could implement
- * [computeSplitAttributesForParams] as the sample[1] below shows
+ * [computeSplitAttributesForParams] as the sample linked below shows.
  *
  * **Note** that [SplitController.setSplitAttributesCalculator] and
  * [SplitController.clearSplitAttributesCalculator] are only supported if
@@ -57,56 +57,7 @@ import androidx.window.layout.WindowMetrics
  * [SplitRule.defaultSplitAttributes] in case [SplitAttributesCalculator] is not supported on
  * some devices.
  *
- * [1]:
- *  ```
- *  fun computeSplitAttributesForState(
- *      params: SplitAttributesCalculatorParams
- *  ): SplitAttributes {
- *      val tag = params.splitRuleTag
- *      val parentWindowMetrics = params.parentWindowMetrics
- *      val parentConfig = params.parentConfiguration
- *      val foldingState = params.parentWindowLayoutInfo.displayFeatures.find { displayFeature ->
- *          displayFeature is FoldingFeature
- *      } as FoldingFeature?
- *
- *      // Tag can be used to filter the SplitRule to apply the SplitAttributes
- *      if (!TAG_MAIN_SPLIT_RULE.equals(tag) && params.isDefaultMinSizeSatisfied) {
- *          return params.defaultSplitAttributes
- *      }
- *
- *      // This sample will make the app show a layout to
- *      // - split the task bounds vertically if the device is in landscape
- *      // - fill the task bounds if the device is in portrait and its folding state does not
- *      //   split the screen
- *      // - split the task bounds horizontally in tabletop mode
- *      val bounds = parentWindowMetrics.bounds
- *      if (foldingState?.isSeparating ?: false) {
- *          // Split the parent container that followed by the hinge if the hinge separates the
- *          // parent window.
- *          return SplitAttributes.Builder()
- *          .setSplitType(SplitAttributes.SplitType.splitByHinge())
- *          .setLayoutDirection(
- *              if (foldingState.orientation == FoldingFeature.Orientation.HORIZONTAL) {
- *                  SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
- *              } else {
- *                  SplitAttributes.LayoutDirection.LOCALE
- *              }
- *          ).build()
- *      }
- *      return if (parentConfig.screenWidthDp >= 600 && bounds.width() >= bounds.height()) {
- *          // Split the parent container equally and vertically if the device is in landscape.
- *          SplitAttributes.Builder()
- *              .setSplitType(SplitAttributes.SplitType.splitEqually())
- *              .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
- *              .build()
- *      } else {
- *          // Expand containers if the device is in portrait or the width is less than 600 dp.
- *          SplitAttributes.Builder()
- *              .setSplitType(SplitAttributes.SplitType.expandContainers())
- *              .build()
- *      }
- *  }
- * ```
+ * @sample androidx.window.samples.embedding.splitAttributesCalculatorSample
  *
  * @see SplitRule.defaultSplitAttributes
  * @see SplitController.setSplitAttributesCalculator

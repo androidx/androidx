@@ -41,4 +41,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation(project(":window:window-java"))
+    implementation(project(":window:window-demos:demo-common"))
 }

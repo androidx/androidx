@@ -19,7 +19,6 @@ package androidx.window.demo.demos
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.demo.DisplayFeaturesConfigChangeActivity
 import androidx.window.demo.DisplayFeaturesNoConfigChangeActivity
 import androidx.window.demo.ImeActivity
 import androidx.window.demo.PresentationActivity
@@ -30,6 +29,7 @@ import androidx.window.demo.R.string.show_all_display_features_config_change_des
 import androidx.window.demo.R.string.show_all_display_features_no_config_change_description
 import androidx.window.demo.SplitLayoutActivity
 import androidx.window.demo.WindowMetricsActivity
+import androidx.window.demo.common.DisplayFeaturesActivity
 
 /**
  * Main activity that launches WindowManager demos.
@@ -43,7 +43,7 @@ class WindowDemosActivity : AppCompatActivity() {
             DemoItem(
                 buttonTitle = getString(display_features_config_change),
                 description = getString(show_all_display_features_config_change_description),
-                clazz = DisplayFeaturesConfigChangeActivity::class.java
+                clazz = DisplayFeaturesActivity::class.java
             ),
             DemoItem(
                 buttonTitle = getString(display_features_no_config_change),
