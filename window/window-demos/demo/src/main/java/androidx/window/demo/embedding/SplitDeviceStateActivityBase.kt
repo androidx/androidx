@@ -33,10 +33,12 @@ import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
+import androidx.window.embedding.RuleController
 
 open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
         RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
-    private val splitController = SplitController.getInstance(this)
+    private lateinit var splitController: SplitController
+    private lateinit var ruleController: RuleController
 
     private val splitStateChangeListener = SplitStateChangeListener()
 
@@ -52,6 +54,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
+        splitController = SplitController.getInstance(this)
+        ruleController = RuleController.getInstance(this)
 
         setContentView(viewBinding.root)
 
@@ -202,7 +206,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     private fun updateSplitPairRuleWithRadioButtonId(id: Int) {
-        splitController.clearRegisteredRules()
+        ruleController.clearRules()
 
         val splitPairFilters = HashSet<SplitPairFilter>()
         val splitPairFilter = SplitPairFilter(
@@ -253,7 +257,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             .setMinSmallestWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
-        splitController.addRule(splitPairRule)
+        ruleController.addRule(splitPairRule)
     }
 
     /** Updates split attributes when receives callback from the extension. */
@@ -302,7 +306,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     fun updateRadioGroupAndCheckBoxFromRule() {
-        val splitPairRule = splitController.getRules().firstOrNull { rule ->
+        val splitPairRule = ruleController.getRules().firstOrNull { rule ->
             isRuleForSplitActivityA(rule)
         } ?: return
         val tag = splitPairRule.tag

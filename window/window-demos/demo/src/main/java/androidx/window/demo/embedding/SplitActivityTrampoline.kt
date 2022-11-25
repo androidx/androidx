@@ -19,8 +19,8 @@ package androidx.window.demo.embedding
 import android.content.Intent
 import android.os.Bundle
 import androidx.window.embedding.ActivityFilter
+import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
-import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitPlaceholderRule
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 
@@ -46,7 +46,7 @@ class SplitActivityTrampoline : SplitActivityBase() {
             .setFinishPrimaryWithPlaceholder(ADJACENT)
             .setDefaultSplitAttributes(defaultSplitAttributes)
             .build()
-        SplitController.getInstance(this).addRule(placeholderRule)
+        RuleController.getInstance(this).addRule(placeholderRule)
         val activityIntent = Intent()
         activityIntent.component = componentName(
             "androidx.window.demo.embedding.SplitActivityTrampolineTarget")

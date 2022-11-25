@@ -129,7 +129,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun setRules(rules: Set<EmbeddingRule>) {
         globalLock.withLock {
             ruleTracker.setRules(rules)
-            embeddingExtension?.setSplitRules(getRules())
+            embeddingExtension?.setRules(getRules())
         }
     }
 
@@ -138,7 +138,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         globalLock.withLock {
             if (rule !in ruleTracker) {
                 ruleTracker.addOrUpdateRule(rule)
-                embeddingExtension?.setSplitRules(getRules())
+                embeddingExtension?.setRules(getRules())
             }
         }
     }
@@ -148,7 +148,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         globalLock.withLock {
             if (rule in ruleTracker) {
                 ruleTracker.removeRule(rule)
-                embeddingExtension?.setSplitRules(getRules())
+                embeddingExtension?.setRules(getRules())
             }
         }
     }

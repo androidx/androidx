@@ -28,7 +28,7 @@ abstract class EmbeddingRule internal constructor(
      * compute the right [SplitAttributes] for the right split rule in
      * [SplitAttributesCalculator.computeSplitAttributesForParams].
      *
-     * @see SplitController.addRule
+     * @see androidx.window.embedding.RuleController.addRule
      */
     val tag: String?
 ) {

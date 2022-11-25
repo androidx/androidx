@@ -33,7 +33,7 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
  * important UI elements exclusively, since the placeholder is not shown on some devices and screen
  * configurations, such as devices with small screens.
  *
- * Configuration rules can be added using [SplitController.addRule].
+ * Configuration rules can be added using [RuleController.addRule] or [RuleController.setRules].
  *
  * See
  * [Activity embedding](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
