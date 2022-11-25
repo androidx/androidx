@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> the parameter type to be consumed
  */
+// TODO(b/239752223): We should change all the mock consumer to this manual mock for
+//  consistency, or try to figure out why this error only happens on certain tests.
 public class MockConsumer<T> implements Consumer<T> {
 
     private CountDownLatch mLatch;
