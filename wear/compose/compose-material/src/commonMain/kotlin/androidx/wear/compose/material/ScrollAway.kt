@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -45,7 +44,12 @@ import androidx.compose.ui.util.lerp
 public fun Modifier.scrollAway(
     scrollState: ScrollState,
     offset: Dp = 0.dp,
-): Modifier = scrollAway { scrollState.value - offset.toPx() }
+): Modifier = scrollAway {
+    ScrollParams(
+        valid = true,
+        yPx = scrollState.value - offset.toPx()
+    )
+}
 
 /**
  * Scroll an item vertically in/out of view based on a [LazyListState].
@@ -62,10 +66,13 @@ public fun Modifier.scrollAway(
     itemIndex: Int = 0,
     offset: Dp = 0.dp,
 ): Modifier =
-    scrollAway(itemIndex < scrollState.layoutInfo.totalItemsCount) {
-        scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-            -it.offset - offset.toPx()
-        }
+    scrollAway {
+        ScrollParams(
+            valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
+            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
+                -it.offset - offset.toPx()
+            }
+        )
     }
 
 /**
@@ -83,13 +90,16 @@ public fun Modifier.scrollAway(
     itemIndex: Int = 1,
     offset: Dp = 0.dp,
 ): Modifier =
-    scrollAway(itemIndex < scrollState.layoutInfo.totalItemsCount) {
-        scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-            -it.offset - offset.toPx()
-        }
+    scrollAway {
+        ScrollParams(
+            valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
+            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
+                -it.offset - offset.toPx()
+            }
+        )
     }
 
-private fun Modifier.scrollAway(valid: Boolean = true, yPxFn: Density.() -> Float?): Modifier =
+private fun Modifier.scrollAway(scrollFn: Density.() -> ScrollParams): Modifier =
     this.then(
         object : LayoutModifier {
             override fun MeasureScope.measure(
@@ -97,39 +107,40 @@ private fun Modifier.scrollAway(valid: Boolean = true, yPxFn: Density.() -> Floa
                 constraints: Constraints
             ): MeasureResult {
                 val placeable = measurable.measure(constraints)
-                val yPx = yPxFn()
-                if (!valid) {
-                    // For invalid inputs, don't scroll the content away - just show it.
-                    return layout(placeable.width, placeable.height) {
-                        placeable.placeRelative(0, 0)
-                    }
-                } else if (yPx == null) {
-                    // For valid inputs, but no y offset provided, hide the content.
-                    return object : MeasureResult {
-                        override val width = 0
-                        override val height = 0
-                        override val alignmentLines = mapOf<AlignmentLine, Int>()
-                        override fun placeChildren() {}
-                    }
-                } else {
-                    // Valid input and a y offset is provided - apply fade, scale and offset.
-                    return layout(placeable.width, placeable.height) {
-                        val progress: Float = (yPx / maxScrollOut.toPx()).coerceIn(0f, 1f)
-                        val motionFraction: Float = lerp(minMotionOut, maxMotionOut, progress)
-                        val offsetY = -(maxOffset.toPx() * progress).toInt()
+                return layout(placeable.width, placeable.height) {
+                    placeable.placeWithLayer(0, 0) {
+                        val scrollParams = scrollFn()
+                        val (motionFraction: Float, offsetY) =
+                            if (!scrollParams.valid) {
+                                // When the itemIndex is invalid, just show the content anyway.
+                                1f to 0f
+                            } else if (scrollParams.yPx == null) {
+                                // When itemIndex is valid but yPx is null, we infer that
+                                // the item is not in the visible items list, so hide it.
+                                0f to 0f
+                            } else {
+                                // Scale, fade and scroll the content to scroll it away.
+                                val progress: Float =
+                                    (scrollParams.yPx / maxScrollOut.toPx()).coerceIn(0f, 1f)
+                                val motionFraction: Float =
+                                    lerp(minMotionOut, maxMotionOut, progress)
+                                val offsetY = -(maxOffset.toPx() * progress)
+                                motionFraction to offsetY
+                            }
 
-                        placeable.placeWithLayer(0, offsetY) {
-                            alpha = motionFraction
-                            scaleX = motionFraction
-                            scaleY = motionFraction
-                            transformOrigin =
-                                TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.0f)
-                        }
+                        alpha = motionFraction
+                        scaleX = motionFraction
+                        scaleY = motionFraction
+                        translationY = offsetY
+                        transformOrigin =
+                            TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.0f)
                     }
                 }
             }
         }
     )
+
+private data class ScrollParams(val valid: Boolean, val yPx: Float?)
 
 // The scroll motion effects take place between 0dp and 36dp.
 internal val maxScrollOut = 36.dp
