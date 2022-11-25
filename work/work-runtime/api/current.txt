@@ -175,12 +175,15 @@ package androidx.work {
 
   public abstract class InputMerger {
     ctor public InputMerger();
-    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public abstract class InputMergerFactory {
     ctor public InputMergerFactory();
-    method public abstract androidx.work.InputMerger? createInputMerger(String);
+    method public abstract androidx.work.InputMerger? createInputMerger(String className);
+  }
+
+  public final class InputMergerKt {
   }
 
   public abstract class ListenableWorker {
@@ -270,7 +273,7 @@ package androidx.work {
 
   public final class OverwritingInputMerger extends androidx.work.InputMerger {
     ctor public OverwritingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public final class PeriodicWorkRequest extends androidx.work.WorkRequest {

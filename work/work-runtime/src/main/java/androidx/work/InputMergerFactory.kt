@@ -13,70 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
 /**
- * A factory object that creates {@link InputMerger} instances. The factory is invoked every
+ * A factory object that creates [InputMerger] instances. The factory is invoked every
  * time a work runs. You can override the default implementation of this factory by manually
- * initializing {@link WorkManager} (see {@link WorkManager#initialize(Context, Configuration)}
- * and specifying a new {@link InputMergerFactory} in
- * {@link Configuration.Builder#setInputMergerFactory(InputMergerFactory)}.
+ * initializing [WorkManager] (see [WorkManager.initialize]
+ * and specifying a new [InputMergerFactory] in
+ * [Configuration.Builder.setInputMergerFactory].
  */
-public abstract class InputMergerFactory {
+abstract class InputMergerFactory {
     /**
-     * Override this method to create an instance of a {@link InputMerger} given its fully
+     * Override this method to create an instance of a [InputMerger] given its fully
      * qualified class name.
-     * <p></p>
-     * Throwing an {@link Exception} here will crash the application. If an
-     * {@link InputMergerFactory} is unable to create an instance of a {@link InputMerger}, it
-     * should return {@code null} so it can delegate to the default {@link InputMergerFactory}.
      *
-     * @param className The fully qualified class name for the {@link InputMerger}
-     * @return an instance of {@link InputMerger}
+     *
+     * Throwing an [Exception] here will crash the application. If an
+     * [InputMergerFactory] is unable to create an instance of a [InputMerger], it
+     * should return `null` so it can delegate to the default [InputMergerFactory].
+     *
+     * @param className The fully qualified class name for the [InputMerger]
+     * @return an instance of [InputMerger]
      */
-    @Nullable
-    public abstract InputMerger createInputMerger(@NonNull String className);
+    abstract fun createInputMerger(className: String): InputMerger?
 
     /**
-     * Creates an instance of a {@link InputMerger} given its fully
+     * Creates an instance of a [InputMerger] given its fully
      * qualified class name with the correct fallback behavior.
      *
-     * @param className The fully qualified class name for the {@link InputMerger}
-     * @return an instance of {@link InputMerger}
+     * @param className The fully qualified class name for the [InputMerger]
+     * @return an instance of [InputMerger]
      *
      * @hide
      */
-    @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final InputMerger createInputMergerWithDefaultFallback(@NonNull String className) {
-        InputMerger inputMerger = createInputMerger(className);
+    fun createInputMergerWithDefaultFallback(className: String): InputMerger? {
+        var inputMerger = createInputMerger(className)
         if (inputMerger == null) {
-            inputMerger = InputMerger.fromClassName(className);
+            inputMerger = fromClassName(className)
         }
-        return inputMerger;
+        return inputMerger
     }
-
-    /**
-     * @return A default {@link InputMergerFactory} with no custom behavior.
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static InputMergerFactory getDefaultInputMergerFactory() {
-        return new InputMergerFactory() {
-            @Nullable
-            @Override
-            public InputMerger createInputMerger(@NonNull String className) {
-                return null;
-            }
-        };
-    }
+}
+/**
+ * A default [InputMergerFactory] with no custom behavior.
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object NoOpInputMergerFactory : InputMergerFactory() {
+    override fun createInputMerger(className: String) = null
 }

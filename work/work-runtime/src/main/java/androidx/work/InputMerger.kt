@@ -13,59 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-
-import java.util.List;
+package androidx.work
 
 /**
  * An abstract class that allows the user to define how to merge a list of inputs to a
- * {@link ListenableWorker}.
- * <p>
- * Before workers run, they receive input {@link Data} from their parent workers, as well as
- * anything specified directly to them via {@link WorkRequest.Builder#setInputData(Data)}.  An
- * InputMerger takes all of these objects and converts them to a single merged {@link Data} to be
- * used as the worker input.  {@link WorkManager} offers two concrete InputMerger implementations:
- * {@link OverwritingInputMerger} and {@link ArrayCreatingInputMerger}.
- * <p>
+ * [ListenableWorker].
+ *
+ * Before workers run, they receive input [Data] from their parent workers, as well as
+ * anything specified directly to them via [WorkRequest.Builder.setInputData].  An
+ * InputMerger takes all of these objects and converts them to a single merged [Data] to be
+ * used as the worker input.  [WorkManager] offers two concrete InputMerger implementations:
+ * [OverwritingInputMerger] and [ArrayCreatingInputMerger].
+ *
  * Note that the list of inputs to merge is in an unspecified order.  You should not make
  * assumptions about the order of inputs.
  */
-
-public abstract class InputMerger {
-
-    private static final String TAG = Logger.tagWithPrefix("InputMerger");
-
+abstract class InputMerger {
     /**
-     * Merges a list of {@link Data} and outputs a single Data object.
+     * Merges a list of [Data] and outputs a single Data object.
      *
-     * @param inputs A list of {@link Data}
+     * @param inputs A list of [Data]
      * @return The merged output
      */
-    public abstract @NonNull Data merge(@NonNull List<Data> inputs);
+    abstract fun merge(inputs: List<Data>): Data
+}
 
-    /**
-     * Instantiates an {@link InputMerger} from its class name.
-     *
-     * @param className The name of the {@link InputMerger} class
-     * @return The instantiated {@link InputMerger}, or {@code null} if it could not be instantiated
-     *
-     * @hide
-     */
-    @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @SuppressWarnings("ClassNewInstance")
-    public static InputMerger fromClassName(@NonNull String className) {
-        try {
-            Class<?> clazz = Class.forName(className);
-            return (InputMerger) clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            Logger.get().error(TAG, "Trouble instantiating + " + className, e);
-        }
-        return null;
+private val TAG = Logger.tagWithPrefix("InputMerger")
+
+internal fun fromClassName(className: String): InputMerger? {
+    try {
+        val clazz = Class.forName(className)
+        return clazz.getDeclaredConstructor().newInstance() as InputMerger
+    } catch (e: Exception) {
+        Logger.get().error(TAG, "Trouble instantiating $className", e)
     }
+    return null
 }
