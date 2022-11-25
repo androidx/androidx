@@ -19,8 +19,10 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
+import android.os.Build
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -40,6 +42,7 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
@@ -129,9 +132,17 @@ class CameraInfoAdapter @Inject constructor(
         }
     }
 
+    @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
-        Log.warn { "TODO: getSupportedResolutions are not yet supported." }
-        return emptyList()
+        val streamConfigurationMap =
+            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+        return if (Build.VERSION.SDK_INT < 23 &&
+            format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+        ) {
+            streamConfigurationMap.getOutputSizes(SurfaceTexture::class.java)
+        } else {
+            streamConfigurationMap.getOutputSizes(format)
+        }?.toList() ?: emptyList()
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
