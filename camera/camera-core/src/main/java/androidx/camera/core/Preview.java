@@ -219,7 +219,7 @@ public final class Preview extends UseCase {
         //  CaptureProcessor. e.g. only update the output Surface (between Processor/App), and
         //  still use the same input Surface (between Camera/Processor). It's just simpler for now.
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                /* isRGBA8888Required */ false, this::notifyReset);
+                this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (mSurfaceProvider != null) {

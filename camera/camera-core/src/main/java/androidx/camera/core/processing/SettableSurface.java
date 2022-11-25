@@ -233,7 +233,7 @@ public class SettableSurface extends DeferrableSurface {
             @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal, false,
+        SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal,
                 expectedFpsRange, this::invalidate);
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
