@@ -590,8 +590,9 @@ class RecorderTest(
         runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
+    @Test
     fun stop_withErrorWhenDurationLimitReached() {
-        clearInvocations(videoRecordEventListener)
+        val videoRecordEventListener = MockConsumer<VideoRecordEvent>()
         invokeSurfaceRequest()
         val durationLimitMs = 3000L
         val durationTolerance = 50L
@@ -607,14 +608,21 @@ class RecorderTest(
 
         // The recording should be finalized after the specified duration limit plus some time
         // for processing it.
-        verify(videoRecordEventListener, timeout(durationLimitMs + 2000L))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
+        videoRecordEventListener.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            false,
+            durationLimitMs + 2000L
+        )
 
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent.Finalize::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        val captor = ArgumentCaptorCameraX<VideoRecordEvent> {
+                argument -> VideoRecordEvent::class.java.isInstance(argument)
+        }
+        videoRecordEventListener.verifyAcceptCall(VideoRecordEvent::class.java,
+            false, CallTimesAtLeast(1), captor)
 
-        assertThat(captor.value.error).isEqualTo(ERROR_DURATION_LIMIT_REACHED)
-        assertThat(captor.value.recordingStats.recordedDurationNanos)
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(ERROR_DURATION_LIMIT_REACHED)
+        assertThat(finalize.recordingStats.recordedDurationNanos)
             .isAtMost(TimeUnit.MILLISECONDS.toNanos(durationLimitMs + durationTolerance))
         checkDurationAtMost(Uri.fromFile(file), durationLimitMs)
 
