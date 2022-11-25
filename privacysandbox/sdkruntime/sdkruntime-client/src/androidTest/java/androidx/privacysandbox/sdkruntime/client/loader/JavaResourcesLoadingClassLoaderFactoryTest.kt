@@ -39,9 +39,9 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
             appClassloader
         )
         testSdkConfig = LocalSdkConfig(
-            listOf("RuntimeEnabledSdks/V1/classes.dex"),
-            "RuntimeEnabledSdks/V1/javaresources",
-            "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider"
+            dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
+            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
+            javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources"
         )
     }
 

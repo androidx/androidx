@@ -147,9 +147,9 @@ internal class LocalSdkTest(
         dexPath: String,
         sdkProviderClass: String
     ) {
-        val mLocalSdkConfig: LocalSdkConfig = LocalSdkConfig(
-            listOf(dexPath), javaResourcesRoot = null,
-            sdkProviderClass
+        val localSdkConfig = LocalSdkConfig(
+            dexPaths = listOf(dexPath),
+            entryPoint = sdkProviderClass
         )
     }
 
@@ -178,7 +178,7 @@ internal class LocalSdkTest(
 
                     add(
                         arrayOf(
-                            sdk.mLocalSdkConfig.dexPaths[0],
+                            sdk.localSdkConfig.dexPaths[0],
                             sdk.apiVersion,
                             loadedSdk
                         )
@@ -209,9 +209,8 @@ internal class LocalSdkTest(
 
             return sdkLoader.loadSdk(
                 LocalSdkConfig(
-                    emptyList(),
-                    javaResourcesRoot = null,
-                    CurrentVersionProviderLoadTest::class.java.name
+                    dexPaths = emptyList(),
+                    entryPoint = CurrentVersionProviderLoadTest::class.java.name
                 )
             )
         }
@@ -222,7 +221,7 @@ internal class LocalSdkTest(
                 TestClassLoaderFactory(),
                 ApplicationProvider.getApplicationContext()
             )
-            return sdkLoader.loadSdk(sdk.mLocalSdkConfig)
+            return sdkLoader.loadSdk(sdk.localSdkConfig)
         }
     }
 }

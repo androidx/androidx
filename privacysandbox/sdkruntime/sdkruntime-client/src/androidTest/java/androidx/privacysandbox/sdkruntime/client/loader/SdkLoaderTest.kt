@@ -17,6 +17,7 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.os.Build
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
+import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,9 +43,16 @@ class SdkLoaderTest {
             ApplicationProvider.getApplicationContext()
         )
         testSdkConfig = LocalSdkConfig(
-            listOf("RuntimeEnabledSdks/V1/classes.dex"),
+            dexPaths = listOf(
+                "RuntimeEnabledSdks/V1/classes.dex",
+                "RuntimeEnabledSdks/RPackage.dex"
+            ),
+            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
             javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources",
-            "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider"
+            resourceRemapping = ResourceRemappingConfig(
+                rPackageClassName = "androidx.privacysandbox.sdkruntime.test.RPackage",
+                packageId = 42
+            )
         )
     }
 
@@ -78,5 +86,20 @@ class SdkLoaderTest {
 
         assertThat(content)
             .isEqualTo("test")
+    }
+
+    @Test
+    fun testRPackageUpdate() {
+        val loadedSdk = sdkLoader.loadSdk(testSdkConfig)
+
+        val classLoader = loadedSdk.extractSdkProviderClassloader()
+
+        val rPackageClass =
+            classLoader.loadClass("androidx.privacysandbox.sdkruntime.test.RPackage")
+
+        val packageIdField = rPackageClass.getDeclaredField("packageId")
+        val value = packageIdField.get(null)
+
+        assertThat(value).isEqualTo(42)
     }
 }

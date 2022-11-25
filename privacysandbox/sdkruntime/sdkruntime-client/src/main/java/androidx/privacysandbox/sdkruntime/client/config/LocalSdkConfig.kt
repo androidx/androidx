@@ -15,16 +15,18 @@
  */
 package androidx.privacysandbox.sdkruntime.client.config
 
-import androidx.annotation.RestrictTo
-
 /**
  * Information required for loading SDK bundled with App.
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal data class LocalSdkConfig(
     val dexPaths: List<String>,
-    val javaResourcesRoot: String?,
-    val entryPoint: String
+    val entryPoint: String,
+    val javaResourcesRoot: String? = null,
+    val resourceRemapping: ResourceRemappingConfig? = null
+)
+
+internal data class ResourceRemappingConfig(
+    val rPackageClassName: String,
+    val packageId: Int
 )
