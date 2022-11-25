@@ -1,9 +1,9 @@
 // The resources for a layout.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ResourceProto";
 
 // Format describing the contents of an image data byte array.

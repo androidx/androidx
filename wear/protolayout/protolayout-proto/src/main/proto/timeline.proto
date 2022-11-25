@@ -2,11 +2,11 @@
 // given time intervals.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
 import "layout.proto";
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "TimelineProto";
 
 // A time interval, typically used to describe the validity period of a

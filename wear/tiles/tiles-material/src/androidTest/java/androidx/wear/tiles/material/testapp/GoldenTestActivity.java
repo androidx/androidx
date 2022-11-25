@@ -39,7 +39,7 @@ import androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId;
 import androidx.wear.tiles.ResourceBuilders.ImageResource;
 import androidx.wear.tiles.ResourceBuilders.Resources;
 import androidx.wear.tiles.material.R;
-import androidx.wear.tiles.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
 import androidx.wear.tiles.renderer.TileRenderer;
 
 import java.util.concurrent.Executor;

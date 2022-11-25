@@ -1,9 +1,9 @@
 // Extensible primitive types used by layout elements.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "TypesProto";
 
 // An int32 type.
