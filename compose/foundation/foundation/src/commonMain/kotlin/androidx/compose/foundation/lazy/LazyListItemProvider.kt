@@ -92,9 +92,9 @@ private class LazyListItemProviderImpl constructor(
  * We use the idea of sliding window as an optimization, so user can scroll up to this number of
  * items until we have to regenerate the key to index map.
  */
-private const val NearestItemsSlidingWindowSize = 30
+internal const val NearestItemsSlidingWindowSize = 30
 
 /**
  * The minimum amount of items near the current first visible item we want to have mapping for.
  */
-private const val NearestItemsExtraItemCount = 100
+internal const val NearestItemsExtraItemCount = 100
