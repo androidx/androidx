@@ -18,10 +18,11 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.os.Trace
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.util.Consumer
+import androidx.emoji2.emojipicker.EmojiPickerConstants.DEFAULT_MAX_RECENT_ITEM_ROWS
+import androidx.emoji2.emojipicker.Extensions.toEmojiViewData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -90,78 +91,52 @@ class EmojiPickerView @JvmOverloads constructor(
         }
     }
 
-    private fun createEmojiPickerBodyAdapter(
-        context: Context,
-        emojiGridColumns: Int,
-        emojiGridRows: Float,
+    private suspend fun createEmojiPickerBodyAdapter(
         categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>,
         variantToBaseEmojiMap: Map<String, String>,
         baseToVariantsEmojiMap: Map<String, List<String>>,
         onEmojiPickedListener: Consumer<EmojiViewItem>?,
-        recentEmojiList: MutableList<String>,
         recentEmojiProvider: RecentEmojiProvider
     ): EmojiPickerBodyAdapter {
-        val categoryNames = mutableListOf<String>()
-        val categorizedEmojis = mutableListOf<MutableList<EmojiViewItem>>()
-        // add recent category as the first row
-        categoryNames.add(resources.getString(R.string.emoji_category_recent))
-        categorizedEmojis.add(recentEmojiList.map { emoji ->
-            EmojiViewItem(
-                emoji,
-                baseToVariantsEmojiMap[variantToBaseEmojiMap[emoji]] ?: listOf()
+        val recentItems = recentEmojiProvider.getRecentItemList().map {
+            EmojiViewData(
+                it,
+                baseToVariantsEmojiMap[variantToBaseEmojiMap[it]] ?: listOf(),
+                updateToVariants = false,
             )
-        }.toMutableList())
-
-        for (i in categorizedEmojiData.indices) {
-            categoryNames.add(categorizedEmojiData[i].categoryName)
-            categorizedEmojis.add(
-                categorizedEmojiData[i].emojiDataList.map {
-                    stickyVariantProvider.stickyVariantMap[it.emoji]?.let { stickyVariant ->
-                        EmojiViewItem(stickyVariant, it.variants)
-                    } ?: it
-                }.toMutableList()
-            )
-        }
+        }.toMutableList()
+        val recentGroup = ItemGroup(
+            CategoryTitle(context.getString(R.string.emoji_category_recent)),
+            recentItems,
+            forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
+            emptyPlaceholderItem = PlaceholderText(
+                context.getString(R.string.emoji_empty_recent_category)
+            ),
+        )
+        val itemViewDataFlatList =
+            ItemViewDataFlatList(listOf(recentGroup) + categorizedEmojiData.map { (name, emojis) ->
+                ItemGroup(
+                    CategoryTitle(name),
+                    emojis.map {
+                        EmojiViewData(stickyVariantProvider[it.emoji], it.variants)
+                    },
+                )
+            })
         val adapter = EmojiPickerBodyAdapter(
             context,
             emojiGridColumns,
             emojiGridRows,
-            categoryNames.toTypedArray(),
-            variantToBaseEmojiMap,
-            baseToVariantsEmojiMap,
             stickyVariantProvider,
-            onEmojiPickedListener,
-            recentEmojiList,
-            recentEmojiProvider
-        )
-        adapter.updateEmojis(createEmojiViewData(categorizedEmojis))
-
-        return adapter
-    }
-
-    private fun createEmojiViewData(categorizedEmojis: MutableList<MutableList<EmojiViewItem>>):
-        List<List<ItemViewData>> {
-        Trace.beginSection("createEmojiViewData")
-        return try {
-            val listBuilder = mutableListOf<List<ItemViewData>>()
-            for ((categoryIndex, sameType) in categorizedEmojis.withIndex()) {
-                val builder = mutableListOf<ItemViewData>()
-                for ((idInCategory, eachEmoji) in sameType.withIndex()) {
-                    builder.add(
-                        EmojiViewData(
-                            categoryIndex,
-                            idInCategory,
-                            eachEmoji.emoji,
-                            eachEmoji.variants.toTypedArray()
-                        )
-                    )
-                }
-                listBuilder.add(builder.toList())
+            itemViewDataFlatList,
+            onEmojiPickedListener = { emojiViewItem ->
+                onEmojiPickedListener?.accept(emojiViewItem)
+                recentItems.indexOfFirst { it.primary == emojiViewItem.emoji }
+                    .takeIf { it >= 0 }?.let { recentItems.removeAt(it) }
+                recentItems.add(0, emojiViewItem.toEmojiViewData(updateToVariants = false))
+                recentEmojiProvider.insert(emojiViewItem.emoji)
             }
-            listBuilder.toList()
-        } finally {
-            Trace.endSection()
-        }
+        )
+        return adapter
     }
 
     private suspend fun showEmojiPickerView(context: Context) {
@@ -188,30 +163,22 @@ class EmojiPickerView @JvmOverloads constructor(
         ).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    val adapter = bodyView.adapter ?: return 1
-                    val viewType = adapter.getItemViewType(position)
-                    // The following viewTypes occupy entire row.
-                    return if (
-                        viewType == CategorySeparatorViewData.TYPE ||
-                        viewType == EmptyCategoryViewData.TYPE
-                    ) emojiGridColumns else 1
+                    val adapter = (bodyView.adapter as? EmojiPickerBodyAdapter) ?: return 1
+                    return if (adapter.flattenSource[position].occupyEntireRow)
+                        emojiGridColumns
+                    else 1
                 }
             }
         }
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
         val variantToBaseEmojiMap = BundledEmojiListLoader.getPrimaryEmojiLookup()
         val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()
-        val recentEmojiList = recentEmojiProvider.getRecentItemList().toMutableList()
         bodyView.adapter =
             createEmojiPickerBodyAdapter(
-                context,
-                emojiGridColumns,
-                emojiGridRows,
                 categorizedEmojiData,
                 variantToBaseEmojiMap,
                 baseToVariantsEmojiMap,
                 onEmojiPickedListener,
-                recentEmojiList,
                 recentEmojiProvider
             )
     }
