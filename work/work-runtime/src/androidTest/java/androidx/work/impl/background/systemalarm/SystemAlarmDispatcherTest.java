@@ -55,6 +55,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.NetworkState;
@@ -184,14 +185,15 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mContext,
                 configuration,
                 instantTaskExecutor,
-                mDatabase,
-                Collections.singletonList(scheduler));
+                mDatabase);
         mSpyProcessor = spy(processor);
 
         mDispatcher =
                 new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
         mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
+        Schedulers.registerRescheduling(Collections.singletonList(scheduler), processor,
+                instantTaskExecutor.getSerialTaskExecutor(), mDatabase, configuration);
     }
 
     @After

@@ -40,8 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest extends DatabaseTest {
 
@@ -57,8 +55,7 @@ public class ProcessorTest extends DatabaseTest {
                 appContext,
                 configuration,
                 new InstantWorkTaskExecutor(),
-                mDatabase,
-                Collections.singletonList(mMockScheduler)) {
+                mDatabase) {
         };
     }
 
