@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -44,6 +45,10 @@ class ModelValidatorTest {
                                 Parameter(
                                     name = "x",
                                     type = Types.int
+                                ),
+                                Parameter(
+                                    name = "nullableY",
+                                    type = Types.int.asNullable()
                                 ),
                                 Parameter(
                                     name = "foo",

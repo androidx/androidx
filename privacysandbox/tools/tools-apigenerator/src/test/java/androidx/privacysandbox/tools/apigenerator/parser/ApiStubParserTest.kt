@@ -24,6 +24,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
 import androidx.room.compiler.processing.util.Source
@@ -46,7 +47,7 @@ class ApiStubParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxValue
                     @PrivacySandboxService
                     interface MySdk {
-                      fun doSomething(magicNumber: Int, awesomeString: String)
+                      fun doSomething(magicNumber: Int, awesomeString: String?)
                       suspend fun getPayload(request: PayloadRequest): PayloadResponse
                       suspend fun getInterface(): MyInterface
                       suspend fun processList(list: List<Long>): List<Long>
@@ -98,7 +99,7 @@ class ApiStubParserTest {
                                 "magicNumber",
                                 Types.int
                             ),
-                            Parameter("awesomeString", Types.string)
+                            Parameter("awesomeString", Types.string.asNullable())
                         ),
                         returnType = Types.unit,
                         isSuspend = false,
