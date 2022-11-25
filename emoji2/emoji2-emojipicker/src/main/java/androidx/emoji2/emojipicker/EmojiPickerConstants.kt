@@ -25,9 +25,6 @@ internal object EmojiPickerConstants {
     // The default number of body rows.
     const val DEFAULT_BODY_ROWS = 7.5f
 
-    // The default minimal number of each body row.
-    const val MIN_ROWS_PER_CATEGORY = 1
-
-    // The default recent category index number.
-    const val RECENT_CATEGORY_INDEX = 0
+    // The default number of rows of recent items held.
+    const val DEFAULT_MAX_RECENT_ITEM_ROWS = 3
 }

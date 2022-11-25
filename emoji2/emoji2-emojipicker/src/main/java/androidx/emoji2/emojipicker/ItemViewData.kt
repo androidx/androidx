@@ -16,23 +16,46 @@
 
 package androidx.emoji2.emojipicker
 
-import androidx.annotation.IntRange
+internal enum class ItemType {
+    CATEGORY_TITLE,
+    PLACEHOLDER_TEXT,
+    EMOJI,
+    PLACEHOLDER_EMOJI,
+}
 
-/** Value (immutable) classes for Emoji Picker.*/
-internal abstract class ItemViewData(val id: Long) {
-    abstract val type: Int
+/**
+ * Represents an item within the body RecyclerView.
+ */
+internal sealed class ItemViewData(itemType: ItemType, val occupyEntireRow: Boolean = false) {
+    val viewType = itemType.ordinal
+}
 
-    override fun hashCode(): Int {
-        return (id xor (id ushr 32)).toInt()
-    }
+/**
+ * Title of each category.
+ */
+internal class CategoryTitle(val title: String) :
+    ItemViewData(ItemType.CATEGORY_TITLE, occupyEntireRow = true)
 
-    companion object {
-        fun calculateId(
-            type: Int,
-            @IntRange(from = 0, to = 256) categoryIndex: Int,
-            @IntRange(from = 0) idInCategory: Int
-        ): Long {
-            return type.toLong() shl 60 or (categoryIndex.toLong() shl 32) or idInCategory.toLong()
-        }
-    }
+/**
+ * Text to display when the category contains no items.
+ */
+internal class PlaceholderText(val text: String) :
+    ItemViewData(ItemType.PLACEHOLDER_TEXT, occupyEntireRow = true)
+
+/**
+ * Represents an emoji.
+ */
+internal class EmojiViewData(
+    var primary: String,
+    val variants: List<String>,
+    val updateToVariants: Boolean = true
+) : ItemViewData(ItemType.EMOJI)
+
+internal object PlaceholderEmoji : ItemViewData(ItemType.PLACEHOLDER_EMOJI)
+
+internal object Extensions {
+    internal fun Int.toItemType() = ItemType.values()[this]
+
+    internal fun EmojiViewItem.toEmojiViewData(updateToVariants: Boolean = true) =
+        EmojiViewData(emoji, variants, updateToVariants)
 }
