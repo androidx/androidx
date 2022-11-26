@@ -13,560 +13,421 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
-import static androidx.work.impl.utils.IdGeneratorKt.INITIAL_ID;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.util.Consumer;
-import androidx.work.impl.DefaultRunnableScheduler;
-import androidx.work.impl.Scheduler;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
+import android.os.Build
+import android.util.Log
+import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.core.util.Consumer
+import androidx.work.impl.DefaultRunnableScheduler
+import androidx.work.impl.Scheduler
+import androidx.work.impl.utils.INITIAL_ID
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
+import kotlin.math.min
 
 /**
- * The Configuration object used to customize {@link WorkManager} upon initialization.
+ * The Configuration object used to customize [WorkManager] upon initialization.
  * Configuration contains various parameters used to setup WorkManager.  For example, it is possible
- * to customize the {@link Executor} used by {@link Worker}s here.
- * <p>
- * To set a custom Configuration for WorkManager, see
- * {@link WorkManager#initialize(Context, Configuration)}.
+ * to customize the [Executor] used by [Worker]s here.
+ *
+ * To set a custom Configuration for WorkManager, see [WorkManager.initialize].
  */
-
-public final class Configuration {
-
+class Configuration internal constructor(builder: Builder) {
     /**
-     * The minimum number of system requests which can be enqueued by {@link WorkManager}
-     * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
+     * The [Executor] used by [WorkManager] to execute [Worker]s.
      */
-    @SuppressLint("MinMaxConstant")
-    public static final int MIN_SCHEDULER_LIMIT = 20;
-
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final @NonNull Executor mExecutor;
-    @SuppressWarnings("WeakerAccess")
-    final @NonNull Executor mTaskExecutor;
-    @SuppressWarnings("WeakerAccess")
-    final @NonNull WorkerFactory mWorkerFactory;
-    @SuppressWarnings("WeakerAccess")
-    final @NonNull InputMergerFactory mInputMergerFactory;
-    @SuppressWarnings("WeakerAccess")
-    final @NonNull RunnableScheduler mRunnableScheduler;
-    @SuppressWarnings("WeakerAccess")
-    final @Nullable Consumer<Throwable> mExceptionHandler;
-    @SuppressWarnings("WeakerAccess")
-    final @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
-    @SuppressWarnings("WeakerAccess")
-    final @Nullable String mDefaultProcessName;
-    @SuppressWarnings("WeakerAccess")
-    final int mLoggingLevel;
-    @SuppressWarnings("WeakerAccess")
-    final int mMinJobSchedulerId;
-    @SuppressWarnings("WeakerAccess")
-    final int mMaxJobSchedulerId;
-    @SuppressWarnings("WeakerAccess")
-    final int mMaxSchedulerLimit;
-    private final boolean mIsUsingDefaultTaskExecutor;
-
-    Configuration(@NonNull Configuration.Builder builder) {
-        if (builder.mExecutor == null) {
-            mExecutor = createDefaultExecutor(false /* isTaskExecutor */);
-        } else {
-            mExecutor = builder.mExecutor;
-        }
-
-        if (builder.mTaskExecutor == null) {
-            mIsUsingDefaultTaskExecutor = true;
-            // This executor is used for *both* WorkManager's tasks and Room's query executor.
-            // So this should not be a single threaded executor. Writes will still be serialized
-            // as this will be wrapped with an SerialExecutor.
-            mTaskExecutor = createDefaultExecutor(true /* isTaskExecutor */);
-        } else {
-            mIsUsingDefaultTaskExecutor = false;
-            mTaskExecutor = builder.mTaskExecutor;
-        }
-
-        if (builder.mWorkerFactory == null) {
-            mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
-        } else {
-            mWorkerFactory = builder.mWorkerFactory;
-        }
-
-        if (builder.mInputMergerFactory == null) {
-            mInputMergerFactory = NoOpInputMergerFactory.INSTANCE;
-        } else {
-            mInputMergerFactory = builder.mInputMergerFactory;
-        }
-
-        if (builder.mRunnableScheduler == null) {
-            mRunnableScheduler = new DefaultRunnableScheduler();
-        } else {
-            mRunnableScheduler = builder.mRunnableScheduler;
-        }
-
-        mLoggingLevel = builder.mLoggingLevel;
-        mMinJobSchedulerId = builder.mMinJobSchedulerId;
-        mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
-        mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
-        mExceptionHandler = builder.mExceptionHandler;
-        mSchedulingExceptionHandler = builder.mSchedulingExceptionHandler;
-        mDefaultProcessName = builder.mDefaultProcessName;
-    }
+    val executor: Executor
 
     /**
-     * Gets the {@link Executor} used by {@link WorkManager} to execute {@link Worker}s.
-     *
-     * @return The {@link Executor} used by {@link WorkManager} to execute {@link Worker}s
+     * The [Executor] used by [WorkManager] for all its internal business logic
      */
-    public @NonNull Executor getExecutor() {
-        return mExecutor;
-    }
+    val taskExecutor: Executor
 
     /**
-     * Gets the {@link Executor} used by {@link WorkManager} for all its internal business logic.
-     *
-     * @return The {@link Executor} used by {@link WorkManager} for all its internal business logic
+     * The [WorkerFactory] used by [WorkManager] to create [ListenableWorker]s
      */
-    @NonNull
-    public Executor getTaskExecutor() {
-        return mTaskExecutor;
-    }
+    val workerFactory: WorkerFactory
 
     /**
-     * Gets the {@link WorkerFactory} used by {@link WorkManager} to create
-     * {@link ListenableWorker}s.
-     *
-     * @return The {@link WorkerFactory} used by {@link WorkManager} to create
-     *         {@link ListenableWorker}s
+     * The [InputMergerFactory] used by [WorkManager] to create instances of
+     * [InputMerger]s.
      */
-    public @NonNull WorkerFactory getWorkerFactory() {
-        return mWorkerFactory;
-    }
+    val inputMergerFactory: InputMergerFactory
 
     /**
-     * @return The {@link InputMergerFactory} used by {@link WorkManager} to create instances of
-     * {@link InputMerger}s.
-     */
-    public @NonNull InputMergerFactory getInputMergerFactory() {
-        return mInputMergerFactory;
-    }
-
-    /**
-     * @return The {@link RunnableScheduler} to keep track of timed work in the in-process
+     * The [RunnableScheduler] to keep track of timed work in the in-process
      * scheduler.
      */
-    @NonNull
-    public RunnableScheduler getRunnableScheduler() {
-        return mRunnableScheduler;
-    }
+    val runnableScheduler: RunnableScheduler
 
     /**
-     * Gets the minimum logging level for {@link WorkManager}.
-     *
-     * @return The minimum logging level, corresponding to the constants found in
-     * {@link android.util.Log}
+     * The exception handler that is used to intercept
+     * exceptions caused when trying to initialize [WorkManager].
+     */
+    val initializationExceptionHandler: Consumer<Throwable>?
+
+    /**
+     * The exception handler that can be used to intercept exceptions
+     * caused when trying to schedule [WorkRequest]s.
+     */
+    val schedulingExceptionHandler: Consumer<Throwable>?
+
+    /**
+     * The [String] name of the process where work should be scheduled.
+     */
+    val defaultProcessName: String?
+
+    /**
+     * The minimum logging level, corresponding to the constants found in [android.util.Log]
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public int getMinimumLoggingLevel() {
-        return mLoggingLevel;
-    }
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val minimumLoggingLevel: Int
 
     /**
-     * Gets the first valid id used when scheduling work with {@link android.app.job.JobScheduler}.
+     * The first valid id (inclusive) used by [WorkManager] when creating new
+     * instances of [android.app.job.JobInfo]s.
      *
-     * @return The first valid id (inclusive) used by {@link WorkManager} when creating new
-     *         instances of {@link android.app.job.JobInfo}s.  If the current {@code jobId} goes
-     *         beyond the bounds of the defined range of
-     *         ({@link Configuration.Builder#getMinJobSchedulerId()},
-     *         {@link Configuration.Builder#getMaxJobSchedulerId()}), it is reset to
-     *         ({@link Configuration.Builder#getMinJobSchedulerId()}).
+     * If the current `jobId` goes beyond the bounds of the defined range of
+     * ([Configuration.minJobSchedulerId], [Configuration.maxJobSchedulerId]), it is reset to
+     * ([Configuration.minJobSchedulerId]).
      */
-    public int getMinJobSchedulerId() {
-        return mMinJobSchedulerId;
-    }
+    val minJobSchedulerId: Int
 
     /**
-     * Gets the last valid id when scheduling work with {@link android.app.job.JobScheduler}.
+     * The last valid id (inclusive) used by [WorkManager] when
+     * creating new instances of [android.app.job.JobInfo]s.
      *
-     * @return The last valid id (inclusive) used by {@link WorkManager} when
-     *         creating new instances of {@link android.app.job.JobInfo}s.  If the current
-     *         {@code jobId} goes beyond the bounds of the defined range of
-     *         ({@link Configuration.Builder#getMinJobSchedulerId()},
-     *         {@link Configuration.Builder#getMaxJobSchedulerId()}), it is reset to
-     *         ({@link Configuration.Builder#getMinJobSchedulerId()}).
+     * If the current `jobId` goes beyond the bounds of the defined range of
+     * ([Configuration.minJobSchedulerId], [Configuration.maxJobSchedulerId]), it is reset to
+     * ([Configuration.minJobSchedulerId]).
      */
-    public int getMaxJobSchedulerId() {
-        return mMaxJobSchedulerId;
-    }
+    val maxJobSchedulerId: Int
 
     /**
-     * @return The {@link String} name of the process where work should be scheduled.
-     */
-    @Nullable
-    public String getDefaultProcessName() {
-        return mDefaultProcessName;
-    }
-
-    /**
-     * Gets the maximum number of system requests that can be made by {@link WorkManager} when using
-     * {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
-     *
-     * @return The maximum number of system requests which can be enqueued by {@link WorkManager}
-     *         when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}
+     * The maximum number of system requests which can be enqueued by [WorkManager]
+     * when using [android.app.job.JobScheduler] or [android.app.AlarmManager]
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntRange(from = Configuration.MIN_SCHEDULER_LIMIT, to = Scheduler.MAX_SCHEDULER_LIMIT)
-    public int getMaxSchedulerLimit() {
-        // We double schedule jobs in SDK 23. So use half the number of max slots specified.
-        if (Build.VERSION.SDK_INT == 23) {
-            return mMaxSchedulerLimit / 2;
+    @get:IntRange(from = MIN_SCHEDULER_LIMIT.toLong(), to = Scheduler.MAX_SCHEDULER_LIMIT.toLong())
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val maxSchedulerLimit: Int
+
+    /**
+     * @return `true` If the default task [Executor] is being used
+     * @hide
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val isUsingDefaultTaskExecutor: Boolean
+
+    init {
+        executor = builder.executor ?: createDefaultExecutor(isTaskExecutor = false)
+        isUsingDefaultTaskExecutor = builder.taskExecutor == null
+        // This executor is used for *both* WorkManager's tasks and Room's query executor.
+        // So this should not be a single threaded executor. Writes will still be serialized
+        // as this will be wrapped with an SerialExecutor.
+        taskExecutor = builder.taskExecutor ?: createDefaultExecutor(isTaskExecutor = true)
+        workerFactory = builder.workerFactory ?: WorkerFactory.getDefaultWorkerFactory()
+        inputMergerFactory = builder.inputMergerFactory ?: NoOpInputMergerFactory
+        runnableScheduler = builder.runnableScheduler ?: DefaultRunnableScheduler()
+        minimumLoggingLevel = builder.loggingLevel
+        minJobSchedulerId = builder.minJobSchedulerId
+        maxJobSchedulerId = builder.maxJobSchedulerId
+        maxSchedulerLimit = if (Build.VERSION.SDK_INT == 23) {
+            // We double schedule jobs in SDK 23. So use half the number of max slots specified.
+            builder.maxSchedulerLimit / 2
         } else {
-            return mMaxSchedulerLimit;
+            builder.maxSchedulerLimit
         }
+        initializationExceptionHandler = builder.initializationExceptionHandler
+        schedulingExceptionHandler = builder.schedulingExceptionHandler
+        defaultProcessName = builder.defaultProcessName
     }
 
     /**
-     * @return {@code true} If the default task {@link Executor} is being used
-     * @hide
+     * A Builder for [Configuration]s.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isUsingDefaultTaskExecutor() {
-        return mIsUsingDefaultTaskExecutor;
-    }
-
-    /**
-     * @return the {@link Consumer<Throwable>} that is used to intercept
-     * exceptions caused when trying to initialize {@link WorkManager}.
-     */
-    @Nullable
-    public Consumer<Throwable> getInitializationExceptionHandler() {
-        return mExceptionHandler;
-    }
-
-    /**
-     * @return the {@link Consumer} that can is used to intercept exceptions
-     * caused when trying to schedule {@link WorkRequest}s.
-     */
-    @Nullable
-    public Consumer<Throwable> getSchedulingExceptionHandler() {
-        return mSchedulingExceptionHandler;
-    }
-
-    private @NonNull Executor createDefaultExecutor(boolean isTaskExecutor) {
-        return Executors.newFixedThreadPool(
-                // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
-                Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)),
-                createDefaultThreadFactory(isTaskExecutor));
-    }
-
-    @NonNull
-    private ThreadFactory createDefaultThreadFactory(boolean isTaskExecutor) {
-        return new ThreadFactory() {
-            private final AtomicInteger mThreadCount = new AtomicInteger(0);
-
-            @Override
-            public Thread newThread(Runnable runnable) {
-                // Thread names are constrained to a max of 15 characters by the Linux Kernel.
-                String prefix = isTaskExecutor ? "WM.task-" : "androidx.work-";
-                return new Thread(runnable, prefix + mThreadCount.incrementAndGet());
-            }
-        };
-    }
-
-    /**
-     * A Builder for {@link Configuration}s.
-     */
-    public static final class Builder {
-
-        Executor mExecutor;
-        WorkerFactory mWorkerFactory;
-        InputMergerFactory mInputMergerFactory;
-        Executor mTaskExecutor;
-        RunnableScheduler mRunnableScheduler;
-        @Nullable Consumer<Throwable> mExceptionHandler;
-        @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
-        @Nullable String mDefaultProcessName;
-
-        int mLoggingLevel;
-        int mMinJobSchedulerId;
-        int mMaxJobSchedulerId;
-        int mMaxSchedulerLimit;
+    class Builder {
+        internal var executor: Executor? = null
+        internal var workerFactory: WorkerFactory? = null
+        internal var inputMergerFactory: InputMergerFactory? = null
+        internal var taskExecutor: Executor? = null
+        internal var runnableScheduler: RunnableScheduler? = null
+        internal var initializationExceptionHandler: Consumer<Throwable>? = null
+        internal var schedulingExceptionHandler: Consumer<Throwable>? = null
+        internal var defaultProcessName: String? = null
+        internal var loggingLevel: Int = Log.INFO
+        internal var minJobSchedulerId: Int = INITIAL_ID
+        internal var maxJobSchedulerId: Int = Int.MAX_VALUE
+        internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
 
         /**
-         * Creates a new {@link Configuration.Builder}.
+         * Creates a new [Configuration.Builder].
          */
-        public Builder() {
-            mLoggingLevel = Log.INFO;
-            mMinJobSchedulerId = INITIAL_ID;
-            mMaxJobSchedulerId = Integer.MAX_VALUE;
-            mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
-        }
+        constructor()
 
         /**
-         * Creates a new {@link Configuration.Builder} with an existing {@link Configuration} as its
+         * Creates a new [Configuration.Builder] with an existing [Configuration] as its
          * template.
          *
-         * @param configuration An existing {@link Configuration} to use as a template
+         * @param configuration An existing [Configuration] to use as a template
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(@NonNull Configuration configuration) {
+        constructor(configuration: Configuration) {
             // Note that these must be accessed through fields and not the getters, which can
             // otherwise manipulate the returned value (see getMaxSchedulerLimit(), for example).
-            mExecutor = configuration.mExecutor;
-            mWorkerFactory = configuration.mWorkerFactory;
-            mInputMergerFactory = configuration.mInputMergerFactory;
-            mTaskExecutor = configuration.mTaskExecutor;
-            mLoggingLevel = configuration.mLoggingLevel;
-            mMinJobSchedulerId = configuration.mMinJobSchedulerId;
-            mMaxJobSchedulerId = configuration.mMaxJobSchedulerId;
-            mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
-            mRunnableScheduler = configuration.mRunnableScheduler;
-            mExceptionHandler = configuration.mExceptionHandler;
-            mSchedulingExceptionHandler = configuration.mSchedulingExceptionHandler;
-            mDefaultProcessName = configuration.mDefaultProcessName;
+            executor = configuration.executor
+            workerFactory = configuration.workerFactory
+            inputMergerFactory = configuration.inputMergerFactory
+            taskExecutor = configuration.taskExecutor
+            loggingLevel = configuration.minimumLoggingLevel
+            minJobSchedulerId = configuration.minJobSchedulerId
+            maxJobSchedulerId = configuration.maxJobSchedulerId
+            maxSchedulerLimit = configuration.maxSchedulerLimit
+            runnableScheduler = configuration.runnableScheduler
+            initializationExceptionHandler = configuration.initializationExceptionHandler
+            schedulingExceptionHandler = configuration.schedulingExceptionHandler
+            defaultProcessName = configuration.defaultProcessName
         }
 
         /**
-         * Specifies a custom {@link WorkerFactory} for WorkManager.
+         * Specifies a custom [WorkerFactory] for WorkManager.
          *
-         * @param workerFactory A {@link WorkerFactory} for creating {@link ListenableWorker}s
-         * @return This {@link Builder} instance
+         * @param workerFactory A [WorkerFactory] for creating [ListenableWorker]s
+         * @return This [Builder] instance
          */
-        public @NonNull Builder setWorkerFactory(@NonNull WorkerFactory workerFactory) {
-            mWorkerFactory = workerFactory;
-            return this;
+        fun setWorkerFactory(workerFactory: WorkerFactory): Builder {
+            this.workerFactory = workerFactory
+            return this
         }
 
         /**
-         * Specifies a custom {@link InputMergerFactory} for WorkManager.
-         * @param inputMergerFactory A {@link InputMergerFactory} for creating {@link InputMerger}s
-         * @return This {@link Builder} instance
-         */
-        @NonNull
-        public Builder setInputMergerFactory(@NonNull InputMergerFactory inputMergerFactory) {
-            mInputMergerFactory = inputMergerFactory;
-            return this;
-        }
-
-        /**
-         * Specifies a custom {@link Executor} for WorkManager.
+         * Specifies a custom [InputMergerFactory] for WorkManager.
          *
-         * @param executor An {@link Executor} for running {@link Worker}s
-         * @return This {@link Builder} instance
+         * @param inputMergerFactory A [InputMergerFactory] for creating [InputMerger]s
+         * @return This [Builder] instance
          */
-        public @NonNull Builder setExecutor(@NonNull Executor executor) {
-            mExecutor = executor;
-            return this;
+        fun setInputMergerFactory(inputMergerFactory: InputMergerFactory): Builder {
+            this.inputMergerFactory = inputMergerFactory
+            return this
         }
 
         /**
-         * Specifies a {@link Executor} which will be used by WorkManager for all its
+         * Specifies a custom [Executor] for WorkManager.
+         *
+         * @param executor An [Executor] for running [Worker]s
+         * @return This [Builder] instance
+         */
+        fun setExecutor(executor: Executor): Builder {
+            this.executor = executor
+            return this
+        }
+
+        /**
+         * Specifies a [Executor] which will be used by WorkManager for all its
          * internal book-keeping.
          *
-         * For best performance this {@link Executor} should be bounded.
+         * For best performance this [Executor] should be bounded.
          *
-         * For more information look at
-         * {@link androidx.room.RoomDatabase.Builder#setQueryExecutor(Executor)}.
+         * For more information look at [androidx.room.RoomDatabase.Builder.setQueryExecutor].
          *
-         * @param taskExecutor The {@link Executor} which will be used by WorkManager for
-         *                             all its internal book-keeping
-         * @return This {@link Builder} instance
+         * @param taskExecutor The [Executor] which will be used by WorkManager for
+         * all its internal book-keeping
+         * @return This [Builder] instance
          */
-        public @NonNull Builder setTaskExecutor(@NonNull Executor taskExecutor) {
-            mTaskExecutor = taskExecutor;
-            return this;
+        fun setTaskExecutor(taskExecutor: Executor): Builder {
+            this.taskExecutor = taskExecutor
+            return this
         }
 
         /**
-         * Specifies the range of {@link android.app.job.JobInfo} IDs that can be used by
-         * {@link WorkManager}.  WorkManager needs a range of at least {@code 1000} IDs.
-         * <p>
+         * Specifies the range of [android.app.job.JobInfo] IDs that can be used by
+         * [WorkManager].  WorkManager needs a range of at least `1000` IDs.
+         *
          * JobScheduler uses integers as identifiers for jobs, and WorkManager delegates to
          * JobScheduler on certain API levels.  In order to not clash job codes used in the rest of
          * your app, you can use this method to tell WorkManager the valid range of job IDs that it
          * can use.
-         * <p>
-         * The default values are {@code 0} and {@code Integer#MAX_VALUE}.
          *
-         * @param minJobSchedulerId The first valid {@link android.app.job.JobInfo} ID (inclusive).
-         * @param maxJobSchedulerId The last valid {@link android.app.job.JobInfo} ID (inclusive).
-         * @return This {@link Builder} instance
+         * The default values are `0` and `Integer#MAX_VALUE`.
+         *
+         * @param minJobSchedulerId The first valid [android.app.job.JobInfo] ID (inclusive).
+         * @param maxJobSchedulerId The last valid [android.app.job.JobInfo] ID (inclusive).
+         * @return This [Builder] instance
          * @throws IllegalArgumentException when the size of the range is less than 1000
          */
-        public @NonNull Builder setJobSchedulerJobIdRange(
-                int minJobSchedulerId,
-                int maxJobSchedulerId) {
-            if ((maxJobSchedulerId - minJobSchedulerId) < 1000) {
-                throw new IllegalArgumentException(
-                        "WorkManager needs a range of at least 1000 job ids.");
+        fun setJobSchedulerJobIdRange(minJobSchedulerId: Int, maxJobSchedulerId: Int): Builder {
+            require(maxJobSchedulerId - minJobSchedulerId >= 1000) {
+                "WorkManager needs a range of at least 1000 job ids."
             }
-
-            mMinJobSchedulerId = minJobSchedulerId;
-            mMaxJobSchedulerId = maxJobSchedulerId;
-            return this;
+            this.minJobSchedulerId = minJobSchedulerId
+            this.maxJobSchedulerId = maxJobSchedulerId
+            return this
         }
 
         /**
-         * Specifies the maximum number of system requests made by {@link WorkManager}
-         * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
-         * <p>
+         * Specifies the maximum number of system requests made by [WorkManager]
+         * when using [android.app.job.JobScheduler] or [android.app.AlarmManager].
+         *
          * By default, WorkManager might schedule a large number of alarms or JobScheduler
          * jobs.  If your app uses JobScheduler or AlarmManager directly, this might exhaust the
          * OS-enforced limit on the number of jobs or alarms an app is allowed to schedule.  To help
          * manage this situation, you can use this method to reduce the number of underlying jobs
          * and alarms that WorkManager might schedule.
-         * <p>
+         *
          * When the application exceeds this limit, WorkManager maintains an internal queue of
-         * {@link WorkRequest}s, and schedules them when slots become free.
-         * <p>
-         * WorkManager requires a minimum of {@link Configuration#MIN_SCHEDULER_LIMIT} slots; this
-         * is also the default value. The total number of slots also cannot exceed {@code 50}.
+         * [WorkRequest]s, and schedules them when slots become free.
+         *
+         * WorkManager requires a minimum of [Configuration.MIN_SCHEDULER_LIMIT] slots; this
+         * is also the default value. The total number of slots also cannot exceed `50`.
          *
          * @param maxSchedulerLimit The total number of jobs which can be enqueued by
-         *                          {@link WorkManager} when using
-         *                          {@link android.app.job.JobScheduler}.
-         * @return This {@link Builder} instance
-         * @throws IllegalArgumentException if {@code maxSchedulerLimit} is less than
-         *                                  {@link Configuration#MIN_SCHEDULER_LIMIT}
+         * [WorkManager] when using [android.app.job.JobScheduler].
+         * @return This [Builder] instance
+         * @throws IllegalArgumentException if `maxSchedulerLimit` is less than
+         * [Configuration.MIN_SCHEDULER_LIMIT]
          */
-        public @NonNull Builder setMaxSchedulerLimit(int maxSchedulerLimit) {
-            if (maxSchedulerLimit < MIN_SCHEDULER_LIMIT) {
-                throw new IllegalArgumentException(
-                        "WorkManager needs to be able to schedule at least 20 jobs in "
-                                + "JobScheduler.");
+        fun setMaxSchedulerLimit(maxSchedulerLimit: Int): Builder {
+            require(maxSchedulerLimit >= MIN_SCHEDULER_LIMIT) {
+                "WorkManager needs to be able to schedule at least 20 jobs in JobScheduler."
             }
-            mMaxSchedulerLimit = Math.min(maxSchedulerLimit, MAX_SCHEDULER_LIMIT);
-            return this;
+            this.maxSchedulerLimit = min(maxSchedulerLimit, Scheduler.MAX_SCHEDULER_LIMIT)
+            return this
         }
 
         /**
          * Specifies the minimum logging level, corresponding to the constants found in
-         * {@link android.util.Log}.  For example, specifying {@link android.util.Log#VERBOSE} will
-         * log everything, whereas specifying {@link android.util.Log#ERROR} will only log errors
-         * and assertions.The default value is {@link android.util.Log#INFO}.
+         * [android.util.Log]. For example, specifying [android.util.Log.VERBOSE] will
+         * log everything, whereas specifying [android.util.Log.ERROR] will only log errors
+         * and assertions.The default value is [android.util.Log.INFO].
          *
          * @param loggingLevel The minimum logging level, corresponding to the constants found in
-         *                     {@link android.util.Log}
-         * @return This {@link Builder} instance
+         * [android.util.Log]
+         * @return This [Builder] instance
          */
-        public @NonNull Builder setMinimumLoggingLevel(int loggingLevel) {
-            mLoggingLevel = loggingLevel;
-            return this;
+        fun setMinimumLoggingLevel(loggingLevel: Int): Builder {
+            this.loggingLevel = loggingLevel
+            return this
         }
 
         /**
-         * Specifies the {@link RunnableScheduler} to be used by {@link WorkManager}.
-         * <br/>
+         * Specifies the [RunnableScheduler] to be used by [WorkManager].
+         *
          * This is used by the in-process scheduler to keep track of timed work.
          *
-         * @param runnableScheduler The {@link RunnableScheduler} to be used
-         * @return This {@link Builder} instance
+         * @param runnableScheduler The [RunnableScheduler] to be used
+         * @return This [Builder] instance
          */
-        @NonNull
-        public Builder setRunnableScheduler(@NonNull RunnableScheduler runnableScheduler) {
-            mRunnableScheduler = runnableScheduler;
-            return this;
+        fun setRunnableScheduler(runnableScheduler: RunnableScheduler): Builder {
+            this.runnableScheduler = runnableScheduler
+            return this
         }
 
         /**
-         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
+         * Specifies a `Consumer<Throwable>` that can be used to intercept
          * exceptions caused when trying to initialize {@link WorkManager}, that usually happens
          * when WorkManager cannot access its internal datastore.
-         * <p>
+         *
          * This exception handler will be invoked on a thread bound to
-         * {@link Configuration#getTaskExecutor()}.
+         * [Configuration.taskExecutor].
          *
          * @param exceptionHandler an instance to handle exceptions
-         * @return This {@link Builder} instance
+         * @return This [Builder] instance
          */
-        @NonNull
-        public Builder setInitializationExceptionHandler(
-                @NonNull Consumer<Throwable> exceptionHandler) {
-            mExceptionHandler = exceptionHandler;
-            return this;
+        fun setInitializationExceptionHandler(exceptionHandler: Consumer<Throwable>): Builder {
+            this.initializationExceptionHandler = exceptionHandler
+            return this
         }
 
         /**
-         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
-         * exceptions caused when trying to schedule {@link WorkRequest}s.
+         * Specifies a `Consumer<Throwable>` that can be used to intercept
+         * exceptions caused when trying to schedule [WorkRequest]s.
          *
-         * It allows the application to handle a {@link Throwable} throwable typically
-         * caused when trying to schedule {@link WorkRequest}s.
-         * <p>
+         * It allows the application to handle a [Throwable] throwable typically
+         * caused when trying to schedule [WorkRequest]s.
+         *
          * This exception handler will be invoked on a thread bound to
-         * {@link Configuration#getTaskExecutor()}.
+         * [Configuration.taskExecutor].
          *
          * @param schedulingExceptionHandler an instance to handle exceptions
-         * @return This {@link Builder} instance
+         * @return This [Builder] instance
          */
-        @NonNull
-        public Builder setSchedulingExceptionHandler(
-                @NonNull Consumer<Throwable> schedulingExceptionHandler) {
-            mSchedulingExceptionHandler = schedulingExceptionHandler;
-            return this;
+        fun setSchedulingExceptionHandler(
+            schedulingExceptionHandler: Consumer<Throwable>
+        ): Builder {
+            this.schedulingExceptionHandler = schedulingExceptionHandler
+            return this
         }
 
         /**
-         * Designates the primary process that {@link WorkManager} should schedule work in.
+         * Designates the primary process that [WorkManager] should schedule work in.
          *
-         * @param processName The {@link String} process name.
-         * @return This {@link Builder} instance
+         * @param processName The [String] process name.
+         * @return This [Builder] instance
          */
-        @NonNull
-        public Builder setDefaultProcessName(@NonNull String processName) {
-            mDefaultProcessName = processName;
-            return this;
+        fun setDefaultProcessName(processName: String): Builder {
+            defaultProcessName = processName
+            return this
         }
 
         /**
-         * Builds a {@link Configuration} object.
+         * Builds a [Configuration] object.
          *
-         * @return A {@link Configuration} object with this {@link Builder}'s parameters.
+         * @return A [Configuration] object with this [Builder]'s parameters.
          */
-        public @NonNull Configuration build() {
-            return new Configuration(this);
+        fun build(): Configuration {
+            return Configuration(this)
         }
     }
 
     /**
-     * A class that can provide the {@link Configuration} for WorkManager and allow for on-demand
+     * A class that can provide the [Configuration] for WorkManager and allow for on-demand
      * initialization of WorkManager.  To do this:
-     * <p><ul>
-     *   <li>Disable {@code androidx.work.WorkManagerInitializer} in your manifest</li>
-     *   <li>Implement the {@link Configuration.Provider} interface on your
-     *   {@link android.app.Application} class</li>
-     *   <li>Use {@link WorkManager#getInstance(Context)} when accessing WorkManger (NOT
-     *   {@link WorkManager#getInstance()})</li>
-     * </ul></p>
-     * <p>
+     *
+     *  - Disable `androidx.work.WorkManagerInitializer` in your manifest
+     *  - Implement the [Configuration.Provider] interface on your [android.app.Application] class
+     *  - Use [WorkManager.getInstance] when accessing WorkManager (NOT [WorkManager.getInstance])
+     *
      * Note that on-demand initialization may delay some useful features of WorkManager such as
      * automatic rescheduling of work following a crash and recovery from the application being
      * force-stopped by the user or device.
      *
-     * @see WorkManager#initialize(Context, Configuration) for manual initialization.
+     * @see WorkManager.initialize
      */
-    public interface Provider {
-
+    interface Provider {
         /**
-         * @return The {@link Configuration} used to initialize WorkManager
+         * The [Configuration] used to initialize WorkManager
          */
-        @NonNull Configuration getWorkManagerConfiguration();
+        val workManagerConfiguration: Configuration
     }
+
+    companion object {
+        /**
+         * The minimum number of system requests which can be enqueued by [WorkManager]
+         * when using [android.app.job.JobScheduler] or [android.app.AlarmManager].
+         */
+        const val MIN_SCHEDULER_LIMIT = 20
+    }
+}
+
+private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
+    val factory = object : ThreadFactory {
+        private val threadCount = AtomicInteger(0)
+        override fun newThread(runnable: Runnable): Thread {
+            // Thread names are constrained to a max of 15 characters by the Linux Kernel.
+            val prefix = if (isTaskExecutor) "WM.task-" else "androidx.work-"
+            return Thread(runnable, "$prefix${threadCount.incrementAndGet()}")
+        }
+    }
+    return Executors.newFixedThreadPool(
+        // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
+        max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4)),
+        factory
+    )
 }
