@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -653,6 +654,55 @@ class ToggleButtonColorTest {
             }
         }
     }
+}
+
+class ToggleButtonRoleTest {
+    @get:Rule
+    val rule = createComposeRule()
+
+    @Test
+    fun default_role_checkbox() {
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                ToggleButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    enabled = false,
+                    content = { TestImage() },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNode(withRole(Role.Checkbox)).assertExists()
+    }
+
+    @Test
+    fun allows_custom_role() {
+        val role = Role.Button
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                ToggleButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    role = role,
+                    enabled = false,
+                    content = { TestImage() },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNode(withRole(role)).assertExists()
+    }
+
+    private fun withRole(role: Role) =
+        SemanticsMatcher("${SemanticsProperties.Role.name} contains '$role'") {
+            val roleProperty = it.config.getOrNull(SemanticsProperties.Role) ?: false
+            roleProperty == role
+        }
 }
 
 private fun ComposeContentTestRule.verifyTapSize(
