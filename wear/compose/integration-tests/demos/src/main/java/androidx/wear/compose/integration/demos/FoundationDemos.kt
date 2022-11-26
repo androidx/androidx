@@ -24,6 +24,7 @@ import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
 import androidx.wear.compose.foundation.samples.OversizeComposable
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 
@@ -50,5 +51,6 @@ val WearFoundationDemos = DemoCategory(
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
         DemoCategory("Rotary Input", RotaryInputDemos),
+        ComposableDemo("Focus Sample") { HierarchicalFocusCoordinatorSample() },
     ),
 )
