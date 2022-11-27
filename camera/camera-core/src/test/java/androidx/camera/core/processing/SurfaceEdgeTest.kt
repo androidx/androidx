@@ -29,6 +29,7 @@ import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.Result.RESULT_REQUEST_CANCELLED
 import androidx.camera.core.SurfaceRequest.TransformationInfo
+import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.ImmediateSurface
@@ -39,6 +40,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -51,24 +53,24 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Unit tests for [SettableSurface].
+ * Unit tests for [SurfaceEdge].
  */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class SettableSurfaceTest {
+class SurfaceEdgeTest {
 
     companion object {
         private val INPUT_SIZE = Size(640, 480)
     }
 
-    private lateinit var settableSurface: SettableSurface
+    private lateinit var surfaceEdge: SurfaceEdge
     private lateinit var fakeSurface: Surface
     private lateinit var fakeSurfaceTexture: SurfaceTexture
 
     @Before
     fun setUp() {
-        settableSurface = SettableSurface(
+        surfaceEdge = SurfaceEdge(
             CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             Matrix(), true, Rect(), 0, false
         ) {}
@@ -78,20 +80,20 @@ class SettableSurfaceTest {
 
     @After
     fun tearDown() {
-        settableSurface.close()
+        surfaceEdge.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
     }
 
     @Test
-    fun closeSettableSurfaceOnIoDispatchers_noCrash(): Unit = runBlocking(Dispatchers.IO) {
-        settableSurface.close()
+    fun closeSurfaceEdgeOnIoDispatchers_noCrash(): Unit = runBlocking(Dispatchers.IO) {
+        surfaceEdge.close()
     }
 
     @Test
     fun closeProviderAfterConnected_surfaceNotReleased() {
         // Arrange.
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
         var result: SurfaceRequest.Result? = null
         surfaceRequest.provideSurface(fakeSurface, mainThreadExecutor()) {
             result = it
@@ -108,23 +110,27 @@ class SettableSurfaceTest {
         val closedDeferrableSurface = ImmediateSurface(fakeSurface).apply {
             this.close()
         }
-        settableSurface.setProvider(closedDeferrableSurface)
+        surfaceEdge.setProvider(closedDeferrableSurface)
     }
 
     @Test
     fun createSurfaceRequestAndCancel_cancellationIsPropagated() {
         // Arrange: create a SurfaceRequest.
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
         var throwable: Throwable? = null
-        Futures.addCallback(settableSurface.surface, object : FutureCallback<Surface> {
-            override fun onFailure(t: Throwable) {
-                throwable = t
-            }
+        Futures.addCallback(
+            surfaceEdge.deferrableSurface.surface,
+            object : FutureCallback<Surface> {
+                override fun onFailure(t: Throwable) {
+                    throwable = t
+                }
 
-            override fun onSuccess(result: Surface?) {
-                throw IllegalStateException("Should not succeed.")
-            }
-        }, mainThreadExecutor())
+                override fun onSuccess(result: Surface?) {
+                    throw IllegalStateException("Should not succeed.")
+                }
+            },
+            mainThreadExecutor()
+        )
 
         // Act: set it as "will not provide".
         surfaceRequest.willNotProvideSurface()
@@ -137,8 +143,8 @@ class SettableSurfaceTest {
     @Test
     fun createSurfaceRequestWithClosedInstance_surfaceRequestCancelled() {
         // Arrange: create a SurfaceRequest from a closed LinkableSurface
-        settableSurface.close()
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        surfaceEdge.close()
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
 
         // Act: provide a Surface and get the result.
         var result: SurfaceRequest.Result? = null
@@ -154,8 +160,8 @@ class SettableSurfaceTest {
     @Test
     fun createSurfaceOutputWithClosedInstance_surfaceOutputNotCreated() {
         // Arrange: create a SurfaceOutput future from a closed LinkableSurface
-        settableSurface.close()
-        val surfaceOutput = createSurfaceOutputFuture(settableSurface)
+        surfaceEdge.close()
+        val surfaceOutput = createSurfaceOutputFuture(surfaceEdge)
 
         // Act: wait for the SurfaceOutput to return.
         var successful: Boolean? = null
@@ -177,13 +183,13 @@ class SettableSurfaceTest {
     @Test
     fun createSurfaceRequestAndProvide_surfaceIsPropagated() {
         // Arrange: create a SurfaceRequest.
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
         // Act: provide Surface.
         surfaceRequest.provideSurface(fakeSurface, mainThreadExecutor()) {}
         shadowOf(getMainLooper()).idle()
         // Assert: the surface is received.
-        assertThat(settableSurface.surface.isDone).isTrue()
-        assertThat(settableSurface.surface.get()).isEqualTo(fakeSurface)
+        assertThat(surfaceEdge.deferrableSurface.surface.isDone).isTrue()
+        assertThat(surfaceEdge.deferrableSurface.surface.get()).isEqualTo(fakeSurface)
     }
 
     @Test
@@ -193,12 +199,12 @@ class SettableSurfaceTest {
     }
 
     /**
-     * Creates a [SettableSurface] with the given hasEmbeddedTransform value, and returns the
+     * Creates a [SurfaceEdge] with the given hasEmbeddedTransform value, and returns the
      * [TransformationInfo.hasCameraTransform] from the [SurfaceRequest].
      */
     private fun getSurfaceRequestHasTransform(hasEmbeddedTransform: Boolean): Boolean {
         // Arrange.
-        val surface = SettableSurface(
+        val surface = SurfaceEdge(
             CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             Matrix(), hasEmbeddedTransform, Rect(), 0, false
         ) {}
@@ -223,20 +229,24 @@ class SettableSurfaceTest {
             completer = it
             return@getFuture null
         }
-        settableSurface.setProvider(surfaceFuture)
+        surfaceEdge.setProvider(object : DeferrableSurface() {
+            override fun provideSurface(): ListenableFuture<Surface> {
+                return surfaceFuture
+            }
+        })
         // Act: provide Surface.
         completer!!.set(fakeSurface)
         shadowOf(getMainLooper()).idle()
         // Assert: the surface is received.
-        assertThat(settableSurface.surface.isDone).isTrue()
-        assertThat(settableSurface.surface.get()).isEqualTo(fakeSurface)
+        assertThat(surfaceEdge.deferrableSurface.surface.isDone).isTrue()
+        assertThat(surfaceEdge.deferrableSurface.surface.get()).isEqualTo(fakeSurface)
     }
 
     @Test
     fun linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E() {
         // Arrange: link a LinkableSurface with a SurfaceRequest and a SurfaceOutput.
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
-        val surfaceOutputFuture = createSurfaceOutputFuture(settableSurface)
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        val surfaceOutputFuture = createSurfaceOutputFuture(surfaceEdge)
         var surfaceOutput: SurfaceOutput? = null
         Futures.transform(surfaceOutputFuture, {
             surfaceOutput = it
@@ -260,7 +270,7 @@ class SettableSurfaceTest {
         assertThat(isSurfaceReleased).isEqualTo(false)
 
         // Act: close the LinkableSurface, signaling the intention to close the Surface.
-        settableSurface.close()
+        surfaceEdge.close()
         shadowOf(getMainLooper()).idle()
 
         // Assert: The close is propagated to the SurfaceRequest.
@@ -277,15 +287,15 @@ class SettableSurfaceTest {
 
     @Test(expected = IllegalStateException::class)
     fun createSurfaceRequestTwice_throwsException() {
-        settableSurface.createSurfaceRequest(FakeCamera())
-        settableSurface.createSurfaceRequest(FakeCamera())
+        surfaceEdge.createSurfaceRequest(FakeCamera())
+        surfaceEdge.createSurfaceRequest(FakeCamera())
         shadowOf(getMainLooper()).idle()
     }
 
     @Test(expected = IllegalStateException::class)
     fun createSurfaceOutputTwice_throwsException() {
-        createSurfaceOutputFuture(settableSurface)
-        createSurfaceOutputFuture(settableSurface)
+        createSurfaceOutputFuture(surfaceEdge)
+        createSurfaceOutputFuture(surfaceEdge)
         shadowOf(getMainLooper()).idle()
     }
 
@@ -293,13 +303,13 @@ class SettableSurfaceTest {
     fun setRotationDegrees_sendTransformationInfoUpdate() {
         // Arrange.
         var transformationInfo: TransformationInfo? = null
-        val surfaceRequest = settableSurface.createSurfaceRequest(FakeCamera())
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
         surfaceRequest.setTransformationInfoListener(mainThreadExecutor()) {
             transformationInfo = it
         }
 
         // Act.
-        settableSurface.rotationDegrees = 90
+        surfaceEdge.rotationDegrees = 90
         shadowOf(getMainLooper()).idle()
 
         // Assert.
@@ -307,8 +317,8 @@ class SettableSurfaceTest {
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(90)
     }
 
-    private fun createSurfaceOutputFuture(settableSurface: SettableSurface) =
-        settableSurface.createSurfaceOutputFuture(
+    private fun createSurfaceOutputFuture(surfaceEdge: SurfaceEdge) =
+        surfaceEdge.createSurfaceOutputFuture(
             INPUT_SIZE,
             sizeToRect(INPUT_SIZE),
             /*rotationDegrees=*/0,

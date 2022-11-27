@@ -31,6 +31,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DIS
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
@@ -41,6 +42,7 @@ import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
+import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -98,7 +100,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
-import androidx.camera.core.processing.SettableSurface;
+import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.camera.video.StreamInfo.StreamState;
@@ -157,6 +159,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final boolean ENABLE_SURFACE_PROCESSING_BY_QUIRK;
     private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
+
     static {
         boolean hasPreviewStretchQuirk =
                 DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
@@ -174,6 +177,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     DeferrableSurface mDeferrableSurface;
+    @Nullable
+    private SurfaceEdge mCameraEdge;
     @SuppressWarnings("WeakerAccess") // Synthetic access
     StreamInfo mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
     @SuppressWarnings("WeakerAccess") // Synthetic access
@@ -376,8 +381,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateDetached() {
-        Preconditions.checkState(Threads.isMainThread(), "VideoCapture can only be detached on "
-                + "the main thread.");
+        checkState(isMainThread(), "VideoCapture can only be detached on the main thread.");
         setSourceState(VideoOutput.SourceState.INACTIVE);
         getOutput().getStreamInfo().removeObserver(mStreamInfoObserver);
         if (mSurfaceUpdateFuture != null) {
@@ -451,21 +455,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
             int relativeRotation = getRelativeRotation(cameraInternal);
             int targetRotation = getAppTargetRotation();
-            if (mNode != null) {
-                SettableSurface cameraSurface = getCameraSettableSurface();
-                cameraSurface.setRotationDegrees(relativeRotation);
+            if (mCameraEdge != null) {
+                mCameraEdge.setRotationDegrees(relativeRotation);
             } else {
                 surfaceRequest.updateTransformationInfo(
                         SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
                                 targetRotation, /*hasCameraTransform=*/true));
             }
         }
-    }
-
-    @NonNull
-    private SettableSurface getCameraSettableSurface() {
-        Preconditions.checkNotNull(mNode);
-        return (SettableSurface) requireNonNull(mDeferrableSurface);
     }
 
     @VisibleForTesting
@@ -520,7 +517,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                             VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
                             resolution, targetFpsRange));
-            SettableSurface cameraSurface = new SettableSurface(
+            // Make sure the previously created camera edge is cleared before creating a new one.
+            checkState(mCameraEdge == null);
+            SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
                     resolution,
                     ImageFormat.PRIVATE,
@@ -530,19 +529,20 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     getRelativeRotation(camera),
                     /*mirroring=*/false,
                     onSurfaceInvalidated);
+            mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
-                    SurfaceProcessorNode.OutConfig.of(cameraSurface);
+                    SurfaceProcessorNode.OutConfig.of(cameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
-                    cameraSurface,
+                    cameraEdge,
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
-            SettableSurface appSurface = requireNonNull(nodeOutput.get(outConfig));
-            mSurfaceRequest = appSurface.createSurfaceRequest(camera, targetFpsRange);
-            mDeferrableSurface = cameraSurface;
-            cameraSurface.getTerminationFuture().addListener(() -> {
+            SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+            mSurfaceRequest = appEdge.createSurfaceRequest(camera, targetFpsRange);
+            mDeferrableSurface = cameraEdge.getDeferrableSurface();
+            mDeferrableSurface.getTerminationFuture().addListener(() -> {
                 // If camera surface is the latest one, it means this pipeline can be abandoned.
                 // Clear the pipeline in order to trigger the surface complete event to appSurface.
-                if (cameraSurface == mDeferrableSurface) {
+                if (cameraEdge.getDeferrableSurface() == mDeferrableSurface) {
                     clearPipeline();
                 }
             }, CameraXExecutors.mainThreadExecutor());
@@ -589,6 +589,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mNode != null) {
             mNode.release();
             mNode = null;
+        }
+        if (mCameraEdge != null) {
+            mCameraEdge.close();
+            mCameraEdge = null;
         }
         mVideoEncoderInfo = null;
         mCropRect = null;
@@ -841,7 +845,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // returns power of 2. This ensures width/2 and height/2 are not rounded off.
         // New width/height smaller than resolution ensures calculated cropRect never exceeds
         // the resolution.
-        Preconditions.checkState(newWidth % 2 == 0 && newHeight % 2 == 0
+        checkState(newWidth % 2 == 0 && newHeight % 2 == 0
                 && newWidth <= resolution.getWidth() && newHeight <= resolution.getHeight());
         Rect newCropRect = new Rect(cropRect);
         if (newWidth != cropRect.width()) {
@@ -1009,7 +1013,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                                 }
                             };
                     completer.addCancellationListener(() -> {
-                        Preconditions.checkState(Threads.isMainThread(), "Surface update "
+                        checkState(isMainThread(), "Surface update "
                                 + "cancellation should only occur on main thread.");
                         surfaceUpdateComplete.set(true);
                         sessionConfigBuilder.removeCameraCaptureCallback(cameraCaptureCallback);
@@ -1085,8 +1089,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         supportedResolutions = filterOutResolutions(supportedResolutions);
         Logger.d(TAG, "supportedResolutions after filter out " + supportedResolutions);
-        Preconditions.checkState(!selectedQualities.isEmpty(),
-                "No supportedResolutions after filter out");
+        checkState(!selectedQualities.isEmpty(), "No supportedResolutions after filter out");
 
         builder.getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS,
                 singletonList(

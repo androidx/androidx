@@ -52,7 +52,7 @@ class SurfaceOutputImplTest {
 
     private lateinit var fakeSurface: Surface
     private lateinit var fakeSurfaceTexture: SurfaceTexture
-    private val surfacesToCleanup = mutableListOf<SettableSurface>()
+    private val surfacesToCleanup = mutableListOf<SurfaceEdge>()
     private val surfaceOutputsToCleanup = mutableListOf<SurfaceOutputImpl>()
 
     @Before
