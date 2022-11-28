@@ -1,9 +1,9 @@
 // The components of a tile that can be rendered by a tile renderer.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "VersionProto";
 
 // Version information. This is used to encode the schema version of a payload

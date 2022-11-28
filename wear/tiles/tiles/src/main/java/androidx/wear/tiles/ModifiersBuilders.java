@@ -26,9 +26,9 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.TypeBuilders.BoolProp;
-import androidx.wear.tiles.proto.ModifiersProto;
-import androidx.wear.tiles.proto.TypesProto;
-import androidx.wear.tiles.protobuf.ByteString;
+import androidx.wear.protolayout.proto.ModifiersProto;
+import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.ByteString;
 
 /** Builders for modifiers for composable layout elements. */
 public final class ModifiersBuilders {

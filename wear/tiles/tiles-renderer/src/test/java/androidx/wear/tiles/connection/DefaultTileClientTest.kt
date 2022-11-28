@@ -38,7 +38,7 @@ import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.TileRequestData
 import androidx.wear.tiles.TilesTestRunner
 import androidx.wear.tiles.proto.TileProto
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException

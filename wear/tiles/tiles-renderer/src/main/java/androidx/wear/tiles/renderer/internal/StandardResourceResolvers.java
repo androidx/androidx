@@ -21,7 +21,7 @@ import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.TileService;
-import androidx.wear.tiles.proto.ResourceProto;
+import androidx.wear.protolayout.proto.ResourceProto;
 
 /** Utility class to get {@link ResourceResolvers} populated with standard options. */
 public class StandardResourceResolvers {
