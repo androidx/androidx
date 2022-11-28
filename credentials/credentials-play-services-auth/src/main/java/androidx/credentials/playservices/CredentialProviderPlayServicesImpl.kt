@@ -53,12 +53,17 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         if (activity == null) {
-            executor.execute { callback.onError(
-                GetCredentialUnknownException("activity should" +
-                "not be null")
-            ) }
+            executor.execute {
+                callback.onError(
+                    GetCredentialUnknownException(
+                        "activity should" +
+                            "not be null"
+                    )
+                )
+            }
             return
         }
+
         val fragmentManager: android.app.FragmentManager = activity.fragmentManager
         if (cancellationReviewer(fragmentManager, cancellationSignal)) {
             return
@@ -105,7 +110,8 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         }
     }
     override fun isAvailableOnDevice(): Boolean {
-        TODO("Not yet implemented")
+        // TODO("Call play services availability API")
+        return true
     }
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -125,6 +131,8 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
                         ?.commitAllowingStateLoss()
                 }
             }
+        } else {
+            Log.i(TAG, "No cancellationSignal found")
         }
         return false
     }
