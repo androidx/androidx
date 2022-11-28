@@ -4900,7 +4900,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     @Override
-    public void draw(Canvas c) {
+    public void draw(@NonNull Canvas c) {
         super.draw(c);
 
         final int count = mItemDecorations.size();
@@ -4961,7 +4961,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     @Override
-    public void onDraw(Canvas c) {
+    public void onDraw(@NonNull Canvas c) {
         super.onDraw(c);
 
         final int count = mItemDecorations.size();
@@ -5501,7 +5501,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     @Override
-    public boolean drawChild(Canvas canvas, View child, long drawingTime) {
+    public boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
         return super.drawChild(canvas, child, drawingTime);
     }
 

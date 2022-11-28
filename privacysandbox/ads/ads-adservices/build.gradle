@@ -43,6 +43,7 @@ dependencies {
 }
 
 android {
+    compileSdkPreview "TiramisuPrivacySandbox"
     namespace "androidx.privacysandbox.ads.adservices"
 }
 

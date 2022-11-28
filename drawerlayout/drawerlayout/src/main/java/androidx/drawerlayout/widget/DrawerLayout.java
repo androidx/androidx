@@ -1437,7 +1437,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
     }
 
     @Override
-    public void onDraw(Canvas c) {
+    public void onDraw(@NonNull Canvas c) {
         super.onDraw(c);
         if (mDrawStatusBarBackground && mStatusBarBackground != null) {
             final int inset;
@@ -1454,7 +1454,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
     }
 
     @Override
-    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+    protected boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
         final int height = getHeight();
         final boolean drawingContent = isContentView(child);
         int clipLeft = 0, clipRight = getWidth();

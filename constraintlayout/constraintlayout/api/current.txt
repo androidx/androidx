@@ -906,7 +906,7 @@ package androidx.constraintlayout.utils.widget {
     ctor public MockView(android.content.Context!);
     ctor public MockView(android.content.Context!, android.util.AttributeSet!);
     ctor public MockView(android.content.Context!, android.util.AttributeSet!, int);
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     field protected String! mText;
   }
 
@@ -1045,7 +1045,7 @@ package androidx.constraintlayout.widget {
     method protected void init(android.util.AttributeSet!);
     method public static boolean isChildOfHelper(android.view.View!);
     method public void loadParameters(androidx.constraintlayout.widget.ConstraintSet.Constraint!, androidx.constraintlayout.core.widgets.HelperWidget!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public int removeView(android.view.View!);
     method public void resolveRtl(androidx.constraintlayout.core.widgets.ConstraintWidget!, boolean);
     method protected void setIds(String!);
@@ -1650,7 +1650,7 @@ package androidx.constraintlayout.widget {
     ctor public Placeholder(android.content.Context!, android.util.AttributeSet!, int, int);
     method public android.view.View! getContent();
     method public int getEmptyVisibility();
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public void setContentId(int);
     method public void setEmptyVisibility(int);
     method public void updatePostMeasure(androidx.constraintlayout.widget.ConstraintLayout!);
