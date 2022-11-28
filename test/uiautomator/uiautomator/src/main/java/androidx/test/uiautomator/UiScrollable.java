@@ -46,6 +46,8 @@ public class UiScrollable extends UiCollection {
 
     private double mSwipeDeadZonePercentage = DEFAULT_SWIPE_DEADZONE_PCT;
 
+    private final Configurator mConfig = Configurator.getInstance();
+
     /**
      * Constructor.
      *
@@ -390,7 +392,8 @@ public class UiScrollable extends UiCollection {
      * @return true if scrolled, false if can't scroll anymore
      */
     public boolean scrollForward(int steps) throws UiObjectNotFoundException {
-        AccessibilityNodeInfo node = findAccessibilityNodeInfo(WAIT_FOR_SELECTOR_TIMEOUT);
+        AccessibilityNodeInfo node = findAccessibilityNodeInfo(
+                mConfig.getWaitForSelectorTimeout());
         if(node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
@@ -464,7 +467,8 @@ public class UiScrollable extends UiCollection {
      * @return true if scrolled, false if can't scroll anymore
      */
     public boolean scrollBackward(int steps) throws UiObjectNotFoundException {
-        AccessibilityNodeInfo node = findAccessibilityNodeInfo(WAIT_FOR_SELECTOR_TIMEOUT);
+        AccessibilityNodeInfo node = findAccessibilityNodeInfo(
+                mConfig.getWaitForSelectorTimeout());
         if (node == null) {
             throw new UiObjectNotFoundException(getSelector().toString());
         }
