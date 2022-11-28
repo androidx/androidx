@@ -149,16 +149,16 @@ public class UserStyleSettingWithStringResourcesTest {
         )
 
         val option0 = listUserStyleSetting.options[0] as ListOption
-        Truth.assertThat(option0.displayName).isEqualTo("Option 1")
-        Truth.assertThat(option0.screenReaderName).isEqualTo("List option 1")
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
 
         val option1 = listUserStyleSetting.options[1] as ListOption
-        Truth.assertThat(option1.displayName).isEqualTo("Option 2")
-        Truth.assertThat(option1.screenReaderName).isEqualTo("List option 2")
+        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
 
         val option2 = listUserStyleSetting.options[2] as ListOption
-        Truth.assertThat(option2.displayName).isEqualTo("Option 3")
-        Truth.assertThat(option2.screenReaderName).isEqualTo("List option 3")
+        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
     }
 
     @Test
@@ -198,15 +198,15 @@ public class UserStyleSettingWithStringResourcesTest {
         )
 
         val option0 = complicationSetting.options[0] as ComplicationSlotsOption
-        Truth.assertThat(option0.displayName).isEqualTo("Option 1")
-        Truth.assertThat(option0.screenReaderName).isEqualTo("List option 1")
+        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
 
         val option1 = complicationSetting.options[1] as ComplicationSlotsOption
-        Truth.assertThat(option1.displayName).isEqualTo("Option 2")
-        Truth.assertThat(option1.screenReaderName).isEqualTo("List option 2")
+        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
+        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
 
         val option2 = complicationSetting.options[2] as ComplicationSlotsOption
-        Truth.assertThat(option2.displayName).isEqualTo("Option 3")
-        Truth.assertThat(option2.screenReaderName).isEqualTo("List option 3")
+        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
+        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
     }
 }
