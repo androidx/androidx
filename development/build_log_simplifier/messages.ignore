@@ -459,7 +459,6 @@ WARN: Missing @param tag for parameter `context` of function androidx\.graphics\
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/getOrCreate/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/isAvailable/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/isProviderAvailable/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
-WARN: Failed to resolve `@see androidx\.health\.data\.client\.HealthDataClient\.getChanges`!
 Did you mean androidx\.health\.data\.client\.HealthDataClient\#getChanges\?
 WARN: Missing @param tag for parameter `query` of function androidx\.leanback\.app/SearchFragment/createArgs/\#android\.os\.Bundle\#java\.lang\.String/PointingToDeclaration/
 WARN: Missing @param tag for parameter `query` of function androidx\.leanback\.app/SearchSupportFragment/createArgs/\#android\.os\.Bundle\#java\.lang\.String/PointingToDeclaration/
@@ -790,9 +789,7 @@ w: Cached libraries will not be used with std allocator
 objc\[.*\]: Class .*
 # KMP messages on successful XCFramework builds.
 xcframework successfully .*
-# iOS benchmark invocation
-/usr/bin/xcodebuild
 # > Configure project :internal-testutils-ktx
 WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
-# Building XCFrameworks (b/260140834)
+# Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
