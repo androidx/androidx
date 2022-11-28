@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialResponse.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -62,5 +63,19 @@ class CreatePublicKeyCredentialResponseTest {
 
         assertThat(response.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(response.data, expectedData)).isTrue()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val response = CreatePublicKeyCredentialResponse("responseJson")
+
+        val convertedResponse = createFrom(response.type, response.data)
+
+        assertThat(convertedResponse).isInstanceOf(
+            CreatePublicKeyCredentialResponse::class.java
+        )
+        val convertedSubclassResponse = convertedResponse as CreatePublicKeyCredentialResponse
+        assertThat(convertedSubclassResponse.registrationResponseJson)
+            .isEqualTo(response.registrationResponseJson)
     }
 }

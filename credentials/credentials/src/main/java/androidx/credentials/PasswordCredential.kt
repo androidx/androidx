@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Represents the user's password credential granted by the user for app sign-in.
@@ -55,6 +56,17 @@ class PasswordCredential constructor(
             bundle.putString(BUNDLE_KEY_ID, id)
             bundle.putString(BUNDLE_KEY_PASSWORD, password)
             return bundle
+        }
+
+        @JvmStatic
+        internal fun createFrom(data: Bundle): PasswordCredential {
+            try {
+                val id = data.getString(BUNDLE_KEY_ID)
+                val password = data.getString(BUNDLE_KEY_PASSWORD)
+                return PasswordCredential(id!!, password!!)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
         }
     }
 }

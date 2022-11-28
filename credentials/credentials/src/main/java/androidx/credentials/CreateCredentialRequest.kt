@@ -18,6 +18,9 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Base request class for registering a credential.
@@ -36,4 +39,36 @@ open class CreateCredentialRequest(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val requireSystemProvider: Boolean,
-)
+) {
+    /** @hide */
+    companion object {
+        /** @hide */
+        @JvmStatic
+        fun createFrom(
+            type: String,
+            data: Bundle,
+            requireSystemProvider: Boolean
+        ): CreateCredentialRequest {
+            return try {
+                when (type) {
+                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
+                        CreatePasswordRequest.createFrom(data)
+                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
+                        when (data.getString(BUNDLE_KEY_SUBTYPE)) {
+                            CreatePublicKeyCredentialRequest
+                                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
+                                CreatePublicKeyCredentialRequest.createFrom(data)
+                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED ->
+                                CreatePublicKeyCredentialRequestPrivileged.createFrom(data)
+                            else -> throw FrameworkClassParsingException()
+                        }
+                    else -> throw FrameworkClassParsingException()
+                }
+            } catch (e: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a request with
+                // the raw framework values.
+                CreateCredentialRequest(type, data, requireSystemProvider)
+            }
+        }
+    }
+}

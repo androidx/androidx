@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * Base class for getting a specific type of credentials.
@@ -35,4 +36,37 @@ open class GetCredentialOption(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val requireSystemProvider: Boolean,
-)
+) {
+    /** @hide */
+    companion object {
+        /** @hide */
+        @JvmStatic
+        fun createFrom(
+            type: String,
+            data: Bundle,
+            requireSystemProvider: Boolean
+        ): GetCredentialOption {
+            return try {
+                when (type) {
+                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
+                        GetPasswordOption.createFrom(data)
+                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
+                        when (data.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
+                            GetPublicKeyCredentialOption
+                                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
+                                GetPublicKeyCredentialOption.createFrom(data)
+                            GetPublicKeyCredentialOptionPrivileged
+                                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED ->
+                                GetPublicKeyCredentialOptionPrivileged.createFrom(data)
+                            else -> throw FrameworkClassParsingException()
+                        }
+                    else -> throw FrameworkClassParsingException()
+                }
+            } catch (e: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a request with
+                // the raw framework values.
+                GetCredentialOption(type, data, requireSystemProvider)
+            }
+        }
+    }
+}

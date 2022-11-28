@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.GetCredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -76,6 +77,10 @@ class GetPublicKeyCredentialOptionTest {
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+        )
+        expectedData.putString(
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
@@ -89,5 +94,21 @@ class GetPublicKeyCredentialOptionTest {
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.data, expectedData)).isTrue()
         assertThat(option.requireSystemProvider).isFalse()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val option = GetPublicKeyCredentialOption("json", true)
+
+        val convertedOption = createFrom(
+            option.type, option.data, option.requireSystemProvider
+        )
+
+        assertThat(convertedOption).isInstanceOf(
+            GetPublicKeyCredentialOption::class.java
+        )
+        val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOption
+        assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
+        assertThat(convertedSubclassOption.allowHybrid).isEqualTo(option.allowHybrid)
     }
 }

@@ -36,4 +36,14 @@ public class CreatePasswordResponseJavaTest {
         assertThat(response.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertThat(TestUtilsKt.equals(response.getData(), Bundle.EMPTY)).isTrue();
     }
+
+    @Test
+    public void frameworkConversion_success() {
+        CreatePasswordResponse response = new CreatePasswordResponse();
+
+        CreateCredentialResponse convertedResponse =
+                CreateCredentialResponse.createFrom(response.getType(), response.getData());
+
+        assertThat(convertedResponse).isInstanceOf(CreatePasswordResponse.class);
+    }
 }

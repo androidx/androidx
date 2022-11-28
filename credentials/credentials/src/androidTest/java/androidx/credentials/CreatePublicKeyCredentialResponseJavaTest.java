@@ -76,4 +76,19 @@ public class CreatePublicKeyCredentialResponseJavaTest {
         assertThat(response.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(response.getData(), expectedData)).isTrue();
     }
+
+    @Test
+    public void frameworkConversion_success() {
+        CreatePublicKeyCredentialResponse response =
+                new CreatePublicKeyCredentialResponse("responseJson");
+
+        CreateCredentialResponse convertedResponse =
+                CreateCredentialResponse.createFrom(response.getType(), response.getData());
+
+        assertThat(convertedResponse).isInstanceOf(CreatePublicKeyCredentialResponse.class);
+        CreatePublicKeyCredentialResponse convertedSubclassResponse =
+                (CreatePublicKeyCredentialResponse) convertedResponse;
+        assertThat(convertedSubclassResponse.getRegistrationResponseJson())
+                .isEqualTo(response.getRegistrationResponseJson());
+    }
 }

@@ -17,9 +17,10 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialResponse.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,7 +30,18 @@ class CreatePasswordResponseTest {
     @Test
     fun getter_frameworkProperties() {
         val response = CreatePasswordResponse()
-        Truth.assertThat(response.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        Truth.assertThat(equals(response.data, Bundle.EMPTY)).isTrue()
+
+        assertThat(response.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+
+        assertThat(equals(response.data, Bundle.EMPTY)).isTrue()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val response = CreatePasswordResponse()
+
+        val convertedResponse = createFrom(response.type, response.data)
+
+        assertThat(convertedResponse).isInstanceOf(CreatePasswordResponse::class.java)
     }
 }

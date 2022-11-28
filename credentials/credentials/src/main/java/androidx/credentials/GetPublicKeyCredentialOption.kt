@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * A request to get passkeys from the user's public key credential provider.
@@ -49,13 +50,33 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+        const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION =
+            "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION"
 
         @JvmStatic
         internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {
             val bundle = Bundle()
+            bundle.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+            )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
             return bundle
+        }
+
+        @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
+                                         // boolean value from being returned.
+        @JvmStatic
+        internal fun createFrom(data: Bundle): GetPublicKeyCredentialOption {
+            try {
+                val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
+                val allowHybrid = data.get(BUNDLE_KEY_ALLOW_HYBRID)
+                return GetPublicKeyCredentialOption(requestJson!!, (allowHybrid!!) as Boolean)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
         }
     }
 }
