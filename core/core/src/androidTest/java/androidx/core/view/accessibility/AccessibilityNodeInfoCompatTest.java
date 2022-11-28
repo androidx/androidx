@@ -103,6 +103,14 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetSetMinMillisBetweenContentChanges() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setMinMillisBetweenContentChanges(200);
+        assertThat(nodeCompat.getMinMillisBetweenContentChanges(), equalTo(200));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
