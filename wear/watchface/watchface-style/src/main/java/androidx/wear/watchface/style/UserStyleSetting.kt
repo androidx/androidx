@@ -24,6 +24,7 @@ import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.icu.text.MessageFormat
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
@@ -64,6 +65,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.DigestOutputStream
 import java.security.InvalidParameterException
+import java.util.Locale
 import org.xmlpull.v1.XmlPullParser
 
 /** Wrapper around either a [CharSequence] or a string resource. */
@@ -97,9 +99,13 @@ internal sealed class DisplayText {
         resources: Resources,
         @StringRes id: Int,
     ) : ResourceDisplayText(resources, id) {
-        var index: Int? = null
+        private var indexString: String = ""
 
-        override fun toCharSequence() = resources.getString(id, index!!)
+        fun setIndex(index: Int) {
+            indexString = MessageFormat("{0,ordinal}", Locale.getDefault()).format(arrayOf(index))
+        }
+
+        override fun toCharSequence() = resources.getString(id, indexString)
     }
 }
 
@@ -151,13 +157,13 @@ public sealed class UserStyleSetting private constructor(
         for ((index, option) in options.withIndex()) {
             option.displayNameInternal?.let {
                 if (it is DisplayText.ResourceDisplayTextWithIndex) {
-                    it.index = index + 1
+                    it.setIndex(index + 1)
                 }
             }
 
             option.screenReaderNameInternal?.let {
                 if (it is DisplayText.ResourceDisplayTextWithIndex) {
-                    it.index = index + 1
+                    it.setIndex(index + 1)
                 }
             }
         }
@@ -1545,9 +1551,9 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] from which [displayNameResourceId] is load.
              * @param displayNameResourceId String resource id for a human readable name for the
              * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$d` that will get replaced with
-             * the 1-based index of the ComplicationSlotsOption in the list of
-             * ComplicationSlotsOptions.
+             * characters. Note if the resource string contains `%1$s` that will get replaced with
+             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the list
+             * of ComplicationSlotsOptions.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
@@ -1583,15 +1589,15 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] from which [displayNameResourceId] is load.
              * @param displayNameResourceId String resource id for a human readable name for the
              * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$d` that will get replaced with
-             * the 1-based index of the ComplicationSlotsOption in the list of
-             * ComplicationSlotsOptions.
+             * characters.  Note if the resource string contains `%1$s` that will get replaced with
+             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the list
+             * of ComplicationSlotsOptions.
              * @param screenReaderNameResourceId String resource id for a human readable name for
              * the element, used by screen readers. This should be more descriptive than
-             * [displayNameResourceId]. Note if the resource string contains `%1$d` that will get
-             * replaced with the 1-based index of the ComplicationSlotsOption in the list of
-             * ComplicationSlotsOptions. Note prior to android T this is ignored by companion
-             * editors.
+             * [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
+             * replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the
+             * ComplicationSlotsOption in the list of ComplicationSlotsOptions. Note prior to
+             * android T this is ignored by companion editors.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
@@ -2329,8 +2335,9 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
              * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters.  Note if the resource string contains `%1$d` that will get replaced with
-             * the 1-based index of the ListOption in the list of ListOptions.
+             * characters. Note if the resource string contains `%1$s` that will get replaced with
+             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
+             * ListOptions.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size)
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
@@ -2394,13 +2401,14 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
              * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$d` that will get replaced with
-             * the 1-based index of the ListOption in the list of ListOptions.
+             * characters. Note if the resource string contains `%1$s` that will get replaced with
+             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
+             * ListOptions.
              * @param screenReaderNameResourceId String resource id for a human readable name for
              * the element, used by screen readers. This should be more descriptive than
-             * [displayNameResourceId]. Note if the resource string contains `%1$d` that will get
-             * replaced with the 1-based index of the ListOption in the list of ListOptions. Note
-             * prior to android T this is ignored by companion editors.
+             * [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
+             * replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the
+             * list of ListOptions. Note prior to android T this is ignored by companion editors.
              * @param icon [Icon] for use in the style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
              * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
