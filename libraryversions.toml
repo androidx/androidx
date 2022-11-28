@@ -61,6 +61,7 @@ FUTURES = "1.2.0-alpha01"
 GLANCE = "1.0.0-alpha06"
 GLANCE_TEMPLATE = "1.0.0-alpha01"
 GRAPHICS = "1.0.0-alpha03"
+GRAPHICS_FILTERS = "1.0.0-alpha01"
 GRIDLAYOUT = "1.1.0-alpha01"
 HEALTH_CONNECT = "1.0.0-alpha08"
 HEALTH_SERVICES_CLIENT = "1.0.0-beta02"
@@ -199,6 +200,7 @@ FRAGMENT = { group = "androidx.fragment", atomicGroupVersion = "versions.FRAGMEN
 GLANCE = { group = "androidx.glance", atomicGroupVersion = "versions.GLANCE" }
 GLANCE_TEMPLATE = { group = "androidx.template", atomicGroupVersion = "versions.GLANCE_TEMPLATE" }
 GRAPHICS = { group = "androidx.graphics", atomicGroupVersion = "versions.GRAPHICS" }
+GRAPHICS_FILTERS = { group = "androidx.graphics.filters", atomicGroupVersion = "versions.GRAPHICS_FILTERS" }
 GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRIDLAYOUT" }
 HEALTH = { group = "androidx.health" }
 HEALTH_CONNECT = { group = "androidx.health.connect", atomicGroupVersion = "versions.HEALTH_CONNECT" }
