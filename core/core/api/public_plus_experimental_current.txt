@@ -3231,6 +3231,7 @@ package androidx.core.view.accessibility {
     method public String! getViewIdResourceName();
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getWindow();
     method public int getWindowId();
+    method public boolean hasRequestInitialAccessibilityFocus();
     method public boolean isAccessibilityFocused();
     method public boolean isCheckable();
     method public boolean isChecked();
@@ -3306,6 +3307,7 @@ package androidx.core.view.accessibility {
     method public void setParent(android.view.View!, int);
     method public void setPassword(boolean);
     method public void setRangeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat!);
+    method public void setRequestInitialAccessibilityFocus(boolean);
     method public void setRoleDescription(CharSequence?);
     method public void setScreenReaderFocusable(boolean);
     method public void setScrollable(boolean);

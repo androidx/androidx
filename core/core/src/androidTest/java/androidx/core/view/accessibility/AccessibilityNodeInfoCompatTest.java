@@ -111,6 +111,14 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetHasRequestInitialAccessibilityFocus() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setRequestInitialAccessibilityFocus(true);
+        assertThat(nodeCompat.hasRequestInitialAccessibilityFocus(), is(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
