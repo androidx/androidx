@@ -21,7 +21,9 @@ import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialUnknownException
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -241,7 +243,14 @@ class CredentialManager private constructor(private val context: Context) {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
-        throw UnsupportedOperationException("Unimplemented")
+        val provider: CredentialProvider? = CredentialProviderFactory
+            .getBestAvailableProvider(context)
+        if (provider == null) {
+            // TODO (Update with the right error code when ready)
+            callback.onError(GetCredentialUnknownException("No providers found"))
+            return
+        }
+        provider.onGetCredential(request, activity, cancellationSignal, executor, callback)
     }
 
     /**
@@ -268,7 +277,14 @@ class CredentialManager private constructor(private val context: Context) {
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
-        throw UnsupportedOperationException("Unimplemented")
+        val provider: CredentialProvider? = CredentialProviderFactory
+            .getBestAvailableProvider(context)
+        if (provider == null) {
+            // TODO (Update with the right error code when ready)
+            callback.onError(CreateCredentialUnknownException("No providers found"))
+            return
+        }
+        provider.onCreateCredential(request, activity, cancellationSignal, executor, callback)
     }
 
     /**
