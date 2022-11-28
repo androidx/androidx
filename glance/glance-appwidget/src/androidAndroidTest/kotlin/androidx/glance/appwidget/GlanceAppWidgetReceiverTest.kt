@@ -889,6 +889,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @FlakyTest(bugId = 259938473)
     @Test
     fun unsetActionCallback() = runTest {
         TestGlanceAppWidget.uiDefinition = {
