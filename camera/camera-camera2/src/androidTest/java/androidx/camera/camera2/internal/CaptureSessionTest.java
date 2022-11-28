@@ -99,6 +99,7 @@ import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -303,6 +304,7 @@ public final class CaptureSessionTest {
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
 
+    @Ignore("b/259932467")
     @SdkSuppress(maxSdkVersion = 32)
     @Test
     public void getStreamUseCaseFromUseCaseConfigsNotSupported() {
