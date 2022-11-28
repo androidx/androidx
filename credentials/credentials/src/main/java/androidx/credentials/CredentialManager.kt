@@ -97,9 +97,6 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
-     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
-     * 34 or above.
-     *
      * @param request the request for getting the credential
      * @param activity the activity used to potentially launch any UI needed
      * @throws UnsupportedOperationException Since the api is unimplemented
@@ -107,7 +104,7 @@ class CredentialManager private constructor(private val context: Context) {
     // TODO(helenqin): support failure flow.
     suspend fun executeGetCredential(
         request: GetCredentialRequest,
-        activity: Activity? = null,
+        activity: Activity,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
@@ -142,16 +139,13 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
-     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
-     * 34 or above.
-     *
      * @param request the request for creating the credential
      * @param activity the activity used to potentially launch any UI needed
      * @throws UnsupportedOperationException Since the api is unimplemented
      */
     suspend fun executeCreateCredential(
         request: CreateCredentialRequest,
-        activity: Activity? = null,
+        activity: Activity,
     ): CreateCredentialResponse = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
@@ -226,9 +220,6 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
-     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
-     * 34 or above.
-     *
      * @param request the request for getting the credential
      * @param activity an optional activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
@@ -238,7 +229,7 @@ class CredentialManager private constructor(private val context: Context) {
      */
     fun executeGetCredentialAsync(
         request: GetCredentialRequest,
-        activity: Activity?,
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -260,9 +251,6 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
-     * Note: the [activity] parameter is no longer needed if your app targets minimum SDK version
-     * 34 or above.
-     *
      * @param request the request for creating the credential
      * @param activity an optional activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
@@ -272,7 +260,7 @@ class CredentialManager private constructor(private val context: Context) {
      */
     fun executeCreateCredentialAsync(
         request: CreateCredentialRequest,
-        activity: Activity?,
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
