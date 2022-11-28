@@ -81,12 +81,7 @@ class InteractionController {
         @Override
         public boolean accept(AccessibilityEvent t) {
             // check current event in the list
-            if ((t.getEventType() & mMask) != 0) {
-                return true;
-            }
-
-            // no match yet
-            return false;
+            return (t.getEventType() & mMask) != 0;
         }
     }
 
@@ -211,8 +206,7 @@ class InteractionController {
 
         if (touchDown(x, y)) {
             SystemClock.sleep(REGULAR_CLICK_LENGTH);
-            if (touchUp(x, y))
-                return true;
+            return touchUp(x, y);
         }
         return false;
     }
@@ -302,9 +296,7 @@ class InteractionController {
 
         if (touchDown(x, y)) {
             SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
-            if(touchUp(x, y)) {
-                return true;
-            }
+            return touchUp(x, y);
         }
         return false;
     }
@@ -470,8 +462,9 @@ class InteractionController {
             SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
         for(int i = 1; i < swipeSteps; i++) {
             ret &= touchMove(downX + (int)(xStep * i), downY + (int)(yStep * i));
-            if(ret == false)
+            if (!ret) {
                 break;
+            }
             // set some known constant delay between steps as without it this
             // become completely dependent on the speed of the system and results
             // may vary on different devices. This guarantees at minimum we have
@@ -515,8 +508,9 @@ class InteractionController {
                 for(int i = 1; i < swipeSteps; i++) {
                     ret &= touchMove(segments[seg].x + (int)(xStep * i),
                             segments[seg].y + (int)(yStep * i));
-                    if(ret == false)
+                    if (!ret) {
                         break;
+                    }
                     // set some known constant delay between steps as without it this
                     // become completely dependent on the speed of the system and results
                     // may vary on different devices. This guarantees at minimum we have
@@ -569,9 +563,7 @@ class InteractionController {
             KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP,
                     keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
                     InputDevice.SOURCE_KEYBOARD);
-            if(injectEventSync(upEvent)) {
-                return true;
-            }
+            return injectEventSync(upEvent);
         }
         return false;
     }
@@ -704,15 +696,14 @@ class InteractionController {
      *        </code>otherwise
      */
     public boolean performMultiPointerGesture(PointerCoords[] ... touches) {
-        boolean ret = true;
+        boolean ret;
         if (touches.length < 2) {
             throw new IllegalArgumentException("Must provide coordinates for at least 2 pointers");
         }
 
         // Get the pointer with the max steps to inject.
         int maxSteps = 0;
-        for (int x = 0; x < touches.length; x++)
-            maxSteps = (maxSteps < touches[x].length) ? touches[x].length : maxSteps;
+        for (PointerCoords[] touch : touches) maxSteps = Math.max(maxSteps, touch.length);
 
         // specify the properties for each pointer as finger touch
         PointerProperties[] properties = new PointerProperties[touches.length];
@@ -732,7 +723,7 @@ class InteractionController {
         MotionEvent event;
         event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 1,
                 properties, pointerCoords, 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
-        ret &= injectEventSync(event);
+        ret = injectEventSync(event);
 
         for (int x = 1; x < touches.length; x++) {
             event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
