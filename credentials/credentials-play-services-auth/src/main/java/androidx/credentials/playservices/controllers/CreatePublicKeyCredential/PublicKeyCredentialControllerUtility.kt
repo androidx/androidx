@@ -24,8 +24,8 @@ import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialAbortException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotReadableException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialConstraintException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotReadableException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
@@ -40,6 +40,7 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity
+import com.google.android.gms.fido.fido2.api.common.ResidentKeyRequirement
 import java.util.concurrent.Executor
 import org.json.JSONArray
 import org.json.JSONObject
@@ -122,9 +123,13 @@ class PublicKeyCredentialControllerUtility {
                     "authenticatorSelection")
                 val requireResidentKey = authenticatorSelection.getBoolean(
                     "requireResidentKey")
+                val residentKey = authenticatorSelection.getString("residentKey")
                 builder.setAuthenticatorSelection(
                     AuthenticatorSelectionCriteria.Builder()
-                        .setRequireResidentKey(requireResidentKey).build()
+                        .setRequireResidentKey(requireResidentKey)
+                        .setResidentKeyRequirement(
+                            ResidentKeyRequirement.fromString(residentKey))
+                        .build()
                 )
             }
 
