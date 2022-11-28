@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -68,6 +69,7 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
         assertThat(resource).isNull()
     }
 
+    @Ignore("b/259935997")
     @Test
     fun getResources_delegateToAppClassloaderWithPrefix() {
         val classLoader = factoryUnderTest.loadSdk(testSdkConfig, appClassloader.parent!!)
