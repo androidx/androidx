@@ -459,6 +459,7 @@ WARN: Missing @param tag for parameter `context` of function androidx\.graphics\
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/getOrCreate/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/isAvailable/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
 WARN: Missing @param tag for parameter `context` of function androidx\.health\.connect\.client/HealthConnectClient\.Companion/isProviderAvailable/\#android\.content\.Context\#kotlin\.collections\.List\[kotlin\.String\]/PointingToDeclaration/
+WARN: Failed to resolve `@see androidx\.health\.data\.client\.HealthDataClient\.getChanges`!
 Did you mean androidx\.health\.data\.client\.HealthDataClient\#getChanges\?
 WARN: Missing @param tag for parameter `query` of function androidx\.leanback\.app/SearchFragment/createArgs/\#android\.os\.Bundle\#java\.lang\.String/PointingToDeclaration/
 WARN: Missing @param tag for parameter `query` of function androidx\.leanback\.app/SearchSupportFragment/createArgs/\#android\.os\.Bundle\#java\.lang\.String/PointingToDeclaration/
