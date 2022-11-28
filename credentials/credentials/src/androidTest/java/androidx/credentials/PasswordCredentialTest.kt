@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.Credential.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
@@ -60,5 +61,19 @@ class PasswordCredentialTest {
 
         assertThat(credential.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(credential.data, expectedData)).isTrue()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val credential = CreatePasswordRequest("id", "password")
+
+        val convertedCredential = createFrom(
+            credential.type, credential.data
+        )
+
+        assertThat(convertedCredential).isInstanceOf(PasswordCredential::class.java)
+        val convertedSubclassCredential = convertedCredential as PasswordCredential
+        assertThat(convertedSubclassCredential.password).isEqualTo(credential.password)
+        assertThat(convertedSubclassCredential.id).isEqualTo(credential.id)
     }
 }

@@ -80,6 +80,19 @@ public class PublicKeyCredentialJavaTest {
     }
 
     @Test
+    public void frameworkConversion_success() {
+        PublicKeyCredential credential = new PublicKeyCredential("json");
+
+        Credential convertedCredential = Credential.createFrom(
+                credential.getType(), credential.getData());
+
+        assertThat(convertedCredential).isInstanceOf(PublicKeyCredential.class);
+        PublicKeyCredential convertedSubclassCredential = (PublicKeyCredential) convertedCredential;
+        assertThat(convertedSubclassCredential.getAuthenticationResponseJson())
+                .isEqualTo(credential.getAuthenticationResponseJson());
+    }
+
+    @Test
     public void staticProperty_hasCorrectTypeConstantValue() {
         String typeExpected = "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL";
         String typeActual = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL;

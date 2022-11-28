@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * A privileged request to register a passkey from the user’s public key credential provider, where
@@ -115,6 +116,10 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
         const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+        const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED =
+            "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_" +
+                "PRIVILEGED"
 
         @JvmStatic
         internal fun toBundle(
@@ -124,11 +129,35 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
             allowHybrid: Boolean
         ): Bundle {
             val bundle = Bundle()
+            bundle.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIVILEGED
+            )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putString(BUNDLE_KEY_RELYING_PARTY, relyingParty)
             bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             bundle.putBoolean(BUNDLE_KEY_ALLOW_HYBRID, allowHybrid)
             return bundle
+        }
+
+        @Suppress("deprecation") // bundle.get() used for boolean value to prevent default
+                                         // boolean value from being returned.
+        @JvmStatic
+        internal fun createFrom(data: Bundle): CreatePublicKeyCredentialRequestPrivileged {
+            try {
+                val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
+                val rp = data.getString(BUNDLE_KEY_RELYING_PARTY)
+                val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
+                val allowHybrid = data.get(BUNDLE_KEY_ALLOW_HYBRID)
+                return CreatePublicKeyCredentialRequestPrivileged(
+                    requestJson!!,
+                    rp!!,
+                    clientDataHash!!,
+                    (allowHybrid!!) as Boolean,
+                )
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
         }
     }
 }

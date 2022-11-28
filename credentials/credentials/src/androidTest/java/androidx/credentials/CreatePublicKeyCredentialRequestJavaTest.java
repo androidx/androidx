@@ -92,6 +92,10 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         boolean allowHybridExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                CreatePublicKeyCredentialRequest
+                        .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST);
+        expectedData.putString(
                 BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putBoolean(
                 BUNDLE_KEY_ALLOW_HYBRID, allowHybridExpected);
@@ -102,5 +106,21 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(request.getData(), expectedData)).isTrue();
         assertThat(request.getRequireSystemProvider()).isFalse();
+    }
+
+    @Test
+    public void frameworkConversion_success() {
+        CreatePublicKeyCredentialRequest request =
+                new CreatePublicKeyCredentialRequest("json", true);
+
+        CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
+                request.getType(), request.getData(), request.getRequireSystemProvider()
+        );
+
+        assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequest.class);
+        CreatePublicKeyCredentialRequest convertedSubclassRequest =
+                (CreatePublicKeyCredentialRequest) convertedRequest;
+        assertThat(convertedSubclassRequest.getRequestJson()).isEqualTo(request.getRequestJson());
+        assertThat(convertedSubclassRequest.allowHybrid()).isEqualTo(request.allowHybrid());
     }
 }

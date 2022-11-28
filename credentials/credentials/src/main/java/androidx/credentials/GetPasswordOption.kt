@@ -23,4 +23,13 @@ class GetPasswordOption : GetCredentialOption(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     Bundle(),
     false,
-)
+) {
+    /** @hide */
+    companion object {
+        @Suppress("UNUSED_PARAMETER")
+        @JvmStatic
+        internal fun createFrom(data: Bundle): GetPasswordOption {
+            return GetPasswordOption()
+        }
+    }
+}

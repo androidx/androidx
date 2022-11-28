@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * A response of a public key credential (passkey) flow.
@@ -49,6 +50,17 @@ class CreatePublicKeyCredentialResponse(
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_REGISTRATION_RESPONSE_JSON, registrationResponseJson)
             return bundle
+        }
+
+        @JvmStatic
+        internal fun createFrom(data: Bundle): CreatePublicKeyCredentialResponse {
+            try {
+                val registrationResponseJson =
+                    data.getString(BUNDLE_KEY_REGISTRATION_RESPONSE_JSON)
+                return CreatePublicKeyCredentialResponse(registrationResponseJson!!)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
         }
     }
 }

@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialRequest.Companion.createFrom
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_ALLOW_HYBRID
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,6 +80,11 @@ class CreatePublicKeyCredentialRequestTest {
         val allowHybridExpected = false
         val expectedData = Bundle()
         expectedData.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            CreatePublicKeyCredentialRequest
+                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
+        )
+        expectedData.putString(
             BUNDLE_KEY_REQUEST_JSON, requestJsonExpected
         )
         expectedData.putBoolean(
@@ -93,5 +99,21 @@ class CreatePublicKeyCredentialRequestTest {
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(request.data, expectedData)).isTrue()
         assertThat(request.requireSystemProvider).isFalse()
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val request = CreatePublicKeyCredentialRequest("json", true)
+
+        val convertedRequest = createFrom(
+            request.type, request.data, request.requireSystemProvider
+        )
+
+        assertThat(convertedRequest).isInstanceOf(
+            CreatePublicKeyCredentialRequest::class.java
+        )
+        val convertedSubclassRequest = convertedRequest as CreatePublicKeyCredentialRequest
+        assertThat(convertedSubclassRequest.requestJson).isEqualTo(request.requestJson)
+        assertThat(convertedSubclassRequest.allowHybrid).isEqualTo(request.allowHybrid)
     }
 }
