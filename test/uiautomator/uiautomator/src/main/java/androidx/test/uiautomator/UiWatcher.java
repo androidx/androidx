@@ -43,5 +43,5 @@ public interface UiWatcher {
      *
      * @return true to indicate a matched condition or false for nothing was matched
      */
-    public boolean checkForCondition();
+    boolean checkForCondition();
 }
