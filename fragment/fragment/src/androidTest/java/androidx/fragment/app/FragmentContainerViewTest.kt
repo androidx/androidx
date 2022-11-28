@@ -769,7 +769,7 @@ class FragmentContainerViewTest {
         var onDetachFromWindowLatch = CountDownLatch(1)
         var onAnimationEndLatch = CountDownLatch(1)
 
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             setDrawnFirstView(this)
         }

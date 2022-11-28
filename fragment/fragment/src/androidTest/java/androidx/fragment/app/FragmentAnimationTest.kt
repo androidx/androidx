@@ -1058,7 +1058,7 @@ class FragmentAnimationTest {
 
     class DrawView(context: android.content.Context) : View(context) {
         val onDrawCountDownLatch = CountDownLatch(1)
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             onDrawCountDownLatch.countDown()
         }
