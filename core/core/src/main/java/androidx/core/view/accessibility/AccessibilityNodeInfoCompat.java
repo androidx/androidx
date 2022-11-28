@@ -1324,6 +1324,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
+    private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -4236,6 +4237,40 @@ public class AccessibilityNodeInfoCompat {
         } else {
             setBooleanProperty(BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY, isTextEntryKey);
         }
+    }
+
+    /**
+     * Gets whether the node has {@link #setRequestInitialAccessibilityFocus}.
+     *
+     * @return True if the node has requested initial accessibility focus.
+     */
+    @SuppressLint("KotlinPropertyAccess")
+    public boolean hasRequestInitialAccessibilityFocus() {
+        return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+    }
+
+    /**
+     * Sets whether the node has requested initial accessibility focus.
+     *
+     * <p>
+     * If the node {@link #hasRequestInitialAccessibilityFocus}, this node would be one of
+     * candidates to be accessibility focused when the window appears.
+     * </p>
+     *
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param requestInitialAccessibilityFocus True if the node requests to receive initial
+     *                                         accessibility focus.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @SuppressLint("GetterSetterNames")
+    public void setRequestInitialAccessibilityFocus(boolean requestInitialAccessibilityFocus) {
+        setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
+                requestInitialAccessibilityFocus);
     }
 
     /**
