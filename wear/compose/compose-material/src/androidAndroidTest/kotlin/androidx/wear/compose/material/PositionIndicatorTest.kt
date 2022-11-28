@@ -16,8 +16,10 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -200,7 +203,7 @@ public class PositionIndicatorTest {
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
         scrollableScalingLazyColumnPositionAndSize(
             enableAutoCentering = true,
-            contentPadding = PaddingValues(0.dp)
+            contentPaddingPx = 0
         )
     }
 
@@ -209,7 +212,7 @@ public class PositionIndicatorTest {
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPadding() {
         scrollableScalingLazyColumnPositionAndSize(
             enableAutoCentering = true,
-            contentPadding = PaddingValues(50.dp)
+            contentPaddingPx = itemSizePx + itemSpacingPx
         )
     }
 
@@ -217,13 +220,13 @@ public class PositionIndicatorTest {
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPaddingNoAutoCenter() {
         scrollableScalingLazyColumnPositionAndSize(
             enableAutoCentering = false,
-            contentPadding = PaddingValues(50.dp)
+            contentPaddingPx = itemSizePx + itemSpacingPx
         )
     }
 
     private fun scrollableScalingLazyColumnPositionAndSize(
         enableAutoCentering: Boolean,
-        contentPadding: PaddingValues
+        contentPaddingPx: Int
     ) {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -239,14 +242,17 @@ public class PositionIndicatorTest {
                     .requiredHeight(
                         // Exactly the right size to hold 3 items with spacing
                         itemSizeDp * 3f + itemSpacingDp * 2f
-                    ),
+                    )
+                    .background(Color.Black),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
                 autoCentering = if (enableAutoCentering)
                     AutoCenteringParams(itemIndex = 0) else null,
-                contentPadding = contentPadding
+                contentPadding = with(LocalDensity.current) {
+                    PaddingValues(contentPaddingPx.toDp())
+                }
             ) {
                 items(5) {
-                    Box(Modifier.requiredSize(itemSizeDp))
+                    Box(Modifier.requiredSize(itemSizeDp).border(BorderStroke(1.dp, Color.Green)))
                 }
             }
             PositionIndicator(

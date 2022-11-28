@@ -118,7 +118,7 @@ class ScalingLazyListState constructor(
             gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
             anchorType.value == null || reverseLayout.value == null ||
             beforeContentPaddingPx.value == null || autoCentering.value == null ||
-            autoCentering.value == null || layoutInfo.internalVisibleItemInfo().isEmpty()
+            autoCentering.value == null
         ) {
             0
         } else {
@@ -539,8 +539,8 @@ class ScalingLazyListState constructor(
         visibleItems: List<ScalingLazyListItemInfo>,
         totalItemCount: Int
     ): Int {
-        if (autoCentering.value == null || visibleItems.isEmpty() ||
-            visibleItems.first().index != 0) return 0
+        if (autoCentering.value == null ||
+            (visibleItems.isNotEmpty() && visibleItems.first().index != 0)) return 0
 
         // Work out the index we want to find - if there are less items in the list than would be
         // needed to make initialItemIndex be visible then use the last visible item
@@ -550,7 +550,7 @@ class ScalingLazyListState constructor(
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItem =
-            visibleItems.find { it.index == itemIndexToFind } ?: return 0
+            visibleItems.find { it.index == itemIndexToFind }
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItem)
@@ -589,7 +589,7 @@ class ScalingLazyListState constructor(
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItem =
-            visibleItems.find { it.index == itemIndexToFind } ?: return true
+            visibleItems.find { it.index == itemIndexToFind }
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItem)
@@ -609,13 +609,13 @@ class ScalingLazyListState constructor(
         return spaceNeeded < gapBetweenItemsPx.value!!
     }
 
-    private fun spaceNeeded(item: ScalingLazyListItemInfo) =
+    private fun spaceNeeded(item: ScalingLazyListItemInfo?) =
         viewportCenterLinePx() - gapBetweenItemsPx.value!! - autoCentering.value!!.itemOffset -
-            item.unadjustedItemSizeAboveOffsetPoint()
+            (item?.unadjustedItemSizeAboveOffsetPoint() ?: 0)
 
-    private fun spaceNeeded(item: LazyListItemInfo) =
+    private fun spaceNeeded(item: LazyListItemInfo?) =
         viewportCenterLinePx() - gapBetweenItemsPx.value!! - autoCentering.value!!.itemOffset -
-            item.itemSizeAboveOffsetPoint()
+            (item?.itemSizeAboveOffsetPoint() ?: 0)
 
     private fun calculateBottomAutoCenteringPaddingPx(
         visibleItemsInfo: List<ScalingLazyListItemInfo>,
