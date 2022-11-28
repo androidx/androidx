@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.Timebase;
@@ -288,8 +289,9 @@ final class VideoEncoderSession {
             @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles,
             @NonNull MediaSpec mediaSpec,
             @NonNull CallbackToFutureAdapter.Completer<Encoder> configureCompleter) {
-        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec,
-                surfaceRequest.getDynamicRange(), resolvedEncoderProfiles);
+        DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
+        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
+                resolvedEncoderProfiles);
 
         // The VideoSpec from mediaSpec only contains settings requested by the recorder, but
         // the actual settings may need to differ depending on the FPS chosen by the camera.
@@ -299,6 +301,7 @@ final class VideoEncoderSession {
                 timebase,
                 mediaSpec.getVideoSpec(),
                 surfaceRequest.getResolution(),
+                dynamicRange,
                 surfaceRequest.getExpectedFrameRate());
 
         try {

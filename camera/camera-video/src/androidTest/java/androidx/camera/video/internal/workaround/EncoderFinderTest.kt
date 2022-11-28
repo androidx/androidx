@@ -169,6 +169,7 @@ class EncoderFinderTest(
                 videoSpec,
                 resolution,
                 videoProfile,
+                dynamicRange,
                 SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().toMediaFormat()
 
