@@ -1314,6 +1314,10 @@ public class AccessibilityNodeInfoCompat {
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
+    private static final String MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat."
+                    + "MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY";
+
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
     private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
@@ -2124,11 +2128,11 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT < 19) {
             return new ArrayList<Integer>();
         }
-        ArrayList<Integer> list = mInfo.getExtras()
+        ArrayList<Integer> list = Api19Impl.getExtras(mInfo)
                 .getIntegerArrayList(key);
         if (list == null) {
             list = new ArrayList<Integer>();
-            mInfo.getExtras().putIntegerArrayList(key, list);
+            Api19Impl.getExtras(mInfo).putIntegerArrayList(key, list);
         }
         return list;
     }
@@ -2736,6 +2740,37 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the minimum time duration between two content change events.
+     */
+    public int getMinMillisBetweenContentChanges() {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY);
+        }
+        return 0;
+    }
+
+    /**
+     * Sets the minimum time duration between two content change events, which is used in throttling
+     * content change events in accessibility services.
+     *
+     * <p>
+     * Example: An app can set MinMillisBetweenContentChanges as 1 min for a view which sends
+     * content change events to accessibility services one event per second.
+     * Accessibility service will throttle those content change events and only handle one event
+     * per minute for that view.
+     * </p>
+     *
+     * @see AccessibilityEventCompat#getContentChangeTypes for all content change types.
+     * @param minMillisBetweenContentChanges the minimum duration between content change events.
+     */
+    public void setMinMillisBetweenContentChanges(int minMillisBetweenContentChanges) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY,
+                    minMillisBetweenContentChanges);
+        }
+    }
+
+    /**
      * Returns whether the node originates from a view considered important for accessibility.
      *
      * @return {@code true} if the node originates from a view considered important for
@@ -2923,10 +2958,10 @@ public class AccessibilityNodeInfoCompat {
 
     private void clearExtrasSpans() {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().remove(SPANS_START_KEY);
-            mInfo.getExtras().remove(SPANS_END_KEY);
-            mInfo.getExtras().remove(SPANS_FLAGS_KEY);
-            mInfo.getExtras().remove(SPANS_ID_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_START_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_END_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_FLAGS_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_ID_KEY);
         }
     }
 
@@ -2971,7 +3006,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastR()) {
             return mInfo.getStateDescription();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(STATE_DESCRIPTION_KEY);
         }
         return null;
     }
@@ -3006,7 +3041,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastR()) {
             mInfo.setStateDescription(stateDescription);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+            Api19Impl.getExtras(mInfo).putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
         }
     }
 
@@ -3021,7 +3056,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastT()) {
             return mInfo.getUniqueId();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getString(UNIQUE_ID_KEY);
+            return Api19Impl.getExtras(mInfo).getString(UNIQUE_ID_KEY);
         }
         return null;
     }
@@ -3042,7 +3077,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastT()) {
             mInfo.setUniqueId(uniqueId);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);
+            Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
     }
 
@@ -3370,7 +3405,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 26) {
             return mInfo.getHintText();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(HINT_TEXT_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(HINT_TEXT_KEY);
         }
         return null;
     }
@@ -3392,7 +3427,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 26) {
             mInfo.setHintText(hintText);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(HINT_TEXT_KEY, hintText);
+            Api19Impl.getExtras(mInfo).putCharSequence(HINT_TEXT_KEY, hintText);
         }
     }
 
@@ -3600,7 +3635,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public Bundle getExtras() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras();
+            return Api19Impl.getExtras(mInfo);
         } else {
             return new Bundle();
         }
@@ -4002,7 +4037,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getTooltipText();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(TOOLTIP_TEXT_KEY);
         }
         return null;
     }
@@ -4024,7 +4059,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setTooltipText(tooltipText);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
+            Api19Impl.getExtras(mInfo).putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
         }
     }
 
@@ -4044,7 +4079,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setPaneTitle(paneTitle);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);
+            Api19Impl.getExtras(mInfo).putCharSequence(PANE_TITLE_KEY, paneTitle);
         }
     }
 
@@ -4058,7 +4093,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getPaneTitle();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(PANE_TITLE_KEY);
         }
         return null;
     }
@@ -4225,7 +4260,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public @Nullable CharSequence getRoleDescription() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(ROLE_DESCRIPTION_KEY);
         } else {
             return null;
         }
@@ -4257,7 +4292,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+            Api19Impl.getExtras(mInfo).putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
         }
     }
 
@@ -4530,6 +4565,18 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
             info.setTextSelectable(selectable);
+        }
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static Bundle getExtras(AccessibilityNodeInfo info) {
+            return info.getExtras();
         }
     }
 }
