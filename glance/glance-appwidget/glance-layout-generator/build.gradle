@@ -37,7 +37,6 @@ androidx {
     name = "Glance AppWidget Layout Generator"
     type = LibraryType.OTHER_CODE_PROCESSOR
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Generator module that generates the layouts Glance AppWidget needs."
 }
