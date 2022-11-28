@@ -53,8 +53,8 @@ interface SupportSQLiteDatabase : Closeable {
      *
      * ```
      *  db.beginTransaction()
-     *      try {
-     *          ...
+     *  try {
+     *      ...
      *      db.setTransactionSuccessful()
      *  } finally {
      *      db.endTransaction()
@@ -75,10 +75,10 @@ interface SupportSQLiteDatabase : Closeable {
      *
      * ```
      *  db.beginTransactionNonExclusive()
-     *      try {
-     *          ...
+     *  try {
+     *      ...
      *      db.setTransactionSuccessful()
-     *          } finally {
+     *  } finally {
      *      db.endTransaction()
      *  }
      *  ```
@@ -126,7 +126,7 @@ interface SupportSQLiteDatabase : Closeable {
      *  db.beginTransactionWithListenerNonExclusive(listener)
      *  try {
      *      ...
-     *  db.setTransactionSuccessful()
+     *      db.setTransactionSuccessful()
      *  } finally {
      *      db.endTransaction()
      *  }
