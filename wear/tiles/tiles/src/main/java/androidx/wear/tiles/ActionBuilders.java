@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.StateBuilders.State;
-import androidx.wear.tiles.proto.ActionProto;
+import androidx.wear.protolayout.proto.ActionProto;
 
 import java.util.Collections;
 import java.util.Map;

@@ -21,7 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.TypesProto;
+import androidx.wear.protolayout.proto.TypesProto;
 
 /** Builders for extensible primitive types used by layout elements. */
 public final class TypeBuilders {

@@ -2,14 +2,14 @@
 // UI layouts.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
 import "color.proto";
 import "dimension.proto";
 import "modifiers.proto";
 import "types.proto";
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "LayoutElementProto";
 
 // The horizontal alignment of an element within its container.

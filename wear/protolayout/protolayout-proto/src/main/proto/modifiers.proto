@@ -1,14 +1,14 @@
 // Modifiers for composable layout elements.
 syntax = "proto3";
 
-package androidx.wear.tiles.proto;
+package androidx.wear.protolayout.proto;
 
 import "action.proto";
 import "color.proto";
 import "dimension.proto";
 import "types.proto";
 
-option java_package = "androidx.wear.tiles.proto";
+option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ModifiersProto";
 
 // A modifier for an element which can have associated Actions for click events.

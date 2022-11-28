@@ -42,9 +42,9 @@ import androidx.wear.tiles.ModifiersBuilders.SpanModifiers;
 import androidx.wear.tiles.TypeBuilders.BoolProp;
 import androidx.wear.tiles.TypeBuilders.Int32Prop;
 import androidx.wear.tiles.TypeBuilders.StringProp;
-import androidx.wear.tiles.proto.LayoutElementProto;
-import androidx.wear.tiles.proto.TypesProto;
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

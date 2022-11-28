@@ -13,17 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.LibraryType
-
+import androidx.build.RunApiTasks
 plugins {
     id("AndroidXPlugin")
     id("java-library")
+    id("com.google.protobuf")
+    id("com.github.johnrengelman.shadow")
+}
+configurations {
+    shadowed
+    compileOnly.extendsFrom(shadowed)
+    testCompile.extendsFrom(shadowed)
+}
+dependencies {
+    implementation("androidx.annotation:annotation:1.1.0")
+    shadowed(libs.protobufLite)
 }
 
-dependencies {
-    annotationProcessor(libs.nullaway)
-    implementation("androidx.annotation:annotation:1.1.0")
+// HACK: Move standard JAR to have another suffix and build a shadowJar with
+// no classifier (so it's picked up as the primary artifact).
+jar {
+    archiveClassifier = 'before-shadow'
+}
+
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shadowed]
+
+    relocate "com.google.protobuf", "androidx.wear.protolayout.protobuf"
+    exclude("**/*.proto")
+}
+
+configurations {
+    apiElements.outgoing.artifacts.clear()
+    apiElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+    runtimeElements.outgoing.artifacts.clear()
+    runtimeElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+
+    generateProtoTasks {
+        ofSourceSet("main").each { task ->
+            sourceSets.main.java.srcDir(task)
+        }
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
+        }
+    }
 }
 
 androidx {
@@ -32,4 +90,6 @@ androidx {
     mavenGroup = LibraryGroups.WEAR_PROTOLAYOUT
     inceptionYear = "2022"
     description = "Jarjar the generated proto and proto-lite dependency for use by wear-protolayout"
+    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
+            "(b/180579063)")
 }
