@@ -187,7 +187,8 @@ by boxScope {
             modifier,
             transitionSpec,
             contentAlignment,
-            content)
+            content = content
+        )
     }
 }
 
