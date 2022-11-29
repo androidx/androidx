@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
@@ -71,7 +70,7 @@ class SurfaceEdgeTest {
     @Before
     fun setUp() {
         surfaceEdge = SurfaceEdge(
-            CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
+            CameraEffect.PREVIEW, Size(640, 480),
             Matrix(), true, Rect(), 0, false
         ) {}
         fakeSurfaceTexture = SurfaceTexture(0)
@@ -205,8 +204,7 @@ class SurfaceEdgeTest {
     private fun getSurfaceRequestHasTransform(hasCameraTransform: Boolean): Boolean {
         // Arrange.
         val surface = SurfaceEdge(
-            CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
-            Matrix(), hasCameraTransform, Rect(), 0, false
+            CameraEffect.PREVIEW, Size(640, 480), Matrix(), hasCameraTransform, Rect(), 0, false
         ) {}
         var transformationInfo: TransformationInfo? = null
 

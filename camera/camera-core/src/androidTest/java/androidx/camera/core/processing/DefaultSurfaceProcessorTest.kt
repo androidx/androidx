@@ -24,7 +24,6 @@ import android.view.Surface
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
-import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.HandlerUtil
@@ -312,7 +311,6 @@ class DefaultSurfaceProcessorTest {
         SurfaceOutputImpl(
             surface,
             CameraEffect.PREVIEW,
-            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             Size(WIDTH, HEIGHT),
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
