@@ -84,21 +84,25 @@ class EmojiPickerView @JvmOverloads constructor(
         typedArray.recycle()
 
         CoroutineScope(Dispatchers.IO).launch {
-            BundledEmojiListLoader.load(context)
+            val load = launch { BundledEmojiListLoader.load(context) }
+            val recent = recentEmojiProvider.getRecentItemList()
+            load.join()
+
             withContext(Dispatchers.Main) {
-                showEmojiPickerView(context)
+                showEmojiPickerView(context, recent)
             }
         }
     }
 
-    private suspend fun createEmojiPickerBodyAdapter(
+    private fun createEmojiPickerBodyAdapter(
+        recent: List<String>,
         categorizedEmojiData: List<BundledEmojiListLoader.EmojiDataCategory>,
         variantToBaseEmojiMap: Map<String, String>,
         baseToVariantsEmojiMap: Map<String, List<String>>,
         onEmojiPickedListener: Consumer<EmojiViewItem>?,
         recentEmojiProvider: RecentEmojiProvider
     ): EmojiPickerBodyAdapter {
-        val recentItems = recentEmojiProvider.getRecentItemList().map {
+        val recentItems = recent.map {
             EmojiViewData(
                 it,
                 baseToVariantsEmojiMap[variantToBaseEmojiMap[it]] ?: listOf(),
@@ -139,7 +143,7 @@ class EmojiPickerView @JvmOverloads constructor(
         return adapter
     }
 
-    private suspend fun showEmojiPickerView(context: Context) {
+    private fun showEmojiPickerView(context: Context, recent: List<String>) {
         // get emoji picker
         val emojiPicker = inflate(context, R.layout.emoji_picker, this)
 
@@ -175,6 +179,7 @@ class EmojiPickerView @JvmOverloads constructor(
         val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()
         bodyView.adapter =
             createEmojiPickerBodyAdapter(
+                recent,
                 categorizedEmojiData,
                 variantToBaseEmojiMap,
                 baseToVariantsEmojiMap,

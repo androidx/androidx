@@ -14,15 +14,21 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.emoji2.emojipicker.EmojiPickerView
         android:id="@+id/emoji_picker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:emojiGridRows="6"
+        app:emojiGridRows="5"
         app:emojiGridColumns="20" />
-</FrameLayout>
+</LinearLayout>
