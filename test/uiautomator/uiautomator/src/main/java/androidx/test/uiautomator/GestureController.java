@@ -227,8 +227,8 @@ class GestureController {
 
     /** Helper class which tracks an individual pointer as part of a MotionEvent. */
     private static class Pointer {
-        PointerProperties prop;
-        PointerCoords coords;
+        final PointerProperties prop;
+        final PointerCoords coords;
 
         public Pointer(int id, Point point) {
             prop = new PointerProperties();
