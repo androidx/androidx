@@ -188,6 +188,81 @@ public abstract class AppSearchSessionInternalTestBase {
     }
 
     @Test
+    public void testSearchSuggestion_documentIdFilter() throws Exception {
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Type").addProperty(
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace1", "id1", "Type")
+                .setPropertyString("body", "termone")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace1", "id2", "Type")
+                .setPropertyString("body", "termtwo")
+                .build();
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace2", "id3", "Type")
+                .setPropertyString("body", "termthree")
+                .build();
+        GenericDocument doc4 = new GenericDocument.Builder<>("namespace2", "id4", "Type")
+                .setPropertyString("body", "termfour")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(doc1, doc2, doc3, doc4).build()));
+
+        SearchSuggestionResult resultOne =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termone").build();
+        SearchSuggestionResult resultTwo =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termtwo").build();
+        SearchSuggestionResult resultThree =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termthree").build();
+        SearchSuggestionResult resultFour =
+                new SearchSuggestionResult.Builder().setSuggestedResult("termfour").build();
+
+        // Only search for namespace1/doc1
+        List<SearchSuggestionResult> suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterNamespaces("namespace1")
+                        .addFilterDocumentIds("namespace1", "id1")
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne);
+
+        // Only search for namespace1/doc1 and namespace1/doc2
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterNamespaces("namespace1")
+                        .addFilterDocumentIds("namespace1", ImmutableList.of("id1", "id2"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultTwo);
+
+        // Only search for namespace1/doc1 and namespace2/doc3
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterNamespaces("namespace1", "namespace2")
+                        .addFilterDocumentIds("namespace1", "id1")
+                        .addFilterDocumentIds("namespace2", ImmutableList.of("id3"))
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultThree);
+
+        // Only search for namespace1/doc1 and everything in namespace2
+        suggestions = mDb1.searchSuggestionAsync(
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterDocumentIds("namespace1", "id1")
+                        .build()).get();
+        assertThat(suggestions).containsExactly(resultOne, resultThree, resultFour);
+    }
+
+    @Test
     public void testSearchSuggestion_schemaFilter() throws Exception {
         // Schema registration
         AppSearchSchema schemaType1 = new AppSearchSchema.Builder("Type1").addProperty(
