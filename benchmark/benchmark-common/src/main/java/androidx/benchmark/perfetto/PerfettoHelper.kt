@@ -97,18 +97,20 @@ public class PerfettoHelper(
                 val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                 // Move the config to a directory that unbundled perfetto has permissions for.
                 Shell.executeScriptSilent("rm -f $path")
-                if (Build.VERSION.SDK_INT >= 24) {
-                    Shell.executeScriptSilent("mv $configFilePath $path")
-                } else {
+                if (Build.VERSION.SDK_INT == 23) {
                     // Observed stderr output (though command still completes successfully) on:
                     // google/shamu/shamu:6.0.1/MOB31T/3671974:userdebug/dev-keys
                     // Doesn't repro on all API 23 devices :|
-                    Shell.executeScriptCaptureStdoutStderr("mv $configFilePath $path").also {
+                    Shell.executeScriptCaptureStdoutStderr("cp $configFilePath $path").also {
                         check(
                             it.stdout.isBlank() &&
                                 (it.stderr.isBlank() || it.stderr.startsWith("mv: chown"))
-                        )
+                        ) {
+                            "Observed unexpected output: it"
+                        }
                     }
+                } else {
+                    Shell.executeScriptSilent("cp $configFilePath $path")
                 }
                 path
             } else {
@@ -116,8 +118,15 @@ public class PerfettoHelper(
             }
 
             val outputPath = getPerfettoTmpOutputFilePath()
+
+            if (!unbundled && Build.VERSION.SDK_INT == 29) {
+                // observed this on unrooted emulator
+                val output = Shell.executeScriptCaptureStdoutStderr("rm -f $outputPath")
+                Log.d(LOG_TAG, "Attempted to remove $outputPath, result = $output")
+            } else {
+                Shell.executeScriptSilent("rm -f $outputPath")
+            }
             // Remove already existing temporary output trace file if any.
-            Shell.executeScriptSilent("rm -f $outputPath")
 
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
@@ -309,6 +318,7 @@ public class PerfettoHelper(
     private fun copyFileOutput(destinationFile: String): Boolean {
         val sourceFile = getPerfettoTmpOutputFilePath()
         val filePath = File(destinationFile)
+        filePath.setWritable(true, false)
         val destDirectory = filePath.parent
         if (destDirectory != null) {
             // Check if the directory already exists
@@ -328,14 +338,14 @@ public class PerfettoHelper(
         // Copy the collected trace from /data/misc/perfetto-traces/trace_output.pb to
         // destinationFile
         try {
-            val moveResult =
-                Shell.executeScriptCaptureStdoutStderr("mv $sourceFile $destinationFile")
-            if (!moveResult.isBlank()) {
+            val copyResult =
+                Shell.executeScriptCaptureStdoutStderr("cp $sourceFile $destinationFile")
+            if (!copyResult.isBlank()) {
                 Log.e(
                     LOG_TAG,
                     """
-                        Unable to move perfetto output file from $sourceFile
-                        to $destinationFile due to $moveResult.
+                        Unable to copy perfetto output file from $sourceFile
+                        to $destinationFile due to $copyResult.
                     """.trimIndent()
                 )
                 return false
