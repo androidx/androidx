@@ -7,6 +7,7 @@ package androidx.lifecycle {
     method public T? getValue();
     method public boolean hasActiveObservers();
     method public boolean hasObservers();
+    method public boolean isInitialized();
     method @MainThread public void observe(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Observer<? super T>);
     method @MainThread public void observeForever(androidx.lifecycle.Observer<? super T>);
     method protected void onActive();
