@@ -71,8 +71,8 @@ class ApiStubParserTest {
         val expectedPayloadType = AnnotatedValue(
             type = Type("com.mysdk", "PayloadType"),
             properties = listOf(
-                ValueProperty("appId", Types.string),
                 ValueProperty("size", Types.long),
+                ValueProperty("appId", Types.string),
             )
         )
         val expectedPayloadRequest = AnnotatedValue(
