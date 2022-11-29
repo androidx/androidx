@@ -22,6 +22,16 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SupportSQLiteQueryBuilderTest {
+
+    @Test
+    fun null_columns_should_not_throw_npe() {
+        val query = SupportSQLiteQueryBuilder.builder("Books")
+            .columns(null)
+            .groupBy("pages")
+            .having(">100")
+            .create()
+        assertThat(query.sql).isEqualTo("SELECT * FROM Books GROUP BY pages HAVING >100")
+    }
     @Test
     fun null_groupBy_and_having_throws_error() {
         val error = assertFails {

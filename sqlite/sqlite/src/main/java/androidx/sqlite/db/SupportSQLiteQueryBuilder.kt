@@ -129,7 +129,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
             if (distinct) {
                 append("DISTINCT ")
             }
-            if (columns?.size != 0) {
+            if (!columns.isNullOrEmpty()) {
                 appendColumns(columns!!)
             } else {
                 append("* ")
@@ -146,7 +146,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     }
 
     private fun StringBuilder.appendClause(name: String, clause: String?) {
-        if (clause?.isNotEmpty() == true) {
+        if (!clause.isNullOrEmpty()) {
             append(name)
             append(clause)
         }
