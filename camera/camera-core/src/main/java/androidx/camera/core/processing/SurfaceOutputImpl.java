@@ -61,7 +61,6 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @NonNull
     private final Surface mSurface;
     private final int mTargets;
-    private final int mFormat;
     @NonNull
     private final Size mSize;
     private final Size mInputSize;
@@ -90,7 +89,6 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             @NonNull Surface surface,
             // TODO(b/238222270): annotate targets with IntDef.
             int targets,
-            int format,
             @NonNull Size size,
             @NonNull Size inputSize,
             @NonNull Rect inputCropRect,
@@ -98,7 +96,6 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             boolean mirroring) {
         mSurface = surface;
         mTargets = targets;
-        mFormat = format;
         mSize = size;
         mInputSize = inputSize;
         mInputCropRect = new Rect(inputCropRect);
@@ -176,14 +173,6 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @NonNull
     public Size getSize() {
         return mSize;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public int getFormat() {
-        return mFormat;
     }
 
     @VisibleForTesting

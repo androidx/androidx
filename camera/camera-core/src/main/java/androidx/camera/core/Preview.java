@@ -42,7 +42,6 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -266,7 +265,6 @@ public final class Preview extends UseCase {
         mCameraEdge = new SurfaceEdge(
                 PREVIEW,
                 resolution,
-                ImageFormat.PRIVATE,
                 new Matrix(),
                 /*hasCameraTransform=*/true,
                 requireNonNull(getCropRect(resolution)),

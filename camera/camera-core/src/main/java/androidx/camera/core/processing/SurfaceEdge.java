@@ -89,7 +89,6 @@ public class SurfaceEdge {
     private final boolean mMirroring;
     @CameraEffect.Targets
     private final int mTargets;
-    private final int mFormat;
     private final Size mSize;
     // Guarded by main thread.
     private int mRotationDegrees;
@@ -116,7 +115,6 @@ public class SurfaceEdge {
     public SurfaceEdge(
             @CameraEffect.Targets int targets,
             @NonNull Size size,
-            int format,
             @NonNull Matrix sensorToBufferTransform,
             boolean hasCameraTransform,
             @NonNull Rect cropRect,
@@ -125,7 +123,6 @@ public class SurfaceEdge {
             @NonNull Runnable onInvalidated) {
         mTargets = targets;
         mSize = size;
-        mFormat = format;
         mSensorToBufferTransform = sensorToBufferTransform;
         mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
@@ -265,8 +262,8 @@ public class SurfaceEdge {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), mFormat, getSize(), inputSize, cropRect,
-                            rotationDegrees, mirroring);
+                            getTargets(), getSize(), inputSize, cropRect, rotationDegrees,
+                            mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             mSettableSurface::decrementUseCount,
                             directExecutor());
@@ -318,15 +315,6 @@ public class SurfaceEdge {
     @NonNull
     public Size getSize() {
         return mSize;
-    }
-
-    /**
-     * The format of the {@link Surface}.
-     *
-     * TODO(259308680): hide the format. It's always PRIVATE.
-     */
-    public int getFormat() {
-        return mFormat;
     }
 
     /**
