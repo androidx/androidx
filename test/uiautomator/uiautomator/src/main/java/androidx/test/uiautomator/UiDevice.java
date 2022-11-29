@@ -1072,6 +1072,8 @@ public class UiDevice implements Searchable {
         AccessibilityNodeInfo activeRoot = getUiAutomation().getRootInActiveWindow();
         if (activeRoot != null) {
             roots.add(activeRoot);
+        } else {
+            Log.w(TAG, "Active window root not found.");
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

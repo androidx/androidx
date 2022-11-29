@@ -37,10 +37,10 @@ class QueryController {
     */
     private static final long QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE = 500;//ms
 
-    static final String LOG_TAG = QueryController.class.getSimpleName();
+    static final String TAG = QueryController.class.getSimpleName();
 
-    static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
-    private static final boolean VERBOSE = Log.isLoggable(LOG_TAG, Log.VERBOSE);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
     private final UiDevice mDevice;
 
@@ -81,7 +81,7 @@ class QueryController {
                         }
                     }
                     if (DEBUG) {
-                        Log.d(LOG_TAG, "Last text selection reported: "
+                        Log.d(TAG, "Last text selection reported: "
                                 + mLastTraversedText);
                     }
                     break;
@@ -156,11 +156,11 @@ class QueryController {
         initializeNewSearch();
 
         if (DEBUG)
-            Log.d(LOG_TAG, "Searching: " + selector);
+            Log.d(TAG, "Searching: " + selector);
 
         AccessibilityNodeInfo rootNode = getRootNode();
         if (rootNode == null) {
-            Log.e(LOG_TAG, "Cannot proceed when root node is null. Aborted search");
+            Log.e(TAG, "Cannot proceed when root node is null. Aborted search");
             return null;
         }
 
@@ -184,7 +184,7 @@ class QueryController {
                 return rootNode;
             }
             if (x < maxRetry - 1) {
-                Log.e(LOG_TAG, "Got null root node from accessibility - Retrying...");
+                Log.e(TAG, "Got null root node from accessibility - Retrying...");
                 SystemClock.sleep(waitInterval);
                 waitInterval *= 2;
             }
@@ -242,7 +242,7 @@ class QueryController {
 
         if(fromNode == null) {
             if (DEBUG)
-                Log.d(LOG_TAG, "Container selector not found: " + selector.dumpToString(false));
+                Log.d(TAG, "Container selector not found: " + selector.dumpToString(false));
             return null;
         }
 
@@ -251,14 +251,14 @@ class QueryController {
                     fromNode, isCounting);
 
             if (isCounting) {
-                Log.i(LOG_TAG, String.format(
+                Log.i(TAG, String.format(
                         "Counted %d instances of: %s", mPatternCounter, selector));
                 return null;
             } else {
                 if(fromNode == null) {
                     if (DEBUG)
-                        Log.d(LOG_TAG, "Pattern selector not found: " +
-                                selector.dumpToString(false));
+                        Log.d(TAG, "Pattern selector not found: "
+                                + selector.dumpToString(false));
                     return null;
                 }
             }
@@ -273,10 +273,10 @@ class QueryController {
 
         if(fromNode == null) {
             if (DEBUG)
-                Log.d(LOG_TAG, "Object Not Found for selector " + selector);
+                Log.d(TAG, "Object Not Found for selector " + selector);
             return null;
         }
-        Log.i(LOG_TAG, String.format("Matched selector: %s <<==>> [%s]", selector, fromNode));
+        Log.i(TAG, String.format("Matched selector: %s <<==>> [%s]", selector, fromNode));
         return fromNode;
     }
 
@@ -304,7 +304,7 @@ class QueryController {
 
         if (subSelector.isMatchFor(fromNode, index)) {
             if (DEBUG) {
-                Log.d(LOG_TAG, formatLog(String.format("%s",
+                Log.d(TAG, formatLog(String.format("%s",
                         subSelector.dumpToString(false))));
             }
             if(subSelector.isLeaf()) {
@@ -314,14 +314,14 @@ class QueryController {
                 mLogIndent++; // next selector
                 subSelector = subSelector.getChildSelector();
                 if(subSelector == null) {
-                    Log.e(LOG_TAG, "Error: A child selector without content");
+                    Log.e(TAG, "Error: A child selector without content");
                     return null; // there is an implementation fault
                 }
             } else if(subSelector.hasParentSelector()) {
                 mLogIndent++; // next selector
                 subSelector = subSelector.getParentSelector();
                 if(subSelector == null) {
-                    Log.e(LOG_TAG, "Error: A parent selector without content");
+                    Log.e(TAG, "Error: A parent selector without content");
                     return null; // there is an implementation fault
                 }
                 // the selector requested we start at this level from
@@ -337,17 +337,17 @@ class QueryController {
         for (int i = 0; i < childCount; i++) {
             AccessibilityNodeInfo childNode = fromNode.getChild(i);
             if (childNode == null) {
-                Log.w(LOG_TAG, String.format(
+                Log.w(TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
+                    Log.w(TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
             }
             if (!childNode.isVisibleToUser()) {
                 if (VERBOSE)
-                    Log.v(LOG_TAG,
+                    Log.v(TAG,
                             String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
@@ -397,7 +397,7 @@ class QueryController {
             // A pattern is wrapped in a PATTERN[instance=x PATTERN[the_pattern]]
             subSelector = subSelector.getPatternSelector();
             if(subSelector == null) {
-                Log.e(LOG_TAG, "Pattern portion of the selector is null or not defined");
+                Log.e(TAG, "Pattern portion of the selector is null or not defined");
                 return null; // there is an implementation fault
             }
             // save the current indent level as parent indent before pattern searches
@@ -406,7 +406,7 @@ class QueryController {
             return findNodePatternRecursive(subSelector, fromNode, 0, subSelector);
         }
 
-        Log.e(LOG_TAG, "Selector must have a pattern selector defined"); // implementation fault?
+        Log.e(TAG, "Selector must have a pattern selector defined"); // implementation fault?
         return null;
     }
 
@@ -418,12 +418,12 @@ class QueryController {
             if(subSelector.isLeaf()) {
                 if(mPatternIndexer == 0) {
                     if (DEBUG)
-                        Log.d(LOG_TAG, formatLog(
+                        Log.d(TAG, formatLog(
                                 String.format("%s", subSelector.dumpToString(false))));
                     return fromNode;
                 } else {
                     if (DEBUG)
-                        Log.d(LOG_TAG, formatLog(
+                        Log.d(TAG, formatLog(
                                 String.format("%s", subSelector.dumpToString(false))));
                     mPatternCounter++; //count the pattern matched
                     mPatternIndexer--; //decrement until zero for the instance requested
@@ -438,21 +438,21 @@ class QueryController {
                 }
             } else {
                 if (DEBUG)
-                    Log.d(LOG_TAG, formatLog(
+                    Log.d(TAG, formatLog(
                             String.format("%s", subSelector.dumpToString(false))));
 
                 if(subSelector.hasChildSelector()) {
                     mLogIndent++; // next selector
                     subSelector = subSelector.getChildSelector();
                     if(subSelector == null) {
-                        Log.e(LOG_TAG, "Error: A child selector without content");
+                        Log.e(TAG, "Error: A child selector without content");
                         return null;
                     }
                 } else if(subSelector.hasParentSelector()) {
                     mLogIndent++; // next selector
                     subSelector = subSelector.getParentSelector();
                     if(subSelector == null) {
-                        Log.e(LOG_TAG, "Error: A parent selector without content");
+                        Log.e(TAG, "Error: A parent selector without content");
                         return null;
                     }
                     fromNode = fromNode.getParent();
@@ -467,17 +467,17 @@ class QueryController {
         for (int i = 0; i < childCount; i++) {
             AccessibilityNodeInfo childNode = fromNode.getChild(i);
             if (childNode == null) {
-                Log.w(LOG_TAG, String.format(
+                Log.w(TAG, String.format(
                         "AccessibilityNodeInfo returned a null child (%d of %d)", i, childCount));
                 if (!hasNullChild) {
-                    Log.w(LOG_TAG, String.format("parent = %s", fromNode));
+                    Log.w(TAG, String.format("parent = %s", fromNode));
                 }
                 hasNullChild = true;
                 continue;
             }
             if (!childNode.isVisibleToUser()) {
                 if (DEBUG)
-                    Log.d(LOG_TAG,
+                    Log.d(TAG,
                         String.format("Skipping invisible child: %s", childNode));
                 continue;
             }
@@ -531,7 +531,7 @@ class QueryController {
         try {
             mDevice.getUiAutomation().waitForIdle(QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE, timeout);
         } catch (TimeoutException e) {
-            Log.w(LOG_TAG, "Could not detect idle state.");
+            Log.w(TAG, "Could not detect idle state.");
         }
     }
 
