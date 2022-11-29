@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.trace
@@ -61,6 +62,7 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
         assertThat(actualSlices).containsExactlyElementsIn(expectedSlices)
     }
 
+    @FlakyTest(bugId = 260715950)
     @Test
     fun test_endToEnd() {
         assumeTrue(PerfettoHelper.isAbiSupported())
