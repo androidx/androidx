@@ -38,7 +38,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
-import androidx.camera.core.processing.SettableSurface
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -270,7 +269,7 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(processor, backCamera)
         // Assert
-        assertThat(preview.getCameraSurface().mirroring).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
     }
 
     @Test
@@ -280,11 +279,11 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(processor, frontCamera)
         // Assert
-        assertThat(preview.getCameraSurface().mirroring).isTrue()
+        assertThat(preview.cameraEdge.mirroring).isTrue()
     }
 
     @Test
-    fun setTargetRotationWithProcessor_rotationChangesOnSettableSurface() {
+    fun setTargetRotationWithProcessor_rotationChangesOnSurfaceEdge() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
 
@@ -294,17 +293,13 @@ class PreviewTest {
         preview.targetRotation = Surface.ROTATION_0
         shadowOf(getMainLooper()).idle()
         // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
-        assertThat(preview.getCameraSurface().rotationDegrees).isEqualTo(0)
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
 
         // Act: update target rotation again.
         preview.targetRotation = Surface.ROTATION_180
         shadowOf(getMainLooper()).idle()
         // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
-        assertThat(preview.getCameraSurface().rotationDegrees).isEqualTo(180)
-    }
-
-    private fun Preview.getCameraSurface(): SettableSurface {
-        return this.sessionConfig.surfaces.single() as SettableSurface
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(180)
     }
 
     @Test

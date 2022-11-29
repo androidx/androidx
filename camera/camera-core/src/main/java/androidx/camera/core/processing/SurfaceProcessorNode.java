@@ -105,7 +105,7 @@ public class SurfaceProcessorNode implements
         mInput = input;
         mOutput = new Out();
 
-        SettableSurface inputSurface = input.getSurfaceEdge();
+        SurfaceEdge inputSurface = input.getSurfaceEdge();
         for (OutConfig config : input.getOutConfigs()) {
             mOutput.put(config, transformSingleOutput(inputSurface, config));
         }
@@ -114,14 +114,14 @@ public class SurfaceProcessorNode implements
     }
 
     @NonNull
-    private SettableSurface transformSingleOutput(@NonNull SettableSurface input,
+    private SurfaceEdge transformSingleOutput(@NonNull SurfaceEdge input,
             @NonNull OutConfig outConfig) {
         // TODO: Can be improved by only restarting part of the pipeline. e.g. only update the
         //  output Surface (between Effect/App), and still use the same input Surface (between
         //  Camera/Effect). It's just simpler for now.
         final Runnable onSurfaceInvalidated = input::invalidate;
 
-        SettableSurface outputSurface;
+        SurfaceEdge outputSurface;
         Size inputSize = input.getSize();
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = input.getRotationDegrees();
@@ -139,7 +139,7 @@ public class SurfaceProcessorNode implements
         Size rotatedCropSize = getRotatedSize(outConfig.getCropRect(), rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
-        outputSurface = new SettableSurface(
+        outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),
                 outConfig.getSize(),
                 input.getFormat(),
@@ -155,11 +155,11 @@ public class SurfaceProcessorNode implements
         return outputSurface;
     }
 
-    private void sendSurfacesToProcessorWhenReady(@NonNull SettableSurface input,
-            @NonNull Map<OutConfig, SettableSurface> outputs) {
+    private void sendSurfacesToProcessorWhenReady(@NonNull SurfaceEdge input,
+            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
         List<ListenableFuture<SurfaceOutput>> outputFutures = new ArrayList<>();
-        for (Map.Entry<OutConfig, SettableSurface> output : outputs.entrySet()) {
+        for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
             outputFutures.add(output.getValue().createSurfaceOutputFuture(
                     input.getSize(),
                     output.getKey().getCropRect(),
@@ -211,13 +211,13 @@ public class SurfaceProcessorNode implements
      * input edge's rotation changes, we re-calculate the delta and notify the output edge.
      *
      * @param inputSurfaceRequest {@link SurfaceRequest} of the input edge.
-     * @param outputSurfaces      {@link SettableSurface} of the output edge.
+     * @param outputs             the output edges.
      * @param mirrored            whether the node mirrors the buffer.
      * @param rotatedDegrees      how much the node rotates the buffer.
      */
     void setupRotationUpdates(
             @NonNull SurfaceRequest inputSurfaceRequest,
-            @NonNull Collection<SettableSurface> outputSurfaces,
+            @NonNull Collection<SurfaceEdge> outputs,
             boolean mirrored,
             int rotatedDegrees) {
         inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
@@ -228,7 +228,7 @@ public class SurfaceProcessorNode implements
                 rotationDegrees = -rotationDegrees;
             }
             rotationDegrees = within360(rotationDegrees);
-            for (SettableSurface output : outputSurfaces) {
+            for (SurfaceEdge output : outputs) {
                 output.setRotationDegrees(rotationDegrees);
             }
         });
@@ -242,7 +242,7 @@ public class SurfaceProcessorNode implements
         mSurfaceProcessor.release();
         mainThreadExecutor().execute(() -> {
             if (mOutput != null) {
-                for (SettableSurface surface : mOutput.values()) {
+                for (SurfaceEdge surface : mOutput.values()) {
                     // The output DeferrableSurface will later be terminated by the processor.
                     surface.close();
                 }
@@ -263,12 +263,12 @@ public class SurfaceProcessorNode implements
          * <p> {@link SurfaceProcessorNode} only supports a single input stream.
          */
         @NonNull
-        public abstract SettableSurface getSurfaceEdge();
+        public abstract SurfaceEdge getSurfaceEdge();
 
         /**
          * Gets the config for generating output streams.
          *
-         * <p>{@link SurfaceProcessorNode#transform} creates one {@link SettableSurface} per
+         * <p>{@link SurfaceProcessorNode#transform} creates one {@link SurfaceEdge} per
          * {@link OutConfig} in this list.
          */
         @SuppressWarnings("AutoValueImmutableFields")
@@ -279,7 +279,7 @@ public class SurfaceProcessorNode implements
          * Creates a {@link In} instance.
          */
         @NonNull
-        public static In of(@NonNull SettableSurface edge, @NonNull List<OutConfig> configs) {
+        public static In of(@NonNull SurfaceEdge edge, @NonNull List<OutConfig> configs) {
             return new AutoValue_SurfaceProcessorNode_In(edge, configs);
         }
     }
@@ -287,16 +287,16 @@ public class SurfaceProcessorNode implements
     /**
      * The output of a {@link SurfaceProcessorNode}.
      *
-     * <p>A map of {@link OutConfig} with their corresponding {@link SettableSurface}.
+     * <p>A map of {@link OutConfig} with their corresponding {@link SurfaceEdge}.
      */
-    public static class Out extends HashMap<OutConfig, SettableSurface> {
+    public static class Out extends HashMap<OutConfig, SurfaceEdge> {
     }
 
     /**
      * Configuration of how to create an output stream from an input stream.
      *
      * <p>The value in this class will override the corresponding value in the
-     * {@link SettableSurface} class. The override is necessary when a single stream is shared
+     * {@link SurfaceEdge} class. The override is necessary when a single stream is shared
      * to multiple output streams with different transformations. For example, if a single 4:3
      * preview stream is shared to a 16:9 video stream, the video stream must override the crop
      * rect.
@@ -330,7 +330,7 @@ public class SurfaceProcessorNode implements
          * <p>The result is an output edge with the input's transformation applied.
          */
         @NonNull
-        public static OutConfig of(@NonNull SettableSurface surface) {
+        public static OutConfig of(@NonNull SurfaceEdge surface) {
             return of(surface.getTargets(),
                     surface.getCropRect(),
                     getRotatedSize(surface.getCropRect(), surface.getRotationDegrees()));
