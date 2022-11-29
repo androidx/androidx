@@ -18,6 +18,7 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import android.content.res.TypedArray
+import androidx.annotation.DrawableRes
 import androidx.core.content.res.use
 import androidx.emoji2.emojipicker.utils.FileCache
 import androidx.emoji2.emojipicker.utils.UnicodeRenderableManager
@@ -45,6 +46,10 @@ internal object BundledEmojiListLoader {
 
     internal suspend fun load(context: Context) {
         val categoryNames = context.resources.getStringArray(R.array.category_names)
+        val categoryHeaderIconIds =
+            context.resources.obtainTypedArray(R.array.emoji_categories_icons).use { typedArray ->
+                IntArray(typedArray.length()) { typedArray.getResourceId(it, 0) }
+            }
         val resources = if (UnicodeRenderableManager.isEmoji12Supported())
             R.array.emoji_by_category_raw_resources_gender_inclusive
         else
@@ -53,7 +58,15 @@ internal object BundledEmojiListLoader {
 
         categorizedEmojiData = context.resources
             .obtainTypedArray(resources)
-            .use { ta -> loadEmoji(ta, categoryNames, emojiFileCache, context) }
+            .use { ta ->
+                loadEmoji(
+                    ta,
+                    categoryHeaderIconIds,
+                    categoryNames,
+                    emojiFileCache,
+                    context
+                )
+            }
     }
 
     internal fun getCategorizedEmojiData() = categorizedEmojiData
@@ -74,6 +87,7 @@ internal object BundledEmojiListLoader {
 
     private suspend fun loadEmoji(
         ta: TypedArray,
+        @DrawableRes categoryHeaderIconIds: IntArray,
         categoryNames: Array<String>,
         emojiFileCache: FileCache,
         context: Context
@@ -82,7 +96,13 @@ internal object BundledEmojiListLoader {
             async {
                 emojiFileCache.getOrPut(getCacheFileName(it)) {
                     loadSingleCategory(context, ta.getResourceId(it, 0))
-                }.let { data -> EmojiDataCategory(categoryNames[it], data) }
+                }.let { data ->
+                    EmojiDataCategory(
+                        categoryHeaderIconIds[it],
+                        categoryNames[it],
+                        data
+                    )
+                }
             }
         }.awaitAll()
     }
@@ -118,6 +138,7 @@ internal object BundledEmojiListLoader {
         }.toList()
 
     internal data class EmojiDataCategory(
+        @DrawableRes val headerIconId: Int,
         val categoryName: String,
         val emojiDataList: List<EmojiViewItem>
     )
