@@ -107,7 +107,7 @@ public final class Configuration {
         }
 
         if (builder.mInputMergerFactory == null) {
-            mInputMergerFactory = InputMergerFactory.getDefaultInputMergerFactory();
+            mInputMergerFactory = NoOpInputMergerFactory.INSTANCE;
         } else {
             mInputMergerFactory = builder.mInputMergerFactory;
         }
