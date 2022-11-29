@@ -602,7 +602,7 @@ public object ButtonDefaults {
     public fun outlinedButtonBorder(
         borderColor: Color = MaterialTheme.colors.primaryVariant.copy(alpha = 0.6f),
         disabledBorderColor: Color = borderColor.copy(alpha = ContentAlpha.disabled),
-        borderWidth: Dp = 2.dp
+        borderWidth: Dp = 1.dp
     ): ButtonBorder {
         return DefaultButtonBorder(
             borderStroke = BorderStroke(borderWidth, borderColor),
