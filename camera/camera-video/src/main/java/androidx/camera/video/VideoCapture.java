@@ -48,7 +48,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
 import android.media.MediaCodec;
@@ -522,7 +521,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
                     resolution,
-                    ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),
                     /*hasCameraTransform=*/true,
                     mCropRect,

@@ -72,14 +72,6 @@ public interface SurfaceOutput {
     Size getSize();
 
     /**
-     * Gets the format of the {@link Surface}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    int getFormat();
-
-    /**
      * Call this method to mark the {@link Surface} as no longer in use.
      *
      * <p>Once the {@link SurfaceProcessor} implementation receives a request to close the

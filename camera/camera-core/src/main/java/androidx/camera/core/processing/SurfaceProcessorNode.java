@@ -142,7 +142,6 @@ public class SurfaceProcessorNode implements
         outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),
                 outConfig.getSize(),
-                input.getFormat(),
                 sensorToBufferTransform,
                 // The Surface transform cannot be carried over during buffer copy.
                 /*hasCameraTransform=*/false,

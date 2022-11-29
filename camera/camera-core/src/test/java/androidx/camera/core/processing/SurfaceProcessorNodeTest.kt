@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
@@ -274,7 +273,6 @@ class SurfaceProcessorNodeTest {
     private fun createInputEdge(
         previewTarget: Int = PREVIEW,
         previewSize: Size = INPUT_SIZE,
-        format: Int = ImageFormat.PRIVATE,
         sensorToBufferTransform: android.graphics.Matrix = android.graphics.Matrix(),
         hasCameraTransform: Boolean = true,
         previewCropRect: Rect = PREVIEW_CROP_RECT,
@@ -285,7 +283,6 @@ class SurfaceProcessorNodeTest {
         val surface = SurfaceEdge(
             previewTarget,
             previewSize,
-            format,
             sensorToBufferTransform,
             hasCameraTransform,
             previewCropRect,

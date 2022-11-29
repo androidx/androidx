@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper
@@ -45,7 +44,6 @@ class SurfaceOutputImplTest {
 
     companion object {
         private const val TARGET = CameraEffect.PREVIEW
-        private const val FORMAT = PixelFormat.RGBA_8888
         private val OUTPUT_SIZE = Size(640, 480)
         private val INPUT_SIZE = Size(640, 480)
     }
@@ -141,7 +139,6 @@ class SurfaceOutputImplTest {
     private fun createFakeSurfaceOutputImpl() = SurfaceOutputImpl(
         fakeSurface,
         TARGET,
-        FORMAT,
         OUTPUT_SIZE,
         INPUT_SIZE,
         sizeToRect(INPUT_SIZE),
