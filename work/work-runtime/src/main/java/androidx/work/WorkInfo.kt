@@ -16,7 +16,6 @@
 package androidx.work
 
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.work.WorkInfo.State
 import java.util.UUID
 
@@ -25,7 +24,7 @@ import java.util.UUID
  * current [State], output, tags, and run attempt count.  Note that output is only available
  * for the terminal states ([State.SUCCEEDED] and [State.FAILED]).
  */
-class WorkInfo @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
+class WorkInfo(
     /**
      * The identifier of the [WorkRequest].
      */
@@ -35,23 +34,24 @@ class WorkInfo @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
      */
     val state: State,
     /**
+     * The [Set] of tags associated with the [WorkRequest].
+     */
+    val tags: Set<String>,
+    /**
      * The output [Data] for the [WorkRequest]. If the WorkRequest is unfinished,
      * this is always [Data.EMPTY].
      */
-    val outputData: Data,
-
-    tags: List<String>,
+    val outputData: Data = Data.EMPTY,
     /**
      * The progress [Data] associated with the [WorkRequest].
      */
-    val progress: Data,
-
+    val progress: Data = Data.EMPTY,
     /**
      * The run attempt count of the [WorkRequest].  Note that for
      * [PeriodicWorkRequest]s, the run attempt count gets reset between successful runs.
      */
     @get:IntRange(from = 0)
-    val runAttemptCount: Int,
+    val runAttemptCount: Int = 0,
 
     /**
      * The latest generation of this Worker.
@@ -66,13 +66,8 @@ class WorkInfo @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
      * If this worker is currently running, it can possibly be of an older generation rather than
      * returned by this function if an update has happened during an execution of this worker.
      */
-    val generation: Int
+    val generation: Int = 0
 ) {
-    /**
-     * The [Set] of tags associated with the [WorkRequest].
-     */
-    val tags: Set<String> = HashSet(tags)
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
@@ -97,8 +92,9 @@ class WorkInfo @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
     }
 
     override fun toString(): String {
-        return ("WorkInfo{mId='$id', mState=$state, " +
-            "mOutputData=$outputData, mTags=$tags, mProgress=$progress}")
+        return ("WorkInfo{id='$id', state=$state, " +
+            "outputData=$outputData, tags=$tags, progress=$progress, " +
+            "runAttemptCount=$runAttemptCount, generation=$generation}")
     }
 
     /**
