@@ -36,14 +36,20 @@ public class SearchSuggestionSpecTest {
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/123).build();
         assertThat(searchSuggestionSpec.getMaximumResultCount()).isEqualTo(123);
         assertThat(searchSuggestionSpec.getFilterNamespaces()).isEmpty();
+        assertThat(searchSuggestionSpec.getRankingStrategy()).isEqualTo(
+                SearchSuggestionSpec.SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT);
     }
 
     @Test
     public void testBuildSearchSuggestionSpec() throws Exception {
         SearchSuggestionSpec searchSuggestionSpec =
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .setRankingStrategy(SearchSuggestionSpec
+                                .SUGGESTION_RANKING_STRATEGY_TERM_FREQUENCY)
                         .addFilterNamespaces("namespace1", "namespace2")
                         .addFilterNamespaces(ImmutableList.of("namespace3"))
+                        .addFilterDocumentIds("namespace1", ImmutableList.of("doc1", "doc2"))
+                        .addFilterDocumentIds("namespace2", "doc3", "doc4")
                         .addFilterSchemas("Person", "Email")
                         .addFilterSchemas(ImmutableList.of("Foo"))
                         .addFilterProperties("Email", ImmutableList.of("Subject", "body"))
@@ -52,8 +58,13 @@ public class SearchSuggestionSpecTest {
                         .build();
 
         assertThat(searchSuggestionSpec.getMaximumResultCount()).isEqualTo(123);
+        assertThat(searchSuggestionSpec.getRankingStrategy()).isEqualTo(
+                SearchSuggestionSpec.SUGGESTION_RANKING_STRATEGY_TERM_FREQUENCY);
         assertThat(searchSuggestionSpec.getFilterNamespaces())
                 .containsExactly("namespace1", "namespace2", "namespace3");
+        assertThat(searchSuggestionSpec.getFilterDocumentIds())
+                .containsExactly("namespace1", ImmutableList.of("doc1", "doc2"),
+                        "namespace2", ImmutableList.of("doc3", "doc4"));
         assertThat(searchSuggestionSpec.getFilterSchemas())
                 .containsExactly("Person", "Email", "Foo");
         assertThat(searchSuggestionSpec.getFilterProperties())
@@ -74,16 +85,30 @@ public class SearchSuggestionSpecTest {
     }
 
     @Test
+    public void testDocumentIdFilterMustMatchNamespaceFilter() throws Exception {
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .addFilterNamespaces("namespace1")
+                        .addFilterDocumentIds("namespace2", ImmutableList.of("doc1"))
+                        .build());
+        assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(e).hasMessageThat().contains("The namespace: namespace2 exists in the "
+                + "document id filter but doesn't exist in the namespace filter.");
+    }
+
+    @Test
     public void testRebuild() throws Exception {
         SearchSuggestionSpec.Builder builder =
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
                         .addFilterNamespaces("namespace1", "namespace2")
+                        .addFilterDocumentIds("namespace1", ImmutableList.of("doc1", "doc2"))
                         .addFilterSchemas("Person", "Email")
                         .addFilterProperties("Email", ImmutableList.of("Subject", "body"));
 
         SearchSuggestionSpec original = builder.build();
 
         builder.addFilterNamespaces("namespace3", "namespace4")
+                .addFilterDocumentIds("namespace3", ImmutableList.of("doc3", "doc4"))
                 .addFilterSchemas("Message", "Foo")
                 .addFilterProperties("Foo", ImmutableList.of("Bar"));
         SearchSuggestionSpec rebuild = builder.build();
@@ -91,6 +116,8 @@ public class SearchSuggestionSpecTest {
         assertThat(original.getMaximumResultCount()).isEqualTo(123);
         assertThat(original.getFilterNamespaces())
                 .containsExactly("namespace1", "namespace2");
+        assertThat(original.getFilterDocumentIds())
+                .containsExactly("namespace1", ImmutableList.of("doc1", "doc2"));
         assertThat(original.getFilterSchemas())
                 .containsExactly("Person", "Email");
         assertThat(original.getFilterProperties())
@@ -99,6 +126,9 @@ public class SearchSuggestionSpecTest {
         assertThat(rebuild.getMaximumResultCount()).isEqualTo(123);
         assertThat(rebuild.getFilterNamespaces())
                 .containsExactly("namespace1", "namespace2", "namespace3", "namespace4");
+        assertThat(rebuild.getFilterDocumentIds())
+                .containsExactly("namespace1", ImmutableList.of("doc1", "doc2"),
+                        "namespace3", ImmutableList.of("doc3", "doc4"));
         assertThat(rebuild.getFilterSchemas())
                 .containsExactly("Person", "Email", "Message", "Foo");
         assertThat(rebuild.getFilterProperties())
