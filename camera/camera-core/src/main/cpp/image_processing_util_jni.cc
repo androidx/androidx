@@ -23,6 +23,8 @@
 #include <cinttypes>
 #include <cstdlib>
 
+#include <android/bitmap.h>
+
 #include "libyuv/convert_argb.h"
 #include "libyuv/rotate_argb.h"
 #include "libyuv/convert.h"
@@ -103,6 +105,58 @@ static int Android420ToABGR(const uint8_t* src_y,
 
 
 extern "C" {
+JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeCopyBetweenByteBufferAndBitmap (
+        JNIEnv* env,
+        jclass,
+        jobject bitmap,
+        jobject converted_buffer,
+        int src_stride_argb,
+        int dst_stride_argb,
+        int width,
+        int height,
+        jboolean isCopyBufferToBitmap
+) {
+    void* bitmapAddress = nullptr;
+    int copyResult;
+
+
+    // get bitmap address
+    int lockResult =  AndroidBitmap_lockPixels(env, bitmap, &bitmapAddress);
+    if (lockResult != 0) {
+        return -1;
+    }
+
+    // get buffer address
+    uint8_t* bufferAddress = static_cast<uint8_t*>(
+            env->GetDirectBufferAddress(converted_buffer));
+
+    // copy from buffer to bitmap
+    if (isCopyBufferToBitmap) {
+        copyResult = libyuv::ARGBCopy(bufferAddress, src_stride_argb,
+                                      reinterpret_cast<uint8_t *> (bitmapAddress), dst_stride_argb,
+                                      width, height);
+    }
+
+    // copy from bitmap to buffer
+    else {
+        copyResult = libyuv::ARGBCopy(reinterpret_cast<uint8_t*> (bitmapAddress), src_stride_argb,
+                         bufferAddress, dst_stride_argb, width, height);
+    }
+
+    // check value of copy
+    if (copyResult != 0) {
+        return -1;
+    }
+
+    // balance call to AndroidBitmap_lockPixels
+    int unlockResult = AndroidBitmap_unlockPixels(env,bitmap);
+    if (unlockResult != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeShiftPixel(
         JNIEnv* env,
         jclass,
