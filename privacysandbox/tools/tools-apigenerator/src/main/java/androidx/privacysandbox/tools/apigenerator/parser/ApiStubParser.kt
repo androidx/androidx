@@ -78,10 +78,21 @@ internal object ApiStubParser {
                     "@PrivacySandboxValue."
             )
         }
-        return AnnotatedValue(
-            type,
-            value.properties.map { parseProperty(type, it) },
-        )
+        return AnnotatedValue(type, parseProperties(type, value))
+    }
+
+    /** Parses properties and sorts them based on the order of constructor parameters. */
+    private fun parseProperties(
+        type: Type,
+        valueClass: KmClass
+    ): List<ValueProperty> {
+        // TODO: handle multiple constructors.
+        if (valueClass.constructors.size != 1) {
+            throw PrivacySandboxParsingException("Multiple constructors for values not supported.")
+        }
+        val parsedProperties = valueClass.properties.map { parseProperty(type, it) }
+        val propertiesByName = parsedProperties.associateBy { it.name }
+        return valueClass.constructors[0].valueParameters.map { propertiesByName[it.name]!! }
     }
 
     private fun parseProperty(containerType: Type, property: KmProperty): ValueProperty {
