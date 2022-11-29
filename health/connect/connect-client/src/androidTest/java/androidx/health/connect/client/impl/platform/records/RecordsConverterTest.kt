@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 // Comment the SDK suppress to run on emulators thats lower than U.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class RecordsConverterTest {
 
     @Test
