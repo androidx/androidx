@@ -241,7 +241,7 @@ internal class KspProcessingEnv(
         val declaration = ksType.declaration
         if (declaration is KSTypeAlias) {
             val actual = wrap(
-                ksType = declaration.type.resolve(),
+                ksType = declaration.type.resolve().replace(ksType.arguments),
                 allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
             )
             // if this type is nullable, carry it over
