@@ -24,6 +24,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,6 +36,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "UpsideDownCake")
 class RecordsConverterTest {
 
+    @Ignore // b/260646790
     @Test
     fun stepsRecord_convert() {
         val steps = androidx.health.connect.client.records.StepsRecord(
