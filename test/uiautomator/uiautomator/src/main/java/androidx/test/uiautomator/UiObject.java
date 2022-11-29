@@ -353,7 +353,6 @@ public class UiObject {
      * @param node
      * @return null if node is null, else a Rect containing visible bounds
      */
-    @SuppressWarnings("RectIntersectReturnValueIgnored")
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
         if (node == null) {
             return null;
@@ -362,41 +361,8 @@ public class UiObject {
         // targeted node's bounds
         int w = getDevice().getDisplayWidth();
         int h = getDevice().getDisplayHeight();
-        Rect nodeRect = AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h);
 
-        // is the targeted node within a scrollable container?
-        AccessibilityNodeInfo scrollableParentNode = getScrollableParent(node);
-        if(scrollableParentNode == null) {
-            // nothing to adjust for so return the node's Rect as is
-            return nodeRect;
-        }
-
-        // Scrollable parent's visible bounds
-        Rect parentRect = AccessibilityNodeInfoHelper
-                .getVisibleBoundsInScreen(scrollableParentNode, w, h);
-        // adjust for partial clipping of targeted by parent node if required
-        nodeRect.intersect(parentRect);
-        return nodeRect;
-    }
-
-    /**
-     * Walks up the layout hierarchy to find a scrollable parent. A scrollable parent
-     * indicates that this node might be in a container where it is partially
-     * visible due to scrolling. In this case, its clickable center might not be visible and
-     * the click coordinates should be adjusted.
-     *
-     * @param node
-     * @return The accessibility node info.
-     */
-    private AccessibilityNodeInfo getScrollableParent(AccessibilityNodeInfo node) {
-        AccessibilityNodeInfo parent = node;
-        while(parent != null) {
-            parent = parent.getParent();
-            if (parent != null && parent.isScrollable()) {
-                return parent;
-            }
-        }
-        return null;
+        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, w, h, true);
     }
 
     /**
