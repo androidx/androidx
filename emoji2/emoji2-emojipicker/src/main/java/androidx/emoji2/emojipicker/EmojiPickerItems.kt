@@ -17,24 +17,28 @@
 package androidx.emoji2.emojipicker
 
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 
 /**
- * A group of items in RecyclerView.
+ * A group of items in RecyclerView for emoji picker body.
  * [titleItem] comes first.
  * [contentItems] comes after [titleItem].
  * [emptyPlaceholderItem] will be served after [titleItem] only if [contentItems] is empty.
  * [forceContentSize], if provided, will truncate [contentItems] to certain size or pad with
  * [PlaceholderEmoji]s.
+ *
+ * [categoryIconId] is the corresponding category icon in emoji picker header.
  */
 internal class ItemGroup(
+    @DrawableRes internal val categoryIconId: Int,
     private val titleItem: CategoryTitle,
     private val contentItems: List<EmojiViewData>,
     private val forceContentSize: Int? = null,
     private val emptyPlaceholderItem: PlaceholderText? = null
 ) {
 
-    val size: Int = 1 /* title */ +
+    val size: Int get() = 1 /* title */ +
         (forceContentSize ?: maxOf(contentItems.size, if (emptyPlaceholderItem != null) 1 else 0))
 
     operator fun get(index: Int): ItemViewData {
@@ -49,14 +53,14 @@ internal class ItemGroup(
 /**
  * A view of concatenated list of [ItemGroup].
  */
-internal class ItemViewDataFlatList(
+internal class EmojiPickerItems(
     private val groups: List<ItemGroup>,
 ) {
     companion object {
-        const val LOG_TAG = "ItemViewDataFlatList"
+        const val LOG_TAG = "EmojiPickerItems"
     }
 
-    val size: Int = groups.sumOf { it.size }
+    val size: Int get() = groups.sumOf { it.size }
 
     init {
         if (groups.isEmpty()) {
@@ -64,7 +68,7 @@ internal class ItemViewDataFlatList(
         }
     }
 
-    operator fun get(@IntRange(from = 0) absolutePosition: Int): ItemViewData {
+    fun getBodyItem(@IntRange(from = 0) absolutePosition: Int): ItemViewData {
         var localPosition = absolutePosition
         for (group in groups) {
             if (localPosition < group.size) return group[localPosition]
@@ -72,4 +76,9 @@ internal class ItemViewDataFlatList(
         }
         throw IndexOutOfBoundsException()
     }
+
+    val numGroups: Int get() = groups.size
+
+    @DrawableRes
+    fun getHeaderIconId(@IntRange(from = 0) index: Int): Int = groups[index].categoryIconId
 }

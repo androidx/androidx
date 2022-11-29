@@ -43,7 +43,6 @@
     </array>
 
     <integer-array name="emoji_categories_icons">
-        <item>@drawable/quantum_gm_ic_access_time_filled_vd_theme_24</item>
         <item>@drawable/gm_filled_emoji_emotions_vd_theme_24</item>
         <item>@drawable/gm_filled_emoji_people_vd_theme_24</item>
         <item>@drawable/gm_filled_emoji_nature_vd_theme_24</item>
