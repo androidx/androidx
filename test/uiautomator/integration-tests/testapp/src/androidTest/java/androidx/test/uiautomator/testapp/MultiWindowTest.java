@@ -40,6 +40,7 @@ import androidx.test.uiautomator.Configurator;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -59,6 +60,7 @@ public class MultiWindowTest extends BaseTest {
         assertTrue(mDevice.hasObject(By.res("com.android.systemui", "status_bar")));
     }
 
+    @Ignore // b/260647289
     @Test
     @SdkSuppress(minSdkVersion = 21)
     public void testMultiWindow_reconnected() {
