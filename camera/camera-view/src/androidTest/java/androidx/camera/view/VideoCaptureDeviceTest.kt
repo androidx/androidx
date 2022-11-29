@@ -41,6 +41,8 @@ import androidx.camera.video.Quality
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.video.AudioConfig
@@ -201,6 +203,11 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToMediaStore() {
+        Assume.assumeTrue(
+            "Ignore the test since the MediaStore.Video has compatibility issues.",
+            DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
+        )
+
         // Arrange.
         val resolver: ContentResolver = context.contentResolver
         val outputOptions = createMediaStoreOutputOptions(resolver)
