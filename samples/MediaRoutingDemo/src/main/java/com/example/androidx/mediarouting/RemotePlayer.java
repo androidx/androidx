@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
@@ -53,8 +54,8 @@ public class RemotePlayer extends Player {
     private StatusCallback mStatusCallback = new StatusCallback() {
         @Override
         public void onItemStatusChanged(Bundle data,
-                String sessionId, MediaSessionStatus sessionStatus,
-                String itemId, MediaItemStatus itemStatus) {
+                @NonNull String sessionId, MediaSessionStatus sessionStatus,
+                @NonNull String itemId, @NonNull MediaItemStatus itemStatus) {
             logStatus("onItemStatusChanged", sessionId, sessionStatus, itemId, itemStatus);
             if (mCallback != null) {
                 mCallback.onPlaylistChanged();
@@ -69,7 +70,7 @@ public class RemotePlayer extends Player {
 
         @Override
         public void onSessionStatusChanged(Bundle data,
-                String sessionId, MediaSessionStatus sessionStatus) {
+                @NonNull String sessionId, MediaSessionStatus sessionStatus) {
             logStatus("onSessionStatusChanged", sessionId, sessionStatus, null, null);
             if (mCallback != null) {
                 mCallback.onPlaylistChanged();
@@ -84,7 +85,7 @@ public class RemotePlayer extends Player {
         }
     };
 
-    public RemotePlayer(Context context) {
+    public RemotePlayer(@NonNull Context context) {
         mContext = context;
     }
 
@@ -99,7 +100,7 @@ public class RemotePlayer extends Player {
     }
 
     @Override
-    public void connect(RouteInfo route) {
+    public void connect(@NonNull RouteInfo route) {
         mRoute = route;
         mClient = new RemotePlaybackClient(mContext, route);
         mClient.setStatusCallback(mStatusCallback);
@@ -107,7 +108,7 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "connected to: " + route
                     + ", isRemotePlaybackSupported: " + mClient.isRemotePlaybackSupported()
-                    + ", isQueuingSupported: "+ mClient.isQueuingSupported());
+                    + ", isQueuingSupported: " + mClient.isQueuingSupported());
         }
     }
 
@@ -122,41 +123,42 @@ public class RemotePlayer extends Player {
 
     // basic playback operations that are always supported
     @Override
-    public void play(final PlaylistItem item) {
+    public void play(final @NonNull PlaylistItem item) {
         if (DEBUG) {
             Log.d(TAG, "play: item=" + item);
         }
         mClient.play(item.getUri(), item.getMime(), null, item.getPosition(), null,
                 new ItemActionCallback() {
-            @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                    String itemId, MediaItemStatus itemStatus) {
-                logStatus("play: succeeded", sessionId, sessionStatus, itemId, itemStatus);
-                item.setRemoteItemId(itemId);
-                if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
-                    pause();
-                } else {
-                    publishState(STATE_PLAYING);
-                }
-                if (mCallback != null) {
-                    mCallback.onPlaylistChanged();
-                }
-            }
+                    @Override
+                    public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                            MediaSessionStatus sessionStatus,
+                            @NonNull String itemId, @NonNull MediaItemStatus itemStatus) {
+                        logStatus("play: succeeded", sessionId, sessionStatus, itemId, itemStatus);
+                        item.setRemoteItemId(itemId);
+                        if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
+                            pause();
+                        } else {
+                            publishState(STATE_PLAYING);
+                        }
+                        if (mCallback != null) {
+                            mCallback.onPlaylistChanged();
+                        }
+                    }
 
-            @Override
-            public void onError(String error, int code, Bundle data) {
-                logError("play: failed", error, code);
-            }
-        });
+                    @Override
+                    public void onError(String error, int code, Bundle data) {
+                        logError("play: failed", error, code);
+                    }
+                });
     }
 
     @Override
-    public void seek(final PlaylistItem item) {
+    public void seek(final @NonNull PlaylistItem item) {
         seekInternal(item);
     }
 
     @Override
-    public void getStatus(final PlaylistItem item, final boolean update) {
+    public void getStatus(final @NonNull PlaylistItem item, final boolean update) {
         if (!mClient.hasSession() || item.getRemoteItemId() == null) {
             // if session is not valid or item id not assigend yet.
             // just return, it's not fatal
@@ -168,8 +170,9 @@ public class RemotePlayer extends Player {
         }
         mClient.getStatus(item.getRemoteItemId(), null, new ItemActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                    String itemId, MediaItemStatus itemStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus, @NonNull String itemId,
+                    @NonNull MediaItemStatus itemStatus) {
                 logStatus("getStatus: succeeded", sessionId, sessionStatus, itemId, itemStatus);
                 int state = itemStatus.getPlaybackState();
                 if (state == MediaItemStatus.PLAYBACK_STATE_PLAYING
@@ -206,7 +209,8 @@ public class RemotePlayer extends Player {
         }
         mClient.pause(null, new SessionActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus) {
                 logStatus("pause: succeeded", sessionId, sessionStatus, null, null);
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
@@ -232,7 +236,8 @@ public class RemotePlayer extends Player {
         }
         mClient.resume(null, new SessionActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus) {
                 logStatus("resume: succeeded", sessionId, sessionStatus, null, null);
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
@@ -259,7 +264,8 @@ public class RemotePlayer extends Player {
         }
         mClient.stop(null, new SessionActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus) {
                 logStatus("stop: succeeded", sessionId, sessionStatus, null, null);
                 if (mClient.isSessionManagementSupported()) {
                     endSession();
@@ -278,7 +284,7 @@ public class RemotePlayer extends Player {
 
     // enqueue & remove are only supported if isQueuingSupported() returns true
     @Override
-    public void enqueue(final PlaylistItem item) {
+    public void enqueue(final @NonNull PlaylistItem item) {
         throwIfQueuingUnsupported();
 
         if (!mClient.hasSession() && !mEnqueuePending) {
@@ -288,15 +294,16 @@ public class RemotePlayer extends Player {
             } else {
                 enqueueInternal(item);
             }
-        } else if (mEnqueuePending){
+        } else if (mEnqueuePending) {
             mTempQueue.add(item);
         } else {
             enqueueInternal(item);
         }
     }
 
+    @NonNull
     @Override
-    public PlaylistItem remove(String itemId) {
+    public PlaylistItem remove(@NonNull String itemId) {
         throwIfNoSession();
         throwIfQueuingUnsupported();
 
@@ -305,8 +312,9 @@ public class RemotePlayer extends Player {
         }
         mClient.remove(itemId, null, new ItemActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                    String itemId, MediaItemStatus itemStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus, @NonNull String itemId,
+                    @NonNull MediaItemStatus itemStatus) {
                 logStatus("remove: succeeded", sessionId, sessionStatus, itemId, itemStatus);
             }
 
@@ -349,6 +357,7 @@ public class RemotePlayer extends Player {
         }
     }
 
+    @NonNull
     @Override
     public Bitmap getSnapshot() {
         return mSnapshot;
@@ -362,8 +371,9 @@ public class RemotePlayer extends Player {
         }
         mClient.enqueue(item.getUri(), item.getMime(), null, 0, null, new ItemActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                    String itemId, MediaItemStatus itemStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus, @NonNull String itemId,
+                    @NonNull MediaItemStatus itemStatus) {
                 logStatus("enqueue: succeeded", sessionId, sessionStatus, itemId, itemStatus);
                 item.setRemoteItemId(itemId);
                 if (item.getPosition() > 0) {
@@ -403,26 +413,28 @@ public class RemotePlayer extends Player {
             Log.d(TAG, "seek: item=" + item);
         }
         mClient.seek(item.getRemoteItemId(), item.getPosition(), null, new ItemActionCallback() {
-           @Override
-           public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                   String itemId, MediaItemStatus itemStatus) {
-               logStatus("seek: succeeded", sessionId, sessionStatus, itemId, itemStatus);
-               if (mCallback != null) {
-                   mCallback.onPlaylistChanged();
-               }
-           }
+            @Override
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus, @NonNull String itemId,
+                    @NonNull MediaItemStatus itemStatus) {
+                logStatus("seek: succeeded", sessionId, sessionStatus, itemId, itemStatus);
+                if (mCallback != null) {
+                    mCallback.onPlaylistChanged();
+                }
+            }
 
-           @Override
-           public void onError(String error, int code, Bundle data) {
-               logError("seek: failed", error, code);
-           }
+            @Override
+            public void onError(String error, int code, Bundle data) {
+                logError("seek: failed", error, code);
+            }
         });
     }
 
     private void startSession(final PlaylistItem item) {
         mClient.startSession(null, new SessionActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus) {
                 logStatus("startSession: succeeded", sessionId, sessionStatus, null, null);
                 enqueueInternal(item);
             }
@@ -437,7 +449,8 @@ public class RemotePlayer extends Player {
     private void endSession() {
         mClient.endSession(null, new SessionActionCallback() {
             @Override
-            public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+            public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                    MediaSessionStatus sessionStatus) {
                 logStatus("endSession: succeeded", sessionId, sessionStatus, null, null);
             }
 

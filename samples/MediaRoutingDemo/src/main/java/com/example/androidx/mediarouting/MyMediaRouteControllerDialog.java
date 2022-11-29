@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -22,21 +22,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.app.MediaRouteControllerDialog;
-
-import com.example.androidx.R;
 
 /**
  * An example MediaRouteControllerDialog for demonstrating
  * {@link androidx.mediarouter.app.MediaRouteControllerDialog#onCreateMediaControlView}.
  */
 public class MyMediaRouteControllerDialog extends MediaRouteControllerDialog {
-    public MyMediaRouteControllerDialog(Context context) {
+    public MyMediaRouteControllerDialog(@NonNull Context context) {
         super(context);
     }
 
+    @NonNull
     @Override
-    public View onCreateMediaControlView(Bundle savedInstanceState) {
+    public View onCreateMediaControlView(@NonNull Bundle savedInstanceState) {
         TextView view = new TextView(getContext());
         view.setText(R.string.my_media_control_text);
         view.setBackgroundColor(Color.GRAY);

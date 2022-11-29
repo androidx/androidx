@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.Activity;
 import android.app.Presentation;
@@ -37,21 +37,19 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
-
-import com.example.androidx.R;
 
 import java.io.IOException;
 
 /**
  * Handles playback of a single media item using MediaPlayer.
  */
-public abstract class LocalPlayer extends Player implements
-        MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnErrorListener,
+public abstract class LocalPlayer extends Player implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener {
     private static final String TAG = "LocalPlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -67,7 +65,7 @@ public abstract class LocalPlayer extends Player implements
     private Surface mSurface;
     private SurfaceHolder mSurfaceHolder;
 
-    public LocalPlayer(Context context) {
+    public LocalPlayer(@NonNull Context context) {
         mContext = context;
 
         // reset media player
@@ -85,7 +83,7 @@ public abstract class LocalPlayer extends Player implements
     }
 
     @Override
-    public void connect(RouteInfo route) {
+    public void connect(@NonNull RouteInfo route) {
         if (DEBUG) {
             Log.d(TAG, "connecting to: " + route);
         }
@@ -106,12 +104,12 @@ public abstract class LocalPlayer extends Player implements
 
     // Player
     @Override
-    public void play(final PlaylistItem item) {
+    public void play(@NonNull final PlaylistItem item) {
         if (DEBUG) {
             Log.d(TAG, "play: item=" + item);
         }
         reset();
-        mSeekToPos = (int)item.getPosition();
+        mSeekToPos = (int) item.getPosition();
         try {
             mMediaPlayer.setDataSource(mContext, item.getUri());
             mMediaPlayer.prepareAsync();
@@ -132,11 +130,11 @@ public abstract class LocalPlayer extends Player implements
     }
 
     @Override
-    public void seek(final PlaylistItem item) {
+    public void seek(@NonNull final PlaylistItem item) {
         if (DEBUG) {
             Log.d(TAG, "seek: item=" + item);
         }
-        int pos = (int)item.getPosition();
+        int pos = (int) item.getPosition();
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
             mMediaPlayer.seekTo(pos);
             mSeekToPos = pos;
@@ -149,13 +147,12 @@ public abstract class LocalPlayer extends Player implements
     }
 
     @Override
-    public void getStatus(final PlaylistItem item, final boolean update) {
+    public void getStatus(@NonNull final PlaylistItem item, final boolean update) {
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
             // use mSeekToPos if we're currently seeking (mSeekToPos is reset
             // when seeking is completed)
             item.setDuration(mMediaPlayer.getDuration());
-            item.setPosition(mSeekToPos > 0 ?
-                    mSeekToPos : mMediaPlayer.getCurrentPosition());
+            item.setPosition(mSeekToPos > 0 ? mSeekToPos : mMediaPlayer.getCurrentPosition());
             item.setTimestamp(SystemClock.elapsedRealtime());
         }
         if (update && mCallback != null) {
@@ -201,12 +198,13 @@ public abstract class LocalPlayer extends Player implements
     }
 
     @Override
-    public void enqueue(final PlaylistItem item) {
+    public void enqueue(@NonNull final PlaylistItem item) {
         throw new UnsupportedOperationException("LocalPlayer doesn't support enqueue!");
     }
 
+    @NonNull
     @Override
-    public PlaylistItem remove(String iid) {
+    public PlaylistItem remove(@NonNull String iid) {
         throw new UnsupportedOperationException("LocalPlayer doesn't support remove!");
     }
 
@@ -292,26 +290,43 @@ public abstract class LocalPlayer extends Player implements
         });
     }
 
-    protected Context getContext() { return mContext; }
-    protected MediaPlayer getMediaPlayer() { return mMediaPlayer; }
-    protected int getVideoWidth() { return mVideoWidth; }
-    protected int getVideoHeight() { return mVideoHeight; }
-    protected int getState() { return mState; }
-    protected void setSurface(Surface surface) {
+    @NonNull
+    protected Context getContext() {
+        return mContext;
+    }
+
+    @NonNull
+    protected MediaPlayer getMediaPlayer() {
+        return mMediaPlayer;
+    }
+
+    protected int getVideoWidth() {
+        return mVideoWidth;
+    }
+
+    protected int getVideoHeight() {
+        return mVideoHeight;
+    }
+
+    protected int getState() {
+        return mState;
+    }
+
+    protected void setSurface(@NonNull Surface surface) {
         mSurface = surface;
         mSurfaceHolder = null;
         updateSurface();
     }
 
-    protected void setSurface(SurfaceHolder surfaceHolder) {
+    protected void setSurface(@Nullable SurfaceHolder surfaceHolder) {
         mSurface = null;
         mSurfaceHolder = surfaceHolder;
         updateSurface();
     }
 
-    protected void removeSurface(SurfaceHolder surfaceHolder) {
+    protected void removeSurface(@NonNull SurfaceHolder surfaceHolder) {
         if (surfaceHolder == mSurfaceHolder) {
-            setSurface((SurfaceHolder)null);
+            setSurface((SurfaceHolder) null);
         }
     }
 
@@ -378,19 +393,19 @@ public abstract class LocalPlayer extends Player implements
     /**
      * Handles playback of a single media item using MediaPlayer in SurfaceView
      */
-    public static class SurfaceViewPlayer extends LocalPlayer implements
-            SurfaceHolder.Callback {
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public static class SurfaceViewPlayer extends LocalPlayer implements SurfaceHolder.Callback {
         private static final String TAG = "SurfaceViewPlayer";
         private RouteInfo mRoute;
         private final SurfaceView mSurfaceView;
         private final FrameLayout mLayout;
         private DemoPresentation mPresentation;
 
-        public SurfaceViewPlayer(Context context) {
+        public SurfaceViewPlayer(@NonNull Context context) {
             super(context);
 
-            mLayout = (FrameLayout)((Activity)context).findViewById(R.id.player);
-            mSurfaceView = (SurfaceView)((Activity)context).findViewById(R.id.surface_view);
+            mLayout = (FrameLayout) ((Activity) context).findViewById(R.id.player);
+            mSurfaceView = (SurfaceView) ((Activity) context).findViewById(R.id.surface_view);
 
             // add surface holder callback
             SurfaceHolder holder = mSurfaceView.getHolder();
@@ -398,7 +413,7 @@ public abstract class LocalPlayer extends Player implements
         }
 
         @Override
-        public void connect(RouteInfo route) {
+        public void connect(@NonNull RouteInfo route) {
             super.connect(route);
             mRoute = route;
         }
@@ -443,7 +458,7 @@ public abstract class LocalPlayer extends Player implements
                     mPresentation.show();
                 } catch (WindowManager.InvalidDisplayException ex) {
                     Log.w(TAG, "Couldn't show presentation!  Display was removed in "
-                              + "the meantime.", ex);
+                            + "the meantime.", ex);
                     mPresentation = null;
                 }
             }
@@ -453,8 +468,8 @@ public abstract class LocalPlayer extends Player implements
 
         // SurfaceHolder.Callback
         @Override
-        public void surfaceChanged(SurfaceHolder holder, int format,
-                int width, int height) {
+        public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width,
+                int height) {
             if (DEBUG) {
                 Log.d(TAG, "surfaceChanged: " + width + "x" + height);
             }
@@ -462,7 +477,7 @@ public abstract class LocalPlayer extends Player implements
         }
 
         @Override
-        public void surfaceCreated(SurfaceHolder holder) {
+        public void surfaceCreated(@NonNull SurfaceHolder holder) {
             if (DEBUG) {
                 Log.d(TAG, "surfaceCreated");
             }
@@ -471,7 +486,7 @@ public abstract class LocalPlayer extends Player implements
         }
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
+        public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
             if (DEBUG) {
                 Log.d(TAG, "surfaceDestroyed");
             }
@@ -524,15 +539,15 @@ public abstract class LocalPlayer extends Player implements
         // Listens for when presentations are dismissed.
         private final DialogInterface.OnDismissListener mOnDismissListener =
                 new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                if (dialog == mPresentation) {
-                    Log.i(TAG, "Presentation dismissed.");
-                    mPresentation = null;
-                    updateContents();
-                }
-            }
-        };
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if (dialog == mPresentation) {
+                            Log.i(TAG, "Presentation dismissed.");
+                            mPresentation = null;
+                            updateContents();
+                        }
+                    }
+                };
 
         @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         private void releasePresentation() {
@@ -549,7 +564,7 @@ public abstract class LocalPlayer extends Player implements
         private final class DemoPresentation extends Presentation {
             private SurfaceView mPresentationSurfaceView;
 
-            public DemoPresentation(Context context, Display display) {
+            DemoPresentation(Context context, Display display) {
                 super(context, display);
             }
 
@@ -594,19 +609,19 @@ public abstract class LocalPlayer extends Player implements
         private static final String TAG = "OverlayPlayer";
         private final OverlayDisplayWindow mOverlay;
 
-        public OverlayPlayer(Context context) {
+        public OverlayPlayer(@NonNull Context context) {
             super(context);
 
             mOverlay = OverlayDisplayWindow.create(getContext(),
                     getContext().getResources().getString(
-                            R.string.sample_media_route_provider_remote),
-                    1024, 768, Gravity.CENTER);
+                            R.string.sample_media_route_provider_remote), 1024, 768,
+                    Gravity.CENTER);
 
             mOverlay.setOverlayWindowListener(this);
         }
 
         @Override
-        public void connect(RouteInfo route) {
+        public void connect(@NonNull RouteInfo route) {
             super.connect(route);
             mOverlay.show();
         }
@@ -628,20 +643,21 @@ public abstract class LocalPlayer extends Player implements
 
         // OverlayDisplayWindow.OverlayWindowListener
         @Override
-        public void onWindowCreated(Surface surface) {
+        public void onWindowCreated(@NonNull Surface surface) {
             setSurface(surface);
         }
 
         @Override
-        public void onWindowCreated(SurfaceHolder surfaceHolder) {
+        public void onWindowCreated(@NonNull SurfaceHolder surfaceHolder) {
             setSurface(surfaceHolder);
         }
 
         @Override
         public void onWindowDestroyed() {
-            setSurface((SurfaceHolder)null);
+            setSurface((SurfaceHolder) null);
         }
 
+        @Nullable
         @Override
         public Bitmap getSnapshot() {
             if (getState() == STATE_PLAYING || getState() == STATE_PAUSED) {

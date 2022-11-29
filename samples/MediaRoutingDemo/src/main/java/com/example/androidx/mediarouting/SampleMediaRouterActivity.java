@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -65,8 +65,6 @@ import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaRouterParams;
 
-import com.example.androidx.R;
-
 import java.io.File;
 
 /**
@@ -78,7 +76,6 @@ import java.io.File;
  * targets.
  * </p>
  */
-@SuppressWarnings("deprecation")
 public class SampleMediaRouterActivity extends AppCompatActivity {
     private static final String TAG = "SampleMediaRouter";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
@@ -145,16 +142,16 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             updateUi();
         }
 
-        @SuppressWarnings("deprecation")
         @Override
-        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route) {
+        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+                int reason) {
             Log.d(TAG, "onRouteUnselected: route=" + route);
             mMediaSession.setActive(false);
 
             PlaylistItem item = getCheckedPlaylistItem();
             if (item != null) {
-                long pos = item.getPosition() + (mSessionManager.isPaused() ?
-                        0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
+                long pos = item.getPosition() + (mSessionManager.isPaused()
+                        ? 0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
                 mSessionManager.suspend(pos);
             }
             if (isPresentationApiSupported()) {
@@ -201,7 +198,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private ComponentName mEventReceiver;
     private PendingIntent mMediaPendingIntent;
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Be sure to call the super class.
@@ -283,17 +279,17 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         TabHost tabHost = findViewById(R.id.tabHost);
         tabHost.setup();
         String tabName = getResources().getString(R.string.library_tab_text);
-        TabSpec spec1=tabHost.newTabSpec(tabName);
+        TabSpec spec1 = tabHost.newTabSpec(tabName);
         spec1.setContent(R.id.tab1);
         spec1.setIndicator(tabName);
 
         tabName = getResources().getString(R.string.playlist_tab_text);
-        TabSpec spec2=tabHost.newTabSpec(tabName);
+        TabSpec spec2 = tabHost.newTabSpec(tabName);
         spec2.setIndicator(tabName);
         spec2.setContent(R.id.tab2);
 
         tabName = getResources().getString(R.string.info_tab_text);
-        TabSpec spec3=tabHost.newTabSpec(tabName);
+        TabSpec spec3 = tabHost.newTabSpec(tabName);
         spec3.setIndicator(tabName);
         spec3.setContent(R.id.tab3);
 
@@ -344,7 +340,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -361,7 +358,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setComponent(mEventReceiver);
         mMediaPendingIntent = PendingIntent.getBroadcast(this, /* requestCode = */0,
-            mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE);
+                mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE);
 
         // Create and register the remote control client
         createMediaSession();
@@ -379,7 +376,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onItemChanged(PlaylistItem item) { }
+            public void onItemChanged(@NonNull PlaylistItem item) {
+            }
         });
 
         updateUi();
@@ -421,8 +419,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 && event.getRepeatCount() == 0) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                case KeyEvent.KEYCODE_HEADSETHOOK:
-                {
+                case KeyEvent.KEYCODE_HEADSETHOOK: {
                     Log.d(TAG, "Received Play/Pause event from RemoteControlClient");
                     if (mSessionManager.isPaused()) {
                         mSessionManager.resume();
@@ -431,24 +428,21 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                     }
                     return true;
                 }
-                case KeyEvent.KEYCODE_MEDIA_PLAY:
-                {
+                case KeyEvent.KEYCODE_MEDIA_PLAY: {
                     Log.d(TAG, "Received Play event from RemoteControlClient");
                     if (mSessionManager.isPaused()) {
                         mSessionManager.resume();
                     }
                     return true;
                 }
-                case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                {
+                case KeyEvent.KEYCODE_MEDIA_PAUSE: {
                     Log.d(TAG, "Received Pause event from RemoteControlClient");
                     if (!mSessionManager.isPaused()) {
                         mSessionManager.pause();
                     }
                     return true;
                 }
-                case KeyEvent.KEYCODE_MEDIA_STOP:
-                {
+                case KeyEvent.KEYCODE_MEDIA_STOP: {
                     Log.d(TAG, "Received Stop event from RemoteControlClient");
                     mSessionManager.stop();
                     return true;
@@ -503,7 +497,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 @Override
                 public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
                     return new ControllerDialogFragment(SampleMediaRouterActivity.this,
-                        mUseDefaultControlCheckBox);
+                            mUseDefaultControlCheckBox);
                 }
             });
         }
@@ -534,9 +528,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 }
             } else {
                 long position = item.getPosition();
-                long timeDelta = mSessionManager.isPaused() ? 0 :
-                        (SystemClock.elapsedRealtime() - item.getTimestamp());
-                progress = (int)(100.0 * (position + timeDelta) / duration);
+                long timeDelta = mSessionManager.isPaused()
+                        ? 0 : (SystemClock.elapsedRealtime() - item.getTimestamp());
+                progress = (int) (100.0 * (position + timeDelta) / duration);
             }
         }
         mSeekBar.setProgress(progress);
@@ -551,7 +545,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             if (currentItem != null) {
                 mPlayer.updateMetadata(currentItem);
                 int currentItemState = Player.STATE_IDLE;
-                switch(currentItem.getState()) {
+                switch (currentItem.getState()) {
                     case MediaItemStatus.PLAYBACK_STATE_PLAYING:
                         currentItemState = Player.STATE_PLAYING;
                         break;
@@ -585,8 +579,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
     private void updateButtons() {
         // show pause or resume icon depending on current state
-        mPauseResumeButton.setImageResource(mSessionManager.isPaused() ?
-                R.drawable.ic_media_play : R.drawable.ic_media_pause);
+        mPauseResumeButton.setImageResource(mSessionManager.isPaused()
+                ? R.drawable.ic_media_play : R.drawable.ic_media_pause);
         // only enable seek bar when duration is known
         PlaylistItem item = getCheckedPlaylistItem();
         mSeekBar.setEnabled(item != null && item.getDuration() > 0);
@@ -640,7 +634,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         public final Uri mUri;
         public final String mMime;
 
-        public MediaItem(String name, Uri uri, String mime) {
+        MediaItem(String name, Uri uri, String mime) {
             mName = name;
             mUri = uri;
             mMime = mime;
@@ -654,7 +648,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     private final class LibraryAdapter extends ArrayAdapter<MediaItem> {
-        public LibraryAdapter() {
+        LibraryAdapter() {
             super(SampleMediaRouterActivity.this, R.layout.media_item);
         }
 
@@ -682,7 +676,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     private final class PlaylistAdapter extends ArrayAdapter<PlaylistItem> {
-        public PlaylistAdapter() {
+        PlaylistAdapter() {
             super(SampleMediaRouterActivity.this, R.layout.media_item);
         }
 
@@ -724,7 +718,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     /**
-     * This will show dynamic group dialog when ther user clicks the media route button.
+     * This will show dynamic group dialog when the user clicks the media route button.
      */
     public static class DynamicGroupActivity extends SampleMediaRouterActivity {
         @NonNull
@@ -762,6 +756,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Controller Dialog Fragment for the media router dialog.
+     */
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private SampleMediaRouterActivity mSampleMediaRouterActivity;
         private MediaRouteControllerDialog mControllerDialog;
@@ -784,8 +781,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             mSampleMediaRouterActivity.updateStatusFromSessionManager();
             mControllerDialog =
                     mUseDefaultControlCheckBox != null && mUseDefaultControlCheckBox.isChecked()
-                    ? super.onCreateControllerDialog(context, savedInstanceState)
-                    : new MyMediaRouteControllerDialog(context);
+                            ? super.onCreateControllerDialog(context, savedInstanceState)
+                            : new MyMediaRouteControllerDialog(context);
             mControllerDialog.setOnDismissListener(dialog -> mControllerDialog = null);
             return mControllerDialog;
         }

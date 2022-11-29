@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.PendingIntent;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaSessionStatus;
 
@@ -47,7 +49,7 @@ public class SessionManager implements Player.Callback {
     private Callback mCallback;
     private List<PlaylistItem> mPlaylist = new ArrayList<PlaylistItem>();
 
-    public SessionManager(String name) {
+    public SessionManager(@NonNull String name) {
         mName = name;
     }
 
@@ -55,24 +57,34 @@ public class SessionManager implements Player.Callback {
         return hasSession() && mPaused;
     }
 
+    /**
+     * Returns if the session manager has a session or not.
+     */
     public boolean hasSession() {
         return mSessionValid;
     }
 
+    @Nullable
     public String getSessionId() {
         return mSessionValid ? Integer.toString(mSessionId) : null;
     }
 
+    @Nullable
     public PlaylistItem getCurrentItem() {
         return mPlaylist.isEmpty() ? null : mPlaylist.get(0);
     }
 
     // Returns the cached playlist (note this is not responsible for updating it)
+    @Nullable
     public List<PlaylistItem> getPlaylist() {
         return mPlaylist;
     }
 
     // Updates the playlist asynchronously, calls onPlaylistReady() when finished.
+
+    /**
+     * Updates the session status.
+     */
     public void updateStatus() {
         if (DEBUG) {
             log("updateStatus");
@@ -100,12 +112,20 @@ public class SessionManager implements Player.Callback {
         }
     }
 
-    public PlaylistItem add(String title, Uri uri, String mime) {
+    /**
+     * Adds an item to the playlist.
+     */
+    @NonNull
+    public PlaylistItem add(@NonNull String title, @NonNull Uri uri, @NonNull String mime) {
         return add(title, uri, mime, 0, null);
     }
 
-    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,
-            PendingIntent receiver) {
+    /**
+     * Adds an item to the playlist.
+     */
+    @NonNull
+    public PlaylistItem add(@NonNull String title, @NonNull Uri uri, @NonNull String mime,
+            long startPosition, @Nullable PendingIntent receiver) {
         if (DEBUG) {
             log("add: title=" + title + ", uri=" + uri + ", receiver=" + receiver);
         }
@@ -128,7 +148,11 @@ public class SessionManager implements Player.Callback {
         return item;
     }
 
-    public PlaylistItem remove(String iid) {
+    /**
+     * Removes an item from the playlist.
+     */
+    @NonNull
+    public PlaylistItem remove(@NonNull String iid) {
         if (DEBUG) {
             log("remove: iid=" + iid);
         }
@@ -136,9 +160,13 @@ public class SessionManager implements Player.Callback {
         return removeItem(iid, MediaItemStatus.PLAYBACK_STATE_CANCELED);
     }
 
-    public PlaylistItem seek(String iid, long pos) {
+    /**
+     * Seeks a specific position for the current item.
+     */
+    @NonNull
+    public PlaylistItem seek(@NonNull String iid, long pos) {
         if (DEBUG) {
-            log("seek: iid=" + iid +", pos=" + pos);
+            log("seek: iid=" + iid + ", pos=" + pos);
         }
         checkPlayerAndSession();
         // seeking on pending items are not yet supported
@@ -155,7 +183,11 @@ public class SessionManager implements Player.Callback {
         return item;
     }
 
-    public PlaylistItem getStatus(String iid) {
+    /**
+     * Returns the status for the current item.
+     */
+    @NonNull
+    public PlaylistItem getStatus(@NonNull String iid) {
         checkPlayerAndSession();
 
         // This should only be called for local player. Remote player is
@@ -176,6 +208,9 @@ public class SessionManager implements Player.Callback {
         return null;
     }
 
+    /**
+     * Pauses the current session.
+     */
     public void pause() {
         if (DEBUG) {
             log("pause");
@@ -188,6 +223,9 @@ public class SessionManager implements Player.Callback {
         updatePlaybackState();
     }
 
+    /**
+     * Resumes the current session.
+     */
     public void resume() {
         if (DEBUG) {
             log("resume");
@@ -200,6 +238,9 @@ public class SessionManager implements Player.Callback {
         updatePlaybackState();
     }
 
+    /**
+     * Stops the current session.
+     */
     public void stop() {
         if (DEBUG) {
             log("stop");
@@ -214,6 +255,10 @@ public class SessionManager implements Player.Callback {
         updateStatus();
     }
 
+    /**
+     * Starts the current session.
+     */
+    @Nullable
     public String startSession() {
         if (!mSessionValid) {
             mSessionId++;
@@ -225,6 +270,9 @@ public class SessionManager implements Player.Callback {
         return null;
     }
 
+    /**
+     * Ends the current session.
+     */
     public boolean endSession() {
         if (mSessionValid) {
             mSessionValid = false;
@@ -233,7 +281,10 @@ public class SessionManager implements Player.Callback {
         return false;
     }
 
-    void syncWithManager(SessionManager manager) {
+    /**
+     * Syncs the current session with manager.
+     */
+    public void syncWithManager(@NonNull SessionManager manager) {
         manager.updateStatus();
         mSessionId = manager.mSessionId;
         mItemId = manager.mItemId;
@@ -250,19 +301,25 @@ public class SessionManager implements Player.Callback {
         updatePlaybackState();
     }
 
-    MediaSessionStatus getSessionStatus(String sid) {
-        int sessionState = (sid != null && sid.equals(Integer.toString(mSessionId))) ?
-                MediaSessionStatus.SESSION_STATE_ACTIVE :
-                    MediaSessionStatus.SESSION_STATE_INVALIDATED;
+    /**
+     * Returns the current session status.
+     */
+    @NonNull
+    public MediaSessionStatus getSessionStatus(@NonNull String sid) {
+        int sessionState = (sid != null && sid.equals(Integer.toString(mSessionId)))
+                ? MediaSessionStatus.SESSION_STATE_ACTIVE
+                : MediaSessionStatus.SESSION_STATE_INVALIDATED;
 
         return new MediaSessionStatus.Builder(sessionState)
                 .setQueuePaused(mPaused)
                 .build();
     }
 
-    // Suspend the playback manager. Put the current item back into PENDING
-    // state, and remember the current playback position. Called when switching
-    // to a different player (route).
+    /**
+     * Suspends the playback manager. Puts the current item back into PENDING
+     * state, and remembers the current playback position. Called when switching
+     * to a different player (route).
+     */
     public void suspend(long pos) {
         for (PlaylistItem item : mPlaylist) {
             item.setRemoteItemId(null);
@@ -281,9 +338,11 @@ public class SessionManager implements Player.Callback {
         }
     }
 
-    // Unsuspend the playback manager. Restart playback on new player (route).
-    // This will resume playback of current item. Furthermore, if the new player
-    // supports queuing, playlist will be re-established on the remote player.
+    /**
+     * Unsuspends the playback manager. Restarts playback on new player (route).
+     * This will resumes playback of current item. Furthermore, if the new player
+     * supports queuing, playlist will be re-established on the remote player.
+     */
     public void unsuspend() {
         if (DEBUG) {
             log("unsuspend");
@@ -385,7 +444,7 @@ public class SessionManager implements Player.Callback {
                 if (mPlayer.isQueuingSupported()) {
                     mPlayer.remove(item.getRemoteItemId());
                 } else if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PLAYING
-                        || item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED){
+                        || item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
                     mPlayer.stop();
                 }
                 item.setState(state);
@@ -410,25 +469,28 @@ public class SessionManager implements Player.Callback {
     private void finishItem(boolean error) {
         PlaylistItem item = getCurrentItem();
         if (item != null) {
-            removeItem(item.getItemId(), error ?
-                    MediaItemStatus.PLAYBACK_STATE_ERROR :
-                        MediaItemStatus.PLAYBACK_STATE_FINISHED);
+            removeItem(item.getItemId(), error
+                    ? MediaItemStatus.PLAYBACK_STATE_ERROR
+                    : MediaItemStatus.PLAYBACK_STATE_FINISHED);
             updateStatus();
         }
     }
 
-    // set the Player that this playback manager will interact with
-    public void setPlayer(Player player) {
+    /**
+     * Set the Player that this playback manager will interact with.
+     */
+    public void setPlayer(@NonNull Player player) {
         mPlayer = player;
         checkPlayer();
         mPlayer.setCallback(this);
     }
 
     // provide a callback interface to tell the UI when significant state changes occur
-    public void setCallback(Callback callback) {
+    public void setCallback(@NonNull Callback callback) {
         mCallback = callback;
     }
 
+    @NonNull
     @Override
     public String toString() {
         String result = "Media Queue: ";
@@ -442,8 +504,18 @@ public class SessionManager implements Player.Callback {
         return result;
     }
 
+    /**
+     * Session Manager callback.
+     */
     public interface Callback {
+        /**
+         * Called when the status of the manager is changed.
+         */
         void onStatusChanged();
-        void onItemChanged(PlaylistItem item);
+
+        /**
+         * Called when the current active item is changed.
+         */
+        void onItemChanged(@NonNull PlaylistItem item);
     }
 }

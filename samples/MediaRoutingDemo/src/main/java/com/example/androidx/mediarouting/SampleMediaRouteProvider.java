@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -31,6 +31,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouteDescriptor;
@@ -39,8 +42,6 @@ import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaSessionStatus;
-
-import com.example.androidx.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -155,14 +156,14 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     protected Map<String, Integer> mVolumes = new ArrayMap<>();
     protected Map<String, MediaRouteDescriptor> mRouteDescriptors = new HashMap<>();
 
-    public SampleMediaRouteProvider(Context context) {
+    SampleMediaRouteProvider(Context context) {
         super(context);
         initializeRoutes();
         publishRoutes();
     }
 
     @Override
-    public RouteController onCreateRouteController(String routeId) {
+    public RouteController onCreateRouteController(@NonNull String routeId) {
         if (!checkDrawOverlay()) return null;
         return new SampleRouteController(routeId);
     }
@@ -250,7 +251,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     }
 
     boolean checkDrawOverlay() {
-        if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(getContext())) {
+        if (Build.VERSION.SDK_INT >= 23 && !Api23Impl.canDrawOverlays(getContext())) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getContext().getPackageName()));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -268,7 +269,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         return volume;
     }
 
-    final class SampleRouteController extends MediaRouteProvider.RouteController {
+    final class SampleRouteController extends RouteController {
         private final String mRouteId;
         private RouteControlHelper mHelper;
 
@@ -329,7 +330,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
             return mHelper.onControlRequest(intent, callback);
         }
@@ -356,7 +357,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 }
 
                 @Override
-                public void onItemChanged(PlaylistItem item) {
+                public void onItemChanged(@NonNull PlaylistItem item) {
                     handleStatusChange(item);
                 }
             });
@@ -714,6 +715,17 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                     Log.d(TAG, mRouteId + ": Failed to send session status update!");
                 }
             }
+        }
+    }
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean canDrawOverlays(Context context) {
+            return Settings.canDrawOverlays(context);
         }
     }
 }
