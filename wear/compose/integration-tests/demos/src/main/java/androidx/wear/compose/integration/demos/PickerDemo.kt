@@ -17,10 +17,15 @@
 package androidx.wear.compose.integration.demos
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.view.MotionEvent
+import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,6 +43,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -47,13 +53,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.focused
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
@@ -68,6 +82,9 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
+
+private var touchExplorationEnabled = false
+private lateinit var touchExplorationStateChangeListener: TouchExplorationStateChangeListener
 
 /**
  * A full screen TimePicker with hours, minutes and seconds.
@@ -89,6 +106,30 @@ public fun TimePicker(
     modifier: Modifier = Modifier,
     time: LocalTime = LocalTime.now()
 ) {
+    val context = LocalContext.current
+    val accessibilityManager = setupAccessibilityManager(context)
+    var initialContent by remember { mutableStateOf(true) }
+
+    if (initialContent) {
+        touchExplorationEnabled = accessibilityManager.isTouchExplorationEnabled
+        initialContent = false
+    }
+    var talkbackEnabled by remember {
+        mutableStateOf(accessibilityManager.isEnabled && touchExplorationEnabled)
+    }
+
+    LocalLifecycleOwner.current.lifecycle.ObserveState(
+        handleEvent = { event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                talkbackEnabled = accessibilityManager.isEnabled && touchExplorationEnabled
+            }
+        },
+        onDispose = {
+            accessibilityManager.removeTouchExplorationStateChangeListener(
+                touchExplorationStateChangeListener
+            )
+        }
+    )
     // Omit scaling according to Settings > Display > Font size for this screen
     val typography = MaterialTheme.typography.copy(
         display3 = MaterialTheme.typography.display3.copy(
@@ -107,34 +148,68 @@ public fun TimePicker(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.second
     )
-    val hourContentDescription by remember { derivedStateOf {
-        "${hourState.selectedOption} hours"
-    } }
-    val minuteContentDescription by remember { derivedStateOf {
-        "${minuteState.selectedOption} minutes"
-    } }
-    val secondContentDescription by remember { derivedStateOf {
-        "${secondState.selectedOption} seconds"
-    } }
 
     MaterialTheme(typography = typography) {
-        var selectedColumn by remember { mutableStateOf(0) }
+        // When the time picker loads, none of the individual pickers are selected in talkback mode,
+        // otherwise hours picker should be focused.
+        var focusedElement by remember {
+            mutableStateOf(
+                if (talkbackEnabled) FocusableElement.NONE else FocusableElement.HOURS
+            )
+        }
         val textStyle = MaterialTheme.typography.display3
         val optionColor = MaterialTheme.colors.secondary
-        val focusRequester1 = remember { FocusRequester() }
-        val focusRequester2 = remember { FocusRequester() }
-        val focusRequester3 = remember { FocusRequester() }
-        Box(modifier = modifier.fillMaxSize()) {
+        val focusRequesterHours = remember { FocusRequester() }
+        val focusRequesterMinutes = remember { FocusRequester() }
+        val focusRequesterSeconds = remember { FocusRequester() }
+        val focusRequesterConfirmButton = remember { FocusRequester() }
+
+        val hourContentDescription by remember { derivedStateOf {
+            if (focusedElement == FocusableElement.HOURS)
+                "${hourState.selectedOption} hours"
+            else
+                "hours"
+        } }
+        val minuteContentDescription by remember { derivedStateOf {
+            if (focusedElement == FocusableElement.MINUTES)
+                "${minuteState.selectedOption} minutes"
+            else
+                "minutes"
+        } }
+        val secondContentDescription by remember { derivedStateOf {
+            if (focusedElement == FocusableElement.SECONDS)
+                "${secondState.selectedOption} seconds"
+            else
+                "seconds"
+        } }
+
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .then(
+                    if (talkbackEnabled) {
+                        when (focusedElement) {
+                            FocusableElement.HOURS -> Modifier.scrollablePicker(hourState)
+                            FocusableElement.MINUTES -> Modifier.scrollablePicker(minuteState)
+                            FocusableElement.SECONDS -> Modifier.scrollablePicker(secondState)
+                            else -> Modifier
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+        ) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = when (selectedColumn) {
-                        0 -> "Hour"
-                        1 -> "Minute"
-                        else -> "Second"
+                    text = when (focusedElement) {
+                        FocusableElement.HOURS -> "Hour"
+                        FocusableElement.MINUTES -> "Minute"
+                        FocusableElement.SECONDS -> "Second"
+                        else -> ""
                     },
                     color = optionColor,
                     style = MaterialTheme.typography.button,
@@ -151,51 +226,84 @@ public fun TimePicker(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
+                    val doubleTapToNext = { position: FocusableElement, next: FocusableElement ->
+                        focusedElement = when (focusedElement) {
+                            position -> next
+                            else -> position
+                        }
+                    }
                     PickerWithRSB(
-                        readOnly = selectedColumn != 0,
+                        readOnly = focusedElement != FocusableElement.HOURS,
                         state = hourState,
-                        focusRequester = focusRequester1,
+                        focusRequester = focusRequesterHours,
                         modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 0 },
+                        onSelected = {
+                                doubleTapToNext(FocusableElement.HOURS, FocusableElement.MINUTES)
+                        },
                         contentDescription = hourContentDescription,
+                        userScrollEnabled = !talkbackEnabled ||
+                            focusedElement == FocusableElement.HOURS
                     ) { hour: Int ->
                         TimePiece(
-                            selected = selectedColumn == 0,
-                            onSelected = { selectedColumn = 0 },
+                            selected = focusedElement == FocusableElement.HOURS,
+                            onSelected = {
+                                doubleTapToNext(FocusableElement.HOURS, FocusableElement.MINUTES)
+                            },
                             text = "%02d".format(hour),
                             style = textStyle,
+                            talkbackEnabled = talkbackEnabled
                         )
                     }
                     Separator(6.dp, textStyle)
                     PickerWithRSB(
-                        readOnly = selectedColumn != 1,
+                        readOnly = focusedElement != FocusableElement.MINUTES,
                         state = minuteState,
-                        focusRequester = focusRequester2,
+                        focusRequester = focusRequesterMinutes,
                         modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 1 },
+                        onSelected = {
+                            doubleTapToNext(FocusableElement.MINUTES, FocusableElement.SECONDS)
+                        },
                         contentDescription = minuteContentDescription,
+                        userScrollEnabled = !talkbackEnabled ||
+                            focusedElement == FocusableElement.MINUTES
                     ) { minute: Int ->
                         TimePiece(
-                            selected = selectedColumn == 1,
-                            onSelected = { selectedColumn = 1 },
+                            selected = focusedElement == FocusableElement.MINUTES,
+                            onSelected = {
+                                doubleTapToNext(FocusableElement.MINUTES, FocusableElement.SECONDS)
+                            },
                             text = "%02d".format(minute),
                             style = textStyle,
+                            talkbackEnabled = talkbackEnabled
                         )
                     }
                     Separator(6.dp, textStyle)
                     PickerWithRSB(
-                        readOnly = selectedColumn != 2,
+                        readOnly = focusedElement != FocusableElement.SECONDS,
                         state = secondState,
-                        focusRequester = focusRequester3,
+                        focusRequester = focusRequesterSeconds,
                         modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 2 },
+                        onSelected = {
+                            doubleTapToNext(
+                                FocusableElement.SECONDS,
+                                FocusableElement.CONFIRM_BUTTON
+                            )
+                        },
                         contentDescription = secondContentDescription,
+                        userScrollEnabled = !talkbackEnabled ||
+                            focusedElement == FocusableElement.SECONDS
                     ) { second: Int ->
                         TimePiece(
-                            selected = selectedColumn == 2,
-                            onSelected = { selectedColumn = 2 },
+                            selected = focusedElement == FocusableElement.SECONDS,
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElement.SECONDS,
+                                    FocusableElement.CONFIRM_BUTTON
+                                )
+                            },
                             text = "%02d".format(second),
                             style = textStyle,
+                            talkbackEnabled = talkbackEnabled
                         )
                     }
                 }
@@ -204,17 +312,24 @@ public fun TimePicker(
                         .fillMaxWidth()
                         .weight(weightsToCenterVertically)
                 )
-                Button(onClick = {
-                    val confirmedTime = LocalTime.of(
-                        hourState.selectedOption,
-                        minuteState.selectedOption,
-                        secondState.selectedOption
-                    )
-                    onTimeConfirm(confirmedTime)
-                }) {
+                Button(
+                    onClick = {
+                        val confirmedTime = LocalTime.of(
+                            hourState.selectedOption,
+                            minuteState.selectedOption,
+                            secondState.selectedOption
+                        )
+                        onTimeConfirm(confirmedTime)
+                    },
+                    modifier = Modifier
+                        .semantics {
+                            focused = focusedElement == FocusableElement.CONFIRM_BUTTON
+                        }
+                        .focusRequester(focusRequesterConfirmButton)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "check",
+                        contentDescription = "confirm",
                         modifier = Modifier
                             .size(24.dp)
                             .wrapContentSize(align = Alignment.Center),
@@ -222,9 +337,15 @@ public fun TimePicker(
                 }
                 Spacer(Modifier.height(12.dp))
             }
-            LaunchedEffect(selectedColumn) {
-                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
-                    .requestFocus()
+            LaunchedEffect(focusedElement) {
+                if (focusedElement != FocusableElement.NONE) {
+                    listOf(
+                        focusRequesterHours, focusRequesterMinutes, focusRequesterSeconds,
+                        focusRequesterConfirmButton
+                    )[focusedElement.index].requestFocus()
+                } else {
+                    focusRequesterHours.requestFocus()
+                }
             }
         }
     }
@@ -616,6 +737,7 @@ internal fun TimePiece(
     onSelected: () -> Unit,
     text: String,
     style: TextStyle,
+    talkbackEnabled: Boolean = false
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         val modifier = Modifier
@@ -629,7 +751,7 @@ internal fun TimePiece(
             if (selected) MaterialTheme.colors.secondary
             else MaterialTheme.colors.onBackground,
             modifier =
-            if (selected) modifier
+            if (selected || talkbackEnabled) modifier
             else modifier.pointerInteropFilter {
                 if (it.action == MotionEvent.ACTION_DOWN) onSelected()
                 true
@@ -657,6 +779,7 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     focusRequester: FocusRequester,
     contentDescription: String?,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    userScrollEnabled: Boolean = true,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state = state),
     onSelected: () -> Unit = {},
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
@@ -671,6 +794,7 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         flingBehavior = flingBehavior,
         readOnly = readOnly,
         readOnlyLabel = readOnlyLabel,
+        userScrollEnabled = userScrollEnabled,
         onSelected = onSelected,
         contentDescription = contentDescription,
         option = option
@@ -698,4 +822,56 @@ fun PickerWithoutGradient() {
             Text(items[it])
         }
     }
+}
+
+@Composable
+fun Lifecycle.ObserveState(
+    handleEvent: (Lifecycle.Event) -> Unit = {},
+    onDispose: () -> Unit = {}
+) {
+    DisposableEffect(this) {
+        val observer = LifecycleEventObserver { _, event ->
+            handleEvent(event)
+        }
+        this@ObserveState.addObserver(observer)
+        onDispose {
+            onDispose()
+            this@ObserveState.removeObserver(observer)
+        }
+    }
+}
+
+private fun Modifier.scrollablePicker(
+    pickerState: PickerState
+) = Modifier.composed {
+    this.scrollable(
+        state = pickerState,
+        orientation = Orientation.Vertical,
+        flingBehavior = PickerDefaults.flingBehavior(state = pickerState),
+        reverseDirection = true
+    )
+}
+
+private fun setupAccessibilityManager(context: Context): AccessibilityManager {
+    val accessibilityManager =
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    accessibilityManager.addTouchExplorationStateChangeListener(
+        touchExplorationStateListener()
+    )
+    return accessibilityManager
+}
+
+private fun touchExplorationStateListener(): TouchExplorationStateChangeListener {
+    touchExplorationStateChangeListener = TouchExplorationStateChangeListener { isEnabled ->
+        touchExplorationEnabled = isEnabled
+    }
+    return touchExplorationStateChangeListener
+}
+
+enum class FocusableElement(val index: Int) {
+    HOURS(0),
+    MINUTES(1),
+    SECONDS(2),
+    CONFIRM_BUTTON(3),
+    NONE(-1)
 }
