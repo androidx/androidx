@@ -421,9 +421,11 @@ public final class MediaConstants {
      * Bundle value passed from the {@link MediaBrowserServiceCompat} to the hosting {@link
      * MediaBrowserCompat} to indicate a preference that browsable instances of {@link
      * MediaBrowserCompat.MediaItem} should be presented as "category" list items. This means the
-     * items provide icons that render well when they do <strong>not</strong> fill all of the
-     * available area.
-     *
+     * items must provide tintable vector drawable icons that render well when they:
+     * <ul>
+     * <li>do <strong>not</strong> fill all of the available area</li>
+     * <li>are tinted by the system to provide sufficient contrast against the background</li>
+     * </ul>
      * @see #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE
      */
     public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM = 3;
@@ -432,9 +434,11 @@ public final class MediaConstants {
      * Bundle value passed from the {@link MediaBrowserServiceCompat} to the hosting {@link
      * MediaBrowserCompat} to indicate a preference that browsable instances of {@link
      * MediaBrowserCompat.MediaItem} should be presented as "category" grid items. This means the
-     * items provide icons that render well when they do <strong>not</strong> fill all of the
-     * available area.
-     *
+     * items must provide tintable vector drawable icons that render well when they:
+     * <ul>
+     * <li>do <strong>not</strong> fill all of the available area</li>
+     * <li>are tinted by the system to provide sufficient contrast against the background</li>
+     * </ul>
      * @see #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE
      */
     public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM = 4;
