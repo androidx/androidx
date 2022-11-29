@@ -95,7 +95,7 @@ public class UiScrollable extends UiCollection {
      * Searches for a child element in the present scrollable container.
      * The search first looks for a child element that matches the selector
      * you provided, then looks for the content-description in its children elements.
-     * If both search conditions are fulfilled, the method returns a {@ link UiObject}
+     * If both search conditions are fulfilled, the method returns a {@link UiObject}
      * representing the element matching the selector (not the child element in its
      * subhierarchy containing the content-description). By default, this method performs a
      * scroll search.
@@ -119,7 +119,7 @@ public class UiScrollable extends UiCollection {
      * Searches for a child element in the present scrollable container.
      * The search first looks for a child element that matches the selector
      * you provided, then looks for the content-description in its children elements.
-     * If both search conditions are fulfilled, the method returns a {@ link UiObject}
+     * If both search conditions are fulfilled, the method returns a {@link UiObject}
      * representing the element matching the selector (not the child element in its
      * subhierarchy containing the content-description).
      *
@@ -165,7 +165,7 @@ public class UiScrollable extends UiCollection {
      * Searches for a child element in the present scrollable
      * container. The search first looks for a child element that matches the
      * selector you provided, then looks for the text in its children elements.
-     * If both search conditions are fulfilled, the method returns a {@ link UiObject}
+     * If both search conditions are fulfilled, the method returns a {@link UiObject}
      * representing the element matching the selector (not the child element in its
      * subhierarchy containing the text). By default, this method performs a
      * scroll search.
@@ -187,7 +187,7 @@ public class UiScrollable extends UiCollection {
      * Searches for a child element in the present scrollable container. The
      * search first looks for a child element that matches the
      * selector you provided, then looks for the text in its children elements.
-     * If both search conditions are fulfilled, the method returns a {@ link UiObject}
+     * If both search conditions are fulfilled, the method returns a {@link UiObject}
      * representing the element matching the selector (not the child element in its
      * subhierarchy containing the text).
      *
