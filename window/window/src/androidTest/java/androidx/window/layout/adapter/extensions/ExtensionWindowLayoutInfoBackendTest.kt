@@ -46,6 +46,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -93,6 +94,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         }
     }
 
+    @Ignore // b/260647675, b/260648288
     @SuppressLint("NewApi") // java.util.function.Consumer was added in API 24 (N)
     @Test
     public fun testExtensionWindowBackend_translateValues() {
