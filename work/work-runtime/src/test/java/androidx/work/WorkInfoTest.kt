@@ -16,6 +16,7 @@
 
 package androidx.work
 
+import androidx.work.WorkInfo.State.RUNNING
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
 import org.junit.Test
@@ -28,8 +29,8 @@ class WorkInfoTest {
     @Test
     fun testEqualityWithGeneration() {
         val id = UUID.randomUUID()
-        val info1 = WorkInfo(id, WorkInfo.State.RUNNING, Data.EMPTY, listOf("a"), Data.EMPTY, 0, 1)
-        val info2 = WorkInfo(id, WorkInfo.State.RUNNING, Data.EMPTY, listOf("a"), Data.EMPTY, 0, 4)
+        val info1 = WorkInfo(id = id, state = RUNNING, tags = setOf("a"), generation = 1)
+        val info2 = WorkInfo(id = id, state = RUNNING, tags = setOf("a"), generation = 4)
         assertThat(info1 == info2).isFalse()
     }
 }
