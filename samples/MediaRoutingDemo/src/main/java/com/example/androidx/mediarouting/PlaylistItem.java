@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.app.PendingIntent;
 import android.net.Uri;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaItemStatus;
 
 /**
  * PlaylistItem helps keep track of the current status of an media item.
  */
-final class PlaylistItem {
+public final class PlaylistItem {
     // immutables
     private final String mSessionId;
     private final String mItemId;
@@ -40,7 +41,7 @@ final class PlaylistItem {
     private long mTimestamp;
     private String mRemoteItemId;
 
-    PlaylistItem(PlaylistItem item) {
+    public PlaylistItem(@NonNull PlaylistItem item) {
         mSessionId = item.mSessionId;
         mItemId = item.mItemId;
         mTitle = item.mTitle;
@@ -55,8 +56,8 @@ final class PlaylistItem {
         mRemoteItemId = item.mRemoteItemId;
     }
 
-    public PlaylistItem(String qid, String iid, String title, Uri uri, String mime,
-            PendingIntent pi) {
+    public PlaylistItem(@NonNull String qid, @NonNull String iid, @NonNull String title,
+            @NonNull Uri uri, @NonNull String mime, @NonNull PendingIntent pi) {
         mSessionId = qid;
         mItemId = iid;
         mTitle = title;
@@ -66,7 +67,7 @@ final class PlaylistItem {
         setTimestamp(SystemClock.elapsedRealtime());
     }
 
-    public void setRemoteItemId(String riid) {
+    public void setRemoteItemId(@NonNull String riid) {
         mRemoteItemId = riid;
     }
 
@@ -86,30 +87,37 @@ final class PlaylistItem {
         mContentDuration = duration;
     }
 
+    @NonNull
     public String getSessionId() {
         return mSessionId;
     }
 
+    @NonNull
     public String getItemId() {
         return mItemId;
     }
 
+    @NonNull
     public String getRemoteItemId() {
         return mRemoteItemId;
     }
 
+    @NonNull
     public String getTitle() {
         return mTitle;
     }
 
+    @NonNull
     public Uri getUri() {
         return mUri;
     }
 
+    @NonNull
     public String getMime() {
         return mMime;
     }
 
+    @NonNull
     public PendingIntent getUpdateReceiver() {
         return mUpdateReceiver;
     }
@@ -130,28 +138,30 @@ final class PlaylistItem {
         return mTimestamp;
     }
 
+    @NonNull
     public MediaItemStatus getStatus() {
         return new MediaItemStatus.Builder(mPlaybackState)
-            .setContentPosition(mContentPosition)
-            .setContentDuration(mContentDuration)
-            .setTimestamp(mTimestamp)
-            .build();
+                .setContentPosition(mContentPosition)
+                .setContentDuration(mContentDuration)
+                .setTimestamp(mTimestamp)
+                .build();
     }
 
+    @NonNull
     @Override
     public String toString() {
-        String state[] = {
-            "PENDING",
-            "PLAYING",
-            "PAUSED",
-            "BUFFERING",
-            "FINISHED",
-            "CANCELED",
-            "INVALIDATED",
-            "ERROR"
+        String[] state = {
+                "PENDING",
+                "PLAYING",
+                "PAUSED",
+                "BUFFERING",
+                "FINISHED",
+                "CANCELED",
+                "INVALIDATED",
+                "ERROR"
         };
         return "[" + mSessionId + "|" + mItemId + "|"
-            + (mRemoteItemId != null ? mRemoteItemId : "-") + "|"
-            + state[mPlaybackState] + "] " + mTitle + ": " + mUri.toString();
+                + (mRemoteItemId != null ? mRemoteItemId : "-") + "|"
+                + state[mPlaybackState] + "] " + mTitle + ": " + mUri.toString();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderService;
 
@@ -23,11 +24,12 @@ import androidx.mediarouter.media.MediaRouteProviderService;
  * Demonstrates how to register a custom media route provider service
  * using the support library.
  *
- * @see SampleMediaRouteProvider
+ * @see SampleDynamicGroupMrp
  */
-public class SampleMediaRouteProviderService extends MediaRouteProviderService {
+public class SampleDynamicGroupMrpService extends MediaRouteProviderService {
+    @NonNull
     @Override
     public MediaRouteProvider onCreateMediaRouteProvider() {
-        return new SampleMediaRouteProvider(this);
+        return new SampleDynamicGroupMrp(this);
     }
 }

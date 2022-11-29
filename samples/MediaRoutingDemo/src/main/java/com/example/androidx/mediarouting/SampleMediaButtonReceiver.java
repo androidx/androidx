@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.example.androidx.media;
+package com.example.androidx.mediarouting;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.view.KeyEvent;
+
+import androidx.annotation.NonNull;
 
 /**
  * Broadcast receiver for handling ACTION_MEDIA_BUTTON.
@@ -31,17 +32,16 @@ import android.view.KeyEvent;
 @SuppressWarnings("deprecation")
 public class SampleMediaButtonReceiver extends BroadcastReceiver {
     private static final String TAG = "SampleMediaButtonReceiver";
-    private static SampleMediaRouterActivity mActivity;
+    private static SampleMediaRouterActivity sActivity;
 
-    public static void setActivity(SampleMediaRouterActivity activity) {
-        mActivity = activity;
+    public static void setActivity(@NonNull SampleMediaRouterActivity activity) {
+        sActivity = activity;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (mActivity != null && Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-            mActivity.handleMediaKey(
-                    (KeyEvent)intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
+        if (sActivity != null && Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+            sActivity.handleMediaKey(intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
         }
     }
 }
