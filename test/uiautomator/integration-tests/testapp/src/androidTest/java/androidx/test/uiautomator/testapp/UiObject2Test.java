@@ -35,7 +35,6 @@ import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -682,10 +681,12 @@ public class UiObject2Test extends BaseTest {
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
 
+        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
+
         // Set the gesture's margins to a large number (greater than the width or height of the UI
         // object's visible bounds).
         // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargin(1_000);
+        pinchArea.setGestureMargin(Math.max(pinchAreaBounds.height(), pinchAreaBounds.width()) * 2);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
@@ -703,7 +704,6 @@ public class UiObject2Test extends BaseTest {
                 + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
-    @Ignore // b/260235822
     @Test
     public void testSetGestureMargins() {
         launchTestActivity(PinchTestActivity.class);
@@ -711,10 +711,13 @@ public class UiObject2Test extends BaseTest {
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
 
+        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
+
         // Set the gesture's margins to large numbers (greater than the width or height of the UI
         // object's visible bounds).
         // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargins(1, 1, 1_000, 1_000);
+        pinchArea.setGestureMargins(1, 1, pinchAreaBounds.width() * 2,
+                pinchAreaBounds.height() * 2);
         pinchArea.pinchClose(1f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
