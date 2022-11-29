@@ -28,6 +28,7 @@ import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.activity.CameraXTestActivity
 import androidx.test.core.app.ActivityScenario
@@ -36,7 +37,6 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -65,6 +65,9 @@ class CameraDisconnectTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
@@ -103,7 +106,7 @@ class CameraDisconnectTest(
         }
     }
 
-    @FlakyTest(bugId = 259726932)
+    @LabTestRule.LabTestOnly
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun testCameraDisconnect() {
