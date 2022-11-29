@@ -235,7 +235,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     private static final String KEY_DIFFERENCE_STYLE = "difference_style";
     private static final String KEY_DIFFERENCE_SHOW_NOW_TEXT = "show_now_text";
     private static final String KEY_DIFFERENCE_MINIMUM_UNIT = "minimum_unit";
-    private static final String KEY_DYNAMIC_STRING = "dynamic_string";
+    private static final String KEY_STRING_EXPRESSION = "string_expression";
     private static final String KEY_FORMAT_FORMAT_STRING = "format_format_string";
     private static final String KEY_FORMAT_STYLE = "format_style";
     private static final String KEY_FORMAT_TIME_ZONE = "format_time_zone";
@@ -287,7 +287,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
     private CharSequence mDependentTextCache;
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     public ComplicationText(@Nullable CharSequence surroundingText,
             @Nullable TimeDependentText timeDependentText,
             @Nullable StringExpression stringExpression) {
@@ -305,8 +304,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         Bundle bundle = in.readBundle(getClass().getClassLoader());
         mSurroundingText = bundle.getCharSequence(KEY_SURROUNDING_STRING);
 
-        if (bundle.containsKey(KEY_DYNAMIC_STRING)) {
-            mStringExpression = new StringExpression(bundle.getByteArray(KEY_DYNAMIC_STRING));
+        if (bundle.containsKey(KEY_STRING_EXPRESSION)) {
+            mStringExpression = new StringExpression(bundle.getByteArray(KEY_STRING_EXPRESSION));
         } else {
             mStringExpression = null;
         }
@@ -425,7 +424,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         bundle.putCharSequence(KEY_SURROUNDING_STRING, mSurroundingText);
 
         if (mStringExpression != null) {
-            bundle.putByteArray(KEY_DYNAMIC_STRING, mStringExpression.asByteArray());
+            bundle.putByteArray(KEY_STRING_EXPRESSION, mStringExpression.asByteArray());
         }
 
         if (mTimeDependentText != null) {
@@ -512,12 +511,16 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
         return TextUtils.expandTemplate(mSurroundingText, mTemplateValues);
     }
 
-    /**
-     * Returns The text within which the time difference is displayed.
-     */
+    /** Returns the text within which the time difference is displayed. */
     @Nullable
     public CharSequence getSurroundingText() {
         return mSurroundingText;
+    }
+
+    /** Returns the {@link StringExpression} to be evaluated to display this text. */
+    @Nullable
+    public StringExpression getStringExpression() {
+        return mStringExpression;
     }
 
     /** Whether or not this is a placeholder. */
