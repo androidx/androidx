@@ -21,9 +21,12 @@ import androidx.privacysandbox.tools.core.model.Type
 internal data class AidlTypeSpec(
     val innerType: Type,
     val requiresImport: Boolean = true,
-    val isList: Boolean = false
+    val isList: Boolean = false,
 ) {
-    override fun toString() = innerType.simpleName + if (isList) "[]" else ""
+    override fun toString() = buildString {
+        append(innerType.simpleName)
+        if (isList) append("[]")
+    }
 
     /** Returns a new type spec representing a list of this type. */
     fun listSpec(): AidlTypeSpec {
