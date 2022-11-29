@@ -20,7 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.credentials.exceptions.ClearCredentialException;
@@ -53,10 +55,13 @@ public class CredentialManagerJavaTest {
 
     @Test
     public void testCreateCredentialAsyc_successCallbackThrows() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
         AtomicReference<CreateCredentialException> loadedResult = new AtomicReference<>();
         mCredentialManager.executeCreateCredentialAsync(
                 new CreatePasswordRequest("test-user-id", "test-password"),
-                null,
+                new Activity(),
                 null,
                 Runnable::run,
                 new CredentialManagerCallback<CreateCredentialResponse,
@@ -76,12 +81,15 @@ public class CredentialManagerJavaTest {
 
     @Test
     public void testGetCredentialAsyc_successCallbackThrows() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
         AtomicReference<GetCredentialException> loadedResult = new AtomicReference<>();
         mCredentialManager.executeGetCredentialAsync(
                 new GetCredentialRequest.Builder()
                         .addGetCredentialOption(new GetPasswordOption())
                         .build(),
-                null,
+                new Activity(),
                 null,
                 Runnable::run,
                 new CredentialManagerCallback<GetCredentialResponse,

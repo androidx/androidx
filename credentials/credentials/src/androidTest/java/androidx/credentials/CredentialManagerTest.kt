@@ -16,6 +16,8 @@
 
 package androidx.credentials
 
+import android.app.Activity
+import android.os.Looper
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
@@ -46,9 +48,13 @@ class CredentialManagerTest {
 
     @Test
     fun createCredential_throws() = runBlocking<Unit> {
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         assertThrows<CreateCredentialUnknownException> {
             credentialManager.executeCreateCredential(
-                CreatePasswordRequest("test-user-id", "test-password")
+                CreatePasswordRequest("test-user-id", "test-password"),
+                Activity()
             )
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
@@ -56,11 +62,14 @@ class CredentialManagerTest {
 
     @Test
     fun getCredential_throws() = runBlocking<Unit> {
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         val request = GetCredentialRequest.Builder()
             .addGetCredentialOption(GetPasswordOption())
             .build()
         assertThrows<GetCredentialUnknownException> {
-            credentialManager.executeGetCredential(request)
+            credentialManager.executeGetCredential(request, Activity())
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
@@ -75,10 +84,13 @@ class CredentialManagerTest {
 
     @Test
     fun testCreateCredentialAsyc_successCallbackThrows() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         val loadedResult: AtomicReference<CreateCredentialException> = AtomicReference()
         credentialManager.executeCreateCredentialAsync(
             request = CreatePasswordRequest("test-user-id", "test-password"),
-            activity = null,
+            activity = Activity(),
             cancellationSignal = null,
             executor = Runnable::run,
             callback = object : CredentialManagerCallback<CreateCredentialResponse,
@@ -94,12 +106,15 @@ class CredentialManagerTest {
 
     @Test
     fun testGetCredentialAsyc_successCallbackThrows() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         val loadedResult: AtomicReference<GetCredentialException> = AtomicReference()
         credentialManager.executeGetCredentialAsync(
             request = GetCredentialRequest.Builder()
                 .addGetCredentialOption(GetPasswordOption())
                 .build(),
-            activity = null,
+            activity = Activity(),
             cancellationSignal = null,
             executor = Runnable::run,
             callback = object : CredentialManagerCallback<GetCredentialResponse,
