@@ -464,4 +464,9 @@
   <string name="loading_toggle_disabled">Loading disabled</string>
   <string name="loading_screen">Loading screen</string>
   <string name="vector_toggle_details">Toggle to add/remove color</string>
+    <string name="map_template_toggle_demo_title">Map Template with Toggles</string>
+  <string name="avoid_tolls_row_title">Avoid tolls</string>
+    <string name="route_options_demo_title">Route options</string>
+  <string name="avoid_highways_row_title">Avoid highways</string>
+  <string name="avoid_ferries_row_title">Avoid ferry</string>
 </resources>

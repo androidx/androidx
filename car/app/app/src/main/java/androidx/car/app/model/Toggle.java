@@ -29,7 +29,12 @@ import androidx.car.app.annotations.RequiresCarApi;
 
 import java.util.Objects;
 
-/** Represents a toggle that can have either a checked or unchecked state. */
+/**
+ * Represents a toggle that can have either a checked or unchecked state.
+ *
+ * <p>Toggles are allowed in Map and Pane templates from API >= 6.
+ * Old hosts may render bad UI if the toggles are added to hosts that don't support them.
+ */
 @CarProtocol
 public final class Toggle {
     /** A listener for handling checked state change events. */
