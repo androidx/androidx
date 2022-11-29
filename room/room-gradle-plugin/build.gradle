@@ -1,0 +1,92 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+import androidx.build.SdkResourceGenerator
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
+
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    implementation(gradleApi())
+    implementation("com.android.tools.build:gradle:7.3.0")
+    compileOnly(libs.kotlinGradlePluginz)
+    compileOnly(libs.kspGradlePluginz)
+
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(gradleTestKit())
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.testParameterInjector)
+
+    testPlugin(libs.kotlinGradlePluginz)
+    testPlugin(libs.kspGradlePluginz)
+}
+
+SdkResourceGenerator.generateForHostTest(project)
+
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies. This allows us to test
+// the KAPT / KSP plugins while keeping a compileOnly dep on the main source.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
+}
+
+// Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
+// the test project executed with Gradle Test Kit.
+tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":annotation:annotation-experimental:publish"),
+        tasks.findByPath(":room:room-common:publish"),
+        tasks.findByPath(":room:room-runtime:publish"),
+        tasks.findByPath(":room:room-migration:publish"),
+        tasks.findByPath(":room:room-compiler:publish"),
+        tasks.findByPath(":room:room-compiler-processing:publish"),
+        tasks.findByPath(":sqlite:sqlite:publish"),
+        tasks.findByPath(":sqlite:sqlite-framework:publish"),
+)
+
+gradlePlugin {
+    plugins {
+        room {
+            id = "androidx.room"
+            implementationClass = "androidx.room.gradle.RoomGradlePlugin"
+        }
+    }
+}
+
+androidx {
+    name = "Android Room Gradle Plugin"
+    type = LibraryType.GRADLE_PLUGIN
+    inceptionYear = "2023"
+    description = "Android Room Gradle Plugin"
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}
