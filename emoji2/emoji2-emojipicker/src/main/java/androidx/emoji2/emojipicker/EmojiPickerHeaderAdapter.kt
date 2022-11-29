@@ -18,17 +18,28 @@ package androidx.emoji2.emojipicker
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 /** RecyclerView adapter for emoji header.  */
 internal class EmojiPickerHeaderAdapter(
-    private val context: Context,
+    context: Context,
     private val emojiPickerItems: EmojiPickerItems,
+    private val onHeaderIconClicked: (Int) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+
+    var selectedGroupIndex: Int = 0
+        set(value) {
+            if (value == field) return
+            notifyItemChanged(field)
+            notifyItemChanged(value)
+            field = value
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return object : ViewHolder(
@@ -40,9 +51,21 @@ internal class EmojiPickerHeaderAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        val headerIconView: ImageView =
-            viewHolder.itemView.findViewById(R.id.emoji_picker_header_icon)
-        headerIconView.setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
+        val isItemSelected = i == selectedGroupIndex
+        ViewCompat.requireViewById<AppCompatImageView>(
+            viewHolder.itemView,
+            R.id.emoji_picker_header_icon
+        ).apply {
+            setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
+            setOnClickListener { onHeaderIconClicked(i) }
+            isSelected = isItemSelected
+        }
+
+        ViewCompat.requireViewById<View>(viewHolder.itemView, R.id.emoji_picker_header_underline)
+            .apply {
+                visibility = if (isItemSelected) View.VISIBLE else View.GONE
+                isSelected = isItemSelected
+            }
     }
 
     override fun getItemCount(): Int {

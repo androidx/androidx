@@ -22,4 +22,5 @@
     <attr name="EmojiPickerStyleCategoryEmptyHintText" format="reference" />
     <attr name="EmojiPickerStyleCategoryLabelText" format="reference" />
     <attr name="EmojiPickerStyleHeaderIcon" format="reference" />
+    <attr name="EmojiPickerStyleHeaderIconUnderline" format="reference" />
 </resources>
