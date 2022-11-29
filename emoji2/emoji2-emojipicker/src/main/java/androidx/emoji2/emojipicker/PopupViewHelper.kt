@@ -115,7 +115,7 @@ internal class PopupViewHelper(private val context: Context) {
                 0 -> layoutInflater
                     .inflate(R.layout.emoji_view_holder, null, false)
 
-                else -> SkinToneCircleViewView(context).apply {
+                else -> SkinToneCircleView(context).apply {
                     paint = Paint().apply {
                         color = ContextCompat.getColor(context, SKIN_TONE_COLOR_RES_IDS[it + 5])
                         style = Paint.Style.FILL
@@ -160,7 +160,7 @@ internal class PopupViewHelper(private val context: Context) {
     )
 }
 
-internal class SkinToneCircleViewView @JvmOverloads constructor(
+internal class SkinToneCircleView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
