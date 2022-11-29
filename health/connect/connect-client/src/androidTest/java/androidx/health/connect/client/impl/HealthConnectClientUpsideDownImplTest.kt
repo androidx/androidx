@@ -41,14 +41,13 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @MediumTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 // Comment the SDK suppress to run on emulators thats lower than U.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class HealthConnectClientUpsideDownImplTest {
 
     private lateinit var healthConnectClient: HealthConnectClient
@@ -82,7 +81,6 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    @Ignore("For unclear reason this is throwing exception from the system")
     fun insertRecords() = runTest {
         val response = healthConnectClient.insertRecords(listOf(
             StepsRecord(
