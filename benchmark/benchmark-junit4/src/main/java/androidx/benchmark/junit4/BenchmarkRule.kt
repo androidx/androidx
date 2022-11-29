@@ -24,7 +24,6 @@ import androidx.benchmark.BenchmarkState
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendBytesSafely
 import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -224,9 +223,9 @@ public class BenchmarkRule internal constructor(
                 // that events won't lie outside the bounds of the trace content.
                 userspaceTrace = UserspaceTracing.commitToTrace()
             }?.apply {
-                // trace completed, and copied into app writeable dir
+                // trace completed, and copied into shell writeable dir
                 val file = File(this)
-                file.appendBytesSafely(userspaceTrace!!.encode())
+                file.appendBytes(userspaceTrace!!.encode())
                 file.appendUiState(
                     UiState(
                         timelineStart = null,

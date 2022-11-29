@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
+import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 
 /**
@@ -80,6 +81,12 @@ class PerfettoCaptureWrapper {
             reportKey = "perfetto_trace_$traceLabel"
         ) {
             capture!!.stop(it.absolutePath)
+            if (Outputs.forceFilesForShellAccessible) {
+                // This shell written file must be made readable to be later accessed by this
+                // process (e.g. for appending UiState). Unlike in other places, shell
+                // must increase access, since it's giving the app access
+                Shell.executeScriptSilent("chmod 777 ${it.absolutePath}")
+            }
         }
     }
 

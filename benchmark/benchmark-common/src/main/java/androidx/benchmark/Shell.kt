@@ -119,9 +119,8 @@ object Shell {
             ShellImpl.executeCommandUnsafe("md5sum $path").substringBefore(" ")
         } else {
             // this isn't good, but it's good enough for API 22
-            val out = ShellImpl.executeCommandUnsafe("ls -l $path").split(Regex("\\s+"))[3]
-            println("value is $out")
-            out
+            val result = ShellImpl.executeCommandUnsafe("ls -l $path")
+            if (result.isBlank()) "" else result.split(Regex("\\s+"))[3]
         }
         check(sum.isNotBlank()) {
             "Checksum for $path was blank"
@@ -169,17 +168,21 @@ object Shell {
     fun createRunnableExecutable(name: String, inputStream: InputStream): String {
         // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
         // so we copy to /data/local/tmp
-        val externalDir = Outputs.dirUsableByAppAndShell
         val writableExecutableFile = File.createTempFile(
             /* prefix */ "temporary_$name",
             /* suffix */ null,
-            /* directory */ externalDir
+            /* directory */ Outputs.dirUsableByAppAndShell
         )
         val runnableExecutablePath = "/data/local/tmp/$name"
 
         try {
             writableExecutableFile.outputStream().use {
                 inputStream.copyTo(it)
+            }
+            if (Outputs.forceFilesForShellAccessible) {
+                // executable must be readable by shell to be moved, and for some reason
+                // doesn't inherit shell readability from dirUsableByAppAndShell
+                writableExecutableFile.setReadable(true, false)
             }
             moveToTmpAndMakeExecutable(
                 src = writableExecutableFile.absolutePath,
@@ -551,6 +554,12 @@ private object ShellImpl {
         // so we copy to /data/local/tmp
         val externalDir = Outputs.dirUsableByAppAndShell
         val scriptContentFile = File.createTempFile("temporaryScript", null, externalDir)
+
+        if (Outputs.forceFilesForShellAccessible) {
+            // script content must be readable by shell, and for some reason doesn't
+            // inherit shell readability from dirUsableByAppAndShell
+            scriptContentFile.setReadable(true, false)
+        }
 
         // only create/read/delete stdin/stderr files if they are needed
         val stdinFile = stdin?.run {

@@ -16,12 +16,8 @@
 
 package androidx.benchmark.perfetto
 
-import android.os.Build
-import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.benchmark.BenchmarkState.Companion.TAG
 import java.io.File
-import java.io.FileNotFoundException
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
@@ -45,19 +41,5 @@ fun UiState(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun File.appendUiState(state: UiState) {
     val traceToAppend = Trace(packet = listOf(TracePacket(ui_state = state)))
-    appendBytesSafely(traceToAppend.encode())
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun File.appendBytesSafely(bytes: ByteArray) {
-    try {
-        appendBytes(bytes)
-    } catch (e: FileNotFoundException) {
-        if (Build.VERSION.SDK_INT in 21..22) {
-            // Failure is common on API 21/22 due to b/227510293
-            Log.d(TAG, "Unable to append additional bytes to ${this.absolutePath}")
-        } else {
-            throw e
-        }
-    }
+    appendBytes(traceToAppend.encode())
 }
