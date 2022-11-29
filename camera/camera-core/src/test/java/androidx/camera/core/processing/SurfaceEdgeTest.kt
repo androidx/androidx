@@ -199,14 +199,14 @@ class SurfaceEdgeTest {
     }
 
     /**
-     * Creates a [SurfaceEdge] with the given hasEmbeddedTransform value, and returns the
+     * Creates a [SurfaceEdge] with the given hasCameraTransform value, and returns the
      * [TransformationInfo.hasCameraTransform] from the [SurfaceRequest].
      */
-    private fun getSurfaceRequestHasTransform(hasEmbeddedTransform: Boolean): Boolean {
+    private fun getSurfaceRequestHasTransform(hasCameraTransform: Boolean): Boolean {
         // Arrange.
         val surface = SurfaceEdge(
             CameraEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
-            Matrix(), hasEmbeddedTransform, Rect(), 0, false
+            Matrix(), hasCameraTransform, Rect(), 0, false
         ) {}
         var transformationInfo: TransformationInfo? = null
 

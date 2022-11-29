@@ -524,7 +524,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     resolution,
                     ImageFormat.PRIVATE,
                     getSensorToBufferTransformMatrix(),
-                    /*hasEmbeddedTransform=*/true,
+                    /*hasCameraTransform=*/true,
                     mCropRect,
                     getRelativeRotation(camera),
                     /*mirroring=*/false,

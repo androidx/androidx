@@ -145,7 +145,7 @@ public class SurfaceProcessorNode implements
                 input.getFormat(),
                 sensorToBufferTransform,
                 // The Surface transform cannot be carried over during buffer copy.
-                /*hasEmbeddedTransform=*/false,
+                /*hasCameraTransform=*/false,
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/0,

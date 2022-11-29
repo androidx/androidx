@@ -268,7 +268,7 @@ public final class Preview extends UseCase {
                 resolution,
                 ImageFormat.PRIVATE,
                 new Matrix(),
-                /*hasEmbeddedTransform=*/true,
+                /*hasCameraTransform=*/true,
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
                 /*mirroring=*/isFrontCamera(camera),
