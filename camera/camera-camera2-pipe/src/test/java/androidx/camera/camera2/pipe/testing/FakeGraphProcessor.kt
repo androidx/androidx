@@ -17,6 +17,10 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
+import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
@@ -46,7 +50,7 @@ internal class FakeGraphProcessor(
     private val _requestQueue = mutableListOf<List<Request>>()
     private var processor: GraphRequestProcessor? = null
 
-    private val _graphState = MutableStateFlow<GraphState>(GraphState.GraphStateStopped)
+    private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
 
     override val graphState: StateFlow<GraphState>
         get() = _graphState
@@ -103,13 +107,23 @@ internal class FakeGraphProcessor(
         _requestQueue.clear()
     }
 
+    override fun onGraphStarting() {
+        _graphState.value = GraphStateStarting
+    }
+
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
+        _graphState.value = GraphStateStarted
         val old = processor
         processor = requestProcessor
         old?.close()
     }
 
+    override fun onGraphStopping() {
+        _graphState.value = GraphStateStopping
+    }
+
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+        _graphState.value = GraphStateStopped
         val old = processor
         if (requestProcessor === old) {
             processor = null
