@@ -80,7 +80,6 @@ import androidx.camera.video.internal.encoder.VideoEncoderConfig
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.util.Collections
 import java.util.concurrent.TimeUnit
 import org.junit.After
@@ -352,7 +351,7 @@ class VideoCaptureTest {
     }
 
     @Test
-    fun setQualitySelector_limitedBySurfaceManager_findHighestPriorityQuality() {
+    fun setQualitySelector_sameCustomOrderedResolutions() {
         // Arrange.
         setupCamera(
             profiles = arrayOf(
@@ -387,9 +386,8 @@ class VideoCaptureTest {
         addAndAttachUseCases(videoCapture)
 
         // Assert.
-        assertSupportedResolutions(
-            videoCapture, RESOLUTION_2160P, RESOLUTION_480P
-            // RESOLUTION_720P, RESOLUTION_1080P is filtered out
+        assertCustomOrderedResolutions(
+            videoCapture, RESOLUTION_2160P, RESOLUTION_480P, RESOLUTION_720P, RESOLUTION_1080P
         )
         assertThat(videoCapture.attachedSurfaceResolution).isEqualTo(RESOLUTION_480P)
     }
@@ -421,14 +419,14 @@ class VideoCaptureTest {
         addAndAttachUseCases(videoCapture)
 
         // Assert.
-        assertSupportedResolutions(
+        assertCustomOrderedResolutions(
             videoCapture,
             // UHD
-            Size(3120, 2340),
+            Size(3120, 2340), Size(4000, 3000),
             // FHD
             Size(1440, 1080),
             // HD
-            Size(960, 720),
+            Size(960, 720), Size(1280, 960),
             // SD
             RESOLUTION_VGA,
         )
@@ -461,7 +459,7 @@ class VideoCaptureTest {
         addAndAttachUseCases(videoCapture)
 
         // Assert.
-        assertSupportedResolutions(
+        assertCustomOrderedResolutions(
             videoCapture,
             // UHD
             RESOLUTION_2160P,
@@ -470,7 +468,7 @@ class VideoCaptureTest {
             // HD
             RESOLUTION_720P,
             // SD
-            Size(736, 412), Size(640, 360),
+            Size(736, 412), Size(864, 480), Size(640, 360),
         )
     }
 
@@ -614,40 +612,6 @@ class VideoCaptureTest {
 
         // Assert.
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(180)
-    }
-
-    @Test
-    fun filterOutResolutions() {
-        // Arrange.
-        val inputs = listOf(
-            listOf(RESOLUTION_2160P, RESOLUTION_1080P, RESOLUTION_720P), // 0
-            listOf(RESOLUTION_2160P, RESOLUTION_720P, RESOLUTION_1080P), // 1
-            listOf(RESOLUTION_1080P, RESOLUTION_2160P, RESOLUTION_720P), // 2
-            listOf(RESOLUTION_1080P, RESOLUTION_720P, RESOLUTION_2160P), // 3
-            listOf(RESOLUTION_720P, RESOLUTION_2160P, RESOLUTION_1080P), // 4
-            listOf(RESOLUTION_720P, RESOLUTION_1080P, RESOLUTION_2160P), // 5
-            listOf(RESOLUTION_1080P, RESOLUTION_1080P, RESOLUTION_720P), // 6 contain duplicate
-        )
-
-        val expected = listOf(
-            listOf(RESOLUTION_2160P, RESOLUTION_1080P, RESOLUTION_720P), // 0
-            listOf(RESOLUTION_2160P, RESOLUTION_720P), // 1
-            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 2
-            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 3
-            listOf(RESOLUTION_720P), // 4
-            listOf(RESOLUTION_720P), // 5
-            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 6
-        )
-
-        inputs.zip(expected).forEachIndexed { index, (input, exp) ->
-            // Act.
-            val result = VideoCapture.filterOutResolutions(input)
-
-            // Assert.
-            assertWithMessage("filterOutResolutions fails on index: $index")
-                .that(result)
-                .isEqualTo(exp)
-        }
     }
 
     @Test
@@ -819,17 +783,12 @@ class VideoCaptureTest {
         assertThat(videoCapture.cropRect).isEqualTo(expectedCropRect)
     }
 
-    private fun assertSupportedResolutions(
+    private fun assertCustomOrderedResolutions(
         videoCapture: VideoCapture<out VideoOutput>,
         vararg expectedResolutions: Size
     ) {
-        val supportedResolutionPairs = videoCapture.currentConfig.retrieveOption(
-            ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS
-        )
-        supportedResolutionPairs!!.first { it.first == videoCapture.imageFormat }.second.let {
-            // Compare by List makes assertion message clear.
-            assertThat(it.asList()).containsExactlyElementsIn(expectedResolutions).inOrder()
-        }
+        val resolutions = (videoCapture.currentConfig as ImageOutputConfig).customOrderedResolutions
+        assertThat(resolutions).containsExactlyElementsIn(expectedResolutions).inOrder()
     }
 
     private fun createVideoEncoderInfo(

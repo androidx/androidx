@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
@@ -304,7 +305,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         return suggestedResolution;
     }
-
 
     /**
      * {@inheritDoc}
@@ -1062,42 +1062,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
         Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);
 
-        supportedResolutions = filterOutResolutions(supportedResolutions);
-        Logger.d(TAG, "supportedResolutions after filter out " + supportedResolutions);
-        checkState(!selectedQualities.isEmpty(), "No supportedResolutions after filter out");
-
-        builder.getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS,
-                singletonList(
-                        Pair.create(getImageFormat(), supportedResolutions.toArray(new Size[0]))));
-    }
-
-    /**
-     * Filters out resolutions that will never be selected
-     *
-     * <p>For example, when the resolution list is {1920x1080, 720x480, 3840x2160}, 3840x2160
-     * will never be selected because 720x480 is smaller and has higher priority. Filtering out
-     * these resolutions keeps the auto-resolution mechanism from incorrectly assuming that
-     * VideoCapture might use it, preventing other use cases from not being able to get a larger
-     * resolution.
-     *
-     * @param prioritizedResolutions prioritized resolutions to be filtered out
-     * @return resolutions after filter out
-     */
-    @VisibleForTesting
-    @NonNull
-    static List<Size> filterOutResolutions(@NonNull List<Size> prioritizedResolutions) {
-        ArrayList<Size> ret = new ArrayList<>(prioritizedResolutions.size());
-
-        int minArea = Integer.MAX_VALUE;
-        for (Size resolution : prioritizedResolutions) {
-            int area = getArea(resolution);
-            if (area < minArea) {
-                minArea = area;
-                ret.add(resolution);
-            }
-        }
-
-        return ret;
+        builder.getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
+                supportedResolutions);
     }
 
     private static boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing() {
@@ -1108,10 +1074,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
         return false;
-    }
-
-    private static int getArea(@NonNull Size size) {
-        return size.getWidth() * size.getHeight();
     }
 
     /**
@@ -1391,6 +1353,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         public Builder<T> setSupportedResolutions(
                 @NonNull List<Pair<Integer, Size[]>> resolutions) {
             getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder<T> setCustomOrderedResolutions(@NonNull List<Size> resolutions) {
+            getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, resolutions);
             return this;
         }
 
