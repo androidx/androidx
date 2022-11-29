@@ -248,7 +248,8 @@ class SurfaceProcessorNodeTest {
         // Assert: processor receives app Surface. CameraX receives processor Surface.
         assertThat(surfaceProcessorInternal.outputSurfaces[PREVIEW]).isEqualTo(previewSurface)
         assertThat(surfaceProcessorInternal.outputSurfaces[VIDEO_CAPTURE]).isEqualTo(videoSurface)
-        assertThat(inputSurface.surface.get()).isEqualTo(surfaceProcessorInternal.inputSurface)
+        assertThat(inputSurface.deferrableSurface.surface.get())
+            .isEqualTo(surfaceProcessorInternal.inputSurface)
     }
 
     @Test
@@ -281,7 +282,7 @@ class SurfaceProcessorNodeTest {
         mirroring: Boolean = MIRRORING,
         videoOutputSize: Size = VIDEO_SIZE
     ) {
-        val surface = SettableSurface(
+        val surface = SurfaceEdge(
             previewTarget,
             previewSize,
             format,

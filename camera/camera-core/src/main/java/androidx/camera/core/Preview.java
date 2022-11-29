@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -83,7 +84,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
-import androidx.camera.core.processing.SettableSurface;
+import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
@@ -171,8 +172,14 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    // TODO(b/259308680): remove mSessionDeferrableSurface and rely on mCameraEdge to get the
+    //  DeferrableSurface
     private DeferrableSurface mSessionDeferrableSurface;
+    @Nullable
+    private SurfaceEdge mCameraEdge;
 
+    // TODO(b/259308680): remove mSessionDeferrableSurface and rely on appEdge to get the
+    //  SurfaceRequest
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
@@ -254,7 +261,9 @@ public final class Preview extends UseCase {
 
         // Create nodes and edges.
         mNode = new SurfaceProcessorNode(camera, mSurfaceProcessor);
-        SettableSurface cameraSurface = new SettableSurface(
+        // Make sure the previously created camera edge is cleared before creating a new one.
+        checkState(mCameraEdge == null);
+        mCameraEdge = new SurfaceEdge(
                 PREVIEW,
                 resolution,
                 ImageFormat.PRIVATE,
@@ -264,16 +273,15 @@ public final class Preview extends UseCase {
                 getRelativeRotation(camera),
                 /*mirroring=*/isFrontCamera(camera),
                 this::notifyReset);
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(cameraSurface);
-        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
-                cameraSurface,
+        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
+        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
                 singletonList(outConfig));
         SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
-        SettableSurface appSurface = requireNonNull(nodeOutput.get(outConfig));
+        SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
 
         // Send the app Surface to the app.
-        mSessionDeferrableSurface = cameraSurface;
-        mCurrentSurfaceRequest = appSurface.createSurfaceRequest(camera);
+        mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
+        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
@@ -328,6 +336,11 @@ public final class Preview extends UseCase {
         if (node != null) {
             node.release();
             mNode = null;
+        }
+        SurfaceEdge cameraEdge = mCameraEdge;
+        if (cameraEdge != null) {
+            cameraEdge.close();
+            mCameraEdge = null;
         }
         mCurrentSurfaceRequest = null;
     }
@@ -406,8 +419,7 @@ public final class Preview extends UseCase {
                         getAppTargetRotation(),
                         /*hasCameraTransform=*/true));
             } else {
-                ((SettableSurface) mSessionDeferrableSurface).setRotationDegrees(
-                        getRelativeRotation(cameraInternal));
+                mCameraEdge.setRotationDegrees(getRelativeRotation(cameraInternal));
             }
         }
     }
@@ -641,6 +653,16 @@ public final class Preview extends UseCase {
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
         sendTransformationInfoIfReady();
+    }
+
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public SurfaceEdge getCameraEdge() {
+        return requireNonNull(mCameraEdge);
     }
 
     /**

@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
- * A implementation of {@link SurfaceOutput} that wraps a {@link SettableSurface}.
+ * A implementation of {@link SurfaceOutput} that is connected to a {@link SurfaceEdge}.
  */
 @RequiresApi(21)
 final class SurfaceOutputImpl implements SurfaceOutput {

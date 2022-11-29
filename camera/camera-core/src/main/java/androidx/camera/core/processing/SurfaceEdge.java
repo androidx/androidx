@@ -21,10 +21,8 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.media.ImageReader;
 import android.os.Build;
 import android.util.Range;
 import android.util.Size;
@@ -44,6 +42,7 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -51,33 +50,38 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * An extended {@link DeferrableSurface} that links to external sources.
+ * An edge between two {@link Node} that is based on a {@link DeferrableSurface}.
  *
- * <p>This class is an extension of {@link DeferrableSurface} with additional info of the
- * surface such as crop rect and transformation. It also provides mechanisms to link to external
- * surface provider/consumer, and propagates Surface releasing/closure to linked provider/consumer.
+ * <p>This class contains a single {@link DeferrableSurface} with additional info such as size,
+ * crop rect and transformation.
  *
- * <p>An example of how {@link SettableSurface} connects an external surface provider to
- * an external surface consumer:
- * <pre>
- * {@code PreviewView}(surface provider) <--> {@link SurfaceRequest} <--> {@link SettableSurface}
- *     <--> {@link SurfaceOutput} --> {@link SurfaceProcessor}(surface consumer)
- * </pre>
+ * <p>To connect a downstream node:
+ * <ul>
+ * <li>For external source, call {@link #createSurfaceRequest} and send the
+ * {@link SurfaceRequest} to the app. For example, sending the {@link SurfaceRequest} to
+ * PreviewView or Recorder.
+ * <li>For internal source, call {@link #setProvider} with the {@link DeferrableSurface}
+ * from another {@link UseCase}. For example, when sharing one stream to two use cases.
+ * </ul>
  *
- * TODO(b/241910577): rename this class to SurfaceEdge and make it compositing a
- *  DeferrableSurface instead of inheriting it. This is because in a stream sharing scenario, a
- *  downstream UseCase may reset and provide a different Surface, and a DeferrableSurface
- *  cannot be attached to a different Surface.
+ * <p>To connect a upstream node:
+ * <ul>
+ * <li>For external source, call {@link #createSurfaceOutputFuture} and send the
+ * {@link SurfaceOutput} to the app. For example, sending the {@link SurfaceOutput} to
+ * {@link SurfaceProcessor}.
+ * <li>For internal source, call {@link #getDeferrableSurface()} and set the
+ * {@link DeferrableSurface} on {@link SessionConfig}.
+ * </ul>
  *
- * <p>For the full workflow, please see {@code SettableSurfaceTest
+ * TODO(b/241910577): add a #clearProvider method to reset the connection. This is useful if the
+ *  downstream is a UseCase. When the UseCase is reset(video pause/resume), we need to replace
+ *  the {@link DeferrableSurface} and maybe provide a different Surface.
+ *
+ * <p>For the full workflow, please see {@code SurfaceEdgeTest
  * #linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E}
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class SettableSurface extends DeferrableSurface {
-
-    private final ListenableFuture<Surface> mSurfaceFuture;
-
-    CallbackToFutureAdapter.Completer<Surface> mCompleter;
+public class SurfaceEdge {
 
     private final Matrix mSensorToBufferTransform;
     private final boolean mHasEmbeddedTransform;
@@ -85,14 +89,14 @@ public class SettableSurface extends DeferrableSurface {
     private final boolean mMirroring;
     @CameraEffect.Targets
     private final int mTargets;
-
+    private final int mFormat;
+    private final Size mSize;
     // Guarded by main thread.
     private int mRotationDegrees;
     // Guarded by main thread.
     @Nullable
     private SurfaceOutputImpl mConsumerToNotify;
-    // Guarded by main thread.
-    private boolean mHasProvider = false;
+
     // Guarded by main thread.
     private boolean mHasConsumer = false;
     // Guarded by main thread.
@@ -102,10 +106,14 @@ public class SettableSurface extends DeferrableSurface {
     @NonNull
     private final Runnable mOnInvalidated;
 
+    // TODO(b/259308680): recreate this variable when the downstream node changes.
+    @NonNull
+    private final SettableSurface mSettableSurface = new SettableSurface();
+
     /**
      * Please see the getters to understand the parameters.
      */
-    public SettableSurface(
+    public SurfaceEdge(
             @CameraEffect.Targets int targets,
             @NonNull Size size,
             int format,
@@ -115,96 +123,73 @@ public class SettableSurface extends DeferrableSurface {
             int rotationDegrees,
             boolean mirroring,
             @NonNull Runnable onInvalidated) {
-        super(size, format);
         mTargets = targets;
+        mSize = size;
+        mFormat = format;
         mSensorToBufferTransform = sensorToBufferTransform;
         mHasEmbeddedTransform = hasEmbeddedTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
         mOnInvalidated = onInvalidated;
-        mSurfaceFuture = CallbackToFutureAdapter.getFuture(
-                completer -> {
-                    mCompleter = completer;
-                    return "SettableFuture size: " + size + " hashCode: " + hashCode();
-                });
-    }
-
-    @NonNull
-    @Override
-    protected ListenableFuture<Surface> provideSurface() {
-        return mSurfaceFuture;
     }
 
     /**
-     * Sets a {@link ListenableFuture<Surface>} that provides the surface.
-     *
-     * <p>{@link SettableSurface} uses the surface provided by the provider. This method is for
-     * organizing the pipeline internally, for example, using a {@link ImageReader} to provide
-     * the surface.
-     *
-     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
-     * already has a provider.
+     * Gets the {@link DeferrableSurface} for upstream nodes.
      */
-    @MainThread
-    public void setProvider(@NonNull ListenableFuture<Surface> surfaceFuture) {
-        checkMainThread();
-        Preconditions.checkState(!mHasProvider, "Provider can only be linked once.");
-        mHasProvider = true;
-        Futures.propagate(surfaceFuture, mCompleter);
+    @NonNull
+    public DeferrableSurface getDeferrableSurface() {
+        return mSettableSurface;
     }
 
     /**
-     * Sets the {@link DeferrableSurface} that provides the surface.
+     * Sets the downstream {@link DeferrableSurface}.
      *
-     * <p> Once connected, the parent (this {@link SettableSurface}) and the provider should be
+     * <p>Once connected, the value {@link #getDeferrableSurface()} and the provider will be
      * in sync on the following matters: 1) surface provision, 2) ref-counting, 3) closure and 4)
      * termination. See the list below for details:
      * <ul>
      * <li>Surface. the provider and the parent share the same Surface object.
-     * <li>Ref-counting. The ref-count of the parent is managed by the surface consumer, which
-     * indicates whether it's safe to release the surface. The ref-count of the provider
-     * represents whether the parent is terminated. As long as the parent is not terminated, the
+     * <li>Ref-counting. The ref-count of the {@link #getDeferrableSurface()} represents whether
+     * it's safe to release the Surface. The ref-count of the provider represents whether the
+     * {@link #getDeferrableSurface()} is terminated. As long as the parent is not terminated, the
      * provider cannot release the surface because someone might be accessing the surface.
-     * <li>Closure. When the parent is closed, if the surface is provided via {@link SurfaceOutput},
-     * call {@link SurfaceOutputImpl#requestClose()} to decrease the ref-counter; if the
-     * surface is used by the camera-camera2, wait for the ref-counter to go to zero on its own. For
-     * the provider, closing after providing the surface has no effect; closing before
-     * providing the surface propagates the exception upstream.
-     * <li>Termination. On parent termination, close the provider and decrease the ref-count to
-     * notify that the Surface can be safely released. The provider cannot be terminated before the
-     * parent does.
+     * <li>Closure. When {@link #getDeferrableSurface()} is closed, if the surface is provided
+     * via {@link SurfaceOutput}, it will invoke {@link SurfaceOutputImpl#requestClose()} to
+     * decrease the ref-counter; if the surface is used by the camera-camera2, wait for the
+     * ref-counter to go to zero on its own. For the provider, closing after providing the
+     * surface has no effect; closing before providing the surface propagates the exception
+     * upstream.
+     * <li>Termination. On {@link #getDeferrableSurface()} termination, close the provider and
+     * decrease the ref-count to notify that the Surface can be safely released. The provider
+     * cannot be terminated before the {@link #getDeferrableSurface()} does.
      * </ul>
      *
-     * <p>This method is for organizing the pipeline internally, for example, using the output of
+     * <p>This method is for organizing the pipeline internally. For example, using the output of
      * one {@link UseCase} as the input of another {@link UseCase} for stream sharing.
      *
-     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
+     * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
      * already has a provider.
      *
-     * @throws SurfaceClosedException when the provider is already closed. This should never
-     *                                happen.
+     * @throws DeferrableSurface.SurfaceClosedException when the provider is already closed. This
+     *                                                  should never happen.
      */
     @MainThread
-    public void setProvider(@NonNull DeferrableSurface provider) throws SurfaceClosedException {
+    public void setProvider(@NonNull DeferrableSurface provider)
+            throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
-        setProvider(provider.getSurface());
-        provider.incrementUseCount();
-        getTerminationFuture().addListener(() -> {
-            provider.decrementUseCount();
-            provider.close();
-        }, directExecutor());
+        mSettableSurface.setProvider(provider);
     }
 
     /**
-     * Creates a {@link SurfaceRequest} that is linked to this {@link SettableSurface}.
+     * Creates a {@link SurfaceRequest} that is linked to this {@link SurfaceEdge}.
      *
      * <p>The {@link SurfaceRequest} is for requesting a {@link Surface} from an external source
-     * such as {@code PreviewView} or {@code VideoCapture}. {@link SettableSurface} uses the
+     * such as {@code PreviewView} or {@code VideoCapture}. {@link SurfaceEdge} uses the
      * {@link Surface} provided by {@link SurfaceRequest#provideSurface} as its source. For how
      * the ref-counting works, please see the Javadoc of {@link #setProvider}.
      *
-     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
+     * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
      * already has a provider.
      */
     @MainThread
@@ -214,14 +199,14 @@ public class SettableSurface extends DeferrableSurface {
     }
 
     /**
-     * Creates a {@link SurfaceRequest} that is linked to this {@link SettableSurface}.
+     * Creates a {@link SurfaceRequest} that is linked to this {@link SurfaceEdge}.
      *
      * <p>The {@link SurfaceRequest} is for requesting a {@link Surface} from an external source
-     * such as {@code PreviewView} or {@code VideoCapture}. {@link SettableSurface} uses the
+     * such as {@code PreviewView} or {@code VideoCapture}. {@link SurfaceEdge} uses the
      * {@link Surface} provided by {@link SurfaceRequest#provideSurface} as its source. For how
      * the ref-counting works, please see the Javadoc of {@link #setProvider}.
      *
-     * <p>It throws {@link IllegalStateException} if the current {@link SettableSurface}
+     * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
      * already has a provider.
      *
      * <p>This overload optionally allows allows specifying the expected frame rate range in which
@@ -237,7 +222,7 @@ public class SettableSurface extends DeferrableSurface {
                 expectedFpsRange, this::invalidate);
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
-        } catch (SurfaceClosedException e) {
+        } catch (DeferrableSurface.SurfaceClosedException e) {
             // This should never happen. We just created the SurfaceRequest. It can't be closed.
             throw new AssertionError("Surface is somehow already closed", e);
         }
@@ -247,14 +232,14 @@ public class SettableSurface extends DeferrableSurface {
     }
 
     /**
-     * Creates a {@link SurfaceOutput} that is linked to this {@link SettableSurface}.
+     * Creates a {@link SurfaceOutput} that is linked to this {@link SurfaceEdge}.
      *
      * <p>The {@link SurfaceOutput} is for providing a surface to an external target such
      * as {@link SurfaceProcessor}.
      *
-     * <p>This method returns a {@link ListenableFuture} that completes when the
-     * {@link SettableSurface#getSurface()} completes. The {@link SurfaceOutput} contains the
-     * surface and ref-counts the {@link SettableSurface}.
+     * <p>This method returns a {@link ListenableFuture<SurfaceOutput>} that completes when the
+     * {@link #getDeferrableSurface()} completes. The {@link SurfaceOutput} contains the surface
+     * and ref-counts the {@link SurfaceEdge}.
      *
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
@@ -271,18 +256,19 @@ public class SettableSurface extends DeferrableSurface {
         checkMainThread();
         Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
         mHasConsumer = true;
-        return Futures.transformAsync(getSurface(),
+        return Futures.transformAsync(mSettableSurface.getSurface(),
                 surface -> {
                     Preconditions.checkNotNull(surface);
                     try {
-                        incrementUseCount();
-                    } catch (SurfaceClosedException e) {
+                        mSettableSurface.incrementUseCount();
+                    } catch (DeferrableSurface.SurfaceClosedException e) {
                         return Futures.immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), getFormat(), getSize(), inputSize, cropRect,
+                            getTargets(), mFormat, getSize(), inputSize, cropRect,
                             rotationDegrees, mirroring);
-                    surfaceOutputImpl.getCloseFuture().addListener(this::decrementUseCount,
+                    surfaceOutputImpl.getCloseFuture().addListener(
+                            mSettableSurface::decrementUseCount,
                             directExecutor());
                     mConsumerToNotify = surfaceOutputImpl;
                     return Futures.immediateFuture(surfaceOutputImpl);
@@ -292,7 +278,7 @@ public class SettableSurface extends DeferrableSurface {
     /**
      * Invalidate the previously provided {@link Surface} to provide a new one.
      *
-     * Calls to inform that the {@link Surface} previously provided via
+     * <p>Call this method to inform that the {@link Surface} previously provided via
      * {@link #createSurfaceRequest(CameraInternal)} or
      * {@link #createSurfaceRequest(CameraInternal, Range)} is no longer valid and should reacquire
      * a new {@link Surface}.
@@ -308,9 +294,8 @@ public class SettableSurface extends DeferrableSurface {
     /**
      * Closes the {@link DeferrableSurface} and notifies linked objects for the closure.
      */
-    @Override
     public final void close() {
-        super.close();
+        mSettableSurface.close();
         mainThreadExecutor().execute(() -> {
             if (mConsumerToNotify != null) {
                 mConsumerToNotify.requestClose();
@@ -332,17 +317,16 @@ public class SettableSurface extends DeferrableSurface {
      */
     @NonNull
     public Size getSize() {
-        return getPrescribedSize();
+        return mSize;
     }
 
     /**
      * The format of the {@link Surface}.
      *
-     * TODO(259308680): hide the format. Currently the pipeline only supports
-     *  {@link ImageFormat#PRIVATE}.
+     * TODO(259308680): hide the format. It's always PRIVATE.
      */
     public int getFormat() {
-        return getPrescribedStreamFormat();
+        return mFormat;
     }
 
     /**
@@ -354,7 +338,7 @@ public class SettableSurface extends DeferrableSurface {
      * AR, transforming the coordinates of the detected face in ImageAnalysis to coordinates in
      * PreviewView.
      *
-     * <p> If the {@link SettableSurface} is directly connected to a camera output and its
+     * <p> If the {@link SurfaceEdge} is directly connected to a camera output and its
      * aspect ratio matches the aspect ratio of the sensor, this value is usually an identity
      * matrix, with the exception of device quirks. Each time a intermediate {@link Node}
      * transforms the image buffer, it has to append the same transformation to this
@@ -427,5 +411,52 @@ public class SettableSurface extends DeferrableSurface {
      */
     public boolean getMirroring() {
         return mMirroring;
+    }
+
+    /**
+     * A {@link DeferrableSurface} that sets another {@link DeferrableSurface} as the source.
+     *
+     * <p>This class provides mechanisms to link an {@link DeferrableSurface}, and propagates
+     * Surface releasing/closure to the {@link DeferrableSurface}.
+     */
+    static class SettableSurface extends DeferrableSurface {
+
+        final ListenableFuture<Surface> mSurfaceFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mCompleter = completer;
+                    return "SettableFuture hashCode: " + hashCode();
+                });
+
+        CallbackToFutureAdapter.Completer<Surface> mCompleter;
+
+        // Guarded by main thread.
+        private boolean mHasProvider = false;
+
+        @NonNull
+        @Override
+        protected ListenableFuture<Surface> provideSurface() {
+            return mSurfaceFuture;
+        }
+
+        /**
+         * Sets the {@link DeferrableSurface} that provides the surface.
+         *
+         * @see SurfaceEdge#setProvider(DeferrableSurface)
+         */
+        @MainThread
+        public void setProvider(@NonNull DeferrableSurface provider) throws SurfaceClosedException {
+            checkMainThread();
+            Preconditions.checkState(!mHasProvider, "Provider can only be set once.");
+            mHasProvider = true;
+            Futures.propagate(provider.getSurface(), mCompleter);
+            provider.incrementUseCount();
+            getTerminationFuture().addListener(() -> {
+                provider.decrementUseCount();
+                // TODO(b/259308680): only close the provider if it's from the SurfaceRequest
+                //  created by SurfaceEdge. If the provider comes from another UseCase, it's the
+                //  UseCase's responsibility to close it when its lifecycle ends.
+                provider.close();
+            }, directExecutor());
+        }
     }
 }
