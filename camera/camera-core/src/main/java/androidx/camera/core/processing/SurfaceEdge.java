@@ -84,7 +84,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class SurfaceEdge {
 
     private final Matrix mSensorToBufferTransform;
-    private final boolean mHasEmbeddedTransform;
+    private final boolean mHasCameraTransform;
     private final Rect mCropRect;
     private final boolean mMirroring;
     @CameraEffect.Targets
@@ -118,7 +118,7 @@ public class SurfaceEdge {
             @NonNull Size size,
             int format,
             @NonNull Matrix sensorToBufferTransform,
-            boolean hasEmbeddedTransform,
+            boolean hasCameraTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
             boolean mirroring,
@@ -127,7 +127,7 @@ public class SurfaceEdge {
         mSize = size;
         mFormat = format;
         mSensorToBufferTransform = sensorToBufferTransform;
-        mHasEmbeddedTransform = hasEmbeddedTransform;
+        mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
@@ -350,15 +350,15 @@ public class SurfaceEdge {
     }
 
     /**
-     * Whether the current {@link Surface} has transformation info embedded.
+     * Whether the current {@link Surface} contains the camera transformation info.
      *
-     * <p> Camera embeds transformation info into the {@link Surface}. The info is typically used by
-     * {@link SurfaceView}/{@link TextureView} to correct the preview transformation. After the
-     * buffer copy, the info is lost. The app (e.g. PreviewView) needs to handle the
+     * <p>Camera2 writes the camera transform to the {@link Surface}. The info is typically used by
+     * {@link SurfaceView}/{@link TextureView} to correct the preview. Once it's buffer copied by
+     * post-processing, the info is lost. The app (e.g. PreviewView) needs to handle the
      * transformation differently based on this flag.
      */
-    public boolean hasEmbeddedTransform() {
-        return mHasEmbeddedTransform;
+    public boolean hasCameraTransform() {
+        return mHasCameraTransform;
     }
 
     // The following values represent the scenario that if this buffer is given directly to the
@@ -402,7 +402,7 @@ public class SurfaceEdge {
         if (mProviderSurfaceRequest != null) {
             mProviderSurfaceRequest.updateTransformationInfo(
                     TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED,
-                            /*hasCameraTransform=*/hasEmbeddedTransform()));
+                            hasCameraTransform()));
         }
     }
 

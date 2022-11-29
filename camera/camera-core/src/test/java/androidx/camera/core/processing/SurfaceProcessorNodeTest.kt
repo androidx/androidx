@@ -276,7 +276,7 @@ class SurfaceProcessorNodeTest {
         previewSize: Size = INPUT_SIZE,
         format: Int = ImageFormat.PRIVATE,
         sensorToBufferTransform: android.graphics.Matrix = android.graphics.Matrix(),
-        hasEmbeddedTransform: Boolean = true,
+        hasCameraTransform: Boolean = true,
         previewCropRect: Rect = PREVIEW_CROP_RECT,
         previewRotationDegrees: Int = ROTATION_DEGREES,
         mirroring: Boolean = MIRRORING,
@@ -287,7 +287,7 @@ class SurfaceProcessorNodeTest {
             previewSize,
             format,
             sensorToBufferTransform,
-            hasEmbeddedTransform,
+            hasCameraTransform,
             previewCropRect,
             previewRotationDegrees,
             mirroring
