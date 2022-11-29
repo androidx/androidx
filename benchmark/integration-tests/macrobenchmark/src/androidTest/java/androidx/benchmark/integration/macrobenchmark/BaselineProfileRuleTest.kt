@@ -64,7 +64,9 @@ class BaselineProfileRuleTest {
         // Collects the baseline profile
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            packageFilters = listOf(PACKAGE_NAME),
+            filterPredicate = {
+                it.contains("^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex())
+            },
             profileBlock = {
                 assertEquals(expectedIteration++, iteration)
                 startActivityAndWait(Intent(ACTION))

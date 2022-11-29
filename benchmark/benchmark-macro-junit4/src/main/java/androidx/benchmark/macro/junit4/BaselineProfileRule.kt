@@ -55,6 +55,27 @@ import org.junit.runners.model.Statement
  *         startActivityAndWait()
  *     }
  * }
+ *
+ * Note that you can filter captured rules, for example, if you're generating rules for a library,
+ * and don't want to record profiles from outside that library:
+ *
+ * ```
+ *     @Test
+ *     fun generateLibraryRules() = baselineProfileRule.collectBaselineProfile(
+ *         // Target app is an integration test app which uses the library, but any
+ *         // app code isn't relevant to store in library's Baseline Profile
+ *         packageName = "com.example.testapp.id"
+ *         filterPredicate = {
+ *             // Only capture rules in the library's package, excluding test app code
+ *             // Rules are prefixed by tag characters, followed by JVM method signature,
+ *             // e.g. `HSPLcom/mylibrary/LibraryClass;-><init>()V`, where `L`
+ *             // signifies the start of the package/class, and '/' is divider instead of '.'
+ *             val libPackage = "com.mylibrary"
+ *             it.contains("^.*L${libPackage.replace(".", "/")}".toRegex())
+ *         },
+ *     ) {
+ *         // ...
+ *     }
  * ```
  *
  * See the [Baseline Profile Guide](https://d.android.com/baseline-profiles) for more information
@@ -83,23 +104,24 @@ class BaselineProfileRule : TestRule {
      * Collects baseline profiles for a set of interactions with the application
      * @param packageName ApplicationId / Application manifest package name of the app for
      *   which profiles are generated.
-     * @param packageFilters List of package names to use as a filter for the generated profiles.
-     *  By default no filters are applied. Note that this works only when the code is not
-     *  obfuscated.
+     * @param iterations Number of iterations to run the profile block when collecting profiles.
+     * @param filterPredicate Function used to filter individual rules / lines of the baseline
+     *  profile. By default, no filters are applied. Note that this works only when the target
+     *  application's code is not obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
         iterations: Int = 3,
-        packageFilters: List<String> = emptyList(),
+        filterPredicate: ((String) -> Boolean)? = null,
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
             uniqueName = currentDescription.toUniqueName(),
             packageName = packageName,
             iterations = iterations,
-            packageFilters = packageFilters,
+            filterPredicate = filterPredicate,
             profileBlock = profileBlock
         )
     }
@@ -109,12 +131,13 @@ class BaselineProfileRule : TestRule {
      * profiles are stable for a minimum of [stableIterations].
      *
      * @param packageName Package name of the app for which profiles are to be generated.
-     * @param maxIterations Maximum number of iterations to run for when collecting profiles.
-     * @param stableIterations Minimum number of iterations for while baseline profiles have to be stable.
+     * @param maxIterations Maximum number of iterations to run when collecting profiles.
+     * @param stableIterations Minimum number of iterations to observe as stable before assuming
+     *   stability, and completing profile generation.
      * @param strictStability Enforce if the generated profile was stable
-     * @param packageFilters List of package names to use as a filter for the generated profiles.
-     *  By default no filters are applied. Note that this works only when the code is not obfuscated.
-     *  Package filters are only applied after the profiles are deemed stable.
+     * @param filterPredicate Function used to filter individual rules / lines of the baseline
+     *  profile. By default, no filters are applied. Note that this works only when the target
+     *  application's code is not obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
@@ -124,7 +147,7 @@ class BaselineProfileRule : TestRule {
         maxIterations: Int,
         stableIterations: Int = 3,
         strictStability: Boolean = false,
-        packageFilters: List<String> = emptyList(),
+        filterPredicate: ((String) -> Boolean)? = null,
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectStableBaselineProfile(
@@ -133,7 +156,7 @@ class BaselineProfileRule : TestRule {
             stableIterations = stableIterations,
             maxIterations = maxIterations,
             strictStability = strictStability,
-            packageFilters = packageFilters,
+            filterPredicate = filterPredicate,
             profileBlock = profileBlock
         )
     }
