@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.VisibleForTesting;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * When initialized, it hooks into the Activity callback of the Application and observes
@@ -32,36 +29,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * providers related to an activity as soon it is not safe to run a fragment transaction in this
  * activity.
  */
-class LifecycleDispatcher {
+internal object LifecycleDispatcher {
+    private val initialized = AtomicBoolean(false)
 
-    private static AtomicBoolean sInitialized = new AtomicBoolean(false);
-
-    static void init(Context context) {
-        if (sInitialized.getAndSet(true)) {
-            return;
+    @JvmStatic
+    fun init(context: Context) {
+        if (initialized.getAndSet(true)) {
+            return
         }
-        ((Application) context.getApplicationContext())
-                .registerActivityLifecycleCallbacks(new DispatcherActivityCallback());
+        (context.applicationContext as Application)
+            .registerActivityLifecycleCallbacks(DispatcherActivityCallback())
     }
 
-    @SuppressWarnings("WeakerAccess")
     @VisibleForTesting
-    static class DispatcherActivityCallback extends EmptyActivityLifecycleCallbacks {
-
-        @Override
-        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            ReportFragment.injectIfNeededIn(activity);
+    internal class DispatcherActivityCallback : EmptyActivityLifecycleCallbacks() {
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+            ReportFragment.injectIfNeededIn(activity)
         }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-        }
-    }
-
-    private LifecycleDispatcher() {
     }
 }
