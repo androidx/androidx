@@ -135,8 +135,9 @@ class ImagePipelineTest {
         assertThat(captureConfig.implementationOptions.retrieveOption(OPTION_ROTATION))
             .isEqualTo(ROTATION_DEGREES)
 
-        // Act: fail the camera request.
-        cameraRequest.onCaptureFailure(FAILURE)
+        // Act: fail the processing request.
+        val processingRequest = result.second!!
+        processingRequest.onCaptureFailure(FAILURE)
         // Assert: The failure is propagated.
         assertThat(CALLBACK.captureFailure).isEqualTo(FAILURE)
     }
@@ -270,7 +271,7 @@ class ImagePipelineTest {
         val image = createJpegFakeImageProxy(imageInfo, jpegBytes)
 
         // Act: send processing request and the image.
-        imagePipeline.postProcess(processingRequest)
+        imagePipeline.submitProcessingRequest(processingRequest)
         imagePipeline.captureNode.onImageProxyAvailable(image)
         shadowOf(getMainLooper()).idle()
 
@@ -297,5 +298,21 @@ class ImagePipelineTest {
 
         // Assert: the capacity of queue is 0.
         assertThat(imagePipeline.capacity).isEqualTo(0)
+    }
+
+    @Test
+    fun notifyCallbackError_captureFailureIsCalled() {
+        // Arrange.
+        val processingRequest = imagePipeline.createRequests(
+            IN_MEMORY_REQUEST, CALLBACK
+        ).second!!
+
+        // Act: send processing request and the image.
+        imagePipeline.submitProcessingRequest(processingRequest)
+        imagePipeline.notifyCaptureError(FAILURE)
+
+        shadowOf(getMainLooper()).idle()
+        // Assert: The failure is propagated.
+        assertThat(CALLBACK.captureFailure).isEqualTo(FAILURE)
     }
 }

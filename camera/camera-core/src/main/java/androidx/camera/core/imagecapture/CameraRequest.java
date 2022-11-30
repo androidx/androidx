@@ -16,14 +16,10 @@
 
 package androidx.camera.core.imagecapture;
 
-import static androidx.camera.core.impl.utils.Threads.checkMainThread;
-
 import android.os.Build;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.CaptureConfig;
 
 import java.util.List;
@@ -35,22 +31,13 @@ import java.util.List;
 public final class CameraRequest {
 
     private final List<CaptureConfig> mCaptureConfigs;
-    private final TakePictureCallback mCallback;
 
-    public CameraRequest(@NonNull List<CaptureConfig> captureConfigs,
-            @NonNull TakePictureCallback callback) {
+    public CameraRequest(@NonNull List<CaptureConfig> captureConfigs) {
         mCaptureConfigs = captureConfigs;
-        mCallback = callback;
     }
 
     @NonNull
     List<CaptureConfig> getCaptureConfigs() {
         return mCaptureConfigs;
-    }
-
-    @MainThread
-    void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
-        checkMainThread();
-        mCallback.onCaptureFailure(imageCaptureException);
     }
 }

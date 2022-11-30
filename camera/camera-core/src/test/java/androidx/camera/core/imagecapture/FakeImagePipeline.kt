@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.util.Size
 import androidx.annotation.MainThread
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.Utils.createEmptyImageCaptureConfig
 import androidx.camera.core.impl.CaptureConfig
@@ -30,6 +31,7 @@ import androidx.core.util.Pair
 class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     ImagePipeline(config, cameraSurfaceSize) {
 
+    private var currentProcessingRequest: ProcessingRequest? = null
     private var receivedProcessingRequest: MutableSet<ProcessingRequest> = mutableSetOf()
     private var responseMap: MutableMap<TakePictureRequest,
         Pair<CameraRequest, ProcessingRequest>> = mutableMapOf()
@@ -50,17 +52,24 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
             val captureConfig = captureConfigMap[request] ?: listOf()
             responseMap[request] =
                 Pair(
-                    CameraRequest(captureConfig, callback),
+                    CameraRequest(captureConfig),
                     FakeProcessingRequest({ mutableListOf() }, callback)
                 )
         }
         return responseMap[request]!!
     }
 
-    internal override fun postProcess(
+    internal override fun submitProcessingRequest(
         request: ProcessingRequest
     ) {
         receivedProcessingRequest.add(request)
+        currentProcessingRequest = request
+    }
+
+    internal override fun notifyCaptureError(
+        e: ImageCaptureException
+    ) {
+        currentProcessingRequest!!.onCaptureFailure(e)
     }
 
     internal fun getProcessingRequest(takePictureRequest: TakePictureRequest): ProcessingRequest {

@@ -147,6 +147,14 @@ class ProcessingRequest {
     }
 
     /**
+     * @see TakePictureCallback#onCaptureFailure
+     */
+    @MainThread
+    void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
+        mCallback.onCaptureFailure(imageCaptureException);
+    }
+
+    /**
      * Returns true if the request has been aborted by the app/lifecycle.
      */
     boolean isAborted() {
