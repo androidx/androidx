@@ -35,6 +35,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
@@ -176,8 +177,7 @@ public class ImagePipeline {
         return new Pair<>(
                 createCameraRequest(
                         captureBundle,
-                        takePictureRequest,
-                        takePictureCallback),
+                        takePictureRequest),
                 createProcessingRequest(
                         captureBundle,
                         takePictureRequest,
@@ -185,9 +185,15 @@ public class ImagePipeline {
     }
 
     @MainThread
-    void postProcess(@NonNull ProcessingRequest request) {
+    void submitProcessingRequest(@NonNull ProcessingRequest request) {
         checkMainThread();
         mPipelineIn.getRequestEdge().accept(request);
+    }
+
+    @MainThread
+    void notifyCaptureError(@NonNull ImageCaptureException e) {
+        checkMainThread();
+        mPipelineIn.getErrorEdge().accept(e);
     }
 
     // ===== private methods =====
@@ -214,8 +220,7 @@ public class ImagePipeline {
 
     private CameraRequest createCameraRequest(
             @NonNull CaptureBundle captureBundle,
-            @NonNull TakePictureRequest takePictureRequest,
-            @NonNull TakePictureCallback takePictureCallback) {
+            @NonNull TakePictureRequest takePictureRequest) {
         List<CaptureConfig> captureConfigs = new ArrayList<>();
         String tagBundleKey = String.valueOf(captureBundle.hashCode());
         for (final CaptureStage captureStage : requireNonNull(captureBundle.getCaptureStages())) {
@@ -249,7 +254,7 @@ public class ImagePipeline {
             captureConfigs.add(builder.build());
         }
 
-        return new CameraRequest(captureConfigs, takePictureCallback);
+        return new CameraRequest(captureConfigs);
     }
 
     /**

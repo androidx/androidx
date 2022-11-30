@@ -205,8 +205,8 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
                 mImagePipeline.createRequests(request, requestWithCallback);
         CameraRequest cameraRequest = requireNonNull(requests.first);
         ProcessingRequest processingRequest = requireNonNull(requests.second);
-        ListenableFuture<Void> captureRequestFuture = submitCameraRequest(cameraRequest,
-                () -> mImagePipeline.postProcess(processingRequest));
+        mImagePipeline.submitProcessingRequest(processingRequest);
+        ListenableFuture<Void> captureRequestFuture = submitCameraRequest(cameraRequest);
         requestWithCallback.setCaptureRequestFuture(captureRequestFuture);
     }
 
@@ -237,8 +237,7 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
      */
     @MainThread
     private ListenableFuture<Void> submitCameraRequest(
-            @NonNull CameraRequest cameraRequest,
-            @NonNull Runnable successRunnable) {
+            @NonNull CameraRequest cameraRequest) {
         checkMainThread();
         mImageCaptureControl.lockFlashMode();
         ListenableFuture<Void> captureRequestFuture =
@@ -246,16 +245,15 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
         Futures.addCallback(captureRequestFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void result) {
-                successRunnable.run();
                 mImageCaptureControl.unlockFlashMode();
             }
 
             @Override
             public void onFailure(@NonNull Throwable throwable) {
                 if (throwable instanceof ImageCaptureException) {
-                    cameraRequest.onCaptureFailure((ImageCaptureException) throwable);
+                    mImagePipeline.notifyCaptureError((ImageCaptureException) throwable);
                 } else {
-                    cameraRequest.onCaptureFailure(new ImageCaptureException(
+                    mImagePipeline.notifyCaptureError(new ImageCaptureException(
                             ERROR_CAPTURE_FAILED,
                             "Failed to submit capture request",
                             throwable));
