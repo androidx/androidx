@@ -16,12 +16,15 @@
 
 package androidx.core.os;
 
+import static android.os.ext.SdkExtensions.getExtensionVersion;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Build.VERSION;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 
@@ -237,4 +240,56 @@ public class BuildCompat {
      */
     @RequiresOptIn
     public @interface PrereleaseSdkCheck { }
+
+    /**
+     * The value of {@code SdkExtensions.getExtensionVersion(R)}. This is a convenience constant
+     * which provides the extension version in a similar style to {@code Build.VERSION.SDK_INT}.
+     * <p>
+     * Compared to calling {@code getExtensionVersion} directly, using this constant has the
+     * benefit of not having to verify the {@code getExtensionVersion} method is available.
+     *
+     * @return the version of the R extension, if it exists. 0 otherwise.
+     */
+    @ChecksSdkIntAtLeast(extension = Build.VERSION_CODES.R)
+    @SuppressLint("CompileTimeConstant")
+    public static final int R_EXTENSION_INT = VERSION.SDK_INT >= 30 ? Extensions30Impl.R : 0;
+
+    /**
+     * The value of {@code SdkExtensions.getExtensionVersion(S)}. This is a convenience constant
+     * which provides the extension version in a similar style to {@code Build.VERSION.SDK_INT}.
+     * <p>
+     * Compared to calling {@code getExtensionVersion} directly, using this constant has the
+     * benefit of not having to verify the {@code getExtensionVersion} method is available.
+     *
+     * @return the version of the S extension, if it exists. 0 otherwise.
+     */
+    @ChecksSdkIntAtLeast(extension = Build.VERSION_CODES.S)
+    @SuppressLint("CompileTimeConstant")
+    public static final int S_EXTENSION_INT = VERSION.SDK_INT >= 30 ? Extensions30Impl.S : 0;
+
+    /**
+     * The value of {@code SdkExtensions.getExtensionVersion(TIRAMISU)}. This is a convenience
+     * constant which provides the extension version in a similar style to
+     * {@code Build.VERSION.SDK_INT}.
+     * <p>
+     * Compared to calling {@code getExtensionVersion} directly, using this constant has the
+     * benefit of not having to verify the {@code getExtensionVersion} method is available.
+     *
+     * @return the version of the T extension, if it exists. 0 otherwise.
+     */
+    @ChecksSdkIntAtLeast(extension = Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("CompileTimeConstant")
+    public static final int T_EXTENSION_INT = VERSION.SDK_INT >= 30 ? Extensions30Impl.TIRAMISU : 0;
+
+    @SuppressLint("ClassVerificationFailure") // Remove when SDK including b/206996004 is imported
+    @RequiresApi(30)
+    private static final class Extensions30Impl {
+        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
+        static final int R = getExtensionVersion(Build.VERSION_CODES.R);
+        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
+        static final int S = getExtensionVersion(Build.VERSION_CODES.S);
+        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
+        static final int TIRAMISU = getExtensionVersion(Build.VERSION_CODES.TIRAMISU);
+    }
+
 }
