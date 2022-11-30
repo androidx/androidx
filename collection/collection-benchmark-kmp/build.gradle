@@ -69,3 +69,7 @@ benchmark {
 androidx {
     publish = Publish.NONE
 }
+
+androidx {
+    mavenGroup = LibraryGroups.COLLECTION
+}

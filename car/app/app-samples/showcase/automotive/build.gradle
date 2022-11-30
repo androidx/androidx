@@ -48,3 +48,7 @@ dependencies {
     implementation(project(":car:app:app-samples:showcase-common"))
     implementation(project(":car:app:app-automotive"))
 }
+
+androidx {
+    mavenGroup = LibraryGroups.CAR_APP
+}

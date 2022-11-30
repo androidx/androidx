@@ -33,3 +33,7 @@ android {
     }
     namespace "androidx.wear.watchface.complications.datasource.samples"
 }
+
+androidx {
+    mavenGroup = LibraryGroups.WEAR_WATCHFACE
+}
