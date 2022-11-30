@@ -105,20 +105,24 @@ class BaselineProfileRule : TestRule {
      * @param packageName ApplicationId / Application manifest package name of the app for
      *   which profiles are generated.
      * @param iterations Number of iterations to run the profile block when collecting profiles.
+     * @param outputFilePrefix An optional file name prefix used when creating the output
+     *    file with the contents of the human readable baseline profile.
+     *    For example: `outputFilePrefix-baseline-prof.txt`
      * @param filterPredicate Function used to filter individual rules / lines of the baseline
-     *  profile. By default, no filters are applied. Note that this works only when the target
-     *  application's code is not obfuscated.
+     *   profile. By default, no filters are applied. Note that this works only when the target
+     *   application's code is not obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
         iterations: Int = 3,
+        outputFilePrefix: String? = null,
         filterPredicate: ((String) -> Boolean)? = null,
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
-            uniqueName = currentDescription.toUniqueName(),
+            uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
             packageName = packageName,
             iterations = iterations,
             filterPredicate = filterPredicate,
@@ -134,6 +138,9 @@ class BaselineProfileRule : TestRule {
      * @param maxIterations Maximum number of iterations to run when collecting profiles.
      * @param stableIterations Minimum number of iterations to observe as stable before assuming
      *   stability, and completing profile generation.
+     * @param outputFilePrefix An optional file name prefix used when creating the output
+     *    file with the contents of the human readable baseline profile.
+     *    For example: `outputFilePrefix-baseline-prof.txt`
      * @param strictStability Enforce if the generated profile was stable
      * @param filterPredicate Function used to filter individual rules / lines of the baseline
      *  profile. By default, no filters are applied. Note that this works only when the target
@@ -146,12 +153,13 @@ class BaselineProfileRule : TestRule {
         packageName: String,
         maxIterations: Int,
         stableIterations: Int = 3,
+        outputFilePrefix: String? = null,
         strictStability: Boolean = false,
         filterPredicate: ((String) -> Boolean)? = null,
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectStableBaselineProfile(
-            uniqueName = currentDescription.toUniqueName(),
+            uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
             packageName = packageName,
             stableIterations = stableIterations,
             maxIterations = maxIterations,
