@@ -24,7 +24,7 @@ import org.junit.Test
 @SmallTest
 class UnicodeRenderableManagerTest {
     @Test
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 23)
     fun testGetClosestRenderable_lowerVersionTrimmed() {
         // #️⃣
         assertEquals(
@@ -34,7 +34,7 @@ class UnicodeRenderableManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
+    @SdkSuppress(minSdkVersion = 24)
     fun testGetClosestRenderable_higherVersionNoTrim() {
         // #️⃣
         assertEquals(
