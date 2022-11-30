@@ -13,275 +13,211 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("LiveDataReactiveStreams")
 
-package androidx.lifecycle;
+package androidx.lifecycle
 
-import android.annotation.SuppressLint;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
-
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.util.concurrent.atomic.AtomicReference;
+import android.annotation.SuppressLint
+import androidx.arch.core.executor.ArchTaskExecutor
+import java.util.concurrent.atomic.AtomicReference
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 
 /**
- * Adapts {@link LiveData} input and output to the ReactiveStreams spec.
+ * Adapts the given [LiveData] stream to a ReactiveStreams [Publisher].
+ *
+ * By using a good publisher implementation such as RxJava 2.x Flowables, most consumers will
+ * be able to let the library deal with backpressure using operators and not need to worry about
+ * ever manually calling [Subscription.request].
+ *
+ * On subscription to the publisher, the observer will attach to the given [LiveData].
+ * Once [Subscription.request] is called on the subscription object, an observer will be
+ * connected to the data stream. Calling `request(Long.MAX_VALUE)` is equivalent to creating an
+ * unbounded stream with no backpressure. If request with a finite count reaches 0, the observer
+ * will buffer the latest item and emit it to the subscriber when data is again requested. Any
+ * other items emitted during the time there was no backpressure requested will be dropped.
  */
-@SuppressWarnings("WeakerAccess")
-public final class LiveDataReactiveStreams {
-    private LiveDataReactiveStreams() {
+@SuppressLint("LambdaLast")
+fun <T> toPublisher(lifecycle: LifecycleOwner, liveData: LiveData<T>): Publisher<T> {
+    return LiveDataPublisher(lifecycle, liveData)
+}
+
+private class LiveDataPublisher<T>(
+    val lifecycle: LifecycleOwner,
+    val liveData: LiveData<T>
+) : Publisher<T> {
+    override fun subscribe(subscriber: Subscriber<in T>) {
+        subscriber.onSubscribe(LiveDataSubscription(subscriber, lifecycle, liveData))
     }
 
-    /**
-     * Adapts the given {@link LiveData} stream to a ReactiveStreams {@link Publisher}.
-     *
-     * <p>
-     * By using a good publisher implementation such as RxJava 2.x Flowables, most consumers will
-     * be able to let the library deal with backpressure using operators and not need to worry about
-     * ever manually calling {@link Subscription#request}.
-     *
-     * <p>
-     * On subscription to the publisher, the observer will attach to the given {@link LiveData}.
-     * Once {@link Subscription#request} is called on the subscription object, an observer will be
-     * connected to the data stream. Calling request(Long.MAX_VALUE) is equivalent to creating an
-     * unbounded stream with no backpressure. If request with a finite count reaches 0, the observer
-     * will buffer the latest item and emit it to the subscriber when data is again requested. Any
-     * other items emitted during the time there was no backpressure requested will be dropped.
-     */
-    @NonNull
-    @SuppressLint("LambdaLast")
-    public static <T> Publisher<T> toPublisher(
-            @NonNull LifecycleOwner lifecycle, @NonNull LiveData<T> liveData) {
+    class LiveDataSubscription<T> constructor(
+        val subscriber: Subscriber<in T>,
+        val lifecycle: LifecycleOwner,
+        val liveData: LiveData<T>
+    ) : Subscription, Observer<T> {
+        @Volatile
+        var canceled = false
 
-        return new LiveDataPublisher<>(lifecycle, liveData);
-    }
+        // used on main thread only
+        var observing = false
+        var requested: Long = 0
 
-    private static final class LiveDataPublisher<T> implements Publisher<T> {
-        final LifecycleOwner mLifecycle;
-        final LiveData<T> mLiveData;
+        // used on main thread only
+        var latest: T? = null
 
-        LiveDataPublisher(LifecycleOwner lifecycle, LiveData<T> liveData) {
-            this.mLifecycle = lifecycle;
-            this.mLiveData = liveData;
+        override fun onChanged(t: T?) {
+            if (canceled) {
+                return
+            }
+            if (requested > 0) {
+                latest = null
+                subscriber.onNext(t)
+                if (requested != Long.MAX_VALUE) {
+                    requested--
+                }
+            } else {
+                latest = t
+            }
         }
 
-        @Override
-        public void subscribe(Subscriber<? super T> subscriber) {
-            subscriber.onSubscribe(new LiveDataSubscription<T>(subscriber, mLifecycle, mLiveData));
+        override fun request(n: Long) {
+            if (canceled) {
+                return
+            }
+            ArchTaskExecutor.getInstance().executeOnMainThread(
+                Runnable {
+                    if (canceled) {
+                        return@Runnable
+                    }
+                    if (n <= 0L) {
+                        canceled = true
+                        if (observing) {
+                            liveData.removeObserver(this@LiveDataSubscription)
+                            observing = false
+                        }
+                        latest = null
+                        subscriber.onError(
+                            IllegalArgumentException("Non-positive request")
+                        )
+                        return@Runnable
+                    }
+
+                    // Prevent overflowage.
+                    requested =
+                        if (requested + n >= requested) requested + n else Long.MAX_VALUE
+                    if (!observing) {
+                        observing = true
+                        liveData.observe(lifecycle, this@LiveDataSubscription)
+                    } else if (latest != null) {
+                        onChanged(latest)
+                        latest = null
+                    }
+                })
         }
 
-        static final class LiveDataSubscription<T> implements Subscription, Observer<T> {
-            final Subscriber<? super T> mSubscriber;
-            final LifecycleOwner mLifecycle;
-            final LiveData<T> mLiveData;
-
-            volatile boolean mCanceled;
-            // used on main thread only
-            boolean mObserving;
-            long mRequested;
-            // used on main thread only
-            @Nullable
-            T mLatest;
-
-            LiveDataSubscription(final Subscriber<? super T> subscriber,
-                    final LifecycleOwner lifecycle, final LiveData<T> liveData) {
-                this.mSubscriber = subscriber;
-                this.mLifecycle = lifecycle;
-                this.mLiveData = liveData;
+        override fun cancel() {
+            if (canceled) {
+                return
             }
-
-            @Override
-            public void onChanged(@Nullable T t) {
-                if (mCanceled) {
-                    return;
+            canceled = true
+            ArchTaskExecutor.getInstance().executeOnMainThread {
+                if (observing) {
+                    liveData.removeObserver(this@LiveDataSubscription)
+                    observing = false
                 }
-                if (mRequested > 0) {
-                    mLatest = null;
-                    mSubscriber.onNext(t);
-                    if (mRequested != Long.MAX_VALUE) {
-                        mRequested--;
-                    }
-                } else {
-                    mLatest = t;
-                }
-            }
-
-            @Override
-            public void request(final long n) {
-                if (mCanceled) {
-                    return;
-                }
-                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mCanceled) {
-                            return;
-                        }
-                        if (n <= 0L) {
-                            mCanceled = true;
-                            if (mObserving) {
-                                mLiveData.removeObserver(LiveDataSubscription.this);
-                                mObserving = false;
-                            }
-                            mLatest = null;
-                            mSubscriber.onError(
-                                    new IllegalArgumentException("Non-positive request"));
-                            return;
-                        }
-
-                        // Prevent overflowage.
-                        mRequested = mRequested + n >= mRequested
-                                ? mRequested + n : Long.MAX_VALUE;
-                        if (!mObserving) {
-                            mObserving = true;
-                            mLiveData.observe(mLifecycle, LiveDataSubscription.this);
-                        } else if (mLatest != null) {
-                            onChanged(mLatest);
-                            mLatest = null;
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void cancel() {
-                if (mCanceled) {
-                    return;
-                }
-                mCanceled = true;
-                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mObserving) {
-                            mLiveData.removeObserver(LiveDataSubscription.this);
-                            mObserving = false;
-                        }
-                        mLatest = null;
-                    }
-                });
+                latest = null
             }
         }
     }
+}
 
-    /**
-     * Creates an observable {@link LiveData} stream from a ReactiveStreams {@link Publisher}}.
-     *
-     * <p>
-     * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
-     *
-     * <p>
-     * When the LiveData becomes inactive, the subscription is cleared.
-     * LiveData holds the last value emitted by the Publisher when the LiveData was active.
-     * <p>
-     * Therefore, in the case of a hot RxJava Observable, when a new LiveData {@link Observer} is
-     * added, it will automatically notify with the last value held in LiveData,
-     * which might not be the last value emitted by the Publisher.
-     * <p>
-     * Note that LiveData does NOT handle errors and it expects that errors are treated as states
-     * in the data that's held. In case of an error being emitted by the publisher, an error will
-     * be propagated to the main thread and the app will crash.
-     *
-     * @param <T> The type of data hold by this instance.
-     */
-    @NonNull
-    public static <T> LiveData<T> fromPublisher(@NonNull Publisher<T> publisher) {
-        return new PublisherLiveData<>(publisher);
+/**
+ * Creates an observable [LiveData] stream from a ReactiveStreams [Publisher]}.
+ *
+ * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
+ *
+ * When the LiveData becomes inactive, the subscription is cleared.
+ * LiveData holds the last value emitted by the Publisher when the LiveData was active.
+ *
+ * Therefore, in the case of a hot RxJava Observable, when a new LiveData [Observer] is
+ * added, it will automatically notify with the last value held in LiveData,
+ * which might not be the last value emitted by the Publisher.
+ *
+ * Note that LiveData does NOT handle errors and it expects that errors are treated as states
+ * in the data that's held. In case of an error being emitted by the publisher, an error will
+ * be propagated to the main thread and the app will crash.
+ */
+@JvmName("fromPublisher")
+fun <T> Publisher<T>.toLiveData(): LiveData<T> = PublisherLiveData(this)
+
+/**
+ * Defines a [LiveData] object that wraps a [Publisher].
+ *
+ * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
+ *
+ * When the LiveData becomes inactive, the subscription is cleared.
+ * LiveData holds the last value emitted by the Publisher when the LiveData was active.
+ *
+ * Therefore, in the case of a hot RxJava Observable, when a new LiveData [Observer] is
+ * added, it will automatically notify with the last value held in LiveData,
+ * which might not be the last value emitted by the Publisher.
+ *
+ * Note that LiveData does NOT handle errors and it expects that errors are treated as states
+ * in the data that's held. In case of an error being emitted by the publisher, an error will
+ * be propagated to the main thread and the app will crash.
+ */
+private class PublisherLiveData<T>(
+    private val publisher: Publisher<T>
+) : LiveData<T>() {
+    val subscriber: AtomicReference<LiveDataSubscriber> = AtomicReference()
+
+    override fun onActive() {
+        super.onActive()
+        val s = LiveDataSubscriber()
+        subscriber.set(s)
+        publisher.subscribe(s)
     }
 
-    /**
-     * Defines a {@link LiveData} object that wraps a {@link Publisher}.
-     *
-     * <p>
-     * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
-     *
-     * <p>
-     * When the LiveData becomes inactive, the subscription is cleared.
-     * LiveData holds the last value emitted by the Publisher when the LiveData was active.
-     * <p>
-     * Therefore, in the case of a hot RxJava Observable, when a new LiveData {@link Observer} is
-     * added, it will automatically notify with the last value held in LiveData,
-     * which might not be the last value emitted by the Publisher.
-     *
-     * <p>
-     * Note that LiveData does NOT handle errors and it expects that errors are treated as states
-     * in the data that's held. In case of an error being emitted by the publisher, an error will
-     * be propagated to the main thread and the app will crash.
-     *
-     * @param <T> The type of data hold by this instance.
-     */
-    private static class PublisherLiveData<T> extends LiveData<T> {
-        private final Publisher<T> mPublisher;
-        final AtomicReference<LiveDataSubscriber> mSubscriber;
+    override fun onInactive() {
+        super.onInactive()
+        val s = subscriber.getAndSet(null)
+        s.cancelSubscription()
+    }
 
-        PublisherLiveData(@NonNull Publisher<T> publisher) {
-            mPublisher = publisher;
-            mSubscriber = new AtomicReference<>();
-        }
-
-        @Override
-        protected void onActive() {
-            super.onActive();
-            LiveDataSubscriber s = new LiveDataSubscriber();
-            mSubscriber.set(s);
-            mPublisher.subscribe(s);
-        }
-
-        @Override
-        protected void onInactive() {
-            super.onInactive();
-            LiveDataSubscriber s = mSubscriber.getAndSet(null);
-            if (s != null) {
-                s.cancelSubscription();
+    inner class LiveDataSubscriber : AtomicReference<Subscription>(), Subscriber<T> {
+        override fun onSubscribe(s: Subscription) {
+            if (compareAndSet(null, s)) {
+                s.request(Long.MAX_VALUE)
+            } else {
+                s.cancel()
             }
         }
 
-        final class LiveDataSubscriber extends AtomicReference<Subscription>
-                implements Subscriber<T> {
+        override fun onNext(item: T) {
+            postValue(item)
+        }
 
-            @Override
-            public void onSubscribe(Subscription s) {
-                if (compareAndSet(null, s)) {
-                    s.request(Long.MAX_VALUE);
-                } else {
-                    s.cancel();
+        override fun onError(ex: Throwable) {
+            subscriber.compareAndSet(this, null)
+            ArchTaskExecutor.getInstance()
+                .executeOnMainThread { // Errors should be handled upstream, so propagate as a crash.
+                    throw RuntimeException(
+                        "LiveData does not handle errors. Errors from " +
+                            "publishers should be handled upstream and propagated as " +
+                            "state",
+                        ex
+                    )
                 }
-            }
+        }
 
-            @Override
-            public void onNext(T item) {
-                postValue(item);
-            }
+        override fun onComplete() {
+            subscriber.compareAndSet(this, null)
+        }
 
-            @Override
-            public void onError(final Throwable ex) {
-                mSubscriber.compareAndSet(this, null);
-
-                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Errors should be handled upstream, so propagate as a crash.
-                        throw new RuntimeException("LiveData does not handle errors. Errors from "
-                                + "publishers should be handled upstream and propagated as "
-                                + "state", ex);
-                    }
-                });
-            }
-
-            @Override
-            public void onComplete() {
-                mSubscriber.compareAndSet(this, null);
-            }
-
-            public void cancelSubscription() {
-                Subscription s = get();
-                if (s != null) {
-                    s.cancel();
-                }
-            }
+        fun cancelSubscription() {
+            val s = get()
+            s?.cancel()
         }
     }
 }

@@ -55,7 +55,7 @@ class LiveDataReactiveStreamsTest {
         liveData.value = "foo"
 
         val outputProcessor = ReplayProcessor.create<String>()
-        liveData.toPublisher(lifecycleOwner).subscribe(outputProcessor)
+        toPublisher(lifecycleOwner).subscribe(outputProcessor)
 
         liveData.value = "bar"
         liveData.value = "baz"
