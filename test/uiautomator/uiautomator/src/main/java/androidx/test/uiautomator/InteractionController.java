@@ -74,7 +74,7 @@ class InteractionController {
      * Predicate for waiting for any of the events specified in the mask
      */
     static class WaitForAnyEventPredicate implements AccessibilityEventFilter {
-        int mMask;
+        final int mMask;
         WaitForAnyEventPredicate(int mask) {
             mMask = mask;
         }
@@ -91,8 +91,8 @@ class InteractionController {
      * all populated events in the events list.
      */
     static class EventCollectingPredicate implements AccessibilityEventFilter {
-        int mMask;
-        List<AccessibilityEvent> mEventsList;
+        final int mMask;
+        final List<AccessibilityEvent> mEventsList;
 
         EventCollectingPredicate(int mask, List<AccessibilityEvent> events) {
             mMask = mask;
