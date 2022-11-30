@@ -27,54 +27,81 @@ import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
 
 /**
- * Attributes to describe how the task bounds are split, which includes information on how the task
- * bounds are split between the activity containers:
- * - Layout directions
- * - Whether the task bounds are split vertically horizontally
- * - The position of the primary and the secondary activity containers
- * Attributes can be configured in the following ways:
- * - Set the default `SplitAttributes` via [SplitPairRule.Builder.setDefaultSplitAttributes] and
- * [SplitPlaceholderRule.Builder.setDefaultSplitAttributes]
- * - Set `splitRatio` and `splitLayoutDirection` attributes in `<SplitPairRule>` or
- * `<SplitPlaceholderRule>` tag in XML file. They will be parsed as [SplitType] and
- * [layoutDirection]. Note that [SplitType.HingeSplitType] is not supported to be defined in XML
- * format.
- * - Used in [SplitAttributesCalculator.computeSplitAttributesForParams] to customize the
- * `SplitAttributes` for a given device and window state.
+ * Attributes that describe how the parent bounds are split between the primary
+ * and secondary activity containers, including:
+ *   - Split type &mdash; Categorizes the split and specifies the sizes of the
+ *     primary and secondary activity containers relative to the parent bounds
+ *   - Layout direction &mdash; Specifies whether the task window is split
+ *     vertically or horizontally and in which direction the primary and
+ *     secondary containers are respectively positioned (left to right, right to
+ *     left, top to bottom, and so forth)
+ *
+ * Attributes can be configured by:
+ *   - Setting the default `SplitAttributes` using
+ *     [SplitPairRule.Builder.setDefaultSplitAttributes] or
+ *     [SplitPlaceholderRule.Builder.setDefaultSplitAttributes].
+ *   - Setting `splitRatio` and `splitLayoutDirection` attributes in
+ *     `<SplitPairRule>` or `<SplitPlaceholderRule>` tags in an XML
+ *     configuration file. The attributes are parsed as [SplitType] and
+ *     [layoutDirection]. Note that [SplitType.HingeSplitType] is not supported
+ *     in XML format.
+ *   - Using
+ *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
+ *     the `SplitAttributes` for a given device and window state.
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
  */
 class SplitAttributes internal constructor(
+
     /**
-     * Returns [SplitType] for the [SplitAttributes] with a default value of
-     * [SplitType.splitEqually].
-     *
-     * @see SplitType.ratio
-     * @see SplitType.splitByHinge
-     * @see SplitType.splitEqually
-     * @see SplitType.expandContainers
+     * The split type attribute. Defaults to an equal split of the parent window
+     * for the primary and secondary containers.
      */
     val splitType: SplitType = splitEqually(),
 
     /**
-     * Returns [LayoutDirection] for the [SplitAttributes] with a default value
-     * [LayoutDirection.LOCALE].
+     * The layout direction attribute for the task window split. The default is
+     * based on locale.
      */
     val layoutDirection: LayoutDirection = LOCALE,
+
 ) {
+
     /**
-     * Defines how the Task should be split between the primary and the secondary containers.
-     *
-     * @see SplitType.ratio
-     * @see SplitType.splitByHinge
+     * The type of parent window split, which defines the proportion of the
+     * parent window occupied by the primary and secondary activity containers.
      */
     open class SplitType internal constructor(
+
+        /**
+         * The description of this `SplitType`.
+         */
         internal val description: String,
+
+        /**
+         * An identifier for the split type.
+         *
+         * Used in the evaluation in the `equals()` method.
+         */
         internal val value: Float,
+
     ) {
+
+        /**
+         * A string representation of this split type.
+         *
+         * @return The string representation of the object.
+         */
         override fun toString(): String = description
 
+        /**
+         * Determines whether this object is the same type of split as the
+         * compared object.
+         *
+         * @param other The object to compare to this object.
+         * @return True if the objects are the same split type, false otherwise.
+         */
         override fun equals(other: Any?): Boolean {
             if (other === this) return true
             if (other !is SplitType) return false
@@ -82,33 +109,77 @@ class SplitAttributes internal constructor(
                 description == other.description
         }
 
+        /**
+         * Returns a hash code for this split type.
+         *
+         * @return The hash code for this object.
+         */
         override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
-        /** @see SplitAttributes.SplitType.ratio */
+        /**
+         * A parent window split that's based on the ratio of the size of the
+         * primary container to the size of the task window.
+         *
+         * @see SplitAttributes.SplitType.ratio
+         */
         class RatioSplitType internal constructor(
+
+            /**
+             * The proportion of the task window occupied by the primary
+             * container of the split.
+             */
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
             val ratio: Float
+
         ) : SplitType("ratio:$ratio", ratio)
 
-        /** @see SplitAttributes.SplitType.ExpandContainersSplitType */
+        /**
+         * A task window split in which the primary and secondary activity
+         * containers each occupy the entire task window.
+         *
+         * The secondary container overlays the primary container.
+         *
+         * @see SplitAttributes.SplitType.ExpandContainersSplitType
+         */
         class ExpandContainersSplitType internal constructor() : SplitType("expandContainer", 0.0f)
 
-        /** @see SplitAttributes.SplitType.splitByHinge */
+        /**
+         * A task window split that conforms to a hinge or separating fold in
+         * the device display.
+         *
+         * @see SplitAttributes.SplitType.splitByHinge
+         */
         class HingeSplitType internal constructor(
+
+            /**
+             * The split type to use if a split based on the device hinge or
+             * separating fold cannot be determined.
+             */
             val fallbackSplitType: SplitType
+
         ) : SplitType("hinge, fallback=$fallbackSplitType", -1.0f)
 
+        /**
+         * Methods that create various split types.
+         */
         companion object {
+
             /**
-             * Defines what activity container should be given to the primary part of the task
-             * bounds. Values in range (0.0, 1.0) define the size of the primary container of the
-             * split relative to the corresponding task dimension size.
-             * - `0.5` means the primary and secondary container shares an equal split.
-             * - ratio larger than `0.5` means the primary container takes more space.
-             * - Otherwise, the secondary container takes more space.
+             * Creates a split type based on the proportion of the task window
+             * occupied by the primary container of the split.
              *
-             * @see SplitType.expandContainers
-             * @see SplitType.splitEqually
+             * Values in the non-inclusive range (0.0, 1.0) define the size of
+             * the primary container relative to the size of the task window:
+             * - 0.5 &mdash; Primary container occupies half of the task
+             *   window; secondary container, the other half
+             * - &gt; 0.5 &mdash; Primary container occupies a larger proportion
+             *   of the task winddow than the secondary container
+             * - &lt; 0.5 &mdash; Primary container occupies a smaller
+             *   proportion of the task window than the secondary container
+             *
+             * @param ratio The proportion of the task window occupied by the
+             *     primary container of the split.
+             * @return An instance of [RatioSplitType] with the specified ratio.
              */
             @JvmStatic
             fun ratio(
@@ -128,44 +199,62 @@ class SplitAttributes internal constructor(
             private val EXPAND_CONTAINERS = ExpandContainersSplitType()
 
             /**
-             * Indicate that both primary and secondary activity containers are expanded to fill the
-             * task parent container, and the secondary container occludes the primary one. It is
-             * useful to make the apps occupy the full task bounds in some device states.
+             * Creates a split type in which the primary and secondary activity
+             * containers each expand to fill the task window; the secondary
+             * container overlays the primary container.
              *
-             * An example is to make the secondary container always occupy the full task bounds if
-             * the device is in portrait, and split the task bounds horizontally if the device is
-             * in landscape.
-             * This also can be used to expand containers with some device states via
-             * [SplitAttributesCalculator]. The sample linked below shows how to always fill the
-             * task bounds if the device is in portrait.
+             * Use this method with [SplitAttributesCalculator] to expand the
+             * activity containers in some device states. The following sample
+             * shows how to always fill the parent bounds if the device is in
+             * portrait orientation:
              *
              * @sample androidx.window.samples.embedding.expandContainersInPortrait
+             *
+             * @return An instance of [ExpandContainersSplitType].
              */
             @JvmStatic
             fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS
 
             /**
-             * Indicate that the primary and secondary container share an equal split. It is also
-             * the default [SplitType].
+             * Creates a split type in which the primary and secondary
+             * containers occupy equal portions of the task window.
+             *
+             * Serves as the default [SplitType].
              */
             @JvmStatic
             fun splitEqually(): RatioSplitType = ratio(0.5f)
 
             /**
-             * Indicates that the split ratio follows hinge area position. This value will only be
-             * applied if:
-             *   1. The host Task is not in multi-window mode (ex: split-screen,
-             *      picture-in-picture).
-             *   2. The device has hinge reported by [androidx.window.layout.FoldingFeature.bounds].
-             *   3. The hinge area orientation matches how the host task bounds are split:
-             *     - The hinge area orientation is vertical, and the task bounds are also split
-             *       vertically.
-             *     - The hinge area orientation is horizontal, and the task bounds are also split
-             *       horizontally.
+             * Creates a split type in which the split ratio conforms to the
+             * position of a hinge or separating fold in the device display.
              *
-             * Otherwise, it fallbacks to use [fallbackSplitType], which defaults to
-             * [SplitType.splitEqually]. [fallbackSplitType] can only be either a [RatioSplitType]
-             * or a [ExpandContainersSplitType].
+             * The split type is created only if:
+             * <ul>
+             *     <li>The host task is not in multi-window mode (e.g.,
+             *         split-screen mode or picture-in-picture mode)</li>
+             *     <li>The device has a hinge or separating fold reported by
+             *         [androidx.window.layout.FoldingFeature.isSeparating]</li>
+             *     <li>The hinge or separating fold orientation matches how the
+             *         parent bounds are split:
+             *         <ul style="list-style-type: circle;">
+             *             <li>The hinge or fold orientation is vertical, and
+             *                 the task bounds are also split vertically
+             *                 (containers are side by side)</li>
+             *             <li>The hinge or fold orientation is horizontal, and
+             *                 the task bounds are also split horizontally
+             *                 (containers are top and bottom)</li>
+             *         </ul>
+             *     </li>
+             * </ul>
+             *
+             * Otherwise, the method falls back to `fallbackSplitType`.
+             *
+             * @param fallbackSplitType The split type to use if a split based
+             *     on the device hinge or separating fold cannot be determined.
+             *     Can be a [RatioSplitType] or [ExpandContainersSplitType].
+             *     Defaults to [SplitType.splitEqually].
+             * @return An instance of [HingeSplitType] with a fallback split
+             *     type.
              */
             @JvmStatic
             fun splitByHinge(
@@ -183,7 +272,9 @@ class SplitAttributes internal constructor(
                 return HingeSplitType(checkedType)
             }
 
-            /** Returns [SplitType] with the given `value`. */
+            /**
+             * Returns a `SplitType` with the given `value`.
+             */
             @SuppressLint("Range") // value = 0.0 is covered.
             @JvmStatic
             internal fun buildSplitTypeFromValue(
@@ -196,92 +287,108 @@ class SplitAttributes internal constructor(
         }
     }
 
-    /** Defines split layout directions. */
+    /**
+     * The layout direction of the primary and secondary activity containers.
+     */
     class LayoutDirection private constructor(
-        /** The description of this `SplitLayoutDirection` */
+
+        /**
+         * The description of this `LayoutDirection`.
+         */
         private val description: String,
-        /** The enum value defined in `splitLayoutDirection` attributes in `attrs.xml` */
+
+        /**
+         * The enum value defined in `splitLayoutDirection` attributes in
+         * `attrs.xml`.
+         */
         internal val value: Int,
+
     ) {
+
+        /**
+         * A string representation of this `LayoutDirection`.
+         *
+         * @return The string representation of the object.
+         */
         override fun toString(): String = description
 
+        /**
+         * Non-public properties and methods.
+         */
         companion object {
             /**
-             * A value of [layoutDirection]:
-             * It splits the task bounds vertically and the direction is deduced from the
-             * language script of locale. The direction can be either [LEFT_TO_RIGHT]
-             * or [RIGHT_TO_LEFT].
+             * Specifies that the parent bounds are split vertically (side to
+             * side).
+             *
+             * The direction of the primary and secondary containers is deduced
+             * from the locale as either `LEFT_TO_RIGHT` or `RIGHT_TO_LEFT`.
+             *
+             * See also [layoutDirection].
              */
             @JvmField
             val LOCALE = LayoutDirection("LOCALE", 0)
-            // TODO(b/241043844): Add the illustration below in DAC.
-            // -------------------------
-            // |           |           |
-            // |  Primary  | Secondary |
-            // |           |           |
-            // -------------------------
             /**
-             * A value of [layoutDirection]:
-             * It splits the task bounds vertically, puts the primary container on the left portion,
-             * and the secondary container on the right portion.
+             * Specifies that the parent bounds are split vertically (side to
+             * side).
+             *
+             * Places the primary container in the left portion of the task
+             * window, and the secondary container in the right portion.
+             *
+             * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ltr.png" alt="Activity A starts activity B to the right."/>
+             *
+             * See also [layoutDirection].
              */
             @JvmField
             val LEFT_TO_RIGHT = LayoutDirection("LEFT_TO_RIGHT", 1)
-            // TODO(b/241043844): Add the illustration below in DAC.
-            //            -------------------------
-            //            |           |           |
-            //            | Secondary |  Primary  |
-            //            |           |           |
-            //            -------------------------
             /**
-             * A value of [layoutDirection]:
-             * It splits the task bounds vertically, puts the primary container on the right
-             * portion, and the secondary container on the left portion.
+             * Specifies that the parent bounds are split vertically (side to
+             * side).
+             *
+             * Places the primary container in the right portion of the task
+             * window, and the secondary container in the left portion.
+             *
+             * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_rtl.png" alt="Activity A starts activity B to the left."/>
+             *
+             * See also [layoutDirection].
              */
             @JvmField
             val RIGHT_TO_LEFT = LayoutDirection("RIGHT_TO_LEFT", 2)
-            // TODO(b/241043844): Add the illustration below in DAC.
-            //            -------------
-            //            |           |
-            //            |  Primary  |
-            //            |           |
-            //            -------------
-            //            |           |
-            //            | Secondary |
-            //            |           |
-            //            -------------
             /**
-             * A value of [layoutDirection]:
-             * It splits the task bounds horizontally, puts the primary container on the top
-             * portion, and the secondary container on the bottom portion.
+             * Specifies that the parent bounds are split horizontally (top and
+             * bottom).
              *
-             * Note that if the horizontal layout direction is not supported on the device, it will
-             * fallback to [LOCALE].
+             * Places the primary container in the top portion of the task
+             * window, and the secondary container in the bottom portion.
+             *
+             * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ttb.png" alt="Activity A starts activity B to the bottom."/>
+             *
+             * If the horizontal layout direction is not supported on the
+             * device, layout direction falls back to `LOCALE`.
+             *
+             * See also [layoutDirection].
              */
             @JvmField
             val TOP_TO_BOTTOM = LayoutDirection("TOP_TO_BOTTOM", 3)
-            // TODO(b/241043844): Add the illustration below in DAC.
-            //            -------------
-            //            |           |
-            //            | Secondary |
-            //            |           |
-            //            -------------
-            //            |           |
-            //            |  Primary  |
-            //            |           |
-            //            -------------
             /**
-             * A value of [layoutDirection]:
-             * It splits the task bounds horizontally, puts the primary container on the bottom
-             * portion, and the secondary container on the top portion.
+             * Specifies that the parent bounds are split horizontally (top and
+             * bottom).
              *
-             * Note that if the horizontal layout direction is not supported on the device, it will
-             * fallback to [LOCALE].
+             * Places the primary container in the bottom portion of the task
+             * window, and the secondary container in the top portion.
+             *
+             * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_btt.png" alt="Activity A starts activity B to the top."/>
+             *
+             * If the horizontal layout direction is not supported on the
+             * device, layout direction falls back to `LOCALE`.
+             *
+             * See also [layoutDirection].
              */
             @JvmField
             val BOTTOM_TO_TOP = LayoutDirection("BOTTOM_TO_TOP", 4)
 
-            /** Returns [LayoutDirection] with the given `value`. */
+            /**
+             * Returns `LayoutDirection` with the given `value`.
+             */
             @JvmStatic
             internal fun getLayoutDirectionFromValue(
                 @IntRange(from = 0, to = 4) value: Int
@@ -296,6 +403,9 @@ class SplitAttributes internal constructor(
         }
     }
 
+    /**
+     * Non-public properties and methods.
+     */
     companion object {
         private val TAG = SplitAttributes::class.java.simpleName
 
@@ -311,8 +421,21 @@ class SplitAttributes internal constructor(
         )
     }
 
+    /**
+     * Returns a hash code for this `SplitAttributes` object.
+     *
+     * @return The hash code for this object.
+     */
     override fun hashCode(): Int = splitType.hashCode() * 31 + layoutDirection.hashCode()
 
+    /**
+     * Determines whether this object has the same split attributes as the
+     * compared object.
+     *
+     * @param other The object to compare to this object.
+     * @return True if the objects have the same split attributes, false
+     * otherwise.
+     */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SplitAttributes) return false
@@ -320,22 +443,57 @@ class SplitAttributes internal constructor(
             layoutDirection == other.layoutDirection
     }
 
+    /**
+     * A string representation of this `SplitAttributes` object.
+     *
+     * @return The string representation of the object.
+     */
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
             "{splitType=$splitType, layoutDir=$layoutDirection}"
 
-    /** Builders for [SplitAttributes] */
+    /**
+     * Builder for creating an instance of [SplitAttributes].
+     *
+     * The default split type is an equal split between primary and secondary
+     * containers. The default layout direction is based on locale.
+     */
     class Builder {
         private var splitType: SplitType = splitEqually()
         private var layoutDirection = LOCALE
 
-        /** @see SplitAttributes.splitType */
+        /**
+         * Sets the split type attribute.
+         *
+         * The default is an equal split between primary and secondary
+         * containers.
+         *
+         * @param type The split type attribute.
+         * @return This `Builder`.
+         *
+         * @see SplitAttributes.SplitType
+         */
         fun setSplitType(type: SplitType): Builder = apply { splitType = type }
 
-        /** @see SplitAttributes.layoutDirection */
+        /**
+         * Sets the split layout direction attribute.
+         *
+         * The default is based on locale.
+         *
+         * @param layoutDirection The layout direction attribute.
+         * @return This `Builder`.
+         *
+         * @see SplitAttributes.LayoutDirection
+         */
         fun setLayoutDirection(layoutDirection: LayoutDirection): Builder =
             apply { this.layoutDirection = layoutDirection }
 
+        /**
+         * Builds a [SplitAttributes] instance with the attributes specified by
+         * [setSplitType] and [setLayoutDirection].
+         *
+         * @return The new `SplitAttributes` instance.
+         */
         fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection)
     }
 }
