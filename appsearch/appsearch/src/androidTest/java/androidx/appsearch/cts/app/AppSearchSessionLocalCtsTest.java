@@ -39,7 +39,6 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.LocalStorage;
-import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.SimpleTestLogger;
@@ -356,7 +355,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(logger.mSetSchemaStats).isNotNull();
         assertThat(logger.mSetSchemaStats.getPackageName()).isEqualTo(context.getPackageName());
         assertThat(logger.mSetSchemaStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNull();
         assertThat(logger.mSetSchemaStats.getNewTypeCount()).isEqualTo(1);
         assertThat(logger.mSetSchemaStats.getDeletedTypeCount()).isEqualTo(0);
         assertThat(logger.mSetSchemaStats.getIndexIncompatibleTypeChangeCount())
@@ -366,6 +364,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(logger.mSetSchemaStats.getCompatibleTypeChangeCount()).isEqualTo(0);
     }
 
+    // TODO(b/173532925) Move schemaMigrationStats into SDK side and log the stats.
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
@@ -437,11 +436,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .build()).get();
 
         assertThat(logger.mSetSchemaStats).isNotNull();
-        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNotNull();
-        SchemaMigrationStats schemaMigrationStats =
-                logger.mSetSchemaStats.getSchemaMigrationStats();
-        assertThat(schemaMigrationStats.getMigratedDocumentCount()).isEqualTo(1);
-        assertThat(schemaMigrationStats.getSavedDocumentCount()).isEqualTo(1);
     }
 
     // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.

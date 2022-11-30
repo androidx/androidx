@@ -115,16 +115,19 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
 
+        long waitExecutorStartLatencyMillis = SystemClock.elapsedRealtime();
         ListenableFuture<SetSchemaResponse> future = execute(() -> {
+            SetSchemaStats.Builder setSchemaStatsBuilder = null;
+            if (mLogger != null) {
+                setSchemaStatsBuilder = new SetSchemaStats.Builder(mPackageName, mDatabaseName)
+                        .setExecutorAcquisitionLatencyMillis((int) (SystemClock.elapsedRealtime()
+                                - waitExecutorStartLatencyMillis));
+            }
+
             long startMillis = SystemClock.elapsedRealtime();
             // Extract a Map<schema, VisibilityDocument> from the request.
             List<VisibilityDocument> visibilityDocuments = VisibilityDocument
                     .toVisibilityDocuments(request);
-
-            SetSchemaStats.Builder setSchemaStatsBuilder = null;
-            if (mLogger != null) {
-                setSchemaStatsBuilder = new SetSchemaStats.Builder(mPackageName, mDatabaseName);
-            }
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
@@ -132,13 +135,19 @@ class SearchSessionImpl implements AppSearchSession {
                 SetSchemaResponse setSchemaResponse =
                         setSchemaNoMigrations(request, visibilityDocuments, setSchemaStatsBuilder);
 
+                long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
                 // Schedule a task to dispatch change notifications. See requirements for where the
                 // method is called documented in the method description.
                 dispatchChangeNotifications();
+                long dispatchNotificationEndTimeMillis = SystemClock.elapsedRealtime();
 
                 if (setSchemaStatsBuilder != null) {
-                    setSchemaStatsBuilder.setTotalLatencyMillis(
-                            (int) (SystemClock.elapsedRealtime() - startMillis));
+                    setSchemaStatsBuilder
+                            .setTotalLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime() - startMillis))
+                            .setDispatchChangeNotificationsLatencyMillis(
+                                    (int) (dispatchNotificationEndTimeMillis
+                                            - dispatchNotificationStartTimeMillis));
                     mLogger.logStats(setSchemaStatsBuilder.build());
                 }
 
@@ -229,10 +238,13 @@ class SearchSessionImpl implements AppSearchSession {
 
                 // Schedule a task to dispatch change notifications. See requirements for where the
                 // method is called documented in the method description.
+                long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
                 dispatchChangeNotifications();
+                long dispatchNotificationEndTimeMillis = SystemClock.elapsedRealtime();
 
                 if (schemaMigrationStatsBuilder != null) {
                     long endMillis = SystemClock.elapsedRealtime();
+                    // TODO(b/173532925) Move schemaMigrationStats into SDK side and log the stats.
                     schemaMigrationStatsBuilder
                             .setSaveDocumentLatencyMillis(
                                     (int) (endMillis - saveDocumentLatencyStartMillis))
@@ -248,9 +260,10 @@ class SearchSessionImpl implements AppSearchSession {
                                     (int) (saveDocumentLatencyStartMillis
                                             - secondSetSchemaLatencyStartMillis));
                     setSchemaStatsBuilder
-                            .setSchemaMigrationStats(
-                                    schemaMigrationStatsBuilder.build())
-                            .setTotalLatencyMillis((int) (endMillis - startMillis));
+                            .setTotalLatencyMillis((int) (endMillis - startMillis))
+                            .setDispatchChangeNotificationsLatencyMillis(
+                                    (int) (dispatchNotificationEndTimeMillis
+                                            - dispatchNotificationStartTimeMillis));
                     mLogger.logStats(setSchemaStatsBuilder.build());
                 }
 
