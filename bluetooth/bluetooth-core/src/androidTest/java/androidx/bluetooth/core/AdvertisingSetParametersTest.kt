@@ -42,6 +42,10 @@ class AdvertisingSetParametersTest {
 
     @Test
     fun constructorWithValues_createsFrameworkInstanceCorrectly() {
+
+        if (Build.VERSION.SDK_INT < 26) {
+            return
+        }
         val advertisingSetParameters = AdvertisingSetParameters(
             connectable = TEST_CONNECTABLE,
             scannable = TEST_SCANNABLE,
@@ -65,6 +69,9 @@ class AdvertisingSetParametersTest {
 
     @Test
     fun constructorWithFwkInstance_createsAdvertisingSetParametersCorrectly() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return
+        }
         val fwkAdvertisingSetParameters = FwkAdvertisingSetParameters.Builder()
             .setConnectable(TEST_CONNECTABLE)
             .setScannable(TEST_SCANNABLE)
@@ -88,6 +95,9 @@ class AdvertisingSetParametersTest {
 
     @Test
     fun advertisingSetParametersBundleable() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return
+        }
         val advertisingSetParameters = AdvertisingSetParameters(
             connectable = TEST_CONNECTABLE,
             scannable = TEST_SCANNABLE,
