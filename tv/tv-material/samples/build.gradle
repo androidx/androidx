@@ -32,6 +32,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation(project(":tv:tv-foundation"))
     implementation("androidx.appcompat:appcompat:1.6.0-alpha05")
+    compileOnly(project(':annotation:annotation-sampled'))
 }
 
 androidx {

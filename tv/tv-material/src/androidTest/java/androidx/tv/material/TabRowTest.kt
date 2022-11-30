@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,9 +40,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
@@ -130,68 +135,167 @@ class TabRowTest {
         rule.onNodeWithTag(firstTab).assertIsFocused()
     }
 
-    private fun setContent(tabs: List<String>) {
-        val fr = FocusRequester()
+    @Test
+    fun tabRow_changeActiveTabOnClick() {
+        val tabs = constructTabs(count = 2)
 
-        rule.setContent {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
-            ) {
-                var selectedTabIndex by remember { mutableStateOf(0) }
+        val firstPanel = "Panel 1"
+        val secondPanel = "Panel 2"
 
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    separator = { Spacer(modifier = Modifier.width(12.dp)) }
-                ) {
-                    tabs.forEachIndexed { index, tab ->
-                        Tab(
-                            selected = index == selectedTabIndex,
-                            onSelect = { selectedTabIndex = index },
-                            modifier = Modifier
-                                .width(100.dp)
-                                .height(50.dp)
-                                .testTag(tab)
-                                .border(2.dp, Color.White, RoundedCornerShape(50))
-                        ) {}
+        setContent(
+            tabs,
+            contentBuilder = @Composable {
+                var focusedTabIndex by remember { mutableStateOf(0) }
+                var activeTabIndex by remember { mutableStateOf(focusedTabIndex) }
+                TabRowSample(
+                    tabs = tabs,
+                    selectedTabIndex = activeTabIndex,
+                    onFocus = { focusedTabIndex = it },
+                    onClick = { activeTabIndex = it },
+                    buildTabPanel = @Composable { index, _ ->
+                        BasicText(text = "Panel ${index + 1}")
+                    },
+                    indicator = @Composable { tabPositions ->
+                        // FocusedTab's indicator
+                        TabRowDefaults.PillIndicator(
+                            currentTabPosition = tabPositions[focusedTabIndex],
+                            activeColor = Color.Blue.copy(alpha = 0.4f),
+                            inactiveColor = Color.Transparent,
+                        )
+
+                        // SelectedTab's indicator
+                        TabRowDefaults.PillIndicator(
+                            currentTabPosition = tabPositions[activeTabIndex]
+                        )
                     }
-                }
-
-                // Added so that this can get focus and pass it to the tab row
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .focusRequester(fr)
-                        .background(Color.White)
-                        .focusable()
                 )
-
-                // Send focus to button
-                LaunchedEffect(Unit) {
-                    fr.requestFocus()
-                }
             }
+        )
+
+        rule.onNodeWithText(firstPanel).assertIsDisplayed()
+
+        // Move focus to next tab
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+
+        rule.waitForIdle()
+
+        rule.onNodeWithText(firstPanel).assertIsDisplayed()
+        rule.onNodeWithText(secondPanel).assertDoesNotExist()
+
+        // Click on the new focused tab
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_CENTER)
+
+        rule.onNodeWithText(firstPanel).assertDoesNotExist()
+        rule.onNodeWithText(secondPanel).assertIsDisplayed()
+    }
+
+    private fun setContent(
+        tabs: List<String>,
+        contentBuilder: @Composable () -> Unit = {
+            var selectedTabIndex by remember { mutableStateOf(0) }
+            TabRowSample(
+                tabs = tabs,
+                selectedTabIndex = selectedTabIndex,
+                onFocus = { selectedTabIndex = it }
+            )
+        },
+    ) {
+        rule.setContent {
+            contentBuilder()
         }
 
         rule.waitForIdle()
 
         // Move the focus TabRow
-        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_UP)
+        performKeyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN)
 
         rule.waitForIdle()
     }
-
-    private fun performKeyPress(keyCode: Int, count: Int = 1) {
-        for (i in 1..count) {
-            InstrumentationRegistry
-                .getInstrumentation()
-                .sendKeyDownUpSync(keyCode)
-        }
-    }
-
-    private fun constructTabs(
-        count: Int = 3,
-        buildTab: (index: Int) -> String = { "Season $it" }
-    ): List<String> = (0 until count).map(buildTab)
 }
+
+@Composable
+private fun TabRowSample(
+    tabs: List<String>,
+    selectedTabIndex: Int,
+    onFocus: (index: Int) -> Unit = {},
+    onClick: (index: Int) -> Unit = onFocus,
+    buildTab: @Composable ((index: Int, tab: String) -> Unit) = @Composable { index, tab ->
+        TabSample(
+            selected = selectedTabIndex == index,
+            onFocus = { onFocus(index) },
+            onClick = { onClick(index) },
+            modifier = Modifier.testTag(tab),
+        )
+    },
+    indicator: @Composable (tabPositions: List<DpRect>) -> Unit = @Composable { tabPositions ->
+        TabRowDefaults.PillIndicator(currentTabPosition = tabPositions[selectedTabIndex])
+    },
+    buildTabPanel: @Composable ((index: Int, tab: String) -> Unit) = @Composable { _, tab ->
+        BasicText(text = tab)
+    },
+) {
+    val fr = FocusRequester()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        // Added so that this can get focus and pass it to the tab row
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .focusRequester(fr)
+                .background(Color.White)
+                .focusable()
+        )
+
+        // Send focus to button
+        LaunchedEffect(Unit) {
+            fr.requestFocus()
+        }
+
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            indicator = indicator,
+            separator = { Spacer(modifier = Modifier.width(12.dp)) },
+        ) {
+            tabs.forEachIndexed { index, tab -> buildTab(index, tab) }
+        }
+
+        buildTabPanel(selectedTabIndex, tabs[selectedTabIndex])
+    }
+}
+
+@Composable
+private fun TabSample(
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onFocus: () -> Unit = {},
+    onClick: () -> Unit = {},
+    tag: String = "Tab",
+) {
+    Tab(
+        selected = selected,
+        onFocus = onFocus,
+        onClick = onClick,
+        modifier = modifier
+            .width(100.dp)
+            .height(50.dp)
+            .testTag(tag)
+            .border(2.dp, Color.White, RoundedCornerShape(50))
+    ) {}
+}
+
+private fun performKeyPress(keyCode: Int, count: Int = 1) {
+    for (i in 1..count) {
+        InstrumentationRegistry
+            .getInstrumentation()
+            .sendKeyDownUpSync(keyCode)
+    }
+}
+
+private fun constructTabs(
+    count: Int = 3,
+    buildTab: (index: Int) -> String = { "Season $it" }
+): List<String> = (0 until count).map(buildTab)

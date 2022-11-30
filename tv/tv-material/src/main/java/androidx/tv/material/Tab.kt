@@ -17,6 +17,7 @@
 package androidx.tv.material
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -46,9 +47,9 @@ import androidx.compose.ui.semantics.semantics
  * example usage.
  *
  * @param selected whether this tab is selected or not
- * @param onSelect called when this tab is selected (when in focus). Doesn't trigger if the tab is
- * already selected
+ * @param onFocus called when this tab is focused
  * @param modifier the [Modifier] to be applied to this tab
+ * @param onClick called when this tab is clicked (with D-Pad Center)
  * @param enabled controls the enabled state of this tab. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -62,8 +63,9 @@ import androidx.compose.ui.semantics.semantics
 @Composable
 fun Tab(
   selected: Boolean,
-  onSelect: () -> Unit,
+  onFocus: () -> Unit,
   modifier: Modifier = Modifier,
+  onClick: () -> Unit = { },
   enabled: Boolean = true,
   colors: TabColors = TabDefaults.pillIndicatorTabColors(),
   interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -81,17 +83,23 @@ fun Tab(
   CompositionLocalProvider(LocalContentColor provides contentColor) {
     Row(
       modifier =
-        modifier
+        Modifier
           .semantics {
             this.selected = selected
             this.role = Role.Tab
           }
           .onFocusChanged {
-            if (it.isFocused && !selected) {
-              onSelect()
+            if (it.isFocused) {
+              onFocus()
             }
           }
-          .focusable(enabled, interactionSource),
+          .focusable(enabled = enabled, interactionSource)
+          .clickable(
+            enabled = enabled,
+            role = Role.Tab,
+            onClick = onClick,
+          )
+          .then(modifier),
       horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
       content = content
