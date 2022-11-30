@@ -21,6 +21,7 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.util.Consumer
+import androidx.core.view.ViewCompat
 import androidx.emoji2.emojipicker.EmojiPickerConstants.DEFAULT_MAX_RECENT_ITEM_ROWS
 import androidx.emoji2.emojipicker.Extensions.toEmojiViewData
 import androidx.recyclerview.widget.GridLayoutManager
@@ -66,8 +67,6 @@ class EmojiPickerView @JvmOverloads constructor(
     private val stickyVariantProvider = StickyVariantProvider(context)
     private var recentEmojiProvider = DefaultRecentEmojiProvider(context)
 
-    private lateinit var headerView: RecyclerView
-    private lateinit var bodyView: RecyclerView
     private var onEmojiPickedListener: Consumer<EmojiViewItem>? = null
 
     init {
@@ -118,35 +117,6 @@ class EmojiPickerView @JvmOverloads constructor(
     }
 
     private fun showEmojiPickerView(context: Context, recent: List<String>) {
-        // get emoji picker
-        val emojiPicker = inflate(context, R.layout.emoji_picker, this)
-
-        // set headerView
-        headerView = emojiPicker.findViewById(R.id.emoji_picker_header)
-        headerView.layoutManager =
-            LinearLayoutManager(
-                context,
-                LinearLayoutManager.HORIZONTAL,
-                /* reverseLayout = */ false
-            )
-
-        // set bodyView
-        bodyView = emojiPicker.findViewById(R.id.emoji_picker_body)
-        bodyView.layoutManager = GridLayoutManager(
-            getContext(),
-            emojiGridColumns,
-            LinearLayoutManager.VERTICAL,
-            /* reverseLayout = */ false
-        ).apply {
-            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    val adapter = (bodyView.adapter as? EmojiPickerBodyAdapter) ?: return 1
-                    return if (adapter.emojiPickerItems.getBodyItem(position).occupyEntireRow)
-                        emojiGridColumns
-                    else 1
-                }
-            }
-        }
         val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
         val variantToBaseEmojiMap = BundledEmojiListLoader.getPrimaryEmojiLookup()
         val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()
@@ -182,14 +152,69 @@ class EmojiPickerView @JvmOverloads constructor(
                 )
             }
         })
-        headerView.adapter = EmojiPickerHeaderAdapter(context, emojiPickerItems)
-        bodyView.adapter =
-            createEmojiPickerBodyAdapter(
-                onEmojiPickedListener,
-                recentEmojiProvider,
-                recentItems,
-                emojiPickerItems
-            )
+
+        val bodyAdapter = createEmojiPickerBodyAdapter(
+            onEmojiPickedListener,
+            recentEmojiProvider,
+            recentItems,
+            emojiPickerItems
+        )
+
+        val bodyLayoutManager = GridLayoutManager(
+            getContext(),
+            emojiGridColumns,
+            LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */ false
+        ).apply {
+            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if (bodyAdapter.emojiPickerItems.getBodyItem(position).occupyEntireRow)
+                        emojiGridColumns
+                    else 1
+                }
+            }
+        }
+
+        val headerAdapter =
+            EmojiPickerHeaderAdapter(context, emojiPickerItems, onHeaderIconClicked = {
+                bodyLayoutManager.scrollToPositionWithOffset(
+                    emojiPickerItems.firstItemPositionByGroupIndex(it),
+                    0
+                )
+            })
+
+        with(inflate(context, R.layout.emoji_picker, this)) {
+            // set headerView
+            ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_header).apply {
+                layoutManager =
+                    LinearLayoutManager(
+                        context,
+                        LinearLayoutManager.HORIZONTAL,
+                        /* reverseLayout = */ false
+                    )
+                adapter = headerAdapter
+            }
+
+            // set bodyView
+            ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_body).apply {
+                layoutManager = bodyLayoutManager
+                adapter = createEmojiPickerBodyAdapter(
+                    onEmojiPickedListener,
+                    recentEmojiProvider,
+                    recentItems,
+                    emojiPickerItems
+                )
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        super.onScrolled(recyclerView, dx, dy)
+                        val position =
+                            bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
+                        headerAdapter.selectedGroupIndex =
+                            emojiPickerItems.groupIndexByItemPosition(position)
+                    }
+                })
+            }
+        }
     }
 
     /**

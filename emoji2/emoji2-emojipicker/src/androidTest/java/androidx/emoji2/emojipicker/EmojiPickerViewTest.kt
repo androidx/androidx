@@ -17,8 +17,6 @@
 package androidx.emoji2.emojipicker
 
 import androidx.emoji2.emojipicker.R as EmojiPickerViewR
-import androidx.test.espresso.Espresso.onView
-import org.hamcrest.Description
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -28,10 +26,12 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.emoji2.emojipicker.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -42,8 +42,10 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.hamcrest.Description
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -103,16 +105,17 @@ class EmojiPickerViewTest {
     @SdkSuppress(minSdkVersion = 24)
     fun testCustomEmojiPickerView_hasVariant() {
         // 👃 has variants
-        val noseEmoji = "\uD83D\uDC43"
+        val NOSE_EMOJI = "\uD83D\uDC43"
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {
             view = it.findViewById(R.id.emojiPickerTest)
         }
-        findViewByEmoji(view, noseEmoji)
+        findViewByEmoji(view, NOSE_EMOJI)
             ?: onView(withId(EmojiPickerViewR.id.emoji_picker_body))
                 .perform(
-                    RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(noseEmoji)))
-        val targetView = findViewByEmoji(view, noseEmoji)!!
+                    RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(NOSE_EMOJI))
+                )
+        val targetView = findViewByEmoji(view, NOSE_EMOJI)!!
         // Variant indicator visible
         assertEquals(
             (targetView.parent as FrameLayout).findViewById<ImageView>(
@@ -126,28 +129,57 @@ class EmojiPickerViewTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     fun testStickyVariant_displayAndSaved() {
-        val noseEmoji = "\uD83D\uDC43"
-        val noseEmojiDark = "\uD83D\uDC43\uD83C\uDFFF"
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {
             view = it.findViewById(R.id.emojiPickerTest)
         }
         // Scroll to the nose emoji, long click then select nose in dark skin tone
-        findViewByEmoji(view, noseEmoji)
+        findViewByEmoji(view, NOSE_EMOJI)
             ?: onView(withId(EmojiPickerViewR.id.emoji_picker_body))
                 .perform(
-                    RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(noseEmoji)))
-        onView(createEmojiViewMatcher(noseEmoji)).perform(longClick())
-        onView(createEmojiViewMatcher(noseEmojiDark))
+                    RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(NOSE_EMOJI))
+                )
+        onView(createEmojiViewMatcher(NOSE_EMOJI)).perform(longClick())
+        onView(createEmojiViewMatcher(NOSE_EMOJI_DARK))
             .inRoot(hasWindowLayoutParams())
             .perform(click())
-        assertNotNull(findViewByEmoji(view, noseEmojiDark))
+        assertNotNull(findViewByEmoji(view, NOSE_EMOJI_DARK))
         // Switch back to clear saved preference
-        onView(createEmojiViewMatcher(noseEmojiDark)).perform(longClick())
-        onView(createEmojiViewMatcher(noseEmoji))
+        onView(createEmojiViewMatcher(NOSE_EMOJI_DARK)).perform(longClick())
+        onView(createEmojiViewMatcher(NOSE_EMOJI))
             .inRoot(hasWindowLayoutParams())
             .perform(click())
-        assertNotNull(findViewByEmoji(view, noseEmoji))
+        assertNotNull(findViewByEmoji(view, NOSE_EMOJI))
+    }
+
+    @Test
+    fun testHeader_highlightCurrentCategory() {
+        assertSelectedHeaderIndex(0)
+        scrollToEmoji(NOSE_EMOJI)
+        assertSelectedHeaderIndex(1)
+        scrollToEmoji(BAT)
+        assertSelectedHeaderIndex(3)
+        scrollToEmoji(KEY)
+        assertSelectedHeaderIndex(7)
+    }
+
+    @Test
+    fun testHeader_clickingIconWillScrollToCategory() {
+        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ ->
+            assertNull(view)
+        }
+
+        onView(withId(EmojiPickerViewR.id.emoji_picker_header)).perform(
+            RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                4,
+                click()
+            )
+        )
+
+        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ ->
+            assertNotNull(view)
+        }
+        assertSelectedHeaderIndex(4)
     }
 
     private fun findViewByEmoji(root: View, emoji: String) =
@@ -193,4 +225,29 @@ class EmojiPickerViewTest {
             override fun describeTo(description: Description) {}
             override fun matchesSafely(item: EmojiView) = item.emoji == emoji
         }
+
+    private fun assertSelectedHeaderIndex(expected: Int) = onView(
+        withId(EmojiPickerViewR.id.emoji_picker_header)
+    ).check { view, noViewFoundException ->
+        view ?: throw noViewFoundException
+        val selectedIndex = (view as RecyclerView)
+            .children
+            .withIndex()
+            .single { (_, view) ->
+                view.findViewById<ImageView>(EmojiPickerViewR.id.emoji_picker_header_icon)
+                    .isSelected
+            }.index
+        assertEquals(expected, selectedIndex)
+    }
+
+    private fun scrollToEmoji(emoji: String) = onView(withId(EmojiPickerViewR.id.emoji_picker_body))
+        .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(emoji)))
+
+    companion object {
+        const val NOSE_EMOJI = "\uD83D\uDC43"
+        const val NOSE_EMOJI_DARK = "\uD83D\uDC43\uD83C\uDFFF"
+        const val BAT = "\uD83E\uDD87"
+        const val KEY = "\uD83D\uDD11"
+        const val STRAWBERRY = "\uD83C\uDF53"
+    }
 }

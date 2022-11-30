@@ -20,6 +20,10 @@
         <item name="android:tint">@drawable/icon_tint_selector</item>
     </style>
 
+    <style name="EmojiPickerStyleHeaderIconUnderline">
+        <item name="android:backgroundTint">@drawable/icon_tint_selector</item>
+    </style>
+
     <style name="EmojiPickerStyleCategoryEmptyHintText">
         <item name="android:textColor">?attr/EmojiPickerColorCategoryEmptyHintText</item>
     </style>
