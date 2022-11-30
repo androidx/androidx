@@ -25,6 +25,19 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 
 /**
  * Configuration rules for split placeholders.
+ *
+ * A placeholder activity is usually a mostly empty activity that temporarily occupies the secondary
+ * container of a split. The placeholder is intended to be replaced when another activity with
+ * content is launched in a dedicated [SplitPairRule]. The placeholder activity is then occluded by
+ * the newly launched activity. The placeholder can provide some optional features but must not host
+ * important UI elements exclusively, since the placeholder is not shown on some devices and screen
+ * configurations, such as devices with small screens.
+ *
+ * Configuration rules can be added using [SplitController.addRule].
+ *
+ * See
+ * [Activity embedding](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
+ * for more information.
  */
 class SplitPlaceholderRule : SplitRule {
 

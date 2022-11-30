@@ -125,7 +125,7 @@ public class SplitPairRule extends SplitRule {
         @FloatRange(from = 0.0, to = 1.0)
         private float mSplitRatio;
         // Keep for backward compatibility
-        @SplitAttributes.LayoutDir
+        @SplitAttributes.ExtLayoutDirection
         private int mLayoutDirection;
         private SplitAttributes mDefaultSplitAttributes;
         private boolean mClearTop;
@@ -168,7 +168,7 @@ public class SplitPairRule extends SplitRule {
          */
         @Deprecated
         @NonNull
-        public Builder setLayoutDirection(@SplitAttributes.LayoutDir int layoutDirection) {
+        public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
         }
@@ -279,7 +279,7 @@ public class SplitPairRule extends SplitRule {
     public String toString() {
         return "SplitPairRule{"
                 + "mTag=" + getTag()
-                + "mDefaultSplitAttributes=" + getDefaultSplitAttributes()
+                + ", mDefaultSplitAttributes=" + getDefaultSplitAttributes()
                 + ", mFinishPrimaryWithSecondary=" + mFinishPrimaryWithSecondary
                 + ", mFinishSecondaryWithPrimary=" + mFinishSecondaryWithPrimary
                 + ", mClearTop=" + mClearTop

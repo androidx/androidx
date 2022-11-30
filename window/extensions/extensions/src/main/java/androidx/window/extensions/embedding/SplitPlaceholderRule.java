@@ -153,7 +153,7 @@ public class SplitPlaceholderRule extends SplitRule {
         @FloatRange(from = 0.0, to = 1.0)
         private float mSplitRatio;
         // Keep for backward compatibility
-        @SplitAttributes.LayoutDir
+        @SplitAttributes.ExtLayoutDirection
         private int mLayoutDirection;
         private SplitAttributes mDefaultSplitAttributes;
         private boolean mIsSticky = false;
@@ -196,7 +196,7 @@ public class SplitPlaceholderRule extends SplitRule {
          */
         @Deprecated
         @NonNull
-        public Builder setLayoutDirection(@SplitAttributes.LayoutDir int layoutDirection) {
+        public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
         }
@@ -305,7 +305,7 @@ public class SplitPlaceholderRule extends SplitRule {
     public String toString() {
         return "SplitPlaceholderRule{"
                 + "mTag=" + getTag()
-                + "mDefaultSplitAttributes=" + getDefaultSplitAttributes()
+                + ", mDefaultSplitAttributes=" + getDefaultSplitAttributes()
                 + ", mActivityPredicate=" + mActivityPredicate
                 + ", mIsSticky=" + mIsSticky
                 + ", mFinishPrimaryWithPlaceholder=" + mFinishPrimaryWithPlaceholder
