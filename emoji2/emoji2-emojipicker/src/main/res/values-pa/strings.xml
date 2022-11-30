@@ -17,8 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for emoji_category_recent (7142376595414250279) -->
-    <skip />
+    <string name="emoji_category_recent" msgid="7142376595414250279">"ਹਾਲ ਹੀ ਵਿੱਚ ਵਰਤਿਆ ਗਿਆ"</string>
     <string name="emoji_category_emotions" msgid="1570830970240985537">"ਸਮਾਈਲੀ ਅਤੇ ਜਜ਼ਬਾਤ"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"ਲੋਕ"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ਜਾਨਵਰ ਅਤੇ ਕੁਦਰਤ"</string>
