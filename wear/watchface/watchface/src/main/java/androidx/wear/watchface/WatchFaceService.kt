@@ -145,9 +145,11 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * [androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy]. The system will
  * only access flavors if metadata tag is present in manifest:
  *
+ * ```
  *    <meta-data
  *      android:name="androidx.wear.watchface.FLAVORS_SUPPORTED"
  *      android:value="true" />
+ * ```
  *
  * WatchFaces are initially constructed on a background thread before being used exclusively on
  * the ui thread afterwards. There is a memory barrier between construction and rendering so no
@@ -222,9 +224,11 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * distinct [WatchState.watchFaceInstanceId]) by adding this meta-data to your watch face's
  * manifest:
  *
+ * ```
  *    <meta-data
  *      android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
  *      android:value="true" />
+ * ```
  *
  *
  * A watch face can declare the [UserStyleSchema], [ComplicationSlot]s and [UserStyleFlavors] in
@@ -235,12 +239,15 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * To use xml inflation, add an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
  * meta date tag to your service:
  *
+ * ```
  *     <meta-data
  *         android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
  *         android:resource="@xml/my_watchface_definition" />
+ * ```
  *
  * And the linked xml/my_watchface_definition resource must contain a XmlWatchFace node. E.g.:
  *
+ * ```
  *     <XmlWatchFace xmlns:android="http://schemas.android.com/apk/res/android"
  *             xmlns:app="http://schemas.android.com/apk/res-auto">
  *         <UserStyleSchema>
@@ -282,6 +289,7 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *             </UserStyleFlavor>
  *         </UserStyleFlavors>
  *    </XmlWatchFace>
+ * ```
  *
  * If you use resources references to specify identifiers, they should be locale independent
  * (i.e. translatable="false").
