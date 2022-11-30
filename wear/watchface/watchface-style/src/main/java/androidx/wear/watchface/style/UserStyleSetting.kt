@@ -120,6 +120,14 @@ internal sealed class DisplayText {
  * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
  * as a result the size of serialized UserStyleSettings could become an issue if large.
  *
+ * It is possible to define a hierarchy of styles, (e.g. a watch face might have support a number of
+ * different looks, each with their own settings). A hierarchy is defined by setting child styles in
+ * [ListUserStyleSetting.ListOption.childSettings]. A setting is deemed to be active if it's either
+ * in the top level of the tree, or if it's the child of an [Option] selected by the user in the
+ * [UserStyle]. In a hierarchy multiple [ComplicationSlotsUserStyleSetting] are allowed but only one
+ * can be active at any time, for more details see
+ * [UserStyleSchema.findComplicationSlotsOptionForUserStyle].
+ *
  * @property id Identifier for the element, must be unique. Styling data gets shared with the
  * companion (typically via bluetooth) so size is a consideration and short ids are encouraged.
  * There is a maximum length see [UserStyleSetting.Id.MAX_LENGTH].
@@ -543,8 +551,11 @@ public sealed class UserStyleSetting private constructor(
      * @property id Machine readable [Id] for the style setting. Identifier for the option (or the
      * option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique within
      * the UserStyleSetting. Short ids are encouraged.
-     * @property childSettings The list of child [UserStyleSetting]s, if any. These must be in
-     * [UserStyleSchema.userStyleSettings].
+     * @property childSettings The list of child [UserStyleSetting]s, if any, forming a hierarchy of
+     * [UserStyleSetting]s. These must be in [UserStyleSchema.userStyleSettings]. Child
+     * [UserStyleSetting]s are deemed to be active if the [Option] is selected by the [UserStyle].
+     * This is particularly important is there are multiple [ComplicationSlotsUserStyleSetting]s,
+     * only one of which is allowed to be active at any time.
      */
     public abstract class Option internal constructor(
         public val id: Id,
