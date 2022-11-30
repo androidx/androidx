@@ -1043,22 +1043,19 @@ public class UiDevice implements Searchable {
         return mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
     }
 
-    private List<AccessibilityWindowInfo> getWindows() {
+    @RequiresApi(21)
+    private List<AccessibilityWindowInfo> getWindows(UiAutomation uiAutomation) {
         // Support multi-display searches for API level 30 and up.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             final List<AccessibilityWindowInfo> windowList = new ArrayList<>();
             final SparseArray<List<AccessibilityWindowInfo>> allWindows =
-                    Api30Impl.getWindowsOnAllDisplays(getUiAutomation());
+                    Api30Impl.getWindowsOnAllDisplays(uiAutomation);
             for (int index = 0; index < allWindows.size(); index++) {
                 windowList.addAll(allWindows.valueAt(index));
             }
             return windowList;
         }
-        // Support multi-window searches for API level 21 and up.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return Api21Impl.getWindows(getUiAutomation());
-        }
-        return new ArrayList<>();
+        return Api21Impl.getWindows(uiAutomation);
     }
 
     /** Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window */
@@ -1066,16 +1063,16 @@ public class UiDevice implements Searchable {
         waitForIdle();
 
         Set<AccessibilityNodeInfo> roots = new HashSet<>();
+        UiAutomation uiAutomation = getUiAutomation();
 
-        // Start with the active window, which seems to sometimes be missing from the list returned
-        // by the UiAutomation.
-        AccessibilityNodeInfo activeRoot = getUiAutomation().getRootInActiveWindow();
+        // Ensure the active window root is included.
+        AccessibilityNodeInfo activeRoot = uiAutomation.getRootInActiveWindow();
         if (activeRoot != null) {
             roots.add(activeRoot);
         }
-
+        // Support multi-window searches for API level 21 and up.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            for (final AccessibilityWindowInfo window : getWindows()) {
+            for (final AccessibilityWindowInfo window : getWindows(uiAutomation)) {
                 final AccessibilityNodeInfo root = Api21Impl.getRoot(window);
                 if (root == null) {
                     Log.w(TAG, "Skipping null root node for window: " + window);
@@ -1120,7 +1117,10 @@ public class UiDevice implements Searchable {
         // Verify and update the accessibility service flags if necessary. These might get reset
         // if the underlying UiAutomationConnection is recreated.
         AccessibilityServiceInfo serviceInfo = uiAutomation.getServiceInfo();
-        if (serviceInfo.flags != mCachedServiceFlags) {
+        if (serviceInfo == null) {
+            Log.w(TAG, "Cannot verify accessibility service flags. "
+                    + "Multi-window support (searching non-active windows) may be disabled.");
+        } else if (serviceInfo.flags != mCachedServiceFlags) {
             // Enable multi-window support for API 21+.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 serviceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
