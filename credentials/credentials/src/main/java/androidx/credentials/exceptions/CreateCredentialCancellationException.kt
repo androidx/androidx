@@ -31,7 +31,7 @@ class CreateCredentialCancellationException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION: String =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION"
     }

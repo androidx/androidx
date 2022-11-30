@@ -29,7 +29,7 @@ class ClearCredentialUnknownException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION: String =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION"
     }

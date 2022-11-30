@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.publickeycredential
-
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 
 /**
- * During the create public key credential flow, this is called when an authenticator response
- * exception contains a constraint_err from the fido spec, indicating that some mutation operation
- * occurring during a transaction failed by not satisfying constraints. The
- * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
+ * During the create public key credential flow, this is returned when an authenticator response
+ * exception contains a wrong_document_err from the fido spec, indicating the object is the wrong
+ * document. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  *
  * @see CreatePublicKeyCredentialException
  * @hide
  */
-class CreatePublicKeyCredentialConstraintException @JvmOverloads constructor(
+class CreatePublicKeyCredentialWrongDocumentException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : CreatePublicKeyCredentialException(
-    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION,
+    Companion.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_WRONG_DOCUMENT_EXCEPTION,
     errorMessage) {
-
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION"
+        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_WRONG_DOCUMENT_EXCEPTION: String =
+            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_WRONG_DOCUMENT_EXCEPTION"
     }
 }
