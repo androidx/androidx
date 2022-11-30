@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
+import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 
@@ -125,43 +126,80 @@ public class PlaceholderState internal constructor(
      *
      * The progression represents the x and y coordinates in pixels of the Top|Left part of the
      * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
-     * of height/width to create a 45 degree angle) * 1.5f and progress to the
-     * maximumScreenDimension * 1.5f.
+     * of height/width to create a 45 degree angle) * 1.75f and progress to the
+     * maximumScreenDimension * 0.75f.
      *
      * The time taken for this progression to reach the edge of visible screen is
      * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
      */
     internal val placeholderWipeOffProgression: Float by derivedStateOf {
-        val absoluteProgression =
-            (frameMillis.value.mod(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
-                PLACEHOLDER_PROGRESSION_DURATION_MS).toFloat() /
-                PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
-        val progression =
-            lerp(-maxScreenDimension * 1.5f, maxScreenDimension * 1.5f, absoluteProgression)
-        progression
+        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
+        val easedProgression = wipeOffInterpolator.transform(absoluteProgression)
+        lerp(-maxScreenDimension * 1.75f, maxScreenDimension * 0.75f, easedProgression)
     }
 
     /**
-     * The current value of the placeholder visual effect gradient progression. The
+     * The current value of the placeholder wipe off visual effect gradient progression alpha. The
      * progression is a 45 degree angle sweep across the whole screen running from outside of the
      * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
      *
      * The progression represents the x and y coordinates in pixels of the Top|Left part of the
      * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
-     * of height/width to create a 45 degree angle) * 1.5f and progress to the
-     * maximumScreenDimension * 1.5f.
+     * of height/width to create a 45 degree angle) and progress to the
+     * maximumScreenDimension.
      *
-     * The time taken for this progression is [PLACEHOLDER_PROGRESSION_DURATION_MS]
+     * The time taken for this progression is [PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS]
+     */
+    @ExperimentalWearMaterialApi
+    internal val placeholderWipeOffAlpha: Float by derivedStateOf {
+        val absoluteProgression = ((frameMillis.value - startOfWipeOffAnimation).coerceAtMost(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).coerceAtMost(1f)
+
+        val alpha =
+            lerp(0f, 1f, absoluteProgression)
+        wipeOffInterpolator.transform(alpha)
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression. The progression
+     * gives the x coordinate to be applied to the placeholder gradient as it moves across the
+     * screen. Starting off screen to the left and progressing across the screen and finishing off
+     * the screen to the right after [PLACEHOLDER_SHIMMER_DURATION_MS].
      */
     @ExperimentalWearMaterialApi
     public val placeholderProgression: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.value.mod(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
-                PLACEHOLDER_PROGRESSION_DURATION_MS).toFloat() /
-                PLACEHOLDER_PROGRESSION_DURATION_MS)
-        val progression =
-            lerp(-maxScreenDimension * 1.5f, maxScreenDimension * 1.5f, absoluteProgression)
-        progressionInterpolator.transform(progression)
+            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
+                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+                PLACEHOLDER_SHIMMER_DURATION_MS)
+        val easedProgression = progressionInterpolator.transform(absoluteProgression)
+        lerp(-maxScreenDimension * 0.5f, maxScreenDimension * 1.5f, easedProgression)
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression alpha/opacity. The
+     * progression gives the alpha to apply during the period of the placeholder effect. This allows
+     * the effect to be faded in and then out during the [PLACEHOLDER_SHIMMER_DURATION_MS].
+     */
+    @ExperimentalWearMaterialApi
+    internal val placeholderShimmerAlpha: Float by derivedStateOf {
+        val absoluteProgression =
+            (frameMillis.value.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS).coerceAtMost(
+                PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
+                PLACEHOLDER_SHIMMER_DURATION_MS)
+
+        if (absoluteProgression <= 0.5f) {
+            val alpha =
+                lerp(0f, 0.15f, absoluteProgression * 2f)
+            progressionInterpolator.transform(alpha)
+        } else {
+            val alpha =
+                lerp(0.15f, 0f, (absoluteProgression - 0.5f) * 2f)
+            progressionInterpolator.transform(alpha)
+        }
     }
 
     /**
@@ -181,10 +219,12 @@ public class PlaceholderState internal constructor(
     }
 
     /**
-     * The width of the gradient to use for the placeholder shimmer and wipe-off effects
+     * The width of the gradient to use for the placeholder shimmer and wipe-off effects. This is
+     * the value in pixels that should be used in either horizontal or vertical direction to
+     * be equivalent to a gradient width of 2 x maxScreenDimension rotated through 45 degrees.
      */
-    internal val gradientWidth: Float by derivedStateOf {
-        maxScreenDimension
+    internal val gradientXYWidth: Float by derivedStateOf {
+        maxScreenDimension * 2f.pow(1.5f)
     }
 
     internal var placeholderStage: PlaceholderStage =
@@ -192,31 +232,31 @@ public class PlaceholderState internal constructor(
         else PlaceholderStage.ShowPlaceholder
         get() {
             if (field != PlaceholderStage.ShowContent) {
-                if (startOfNextPlaceholderAnimation == 0L) {
-                    startOfNextPlaceholderAnimation =
-                        (frameMillis.value.div(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
-                            PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS
-                } else if (frameMillis.value >= startOfNextPlaceholderAnimation) {
-                    field = checkForStageTransition(
-                        field,
-                        isContentReady(),
-                    )
-                    startOfNextPlaceholderAnimation =
-                        (frameMillis.value.div(PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
-                            PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS
+                // WipeOff
+                if (startOfWipeOffAnimation != 0L) {
+                    if ((frameMillis.value - startOfWipeOffAnimation) >=
+                        PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS) {
+                        field = PlaceholderStage.ShowContent
+                    }
+                    // Placeholder
+                } else if (isContentReady()) {
+                    startOfWipeOffAnimation = frameMillis.value
+                    field = PlaceholderStage.WipeOff
                 }
             }
             return field
         }
+
     /**
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate
      * the placeholder state and effects. Usually provided by [withInfiniteAnimationFrameMillis].
      */
     internal val frameMillis = mutableStateOf(0L)
 
-    private var startOfNextPlaceholderAnimation = 0L
+    private var startOfWipeOffAnimation = 0L
 
-    private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.5f, 1f)
+    private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f)
+    private val wipeOffInterpolator: Easing = CubicBezierEasing(0f, 0.2f, 1f, 0.6f)
 }
 
 /**
@@ -251,25 +291,6 @@ public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderS
         Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
     }
     return remember { PlaceholderState(isContentReady, maxScreenDimension) }
-}
-
-/**
- * Method used to determine whether we should transition to a new [PlaceholderStage] based
- * on the current value and whether the content has loaded.
- *
- * @param placeholderStage the current stage of the placeholder
- * @param contentReady a flag to indicate whether all of content is now available
- */
-@OptIn(ExperimentalWearMaterialApi::class)
-private fun checkForStageTransition(
-    placeholderStage: PlaceholderStage,
-    contentReady: Boolean,
-): PlaceholderStage {
-    return if (placeholderStage == PlaceholderStage.ShowPlaceholder && contentReady) {
-        PlaceholderStage.WipeOff
-    } else if (placeholderStage == PlaceholderStage.WipeOff) {
-        PlaceholderStage.ShowContent
-    } else placeholderStage
 }
 
 /**
@@ -563,21 +584,20 @@ private fun wipeOffBrush(
     offset: Offset,
     placeholderState: PlaceholderState
 ): Brush {
+    val halfGradientWidth = placeholderState.gradientXYWidth / 2f
     return Brush.linearGradient(
-        colors = listOf(
-            Color.Transparent,
-            color
-        ),
+        colorStops = listOf(
+            0f to Color.Transparent,
+            0.75f to color,
+        ).toTypedArray(),
         start = Offset(
-            x = placeholderState.placeholderWipeOffProgression - offset.x,
-            y = placeholderState.placeholderWipeOffProgression - offset.y
+            x = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.x,
+            y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y
         ),
         end = Offset(
-            x = placeholderState.placeholderWipeOffProgression -
-                offset.x + placeholderState.gradientWidth,
-            y = placeholderState.placeholderWipeOffProgression -
-                offset.y + placeholderState.gradientWidth
-        )
+            x = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.x,
+            y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y
+        ),
     )
 }
 
@@ -723,15 +743,15 @@ private class PlaceholderModifier constructor(
     val shape: Shape
 ) : AbstractPlaceholderModifier(alpha, shape) {
     override fun generateBrush(offset: Offset): Brush? {
-        return when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder -> {
-                SolidColor(color)
-            }
-            PlaceholderStage.WipeOff -> {
-                wipeOffBrush(color, offset, placeholderState)
-            }
-            else -> {
-                null
+            return when (placeholderState.placeholderStage) {
+                PlaceholderStage.ShowPlaceholder -> {
+                    SolidColor(color)
+                }
+                PlaceholderStage.WipeOff -> {
+                    wipeOffBrush(color, offset, placeholderState)
+                }
+                else -> {
+                    null
             }
         }
     }
@@ -770,19 +790,20 @@ private class PlaceholderShimmerModifier constructor(
     }
     override fun generateBrush(offset: Offset): Brush? {
         return if (placeholderState.placeholderStage == PlaceholderStage.ShowPlaceholder) {
+            val halfGradientWidth = placeholderState.gradientXYWidth / 2f
             Brush.linearGradient(
-                start = Offset(x = placeholderState.placeholderProgression - offset.x,
-                    y = placeholderState.placeholderProgression - offset.y),
+                start = Offset(
+                    x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
+                    y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
+                ),
                 end = Offset(
-                    x = placeholderState.placeholderProgression - offset.x +
-                        placeholderState.gradientWidth,
-                    y = placeholderState.placeholderProgression - offset.y +
-                        placeholderState.gradientWidth
+                    x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
+                    y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
                 ),
                 colorStops = listOf(
-                    0f to color.copy(alpha = 0f),
-                    0.65f to color.copy(alpha = 0.13f),
-                    1f to color.copy(alpha = 0f),
+                    0.1f to color.copy(alpha = 0f),
+                    0.65f to color.copy(alpha = placeholderState.placeholderShimmerAlpha),
+                    0.9f to color.copy(alpha = 0f),
                 ).toTypedArray()
             )
         } else {
@@ -811,8 +832,7 @@ private class PlaceholderShimmerModifier constructor(
     }
 }
 
-internal const val PLACEHOLDER_PROGRESSION_DURATION_MS = 800L
-internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 250L
-internal const val PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS = 800L
-internal const val PLACEHOLDER_GAP_BETWEEN_ANIMATION_LOOPS_MS =
-    PLACEHOLDER_PROGRESSION_DURATION_MS + PLACEHOLDER_DELAY_BETWEEN_PROGRESSIONS_MS
+internal const val PLACEHOLDER_SHIMMER_DURATION_MS = 800L
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 300L
+internal const val PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS = 2000L
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS = 80L
