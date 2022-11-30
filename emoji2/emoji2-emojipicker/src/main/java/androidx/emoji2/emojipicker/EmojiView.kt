@@ -31,6 +31,7 @@ import android.util.TypedValue
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
+import androidx.emoji2.text.EmojiCompat
 
 /**
  * A customized view to support drawing emojis asynchronously.
@@ -40,6 +41,8 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
 
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
+        private val emojiCompatLoaded = EmojiCompat.isConfigured() &&
+            EmojiCompat.get().loadState == EmojiCompat.LOAD_STATE_SUCCEEDED
     }
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
@@ -79,29 +82,32 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
             offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
             if (value != null) {
                 post {
-                    drawEmoji(value)
-                    contentDescription = value
+                    if (value == this.emoji) {
+                        drawEmoji(
+                            if (emojiCompatLoaded)
+                                EmojiCompat.get().process(value) ?: value else value
+                        )
+                        contentDescription = value
+                    }
                     invalidate()
                 }
             }
         }
 
     private fun drawEmoji(emoji: CharSequence) {
-        if (emoji == this.emoji) {
-            offscreenCanvasBitmap.applyCanvas {
-                if (emoji is Spanned) {
-                    createStaticLayout(emoji, width).draw(this)
-                } else {
-                    val textWidth = textPaint.measureText(emoji, 0, emoji.length)
-                    drawText(
-                        emoji,
-                        /* start = */ 0,
-                        /* end = */ emoji.length,
-                        /* x = */ (width - textWidth) / 2,
-                        /* y = */ -textPaint.fontMetrics.top,
-                        textPaint,
-                    )
-                }
+        offscreenCanvasBitmap.applyCanvas {
+            if (emoji is Spanned) {
+                createStaticLayout(emoji, width).draw(this)
+            } else {
+                val textWidth = textPaint.measureText(emoji, 0, emoji.length)
+                drawText(
+                    emoji,
+                    /* start = */ 0,
+                    /* end = */ emoji.length,
+                    /* x = */ (width - textWidth) / 2,
+                    /* y = */ -textPaint.fontMetrics.top,
+                    textPaint,
+                )
             }
         }
     }
