@@ -13,138 +13,106 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
-import androidx.arch.core.executor.ArchTaskExecutor;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
+import androidx.arch.core.executor.ArchTaskExecutor
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A LiveData class that can be invalidated & computed when there are active observers.
- * <p>
- * It can be invalidated via {@link #invalidate()}, which will result in a call to
- * {@link #compute()} if there are active observers (or when they start observing)
- * <p>
+ *
+ * It can be invalidated via [invalidate], which will result in a call to
+ * [compute] if there are active observers (or when they start observing)
+ *
  * This is an internal class for now, might be public if we see the necessity.
  *
  * @param <T> The type of the live data
  * @hide internal
- */
+*/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public abstract class ComputableLiveData<T> {
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Executor mExecutor;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final LiveData<T> mLiveData;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final AtomicBoolean mInvalid = new AtomicBoolean(true);
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final AtomicBoolean mComputing = new AtomicBoolean(false);
+abstract class ComputableLiveData<T> @JvmOverloads
+/**
+ * Creates a computable live data that computes values on the specified executor
+ * or the arch IO thread executor by default.
+ *
+ * @param executor Executor that is used to compute new LiveData values.
+ */
+constructor(
+    internal val executor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+) {
 
-    /**
-     * Creates a computable live data that computes values on the arch IO thread executor.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public ComputableLiveData() {
-        this(ArchTaskExecutor.getIOThreadExecutor());
-    }
-
-    /**
-     * Creates a computable live data that computes values on the specified executor.
-     *
-     * @param executor Executor that is used to compute new LiveData values.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public ComputableLiveData(@NonNull Executor executor) {
-        mExecutor = executor;
-        mLiveData = new LiveData<T>() {
-            @Override
-            protected void onActive() {
-                mExecutor.execute(mRefreshRunnable);
+    private val _liveData: LiveData<T?> =
+        object : LiveData<T?>() {
+            override fun onActive() {
+                executor.execute(refreshRunnable)
             }
-        };
     }
-
     /**
-     * Returns the LiveData managed by this class.
-     *
-     * @return A LiveData that is controlled by ComputableLiveData.
+     * The LiveData managed by this class.
      */
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    public LiveData<T> getLiveData() {
-        return mLiveData;
-    }
+    open val liveData: LiveData<T?> = _liveData
+    internal val invalid = AtomicBoolean(true)
+    internal val computing = AtomicBoolean(false)
 
+    @JvmField
     @VisibleForTesting
-    final Runnable mRefreshRunnable = new Runnable() {
-        @WorkerThread
-        @Override
-        public void run() {
-            boolean computed;
-            do {
-                computed = false;
-                // compute can happen only in 1 thread but no reason to lock others.
-                if (mComputing.compareAndSet(false, true)) {
-                    // as long as it is invalid, keep computing.
-                    try {
-                        T value = null;
-                        while (mInvalid.compareAndSet(true, false)) {
-                            computed = true;
-                            value = compute();
-                        }
-                        if (computed) {
-                            mLiveData.postValue(value);
-                        }
-                    } finally {
-                        // release compute lock
-                        mComputing.set(false);
+    internal val refreshRunnable = Runnable {
+        var computed: Boolean
+        do {
+            computed = false
+            // compute can happen only in 1 thread but no reason to lock others.
+            if (computing.compareAndSet(false, true)) {
+                // as long as it is invalid, keep computing.
+                try {
+                    var value: T? = null
+                    while (invalid.compareAndSet(true, false)) {
+                        computed = true
+                        value = compute()
                     }
+                    if (computed) {
+                        liveData.postValue(value)
+                    }
+                } finally {
+                    // release compute lock
+                    computing.set(false)
                 }
-                // check invalid after releasing compute lock to avoid the following scenario.
-                // Thread A runs compute()
-                // Thread A checks invalid, it is false
-                // Main thread sets invalid to true
-                // Thread B runs, fails to acquire compute lock and skips
-                // Thread A releases compute lock
-                // We've left invalid in set state. The check below recovers.
-            } while (computed && mInvalid.get());
-        }
-    };
+            }
+            // check invalid after releasing compute lock to avoid the following scenario.
+            // Thread A runs compute()
+            // Thread A checks invalid, it is false
+            // Main thread sets invalid to true
+            // Thread B runs, fails to acquire compute lock and skips
+            // Thread A releases compute lock
+            // We've left invalid in set state. The check below recovers.
+        } while (computed && invalid.get())
+    }
 
     // invalidation check always happens on the main thread
+    @JvmField
     @VisibleForTesting
-    final Runnable mInvalidationRunnable = new Runnable() {
-        @MainThread
-        @Override
-        public void run() {
-            boolean isActive = mLiveData.hasActiveObservers();
-            if (mInvalid.compareAndSet(false, true)) {
-                if (isActive) {
-                    mExecutor.execute(mRefreshRunnable);
-                }
+    internal val invalidationRunnable = Runnable {
+        val isActive = liveData.hasActiveObservers()
+        if (invalid.compareAndSet(false, true)) {
+            if (isActive) {
+                executor.execute(refreshRunnable)
             }
         }
-    };
+    }
 
     /**
      * Invalidates the LiveData.
-     * <p>
-     * When there are active observers, this will trigger a call to {@link #compute()}.
+     *
+     * When there are active observers, this will trigger a call to [.compute].
      */
-    public void invalidate() {
-        ArchTaskExecutor.getInstance().executeOnMainThread(mInvalidationRunnable);
+    open fun invalidate() {
+        ArchTaskExecutor.getInstance().executeOnMainThread(invalidationRunnable)
     }
 
     // TODO https://issuetracker.google.com/issues/112197238
-    @SuppressWarnings({"WeakerAccess", "UnknownNullness"})
     @WorkerThread
-    protected abstract T compute();
+    protected abstract fun compute(): T
 }

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.lifecycle.ComputableLiveData#getLiveData():
+    Method androidx.lifecycle.ComputableLiveData.getLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
