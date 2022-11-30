@@ -159,7 +159,9 @@ public final class Row implements Item {
     }
 
     /**
-     * Returns the list of additional actions at the end of the row.
+     * Returns the list of additional actions.
+     *
+     * <p> Actions are displayed at the end of the row.
      *
      * @see Builder#addAction(Action)
      */
@@ -532,13 +534,15 @@ public final class Row implements Item {
         }
 
         /**
-         * Adds an additional action to the end of the row.
+         * Adds an additional action to the end of the row. Actions are not displayed in
+         * half-list templates.
          *
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  exceeds the maximum number of allowed actions or does
          *                                  not contain a valid {@link CarIcon}.
          */
+        //TODO(b/260557014): Update docs when half-list UX is defined
         @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
@@ -554,6 +558,7 @@ public final class Row implements Item {
          * Sets a numeric decoration to display in the row.
          *
          * <p> Numeric decorations are displayed at the end of the row, but before any actions.
+         * Numeric decorations are not displayed in half-list templates.
          *
          * <p> Numeric decorations typically represent a quantity of unseen content. For example, a
          * decoration might represent a number of missed notifications, or a number of unread
@@ -563,6 +568,7 @@ public final class Row implements Item {
          * {@link Row#NO_DECORATION}.
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
+        //TODO(b/260557014): Update docs when half-list UX is defined
         @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
