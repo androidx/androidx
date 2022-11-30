@@ -480,7 +480,7 @@ public class Until {
             @NonNull
             @Override
             public String toString() {
-                return String.format("EventCondition[newWindow]");
+                return "EventCondition[newWindow]";
             }
         };
     }
@@ -494,7 +494,6 @@ public class Until {
     @NonNull
     public static EventCondition<Boolean> scrollFinished(@NonNull Direction direction) {
         return new EventCondition<Boolean>() {
-            private Direction mDirection = direction;
             private Boolean mResult = null;
 
             @Override
@@ -505,17 +504,12 @@ public class Until {
 
                 if (event.getFromIndex() != -1 && event.getToIndex() != -1 &&
                         event.getItemCount() != -1) {
-
-                    switch (mDirection) {
+                    switch (direction) {
                         case UP:
-                            mResult = (event.getFromIndex() == 0);
-                            break;
-                        case DOWN:
-                            mResult = (event.getToIndex() == event.getItemCount() - 1);
-                            break;
                         case LEFT:
                             mResult = (event.getFromIndex() == 0);
                             break;
+                        case DOWN:
                         case RIGHT:
                             mResult = (event.getToIndex() == event.getItemCount() - 1);
                             break;
@@ -523,7 +517,7 @@ public class Until {
                             throw new IllegalArgumentException("Invalid Direction");
                     }
                 } else if (event.getScrollX() != -1 && event.getScrollY() != -1) {
-                    switch (mDirection) {
+                    switch (direction) {
                         case UP:
                             mResult = (event.getScrollY() == 0);
                             break;

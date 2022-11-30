@@ -170,20 +170,11 @@ class AccessibilityNodeInfoDumper {
     }
 
     private static String stripInvalidXMLChars(CharSequence cs) {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         char ch;
-        /* http://www.w3.org/TR/xml11/#charsets
-        [#x1-#x8], [#xB-#xC], [#xE-#x1F], [#x7F-#x84], [#x86-#x9F], [#xFDD0-#xFDDF],
-        [#x1FFFE-#x1FFFF], [#x2FFFE-#x2FFFF], [#x3FFFE-#x3FFFF],
-        [#x4FFFE-#x4FFFF], [#x5FFFE-#x5FFFF], [#x6FFFE-#x6FFFF],
-        [#x7FFFE-#x7FFFF], [#x8FFFE-#x8FFFF], [#x9FFFE-#x9FFFF],
-        [#xAFFFE-#xAFFFF], [#xBFFFE-#xBFFFF], [#xCFFFE-#xCFFFF],
-        [#xDFFFE-#xDFFFF], [#xEFFFE-#xEFFFF], [#xFFFFE-#xFFFFF],
-        [#x10FFFE-#x10FFFF].
-         */
         for (int i = 0; i < cs.length(); i++) {
             ch = cs.charAt(i);
-
+            // http://www.w3.org/TR/xml11/#charsets
             if ((ch >= 0x1 && ch <= 0x8)
                     || (ch >= 0xB && ch <= 0xC)
                     || (ch >= 0xE && ch <= 0x1F)
