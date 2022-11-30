@@ -83,7 +83,7 @@ fun Tab(
   CompositionLocalProvider(LocalContentColor provides contentColor) {
     Row(
       modifier =
-        Modifier
+        modifier
           .semantics {
             this.selected = selected
             this.role = Role.Tab
@@ -98,8 +98,7 @@ fun Tab(
             enabled = enabled,
             role = Role.Tab,
             onClick = onClick,
-          )
-          .then(modifier),
+          ),
       horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
       content = content
