@@ -80,7 +80,7 @@ fun collectBaselineProfile(
             """.trimIndent()
         }
         // Filter
-        val profile = filterProfileRulesToTargetP(unfilteredProfile)
+        val profile = filterProfileRulesToTargetP(unfilteredProfile, sortRules = true)
         // Report
         reportResults(profile, filterPredicate, uniqueName, startTime)
     } finally {
@@ -183,7 +183,7 @@ fun collectStableBaselineProfile(
                 " invokes the target app, and runs a non-trivial amount of code"
         }
 
-        val profile = filterProfileRulesToTargetP(lastProfile)
+        val profile = filterProfileRulesToTargetP(lastProfile, sortRules = true)
         reportResults(profile, filterPredicate, uniqueName, startTime)
     } finally {
         killProcessBlock.invoke()
@@ -356,14 +356,19 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
 }
 
 @VisibleForTesting
-internal fun filterProfileRulesToTargetP(profile: String): String {
+internal fun filterProfileRulesToTargetP(profile: String, sortRules: Boolean = true): String {
     val rules = profile.lines()
-    val filteredRules = rules.filterNot { rule ->
+    var filteredRules = rules.filterNot { rule ->
         // We want to filter out rules that are not supported on P. (b/216508418)
         // These include rules that have array qualifiers and inline cache specifiers.
         if (rule.startsWith("[")) { // Array qualifier
             true
         } else rule.contains("+") // Inline cache specifier
+    }
+    if (sortRules) {
+        filteredRules = filteredRules.mapNotNull { ProfileRule.parse(it) }
+            .sortedWith(ProfileRule.comparator)
+            .map { it.underlying }
     }
     return filteredRules.joinToString(separator = "\n")
 }
