@@ -282,41 +282,84 @@ public class AppSearchStatsTest {
 
     @Test
     public void testAppSearchStats_SetSchemaStats() {
-        SchemaMigrationStats schemaMigrationStats = new SchemaMigrationStats.Builder()
-                .setGetSchemaLatencyMillis(1)
-                .setQueryAndTransformLatencyMillis(2)
-                .setFirstSetSchemaLatencyMillis(3)
-                .setSecondSetSchemaLatencyMillis(4)
-                .setSaveDocumentLatencyMillis(5)
-                .setMigratedDocumentCount(6)
-                .setSavedDocumentCount(7)
-                .build();
         int newTypeCount = 1;
-        int compatibleTypeChangeCount = 2;
-        int indexIncompatibleTypeChangeCount = 3;
-        int backwardsIncompatibleTypeChangeCount = 4;
+        int deletedTypeCount = 2;
+        int compatibleTypeChangeCount = 3;
+        int indexIncompatibleTypeChangeCount = 4;
+        int backwardsIncompatibleTypeChangeCount = 5;
+        int verifyIncomingCallLatencyMillis = 6;
+        int executorAcquisitionLatencyMillis = 7;
+        int rebuildFromBundleLatencyMillis = 8;
+        int javaLockAcquisitionLatencyMillis = 9;
+        int totalNativeLatencyMillis = 10;
+        int rewriteSchemaLatencyMillis = 11;
+        int visibilitySettingLatencyMillis = 12;
+        int convertToResponseLatencyMillis = 13;
+        int dispatchChangeNotificationsLatencyMillis = 14;
+        int optimizeLatencyMillis = 15;
+        boolean isPackageObserved = true;
+        int getOldSchemaLatencyMillis = 16;
+        int getObserverLatencyMillis = 17;
+        int sendNotificationLatencyMillis = 18;
         SetSchemaStats sStats = new SetSchemaStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
-                .setSchemaMigrationStats(schemaMigrationStats)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
                 .setNewTypeCount(newTypeCount)
+                .setDeletedTypeCount(deletedTypeCount)
                 .setCompatibleTypeChangeCount(compatibleTypeChangeCount)
                 .setIndexIncompatibleTypeChangeCount(indexIncompatibleTypeChangeCount)
                 .setBackwardsIncompatibleTypeChangeCount(backwardsIncompatibleTypeChangeCount)
+                .setVerifyIncomingCallLatencyMillis(verifyIncomingCallLatencyMillis)
+                .setExecutorAcquisitionLatencyMillis(executorAcquisitionLatencyMillis)
+                .setRebuildFromBundleLatencyMillis(rebuildFromBundleLatencyMillis)
+                .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                .setRewriteSchemaLatencyMillis(rewriteSchemaLatencyMillis)
+                .setTotalNativeLatencyMillis(totalNativeLatencyMillis)
+                .setVisibilitySettingLatencyMillis(visibilitySettingLatencyMillis)
+                .setConvertToResponseLatencyMillis(convertToResponseLatencyMillis)
+                .setDispatchChangeNotificationsLatencyMillis(
+                        dispatchChangeNotificationsLatencyMillis)
+                .setOptimizeLatencyMillis(optimizeLatencyMillis)
+                .setIsPackageObserved(isPackageObserved)
+                .setGetOldSchemaLatencyMillis(getOldSchemaLatencyMillis)
+                .setGetObserverLatencyMillis(getObserverLatencyMillis)
+                .setPreparingChangeNotificationLatencyMillis(sendNotificationLatencyMillis)
                 .build();
 
         assertThat(sStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(sStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
         assertThat(sStats.getStatusCode()).isEqualTo(TEST_STATUS_CODE);
-        assertThat(sStats.getSchemaMigrationStats()).isEqualTo(schemaMigrationStats);
         assertThat(sStats.getTotalLatencyMillis()).isEqualTo(
                 TEST_TOTAL_LATENCY_MILLIS);
         assertThat(sStats.getNewTypeCount()).isEqualTo(newTypeCount);
+        assertThat(sStats.getDeletedTypeCount()).isEqualTo(deletedTypeCount);
         assertThat(sStats.getCompatibleTypeChangeCount()).isEqualTo(compatibleTypeChangeCount);
         assertThat(sStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(
                 indexIncompatibleTypeChangeCount);
         assertThat(sStats.getBackwardsIncompatibleTypeChangeCount()).isEqualTo(
                 backwardsIncompatibleTypeChangeCount);
+        assertThat(sStats.getVerifyIncomingCallLatencyMillis()).isEqualTo(
+                verifyIncomingCallLatencyMillis);
+        assertThat(sStats.getExecutorAcquisitionLatencyMillis()).isEqualTo(
+                executorAcquisitionLatencyMillis);
+        assertThat(sStats.getRebuildFromBundleLatencyMillis()).isEqualTo(
+                rebuildFromBundleLatencyMillis);
+        assertThat(sStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                javaLockAcquisitionLatencyMillis);
+        assertThat(sStats.getRewriteSchemaLatencyMillis()).isEqualTo(rewriteSchemaLatencyMillis);
+        assertThat(sStats.getTotalNativeLatencyMillis()).isEqualTo(totalNativeLatencyMillis);
+        assertThat(sStats.getVisibilitySettingLatencyMillis()).isEqualTo(
+                visibilitySettingLatencyMillis);
+        assertThat(sStats.getConvertToResponseLatencyMillis()).isEqualTo(
+                convertToResponseLatencyMillis);
+        assertThat(sStats.getDispatchChangeNotificationsLatencyMillis()).isEqualTo(
+                dispatchChangeNotificationsLatencyMillis);
+        assertThat(sStats.getOptimizeLatencyMillis()).isEqualTo(optimizeLatencyMillis);
+        assertThat(sStats.isPackageObserved()).isEqualTo(isPackageObserved);
+        assertThat(sStats.getGetOldSchemaLatencyMillis()).isEqualTo(getOldSchemaLatencyMillis);
+        assertThat(sStats.getGetObserverLatencyMillis()).isEqualTo(getObserverLatencyMillis);
+        assertThat(sStats.getPreparingChangeNotificationLatencyMillis())
+                .isEqualTo(sendNotificationLatencyMillis);
     }
 
     @Test
