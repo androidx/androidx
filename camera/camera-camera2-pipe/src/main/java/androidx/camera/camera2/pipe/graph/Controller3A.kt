@@ -236,6 +236,7 @@ internal class Controller3A(
         aeLockBehavior: Lock3ABehavior? = null,
         afLockBehavior: Lock3ABehavior? = null,
         awbLockBehavior: Lock3ABehavior? = null,
+        afTriggerStartAeMode: AeMode? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
@@ -316,6 +317,7 @@ internal class Controller3A(
             aeLockBehavior,
             afLockBehaviorSanitized,
             awbLockBehavior,
+            afTriggerStartAeMode,
             frameLimit,
             timeLimitNs
         )
@@ -494,6 +496,7 @@ internal class Controller3A(
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode? = null,
         frameLimit: Int?,
         timeLimitNs: Long?
     ): Deferred<Result3A> {
@@ -526,8 +529,24 @@ internal class Controller3A(
             return resultForLocked!!
         }
 
+        var lastAeMode: AeMode? = null
+        afTriggerStartAeMode?.let {
+            lastAeMode = graphState3A.aeMode
+            graphState3A.update(it)
+        }
+
         debug { "lock3A - submitting a request to lock af." }
-        if (!graphProcessor.submit(parameterForAfTriggerStart)) {
+        val submitSuccess = graphProcessor.submit(parameterForAfTriggerStart)
+
+        lastAeMode?.let {
+            graphState3A.update(aeMode = it)
+            // TODO(sushilnath@): Should be able to remove this invalidate() call
+            //  by making sure invalidate() and submit() don't interleave
+            //  w.r.t. building the parameter snapshot
+            graphProcessor.invalidate()
+        }
+
+        if (!submitSuccess) {
             // TODO(sushilnath@): Change the error code to a more specific code so it's clear
             // that one of the request in sequence of requests failed and the caller should
             // unlock 3A to bring the 3A system to an initial state and then try again if they

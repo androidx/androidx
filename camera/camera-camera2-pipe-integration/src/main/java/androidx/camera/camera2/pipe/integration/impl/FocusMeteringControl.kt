@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Rational
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.core.FocusMeteringAction
@@ -32,7 +33,6 @@ import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
-import java.util.ArrayList
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
@@ -67,9 +67,27 @@ class FocusMeteringControl(
                     action.meteringPointsAwb,
                     sensorRect,
                     defaultAspectRatio
-                )
+                ),
+                afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
             ).await().toFocusMeteringResult(true)
         }.asListenableFuture()
+    }
+
+    // TODO: Move this to a lower level so it is automatically checked for all requests
+    private fun CameraProperties.getSupportedAeMode(preferredMode: AeMode): AeMode {
+        val modes = metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES]?.map {
+            AeMode.fromIntOrNull(it)
+        } ?: return AeMode.OFF
+
+        // if preferredMode is supported, use it
+        if (modes.contains(preferredMode)) {
+            return preferredMode
+        }
+
+        // if not found, priority is AE_ON > AE_OFF
+        return if (modes.contains(AeMode.ON)) {
+            AeMode.ON
+        } else AeMode.OFF
     }
 
     /**

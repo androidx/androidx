@@ -124,6 +124,7 @@ class CapturePipelineTest {
             aeLockBehavior: Lock3ABehavior?,
             afLockBehavior: Lock3ABehavior?,
             awbLockBehavior: Lock3ABehavior?,
+            afTriggerStartAeMode: AeMode?,
             frameLimit: Int,
             timeLimitNs: Long
         ): Deferred<Result3A> {

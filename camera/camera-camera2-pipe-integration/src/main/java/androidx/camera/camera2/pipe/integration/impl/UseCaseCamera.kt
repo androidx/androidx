@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.Result3A
@@ -69,7 +70,8 @@ interface UseCaseCamera {
     suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
 
     // Lifecycle
@@ -139,9 +141,15 @@ class UseCaseCameraImpl @Inject constructor(
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> =
-        requestControl.startFocusAndMeteringAsync(aeRegions, afRegions, awbRegions)
+        requestControl.startFocusAndMeteringAsync(
+            aeRegions,
+            afRegions,
+            awbRegions,
+            afTriggerStartAeMode
+        )
 
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
