@@ -6602,12 +6602,12 @@ public class ExifInterface {
 
                         // Retrieve image width/height
                         widthAndHeight = totalInputStream.readInt();
-                        // VP8L stores width - 1 and height - 1 values. See "2 RIFF Header" of
-                        // "WebP Lossless Bitstream Specification"
-                        width = ((widthAndHeight << 18) >> 18) + 1;
-                        height = ((widthAndHeight << 4) >> 18) + 1;
-                        // Retrieve alpha bit
-                        alpha = (widthAndHeight & (1 << 3)) != 0;
+                        // VP8L stores 14-bit 'width - 1' and 'height - 1' values. See "RIFF Header"
+                        // of "WebP Lossless Bitstream Specification".
+                        width = (widthAndHeight & 0x3FFF) + 1;  // Read bits 0 - 13
+                        height = ((widthAndHeight & 0xFFFC000) >>> 14) + 1;  // Read bits 14 - 27
+                        // Retrieve alpha bit 28
+                        alpha = (widthAndHeight & 1 << 28) != 0;
                         bytesToRead -= (1 /* VP8L signature */ + 4);
                     }
 
