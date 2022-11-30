@@ -16,11 +16,12 @@
 
 package androidx.credentials.playservices.controllers.BeginSignIn
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.IntentSender
-import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.ResultReceiver
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.Credential
@@ -33,11 +34,11 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.BeginSignIn.BeginSignInControllerUtility.Companion.constructBeginSignInRequest
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.BeginSignInResult
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.common.api.ApiException
@@ -50,12 +51,13 @@ import java.util.concurrent.Executor
  * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderBeginSignInController : CredentialProviderController<
+class CredentialProviderBeginSignInController(private val activity: Activity) :
+    CredentialProviderController<
     GetCredentialRequest,
     BeginSignInRequest,
     SignInCredential,
     GetCredentialResponse,
-    GetCredentialException>() {
+    GetCredentialException>(activity) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -69,7 +71,29 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     lateinit var executor: Executor
 
-    @SuppressLint("ClassVerificationFailure")
+    private val resultReceiver = object : ResultReceiver(
+        Handler(Looper.getMainLooper())
+    ) {
+        public override fun onReceiveResult(
+            resultCode: Int,
+            resultData: Bundle
+        ) {
+            Log.i(TAG, "onReceiveResult - CredentialProviderBeginSignInController")
+            val isError = resultData.getBoolean(FAILURE_RESPONSE)
+            if (isError) {
+                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
+                Log.i(TAG, "onReceiveResult - error seen: $errType")
+                executor.execute {
+                    callback.onError(getCredentialExceptionTypeToException[errType]!!)
+                }
+            } else {
+                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
+                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
+                handleResponse(reqCode, resultCode, resIntent)
+            }
+        }
+    }
+
     override fun invokePlayServices(
         request: GetCredentialRequest,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -78,56 +102,14 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
         this.callback = callback
         this.executor = executor
         val convertedRequest: BeginSignInRequest = this.convertRequestToPlayServices(request)
-        Identity.getSignInClient(activity)
-            .beginSignIn(convertedRequest)
-            .addOnSuccessListener { result: BeginSignInResult ->
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        startIntentSenderForResult(
-                            result.pendingIntent.intentSender,
-                            REQUEST_CODE_BEGIN_SIGN_IN,
-                            null, /* fillInIntent= */
-                            0, /* flagsMask= */
-                            0, /* flagsValue= */
-                            0, /* extraFlags= */
-                            null /* options= */
-                        )
-                    }
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e(TAG, "Couldn't start One Tap UI in beginSignIn: " +
-                        e.localizedMessage
-                    )
-                    val exception: GetCredentialException = GetCredentialUnknownException(
-                        e.localizedMessage)
-                    executor.execute { ->
-                        callback.onError(exception)
-                    }
-                }
-            }
-            .addOnFailureListener { e: Exception ->
-                // No saved credentials found. Launch the One Tap sign-up flow, or
-                // do nothing and continue presenting the signed-out UI.
-                Log.i(TAG, "Failure in begin sign in call")
-                if (e.localizedMessage != null) { Log.i(TAG, e.localizedMessage!!) }
-                var exception: GetCredentialException = GetCredentialUnknownException()
-                if (e is ApiException && e.statusCode in this.retryables) {
-                    exception = GetCredentialInterruptedException(e.localizedMessage)
-                }
-                executor.execute { ->
-                    callback.onError(
-                        exception
-                    )
-                }
-            }
+        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
+        generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
+        activity.startActivity(hiddenIntent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        handleResponse(requestCode, resultCode, data)
-    }
-
-    private fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
-        if (uniqueRequestCode != REQUEST_CODE_BEGIN_SIGN_IN) {
+    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+        if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             Log.i(TAG, "returned request code does not match what was given")
             return
         }
@@ -140,10 +122,10 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             return
         }
         try {
-            val signInCredential = Identity.getSignInClient(activity as Activity)
+            val signInCredential = Identity.getSignInClient(activity)
                 .getSignInCredentialFromIntent(data)
             Log.i(TAG, "Credential returned : " + signInCredential.googleIdToken + " , " +
-                signInCredential.id + ", " + signInCredential.password)
+                signInCredential.id + " , " + signInCredential.password)
             val response = convertResponseToCredentialManager(signInCredential)
             Log.i(TAG, "Credential : " + response.credential.toString())
             this.executor.execute { this.callback.onResult(response) }
@@ -152,7 +134,7 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
             if (e.statusCode == CommonStatusCodes.CANCELED) {
                 Log.i(TAG, "User cancelled the prompt!")
                 exception = GetCredentialCancellationException()
-            } else if (e.statusCode in this.retryables) {
+            } else if (e.statusCode in retryables) {
                 exception = GetCredentialInterruptedException()
             }
             executor.execute { ->
@@ -198,46 +180,23 @@ class CredentialProviderBeginSignInController : CredentialProviderController<
 
     companion object {
         private val TAG = CredentialProviderBeginSignInController::class.java.name
-        private const val REQUEST_CODE_BEGIN_SIGN_IN: Int = 1
-        // TODO("Ensure this works with the lifecycle")
+        private var controller: CredentialProviderBeginSignInController? = null
+        // TODO("Ensure this is tested for multiple calls")
 
         /**
          * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
          * otherwise it generates a new instance.
          *
-         * @param fragmentManager a fragment manager pulled from an android activity
-         * @return a credential provider controller for a specific credential request
+         * @param activity the calling activity for this controller
+         * @return a credential provider controller for a specific begin sign in credential request
          */
         @JvmStatic
-        fun getInstance(fragmentManager: android.app.FragmentManager):
+        fun getInstance(activity: Activity):
             CredentialProviderBeginSignInController {
-            var controller = findPastController(REQUEST_CODE_BEGIN_SIGN_IN, fragmentManager)
             if (controller == null) {
-                controller = CredentialProviderBeginSignInController()
-                fragmentManager.beginTransaction().add(controller,
-                    REQUEST_CODE_BEGIN_SIGN_IN.toString())
-                    .commitAllowingStateLoss()
-                fragmentManager.executePendingTransactions()
+                controller = CredentialProviderBeginSignInController(activity)
             }
-            return controller
-        }
-
-        internal fun findPastController(
-            requestCode: Int,
-            fragmentManager: android.app.FragmentManager
-        ): CredentialProviderBeginSignInController? {
-            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
-            try {
-                return oldFragment as CredentialProviderBeginSignInController
-            } catch (e: Exception) {
-                Log.i(TAG,
-                    "Error with old fragment or null - replacement required")
-                if (oldFragment != null) {
-                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
-                }
-                // TODO("Ensure this is well tested for fragment issues")
-                return null
-            }
+            return controller!!
         }
     }
 }

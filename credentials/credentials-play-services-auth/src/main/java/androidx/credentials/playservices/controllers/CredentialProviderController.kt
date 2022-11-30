@@ -16,9 +16,8 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.app.Activity
 import androidx.credentials.CredentialManagerCallback
-import com.google.android.gms.common.api.CommonStatusCodes.INTERNAL_ERROR
-import com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR
 import java.util.concurrent.Executor
 
 /**
@@ -37,10 +36,7 @@ import java.util.concurrent.Executor
  */
 @Suppress("deprecation")
 abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
-    E1 : Any> : android.app.Fragment() {
-
-    protected var retryables: Set<Int> = setOf(INTERNAL_ERROR,
-        NETWORK_ERROR)
+    E1 : Any>(private val activity: Activity) : CredentialProviderBaseController(activity) {
 
     /**
      * Invokes the flow that starts retrieving credential data. In this use case, we invoke
