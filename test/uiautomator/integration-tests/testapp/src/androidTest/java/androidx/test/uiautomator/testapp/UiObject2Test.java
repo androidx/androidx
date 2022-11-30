@@ -590,7 +590,7 @@ public class UiObject2Test extends BaseTest {
                 IllegalStateException.class,
                 () -> textView.getText()
         );
-        assertEquals("This object has already been recycled", e.getMessage());
+        assertEquals("This object has already been recycled.", e.getMessage());
     }
 
     @Test

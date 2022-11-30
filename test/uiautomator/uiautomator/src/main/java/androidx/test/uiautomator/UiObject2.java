@@ -799,11 +799,12 @@ public class UiObject2 implements Searchable {
      */
     private AccessibilityNodeInfo getAccessibilityNodeInfo() {
         if (mCachedNode == null) {
-            throw new IllegalStateException("This object has already been recycled");
+            throw new IllegalStateException("This object has already been recycled.");
         }
 
         getDevice().waitForIdle();
         if (!mCachedNode.refresh()) {
+            Log.w(TAG, "Failed to refresh AccessibilityNodeInfo. Retrying.");
             getDevice().runWatchers();
 
             if (!mCachedNode.refresh()) {
