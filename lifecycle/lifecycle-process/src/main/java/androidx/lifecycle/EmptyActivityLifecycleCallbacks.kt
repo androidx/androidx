@@ -13,39 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
 
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
+internal open class EmptyActivityLifecycleCallbacks : Application.ActivityLifecycleCallbacks {
 
-class EmptyActivityLifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
-    @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-    }
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
-    @Override
-    public void onActivityStarted(Activity activity) {
-    }
+    override fun onActivityStarted(activity: Activity) {}
 
-    @Override
-    public void onActivityResumed(Activity activity) {
-    }
+    override fun onActivityResumed(activity: Activity) {}
 
-    @Override
-    public void onActivityPaused(Activity activity) {
-    }
+    override fun onActivityPaused(activity: Activity) {}
 
-    @Override
-    public void onActivityStopped(Activity activity) {
-    }
+    override fun onActivityStopped(activity: Activity) {}
 
-    @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-    }
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
-    @Override
-    public void onActivityDestroyed(Activity activity) {
-    }
+    override fun onActivityDestroyed(activity: Activity) {}
 }
