@@ -81,4 +81,17 @@ internal class EmojiPickerItems(
 
     @DrawableRes
     fun getHeaderIconId(@IntRange(from = 0) index: Int): Int = groups[index].categoryIconId
+
+    fun groupIndexByItemPosition(@IntRange(from = 0) absolutePosition: Int): Int {
+        var localPosition = absolutePosition
+        var index = 0
+        for (group in groups) {
+            if (localPosition < group.size) return index
+            else { localPosition -= group.size; index++ }
+        }
+        throw IndexOutOfBoundsException()
+    }
+
+    fun firstItemPositionByGroupIndex(@IntRange(from = 0) groupIndex: Int): Int =
+        groups.take(groupIndex).sumOf { it.size }
 }
