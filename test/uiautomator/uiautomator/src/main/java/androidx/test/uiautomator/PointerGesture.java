@@ -137,10 +137,7 @@ class PointerGesture {
         }
     }
 
-    /**
-     * A {@link PointerLinearMotionAction} moves the pointer between two points at a constant
-     * speed.
-     */
+    /** Action that moves the pointer between two points at a constant speed. */
     private static class PointerLinearMoveAction extends PointerAction {
 
         public PointerLinearMoveAction(Point startPoint, Point endPoint, int speed) {
