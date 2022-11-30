@@ -26,9 +26,10 @@ import junit.framework.TestListener;
 /**
  * Test runner for {@link UiAutomatorTestCase}s. Such tests are executed
  * on the device and have access to an applications context.
+ *
  * @deprecated as it only handles deprecated {@link UiAutomatorTestCase}s. You should use
- * {@link UiDevice#getInstance(Instrumentation)} from any test class as long as you have access to
- * an {@link Instrumentation} instance.
+ * {@link UiDevice#getInstance(android.app.Instrumentation)} from any test class as long as you
+ * have access to an {@link android.app.Instrumentation} instance.
  */
 @Deprecated
 public class UiAutomatorInstrumentationTestRunner extends InstrumentationTestRunner {

@@ -240,12 +240,12 @@ public final class Configurator {
     }
 
     /**
-     * Sets the flags to use when obtaining a {@link UiAutomation} instance.
+     * Sets the flags to use when obtaining a {@link android.app.UiAutomation} instance.
+     *
      * @param flags The UiAutomation flags to use.
      * @return A reference to this object.
-     *
-     * @see Instrumentation#getUiAutomation(int)
-     * @see UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
+     * @see android.app.Instrumentation#getUiAutomation(int)
+     * @see android.app.UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
      */
     public @NonNull Configurator setUiAutomationFlags(int flags) {
         mUiAutomationFlags = flags;
@@ -253,11 +253,11 @@ public final class Configurator {
     }
 
     /**
-     * Gets the current flags that are used to obtain a {@link UiAutomation} instance.
-     * @return The UiAutomation flags.
+     * Gets the current flags that are used to obtain a {@link android.app.UiAutomation} instance.
      *
-     * @see Instrumentation#getUiAutomation(int)
-     * @see UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
+     * @return The UiAutomation flags.
+     * @see android.app.Instrumentation#getUiAutomation(int)
+     * @see android.app.UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
      */
     public int getUiAutomationFlags() {
         return mUiAutomationFlags;
