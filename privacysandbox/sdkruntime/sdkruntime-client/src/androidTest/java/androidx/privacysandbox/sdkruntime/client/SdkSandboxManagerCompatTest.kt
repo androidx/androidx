@@ -22,7 +22,6 @@ import android.os.Bundle
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
-import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.Companion.obtain
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
 import androidx.test.core.app.ApplicationProvider
@@ -44,22 +43,22 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 class SdkSandboxManagerCompatTest {
 
     @Test
-    fun obtain_whenCalledOnSameContext_returnSameManager() {
+    fun from_whenCalledOnSameContext_returnSameManager() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val managerCompat = obtain(context)
-        val managerCompat2 = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+        val managerCompat2 = SdkSandboxManagerCompat.from(context)
 
         assertThat(managerCompat2).isSameInstanceAs(managerCompat)
     }
 
     @Test
-    fun obtain_whenCalledOnDifferentContext_returnDifferentManager() {
+    fun from_whenCalledOnDifferentContext_returnDifferentManager() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val context2 = ContextWrapper(context)
 
-        val managerCompat = obtain(context)
-        val managerCompat2 = obtain(context2)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+        val managerCompat2 = SdkSandboxManagerCompat.from(context2)
 
         assertThat(managerCompat2).isNotSameInstanceAs(managerCompat)
     }
@@ -72,7 +71,7 @@ class SdkSandboxManagerCompatTest {
             return
         }
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
-        val managerCompat = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
 
         assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
@@ -92,7 +91,7 @@ class SdkSandboxManagerCompatTest {
         }
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
@@ -108,7 +107,7 @@ class SdkSandboxManagerCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
     fun loadSdk_whenLocalSdkExistsAndAtLeastApi27_returnResultFromCompatLoadSdk() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = runBlocking {
             managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
@@ -122,7 +121,7 @@ class SdkSandboxManagerCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
     fun loadSdk_LocalSdkExistsAndAtLeastApi27_rethrowsExceptionFromCompatLoadSdk() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val params = Bundle()
         params.putBoolean("needFail", true)
@@ -141,7 +140,7 @@ class SdkSandboxManagerCompatTest {
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O)
     fun loadSdk_whenLocalSdkExistsAndApiPre27_throwsSandboxDisabledException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = obtain(context)
+        val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {

@@ -86,7 +86,7 @@ class SandboxedSdkProviderAdapter internal constructor(
         }
     }
 
-    companion object {
+    private companion object {
         private const val COMPAT_SDK_PROVIDER_CLASS_ASSET_NAME =
             "SandboxedSdkProviderCompatClassName.txt"
     }

@@ -32,13 +32,33 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  */
 class LoadSdkCompatException : Exception {
 
+    /**
+     * Result code this exception was constructed with.
+     *
+     * @see [LoadSdkException.getLoadSdkErrorCode]
+     */
     @field:LoadSdkErrorCode
     @get:LoadSdkErrorCode
     val loadSdkErrorCode: Int
 
+    /**
+     * Extra error information this exception was constructed with.
+     *
+     * @see [LoadSdkException.getExtraInformation]
+     */
     val extraInformation: Bundle
 
-    /** @suppress */
+    /**
+     * Initializes a LoadSdkCompatException with a result code, a message, a cause and extra
+     * information.
+     *
+     * @param loadSdkErrorCode The result code.
+     * @param message The detailed message.
+     * @param cause The cause of the exception. A null value is permitted, and indicates that the
+     *  cause is nonexistent or unknown.
+     * @param extraInformation Extra error information. This is empty if there is no such information.
+     * @suppress
+     */
     @RestrictTo(LIBRARY_GROUP)
     @JvmOverloads
     constructor(
@@ -51,13 +71,25 @@ class LoadSdkCompatException : Exception {
         this.extraInformation = extraInformation
     }
 
-    /** @suppress */
+    /**
+     * Initializes a LoadSdkCompatException with a result code and a message
+     *
+     * @param loadSdkErrorCode The result code.
+     * @param message The detailed message.
+     * @suppress
+     */
     @RestrictTo(LIBRARY_GROUP)
     constructor(
         @LoadSdkErrorCode loadSdkErrorCode: Int,
         message: String?
     ) : this(loadSdkErrorCode, message, cause = null)
 
+    /**
+     * Initializes a LoadSdkCompatException with a Throwable and a Bundle.
+     *
+     * @param cause The cause of the exception.
+     * @param extraInfo Extra error information. This is empty if there is no such information.
+     */
     constructor(
         cause: Throwable,
         extraInfo: Bundle
@@ -83,7 +115,7 @@ class LoadSdkCompatException : Exception {
      */
     // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
     @RequiresApi(UPSIDE_DOWN_CAKE)
-    fun toLoadSdkException(): LoadSdkException {
+    internal fun toLoadSdkException(): LoadSdkException {
         return Api33Impl.toLoadSdkException(this)
     }
 
@@ -122,12 +154,17 @@ class LoadSdkCompatException : Exception {
         /**
          * Sdk sandbox process is not available.
          *
+         * This indicates that the sdk sandbox process is not available, either because it has died,
+         * disconnected or was not created in the first place.
+         *
          * @see [android.app.sdksandbox.SdkSandboxManager.SDK_SANDBOX_PROCESS_NOT_AVAILABLE]
          */
         const val SDK_SANDBOX_PROCESS_NOT_AVAILABLE = 503
 
         /**
          * SDK not found.
+         *
+         * This indicates that client application tried to load a non-existing SDK.
          *
          * @see [android.app.sdksandbox.SdkSandboxManager.LOAD_SDK_NOT_FOUND]
          */
@@ -136,12 +173,18 @@ class LoadSdkCompatException : Exception {
         /**
          * SDK is already loaded.
          *
+         * This indicates that client application tried to reload the same SDK after being
+         * successfully loaded.
+         *
          * @see [android.app.sdksandbox.SdkSandboxManager.LOAD_SDK_ALREADY_LOADED]
          */
         const val LOAD_SDK_ALREADY_LOADED = 101
 
         /**
          * SDK error after being loaded.
+         *
+         * This indicates that the SDK encountered an error during post-load initialization. The
+         * details of this can be obtained from the Bundle returned in [LoadSdkCompatException].
          *
          * @see [android.app.sdksandbox.SdkSandboxManager.LOAD_SDK_SDK_DEFINED_ERROR]
          */
@@ -150,11 +193,18 @@ class LoadSdkCompatException : Exception {
         /**
          * SDK sandbox is disabled.
          *
+         * This indicates that the SDK sandbox is disabled. Any subsequent attempts to load SDKs in
+         * this boot will also fail.
+         *
          * @see [android.app.sdksandbox.SdkSandboxManager.LOAD_SDK_SDK_SANDBOX_DISABLED]
          */
         const val LOAD_SDK_SDK_SANDBOX_DISABLED = 103
 
-        /** Internal error while loading SDK.
+        /**
+         * Internal error while loading SDK.
+         *
+         * This indicates a generic internal error happened while applying the call from
+         * client application.
          *
          * @see [android.app.sdksandbox.SdkSandboxManager.LOAD_SDK_INTERNAL_ERROR]
          */
@@ -165,10 +215,11 @@ class LoadSdkCompatException : Exception {
          *
          *  @param ex Platform exception
          *  @return Compat exception.
+         *  @suppress
          */
         // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
         @RequiresApi(UPSIDE_DOWN_CAKE)
-        @JvmStatic
+        @RestrictTo(LIBRARY_GROUP)
         fun toLoadCompatSdkException(ex: LoadSdkException): LoadSdkCompatException {
             return Api33Impl.toLoadCompatSdkException(ex)
         }

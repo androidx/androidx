@@ -22,17 +22,29 @@ import android.view.View
 /**
  * Compat version of [android.app.sdksandbox.SandboxedSdkProvider].
  *
+ * Encapsulates API which SDK sandbox can use to interact with SDKs loaded into it.
+ *
  * SDK has to implement this abstract class to generate an entry point for SDK sandbox to be able
  *  to call it through.
  *
  * @see [android.app.sdksandbox.SandboxedSdkProvider]
  */
 abstract class SandboxedSdkProviderCompat {
+    /**
+     * Context previously set through [SandboxedSdkProviderCompat.attachContext].
+     * This will return null if no context has been previously set.
+     */
     var context: Context? = null
         private set
 
     /**
      * Sets the SDK [Context] which can then be received using [SandboxedSdkProviderCompat.context]
+     *
+     * This is called before [SandboxedSdkProviderCompat.onLoadSdk] is invoked.
+     * No operations requiring a [Context] should be performed before then, as
+     * [SandboxedSdkProviderCompat.context] will return null until this method has been called.
+     *
+     * @throws IllegalStateException if a base context has already been set.
      *
      * @param context The new base context.
      *
@@ -46,10 +58,21 @@ abstract class SandboxedSdkProviderCompat {
     /**
      * Does the work needed for the SDK to start handling requests.
      *
-     * @param params list of params passed from the client when it loads the SDK. This can be empty.
-     * @return Returns a [SandboxedSdkCompat], passed back to the client.
+     * This function is called by the SDK sandbox after it loads the SDK.
      *
-     * @throws LoadSdkCompatException
+     * SDK should do any work to be ready to handle upcoming requests. It should not do any
+     * long-running tasks here, like I/O and network calls. Doing so can prevent the SDK from
+     * receiving requests from the client. Additionally, it should not do initialization that
+     * depends on other SDKs being loaded into the SDK sandbox.
+     *
+     * The SDK should not do any operations requiring a [Context] object before this method
+     * has been called.
+     *
+     * @param params list of params passed from the client when it loads the SDK. This can be empty.
+     * @return Returns a [SandboxedSdkCompat], passed back to the client. The IBinder used to create
+     * the [SandboxedSdkCompat] object will be used by the client to call into the SDK.
+     *
+     * @throws LoadSdkCompatException if initialization failed.
      *
      * @see [android.app.sdksandbox.SandboxedSdkProvider.onLoadSdk]
      */
@@ -58,6 +81,12 @@ abstract class SandboxedSdkProviderCompat {
 
     /**
      * Does the work needed for the SDK to free its resources before being unloaded.
+     *
+     * This function is called by the SDK sandbox manager before it unloads the SDK. The SDK
+     * should fail any invocations on the Binder previously returned to the client through
+     * [SandboxedSdkCompat.getInterface]
+     *
+     * The SDK should not do any long-running tasks here, like I/O and network calls.
      *
      * @see [android.app.sdksandbox.SandboxedSdkProvider.beforeUnloadSdk]
      */
