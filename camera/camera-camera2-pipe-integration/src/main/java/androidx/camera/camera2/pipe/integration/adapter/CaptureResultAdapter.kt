@@ -16,7 +16,9 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureResult
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
@@ -31,6 +33,8 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AwbState
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.impl.utils.ExifData
+import java.nio.BufferUnderflowException
 
 /**
  * Adapts the [CameraCaptureResult] interface to [CameraPipe].
@@ -120,5 +124,63 @@ class CaptureResultAdapter(
 
     override fun getTagBundle(): TagBundle {
         return requestMetadata.getOrDefault(CAMERAX_TAG_BUNDLE, TagBundle.emptyBundle())
+    }
+
+    override fun populateExifData(exifData: ExifData.Builder) {
+        // Call interface default to set flash mode
+        super.populateExifData(exifData)
+
+        // Set dimensions
+        result.metadata[CaptureResult.SCALER_CROP_REGION]?.let { cropRegion ->
+            exifData.setImageWidth(cropRegion.width()).setImageHeight(cropRegion.height())
+        }
+
+        // Set orientation
+        try {
+            result.metadata[CaptureResult.JPEG_ORIENTATION]?.let { jpegOrientation ->
+                exifData.setOrientationDegrees(jpegOrientation)
+            }
+        } catch (exception: BufferUnderflowException) {
+            // On certain devices, e.g. Pixel 3 XL API 31, getting JPEG orientation on YUV stream
+            // throws BufferUnderflowException. The value will be overridden in post-processing
+            // anyway, so it's safe to ignore. Please reference: b/240998057
+            Log.warn { "Failed to get JPEG orientation." }
+        }
+
+        // Set exposure time
+        result.metadata[CaptureResult.SENSOR_EXPOSURE_TIME]?.let { exposureTimeNs ->
+            exifData.setExposureTimeNanos(exposureTimeNs)
+        }
+
+        // Set the aperture
+        result.metadata[CaptureResult.LENS_APERTURE]?.let { aperture ->
+            exifData.setLensFNumber(aperture)
+        }
+
+        // Set the ISO
+        result.metadata[CaptureResult.SENSOR_SENSITIVITY]?.let { iso ->
+            exifData.setIso(iso)
+            if (Build.VERSION.SDK_INT >= 24) {
+                result.metadata[
+                    CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST
+                ]?.let { postRawSensitivityBoost ->
+                    exifData.setIso(iso * (postRawSensitivityBoost / 100f).toInt())
+                }
+            }
+        }
+
+        // Set the focal length
+        result.metadata[CaptureResult.LENS_FOCAL_LENGTH]?.let { focalLength ->
+            exifData.setFocalLength(focalLength)
+        }
+
+        // Set white balance MANUAL/AUTO
+        result.metadata[CaptureResult.CONTROL_AWB_MODE]?.let { whiteBalanceMode ->
+            var wbMode = ExifData.WhiteBalanceMode.AUTO
+            if (whiteBalanceMode == CameraMetadata.CONTROL_AWB_MODE_OFF) {
+                wbMode = ExifData.WhiteBalanceMode.MANUAL
+            }
+            exifData.setWhiteBalanceMode(wbMode)
+        }
     }
 }
