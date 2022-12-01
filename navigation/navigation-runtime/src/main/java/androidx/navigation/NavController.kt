@@ -1716,26 +1716,16 @@ public open class NavController(
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
             navigated = restoreStateInternal(node.id, finalArgs, navOptions, navigatorExtras)
         } else {
-            val currentBackStackEntry = currentBackStackEntry
-            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-                node.navigatorName
-            )
-            if (navOptions?.shouldLaunchSingleTop() == true &&
-                node.id == currentBackStackEntry?.destination?.id
-            ) {
-                unlinkChildFromParent(backQueue.removeLast())
-                val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
-                backQueue.addLast(newEntry)
-                val parent = newEntry.destination.parent
-                if (parent != null) {
-                    linkChildToParent(newEntry, getBackStackEntry(parent.id))
-                }
-                navigator.onLaunchSingleTop(newEntry)
-                launchSingleTop = true
-            } else {
+            launchSingleTop = navOptions?.shouldLaunchSingleTop() == true &&
+                launchSingleTopInternal(node, args)
+
+            if (!launchSingleTop) {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
                     context, node, finalArgs, hostLifecycleState, viewModel
+                )
+                val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                    node.navigatorName
                 )
                 navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
                     navigated = true
@@ -1752,6 +1742,27 @@ public open class NavController(
         } else {
             updateBackStackLifecycle()
         }
+    }
+
+    private fun launchSingleTopInternal(
+        node: NavDestination,
+        args: Bundle?
+    ): Boolean {
+        val currentBackStackEntry = currentBackStackEntry
+        if (node.id != currentBackStackEntry?.destination?.id) return false
+
+        unlinkChildFromParent(backQueue.removeLast())
+        val newEntry = NavBackStackEntry(currentBackStackEntry, node.addInDefaultArgs(args))
+        backQueue.addLast(newEntry)
+        val parent = newEntry.destination.parent
+        if (parent != null) {
+            linkChildToParent(newEntry, getBackStackEntry(parent.id))
+        }
+        val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+            node.navigatorName
+        )
+        navigator.onLaunchSingleTop(newEntry)
+        return true
     }
 
     private fun restoreStateInternal(
