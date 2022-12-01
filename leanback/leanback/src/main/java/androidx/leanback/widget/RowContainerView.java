@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 
 /**
@@ -101,7 +102,7 @@ final class RowContainerView extends LinearLayout {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         if (mForeground != null) {
             if (mForegroundBoundsChanged) {

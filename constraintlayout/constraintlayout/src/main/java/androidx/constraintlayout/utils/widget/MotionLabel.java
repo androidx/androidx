@@ -42,6 +42,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.motion.widget.Debug;
@@ -486,7 +487,7 @@ public class MotionLabel extends View implements FloatLayout {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         float scale = Float.isNaN(mBaseTextSize) ? 1.0f : mTextSize / mBaseTextSize;
         super.onDraw(canvas);
         if (!mUseOutline && scale == 1.0f) {

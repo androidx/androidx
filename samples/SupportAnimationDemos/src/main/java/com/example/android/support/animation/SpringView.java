@@ -22,6 +22,8 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * The view that draws the spring as it reacts (i.e. expands/compresses) to the user touch.
  */
@@ -47,7 +49,7 @@ public class SpringView extends View {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         // Draws the spring
         // 30px long, 15 sections
         int num = 20;
