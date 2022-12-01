@@ -133,6 +133,7 @@ class TapToFocusDeviceTest {
         )
     }
 
+    @Ignore("b/261051860")
     @Test
     fun tapToFocusAfTriggerStart_aeModeIsControlAeModeOn_whenFlashModeOff() = runBlocking {
         bindUseCase(ImageCapture.FLASH_MODE_OFF)
