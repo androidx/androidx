@@ -18,13 +18,13 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,6 +45,7 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(5)
 @ExperimentalCarApi
+@KeepFields
 public final class CarZone {
     /**
      * Possible row values.
@@ -139,9 +140,7 @@ public final class CarZone {
      */
     public static final CarZone CAR_ZONE_GLOBAL = new CarZone.Builder().build();
 
-    @Keep
     private final int mRow;
-    @Keep
     private final int mColumn;
 
     /** Returns one of the values in CarZoneRow. */

@@ -20,31 +20,26 @@ import static java.util.Objects.requireNonNull;
 
 import android.os.Bundle;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+import androidx.car.app.annotations.KeepFields;
 import androidx.core.app.Person;
 
 /** Represents a single message in a {@link ConversationItem} */
 @ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(6)
+@KeepFields
 public class CarMessage {
-    @Keep
     @NonNull
     private final Bundle mSender;
-
-    @Keep
     @NonNull
     private final CarText mBody;
-    @Keep
     private final long mReceivedTimeEpochMillis;
-
-    @Keep
     private final boolean mIsRead;
 
     CarMessage(@NonNull Builder builder) {
@@ -64,7 +59,8 @@ public class CarMessage {
 
 
     /** Returns a {@link Person} representing the message sender */
-    @NonNull public Person getSender() {
+    @NonNull
+    public Person getSender() {
         return Person.fromBundle(mSender);
     }
 

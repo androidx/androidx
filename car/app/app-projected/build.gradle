@@ -43,10 +43,6 @@ android {
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    lintOptions {
-        // We rely on keeping a bunch of private variables in the library for serialization.
-        disable("BanKeepAnnotation")
-    }
     buildFeatures {
         aidl = true
     }

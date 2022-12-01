@@ -20,11 +20,11 @@ import static java.util.Objects.requireNonNull;
 
 import android.text.style.ForegroundColorSpan;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -49,8 +49,8 @@ import java.util.Objects;
  * @see ForegroundColorSpan
  */
 @CarProtocol
+@KeepFields
 public final class ForegroundCarColorSpan extends CarSpan {
-    @Keep
     private final CarColor mCarColor;
 
     /**

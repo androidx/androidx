@@ -18,10 +18,10 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -59,9 +59,9 @@ import java.util.Objects;
  * }</pre>
  */
 @CarProtocol
+@KeepFields
 public final class DistanceSpan extends CarSpan {
     @Nullable
-    @Keep
     private final Distance mDistance;
 
     /** Creates a {@link DistanceSpan} from a {@link CarIcon}. */

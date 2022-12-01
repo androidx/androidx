@@ -20,7 +20,6 @@ import static androidx.car.app.hardware.common.CarUnit.CarVolumeUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -28,35 +27,30 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** Information of the energy (fuel and battery) levels from the car hardware. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class EnergyLevel {
-
-    @Keep
     @NonNull
     private final CarValue<Float> mBatteryPercent;
 
-    @Keep
     @NonNull
     private final CarValue<Float> mFuelPercent;
 
-    @Keep
     @NonNull
     private final CarValue<Boolean> mEnergyIsLow;
 
-    @Keep
     @Nullable
     private final CarValue<Float> mRangeRemainingMeters;
 
-    @Keep
     @NonNull
     private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
-    @Keep
     @NonNull
     private final CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit;
 
@@ -94,7 +88,8 @@ public final class EnergyLevel {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
-    /** Returns the fuel volume display unit from the car hardware.
+    /**
+     * Returns the fuel volume display unit from the car hardware.
      *
      * <p>See {@link CarUnit} for possible volume values.
      */

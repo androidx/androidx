@@ -17,12 +17,12 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,9 +30,8 @@ import java.util.Objects;
 /** Information about car specific compass available from the car hardware. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class Compass {
-
-    @Keep
     @NonNull
     private final CarValue<List<Float>> mOrientations;
 

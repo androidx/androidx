@@ -26,7 +26,6 @@ import android.os.Looper;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -36,6 +35,7 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
@@ -50,6 +50,7 @@ import java.util.Objects;
  * or switch.
  */
 @CarProtocol
+@KeepFields
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -98,31 +99,20 @@ public final class Row implements Item {
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
 
-    @Keep
     private final boolean mIsEnabled;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     private final List<CarText> mTexts;
-    @Keep
     @Nullable
     private final CarIcon mImage;
-    @Keep
     private final List<Action> mActions;
-    @Keep
     private final int mNumericDecoration;
-    @Keep
     @Nullable
     private final Toggle mToggle;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
-    @Keep
     private final Metadata mMetadata;
-    @Keep
     private final boolean mIsBrowsable;
-    @Keep
     @RowImageType
     private final int mRowImageType;
 
@@ -367,7 +357,7 @@ public final class Row implements Item {
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-     *                                      unsupported spans
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -388,7 +378,7 @@ public final class Row implements Item {
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-     *                                      unsupported spans
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
@@ -560,7 +550,7 @@ public final class Row implements Item {
          * messages in a conversation.
          *
          * @param decoration the {@code int} to display. Must be positive, zero, or equal to
-         * {@link Row#NO_DECORATION}.
+         *                   {@link Row#NO_DECORATION}.
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
         @ExperimentalCarApi

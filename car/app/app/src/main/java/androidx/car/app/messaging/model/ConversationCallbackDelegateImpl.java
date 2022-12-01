@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -30,6 +29,7 @@ import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -45,8 +45,9 @@ import androidx.car.app.utils.RemoteUtils;
 @RestrictTo(LIBRARY)
 @CarProtocol
 @RequiresCarApi(6)
+@KeepFields
 class ConversationCallbackDelegateImpl implements ConversationCallbackDelegate {
-    @Keep
+
     @Nullable
     private final IConversationCallback mConversationCallbackBinder;
 
@@ -81,8 +82,9 @@ class ConversationCallbackDelegateImpl implements ConversationCallbackDelegate {
         }
     }
 
+    @KeepFields
     private static class ConversationCallbackStub extends IConversationCallback.Stub {
-        @Keep
+
         @NonNull
         private final ConversationCallback mConversationCallback;
 

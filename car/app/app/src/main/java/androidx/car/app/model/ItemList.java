@@ -22,11 +22,11 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -40,6 +40,7 @@ import java.util.Objects;
  * ListTemplate}.
  */
 @CarProtocol
+@KeepFields
 public final class ItemList {
     /**
      * A listener for handling selection events for lists with selectable items.
@@ -74,17 +75,12 @@ public final class ItemList {
         void onItemVisibilityChanged(int startIndex, int endIndex);
     }
 
-    @Keep
     private final int mSelectedIndex;
-    @Keep
     private final List<Item> mItems;
-    @Keep
     @Nullable
     private final OnSelectedDelegate mOnSelectedDelegate;
-    @Keep
     @Nullable
     private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
-    @Keep
     @Nullable
     private final CarText mNoItemsMessage;
 
