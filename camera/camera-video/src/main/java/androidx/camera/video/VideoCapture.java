@@ -497,8 +497,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     /*hasCameraTransform=*/true,
                     mCropRect,
                     getRelativeRotation(camera),
-                    /*mirroring=*/false,
-                    onSurfaceInvalidated);
+                    /*mirroring=*/false);
+            cameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
             mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
                     SurfaceProcessorNode.OutConfig.of(cameraEdge);

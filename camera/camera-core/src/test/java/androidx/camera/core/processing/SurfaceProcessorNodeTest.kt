@@ -288,7 +288,7 @@ class SurfaceProcessorNodeTest {
             previewCropRect,
             previewRotationDegrees,
             mirroring
-        ) {}
+        )
         videoOutConfig = OutConfig.of(
             VIDEO_CAPTURE,
             VIDEO_CROP_RECT,

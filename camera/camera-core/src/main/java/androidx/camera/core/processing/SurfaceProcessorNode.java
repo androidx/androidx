@@ -116,10 +116,6 @@ public class SurfaceProcessorNode implements
     @NonNull
     private SurfaceEdge transformSingleOutput(@NonNull SurfaceEdge input,
             @NonNull OutConfig outConfig) {
-        // TODO: Can be improved by only restarting part of the pipeline. e.g. only update the
-        //  output Surface (between Effect/App), and still use the same input Surface (between
-        //  Camera/Effect). It's just simpler for now.
-        final Runnable onSurfaceInvalidated = input::invalidate;
 
         SurfaceEdge outputSurface;
         Size inputSize = input.getSize();
@@ -148,8 +144,12 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/0,
-                /*mirroring=*/false,
-                onSurfaceInvalidated);
+                /*mirroring=*/false);
+
+        // TODO: instead of propagating it to the input and reconfigure the camera, we can call
+        //  SurfaceEdge#createSurfaceOutputFuture again and to provide the new Surface to the
+        //  node.
+        outputSurface.addOnInvalidatedListener(input::invalidate);
 
         return outputSurface;
     }
