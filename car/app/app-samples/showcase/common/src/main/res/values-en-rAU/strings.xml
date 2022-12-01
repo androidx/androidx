@@ -344,4 +344,9 @@
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Loading disabled"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Loading screen"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Toggle to add/remove colour"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Map template with toggles"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Avoid tolls"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Route options"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Avoid motorways"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Avoid ferry"</string>
 </resources>
