@@ -50,8 +50,7 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST"
