@@ -2492,7 +2492,7 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         boolean needsInvalidate = false;
 
@@ -2534,7 +2534,7 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         // Draw the margin drawable between pages if needed.

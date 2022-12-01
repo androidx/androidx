@@ -63,9 +63,9 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
         setMeasuredDimension(size, size)
     }
 
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        canvas?.run {
+        canvas.run {
             save()
             scale(
                 width.toFloat() / offscreenCanvasBitmap.width,
