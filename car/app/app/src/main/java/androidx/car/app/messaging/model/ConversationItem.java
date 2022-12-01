@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
@@ -35,6 +36,7 @@ import java.util.List;
 /** Represents a conversation */
 @ExperimentalCarApi
 @CarProtocol
+@KeepFields
 @RequiresCarApi(6)
 public class ConversationItem implements Item {
     @NonNull
