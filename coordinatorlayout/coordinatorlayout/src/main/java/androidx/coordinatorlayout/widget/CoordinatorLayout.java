@@ -18,6 +18,7 @@ package androidx.coordinatorlayout.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -37,6 +38,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1793,6 +1795,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @SuppressWarnings("unchecked")
     public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
             int axes, int type) {
+
         boolean handled = false;
 
         final int childCount = getChildCount();
@@ -1932,6 +1935,140 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         if (accepted) {
             onChildViewsChanged(EVENT_NESTED_SCROLL);
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(
+            @SuppressLint("InvalidNullabilityOverride") @NonNull KeyEvent event
+    ) {
+        boolean handled = super.dispatchKeyEvent(event);
+
+        if (!handled) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (event.getKeyCode()) {
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                    case KeyEvent.KEYCODE_DPAD_DOWN:
+                    case KeyEvent.KEYCODE_SPACE:
+
+                        int yScrollDelta;
+
+                        if (event.getKeyCode() == KeyEvent.KEYCODE_SPACE) {
+                            if (event.isShiftPressed()) {
+                                // Places the CoordinatorLayout at the top of the available
+                                // content.
+                                // Note: The delta may represent a value that would overshoot the
+                                // top of the screen, but the children only use as much of the
+                                // delta as they can support, so it will always go exactly to the
+                                // top.
+                                yScrollDelta = -getFullContentHeight();
+                            } else {
+                                // Places the CoordinatorLayout at the bottom of the available
+                                // content.
+                                yScrollDelta = getFullContentHeight() - getHeight();
+                            }
+
+                        } else if (event.isAltPressed()) { // For UP and DOWN KeyEvents
+                            // Full page scroll
+                            yScrollDelta = getHeight();
+
+                        } else {
+                            // Regular arrow scroll
+                            yScrollDelta = (int) (getHeight() * 0.1f);
+                        }
+
+                        View focusedView = findDeepestFocusedChild(this);
+
+                        // Convert delta to negative if the key event is UP.
+                        if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP) {
+                            yScrollDelta = -yScrollDelta;
+                        }
+
+                        handled = manuallyTriggersNestedScrollFromKeyEvent(
+                                focusedView,
+                                yScrollDelta
+                        );
+
+                        break;
+                }
+            }
+        }
+
+        return handled;
+    }
+
+    private View findDeepestFocusedChild(View startingParentView) {
+        View focusedView = startingParentView;
+        while (focusedView != null) {
+            if (focusedView.isFocused()) {
+                return focusedView;
+            }
+            focusedView = focusedView instanceof ViewGroup
+                    ? ((ViewGroup) focusedView).getFocusedChild()
+                    : null;
+        }
+        return null;
+    }
+
+    /*
+     * Returns the height by adding up all children's heights (this is often larger than the screen
+     * height).
+     */
+    private int getFullContentHeight() {
+        int scrollRange = 0;
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            CoordinatorLayout.LayoutParams lp =
+                    (CoordinatorLayout.LayoutParams) child.getLayoutParams();
+            int childSize = child.getHeight() + lp.topMargin + lp.bottomMargin;
+            scrollRange += childSize;
+        }
+        return scrollRange;
+    }
+
+    /* This method only triggers when the focused child has passed on handling the
+     * KeyEvent to scroll (meaning the child is already scrolled as far as it can in that
+     * direction).
+     *
+     * For example, a key event should still expand/collapse a CollapsingAppBar event though the
+     * a NestedScrollView is at the top/bottom of its content.
+     */
+    private boolean manuallyTriggersNestedScrollFromKeyEvent(View focusedView, int yScrollDelta) {
+        boolean handled = false;
+
+        /* If this method is triggered and the event is triggered by a child, it means the
+         * child can't scroll any farther (and passed the event back up to the CoordinatorLayout),
+         * so the CoordinatorLayout triggers its own nested scroll to move content.
+         *
+         * To properly manually trigger onNestedScroll(), we need to
+         * 1. Call onStartNestedScroll() before onNestedScroll()
+         * 2. Call onNestedScroll() and pass this CoordinatorLayout as the child (because that is
+         * what we want to scroll
+         * 3. Call onStopNestedScroll() after onNestedScroll()
+         */
+        onStartNestedScroll(
+                this, // Passes the CoordinatorLayout itself, since we want it to scroll.
+                focusedView,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_NON_TOUCH
+        );
+
+        onNestedScroll(
+                focusedView,
+                0,
+                0,
+                0,
+                yScrollDelta,
+                ViewCompat.TYPE_NON_TOUCH,
+                mBehaviorConsumed
+        );
+
+        onStopNestedScroll(focusedView, ViewCompat.TYPE_NON_TOUCH);
+
+        if (mBehaviorConsumed[1] > 0) {
+            handled = true;
+        }
+
+        return handled;
     }
 
     @Override
@@ -3083,6 +3220,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
 
         void setNestedScrollAccepted(int type, boolean accept) {
+
             switch (type) {
                 case ViewCompat.TYPE_TOUCH:
                     mDidAcceptNestedScrollTouch = accept;
