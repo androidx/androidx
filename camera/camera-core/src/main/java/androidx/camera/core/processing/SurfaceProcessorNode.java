@@ -48,7 +48,6 @@ import androidx.core.util.Preconditions;
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +62,11 @@ import java.util.Map;
  * <li>Tracking the state of previously calculate specification and only recreate the pipeline
  * when necessary.
  * </ul>
+ *
+ * TODO(b/261270972): currently the upstream pipeline is always connected, which means that the
+ *  camera is always producing frames. This might be wasteful, if the downstream pipeline is not
+ *  connected. For example, when app fails to provide a Surface or when VideoCapture is paused.
+ *  One possible optimization is only connecting the upstream when the downstream are available.
  */
 @RequiresApi(api = 21)
 // TODO(b/233627260): remove once implemented.
@@ -109,7 +113,8 @@ public class SurfaceProcessorNode implements
         for (OutConfig config : input.getOutConfigs()) {
             mOutput.put(config, transformSingleOutput(inputSurface, config));
         }
-        sendSurfacesToProcessorWhenReady(inputSurface, mOutput);
+        sendSurfaceRequest(inputSurface, mOutput.values());
+        sendSurfaceOutputs(inputSurface, mOutput);
         return mOutput;
     }
 
@@ -154,48 +159,52 @@ public class SurfaceProcessorNode implements
         return outputSurface;
     }
 
-    private void sendSurfacesToProcessorWhenReady(@NonNull SurfaceEdge input,
-            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
+    /**
+     * Creates {@link SurfaceRequest} and send it to {@link SurfaceProcessor}.
+     */
+    private void sendSurfaceRequest(@NonNull SurfaceEdge input,
+            @NonNull Collection<SurfaceEdge> outputs) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
-        List<ListenableFuture<SurfaceOutput>> outputFutures = new ArrayList<>();
+        setUpRotationUpdates(
+                surfaceRequest,
+                outputs,
+                input.getMirroring(),
+                input.getRotationDegrees());
+        try {
+            mSurfaceProcessor.onInputSurface(surfaceRequest);
+        } catch (ProcessingException e) {
+            Logger.e(TAG, "Failed to send SurfaceRequest to SurfaceProcessor.", e);
+        }
+    }
+
+    /**
+     * Creates {@link SurfaceOutput} and send them to {@link SurfaceProcessor}.
+     */
+    private void sendSurfaceOutputs(@NonNull SurfaceEdge input,
+            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
         for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
-            outputFutures.add(output.getValue().createSurfaceOutputFuture(
+            ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
                     input.getSize(),
                     output.getKey().getCropRect(),
                     input.getRotationDegrees(),
-                    input.getMirroring()));
+                    input.getMirroring());
+            Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
+                @Override
+                public void onSuccess(@Nullable SurfaceOutput output) {
+                    Preconditions.checkNotNull(output);
+                    try {
+                        mSurfaceProcessor.onOutputSurface(output);
+                    } catch (ProcessingException e) {
+                        Logger.e(TAG, "Failed to send SurfaceOutput to SurfaceProcessor.", e);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Throwable t) {
+                    Logger.w(TAG, "Downstream node failed to provide Surface.", t);
+                }
+            }, mainThreadExecutor());
         }
-        setupRotationUpdates(
-                surfaceRequest,
-                outputs.values(),
-                input.getMirroring(),
-                input.getRotationDegrees());
-
-        ListenableFuture<List<SurfaceOutput>> outputListFuture = Futures.allAsList(outputFutures);
-        Futures.addCallback(outputListFuture,
-                new FutureCallback<List<SurfaceOutput>>() {
-
-                    @Override
-                    public void onSuccess(@Nullable List<SurfaceOutput> outputs) {
-                        Preconditions.checkNotNull(outputs);
-                        try {
-                            for (SurfaceOutput output : outputs) {
-                                mSurfaceProcessor.onOutputSurface(output);
-                            }
-                            mSurfaceProcessor.onInputSurface(surfaceRequest);
-                        } catch (ProcessingException e) {
-                            Logger.e(TAG, "Failed to setup SurfaceProcessor input.", e);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Throwable t) {
-                        // Do not send surfaces to the processor if the downstream provider
-                        // (e.g.the app) fails to provide a Surface. Instead, notify the
-                        // consumer that the Surface will not be provided.
-                        surfaceRequest.willNotProvideSurface();
-                    }
-                }, mainThreadExecutor());
     }
 
     /**
@@ -214,7 +223,7 @@ public class SurfaceProcessorNode implements
      * @param mirrored            whether the node mirrors the buffer.
      * @param rotatedDegrees      how much the node rotates the buffer.
      */
-    void setupRotationUpdates(
+    void setUpRotationUpdates(
             @NonNull SurfaceRequest inputSurfaceRequest,
             @NonNull Collection<SurfaceEdge> outputs,
             boolean mirrored,

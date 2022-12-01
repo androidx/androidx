@@ -107,6 +107,19 @@ class SurfaceProcessorNodeTest {
     }
 
     @Test
+    fun transformInput_receivesSurfaceRequest() {
+        // Arrange.
+        createSurfaceProcessorNode()
+        createInputEdge()
+        // Act.
+        node.transform(nodeInput)
+        shadowOf(getMainLooper()).idle()
+        // Assert.
+        val surfaceRequest = surfaceProcessorInternal.surfaceRequest
+        assertThat(surfaceRequest!!.resolution).isEqualTo(INPUT_SIZE)
+    }
+
+    @Test
     fun transformInput_applyCropRotateAndMirroring_outputIsCroppedAndRotated() {
         for (rotationDegrees in arrayOf(0, 90, 180, 270)) {
             // Arrange.
