@@ -29,9 +29,7 @@ import androidx.credentials.CredentialProvider
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
@@ -47,23 +45,11 @@ import java.util.concurrent.Executor
 class CredentialProviderPlayServicesImpl : CredentialProvider {
     override fun onGetCredential(
         request: GetCredentialRequest,
-        activity: Activity?,
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
-        if (activity == null) {
-            executor.execute {
-                callback.onError(
-                    GetCredentialUnknownException(
-                        "activity should" +
-                            "not be null"
-                    )
-                )
-            }
-            return
-        }
-
         val fragmentManager: android.app.FragmentManager = activity.fragmentManager
         if (cancellationReviewer(fragmentManager, cancellationSignal)) {
             return
@@ -77,36 +63,37 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
     @SuppressWarnings("deprecated")
     override fun onCreateCredential(
         request: CreateCredentialRequest,
-        activity: Activity?,
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
-        if (activity == null) {
-            executor.execute { callback.onError(CreateCredentialUnknownException("activity should" +
-                "not be null")) }
-            return
-        }
         val fragmentManager: android.app.FragmentManager = activity.fragmentManager
         if (cancellationReviewer(fragmentManager, cancellationSignal)) {
             return
         }
         // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
-        if (request is CreatePasswordRequest) {
-            CredentialProviderCreatePasswordController.getInstance(
-                fragmentManager).invokePlayServices(
-                request,
-                callback,
-                executor)
-        } else if (request is CreatePublicKeyCredentialRequest) {
-            CredentialProviderCreatePublicKeyCredentialController.getInstance(
-                fragmentManager).invokePlayServices(
-                request,
-                callback,
-                executor)
-        } else {
-            throw UnsupportedOperationException(
-                "Unsupported request; not password or publickeycredential")
+        when (request) {
+            is CreatePasswordRequest -> {
+                CredentialProviderCreatePasswordController.getInstance(
+                    fragmentManager).invokePlayServices(
+                    request,
+                    callback,
+                    executor)
+            }
+
+            is CreatePublicKeyCredentialRequest -> {
+                CredentialProviderCreatePublicKeyCredentialController.getInstance(
+                    fragmentManager).invokePlayServices(
+                    request,
+                    callback,
+                    executor)
+            }
+
+            else -> {
+                throw UnsupportedOperationException(
+                    "Unsupported request; not password or publickeycredential")
+            }
         }
     }
     override fun isAvailableOnDevice(): Boolean {
