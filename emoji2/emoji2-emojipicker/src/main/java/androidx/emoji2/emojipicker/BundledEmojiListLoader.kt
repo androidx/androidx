@@ -75,6 +75,7 @@ internal object BundledEmojiListLoader {
     internal fun getEmojiVariantsLookup() = emojiVariantsLookup ?: getCategorizedEmojiData()
         .flatMap { it.emojiDataList }
         .filter { it.variants.isNotEmpty() }
+        .flatMap { it.variants.map { variant -> EmojiViewItem(variant, it.variants) } }
         .associate { it.emoji to it.variants }
         .also { emojiVariantsLookup = it }
 
