@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.createpublickeycredential
+package androidx.credentials.exceptions
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -25,24 +24,27 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class CreatePublicKeyCredentialUnknownExceptionTest {
-    @Test(expected = CreatePublicKeyCredentialUnknownException::class)
-    fun construct_inputNonEmpty_success() {
-        throw CreatePublicKeyCredentialUnknownException("msg")
+class CreateCustomCredentialExceptionTest {
+    @Test(expected = CreateCustomCredentialException::class)
+    fun construct_inputsNonEmpty_success() {
+        throw CreateCustomCredentialException("type", "msg")
     }
 
-    @Test(expected = CreatePublicKeyCredentialUnknownException::class)
+    @Test(expected = CreateCustomCredentialException::class)
     fun construct_errorMessageNull_success() {
-        throw CreatePublicKeyCredentialUnknownException(null)
+        throw CreateCustomCredentialException("type", null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun construct_typeEmpty_throws() {
+        throw CreateCustomCredentialException("", "msg")
     }
 
     @Test
     fun getter_success() {
-        val expectedMessage = "msg"
-        val exception = CreatePublicKeyCredentialUnknownException(expectedMessage)
-        val expectedType =
-            CreatePublicKeyCredentialUnknownException
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_EXCEPTION
+        val expectedType = "type"
+        val expectedMessage = "message"
+        val exception = CreateCustomCredentialException(expectedType, expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }

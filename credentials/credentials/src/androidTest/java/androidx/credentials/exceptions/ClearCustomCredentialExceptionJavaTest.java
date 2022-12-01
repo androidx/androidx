@@ -26,23 +26,34 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class GetCredentialUnknownExceptionJavaTest {
-    @Test(expected = GetCredentialUnknownException.class)
-    public void construct_inputNonEmpty_success() throws GetCredentialUnknownException {
-        throw new GetCredentialUnknownException("msg");
+public class ClearCustomCredentialExceptionJavaTest {
+
+    @Test(expected = ClearCredentialException.class)
+    public void construct_inputsNonEmpty_success() throws ClearCustomCredentialException {
+        throw new ClearCustomCredentialException("type", "msg");
     }
 
-    @Test(expected = GetCredentialUnknownException.class)
-    public void construct_errorMessageNull_success() throws GetCredentialUnknownException {
-        throw new GetCredentialUnknownException(null);
+    @Test(expected = ClearCustomCredentialException.class)
+    public void construct_errorMessageNull_success() throws ClearCustomCredentialException {
+        throw new ClearCustomCredentialException("type", null);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void construct_typeEmpty_throws() throws ClearCustomCredentialException {
+        throw new ClearCustomCredentialException("", "msg");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void construct_typeNull_throws() throws ClearCustomCredentialException {
+        throw new ClearCustomCredentialException(null, "msg");
+    }
+
     @Test
     public void getter_success() {
-        String expectedType =
-                GetCredentialUnknownException.TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION;
+        String expectedType = "type";
         String expectedMessage = "message";
-        GetCredentialUnknownException exception = new
-                GetCredentialUnknownException(expectedMessage);
+        ClearCustomCredentialException exception = new
+                ClearCustomCredentialException(expectedType , expectedMessage);
         assertThat(exception.getType()).isEqualTo(expectedType);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }

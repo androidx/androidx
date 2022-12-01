@@ -19,6 +19,7 @@ package androidx.credentials.exceptions.createpublickeycredential
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,5 +40,14 @@ class CreatePublicKeyCredentialExceptionTest {
     @Test(expected = IllegalArgumentException::class)
     fun construct_typeEmpty_throws() {
         throw CreatePublicKeyCredentialException("", "msg")
+    }
+
+    @Test
+    fun getter_success() {
+        val expectedType = "type"
+        val expectedMessage = "message"
+        val exception = CreatePublicKeyCredentialException(expectedType, expectedMessage)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }

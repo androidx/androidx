@@ -19,7 +19,7 @@ package androidx.credentials.exceptions.createpublickeycredential
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialConstraintException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,11 +37,13 @@ class CreatePublicKeyCredentialConstraintExceptionTest {
     }
 
     @Test
-    fun getter_type_success() {
-        val exception = CreatePublicKeyCredentialConstraintException("msg")
+    fun getter_success() {
+        val expectedMessage = "msg"
+        val exception = CreatePublicKeyCredentialConstraintException(expectedMessage)
         val expectedType =
             CreatePublicKeyCredentialConstraintException
                 .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_EXCEPTION
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }
