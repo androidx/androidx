@@ -21,24 +21,18 @@ import androidx.credentials.CredentialManager
 
 /**
  * Represents an error encountered during a get flow with Credential Manager. See
- * [CredentialManager] for more details on how Credentials work for Credential Manager flows.
+ * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
  *
  * @see CredentialManager
  * @see GetCredentialUnknownException
  * @see GetCredentialCancellationException
  * @see GetCredentialInterruptedException
- *
- * @property errorMessage a human-readable string that describes the error
- * @throws NullPointerException if [type] is null
- * @throws IllegalArgumentException if [type] is empty
  */
-open class GetCredentialException @JvmOverloads constructor(
+abstract class GetCredentialException @JvmOverloads internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
-    val errorMessage: CharSequence? = null
-) : Exception(errorMessage?.toString()) {
-    init {
-        require(type.isNotEmpty()) { "type must not be empty" }
-    }
-}
+    open val type: String,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val errorMessage: CharSequence? = null
+) : Exception(errorMessage?.toString())

@@ -16,23 +16,23 @@
 
 package androidx.credentials.exceptions
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 
 /**
- * Represents an error encountered during a create flow with Credential Manager. See
+ * Represents a custom error encountered during a clear flow with Credential Manager. See
  * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
  *
  * @see CredentialManager
- * @see CreateCredentialInterruptedException
- * @see CreateCredentialCancellationException
- * @see CreateCredentialUnknownException
-*/
-abstract class CreateCredentialException @JvmOverloads internal constructor(
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val errorMessage: CharSequence? = null
-) : Exception(errorMessage?.toString())
+ *
+ * @property type a string that indicates the type of the credential exception
+ * @throws IllegalArgumentException If [type] is empty
+ * @throws NullPointerException If [type] is null
+ */
+open class ClearCustomCredentialException @JvmOverloads constructor(
+    override val type: String,
+    errorMessage: CharSequence? = null
+) : ClearCredentialException(type, errorMessage) {
+    init {
+        require(type.isNotEmpty()) { "type must not be empty" }
+    }
+}

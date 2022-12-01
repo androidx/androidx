@@ -26,16 +26,16 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * [GetCredentialRequest] will be composed of a list of [GetCredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
  */
-open class GetCredentialOption(
+abstract class GetCredentialOption internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
+    open val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle,
+    open val data: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val requireSystemProvider: Boolean,
+    open val requireSystemProvider: Boolean,
 ) {
     /** @hide */
     companion object {
@@ -65,7 +65,7 @@ open class GetCredentialOption(
             } catch (e: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a request with
                 // the raw framework values.
-                GetCredentialOption(type, data, requireSystemProvider)
+                GetCustomCredentialOption(type, data, requireSystemProvider)
             }
         }
     }
