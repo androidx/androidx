@@ -137,12 +137,23 @@ public abstract class NavigatorState {
     /**
      * Informational callback indicating that the given [backStackEntry] has been
      * affected by a [NavOptions.shouldLaunchSingleTop] operation.
+     *
+     * Replaces the topmost entry with same id with the new [backStackEntry][NavBackStackEntry]
+     *
+     * @param [backStackEntry] the [NavBackStackEntry] to replace the old Entry
+     * within the [backStack]
      */
     @CallSuper
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
         // We update the back stack here because we don't want to leave it to the navigator since
         // it might be using transitions.
-        _backStack.value = _backStack.value - _backStack.value.last() + backStackEntry
+        backStackLock.withLock {
+            val tempStack = backStack.value.toMutableList()
+            tempStack.indexOfLast { it.id == backStackEntry.id }.let { idx ->
+                tempStack[idx] = backStackEntry
+            }
+            _backStack.value = tempStack
+        }
     }
 
     /**
