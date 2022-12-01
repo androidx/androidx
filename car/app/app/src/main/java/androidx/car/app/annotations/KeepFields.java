@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.car.app.model;
+package androidx.car.app.annotations;
 
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
-import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.KeepFields;
+import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 /**
- * Base class for all span types allowed for a car app.
+ * Common interface to be used by Proguard rules to keep the class names and
+ * private final fields
  *
- * @see CarText
  */
-@CarProtocol
-@KeepFields
-public class CarSpan extends CharacterStyle {
-    @Override
-    public void updateDrawState(@NonNull TextPaint tp) {
-        // Do nothing
-    }
+@ExperimentalCarApi
+@RestrictTo(LIBRARY)
+public @interface KeepFields {
 }

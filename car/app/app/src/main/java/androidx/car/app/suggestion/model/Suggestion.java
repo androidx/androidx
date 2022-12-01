@@ -20,13 +20,13 @@ import static java.util.Objects.requireNonNull;
 
 import android.app.PendingIntent;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -40,20 +40,16 @@ import java.util.Objects;
  * place to drive to rather than wait for the user to enter or search for it.
  */
 @CarProtocol
+@KeepFields
 public final class Suggestion {
-    @Keep
     @NonNull
     private final String mIdentifier;
-    @Keep
     @NonNull
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mSubtitle;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     @Nullable
     private final PendingIntent mAction;
 

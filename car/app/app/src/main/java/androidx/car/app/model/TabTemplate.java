@@ -22,13 +22,13 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabsConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -56,6 +56,7 @@ import java.util.Objects;
 @CarProtocol
 @ExperimentalCarApi
 @RequiresCarApi(6)
+@KeepFields
 public class TabTemplate implements Template {
 
     /** A listener for tab selection. */
@@ -71,22 +72,13 @@ public class TabTemplate implements Template {
         }
     }
 
-    @Keep
     private final boolean mIsLoading;
-
-    @Keep
     @Nullable
     private final TabCallbackDelegate mTabCallbackDelegate;
-
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-
-    @Keep
     @Nullable
     private final TabContents mTabContents;
-
-    @Keep
     @Nullable
     private final List<Tab> mTabs;
 
@@ -244,8 +236,7 @@ public class TabTemplate implements Template {
         /**
          * Adds an {@link Tab} to display in the template.
          *
-         *
-         * @throws NullPointerException     if {@code tab} is {@code null}
+         * @throws NullPointerException if {@code tab} is {@code null}
          */
         @NonNull
         public TabTemplate.Builder addTab(@NonNull Tab tab) {
@@ -267,7 +258,7 @@ public class TabTemplate implements Template {
          * @throws IllegalStateException    if the template is in a loading state but there are
          *                                  tabs added or vice versa
          * @throws IllegalArgumentException if the added {@link Tab}(s) or header {@link Action}
-         * does not meet the template's requirements
+         *                                  does not meet the template's requirements
          */
         @NonNull
         public TabTemplate build() {

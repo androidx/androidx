@@ -32,6 +32,7 @@ import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -43,9 +44,8 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @ExperimentalCarApi
 @RequiresCarApi(6)
+@KeepFields
 public class TabCallbackDelegateImpl implements TabCallbackDelegate {
-
-    @Keep
     @Nullable
     private final ITabCallback mStubCallback;
     @Override
@@ -74,7 +74,7 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
         return new TabCallbackDelegateImpl(callback);
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class TabCallbackStub extends ITabCallback.Stub {
         private final TabTemplate.TabCallback mCallback;
 

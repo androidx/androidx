@@ -634,7 +634,7 @@ package androidx.car.app.model {
     method public double getLongitude();
   }
 
-  @Keep @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
+  @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
     ctor public CarSpan();
     method public void updateDrawState(android.text.TextPaint);
   }

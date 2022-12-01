@@ -21,13 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,6 +35,7 @@ import java.util.Objects;
 
 /** Describes how a place is to be displayed on a map. */
 @CarProtocol
+@KeepFields
 public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.
@@ -70,16 +71,12 @@ public final class PlaceMarker {
 
     private static final int MAX_LABEL_LENGTH = 3;
 
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     @Nullable
     private final CarText mLabel;
-    @Keep
     @Nullable
     private final CarColor mColor;
-    @Keep
     @MarkerIconType
     private final int mIconType;
 

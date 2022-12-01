@@ -21,11 +21,11 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -36,6 +36,7 @@ import java.util.Objects;
  * Old hosts may render bad UI if the toggles are added to hosts that don't support them.
  */
 @CarProtocol
+@KeepFields
 public final class Toggle {
     /** A listener for handling checked state change events. */
     public interface OnCheckedChangeListener {
@@ -43,12 +44,9 @@ public final class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
-    @Keep
     @Nullable
     private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
-    @Keep
     private final boolean mIsChecked;
-    @Keep
     private final boolean mIsEnabled;
 
     /**

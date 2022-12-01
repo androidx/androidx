@@ -20,23 +20,23 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabContentsConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /**
  * Represents the contents to display for a selected tab in a {@link TabTemplate}.
- *
  */
 @CarProtocol
 @ExperimentalCarApi
 @RequiresCarApi(6)
+@KeepFields
 public class TabContents implements Content {
     /**
      * Content ID for TabContents
@@ -45,9 +45,8 @@ public class TabContents implements Content {
      */
     public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
 
-    @Keep
     @Nullable
-    private Template mTemplate;
+    private final Template mTemplate;
 
     /**
      * Returns the static content ID associated with TabContents.
@@ -123,7 +122,7 @@ public class TabContents implements Content {
          * template.
          * The host will ignore these.
          *
-         * @throws NullPointerException if {@code template} is null
+         * @throws NullPointerException     if {@code template} is null
          * @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
         @SuppressLint("ExecutorRegistration")

@@ -18,7 +18,6 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -26,6 +25,7 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -36,22 +36,16 @@ import java.util.Objects;
 @CarProtocol
 @ExperimentalCarApi
 @RequiresCarApi(6)
+@KeepFields
 public final class Tab implements Content {
     /** Content ID for an empty Tab object. */
     private static final String EMPTY_TAB_CONTENT_ID = "EMPTY_TAB_CONTENT_ID";
 
-    @Keep
     private final boolean mIsActive;
-
-    @Keep
     @Nullable
     private final CarText mTitle;
-
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-
-    @Keep
     @NonNull
     private final String mContentId;
 
@@ -136,7 +130,6 @@ public final class Tab implements Content {
 
     /**
      * Creates and returns a new {@link Builder} initialized with this {@link Tab}'s data.
-     *
      */
     @NonNull
     public Tab.Builder toBuilder() {
@@ -184,7 +177,7 @@ public final class Tab implements Content {
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
-         *                                      unsupported spans
+         *                                  unsupported spans
          */
         @NonNull
         public Tab.Builder setTitle(@NonNull CharSequence title) {
@@ -199,7 +192,6 @@ public final class Tab implements Content {
 
         /**
          * Sets the content ID of the tab.
-         *
          */
         @NonNull
         public Tab.Builder setContentId(@NonNull String contentId) {
