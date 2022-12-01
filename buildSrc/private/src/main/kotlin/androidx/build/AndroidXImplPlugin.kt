@@ -73,7 +73,6 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
@@ -128,7 +127,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.configureKtlint()
 
         // Configure all Jar-packing tasks for hermetic builds.
-        project.tasks.withType(Jar::class.java).configureEach { it.configureForHermeticBuild() }
+        project.tasks.withType(Zip::class.java).configureEach { it.configureForHermeticBuild() }
         project.tasks.withType(Copy::class.java).configureEach { it.configureForHermeticBuild() }
 
         // copy host side test results to DIST
@@ -187,7 +186,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
      * Disables timestamps and ensures filesystem-independent archive ordering to maximize
      * cross-machine byte-for-byte reproducibility of artifacts.
      */
-    private fun Jar.configureForHermeticBuild() {
+    private fun Zip.configureForHermeticBuild() {
         isReproducibleFileOrder = true
         isPreserveFileTimestamps = false
     }
