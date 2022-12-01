@@ -18,7 +18,7 @@ package androidx.credentials.exceptions
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,10 +36,12 @@ class CreateCredentialCancellationExceptionTest {
     }
 
     @Test
-    fun getter_type_success() {
-        val exception = CreateCredentialCancellationException("msg")
-        val expectedType = CreateCredentialCancellationException
-            .TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
+    fun getter_success() {
+        val expectedType =
+            CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION
+        val expectedMessage = "message"
+        val exception = CreateCredentialCancellationException(expectedMessage)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }

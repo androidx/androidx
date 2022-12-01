@@ -19,7 +19,7 @@ package androidx.credentials.exceptions.createpublickeycredential
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotReadableException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,11 +37,13 @@ class CreatePublicKeyCredentialNotReadableExceptionTest {
     }
 
     @Test
-    fun getter_type_success() {
-        val exception = CreatePublicKeyCredentialNotReadableException("msg")
+    fun getter_success() {
+        val expectedMessage = "msg"
+        val exception = CreatePublicKeyCredentialNotReadableException(expectedMessage)
         val expectedType =
             CreatePublicKeyCredentialNotReadableException
                 .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_EXCEPTION
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }

@@ -16,11 +16,11 @@
 
 package androidx.credentials.exceptions.createpublickeycredential;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialAbortException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.truth.Truth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,12 +43,14 @@ public class CreatePublicKeyCredentialAbortExceptionJavaTest {
     }
 
     @Test
-    public void getter_type_success() {
+    public void getter_success() {
+        String expectedMessage = "msg";
         CreatePublicKeyCredentialAbortException exception = new
-                CreatePublicKeyCredentialAbortException("msg");
+                CreatePublicKeyCredentialAbortException(expectedMessage);
         String expectedType =
                 CreatePublicKeyCredentialAbortException
                         .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_EXCEPTION;
-        Truth.assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

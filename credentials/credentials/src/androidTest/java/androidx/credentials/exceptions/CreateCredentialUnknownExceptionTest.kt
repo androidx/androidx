@@ -18,7 +18,7 @@ package androidx.credentials.exceptions
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,9 +36,12 @@ class CreateCredentialUnknownExceptionTest {
     }
 
     @Test
-    fun getter_type_success() {
-        val exception = CreateCredentialUnknownException("msg")
-        val expectedType = CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
+    fun getter_success() {
+        val expectedType = CreateCredentialUnknownException
+            .TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
+        val expectedMessage = "message"
+        val exception = CreateCredentialUnknownException(expectedMessage)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
 }

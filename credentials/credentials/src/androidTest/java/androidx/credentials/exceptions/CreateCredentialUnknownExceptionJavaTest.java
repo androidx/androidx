@@ -16,10 +16,10 @@
 
 package androidx.credentials.exceptions;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.truth.Truth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,11 +38,13 @@ public class CreateCredentialUnknownExceptionJavaTest {
     }
 
     @Test
-    public void getter_type_success() {
+    public void getter_success() {
+        String expectedType =
+                CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION;
+        String expectedMessage = "message";
         CreateCredentialUnknownException exception = new
-                CreateCredentialUnknownException("msg");
-        String expectedType = CreateCredentialUnknownException
-                .TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION;
-        Truth.assertThat(exception.getType()).isEqualTo(expectedType);
+                CreateCredentialUnknownException(expectedMessage);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }

@@ -16,10 +16,10 @@
 
 package androidx.credentials.exceptions;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.truth.Truth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,11 +38,13 @@ public class GetCredentialInterruptedExceptionJavaTest {
     }
 
     @Test
-    public void getter_type_success() {
+    public void getter_success() {
+        String expectedType =
+                GetCredentialInterruptedException.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION;
+        String expectedMessage = "message";
         GetCredentialInterruptedException exception = new
-                GetCredentialInterruptedException("msg");
-        String expectedType = GetCredentialInterruptedException
-                .TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION;
-        Truth.assertThat(exception.getType()).isEqualTo(expectedType);
+                GetCredentialInterruptedException(expectedMessage);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }
