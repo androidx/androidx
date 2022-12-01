@@ -49,7 +49,6 @@ import androidx.camera.view.video.AudioConfig
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -349,7 +348,6 @@ class VideoCaptureDeviceTest(
         file.delete()
     }
 
-    @FlakyTest(bugId = 259294631)
     @Test
     fun canRecordToFile_rightAfterPreviousRecordingStopped() {
         // Arrange.
@@ -365,6 +363,7 @@ class VideoCaptureDeviceTest(
             activeRecording.stop()
             assertThat(cameraController.isRecording).isFalse()
         }
+        latchForVideoStarted = CountDownLatch(VIDEO_STARTED_COUNT_DOWN)
 
         // Act.
         instrumentation.runOnMainSync {
@@ -375,8 +374,7 @@ class VideoCaptureDeviceTest(
         // Wait for the Finalize event of the previous recording.
         assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
-        // reset latches and wait for Start and Status events
-        latchForVideoStarted = CountDownLatch(VIDEO_STARTED_COUNT_DOWN)
+        // Reset latches and wait for Start and Status events
         latchForVideoRecording = CountDownLatch(VIDEO_RECORDING_COUNT_DOWN)
         latchForVideoSaved = CountDownLatch(VIDEO_SAVED_COUNT_DOWN)
         assertThat(latchForVideoStarted.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
