@@ -29,16 +29,16 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
  */
-open class CreateCredentialRequest(
+abstract class CreateCredentialRequest internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
+    open val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle,
+    open val data: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val requireSystemProvider: Boolean,
+    open val requireSystemProvider: Boolean
 ) {
     /** @hide */
     companion object {
@@ -67,7 +67,7 @@ open class CreateCredentialRequest(
             } catch (e: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a request with
                 // the raw framework values.
-                CreateCredentialRequest(type, data, requireSystemProvider)
+                CreateCustomCredentialRequest(type, data, requireSystemProvider)
             }
         }
     }

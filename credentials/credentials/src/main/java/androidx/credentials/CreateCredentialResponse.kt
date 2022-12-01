@@ -24,13 +24,13 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Base response class for the credential creation operation made with the
  * [CreateCredentialRequest].
  */
-open class CreateCredentialResponse(
+abstract class CreateCredentialResponse internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
+    open val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle,
+    open val data: Bundle,
 ) {
     /** @hide */
     companion object {
@@ -48,7 +48,7 @@ open class CreateCredentialResponse(
             } catch (e: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a response
                 // with the raw framework values.
-                CreateCredentialResponse(type, data)
+                CreateCustomCredentialResponse(type, data)
             }
         }
     }

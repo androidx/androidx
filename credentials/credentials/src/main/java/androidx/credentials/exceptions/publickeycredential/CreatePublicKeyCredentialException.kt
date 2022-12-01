@@ -33,6 +33,7 @@ import CreatePublicKeyCredentialSyntaxException
 import CreatePublicKeyCredentialTransactionInactiveException
 import CreatePublicKeyCredentialVersionException
 import CreatePublicKeyCredentialWrongDocumentException
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialException
 
@@ -77,10 +78,15 @@ import androidx.credentials.exceptions.CreateCredentialException
  * @property errorMessage a human-readable string that describes the error
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
- *
  * @hide
  */
-open class CreatePublicKeyCredentialException @JvmOverloads constructor(
-    type: String,
+open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override val type: String,
     errorMessage: CharSequence? = null
-) : CreateCredentialException(type, errorMessage)
+) : CreateCredentialException(type, errorMessage) {
+    init {
+        require(type.isNotEmpty()) { "type must not be empty" }
+    }
+}

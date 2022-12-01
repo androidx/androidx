@@ -23,13 +23,13 @@ import androidx.credentials.internal.FrameworkClassParsingException
 /**
  * Base class for a credential with which the user consented to authenticate to the app.
  */
-open class Credential(
+abstract class Credential internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
+    open val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val data: Bundle,
+    open val data: Bundle,
 ) {
     /** @hide */
     companion object {
@@ -47,7 +47,7 @@ open class Credential(
             } catch (e: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a response
                 // with the raw framework values.
-                Credential(type, data)
+                CustomCredential(type, data)
             }
         }
     }
