@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.ImageProcessingUtil.Result.ERROR_CONVERSION;
 import static androidx.camera.core.ImageProcessingUtil.Result.SUCCESS;
 
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.media.ImageWriter;
@@ -92,6 +93,39 @@ public final class ImageProcessingUtil {
             Logger.e(TAG, "Failed to get acquire JPEG image.");
         }
         return imageProxy;
+    }
+
+
+    /**
+     * Copies information from a given Bitmap to the address of the ByteBuffer
+     *
+     * @param bitmap     source bitmap
+     * @param byteBuffer destination ByteBuffer
+     */
+    public static void copyBitmapToByteBuffer(@NonNull Bitmap bitmap,
+            @NonNull ByteBuffer byteBuffer) {
+        int bitmapStride = bitmap.getRowBytes();
+        int bufferStride = bitmap.getWidth() * 4;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bitmapStride, bufferStride, width,
+                height, false);
+    }
+
+    /**
+     * Copies information from a ByteBuffer to the address of the Bitmap
+     *
+     * @param bitmap     destination Bitmap
+     * @param byteBuffer source ByteBuffer
+     */
+    public static void copyByteBufferToBitmap(@NonNull Bitmap bitmap,
+            @NonNull ByteBuffer byteBuffer) {
+        int bitmapStride = bitmap.getRowBytes();
+        int bufferStride = bitmap.getWidth() * 4;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bufferStride, bitmapStride, width,
+                height, true);
     }
 
     /**
@@ -435,6 +469,13 @@ public final class ImageProcessingUtil {
         ImageWriterCompat.queueInputImage(rotatedImageWriter, rotatedImage);
         return SUCCESS;
     }
+
+
+    private static native int nativeCopyBetweenByteBufferAndBitmap(Bitmap bitmap,
+            ByteBuffer byteBuffer,
+            int sourceStride, int destinationStride, int width, int height,
+            boolean isCopyBufferToBitmap);
+
 
     private static native int nativeWriteJpegToSurface(@NonNull byte[] jpegArray,
             @NonNull Surface surface);
