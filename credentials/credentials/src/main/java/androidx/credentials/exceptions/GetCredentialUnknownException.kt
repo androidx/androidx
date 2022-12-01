@@ -19,7 +19,7 @@ package androidx.credentials.exceptions
 import androidx.annotation.VisibleForTesting
 
 /**
- * This get credential operation failed with no more detailed information.
+ * This is thrown when the get credential operation failed with no more detailed information.
  *
  * @see GetCredentialException
  */
