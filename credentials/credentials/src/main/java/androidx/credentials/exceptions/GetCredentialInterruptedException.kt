@@ -31,7 +31,7 @@ class GetCredentialInterruptedException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
             "androidx.credentials.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }

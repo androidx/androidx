@@ -30,7 +30,7 @@ class ClearCredentialInterruptedException @JvmOverloads constructor(
 ) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }

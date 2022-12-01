@@ -24,7 +24,6 @@ import androidx.annotation.VisibleForTesting
  * tap away from credential manager.
  *
  * @see CreatePublicKeyCredentialException
- *
  * @hide
  */
 class CreatePublicKeyCredentialInterruptedException @JvmOverloads constructor(
@@ -35,7 +34,7 @@ class CreatePublicKeyCredentialInterruptedException @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
         const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INTERRUPTED_EXCEPTION: String =
             "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INTERRUPTED_EXCEPTION"
     }
