@@ -45,9 +45,12 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
 ) : CreateCredentialRequest(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
-    false,
+    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    credentialData = toCredentialDataBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
+    // The whole request data should be passed during the query phase.
+    candidateQueryData = toCredentialDataBundle(
+        requestJson, relyingParty, clientDataHash, allowHybrid),
+    requireSystemProvider = true,
 ) {
 
     init {
@@ -122,7 +125,7 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
                 "PRIVILEGED"
 
         @JvmStatic
-        internal fun toBundle(
+        internal fun toCredentialDataBundle(
             requestJson: String,
             relyingParty: String,
             clientDataHash: String,

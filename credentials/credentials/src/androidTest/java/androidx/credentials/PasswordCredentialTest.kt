@@ -65,7 +65,7 @@ class PasswordCredentialTest {
 
     @Test
     fun frameworkConversion_success() {
-        val credential = CreatePasswordRequest("id", "password")
+        val credential = PasswordCredential("id", "password")
 
         val convertedCredential = createFrom(
             credential.type, credential.data

@@ -37,9 +37,11 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
 ) : CreateCredentialRequest(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(requestJson, allowHybrid),
-    false,
+    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    credentialData = toCredentialDataBundle(requestJson, allowHybrid),
+    // The whole request data should be passed during the query phase.
+    candidateQueryData = toCredentialDataBundle(requestJson, allowHybrid),
+    requireSystemProvider = false,
 ) {
 
     init {
@@ -57,7 +59,7 @@ class CreatePublicKeyCredentialRequest @JvmOverloads constructor(
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST"
 
         @JvmStatic
-        internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {
+        internal fun toCredentialDataBundle(requestJson: String, allowHybrid: Boolean): Bundle {
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_SUBTYPE,
                 BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST)

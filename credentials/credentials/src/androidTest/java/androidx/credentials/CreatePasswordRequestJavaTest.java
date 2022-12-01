@@ -80,7 +80,9 @@ public class CreatePasswordRequestJavaTest {
         CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
 
         assertThat(request.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
+        assertThat(request.getRequireSystemProvider()).isFalse();
     }
 
     @Test
@@ -88,7 +90,8 @@ public class CreatePasswordRequestJavaTest {
         CreatePasswordRequest request = new CreatePasswordRequest("id", "password");
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), request.getData(), request.getRequireSystemProvider()
+                request.getType(), request.getCredentialData(),
+                request.getCandidateQueryData(), request.getRequireSystemProvider()
         );
 
         assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest.class);

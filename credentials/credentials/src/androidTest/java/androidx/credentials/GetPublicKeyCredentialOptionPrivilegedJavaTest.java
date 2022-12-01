@@ -138,8 +138,9 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
                         allowHybridExpected);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(option.getData(), expectedData)).isTrue();
-        assertThat(option.getRequireSystemProvider()).isFalse();
+        assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
+        assertThat(option.getRequireSystemProvider()).isTrue();
     }
 
     @Test
@@ -148,7 +149,8 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
                 new GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true);
 
         GetCredentialOption convertedOption = GetCredentialOption.createFrom(
-                option.getType(), option.getData(), option.getRequireSystemProvider());
+                option.getType(), option.getRequestData(),
+                option.getCandidateQueryData(), option.getRequireSystemProvider());
 
         assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOptionPrivileged.class);
         GetPublicKeyCredentialOptionPrivileged convertedSubclassOption =

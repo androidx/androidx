@@ -97,7 +97,8 @@ class CreatePublicKeyCredentialRequestTest {
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(request.data, expectedData)).isTrue()
+        assertThat(equals(request.credentialData, expectedData)).isTrue()
+        assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
         assertThat(request.requireSystemProvider).isFalse()
     }
 
@@ -106,7 +107,8 @@ class CreatePublicKeyCredentialRequestTest {
         val request = CreatePublicKeyCredentialRequest("json", true)
 
         val convertedRequest = createFrom(
-            request.type, request.data, request.requireSystemProvider
+            request.type, request.credentialData,
+            request.candidateQueryData, request.requireSystemProvider
         )
 
         assertThat(convertedRequest).isInstanceOf(

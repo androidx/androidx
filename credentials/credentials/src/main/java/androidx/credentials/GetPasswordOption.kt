@@ -20,9 +20,10 @@ import android.os.Bundle
 
 /** A request to retrieve the user's saved application password from their password provider. */
 class GetPasswordOption : GetCredentialOption(
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    Bundle(),
-    false,
+    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    requestData = Bundle(),
+    candidateQueryData = Bundle(),
+    requireSystemProvider = false,
 ) {
     /** @hide */
     companion object {

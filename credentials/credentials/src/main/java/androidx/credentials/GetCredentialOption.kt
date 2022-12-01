@@ -32,7 +32,10 @@ abstract class GetCredentialOption internal constructor(
     open val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val data: Bundle,
+    open val requestData: Bundle,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val candidateQueryData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val requireSystemProvider: Boolean,
@@ -43,21 +46,22 @@ abstract class GetCredentialOption internal constructor(
         @JvmStatic
         fun createFrom(
             type: String,
-            data: Bundle,
+            requestData: Bundle,
+            candidateQueryData: Bundle,
             requireSystemProvider: Boolean
         ): GetCredentialOption {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        GetPasswordOption.createFrom(data)
+                        GetPasswordOption.createFrom(requestData)
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
-                        when (data.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
+                        when (requestData.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
                             GetPublicKeyCredentialOption
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
-                                GetPublicKeyCredentialOption.createFrom(data)
+                                GetPublicKeyCredentialOption.createFrom(requestData)
                             GetPublicKeyCredentialOptionPrivileged
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED ->
-                                GetPublicKeyCredentialOptionPrivileged.createFrom(data)
+                                GetPublicKeyCredentialOptionPrivileged.createFrom(requestData)
                             else -> throw FrameworkClassParsingException()
                         }
                     else -> throw FrameworkClassParsingException()
@@ -65,7 +69,8 @@ abstract class GetCredentialOption internal constructor(
             } catch (e: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a request with
                 // the raw framework values.
-                GetCustomCredentialOption(type, data, requireSystemProvider)
+                GetCustomCredentialOption(
+                    type, requestData, candidateQueryData, requireSystemProvider)
             }
         }
     }

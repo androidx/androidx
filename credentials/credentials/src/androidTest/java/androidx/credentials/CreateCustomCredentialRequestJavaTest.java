@@ -29,7 +29,7 @@ public class CreateCustomCredentialRequestJavaTest {
     public void constructor_nullType_throws() {
         assertThrows("Expected null type to throw NPE",
                 NullPointerException.class,
-                () -> new CreateCustomCredentialRequest(null, new Bundle(), false)
+                () -> new CreateCustomCredentialRequest(null, new Bundle(), new Bundle(), false)
         );
     }
 
@@ -37,7 +37,7 @@ public class CreateCustomCredentialRequestJavaTest {
     public void constructor_nullBundle_throws() {
         assertThrows("Expected null bundle to throw NPE",
                 NullPointerException.class,
-                () -> new CreateCustomCredentialRequest("T", null, true)
+                () -> new CreateCustomCredentialRequest("T", null, new Bundle(), true)
         );
     }
 
@@ -45,27 +45,34 @@ public class CreateCustomCredentialRequestJavaTest {
     public void constructor_emptyType_throws() {
         assertThrows("Expected empty type to throw IAE",
                 IllegalArgumentException.class,
-                () -> new CreateCustomCredentialRequest("", new Bundle(), false)
+                () -> new CreateCustomCredentialRequest("", new Bundle(), new Bundle(), false)
         );
     }
 
     @Test
     public void constructor_nonEmptyTypeNonNullBundle_success() {
-        new CreateCustomCredentialRequest("T", new Bundle(), true);
+        new CreateCustomCredentialRequest("T", new Bundle(), new Bundle(), true);
     }
 
     @Test
     public void getter_frameworkProperties() {
         String expectedType = "TYPE";
-        Bundle expectedBundle = new Bundle();
-        expectedBundle.putString("Test", "Test");
+        Bundle expectedCredentialDataBundle = new Bundle();
+        expectedCredentialDataBundle.putString("Test", "Test");
+        Bundle expectedCandidateQueryDataBundle = new Bundle();
+        expectedCandidateQueryDataBundle.putBoolean("key", true);
 
         boolean expectedSystemProvider = true;
         CreateCustomCredentialRequest option = new CreateCustomCredentialRequest(expectedType,
-                expectedBundle, expectedSystemProvider);
+                expectedCredentialDataBundle,
+                expectedCandidateQueryDataBundle,
+                expectedSystemProvider);
 
         assertThat(option.getType()).isEqualTo(expectedType);
-        assertThat(TestUtilsKt.equals(option.getData(), expectedBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCredentialData(), expectedCredentialDataBundle))
+                .isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
         assertThat(option.requireSystemProvider()).isEqualTo(expectedSystemProvider);
     }
 }
