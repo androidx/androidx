@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -128,7 +129,7 @@ internal class VirtualCameraStateTest {
             CameraStateClosed(
                 cameraId,
                 ClosedReason.CAMERA2_ERROR,
-                cameraErrorCode = 5
+                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
             )
         )
 
@@ -223,7 +224,7 @@ internal class AndroidCameraDeviceTest {
         )
 
         listener.onDisconnected(testCamera.cameraDevice)
-        listener.onError(testCamera.cameraDevice, 42)
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
         listener.onClosed(testCamera.cameraDevice)
 
         mainLooper.idle()
@@ -257,7 +258,7 @@ internal class AndroidCameraDeviceTest {
             attemptTimestampNanos = now
         )
 
-        listener.closeWith(IllegalStateException("Test Exception"))
+        listener.closeWith(IllegalArgumentException("Test Exception"))
         mainLooper.idle()
 
         val closedState = listener.state.value as CameraStateClosed
@@ -273,12 +274,12 @@ internal class AndroidCameraDeviceTest {
             attemptTimestampNanos = now
         )
 
-        listener.onError(testCamera.cameraDevice, 24)
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
         mainLooper.idle()
 
         val closedState = listener.state.value as CameraStateClosed
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.CAMERA2_ERROR)
-        assertThat(closedState.cameraErrorCode).isEqualTo(24)
+        assertThat(closedState.cameraErrorCode).isEqualTo(CameraError.ERROR_CAMERA_SERVICE)
         assertThat(closedState.cameraException).isNull()
     }
 }
