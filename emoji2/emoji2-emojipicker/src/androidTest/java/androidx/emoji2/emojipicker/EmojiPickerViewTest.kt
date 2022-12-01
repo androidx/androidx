@@ -47,6 +47,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -152,6 +153,7 @@ class EmojiPickerViewTest {
         assertNotNull(findViewByEmoji(view, NOSE_EMOJI))
     }
 
+    @Ignore // b/260915957
     @Test
     fun testHeader_highlightCurrentCategory() {
         assertSelectedHeaderIndex(0)
