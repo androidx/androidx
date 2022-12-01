@@ -1,0 +1,141 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.credentials
+
+import android.app.Activity
+import android.content.Context
+import android.credentials.CredentialManager
+import android.credentials.CredentialManagerException
+import android.os.CancellationSignal
+import android.os.OutcomeReceiver
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialUnknownException
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+
+/**
+ * Framework credential provider implementation that allows credential
+ * manager requests to be routed to the framework.
+ *
+ * @hide
+ */
+@RequiresApi(34)
+class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
+    private val credentialManager: CredentialManager =
+        context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager
+
+    override fun onGetCredential(
+        request: GetCredentialRequest,
+        activity: Activity,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
+    ) {
+        Log.i(TAG, "In CredentialProviderFrameworkImpl onGetCredential")
+
+        val outcome = object : OutcomeReceiver<
+            android.credentials.GetCredentialResponse, CredentialManagerException> {
+            override fun onResult(response: android.credentials.GetCredentialResponse) {
+                Log.i(TAG, "GetCredentialResponse returned from framework")
+                callback.onResult(convertGetResponseToJetpackClass(response))
+            }
+            override fun onError(error: CredentialManagerException) {
+                Log.i(TAG, "GetCredentialResponse error returned from framework")
+                // TODO("Covert to the appropriate exception")
+                callback.onError(GetCredentialUnknownException(error.message))
+            }
+        }
+        credentialManager.executeGetCredential(
+            convertGetRequestToFrameworkClass(request),
+            activity,
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome)
+    }
+
+    override fun onCreateCredential(
+        request: CreateCredentialRequest,
+        activity: Activity,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
+    ) {
+        Log.i(TAG, "In CredentialProviderFrameworkImpl onCreateCredential")
+
+        val outcome = object : OutcomeReceiver<
+            android.credentials.CreateCredentialResponse,
+            CredentialManagerException> {
+            override fun onResult(response: android.credentials.CreateCredentialResponse) {
+                Log.i(TAG, "Create Result returned from framework: ")
+                callback.onResult(CreateCredentialResponse.createFrom(
+                    request.type, response.data))
+            }
+            override fun onError(error: CredentialManagerException) {
+                Log.i(TAG, "CreateCredentialResponse error returned from framework")
+                // TODO("Covert to the appropriate exception")
+                callback.onError(CreateCredentialUnknownException(error.message))
+            }
+        }
+
+        credentialManager.executeCreateCredential(
+            android.credentials.CreateCredentialRequest(
+                request.type,
+                request.credentialData,
+                request.candidateQueryData,
+                request.requireSystemProvider),
+            activity,
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome)
+    }
+
+    private fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
+        android.credentials.GetCredentialRequest {
+        val builder = android.credentials.GetCredentialRequest.Builder()
+        request.getCredentialOptions.forEach {
+            builder.addGetCredentialOption(
+                android.credentials.GetCredentialOption(
+                    // TODO: Update to split credential and request data when
+                    // framework changes ready
+                    it.type, it.requestData, it.requireSystemProvider
+                ))
+        }
+        return builder.build()
+    }
+
+    internal fun convertGetResponseToJetpackClass(
+        response: android.credentials.GetCredentialResponse
+    ): GetCredentialResponse {
+        // TODO("Look into the response credential being non null")
+        val credential = response.credential!!
+        return GetCredentialResponse(Credential.createFrom(
+            credential.type, credential.data))
+    }
+
+    override fun isAvailableOnDevice(): Boolean {
+        // TODO("Base it on API level check")
+        return true
+    }
+
+    companion object {
+        private const val TAG = "CredManProvService"
+    }
+}
