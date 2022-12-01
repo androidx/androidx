@@ -53,7 +53,7 @@ import org.mockito.Mockito.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 23) // BasicVendorExtender requires API level 23
 class PreviewConfigProviderTest {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(

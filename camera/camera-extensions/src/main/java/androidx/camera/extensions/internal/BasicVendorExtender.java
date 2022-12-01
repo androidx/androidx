@@ -60,7 +60,8 @@ import java.util.Map;
 /**
  * Basic vendor interface implementation
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RequiresApi(23) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+// replaceImageFormatIfMissing accesses ImageFormat#PRIVATE which is public since API level 23.
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final ExtensionDisabledValidator mExtensionDisabledValidator =
