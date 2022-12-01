@@ -263,7 +263,6 @@ class PublicKeyCredentialControllerUtility {
         }
 
         private val TAG = PublicKeyCredentialControllerUtility::class.java.name
-
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
         CreatePublicKeyCredentialUnknownException("returned unknown transient failure"),
         ErrorCode.ABORT_ERR to CreatePublicKeyCredentialAbortException("indicates the " +
