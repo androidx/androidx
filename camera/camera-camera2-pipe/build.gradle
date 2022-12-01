@@ -71,22 +71,6 @@ kapt {
     }
 }
 
-// Create export artifact for all variants (debug/release) for JarJaring
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def exportJarTask = tasks.register("exportJar${suffix}", Jar) {
-        archiveBaseName.set("camera-camera2-pipe-${variantName}-export")
-        def kotlinCompileTask = tasks.findByName("compile${suffix}Kotlin")
-        from(kotlinCompileTask.outputs.files)
-        from(files(variant.javaCompileProvider.get().destinationDir))
-        dependsOn(kotlinCompileTask)
-        dependsOn(variant.javaCompileProvider.get())
-    }
-    def exportConfiguration = configurations.register("export${suffix}")
-    artifacts.add(exportConfiguration.name, exportJarTask.flatMap{ it.archiveFile })
-}
-
 androidx {
     name = "Jetpack Camera Pipe"
     publish = Publish.SNAPSHOT_AND_RELEASE
