@@ -1,1 +1,26 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.expression {
+
+  public final class DynamicBuilders {
+  }
+
+  public static interface DynamicBuilders.DynamicBool extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+  }
+
+  public static interface DynamicBuilders.DynamicColor extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+  }
+
+  public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+  }
+
+  public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+  }
+
+  public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+  }
+
+  public static interface DynamicBuilders.DynamicType {
+  }
+
+}
+

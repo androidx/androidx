@@ -1,0 +1,37 @@
+// Fixed primitive types used by layout elements.
+syntax = "proto3";
+
+package androidx.wear.protolayout.expression.proto;
+
+option java_package = "androidx.wear.protolayout.expression.proto";
+option java_outer_classname = "FixedProto";
+
+// A fixed int32 type.
+message FixedInt32 {
+  // The value.
+  int32 value = 1;
+}
+
+// A fixed string type.
+message FixedString {
+  // The value.
+  string value = 1;
+}
+
+// A fixed float type.
+message FixedFloat {
+  // The value.
+  float value = 1;
+}
+
+// A fixed boolean type.
+message FixedBool {
+  // The value.
+  bool value = 1;
+}
+
+// A fixed color type.
+message FixedColor {
+  // The color value, in ARGB format.
+  uint32 argb = 1;
+}
