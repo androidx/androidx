@@ -23,10 +23,10 @@ import android.widget.FrameLayout
 import androidx.core.util.Consumer
 import androidx.core.view.ViewCompat
 import androidx.emoji2.emojipicker.EmojiPickerConstants.DEFAULT_MAX_RECENT_ITEM_ROWS
+import androidx.emoji2.emojipicker.Extensions.toEmojiViewData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,13 +65,7 @@ class EmojiPickerView @JvmOverloads constructor(
         }
 
     private val stickyVariantProvider = StickyVariantProvider(context)
-    private val scope = CoroutineScope(EmptyCoroutineContext)
-
-    private var recentEmojiProvider: RecentEmojiProvider = DefaultRecentEmojiProvider(context)
-    private val recentItems: MutableList<EmojiViewData> = mutableListOf()
-    private val recentItemGroup: ItemGroup
-    private lateinit var emojiPickerItems: EmojiPickerItems
-    private lateinit var bodyAdapter: EmojiPickerBodyAdapter
+    private var recentEmojiProvider = DefaultRecentEmojiProvider(context)
 
     private var onEmojiPickedListener: Consumer<EmojiViewItem>? = null
 
@@ -88,31 +82,24 @@ class EmojiPickerView @JvmOverloads constructor(
         )
         typedArray.recycle()
 
-        recentItemGroup = ItemGroup(
-            R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
-            CategoryTitle(context.getString(R.string.emoji_category_recent)),
-            recentItems,
-            forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
-            emptyPlaceholderItem = PlaceholderText(
-                context.getString(R.string.emoji_empty_recent_category)
-            ),
-        )
-
-        scope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             val load = launch { BundledEmojiListLoader.load(context) }
-            refreshRecentItems()
+            val recent = recentEmojiProvider.getRecentItemList()
             load.join()
 
             withContext(Dispatchers.Main) {
-                showEmojiPickerView()
+                showEmojiPickerView(context, recent)
             }
         }
     }
 
     private fun createEmojiPickerBodyAdapter(
+        onEmojiPickedListener: Consumer<EmojiViewItem>?,
+        recentEmojiProvider: RecentEmojiProvider,
+        recentItems: MutableList<EmojiViewData>,
         emojiPickerItems: EmojiPickerItems,
     ): EmojiPickerBodyAdapter {
-        return EmojiPickerBodyAdapter(
+        val adapter = EmojiPickerBodyAdapter(
             context,
             emojiGridColumns,
             emojiGridRows,
@@ -120,41 +107,68 @@ class EmojiPickerView @JvmOverloads constructor(
             emojiPickerItems,
             onEmojiPickedListener = { emojiViewItem ->
                 onEmojiPickedListener?.accept(emojiViewItem)
-
-                scope.launch {
-                    recentEmojiProvider.insert(emojiViewItem.emoji)
-                    refreshRecentItems()
-                }
+                recentItems.indexOfFirst { it.primary == emojiViewItem.emoji }
+                    .takeIf { it >= 0 }?.let { recentItems.removeAt(it) }
+                recentItems.add(0, emojiViewItem.toEmojiViewData(updateToVariants = false))
+                recentEmojiProvider.insert(emojiViewItem.emoji)
             }
         )
+        return adapter
     }
 
-    private fun showEmojiPickerView() {
-        emojiPickerItems = EmojiPickerItems(buildList {
-            add(recentItemGroup)
+    private fun showEmojiPickerView(context: Context, recent: List<String>) {
+        val categorizedEmojiData = BundledEmojiListLoader.getCategorizedEmojiData()
+        val variantToBaseEmojiMap = BundledEmojiListLoader.getPrimaryEmojiLookup()
+        val baseToVariantsEmojiMap = BundledEmojiListLoader.getEmojiVariantsLookup()
+        val recentItems = recent.map {
+            EmojiViewData(
+                it,
+                baseToVariantsEmojiMap[variantToBaseEmojiMap[it]] ?: listOf(),
+                updateToSticky = false,
+            )
+        }.toMutableList()
+        val emojiPickerItems = EmojiPickerItems(buildList {
+            add(
+                ItemGroup(
+                    R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
+                    CategoryTitle(context.getString(R.string.emoji_category_recent)),
+                    recentItems,
+                    forceContentSize = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
+                    emptyPlaceholderItem = PlaceholderText(
+                        context.getString(R.string.emoji_empty_recent_category)
+                    ),
+                )
+            )
 
-            for ((headerIconId, name, emojis) in BundledEmojiListLoader.getCategorizedEmojiData()) {
+            for ((headerIconId, name, emojis) in categorizedEmojiData) {
                 add(
                     ItemGroup(
                         headerIconId,
                         CategoryTitle(name),
                         emojis.map {
-                            EmojiViewData(stickyVariantProvider[it.emoji])
+                            EmojiViewData(stickyVariantProvider[it.emoji], it.variants)
                         },
                     )
                 )
             }
         })
 
+        val bodyAdapter = createEmojiPickerBodyAdapter(
+            onEmojiPickedListener,
+            recentEmojiProvider,
+            recentItems,
+            emojiPickerItems
+        )
+
         val bodyLayoutManager = GridLayoutManager(
-            context,
+            getContext(),
             emojiGridColumns,
             LinearLayoutManager.VERTICAL,
             /* reverseLayout = */ false
         ).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (emojiPickerItems.getBodyItem(position).occupyEntireRow)
+                    return if (bodyAdapter.emojiPickerItems.getBodyItem(position).occupyEntireRow)
                         emojiGridColumns
                     else 1
                 }
@@ -184,7 +198,12 @@ class EmojiPickerView @JvmOverloads constructor(
             // set bodyView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_body).apply {
                 layoutManager = bodyLayoutManager
-                adapter = createEmojiPickerBodyAdapter(emojiPickerItems).also { bodyAdapter = it }
+                adapter = createEmojiPickerBodyAdapter(
+                    onEmojiPickedListener,
+                    recentEmojiProvider,
+                    recentItems,
+                    emojiPickerItems
+                )
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
@@ -197,16 +216,6 @@ class EmojiPickerView @JvmOverloads constructor(
             }
         }
     }
-    private suspend fun refreshRecentItems() {
-        val recent = recentEmojiProvider.getRecentItemList()
-        recentItems.clear()
-        recentItems.addAll(recent.map {
-            EmojiViewData(
-                it,
-                updateToSticky = false,
-            )
-        })
-    }
 
     /**
      * This function is used to set the custom behavior after clicking on an emoji icon. Clients
@@ -214,20 +223,5 @@ class EmojiPickerView @JvmOverloads constructor(
      */
     fun setOnEmojiPickedListener(onEmojiPickedListener: Consumer<EmojiViewItem>?) {
         this.onEmojiPickedListener = onEmojiPickedListener
-    }
-
-    internal fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
-        this.recentEmojiProvider = recentEmojiProvider
-
-        if (::emojiPickerItems.isInitialized) {
-            scope.launch {
-                refreshRecentItems()
-                val range = emojiPickerItems.groupRange(recentItemGroup)
-
-                withContext(Dispatchers.Main) {
-                    bodyAdapter.notifyItemRangeChanged(range.first, range.last + 1)
-                }
-            }
-        }
     }
 }
