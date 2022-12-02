@@ -40,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -433,10 +432,6 @@ public fun ScalingLazyColumn(
             }
             if (initialized) {
                 LaunchedEffect(state) {
-                    // TODO(b/254115946) LaunchedEffect is run synchronously under testing,
-                    // which causes compose runtime issues. Work is under way to fix this -
-                    // the workaround for now is to call withFrameNanos{}
-                    withFrameNanos {}
                     state.scrollToInitialItem()
                 }
             }
