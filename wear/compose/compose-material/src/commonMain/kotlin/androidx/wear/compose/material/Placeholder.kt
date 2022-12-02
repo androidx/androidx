@@ -21,10 +21,12 @@ import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
@@ -88,7 +90,7 @@ import kotlinx.coroutines.isActive
 @ExperimentalWearMaterialApi
 @Stable
 public class PlaceholderState internal constructor(
-    private val isContentReady: () -> Boolean,
+    private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
 ) {
 
@@ -228,7 +230,7 @@ public class PlaceholderState internal constructor(
     }
 
     internal var placeholderStage: PlaceholderStage =
-        if (isContentReady.invoke()) PlaceholderStage.ShowContent
+        if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
         else PlaceholderStage.ShowPlaceholder
         get() {
             if (field != PlaceholderStage.ShowContent) {
@@ -239,7 +241,7 @@ public class PlaceholderState internal constructor(
                         field = PlaceholderStage.ShowContent
                     }
                     // Placeholder
-                } else if (isContentReady()) {
+                } else if (isContentReady.value()) {
                     startOfWipeOffAnimation = frameMillis.value
                     field = PlaceholderStage.WipeOff
                 }
@@ -286,11 +288,14 @@ public class PlaceholderState internal constructor(
  */
 @ExperimentalWearMaterialApi
 @Composable
-public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
+public fun rememberPlaceholderState(
+    isContentReady: () -> Boolean
+): PlaceholderState {
     val maxScreenDimension = with(LocalDensity.current) {
         Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
     }
-    return remember { PlaceholderState(isContentReady, maxScreenDimension) }
+    val myLambdaState = rememberUpdatedState(isContentReady)
+    return remember { PlaceholderState(myLambdaState, maxScreenDimension) }
 }
 
 /**
