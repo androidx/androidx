@@ -255,6 +255,18 @@ internal class ImageAnalysisTest(
     }
 
     @Test
+    fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
+        val useCase = ImageAnalysis.Builder()
+            .setTargetAspectRatio(AspectRatio.RATIO_DEFAULT)
+            .build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_CAMERA_SELECTOR, useCase)
+        }
+        val config = useCase.currentConfig as ImageOutputConfig
+        assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
+    }
+
+    @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = ImageAnalysis.Builder()

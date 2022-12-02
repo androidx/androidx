@@ -359,6 +359,8 @@ final class SupportedOutputSizesCollector {
                     outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
                             : ASPECT_RATIO_9_16;
                     break;
+                case AspectRatio.RATIO_DEFAULT:
+                    break;
                 default:
                     Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
             }

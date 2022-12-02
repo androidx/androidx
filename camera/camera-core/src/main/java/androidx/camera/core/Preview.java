@@ -913,8 +913,8 @@ public final class Preview extends UseCase {
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
          * {@link SurfaceRequest#getResolution()}.
          *
-         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
-         * priority.
+         * <p>If not set, or {@link AspectRatio#RATIO_DEFAULT} is supplied, resolutions with
+         * aspect ratio 4:3 will be considered in higher priority.
          *
          * <p>For the following devices, the aspect ratio will be forced to
          * {@link AspectRatio#RATIO_16_9} regardless of the config. On these devices, the
@@ -931,6 +931,9 @@ public final class Preview extends UseCase {
         @NonNull
         @Override
         public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
+            if (aspectRatio == AspectRatio.RATIO_DEFAULT) {
+                aspectRatio = Defaults.DEFAULT_ASPECT_RATIO;
+            }
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
