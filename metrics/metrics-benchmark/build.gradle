@@ -42,3 +42,7 @@ android {
                 "UNLOCKED,EMULATOR,LOW-BATTERY,ENG-BUILD"
     }
 }
+
+androidx {
+    mavenGroup = LibraryGroups.METRICS
+}

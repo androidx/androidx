@@ -22,3 +22,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 }
+
+androidx {
+    mavenGroup = LibraryGroups.ANNOTATION
+}

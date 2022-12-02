@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -37,3 +39,7 @@ dependencies {
     compileOnly libs.kotlinStdlib
 }
 
+
+androidx {
+    mavenGroup = LibraryGroups.CAR_APP
+}

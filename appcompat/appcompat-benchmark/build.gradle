@@ -34,3 +34,7 @@ dependencies {
 android {
     namespace "androidx.appcompat.benchmark"
 }
+
+androidx {
+    mavenGroup = LibraryGroups.APPCOMPAT
+}
