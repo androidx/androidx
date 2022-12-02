@@ -425,10 +425,12 @@ final class SupportedSurfaceCombination {
     List<Size> getSupportedOutputSizes(@NonNull UseCaseConfig<?> config) {
         int imageFormat = config.getInputFormat();
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) config;
-        ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
 
-        // Directly returns the output sizes retrieved from SupportedOutputSizesCollector when
-        // ResolutionSelector is used.
+        List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
+        if (customOrderedResolutions != null) {
+            return customOrderedResolutions;
+        }
+        ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
         if (resolutionSelector != null) {
             Size miniBoundingSize = imageOutputConfig.getDefaultResolution(null);
 
