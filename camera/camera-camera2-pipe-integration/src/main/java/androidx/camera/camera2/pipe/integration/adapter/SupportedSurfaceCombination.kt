@@ -771,6 +771,10 @@ class SupportedSurfaceCombination(
     internal fun getSupportedOutputSizes(config: UseCaseConfig<*>): List<Size> {
         val imageFormat = config.inputFormat
         val imageOutputConfig = config as ImageOutputConfig
+        val customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null)
+        if (customOrderedResolutions != null) {
+            return customOrderedResolutions
+        }
         var outputSizes: Array<Size>? =
             getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig)
         if (outputSizes == null) {

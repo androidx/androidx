@@ -47,22 +47,34 @@ public final class AspectRatioUtil {
 
     /**
      * Returns true if the supplied resolution is a mod16 matching with the supplied aspect ratio.
+     *
+     * <p>A default lower bound resolution {@link SizeUtil#RESOLUTION_VGA} is adopted. That means
+     * only do mod 16 calculation if the size is equal to or larger than
+     * {@link SizeUtil#RESOLUTION_VGA}. It is because the aspect ratio will be affected
+     * critically by mod 16 calculation if the size is small. It may result in unexpected outcome
+     * such like 256x144 will be considered as 18.5:9.
      */
     public static boolean hasMatchingAspectRatio(@NonNull Size resolution,
             @Nullable Rational aspectRatio) {
+        return hasMatchingAspectRatio(resolution, aspectRatio, SizeUtil.RESOLUTION_VGA);
+    }
+
+    /**
+     * Returns true if the supplied resolution is a mod16 matching with the supplied aspect ratio.
+     *
+     * <p>Mod 16 calculation take effects only when the input resolution is smaller than
+     * {@code mod16ResolutionLowerBound}.
+     */
+    public static boolean hasMatchingAspectRatio(@NonNull Size resolution,
+            @Nullable Rational aspectRatio, @NonNull Size mod16ResolutionLowerBound) {
         boolean isMatch = false;
         if (aspectRatio == null) {
             isMatch = false;
         } else if (aspectRatio.equals(
                 new Rational(resolution.getWidth(), resolution.getHeight()))) {
             isMatch = true;
-        } else if (getArea(resolution) >= getArea(SizeUtil.RESOLUTION_VGA)) {
-            // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
-            // because the aspect ratio will be affected critically by mod 16 calculation if the
-            // size is small. It may result in unexpected outcome such like 256x144 will be
-            // considered as 18.5:9.
-            isMatch = isPossibleMod16FromAspectRatio(resolution,
-                    aspectRatio);
+        } else if (getArea(resolution) >= getArea(mod16ResolutionLowerBound)) {
+            isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
         }
         return isMatch;
     }

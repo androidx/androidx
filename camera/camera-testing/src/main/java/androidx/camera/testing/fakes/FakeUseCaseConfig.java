@@ -226,6 +226,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
         @NonNull
         @Override
+        public Builder setCustomOrderedResolutions(@NonNull List<Size> resolutionsList) {
+            getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, resolutionsList);
+            return this;
+        }
+
+        @NonNull
+        @Override
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
             getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
             return this;

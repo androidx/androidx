@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import android.graphics.ImageFormat;
 import android.util.Pair;
 import android.util.Size;
@@ -30,6 +32,7 @@ import androidx.camera.core.ResolutionSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,6 +97,12 @@ public interface ImageOutputConfig extends ReadableConfig {
      */
     Option<ResolutionSelector> OPTION_RESOLUTION_SELECTOR =
             Option.create("camerax.core.imageOutput.resolutionSelector", ResolutionSelector.class);
+
+    /**
+     * Option: camerax.core.imageOutput.customOrderedResolutions
+     */
+    Option<List<Size>> OPTION_CUSTOM_ORDERED_RESOLUTIONS =
+            Option.create("camerax.core.imageOutput.customOrderedResolutions", List.class);
 
     // *********************************************************************************************
 
@@ -288,6 +297,35 @@ public interface ImageOutputConfig extends ReadableConfig {
     }
 
     /**
+     * Retrieves the custom ordered resolutions can be used by the target from this configuration.
+     *
+     * <p>The returned {@link Size} list contains preferred priority from high to low and should
+     * be the subset of the supported sizes for the camera device.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @Nullable
+    default List<Size> getCustomOrderedResolutions(@Nullable List<Size> valueIfMissing) {
+        List<Size> list = retrieveOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, valueIfMissing);
+        return list != null ? new ArrayList<>(list) : null;
+    }
+
+    /**
+     * Retrieves the custom resolutions can be used by the target from this configuration.
+     *
+     * <p>The returned {@link Size} list contains preferred priority from high to low and should
+     * be the subset of the supported sizes for the camera device.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    default List<Size> getCustomOrderedResolutions() {
+        return new ArrayList<>(requireNonNull(retrieveOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS)));
+    }
+
+    /**
      * Checks whether the input config contains any conflicted settings.
      *
      * @param config to be validated.
@@ -399,6 +437,20 @@ public interface ImageOutputConfig extends ReadableConfig {
          */
         @NonNull
         B setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutionsList);
+
+        /**
+         * Sets the custom resolutions can be used by target from this configuration.
+         *
+         * <p>The {@link Size} list should contain preferred priority from high to low and should
+         * be the subset of the supported sizes for the camera device. The list will be fully
+         * respected, meaning it will not be sorted or filtered by other configurations such as
+         * max/default/target/supported resolutions.
+         *
+         * @param resolutionsList The resolutions can be supported for this image config.
+         * @return The current Builder.
+         */
+        @NonNull
+        B setCustomOrderedResolutions(@NonNull List<Size> resolutionsList);
 
         /**
          * Sets the resolution selector can be used by target from this configuration.

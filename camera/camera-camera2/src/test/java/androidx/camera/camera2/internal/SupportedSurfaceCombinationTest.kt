@@ -165,7 +165,8 @@ class SupportedSurfaceCombinationTest {
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
-            supportedResolutions: List<Pair<Int, Array<Size>>>?
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
         ): UseCase {
             return createUseCaseByLegacyApi(
                 useCaseType,
@@ -174,7 +175,8 @@ class SupportedSurfaceCombinationTest {
                 preferredResolution,
                 maxResolution,
                 defaultResolution,
-                supportedResolutions
+                supportedResolutions,
+                customOrderedResolutions,
             )
         }
     }
@@ -188,7 +190,8 @@ class SupportedSurfaceCombinationTest {
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
-            supportedResolutions: List<Pair<Int, Array<Size>>>?
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
         ): UseCase {
             return createUseCaseByResolutionSelector(
                 useCaseType,
@@ -199,7 +202,8 @@ class SupportedSurfaceCombinationTest {
                 highResolutionEnabled,
                 highResolutionForceDisabled = false,
                 defaultResolution,
-                supportedResolutions
+                supportedResolutions,
+                customOrderedResolutions,
             )
         }
     }
@@ -213,7 +217,8 @@ class SupportedSurfaceCombinationTest {
             maxResolution: Size?,
             highResolutionEnabled: Boolean,
             defaultResolution: Size?,
-            supportedResolutions: List<Pair<Int, Array<Size>>>?
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
         ): UseCase {
             return createUseCaseByResolutionSelector(
                 useCaseType,
@@ -224,7 +229,8 @@ class SupportedSurfaceCombinationTest {
                 highResolutionEnabled,
                 highResolutionForceDisabled = false,
                 defaultResolution,
-                supportedResolutions
+                supportedResolutions,
+                customOrderedResolutions
             )
         }
     }
@@ -1189,6 +1195,52 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
+    fun getSuggestedResolutionsForCustomOrderedResolutions_LegacyApi() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val size720p = Size(1280, 720)
+        val formatResolutionsPairList = arrayListOf<Pair<Int, Array<Size>>>().apply {
+            add(Pair.create(ImageFormat.JPEG, arrayOf(size720p)))
+            add(Pair.create(ImageFormat.YUV_420_888, arrayOf(size720p)))
+            add(Pair.create(ImageFormat.PRIVATE, arrayOf(size720p)))
+        }
+        // Sets use cases custom ordered resolutions to 640x480 and 1280x720.
+        val imageCapture = legacyUseCaseCreator.createUseCase(
+            IMAGE_CAPTURE_USE_CASE,
+            customOrderedResolutions = listOf(RESOLUTION_VGA, size720p),
+            // Other configurations should be ignored
+            preferredResolution = size720p,
+            maxResolution = Size(320, 240),
+            defaultResolution = size720p,
+            supportedResolutions = formatResolutionsPairList,
+        )
+        val videoCapture = createVideoCapture(Quality.SD, Quality.HD)
+        val preview = legacyUseCaseCreator.createUseCase(
+            PREVIEW_USE_CASE,
+            customOrderedResolutions = listOf(RESOLUTION_VGA, size720p),
+            // Other configurations should be ignored
+            preferredResolution = size720p,
+            maxResolution = Size(320, 240),
+            defaultResolution = size720p,
+            supportedResolutions = formatResolutionsPairList,
+        )
+        val suggestedResolutionMap = getSuggestedResolutionMap(
+            supportedSurfaceCombination,
+            imageCapture,
+            videoCapture,
+            preview
+        )
+        // Checks all suggested resolutions is 640x480.
+        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedResolutionMap[preview]).isEqualTo(RESOLUTION_VGA)
+    }
+
+    @Test
     fun transformSurfaceConfigWithYUVAnalysisSize() {
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -1757,6 +1809,41 @@ class SupportedSurfaceCombinationTest {
         val resultList = getSupportedOutputSizes(supportedSurfaceCombination, useCase)
         val expectedList = listOf(Size(1280, 720), Size(960, 544), Size(800, 450), Size(640, 480))
         assertThat(resultList).isEqualTo(expectedList)
+    }
+
+    @Test
+    fun getSupportedOutputSizes_setCustomOrderedResolutions() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val customOrderedResolutions = listOf(
+            Size(640, 480),
+            Size(1280, 720),
+            Size(1920, 1080),
+            Size(3840, 2160),
+        )
+        val useCase = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            customOrderedResolutions = customOrderedResolutions,
+            maxResolution = Size(1920, 1440),
+            defaultResolution = Size(1280, 720),
+            supportedResolutions = listOf(
+                Pair.create(
+                    ImageFormat.PRIVATE, arrayOf(
+                        Size(800, 450),
+                        Size(640, 480),
+                        Size(320, 240),
+                    )
+                )
+            )
+        )
+        // Custom ordered resolutions is fully respected, meaning it will not be sorted or filtered
+        // by other configurations such as max/default/target/supported resolutions.
+        val resultList = getSupportedOutputSizes(supportedSurfaceCombination, useCase)
+        assertThat(resultList).containsExactlyElementsIn(customOrderedResolutions).inOrder()
     }
 
     @Test
@@ -2801,6 +2888,7 @@ class SupportedSurfaceCombinationTest {
      * @param maxResolution the max resolution setting. Default is null.
      * @param defaultResolution the default resolution setting. Default is null.
      * @param supportedResolutions the customized supported resolutions. Default is null.
+     * @param customOrderedResolutions the custom ordered resolutions. Default is null.
      */
     private fun createUseCaseByLegacyApi(
         useCaseType: Int,
@@ -2810,6 +2898,7 @@ class SupportedSurfaceCombinationTest {
         maxResolution: Size? = null,
         defaultResolution: Size? = null,
         supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
+        customOrderedResolutions: List<Size>? = null,
     ): UseCase {
         val builder = when (useCaseType) {
             PREVIEW_USE_CASE -> Preview.Builder()
@@ -2827,6 +2916,7 @@ class SupportedSurfaceCombinationTest {
         maxResolution?.let { builder.setMaxResolution(it) }
         defaultResolution?.let { builder.setDefaultResolution(it) }
         supportedResolutions?.let { builder.setSupportedResolutions(it) }
+        customOrderedResolutions?.let { builder.setCustomOrderedResolutions(it) }
         return builder.build()
     }
 
@@ -2835,9 +2925,9 @@ class SupportedSurfaceCombinationTest {
         return createVideoCapture(VideoSpec.QUALITY_SELECTOR_AUTO)
     }
 
-    /** Creates a VideoCapture with a specific Quality  */
-    private fun createVideoCapture(quality: Quality): VideoCapture<TestVideoOutput> {
-        return createVideoCapture(QualitySelector.from(quality))
+    /** Creates a VideoCapture with one ore more specific Quality  */
+    private fun createVideoCapture(vararg quality: Quality): VideoCapture<TestVideoOutput> {
+        return createVideoCapture(QualitySelector.fromOrderedList(listOf(*quality)))
     }
 
     /** Creates a VideoCapture with a customized QualitySelector  */
@@ -2878,6 +2968,7 @@ class SupportedSurfaceCombinationTest {
             highResolutionEnabled: Boolean = false,
             defaultResolution: Size? = null,
             supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
+            customOrderedResolutions: List<Size>? = null,
         ): UseCase
     }
 }

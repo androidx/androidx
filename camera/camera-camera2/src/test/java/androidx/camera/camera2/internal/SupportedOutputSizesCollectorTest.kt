@@ -1296,7 +1296,8 @@ class SupportedOutputSizesCollectorTest(
             highResolutionEnabled: Boolean = false,
             highResolutionForceDisabled: Boolean = false,
             defaultResolution: Size? = null,
-            supportedResolutions: List<Pair<Int, Array<Size>>>? = null
+            supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
+            customOrderedResolutions: List<Size>? = null,
         ): UseCase {
             val builder = when (useCaseType) {
                 PREVIEW_USE_CASE -> Preview.Builder()
@@ -1331,6 +1332,7 @@ class SupportedOutputSizesCollectorTest(
 
             defaultResolution?.let { builder.setDefaultResolution(it) }
             supportedResolutions?.let { builder.setSupportedResolutions(it) }
+            customOrderedResolutions?.let { builder.setCustomOrderedResolutions(it) }
             return builder.build()
         }
 
