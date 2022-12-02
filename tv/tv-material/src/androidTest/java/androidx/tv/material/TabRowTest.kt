@@ -48,6 +48,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -56,6 +57,7 @@ class TabRowTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @Ignore // b/261216248
     @Test
     fun tabRow_firstTabIsSelected() {
         val tabs = constructTabs()
@@ -66,6 +68,7 @@ class TabRowTest {
         rule.onNodeWithTag(firstTab).assertIsFocused()
     }
 
+    @Ignore // b/261216248
     @Test
     fun tabRow_dPadRightMovesFocusToSecondTab() {
         val tabs = constructTabs()
@@ -88,6 +91,7 @@ class TabRowTest {
         rule.onNodeWithTag(secondTab).assertIsFocused()
     }
 
+    @Ignore // b/261216248
     @Test
     fun tabRow_dPadLeftMovesFocusToPreviousTab() {
         val tabs = constructTabs()
@@ -135,6 +139,7 @@ class TabRowTest {
         rule.onNodeWithTag(firstTab).assertIsFocused()
     }
 
+    @Ignore // b/261216248
     @Test
     fun tabRow_changeActiveTabOnClick() {
         val tabs = constructTabs(count = 2)
