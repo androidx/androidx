@@ -39,7 +39,7 @@ class ViewTreeLifecycleOwnerTest {
 
         assertNull("initial LifecycleOwner expects null", v.findViewTreeLifecycleOwner())
 
-        ViewTreeLifecycleOwner.set(v, fakeOwner)
+        v.setViewTreeLifecycleOwner(fakeOwner)
 
         assertEquals(
             "get the LifecycleOwner set directly",
@@ -63,7 +63,7 @@ class ViewTreeLifecycleOwnerTest {
         assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
 
         val fakeOwner = FakeLifecycleOwner()
-        ViewTreeLifecycleOwner.set(root, fakeOwner)
+        root.setViewTreeLifecycleOwner(fakeOwner)
 
         assertEquals("root sees owner", fakeOwner, root.findViewTreeLifecycleOwner())
         assertEquals("direct child sees owner", fakeOwner, parent.findViewTreeLifecycleOwner())
@@ -86,10 +86,10 @@ class ViewTreeLifecycleOwnerTest {
         assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
 
         val rootFakeOwner = FakeLifecycleOwner()
-        ViewTreeLifecycleOwner.set(root, rootFakeOwner)
+        root.setViewTreeLifecycleOwner(rootFakeOwner)
 
         val parentFakeOwner = FakeLifecycleOwner()
-        ViewTreeLifecycleOwner.set(parent, parentFakeOwner)
+        parent.setViewTreeLifecycleOwner(parentFakeOwner)
 
         assertEquals("root sees owner", rootFakeOwner, root.findViewTreeLifecycleOwner())
         assertEquals(

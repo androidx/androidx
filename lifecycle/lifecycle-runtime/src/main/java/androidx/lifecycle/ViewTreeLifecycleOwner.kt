@@ -13,61 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("ViewTreeLifecycleOwner")
 
-package androidx.lifecycle;
+package androidx.lifecycle
 
-import android.view.View;
-import android.view.ViewParent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.runtime.R;
+import android.view.View
+import androidx.lifecycle.runtime.R
 
 /**
- * Accessors for finding a view tree-local {@link LifecycleOwner} that reports the lifecycle for
- * the given view.
+ * Set the [LifecycleOwner] responsible for managing the given [View].
+ * Calls to [get] from this view or descendants will return `lifecycleOwner`.
+ *
+ * This should only be called by constructs such as activities or fragments that manage
+ * a view tree and reflect their own lifecycle through a [LifecycleOwner]. Callers
+ * should only set a [LifecycleOwner] that will be *stable.* The associated
+ * lifecycle should report that it is destroyed if the view tree is removed and is not
+ * guaranteed to later become reattached to a window.
+ *
+ * @param lifecycleOwner LifecycleOwner representing the manager of the given view
  */
-public class ViewTreeLifecycleOwner {
-    private ViewTreeLifecycleOwner() {
-        // No instances
-    }
+@JvmName("set")
+fun View.setViewTreeLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
+    setTag(R.id.view_tree_lifecycle_owner, lifecycleOwner)
+}
 
-    /**
-     * Set the {@link LifecycleOwner} responsible for managing the given {@link View}.
-     * Calls to {@link #get(View)} from this view or descendants will return {@code lifecycleOwner}.
-     *
-     * <p>This should only be called by constructs such as activities or fragments that manage
-     * a view tree and reflect their own lifecycle through a {@link LifecycleOwner}. Callers
-     * should only set a {@link LifecycleOwner} that will be <em>stable.</em> The associated
-     * lifecycle should report that it is destroyed if the view tree is removed and is not
-     * guaranteed to later become reattached to a window.</p>
-     *
-     * @param view Root view managed by lifecycleOwner
-     * @param lifecycleOwner LifecycleOwner representing the manager of the given view
-     */
-    public static void set(@NonNull View view, @Nullable LifecycleOwner lifecycleOwner) {
-        view.setTag(R.id.view_tree_lifecycle_owner, lifecycleOwner);
-    }
-
-    /**
-     * Retrieve the {@link LifecycleOwner} responsible for managing the given {@link View}.
-     * This may be used to scope work or heavyweight resources associated with the view
-     * that may span cycles of the view becoming detached and reattached from a window.
-     *
-     * @param view View to fetch a {@link LifecycleOwner} for
-     * @return The {@link LifecycleOwner} responsible for managing this view and/or some subset
-     *         of its ancestors
-     */
-    @Nullable
-    public static LifecycleOwner get(@NonNull View view) {
-        LifecycleOwner found = (LifecycleOwner) view.getTag(R.id.view_tree_lifecycle_owner);
-        if (found != null) return found;
-        ViewParent parent = view.getParent();
-        while (found == null && parent instanceof View) {
-            final View parentView = (View) parent;
-            found = (LifecycleOwner) parentView.getTag(R.id.view_tree_lifecycle_owner);
-            parent = parentView.getParent();
-        }
-        return found;
-    }
+/**
+ * Retrieve the [LifecycleOwner] responsible for managing the given [View].
+ * This may be used to scope work or heavyweight resources associated with the view
+ * that may span cycles of the view becoming detached and reattached from a window.
+ *
+ * @return The [LifecycleOwner] responsible for managing this view and/or some subset
+ * of its ancestors
+ */
+@JvmName("get")
+fun View.findViewTreeLifecycleOwner(): LifecycleOwner? {
+    return generateSequence(this) { currentView ->
+        currentView.parent as? View
+    }.mapNotNull { viewParent ->
+        viewParent.getTag(R.id.view_tree_lifecycle_owner) as? LifecycleOwner
+    }.firstOrNull()
 }
