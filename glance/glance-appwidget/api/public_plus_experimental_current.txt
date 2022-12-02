@@ -13,10 +13,6 @@ package androidx.glance.appwidget {
   public final class AppWidgetModifiersKt {
   }
 
-  public fun interface AppWidgetProviderScope {
-    method public suspend Object? setContent(kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
   public final class AppWidgetSessionKt {
   }
 
@@ -70,7 +66,7 @@ package androidx.glance.appwidget {
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public suspend Object? onDelete(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? provideGlance(androidx.glance.appwidget.AppWidgetProviderScope, android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final suspend Object? update(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.glance.session.SessionManager? sessionManager;
     property public androidx.glance.appwidget.SizeMode sizeMode;
@@ -78,6 +74,7 @@ package androidx.glance.appwidget {
   }
 
   public final class GlanceAppWidgetKt {
+    method public static suspend Object? provideContent(androidx.glance.appwidget.GlanceAppWidget, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<?>);
     method public static suspend Object? updateAll(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend inline <reified State> void updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, kotlin.jvm.functions.Function1<? super State,? extends java.lang.Boolean> predicate);
   }
@@ -115,6 +112,9 @@ package androidx.glance.appwidget {
   }
 
   public final class GlanceRemoteViewsKt {
+  }
+
+  public final class IgnoreResultKt {
   }
 
   public final class ImageProvidersKt {

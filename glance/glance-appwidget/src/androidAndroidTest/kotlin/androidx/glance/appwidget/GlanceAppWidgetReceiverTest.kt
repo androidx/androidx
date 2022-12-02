@@ -34,6 +34,7 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -97,12 +98,16 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -1057,6 +1062,32 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Test
+    fun cancellingContentCoroutineMakesContentLeaveComposition() = runBlocking {
+        if (!useSessionManager) return@runBlocking
+
+        val currentEffectState = MutableStateFlow(EffectState.Initial)
+        TestGlanceAppWidget.uiDefinition = {
+            DisposableEffect(true) {
+                currentEffectState.tryEmit(EffectState.Started)
+                onDispose {
+                    currentEffectState.tryEmit(EffectState.Disposed)
+                }
+            }
+        }
+        launch { mHostRule.startHost() }
+        currentEffectState.take(3).collectIndexed { index, state ->
+            when (index) {
+                0 -> assertThat(state).isEqualTo(EffectState.Initial)
+                1 -> {
+                    assertThat(state).isEqualTo(EffectState.Started)
+                    assertNotNull(TestGlanceAppWidget.contentCoroutine.get()).cancel()
+                }
+                2 -> assertThat(state).isEqualTo(EffectState.Disposed)
+            }
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -1077,6 +1108,8 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         val density = view.context.resources.displayMetrics.density
         assertThat(sizePx / density).isWithin(1.1f / density).of(expectedSize.value)
     }
+
+    enum class EffectState { Initial, Started, Disposed }
 }
 
 private val testKey = intPreferencesKey("testKey")

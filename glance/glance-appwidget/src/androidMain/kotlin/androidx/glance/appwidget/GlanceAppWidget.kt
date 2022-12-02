@@ -44,6 +44,8 @@ import androidx.glance.session.SessionManager
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,17 +53,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-
-fun interface AppWidgetProviderScope {
-    /**
-     * Provides [content] to the Glance host, suspending until the Glance session is
-     * shut down. If this method is called concurrently with itself, the previous
-     * call will throw [CancellationException] and the new content will replace it.
-     */
-    suspend fun setContent(content: @Composable @GlanceComposable () -> Unit)
-}
 
 /**
  * Object handling the composition and the communication with [AppWidgetManager].
@@ -77,20 +74,20 @@ abstract class GlanceAppWidget(
     @LayoutRes
     internal val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
+    internal val contentFlow = MutableStateFlow<(@Composable @GlanceComposable () -> Unit)?>(null)
+    internal val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> =
+        AtomicReference(null)
+
     /**
      * Override this function to provide the Glance Composable.
      *
      * This is a good place to load any data needed to render the Composable. Use
-     * [AppWidgetProviderScope.setContent] to provide the Composable once it is ready.
+     * [provideContent] to provide the Composable once it is ready.
      *
      * TODO(b/239747024) make abstract once Content() is removed.
      */
-    @Suppress("UNUSED_PARAMETER")
-    open suspend fun AppWidgetProviderScope.provideGlance(
-        @Suppress("ContextFirst") context: Context,
-        glanceId: GlanceId,
-    ) {
-        setContent { Content() }
+    open suspend fun provideGlance(context: Context, id: GlanceId) {
+        provideContent { Content() }
     }
 
     /**
@@ -281,6 +278,7 @@ abstract class GlanceAppWidget(
                     layoutConfig,
                 )
             }
+
             is SizeMode.Exact -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Api31Impl.composeAllSizes(
@@ -309,6 +307,7 @@ abstract class GlanceAppWidget(
                     )
                 }
             }
+
             is SizeMode.Responsive -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Api31Impl.composeAllSizes(
@@ -572,5 +571,43 @@ suspend inline fun <reified State> GlanceAppWidget.updateIf(
     manager.getGlanceIds(javaClass).forEach { glanceId ->
         val state = getAppWidgetState(context, stateDef, glanceId) as State
         if (predicate(state)) update(context, glanceId)
+    }
+}
+
+/**
+ * Provides [content] to the Glance host, suspending until the Glance session is
+ * shut down.
+ *
+ * If this function is called concurrently with itself, the previous call will throw
+ * [CancellationException] and the new content will replace it. This function should only be called
+ * from [GlanceAppWidget.provideGlance].
+ *
+ *
+ * TODO: make this a protected member once b/206013293 is fixed.
+ */
+suspend fun GlanceAppWidget.provideContent(
+    content: @Composable @GlanceComposable () -> Unit
+): Nothing {
+    suspendCancellableCoroutine<Nothing> {
+        it.invokeOnCancellation {
+            contentFlow.tryEmit(null)
+        }
+        contentCoroutine.getAndSet(it)?.cancel()
+        contentFlow.tryEmit(content)
+    }
+}
+
+/**
+ * Returns a cold [kotlinx.coroutines.flow.Flow] that, upon collection, runs
+ * [GlanceAppWidget.provideGlance] in a separate coroutine and provides any generated content to
+ * the collectors of this flow.
+ */
+internal fun GlanceAppWidget.runGlance(
+    context: Context,
+    id: GlanceId
+): Flow<(@Composable @GlanceComposable () -> Unit)?> = flow {
+    coroutineScope {
+        launch { provideGlance(context, id) }
+        contentFlow.collect { emit(it) }
     }
 }

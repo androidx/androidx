@@ -20,20 +20,18 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import kotlin.coroutines.resume
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 /**
  * [SessionWorker] handles composition for a particular Glanceable.
@@ -70,23 +68,24 @@ internal class SessionWorker(
         val composition = Composition(Applier(root), recomposer)
         val contentReady = MutableStateFlow(false)
         val uiReady = MutableStateFlow(false)
-        var contentCoroutine: CancellableContinuation<Unit>? = null
-        launch {
-            session.provideGlance(applicationContext) { content ->
-                contentCoroutine?.cancel()
-                suspendCancellableCoroutine { co ->
-                    contentCoroutine = co
-                    composition.setContent(content)
-                    contentReady.tryEmit(true)
+        val provideGlance = launch {
+            var recomposeScope: RecomposeScope? = null
+            session.provideGlance(applicationContext).collect { content ->
+                composition.setContent {
+                    recomposeScope = currentRecomposeScope
+                    content()
                 }
+                // Trigger recomposition. This is necessary when calling setContent multiple times.
+                recomposeScope?.invalidate()
+                contentReady.emit(true)
             }
         }
-        launch {
-            contentReady.first { it }
-            withContext(frameClock) { recomposer.runRecomposeAndApplyChanges() }
+
+        contentReady.first { it }
+        launch(frameClock) {
+            recomposer.runRecomposeAndApplyChanges()
         }
         launch {
-            contentReady.first { it }
             recomposer.currentState.collect { state ->
                 if (DEBUG) Log.d(TAG, "Recomposer(${session.key}): currentState=$state")
                 when (state) {
@@ -111,7 +110,7 @@ internal class SessionWorker(
         }
 
         composition.dispose()
-        contentCoroutine?.resume(Unit)
+        provideGlance.cancel()
         frameClock.stopInteractive()
         recomposer.close()
         recomposer.join()

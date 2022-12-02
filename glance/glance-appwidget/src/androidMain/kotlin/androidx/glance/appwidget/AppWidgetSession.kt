@@ -35,11 +35,12 @@ import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
 import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
-import androidx.glance.session.SetContentFn
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import java.util.concurrent.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * A session that composes UI for a single app widget.
@@ -73,13 +74,13 @@ internal class AppWidgetSession(
     private var lambdas = mapOf<String, List<LambdaAction>>()
     @VisibleForTesting
     internal var lastRemoteViews: RemoteViews? = null
+        private set
 
     override fun createRootEmittable() = RemoteViewsRoot(MaxComposeTreeDepth)
 
     override suspend fun provideGlance(
         context: Context,
-        setContent: SetContentFn,
-    ) {
+    ): Flow<@Composable @GlanceComposable () -> Unit> {
         val manager = context.appWidgetManager
         val minSize = appWidgetMinSize(
             context.resources.displayMetrics,
@@ -89,22 +90,22 @@ internal class AppWidgetSession(
         options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)!!
         glanceState.value =
             configManager.getValue(context, PreferencesGlanceStateDefinition, key)
-
-        val scope = AppWidgetProviderScope { content: @Composable @GlanceComposable () -> Unit ->
-            setContent {
+        return widget.runGlance(context, id).map {
+                content: (@Composable @GlanceComposable () -> Unit)? ->
+            {
                 CompositionLocalProvider(
                     LocalContext provides context,
                     LocalGlanceId provides id,
                     LocalAppWidgetOptions provides options.value,
                     LocalState provides glanceState.value,
                 ) {
-                    ForEachSize(widget.sizeMode, minSize, content)
+                    if (content != null) {
+                        ForEachSize(widget.sizeMode, minSize, content)
+                    } else {
+                        IgnoreResult()
+                    }
                 }
             }
-        }
-
-        widget.apply {
-            scope.provideGlance(context, id)
         }
     }
 
@@ -113,6 +114,7 @@ internal class AppWidgetSession(
         root: EmittableWithChildren
     ) {
         root as RemoteViewsRoot
+        if (root.shouldIgnoreResult()) return
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
         val appWidgetManager = context.appWidgetManager
         try {
