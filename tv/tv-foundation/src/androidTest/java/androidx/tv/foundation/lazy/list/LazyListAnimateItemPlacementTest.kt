@@ -41,23 +41,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
-import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
+import androidx.compose.ui.unit.round
 import androidx.test.filters.LargeTest
 import androidx.tv.foundation.ExperimentalTvFoundationApi
-import androidx.tv.foundation.PivotOffsets
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
@@ -120,7 +119,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 
         assertPositions(0 to 0f, 1 to itemSize)
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 0)
         }
 
@@ -146,7 +145,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 
         assertLayoutInfoPositions(0 to 0f, 1 to itemSize)
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 0)
         }
 
@@ -175,7 +174,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             4 to itemSize * 4,
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(4, 1, 2, 3, 0)
         }
 
@@ -210,7 +209,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             4 to itemSize * 4,
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 2, 3, 4, 0)
         }
 
@@ -240,7 +239,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             size = itemSizeDp * 2
         }
         rule.mainClock.advanceTimeByFrame()
@@ -270,7 +269,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 2, 3, 4, 0)
         }
 
@@ -298,7 +297,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 2, 3, 4, 0)
         }
 
@@ -334,7 +333,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             3 to itemSize * 3,
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(2, 0)
         }
 
@@ -361,7 +360,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(2, 0)
         }
 
@@ -397,7 +396,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             3 to itemSize * 3,
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             arrangement = Arrangement.SpaceBetween
         }
         rule.mainClock.advanceTimeByFrame()
@@ -431,7 +430,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             2 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 4, 2, 3, 1, 5)
         }
 
@@ -477,7 +476,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             5 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(2, 4, 0, 3, 1, 5)
         }
 
@@ -525,7 +524,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             4 to itemSize
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(2, 4, 0, 3, 1)
         }
 
@@ -564,7 +563,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(1, 2, 3, 0)
         }
 
@@ -601,7 +600,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             2 to itemSizePlusSpacing * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 4, 2, 3, 1, 5)
         }
 
@@ -654,7 +653,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             5 to itemSizePlusSpacing * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(2, 4, 0, 3, 1, 5, 6, 7)
         }
 
@@ -706,7 +705,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             5 to item3Size + item4Size
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             // swap 4 and 1
             list = listOf(0, 4, 2, 3, 1, 5)
         }
@@ -765,7 +764,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             2 to item0Size + item1Size
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 4, 2, 3, 1, 5)
         }
 
@@ -828,7 +827,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             )
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             alignment = CrossAxisAlignment.Center
         }
         rule.mainClock.advanceTimeByFrame()
@@ -868,7 +867,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             alignment = CrossAxisAlignment.End
         }
         rule.mainClock.advanceTimeByFrame()
@@ -921,7 +920,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             )
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             alignment = CrossAxisAlignment.Center
         }
         rule.mainClock.advanceTimeByFrame()
@@ -966,7 +965,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             4 to startPadding + itemSize * 4,
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 2, 3, 4, 1)
         }
 
@@ -1001,7 +1000,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(4, 1, 2, 3, 0)
         }
 
@@ -1028,7 +1027,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollToItem(0, (itemSize / 2).roundToInt())
             }
@@ -1055,7 +1054,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(itemSize / 2f)
             }
@@ -1082,7 +1081,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(-itemSize / 2f)
             }
@@ -1109,7 +1108,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(itemSize * 2.5f)
             }
@@ -1136,7 +1135,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(-itemSize * 2.5f)
             }
@@ -1163,7 +1162,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(itemSize + itemSize2 + itemSize / 2f)
             }
@@ -1190,7 +1189,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             runBlocking {
                 state.scrollBy(-(itemSize + itemSize2 + itemSize / 2f))
             }
@@ -1220,7 +1219,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 2, 3, 1)
         }
 
@@ -1259,7 +1258,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             5 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 4, 5, 3, 1, 2)
         }
 
@@ -1317,7 +1316,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             5 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 5, 4, 3, 2, 1)
         }
 
@@ -1377,7 +1376,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             2 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 3, 4, 1, 2)
         }
 
@@ -1437,7 +1436,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             2 to itemSize * 2
         )
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             list = listOf(0, 4, 3, 2, 1)
         }
 
@@ -1490,7 +1489,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             size = itemSizeDp * 2
         }
 
@@ -1515,7 +1514,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             size = itemSizeDp * 3
         }
 
@@ -1536,54 +1535,49 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         autoReverse: Boolean = reverseLayout
     ) {
         val roundedExpected = expected.map { it.first to it.second.roundToInt() }
-        with(rule.density) {
-            val actual = expected.map {
-                val actualOffset = rule.onNodeWithTag(it.first.toString())
-                    .getUnclippedBoundsInRoot().let { bounds ->
-                        val offset = if (isVertical) bounds.top else bounds.left
-                        if (offset == Dp.Unspecified) Int.MIN_VALUE else offset.roundToPx()
-                    }
-                it.first to actualOffset
-            }
-            val subject = if (fraction == null) {
-                assertThat(actual)
-            } else {
-                assertWithMessage("Fraction=$fraction").that(actual)
-            }
-            subject.isEqualTo(
-                roundedExpected.let { list ->
-                    if (!autoReverse) {
-                        list
-                    } else {
-                        val containerBounds = rule.onNodeWithTag(ContainerTag).getBoundsInRoot()
-                        val mainAxisSize =
-                            if (isVertical) containerBounds.height else containerBounds.width
-                        val mainAxisSizePx = with(rule.density) { mainAxisSize.roundToPx() }
-                        list.map {
-                            val itemSize = rule.onNodeWithTag(it.first.toString())
-                                .getUnclippedBoundsInRoot().let { bounds ->
-                                    (if (isVertical) bounds.height else bounds.width).roundToPx()
-                                }
-                            it.first to (mainAxisSizePx - itemSize - it.second)
-                        }
-                    }
-                }
+        val actualBounds = rule.onAllNodes(NodesWithTagMatcher)
+            .fetchSemanticsNodes()
+            .associateBy(
+                keySelector = { it.config.get(SemanticsProperties.TestTag) },
+                valueTransform = { IntRect(it.positionInRoot.round(), it.size) }
             )
-            if (crossAxis != null) {
-                val actualCross = expected.map {
-                    val actualOffset = rule.onNodeWithTag(it.first.toString())
-                        .getUnclippedBoundsInRoot().let { bounds ->
-                            val offset = if (isVertical) bounds.left else bounds.top
-                            if (offset == Dp.Unspecified) Int.MIN_VALUE else offset.roundToPx()
-                        }
-                    it.first to actualOffset
-                }
-                assertWithMessage(
-                    "CrossAxis" + if (fraction != null) "for fraction=$fraction" else ""
-                )
-                    .that(actualCross)
-                    .isEqualTo(crossAxis.map { it.first to it.second.roundToInt() })
+        val actualOffsets = expected.map {
+            it.first to actualBounds.getValue(it.first.toString()).let { bounds ->
+                if (isVertical) bounds.top else bounds.left
             }
+        }
+        val subject = if (fraction == null) {
+            assertThat(actualOffsets)
+        } else {
+            assertWithMessage("Fraction=$fraction").that(actualOffsets)
+        }
+        subject.isEqualTo(
+            roundedExpected.let { list ->
+                if (!autoReverse) {
+                    list
+                } else {
+                    val containerSize = actualBounds.getValue(ContainerTag).let { bounds ->
+                        if (isVertical) bounds.height else bounds.width
+                    }
+                    list.map {
+                        val itemSize = actualBounds.getValue(it.first.toString()).let { bounds ->
+                            if (isVertical) bounds.height else bounds.width
+                        }
+                        it.first to (containerSize - itemSize - it.second)
+                    }
+                }
+            }
+        )
+        if (crossAxis != null) {
+            val actualCrossOffset = expected.map {
+                it.first to actualBounds.getValue(it.first.toString())
+                    .let { bounds -> if (isVertical) bounds.left else bounds.top }
+            }
+            assertWithMessage(
+                "CrossAxis" + if (fraction != null) "for fraction=$fraction" else ""
+            )
+                .that(actualCrossOffset)
+                .isEqualTo(crossAxis.map { it.first to it.second.roundToInt() })
         }
     }
 
@@ -1606,11 +1600,11 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.mainClock.advanceTimeByFrame()
         var expectedTime = rule.mainClock.currentTime
         for (i in 0..duration step FrameDuration) {
-            onFrame(i / duration.toFloat())
+            val fraction = i / duration.toFloat()
+            onFrame(fraction)
             rule.mainClock.advanceTimeBy(FrameDuration)
             expectedTime += FrameDuration
             assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
-            rule.waitForIdle()
         }
     }
 
@@ -1653,7 +1647,6 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 horizontalAlignment = horizontalAlignment,
                 reverseLayout = reverseLayout,
                 contentPadding = PaddingValues(top = startPadding, bottom = endPadding),
-                pivotOffsets = PivotOffsets(parentFraction = 0f),
                 content = content
             )
         } else {
@@ -1682,7 +1675,6 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 verticalAlignment = verticalAlignment,
                 reverseLayout = reverseLayout,
                 contentPadding = PaddingValues(start = startPadding, end = endPadding),
-                pivotOffsets = PivotOffsets(parentFraction = 0f),
                 content = content
             )
         }
@@ -1697,25 +1689,25 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     ) {
         Box(
             Modifier
-                .then(
-                    if (isVertical) {
-                        Modifier
-                            .requiredHeight(size)
-                            .requiredWidth(crossAxisSize)
-                    } else {
-                        Modifier
-                            .requiredWidth(size)
-                            .requiredHeight(crossAxisSize)
-                    }
-                )
-                .testTag(tag.toString())
-                .then(
-                    if (animSpec != null) {
-                        Modifier.animateItemPlacement(animSpec)
-                    } else {
-                        Modifier
-                    }
-                )
+            .then(
+                if (isVertical) {
+                    Modifier
+                        .requiredHeight(size)
+                        .requiredWidth(crossAxisSize)
+                } else {
+                    Modifier
+                        .requiredWidth(size)
+                        .requiredHeight(crossAxisSize)
+                }
+            )
+            .testTag(tag.toString())
+            .then(
+                if (animSpec != null) {
+                    Modifier.animateItemPlacement(animSpec)
+                } else {
+                    Modifier
+                }
+            )
         )
     }
 
@@ -1747,9 +1739,12 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 }
 
 private val FrameDuration = 16L
-private val Duration = 400L
+private val Duration = 64L // 4 frames, so we get 0f, 0.25f, 0.5f, 0.75f and 1f fractions
 private val AnimSpec = tween<IntOffset>(Duration.toInt(), easing = LinearEasing)
 private val ContainerTag = "container"
+private val NodesWithTagMatcher = SemanticsMatcher("NodesWithTag") {
+    it.config.contains(SemanticsProperties.TestTag)
+}
 
 private enum class CrossAxisAlignment {
     Start,
