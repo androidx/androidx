@@ -36,6 +36,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.rxjava2)
+    testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")

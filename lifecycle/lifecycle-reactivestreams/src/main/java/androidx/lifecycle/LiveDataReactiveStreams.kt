@@ -43,6 +43,26 @@ fun <T> toPublisher(lifecycle: LifecycleOwner, liveData: LiveData<T>): Publisher
     return LiveDataPublisher(lifecycle, liveData)
 }
 
+/**
+ * Adapts the given [LiveData] stream to a ReactiveStreams [Publisher].
+ *
+ * By using a good publisher implementation such as RxJava 2.x Flowables, most consumers will
+ * be able to let the library deal with backpressure using operators and not need to worry about
+ * ever manually calling [Subscription.request].
+ *
+ * On subscription to the publisher, the observer will attach to the given [LiveData].
+ * Once [Subscription.request] is called on the subscription object, an observer will be
+ * connected to the data stream. Calling `request(Long.MAX_VALUE)` is equivalent to creating an
+ * unbounded stream with no backpressure. If request with a finite count reaches 0, the observer
+ * will buffer the latest item and emit it to the subscriber when data is again requested. Any
+ * other items emitted during the time there was no backpressure requested will be dropped.
+ */
+@SuppressLint("LambdaLast")
+@JvmName("toPublisher")
+fun <T> LiveData<T>.toPublisher(lifecycle: LifecycleOwner): Publisher<T> {
+    return LiveDataPublisher(lifecycle, this)
+}
+
 private class LiveDataPublisher<T>(
     val lifecycle: LifecycleOwner,
     val liveData: LiveData<T>
