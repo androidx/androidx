@@ -434,12 +434,17 @@ sealed class CompilationMode {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun CompilationMode.isSupportedWithVmSettings(): Boolean {
-    val getProp = Shell.getprop("dalvik.vm.extra-opts")
-    val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
-
-    // true if requires interpreted, false otherwise
+    // Only check for supportedVmSettings when CompilationMode.Interpreted is being requested.
+    // More context: b/248085179
     val interpreted = this == CompilationMode.Interpreted
-    return vmRunningInterpretedOnly == interpreted
+    return if (interpreted) {
+        val getProp = Shell.getprop("dalvik.vm.extra-opts")
+        val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
+        // true if requires interpreted, false otherwise
+        vmRunningInterpretedOnly
+    } else {
+        true
+    }
 }
 
 internal fun CompilationMode.assumeSupportedWithVmSettings() {
