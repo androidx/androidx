@@ -8,7 +8,9 @@ package androidx.emoji2.text {
   @AnyThread public class EmojiCompat {
     method public static androidx.emoji2.text.EmojiCompat get();
     method public String getAssetSignature();
+    method public int getEmojiEnd(CharSequence, @IntRange(from=0) int);
     method public int getEmojiMatch(CharSequence, @IntRange(from=0) int);
+    method public int getEmojiStart(CharSequence, @IntRange(from=0) int);
     method public int getLoadState();
     method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
     method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent);
