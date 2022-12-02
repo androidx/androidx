@@ -24,8 +24,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -55,11 +55,7 @@ class BackPressedDispatcherOwnerTest {
     @Test
     fun testGetBackPressedDispatcherProviders() {
         val testDispatcherOwner: OnBackPressedDispatcherOwner =
-            object : OnBackPressedDispatcherOwner {
-                override fun getLifecycle(): Lifecycle {
-                    return LifecycleRegistry(this)
-                }
-
+            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
                 override val onBackPressedDispatcher = OnBackPressedDispatcher()
             }
 
