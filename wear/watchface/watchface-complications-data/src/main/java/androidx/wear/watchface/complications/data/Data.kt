@@ -456,7 +456,8 @@ public class NotConfiguredComplicationData : ComplicationData(
  * occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  * renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  * be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility.
+ * @property contentDescription The content description field for accessibility. Please do not
+ * include the word 'complication' in the description.
  */
 public class ShortTextComplicationData internal constructor(
     public val text: ComplicationText,
@@ -485,7 +486,8 @@ public class ShortTextComplicationData internal constructor(
      * You must at a minimum set the [text] and [contentDescription] fields.
      *
      * @param text The main localized [ComplicationText]. This must be less than 7 characters long
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val text: ComplicationText,
@@ -669,7 +671,8 @@ public class ShortTextComplicationData internal constructor(
  * occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  * renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  * be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility.
+ * @property contentDescription The content description field for accessibility. Please do not
+ * include the word 'complication' in the description.
  */
 public class LongTextComplicationData internal constructor(
     public val text: ComplicationText,
@@ -700,7 +703,8 @@ public class LongTextComplicationData internal constructor(
      *
      * @param text Localized main [ComplicationText] to display within the complication. There
      * isn't an explicit character limit but text may be truncated if too long
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val text: ComplicationText,
@@ -951,7 +955,8 @@ public class ColorRamp(
  * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
  * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property contentDescription The content description field for accessibility.
+ * @property contentDescription The content description field for accessibility. Please do not
+ * include the word 'complication' in the description.
  * @property colorRamp Optional hint to render the value with the specified [ColorRamp]. When
  * present the renderer may choose to use the ColorRamp when rendering the progress bar.
  * @property valueType The semantic meaning of [value]. The complication renderer may choose to
@@ -1023,7 +1028,8 @@ public class RangedValueComplicationData internal constructor(
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
          * [TYPE_PERCENTAGE] this must be 0f.
-         * @param contentDescription Localized description for use by screen readers
+         * @param contentDescription Localized description for use by screen readers. Please do not
+         * include the word 'complication' in the description.
          */
         public constructor(
             value: Float,
@@ -1041,7 +1047,8 @@ public class RangedValueComplicationData internal constructor(
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
          * [TYPE_PERCENTAGE] this must be 0f.
-         * @param contentDescription Localized description for use by screen readers
+         * @param contentDescription Localized description for use by screen readers. Please do not
+         * include the word 'complication' in the description.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1359,7 +1366,8 @@ public class RangedValueComplicationData internal constructor(
  * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
  * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property contentDescription The content description field for accessibility.
+ * @property contentDescription The content description field for accessibility. Please do not
+ * include the word 'complication' in the description.
  * @property colorRamp Optional hint to render the progress bar representing [value] with the
  * specified [ColorRamp].
  */
@@ -1421,7 +1429,8 @@ internal constructor(
          *
          * @param value The value of the goal complication which should be >= 0.
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
-         * @param contentDescription Localized description for use by screen readers
+         * @param contentDescription Localized description for use by screen readers. Please do not
+         * include the word 'complication' in the description.
          */
         public constructor(
             value: Float,
@@ -1435,7 +1444,8 @@ internal constructor(
          * @param valueExpression The [FloatExpression] of the goal complication which will be
          * evaluated into a value dynamically, and should be >= 0.
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
-         * @param contentDescription Localized description for use by screen readers
+         * @param contentDescription Localized description for use by screen readers. Please do not
+         * include the word 'complication' in the description.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1711,7 +1721,8 @@ internal constructor(
  * truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as a
  * placeholder rather than rendering normally, its suggested it should be rendered as a light grey
  * box.
- * @property contentDescription The content description field for accessibility.
+ * @property contentDescription The content description field for accessibility. Please do not
+ * include the word 'complication' in the description.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class WeightedElementsComplicationData
@@ -1791,7 +1802,8 @@ internal constructor(
      * calories consumed which were carbohydrates, fats etc... The [tapAction] must take the user to
      * an experience where the color key becomes obvious. The maximum valid size of this list is
      * provided by [getMaxElements].
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder(
@@ -2019,7 +2031,8 @@ internal constructor(
  * @property contentDescription The content description field for accessibility and is used to
  * describe what data the icon represents. If the icon is purely stylistic, and does not convey any
  * information to the user, then provide an empty content description. If no content description is
- * provided, a generic content description will be used instead.
+ * provided, a generic content description will be used instead. Please do not include the word
+ * 'complication' in the description.
  */
 public class MonochromaticImageComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage,
@@ -2045,7 +2058,8 @@ public class MonochromaticImageComplicationData internal constructor(
      * You must at a minimum set the [monochromaticImage] and [contentDescription] fields.
      *
      * @param monochromaticImage The [MonochromaticImage] to be displayed
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
@@ -2163,7 +2177,8 @@ public class MonochromaticImageComplicationData internal constructor(
  * @property contentDescription The content description field for accessibility and is used to
  * describe what data the image represents. If the image is purely stylistic, and does not convey
  * any information to the user, then provide an empty content description. If no content description
- * is provided, a generic content description will be used instead.
+ * is provided, a generic content description will be used instead. Please do not include the word
+ * 'complication' in the description.
  */
 public class SmallImageComplicationData internal constructor(
     public val smallImage: SmallImage,
@@ -2189,7 +2204,8 @@ public class SmallImageComplicationData internal constructor(
      * You must at a minimum set the [smallImage] and [contentDescription] fields.
      *
      * @param smallImage The [SmallImage] to be displayed
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val smallImage: SmallImage,
@@ -2312,7 +2328,8 @@ public class SmallImageComplicationData internal constructor(
  * @property contentDescription The content description field for accessibility and is used to
  * describe what data the image represents. If the image is purely stylistic, and does not convey
  * any information to the user, then provide an empty content description. If no content description
- * is provided, a generic content description will be used instead.
+ * is provided, a generic content description will be used instead. Please do not include the word
+ * 'complication' in the description.
  */
 public class PhotoImageComplicationData internal constructor(
     public val photoImage: Icon,
@@ -2338,7 +2355,8 @@ public class PhotoImageComplicationData internal constructor(
      * You must at a minimum set the [photoImage] and [contentDescription] fields.
      *
      * @param photoImage The [Icon] to be displayed
-     * @param contentDescription Localized description for use by screen readers
+     * @param contentDescription Localized description for use by screen readers. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val photoImage: Icon,
