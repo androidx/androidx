@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.window.embedding.SplitRule.Companion.DEFAULT_SPLIT_MIN_DIMENSION_DP
@@ -32,7 +31,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -42,23 +40,16 @@ import org.junit.Test
  * @see ActivityRule
  */
 class EmbeddingRuleConstructionTests {
-    private lateinit var application: Context
-    private lateinit var displayMetrics: DisplayMetrics
-
-    @Before
-    fun setUp() {
-        application = ApplicationProvider.getApplicationContext()
-        displayMetrics = application.resources.displayMetrics
-    }
+    private val application = ApplicationProvider.getApplicationContext<Context>()
+    private val ruleController = RuleController.getInstance(application)
+    private val density = application.resources.displayMetrics.density
 
     /**
      * Verifies that default params are set correctly when reading {@link SplitPairRule} from XML.
      */
     @Test
     fun testDefaults_SplitPairRule_Xml() {
-        SplitController.initialize(application, R.xml.test_split_config_default_split_pair_rule)
-
-        val rules = SplitController.getInstance(application).getSplitRules()
+        val rules = ruleController.parseRules(R.xml.test_split_config_default_split_pair_rule)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
@@ -66,8 +57,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(false, rule.clearTop)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
+        assertTrue(rule.checkParentBounds(density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(density, almostValidWindowBounds()))
     }
 
     /**
@@ -82,8 +73,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(false, rule.clearTop)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
+        assertTrue(rule.checkParentBounds(density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(density, almostValidWindowBounds()))
     }
 
     /**
@@ -159,18 +150,16 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Xml() {
-        SplitController.initialize(application,
-            R.xml.test_split_config_default_split_placeholder_rule)
-
-        val rules = SplitController.getInstance(application).getSplitRules()
+        val rules = ruleController
+            .parseRules(R.xml.test_split_config_default_split_placeholder_rule)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(0.5f, rule.splitRatio)
         assertEquals(LayoutDirection.LOCALE, rule.layoutDirection)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, minValidWindowBounds()))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, almostValidWindowBounds()))
+        assertTrue(rule.checkParentBounds(density, minValidWindowBounds()))
+        assertFalse(rule.checkParentBounds(density, almostValidWindowBounds()))
     }
 
     /**
@@ -267,9 +256,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_ActivityRule_Xml() {
-        SplitController.initialize(application, R.xml.test_split_config_default_activity_rule)
-
-        val rules = SplitController.getInstance(application).getSplitRules()
+        val rules = ruleController.parseRules(R.xml.test_split_config_default_activity_rule)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(false, rule.alwaysExpand)
@@ -306,7 +293,7 @@ class EmbeddingRuleConstructionTests {
 
     private fun minValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = displayMetrics.density
+        val scale: Float = density
         // Convert the dps to pixels, based on density scale
         val minValidWidthPx = (DEFAULT_SPLIT_MIN_DIMENSION_DP * scale + 0.5f).toInt()
 
@@ -315,7 +302,7 @@ class EmbeddingRuleConstructionTests {
 
     private fun almostValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = displayMetrics.density
+        val scale: Float = density
         // Convert the dps to pixels, based on density scale
         val minValidWidthPx = ((DEFAULT_SPLIT_MIN_DIMENSION_DP) - 1 * scale + 0.5f).toInt()
 

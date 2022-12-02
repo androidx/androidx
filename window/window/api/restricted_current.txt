@@ -10,6 +10,16 @@ package androidx.window {
 
 package androidx.window.embedding {
 
+  public final class ActivityEmbeddingController {
+    method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+    method public boolean isActivityEmbedded(android.app.Activity activity);
+    field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
+  }
+
+  public static final class ActivityEmbeddingController.Companion {
+    method public androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+  }
+
   public final class ActivityFilter {
     ctor public ActivityFilter(android.content.ComponentName componentName, String? intentAction);
     method public android.content.ComponentName getComponentName();
@@ -43,23 +53,31 @@ package androidx.window.embedding {
   public abstract class EmbeddingRule {
   }
 
+  public final class RuleController {
+    method public void addRule(androidx.window.embedding.EmbeddingRule rule);
+    method public void clearRules();
+    method public static androidx.window.embedding.RuleController getInstance(android.content.Context context);
+    method public java.util.Set<androidx.window.embedding.EmbeddingRule> getRules();
+    method public java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(@XmlRes int staticRuleResourceId);
+    method public void removeRule(androidx.window.embedding.EmbeddingRule rule);
+    method public void setRules(java.util.Set<? extends androidx.window.embedding.EmbeddingRule> rules);
+    field public static final androidx.window.embedding.RuleController.Companion Companion;
+  }
+
+  public static final class RuleController.Companion {
+    method public androidx.window.embedding.RuleController getInstance(android.content.Context context);
+  }
+
   public final class SplitController {
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
-    method public void clearRegisteredRules();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
-    method public java.util.Set<androidx.window.embedding.EmbeddingRule> getSplitRules();
-    method public static void initialize(android.content.Context context, int staticRuleResourceId);
-    method public boolean isActivityEmbedded(android.app.Activity activity);
     method public boolean isSplitSupported();
-    method public void registerRule(androidx.window.embedding.EmbeddingRule rule);
     method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
-    method public void unregisterRule(androidx.window.embedding.EmbeddingRule rule);
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }
 
   public static final class SplitController.Companion {
     method public androidx.window.embedding.SplitController getInstance(android.content.Context context);
-    method public void initialize(android.content.Context context, int staticRuleResourceId);
   }
 
   public final class SplitInfo {

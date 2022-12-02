@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import androidx.window.embedding.SplitPairFilter
@@ -49,6 +50,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     lateinit var splitController: SplitController
+    lateinit var ruleController: RuleController
     lateinit var viewBinding: ActivitySplitPipActivityLayoutBinding
     lateinit var componentNameA: ComponentName
     lateinit var componentNameB: ComponentName
@@ -74,6 +76,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             SplitPipActivityPlaceholder::class.java.name)
 
         splitController = SplitController.getInstance(this)
+        ruleController = RuleController.getInstance(this)
 
         // Buttons for split rules of the main activity.
         viewBinding.splitMainCheckBox.setOnCheckedChangeListener(this)
@@ -171,7 +174,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     internal fun updateCheckboxes() {
         updatingConfigs = true
 
-        val curRules = splitController.getSplitRules()
+        val curRules = ruleController.getRules()
         val splitRule = curRules.firstOrNull { isRuleForSplit(it) }
         val placeholderRule = curRules.firstOrNull { isRuleForPlaceholder(it) }
 
@@ -232,7 +235,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
 
     /** Updates the split rules based on the current selection on checkboxes. */
     private fun updateSplitRules() {
-        splitController.clearRegisteredRules()
+        ruleController.clearRules()
 
         if (viewBinding.splitMainCheckBox.isChecked) {
             val pairFilters = HashSet<SplitPairFilter>()
@@ -250,7 +253,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setClearTop(true)
                 .setSplitRatio(splitRatio)
                 .build()
-            splitController.registerRule(rule)
+            ruleController.addRule(rule)
         }
 
         if (viewBinding.usePlaceHolderCheckBox.isChecked) {
@@ -265,7 +268,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setFinishPrimaryWithPlaceholder(SplitRule.FINISH_ADJACENT)
                 .setSplitRatio(splitRatio)
                 .build()
-            splitController.registerRule(rule)
+            ruleController.addRule(rule)
         }
     }
 

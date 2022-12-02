@@ -25,10 +25,8 @@ import androidx.core.util.Preconditions.checkArgumentNonnegative
 /**
  * Split configuration rules for activity pairs. Define when activities that were launched on top of
  * each other should be shown side-by-side, and the visual properties of such splits. Can be set
- * either statically via [SplitController.Companion.initialize] or at runtime via
- * [SplitController.registerRule]. The rules can only be  applied to activities that
- * belong to the same application and are running in the same process. The rules are  always
- * applied only to activities that will be started  after the rules were set.
+ * either via [RuleController.setRules] or via [RuleController.addRule]. The rules are always
+ * applied only to activities that will be started after the rules were set.
  */
 class SplitPairRule : SplitRule {
 

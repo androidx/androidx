@@ -25,16 +25,20 @@ import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
 
 /**
- * Configuration rules for split placeholders. A placeholder activity is usually a mostly empty
- * activity that occupies an area of split. It might provide some additional optional features, but
- * must not host important UI elements exclusively, since the placeholder would not show on some
- * devices and screen configurations. It is expected to be replaced when other activity with content
- * is launched in a dedicated [SplitPairRule]. The placeholder activity will then be occluded by
- * the new launched activity.
+ * Configuration rules for split placeholders.
  *
- * See the
- * [Placeholders](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
- * section in the official documentation for visual samples and references.
+ * A placeholder activity is usually a mostly empty activity that temporarily occupies the secondary
+ * container of a split. The placeholder is intended to be replaced when another activity with
+ * content is launched in a dedicated [SplitPairRule]. The placeholder activity is then occluded by
+ * the newly launched activity. The placeholder can provide some optional features but must not host
+ * important UI elements exclusively, since the placeholder is not shown on some devices and screen
+ * configurations, such as devices with small screens.
+ *
+ * Configuration rules can be added using [RuleController.addRule] or [RuleController.setRules].
+ *
+ * See
+ * [Activity embedding](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
+ * for more information.
  */
 class SplitPlaceholderRule : SplitRule {
 

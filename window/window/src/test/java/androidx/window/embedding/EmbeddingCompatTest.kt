@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.app.Activity
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import org.junit.Test
@@ -26,12 +25,15 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-@ExperimentalWindowApi
 class EmbeddingCompatTest {
 
     private val component = mock<ActivityEmbeddingComponent>()
-    private val embeddingCompat = EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER,
-        mock())
+    private val embeddingCompat = EmbeddingCompat(
+        component,
+        EMBEDDING_ADAPTER,
+        CONSUMER_ADAPTER,
+        mock()
+    )
 
     @Test
     fun setSplitInfoCallback_callsActualMethod() {
@@ -46,7 +48,7 @@ class EmbeddingCompatTest {
 
     @Test
     fun setSplitRules_delegatesToActivityEmbeddingComponent() {
-        embeddingCompat.setSplitRules(emptySet())
+        embeddingCompat.setRules(emptySet())
 
         verify(component).setEmbeddingRules(any())
     }

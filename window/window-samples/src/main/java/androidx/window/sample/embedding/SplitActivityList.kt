@@ -30,8 +30,8 @@ import androidx.window.sample.R
 import androidx.window.sample.embedding.SplitActivityDetail.Companion.EXTRA_SELECTED_ITEM
 
 open class SplitActivityList : AppCompatActivity() {
-    lateinit var splitController: SplitController
-    val splitChangeListener = SplitStateChangeListener()
+    private lateinit var splitController: SplitController
+    private val splitChangeListener = SplitStateChangeListener()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

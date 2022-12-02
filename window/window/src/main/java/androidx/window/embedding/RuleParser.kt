@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.util.LayoutDirection
+import androidx.annotation.XmlRes
 
 import androidx.window.R
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
@@ -30,31 +31,30 @@ import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
 import org.xmlpull.v1.XmlPullParser
 
 /**
- * Parses the static split rules defined in XML.
+ * Parses the static rules defined in XML.
  */
-internal class SplitRuleParser {
+internal object RuleParser {
 
-    internal fun parseSplitRules(context: Context, staticRuleResourceId: Int): Set<EmbeddingRule>? {
-        return parseSplitXml(context, staticRuleResourceId)
-    }
-
-    private fun parseSplitXml(context: Context, splitResourceId: Int): Set<EmbeddingRule>? {
+    internal fun parseRules(
+        context: Context,
+        @XmlRes staticRuleResourceId: Int,
+    ): Set<EmbeddingRule>? {
         val resources = context.resources
         val parser: XmlResourceParser
         try {
-            parser = resources.getXml(splitResourceId)
+            parser = resources.getXml(staticRuleResourceId)
         } catch (e: Resources.NotFoundException) {
             // Can't find the XML defining the split config
             return null
         }
 
-        val splitRuleConfigs = HashSet<EmbeddingRule>()
+        val rules = HashSet<EmbeddingRule>()
 
         val depth = parser.depth
         var type = parser.next()
-        var lastSplitPairConfig: SplitPairRule? = null
-        var lastSplitPlaceholderConfig: SplitPlaceholderRule? = null
-        var lastSplitActivityConfig: ActivityRule? = null
+        var lastSplitPairRule: SplitPairRule? = null
+        var lastSplitPlaceholderRule: SplitPlaceholderRule? = null
+        var lastActivityRule: ActivityRule? = null
         while (type != XmlPullParser.END_DOCUMENT &&
             (type != XmlPullParser.END_TAG || parser.depth > depth)
         ) {
@@ -65,58 +65,58 @@ internal class SplitRuleParser {
             when (parser.name) {
                 "SplitPairRule" -> {
                     val splitConfig = parseSplitPairRule(context, parser)
-                    lastSplitPairConfig = splitConfig
-                    splitRuleConfigs.add(lastSplitPairConfig)
-                    lastSplitPlaceholderConfig = null
-                    lastSplitActivityConfig = null
+                    lastSplitPairRule = splitConfig
+                    rules.add(lastSplitPairRule)
+                    lastSplitPlaceholderRule = null
+                    lastActivityRule = null
                 }
                 "SplitPlaceholderRule" -> {
                     val placeholderConfig = parseSplitPlaceholderRule(context, parser)
-                    lastSplitPlaceholderConfig = placeholderConfig
-                    splitRuleConfigs.add(lastSplitPlaceholderConfig)
-                    lastSplitActivityConfig = null
-                    lastSplitPairConfig = null
+                    lastSplitPlaceholderRule = placeholderConfig
+                    rules.add(lastSplitPlaceholderRule)
+                    lastActivityRule = null
+                    lastSplitPairRule = null
                 }
                 "SplitPairFilter" -> {
-                    if (lastSplitPairConfig == null) {
+                    if (lastSplitPairRule == null) {
                         throw IllegalArgumentException(
                             "Found orphaned SplitPairFilter outside of SplitPairRule"
                         )
                     }
                     val splitFilter = parseSplitPairFilter(context, parser)
-                    splitRuleConfigs.remove(lastSplitPairConfig)
-                    lastSplitPairConfig += splitFilter
-                    splitRuleConfigs.add(lastSplitPairConfig)
+                    rules.remove(lastSplitPairRule)
+                    lastSplitPairRule += splitFilter
+                    rules.add(lastSplitPairRule)
                 }
                 "ActivityRule" -> {
-                    val activityConfig = parseSplitActivityRule(context, parser)
-                    splitRuleConfigs.add(activityConfig)
-                    lastSplitPairConfig = null
-                    lastSplitPlaceholderConfig = null
-                    lastSplitActivityConfig = activityConfig
+                    val activityConfig = parseActivityRule(context, parser)
+                    rules.add(activityConfig)
+                    lastSplitPairRule = null
+                    lastSplitPlaceholderRule = null
+                    lastActivityRule = activityConfig
                 }
                 "ActivityFilter" -> {
-                    if (lastSplitActivityConfig == null && lastSplitPlaceholderConfig == null) {
+                    if (lastActivityRule == null && lastSplitPlaceholderRule == null) {
                         throw IllegalArgumentException(
                             "Found orphaned ActivityFilter"
                         )
                     }
                     val activityFilter = parseActivityFilter(context, parser)
-                    if (lastSplitActivityConfig != null) {
-                        splitRuleConfigs.remove(lastSplitActivityConfig)
-                        lastSplitActivityConfig += activityFilter
-                        splitRuleConfigs.add(lastSplitActivityConfig)
-                    } else if (lastSplitPlaceholderConfig != null) {
-                        splitRuleConfigs.remove(lastSplitPlaceholderConfig)
-                        lastSplitPlaceholderConfig += activityFilter
-                        splitRuleConfigs.add(lastSplitPlaceholderConfig)
+                    if (lastActivityRule != null) {
+                        rules.remove(lastActivityRule)
+                        lastActivityRule += activityFilter
+                        rules.add(lastActivityRule)
+                    } else if (lastSplitPlaceholderRule != null) {
+                        rules.remove(lastSplitPlaceholderRule)
+                        lastSplitPlaceholderRule += activityFilter
+                        rules.add(lastSplitPlaceholderRule)
                     }
                 }
             }
             type = parser.next()
         }
 
-        return splitRuleConfigs
+        return rules
     }
 
     private fun parseSplitPairRule(
@@ -261,7 +261,7 @@ internal class SplitRuleParser {
         )
     }
 
-    private fun parseSplitActivityRule(
+    private fun parseActivityRule(
         context: Context,
         parser: XmlResourceParser
     ): ActivityRule {
@@ -300,7 +300,7 @@ internal class SplitRuleParser {
     }
 
     private fun buildClassName(pkg: String, clsSeq: CharSequence?): ComponentName {
-        if (clsSeq == null || clsSeq.isEmpty()) {
+        if (clsSeq.isNullOrEmpty()) {
             throw IllegalArgumentException("Activity name must not be null")
         }
         val cls = clsSeq.toString()
