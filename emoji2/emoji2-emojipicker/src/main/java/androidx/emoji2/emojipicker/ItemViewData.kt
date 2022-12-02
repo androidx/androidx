@@ -46,7 +46,8 @@ internal class PlaceholderText(val text: String) :
  * Represents an emoji.
  */
 internal class EmojiViewData(
-    var emoji: String,
+    var primary: String,
+    val variants: List<String>,
     val updateToSticky: Boolean = true
 ) : ItemViewData(ItemType.EMOJI)
 
@@ -54,4 +55,7 @@ internal object PlaceholderEmoji : ItemViewData(ItemType.PLACEHOLDER_EMOJI)
 
 internal object Extensions {
     internal fun Int.toItemType() = ItemType.values()[this]
+
+    internal fun EmojiViewItem.toEmojiViewData(updateToVariants: Boolean = true) =
+        EmojiViewData(emoji, variants, updateToVariants)
 }
