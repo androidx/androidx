@@ -43,6 +43,7 @@ import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -204,6 +205,7 @@ class SeekBarPreferenceTest {
         }
     }
 
+    @Ignore // b/213245076
     @Test
     // Seems that these tests are flaky on certain devices with large screens due to the swipe not
     // fully dragging from one end to another. Should be safer to only run them on newer devices
