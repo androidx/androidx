@@ -94,4 +94,10 @@ internal class EmojiPickerItems(
 
     fun firstItemPositionByGroupIndex(@IntRange(from = 0) groupIndex: Int): Int =
         groups.take(groupIndex).sumOf { it.size }
+
+    fun groupRange(group: ItemGroup): kotlin.ranges.IntRange {
+        check(groups.contains(group))
+        val index = groups.indexOf(group)
+        return firstItemPositionByGroupIndex(index).let { it until it + group.size }
+    }
 }
