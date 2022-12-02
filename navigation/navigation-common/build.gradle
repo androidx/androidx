@@ -34,6 +34,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-runtime-ktx"))
     api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api("androidx.savedstate:savedstate-ktx:1.2.0")

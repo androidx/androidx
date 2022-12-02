@@ -127,6 +127,7 @@ package androidx.navigation {
     property public androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
+    property public androidx.lifecycle.Lifecycle lifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
