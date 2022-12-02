@@ -19,7 +19,9 @@
 package androidx.glance.session
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceComposable
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
@@ -29,6 +31,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -44,7 +47,9 @@ class SessionManagerImplTest {
             TODO("Not yet implemented")
         }
 
-        override suspend fun provideGlance(context: Context, setContent: SetContentFn) {
+        override suspend fun provideGlance(
+            context: Context
+        ): Flow<@Composable @GlanceComposable () -> Unit> {
             TODO("Not yet implemented")
         }
 
