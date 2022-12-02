@@ -50,14 +50,14 @@ interface CredentialProvider {
      * Invoked on a request to get a credential.
      *
      * @param request the request for getting the credential
-     * @param activity an optional activity used to potentially launch any UI needed
+     * @param activity the client calling activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun onGetCredential(
         request: GetCredentialRequest,
-        activity: Activity?, // TODO("Update on optionality")
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -67,14 +67,14 @@ interface CredentialProvider {
      * Invoked on a request to create a credential.
      *
      * @param request the request for creating the credential
-     * @param activity an optional activity used to potentially launch any UI needed
+     * @param activity the client calling activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun onCreateCredential(
         request: CreateCredentialRequest,
-        activity: Activity?,
+        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
