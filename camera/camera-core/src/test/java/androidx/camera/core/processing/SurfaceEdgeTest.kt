@@ -40,8 +40,6 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -82,11 +80,6 @@ class SurfaceEdgeTest {
         surfaceEdge.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
-    }
-
-    @Test
-    fun closeSurfaceEdgeOnIoDispatchers_noCrash(): Unit = runBlocking(Dispatchers.IO) {
-        surfaceEdge.close()
     }
 
     @Test

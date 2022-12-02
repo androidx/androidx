@@ -216,7 +216,7 @@ public class SurfaceEdge {
         checkMainThread();
         // TODO(b/238230154) figure out how to support HDR.
         SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal,
-                expectedFpsRange, this::invalidate);
+                expectedFpsRange, () -> mainThreadExecutor().execute(this::invalidate));
         try {
             setProvider(surfaceRequest.getDeferrableSurface());
         } catch (DeferrableSurface.SurfaceClosedException e) {
@@ -283,7 +283,9 @@ public class SurfaceEdge {
      * <p>The method <strong>must</strong> be called when the surface provider is ready to provide
      * a new {@link Surface}. (e.g. SurfaceView's surface is created when its window is visible.)
      */
+    @MainThread
     public void invalidate() {
+        checkMainThread();
         close();
         mOnInvalidated.run();
     }
@@ -291,14 +293,14 @@ public class SurfaceEdge {
     /**
      * Closes the {@link DeferrableSurface} and notifies linked objects for the closure.
      */
+    @MainThread
     public final void close() {
+        checkMainThread();
         mSettableSurface.close();
-        mainThreadExecutor().execute(() -> {
-            if (mConsumerToNotify != null) {
-                mConsumerToNotify.requestClose();
-                mConsumerToNotify = null;
-            }
-        });
+        if (mConsumerToNotify != null) {
+            mConsumerToNotify.requestClose();
+            mConsumerToNotify = null;
+        }
     }
 
     /**
@@ -387,6 +389,7 @@ public class SurfaceEdge {
 
     @MainThread
     private void notifyTransformationInfoUpdate() {
+        checkMainThread();
         if (mProviderSurfaceRequest != null) {
             mProviderSurfaceRequest.updateTransformationInfo(
                     TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED,
