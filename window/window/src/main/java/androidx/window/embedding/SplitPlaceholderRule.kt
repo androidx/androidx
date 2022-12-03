@@ -22,7 +22,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.util.Preconditions.checkArgument
-import androidx.core.util.Preconditions.checkArgumentNonnegative
 
 /**
  * Configuration rules for split placeholders.
@@ -81,14 +80,14 @@ class SplitPlaceholderRule : SplitRule {
         placeholderIntent: Intent,
         isSticky: Boolean,
         @SplitPlaceholderFinishBehavior finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS,
-        @IntRange(from = 0) minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
-        @IntRange(from = 0) minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP,
-        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
+        @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+        maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+        maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
+        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = SPLIT_RATIO_DEFAULT,
         @LayoutDirection layoutDirection: Int = LOCALE
-    ) : super(minWidthDp, minSmallestWidthDp, splitRatio, layoutDirection) {
-        checkArgumentNonnegative(minWidthDp, "minWidthDp must be non-negative")
-        checkArgumentNonnegative(minSmallestWidthDp, "minSmallestWidthDp must be non-negative")
-        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+    ) : super(minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait, maxAspectRatioInLandscape,
+        splitRatio, layoutDirection) {
         checkArgument(finishPrimaryWithPlaceholder != FINISH_NEVER,
             "FINISH_NEVER is not a valid configuration for SplitPlaceholderRule. " +
                 "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.")
@@ -109,16 +108,18 @@ class SplitPlaceholderRule : SplitRule {
         private val placeholderIntent: Intent,
     ) {
         @IntRange(from = 0)
-        private var minWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0)
-        private var minSmallestWidthDp: Int = DEFAULT_SPLIT_MIN_DIMENSION_DP
+        private var minSmallestWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
+        private var maxAspectRatioInPortrait = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
+        private var maxAspectRatioInLandscape = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
         @SplitPlaceholderFinishBehavior
-        private var finishPrimaryWithPlaceholder: Int = FINISH_ALWAYS
-        private var isSticky: Boolean = false
+        private var finishPrimaryWithPlaceholder = FINISH_ALWAYS
+        private var isSticky = false
         @FloatRange(from = 0.0, to = 1.0)
-        private var splitRatio: Float = 0.5f
+        private var splitRatio = SPLIT_RATIO_DEFAULT
         @LayoutDirection
-        private var layoutDirection: Int = LOCALE
+        private var layoutDirection = LOCALE
 
         /**
          * @see SplitPlaceholderRule.minWidthDp
@@ -131,6 +132,18 @@ class SplitPlaceholderRule : SplitRule {
          */
         fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
             apply { this.minSmallestWidthDp = minSmallestWidthDp }
+
+        /**
+         * @see SplitPlaceholderRule.maxAspectRatioInPortrait
+         */
+        fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInPortrait = aspectRatio }
+
+        /**
+         * @see SplitPlaceholderRule.maxAspectRatioInLandscape
+         */
+        fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply { this.maxAspectRatioInLandscape = aspectRatio }
 
         /**
          * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
@@ -161,8 +174,8 @@ class SplitPlaceholderRule : SplitRule {
             apply { this.layoutDirection = layoutDirection }
 
         fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
-            finishPrimaryWithPlaceholder, minWidthDp, minSmallestWidthDp, splitRatio,
-            layoutDirection)
+            finishPrimaryWithPlaceholder, minWidthDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+            maxAspectRatioInLandscape, splitRatio, layoutDirection)
     }
 
     /**
@@ -176,6 +189,8 @@ class SplitPlaceholderRule : SplitRule {
         return Builder(newSet.toSet(), placeholderIntent)
             .setMinWidthDp(minWidthDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
+            .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
             .setSticky(isSticky)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(splitRatio)
@@ -204,4 +219,18 @@ class SplitPlaceholderRule : SplitRule {
         result = 31 * result + filters.hashCode()
         return result
     }
+
+    override fun toString(): String =
+        "SplitPlaceholderRule{" +
+            " splitRatio=$splitRatio" +
+            ", layoutDirection=$layoutDirection" +
+            ", minWidthDp=$minWidthDp" +
+            ", minSmallestWidthDp=$minSmallestWidthDp" +
+            ", maxAspectRatioInPortrait=$maxAspectRatioInPortrait" +
+            ", maxAspectRatioInLandscape=$maxAspectRatioInLandscape" +
+            ", placeholderIntent=$placeholderIntent" +
+            ", isSticky=$isSticky" +
+            ", finishPrimaryWithPlaceholder=$finishPrimaryWithPlaceholder" +
+            ", filters=$filters" +
+            "}"
 }

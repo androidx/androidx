@@ -25,6 +25,7 @@ import android.util.LayoutDirection
 import androidx.annotation.XmlRes
 
 import androidx.window.R
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.buildAspectRatioFromValue
 import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
 import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
 
@@ -126,6 +127,8 @@ internal object RuleParser {
         val ratio: Float
         val minWidthDp: Int
         val minSmallestWidthDp: Int
+        val maxAspectRatioInPortrait: Float
+        val maxAspectRatioInLandscape: Float
         val layoutDir: Int
         val finishPrimaryWithSecondary: Int
         val finishSecondaryWithPrimary: Int
@@ -139,11 +142,19 @@ internal object RuleParser {
             ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
             minWidthDp = getInteger(
                 R.styleable.SplitPairRule_splitMinWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             minSmallestWidthDp = getInteger(
                 R.styleable.SplitPairRule_splitMinSmallestWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            maxAspectRatioInPortrait = getFloat(
+                R.styleable.SplitPairRule_splitMaxAspectRatioInPortrait,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
+            )
+            maxAspectRatioInLandscape = getFloat(
+                R.styleable.SplitPairRule_splitMaxAspectRatioInLandscape,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
             layoutDir = getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
@@ -159,6 +170,8 @@ internal object RuleParser {
         return SplitPairRule.Builder(emptySet())
             .setMinWidthDp(minWidthDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+            .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
             .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
             .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
             .setClearTop(clearTop)
@@ -177,6 +190,8 @@ internal object RuleParser {
         val ratio: Float
         val minWidthDp: Int
         val minSmallestWidthDp: Int
+        val maxAspectRatioInPortrait: Float
+        val maxAspectRatioInLandscape: Float
         val layoutDir: Int
         context.theme.obtainStyledAttributes(
             parser,
@@ -194,11 +209,19 @@ internal object RuleParser {
             ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
             minWidthDp = getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
             minSmallestWidthDp = getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinSmallestWidthDp,
-                SplitRule.DEFAULT_SPLIT_MIN_DIMENSION_DP
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            maxAspectRatioInPortrait = getFloat(
+                R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInPortrait,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
+            )
+            maxAspectRatioInLandscape = getFloat(
+                R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInLandscape,
+                SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
             layoutDir = getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
@@ -223,6 +246,8 @@ internal object RuleParser {
         )
             .setMinWidthDp(minWidthDp)
             .setMinSmallestWidthDp(minSmallestWidthDp)
+            .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+            .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
             .setSticky(stickyPlaceholder)
             .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
             .setSplitRatio(ratio)
