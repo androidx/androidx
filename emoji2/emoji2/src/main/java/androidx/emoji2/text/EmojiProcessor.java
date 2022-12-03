@@ -22,6 +22,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.KeyListener;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyEvent;
@@ -39,6 +40,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Processes the CharSequence and adds the emojis.
@@ -128,13 +130,25 @@ final class EmojiProcessor {
             @NonNull final EmojiCompat.SpanFactory spanFactory,
             @NonNull final EmojiCompat.GlyphChecker glyphChecker,
             final boolean useEmojiAsDefaultStyle,
-            @Nullable final int[] emojiAsDefaultStyleExceptions
-    ) {
+            @Nullable final int[] emojiAsDefaultStyleExceptions,
+            @NonNull Set<int[]> emojiExclusions) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
         mGlyphChecker = glyphChecker;
         mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
+        initExclusions(emojiExclusions);
+    }
+
+    private void initExclusions(@NonNull Set<int[]> emojiExclusions) {
+        if (emojiExclusions.isEmpty()) {
+            return;
+        }
+        for (int[] codepoints : emojiExclusions) {
+            String emoji = new String(codepoints, 0, codepoints.length);
+            MarkExclusionCallback callback = new MarkExclusionCallback(emoji);
+            process(emoji, 0, emoji.length(), 1, true, callback);
+        }
     }
 
     @EmojiCompat.CodepointSequenceMatchResult
@@ -905,6 +919,9 @@ final class EmojiProcessor {
         @Override
         public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
                 TypefaceEmojiRasterizer metadata) {
+            if (metadata.isPreferredSystemRender()) {
+                return true;
+            }
             if (spannable == null) {
                 spannable = new UnprecomputeTextOnModificationSpannable(
                         charSequence instanceof Spannable
@@ -948,6 +965,35 @@ final class EmojiProcessor {
 
         @Override
         public EmojiProcessLookupCallback getResult() {
+            return this;
+        }
+    }
+
+    /**
+     * Mark exclusinos for any emoji matched by this callback
+     */
+    private static class MarkExclusionCallback
+            implements EmojiProcessCallback<MarkExclusionCallback> {
+
+        private final String mExclusion;
+
+        MarkExclusionCallback(String emoji) {
+            mExclusion = emoji;
+        }
+
+        @Override
+        public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
+                TypefaceEmojiRasterizer metadata) {
+            if (TextUtils.equals(charSequence.subSequence(start, end), mExclusion)) {
+                metadata.setExclusion(true);
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        @Override
+        public MarkExclusionCallback getResult() {
             return this;
         }
     }

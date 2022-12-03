@@ -124,6 +124,7 @@ package androidx.emoji2.text {
     method public android.graphics.Typeface getTypeface();
     method public int getWidth();
     method public boolean isDefaultEmoji();
+    method public boolean isPreferredSystemRender();
   }
 
 }
