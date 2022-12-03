@@ -34,12 +34,17 @@ class InfoLogAdapter : RecyclerView.Adapter<InfoLogVH>() {
 
     override fun onBindViewHolder(holder: InfoLogVH, position: Int) {
         val item = items[position]
-        holder.titleView.text = "ID: ${item.id} Title: ${item.title}"
-        holder.detailView.text = "Detail: ${item.detail}"
+        holder.titleView.text = "[ID${item.id}] ${item.title}"
+        holder.detailView.text = item.detail
     }
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun clear() {
+        items.clear()
+        id = 0
     }
 
     fun append(title: String, message: String) {
