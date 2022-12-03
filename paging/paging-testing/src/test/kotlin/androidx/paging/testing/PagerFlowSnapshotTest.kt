@@ -172,7 +172,7 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun append() {
+    fun appendWhile() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
@@ -194,8 +194,31 @@ class PagerFlowSnapshotTest {
             )
         }
     }
+
     @Test
-    fun append_withoutPlaceholders() {
+    fun appendWhile_withoutPrefetch() {
+        val dataFlow = flowOf(List(50) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG_NO_PREFETCH,
+            pagingSourceFactory = factory,
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                appendScrollWhile { item: Int ->
+                    item < 14
+                }
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // initial load [0-4]
+                // appended [5-16]
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+            )
+        }
+    }
+
+    @Test
+    fun appendWhile_withoutPlaceholders() {
         val dataFlow = flowOf(List(50) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -219,29 +242,82 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun append_withoutPrefetch() {
-        val dataFlow = flowOf(List(50) { it })
-        val factory = dataFlow.asPagingSourceFactory(testScope)
+    fun prependWhile() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope.backgroundScope)
         val pager = Pager(
-            config = CONFIG_NO_PREFETCH,
+            config = CONFIG,
+            initialKey = 20,
             pagingSourceFactory = factory,
-        ).flow
+        )
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
-                appendScrollWhile { item: Int ->
-                    item < 14
+            val snapshot = pager.flow.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 14
                 }
             }
+            // initial load [20-24]
+            // prefetched [17-19], [25-27]
+            // prepended [14-16]
+            // prefetched [11-13]
             assertThat(snapshot).containsExactlyElementsIn(
-                // initial load [0-4]
-                // appended [5-16]
-                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+                listOf(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
             )
         }
     }
 
     @Test
-    fun append_withInitialKey() {
+    fun prependWhile_withoutPrefetch() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG_NO_PREFETCH,
+            initialKey = 20,
+            pagingSourceFactory = factory,
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 14
+                }
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // initial load [20-24]
+                // prepended [14-19]
+                listOf(14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
+            )
+        }
+    }
+
+    @Test
+    fun prependWhile_withoutPlaceholders() {
+        val dataFlow = flowOf(List(50) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG_NO_PLACEHOLDERS,
+            initialKey = 30,
+            pagingSourceFactory = factory,
+        ).flow
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item != 22
+                }
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // initial load [30-34]
+                // prefetched [27-29], [35-37]
+                // prepended [21-26]
+                // prefetched [18-20]
+                listOf(
+                    18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37
+                )
+            )
+        }
+    }
+
+    @Test
+    fun appendWhile_withInitialKey() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -266,7 +342,7 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun append_withInitialKey_withoutPlaceholders() {
+    fun appendWhile_withInitialKey_withoutPlaceholders() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -291,7 +367,7 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun append_withInitialKey_withoutPrefetch() {
+    fun appendWhile_withInitialKey_withoutPrefetch() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -314,7 +390,29 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun consecutiveAppend() {
+    fun prependWhile_withoutInitialKey() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = factory,
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > -3
+                }
+            }
+            // initial load [0-4]
+            // prefetched [5-7]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveAppendWhile() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -347,7 +445,36 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun append_outOfBounds_returnsCurrentlyLoadedItems() {
+    fun consecutivePrependWhile() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG_NO_PREFETCH,
+            initialKey = 20,
+            pagingSourceFactory = factory,
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 17
+                }
+            }
+            assertThat(snapshot1).containsExactlyElementsIn(
+                listOf(17, 18, 19, 20, 21, 22, 23, 24)
+            )
+            val snapshot2 = pager.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 11
+                }
+            }
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24)
+            )
+        }
+    }
+
+    @Test
+    fun appendWhile_outOfBounds_returnsCurrentlyLoadedItems() {
         val dataFlow = flowOf(List(10) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -370,7 +497,33 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun refreshAndAppend() {
+    fun prependWhile_outOfBounds_returnsCurrentlyLoadedItems() {
+        val dataFlow = flowOf(List(20) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 10,
+            pagingSourceFactory = factory,
+        )
+        testScope.runTest {
+            val snapshot = pager.flow.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    // condition scrolls till index = 0
+                    item > -3
+                }
+            }
+            // returns the items loaded before index becomes out of bounds
+            assertThat(snapshot).containsExactlyElementsIn(
+                // initial load [10-14]
+                // prefetched [7-9], [15-17]
+                // prepended [0-6]
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+            )
+        }
+    }
+
+    @Test
+    fun refreshAndAppendWhile() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -391,7 +544,39 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun appendAndRefresh() {
+    fun refreshAndPrependWhile() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 20,
+            pagingSourceFactory = factory,
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                // this prependScrollWhile does not cause paging to load more items
+                // but it helps this test register a non-null anchorPosition so the upcoming
+                // refresh doesn't start at index 0
+                prependScrollWhile { item -> item > 20 }
+                // triggers second gen
+                refresh()
+                prependScrollWhile { item: Int ->
+                    item > 12
+                }
+            }
+            // second gen initial load, anchorPos = 20, refreshKey = 18, loaded
+            // initial load [18-22]
+            // prefetched [15-17], [23-25]
+            // prepended [12-14]
+            // prefetched [9-11]
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+            )
+        }
+    }
+
+    @Test
+    fun appendWhileAndRefresh() {
         val dataFlow = flowOf(List(30) { it })
         val factory = dataFlow.asPagingSourceFactory(testScope)
         val pager = Pager(
@@ -407,7 +592,34 @@ class PagerFlowSnapshotTest {
             }
             assertThat(snapshot).containsExactlyElementsIn(
                 // second gen initial load, anchorPos = 10, refreshKey = 8
+                // initial load [8-12]
+                // prefetched [5-7], [13-15]
                 listOf(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+            )
+        }
+    }
+
+    @Test
+    fun prependWhileAndRefresh() {
+        val dataFlow = flowOf(List(30) { it })
+        val factory = dataFlow.asPagingSourceFactory(testScope)
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 15,
+            pagingSourceFactory = factory,
+        ).flow.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot = pager.asSnapshot(this) {
+                prependScrollWhile { item: Int ->
+                    item > 8
+                }
+                refresh()
+            }
+            assertThat(snapshot).containsExactlyElementsIn(
+                // second gen initial load, anchorPos = 8, refreshKey = 6
+                // initial load [6-10]
+                // prefetched [3-5], [11-13]
+                listOf(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
             )
         }
     }
