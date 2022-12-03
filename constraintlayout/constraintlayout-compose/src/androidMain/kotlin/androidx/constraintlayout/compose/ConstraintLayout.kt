@@ -131,7 +131,12 @@ inline fun ConstraintLayout(
             val previousHelpersHashCode = scope.helpersHashCode
             scope.reset()
             scope.content()
-            if (scope.helpersHashCode != previousHelpersHashCode) onHelpersChanged()
+            if (scope.helpersHashCode != previousHelpersHashCode) {
+                // onHelpersChanged writes non-snapshot state so it can't be called directly from
+                // composition. It also reads snapshot state, so calling it from composition causes
+                // an extra recomposition.
+                SideEffect(onHelpersChanged)
+            }
         }
     )
 }
