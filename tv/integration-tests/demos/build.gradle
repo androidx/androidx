@@ -24,23 +24,25 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":tv:tv-material"))
     implementation(libs.kotlinStdlib)
+
+    implementation("androidx.activity:activity-compose:1.6.1")
     implementation(project(":activity:activity"))
+
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-runtime"))
-    implementation("androidx.activity:activity-compose:1.6.1")
+
     implementation(project(":tv:tv-foundation"))
+    implementation(project(":tv:tv-material"))
+
     implementation("androidx.appcompat:appcompat:1.6.0-alpha05")
-    compileOnly(project(':annotation:annotation-sampled'))
 }
 
 androidx {
-    name = "TV-Compose Samples"
+    name = "TV-Compose Test App"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.TV
     inceptionYear = "2022"
-    description = "Contains the sample code for the APIs in the androidx.tv:tv-material library"
+    description = "Test application for TV libraries"
 }
 
 android {
@@ -55,5 +57,5 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
-    namespace "androidx.tv.tvmaterial.samples"
+    namespace "androidx.tv.integration.demos"
 }

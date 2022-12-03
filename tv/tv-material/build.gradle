@@ -50,7 +50,7 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
 
-    samples(projectOrArtifact(":tv:tv-material-samples"))
+    samples(project(":tv:tv-samples"))
 }
 
 android {

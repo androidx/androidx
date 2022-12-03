@@ -301,6 +301,7 @@ dependencies {
     docs(project(":transition:transition-ktx"))
     docs(project(":tv:tv-foundation"))
     docs(project(":tv:tv-material"))
+    samples(project(":tv:tv-samples"))
     docs(project(":tvprovider:tvprovider"))
     docs(project(":vectordrawable:vectordrawable"))
     docs(project(":vectordrawable:vectordrawable-animated"))

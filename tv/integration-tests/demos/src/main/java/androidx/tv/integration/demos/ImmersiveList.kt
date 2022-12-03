@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.tvmaterial.samples
+package androidx.tv.integration.demos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

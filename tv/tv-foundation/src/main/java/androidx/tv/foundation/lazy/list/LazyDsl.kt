@@ -80,8 +80,6 @@ sealed interface TvLazyListScope {
      * Adds a sticky header item, which will remain pinned even when scrolling after it.
      * The header will remain pinned until the next header will take its place.
      *
-     * @sample androidx.compose.foundation.samples.StickyHeaderSample
-     *
      * @param key a stable and unique key representing the item. Using the same key
      * for multiple items in the list is not allowed. Type of the key should be saveable
      * via Bundle on Android. If null is passed the position in the list will represent the key.
