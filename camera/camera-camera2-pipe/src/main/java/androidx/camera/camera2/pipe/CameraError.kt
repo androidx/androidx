@@ -91,6 +91,16 @@ value class CameraError private constructor(val value: Int) {
          */
         val ERROR_SECURITY_EXCEPTION = CameraError(8)
 
+        internal fun from(throwable: Throwable) =
+            when (throwable) {
+                is CameraAccessException -> from(throwable)
+                is IllegalArgumentException -> ERROR_ILLEGAL_ARGUMENT_EXCEPTION
+                is SecurityException -> ERROR_SECURITY_EXCEPTION
+                else -> {
+                    throw IllegalArgumentException("Unexpected throwable: $throwable")
+                }
+            }
+
         internal fun from(exception: CameraAccessException) =
             when (exception.reason) {
                 CAMERA_DISABLED -> ERROR_CAMERA_DISABLED

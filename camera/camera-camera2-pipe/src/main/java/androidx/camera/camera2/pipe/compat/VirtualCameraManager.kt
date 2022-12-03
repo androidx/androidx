@@ -22,13 +22,18 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.WakeLock
 import javax.inject.Inject
 import javax.inject.Provider
@@ -59,6 +64,8 @@ internal object RequestCloseAll : CameraRequest()
 
 private const val requestQueueDepth = 8
 
+private val cameraRetryTimeout = DurationNs(10_000_000_000) // 10 seconds
+
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
@@ -66,7 +73,8 @@ internal class VirtualCameraManager @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
     private val cameraMetadata: Camera2MetadataCache,
     private val permissions: Permissions,
-    private val threads: Threads
+    private val threads: Threads,
+    private val timeSource: TimeSource
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
     private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)
@@ -217,7 +225,10 @@ internal class VirtualCameraManager @Inject constructor(
         cameraId: CameraId,
         scope: CoroutineScope
     ): ActiveCamera? {
-        val requestTimestamp = Timestamps.now()
+        val requestTimestamp = Timestamps.now(timeSource)
+
+        // Parser erroneously marks "attempts" as unused variable.
+        @Suppress("UNUSED_VARIABLE")
         var attempts = 0
 
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
@@ -227,14 +238,32 @@ internal class VirtualCameraManager @Inject constructor(
         while (true) {
             attempts++
 
-            val activeCamera = tryOpenCamera(cameraId, attempts, requestTimestamp, scope)
-            if (activeCamera != null) {
-                return activeCamera
-            }
+            val result = tryOpenCamera(cameraId, attempts, requestTimestamp, timeSource, scope)
+            with(result) {
+                if (activeCamera != null) {
+                    return activeCamera
+                }
 
-            if (attempts > 3) {
-                Log.error { "Failed to open camera $cameraId after 3 retries" }
-                return null
+                if (errorCode == null) {
+                    // Camera open failed without an error. This can only happen if the
+                    // VirtualCameraState is disconnected by the app itself. As such, we should just
+                    // abandon the camera open attempt.
+                    Log.warn {
+                        "Camera open failed without an error. " +
+                            "The CameraGraph may have been stopped or closed. " +
+                            "Abandoning the camera open attempt."
+                    }
+                    return null
+                }
+
+                if (!shouldRetry(errorCode, attempts, requestTimestamp)) {
+                    Log.error {
+                        "Failed to open camera $cameraId after $attempts attempts " +
+                            "and ${(Timestamps.now(timeSource) - requestTimestamp).formatMs()}. " +
+                            "Last error was $errorCode."
+                    }
+                    return null
+                }
             }
 
             // Listen to availability - if we are notified that the cameraId is available then
@@ -250,18 +279,19 @@ internal class VirtualCameraManager @Inject constructor(
         cameraId: CameraId,
         attempts: Int,
         requestTimestamp: TimestampNs,
+        timeSource: TimeSource,
         scope: CoroutineScope,
-    ): ActiveCamera? {
+    ): CameraOpenResult {
         val instance = cameraManager.get()
         val metadata = cameraMetadata.getMetadata(cameraId)
         val cameraState = AndroidCameraState(
             cameraId,
             metadata,
             attempts,
-            requestTimestamp
+            requestTimestamp,
+            timeSource
         )
 
-        var exception: Throwable? = null
         try {
             Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -284,24 +314,36 @@ internal class VirtualCameraManager @Inject constructor(
             val result = cameraState.state.first {
                 it !is CameraStateUnopened
             }
-            if (result is CameraStateOpen) {
-                return ActiveCamera(
-                    cameraState,
-                    scope,
-                    requestQueue
-                )
-            }
-        } catch (e: Throwable) {
-            exception = e
-            Log.warn(e) { "Failed to open $cameraId" }
-        }
+            when (result) {
+                is CameraStateOpen ->
+                    return CameraOpenResult(
+                        activeCamera = ActiveCamera(
+                            cameraState,
+                            scope,
+                            requestQueue
+                        )
+                    )
 
-        if (exception != null) {
+                is CameraStateClosing -> {
+                    cameraState.close()
+                    return CameraOpenResult(errorCode = result.cameraErrorCode)
+                }
+
+                is CameraStateClosed -> {
+                    cameraState.close()
+                    return CameraOpenResult(errorCode = result.cameraErrorCode)
+                }
+
+                is CameraStateUnopened -> {
+                    cameraState.close()
+                    throw IllegalStateException("Unexpected CameraState: $result")
+                }
+            }
+        } catch (exception: Throwable) {
+            Log.warn(exception) { "Failed to open $cameraId" }
             cameraState.closeWith(exception)
-        } else {
-            cameraState.close()
+            return CameraOpenResult(errorCode = CameraError.from(exception))
         }
-        return null
     }
 
     /**
@@ -401,6 +443,39 @@ internal class VirtualCameraManager @Inject constructor(
 
         suspend fun awaitClosed() {
             androidCameraState.awaitClosed()
+        }
+    }
+
+    internal data class CameraOpenResult(
+        val activeCamera: ActiveCamera? = null,
+        val errorCode: CameraError? = null,
+    )
+
+    companion object {
+        internal fun shouldRetry(
+            errorCode: CameraError,
+            attempts: Int,
+            firstAttemptTimestampNs: TimestampNs,
+            timeSource: TimeSource = SystemTimeSource()
+        ): Boolean {
+            val elapsed = Timestamps.now(timeSource) - firstAttemptTimestampNs
+            if (elapsed > cameraRetryTimeout) {
+                return false
+            }
+            return when (errorCode) {
+                CameraError.ERROR_CAMERA_IN_USE -> attempts <= 1
+                CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> true
+                CameraError.ERROR_CAMERA_DISABLED -> attempts <= 1
+                CameraError.ERROR_CAMERA_DEVICE -> true
+                CameraError.ERROR_CAMERA_SERVICE -> true
+                CameraError.ERROR_CAMERA_DISCONNECTED -> true
+                CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION -> true
+                CameraError.ERROR_SECURITY_EXCEPTION -> attempts <= 1
+                else -> {
+                    Log.error { "Unexpected CameraError: $this" }
+                    false
+                }
+            }
         }
     }
 }

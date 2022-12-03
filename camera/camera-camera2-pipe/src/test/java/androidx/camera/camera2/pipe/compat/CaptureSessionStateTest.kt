@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
@@ -59,6 +60,7 @@ class CaptureSessionStateTest {
         ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
             fakeCaptureSequenceProcessor
     }
+    private val timeSource = SystemTimeSource()
 
     private val surface1: Surface = Surface(SurfaceTexture(1))
     private val surface2: Surface = Surface(SurfaceTexture(2))
@@ -87,6 +89,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
         // When disconnect is called first
@@ -107,6 +110,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
 
@@ -137,6 +141,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
 
@@ -169,6 +174,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
         // When surfaces are configured
@@ -195,6 +201,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
         // When surfaces are configured
@@ -221,6 +228,7 @@ class CaptureSessionStateTest {
             captureSessionFactory,
             captureSequenceProcessorFactory,
             cameraSurfaceManager,
+            timeSource,
             this
         )
         // When surfaces are configured
