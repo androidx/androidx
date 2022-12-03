@@ -64,6 +64,11 @@ import androidx.compose.ui.zIndex
  * tab. A TvTabRow places its tabs offset from the starting edge, and allows scrolling to tabs that
  * are placed off screen.
  *
+ * Examples:
+ * @sample androidx.tv.samples.PillIndicatorTabRow
+ * @sample androidx.tv.samples.UnderlinedIndicatorTabRow
+ * @sample androidx.tv.samples.OnClickNavigation
+ *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
  * @param containerColor the color used for the background of this tab row
