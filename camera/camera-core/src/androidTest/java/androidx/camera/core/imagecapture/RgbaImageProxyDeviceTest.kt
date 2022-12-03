@@ -30,7 +30,7 @@ import androidx.camera.testing.TestImageUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,14 +63,14 @@ class RgbaImageProxyDeviceTest {
         val restoredBitmap = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
         restoredBitmap.copyPixelsFromBuffer(image.planes[0].buffer)
 
-        Truth.assertThat(TestImageUtil.getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
-        Truth.assertThat(image.image).isNull()
-        Truth.assertThat(image.width).isEqualTo(WIDTH)
-        Truth.assertThat(image.height).isEqualTo(HEIGHT)
-        Truth.assertThat(image.cropRect).isEqualTo(CROP_RECT)
-        Truth.assertThat(image.imageInfo.rotationDegrees).isEqualTo(ROTATION_DEGREES)
-        Truth.assertThat(image.imageInfo.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
-        Truth.assertThat(image.imageInfo.timestamp).isEqualTo(TIMESTAMP)
+        assertThat(TestImageUtil.getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
+        assertThat(image.image).isNull()
+        assertThat(image.width).isEqualTo(WIDTH)
+        assertThat(image.height).isEqualTo(HEIGHT)
+        assertThat(image.cropRect).isEqualTo(CROP_RECT)
+        assertThat(image.imageInfo.rotationDegrees).isEqualTo(ROTATION_DEGREES)
+        assertThat(image.imageInfo.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(image.imageInfo.timestamp).isEqualTo(TIMESTAMP)
     }
 
     @Test
@@ -92,12 +92,50 @@ class RgbaImageProxyDeviceTest {
         )
         // Assert.
         val restoredBitmap = image.createBitmap()
-        Truth.assertThat(TestImageUtil.getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
-        Truth.assertThat(image.width).isEqualTo(WIDTH)
-        Truth.assertThat(image.height).isEqualTo(HEIGHT)
-        Truth.assertThat(image.cropRect).isEqualTo(CROP_RECT)
-        Truth.assertThat(image.imageInfo.rotationDegrees).isEqualTo(ROTATION_DEGREES)
-        Truth.assertThat(image.imageInfo.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
-        Truth.assertThat(image.imageInfo.timestamp).isEqualTo(TIMESTAMP)
+        assertThat(TestImageUtil.getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
+        assertThat(image.width).isEqualTo(WIDTH)
+        assertThat(image.height).isEqualTo(HEIGHT)
+        assertThat(image.cropRect).isEqualTo(CROP_RECT)
+        assertThat(image.imageInfo.rotationDegrees).isEqualTo(ROTATION_DEGREES)
+        assertThat(image.imageInfo.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(image.imageInfo.timestamp).isEqualTo(TIMESTAMP)
+    }
+
+    @Test
+    fun closeImage_invokingMethodsThrowsException() {
+        // Arrange.
+        val bitmap = TestImageUtil.createBitmap(WIDTH, HEIGHT)
+        val image = RgbaImageProxy(
+            Packet.of(
+                bitmap,
+                ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
+                CROP_RECT,
+                ROTATION_DEGREES,
+                SENSOR_TO_BUFFER,
+                CAMERA_CAPTURE_RESULT
+            )
+        )
+        // Act.
+        image.close()
+        // Assert
+        assertThat(hasException { image.close() }).isTrue()
+        assertThat(hasException { image.width }).isTrue()
+        assertThat(hasException { image.height }).isTrue()
+        assertThat(hasException { image.planes }).isTrue()
+        assertThat(hasException { image.cropRect }).isTrue()
+        assertThat(hasException { image.imageInfo }).isTrue()
+        assertThat(hasException { image.image }).isTrue()
+        assertThat(hasException { image.setCropRect(CROP_RECT) }).isTrue()
+        assertThat(hasException { image.format }).isTrue()
+        assertThat(hasException { image.createBitmap() }).isTrue()
+    }
+
+    private fun hasException(runnable: Runnable): Boolean {
+        try {
+            runnable.run()
+        } catch (exception: IllegalStateException) {
+            return true
+        }
+        return false
     }
 }
