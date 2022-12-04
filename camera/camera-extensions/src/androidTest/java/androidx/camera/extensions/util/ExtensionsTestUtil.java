@@ -193,7 +193,10 @@ public class ExtensionsTestUtil {
      */
     private static boolean isSpecificSkippedDevice() {
         return (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
-                || Build.MODEL.equalsIgnoreCase("G8342"))) || Build.MODEL.contains("Cuttlefish");
+                || Build.MODEL.equalsIgnoreCase("G8342")))
+                || Build.MODEL.contains("Cuttlefish")
+                || Build.MODEL.equalsIgnoreCase("Pixel XL")
+                || Build.MODEL.equalsIgnoreCase("Pixel");
     }
 
     /**
