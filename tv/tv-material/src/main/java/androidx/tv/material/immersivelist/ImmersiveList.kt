@@ -26,18 +26,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -46,7 +42,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.tv.material.ExperimentalTvMaterialApi
-import kotlinx.coroutines.launch
+import androidx.tv.material.bringIntoViewIfChildrenAreFocused
 
 /**
  * Immersive List consists of a list with multiple items and a background that displays content
@@ -56,13 +52,13 @@ import kotlinx.coroutines.launch
  * [ImmersiveListBackgroundScope.AnimatedVisibility].
  *
  * @param background Composable defining the background to be displayed for a given item's
- * index.
+ * index. `listHasFocus` argument can be used to hide the background when the list is not in focus
  * @param modifier applied to Immersive List.
  * @param listAlignment Alignment of the List with respect to the Immersive List.
  * @param list composable defining the list of items that has to be rendered.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterialApi
 @Composable
 fun ImmersiveList(
@@ -74,19 +70,8 @@ fun ImmersiveList(
 ) {
     var currentItemIndex by remember { mutableStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged {
-                if (it.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }
-    ) {
+    Box(modifier.bringIntoViewIfChildrenAreFocused()) {
         ImmersiveListBackgroundScope(this).background(currentItemIndex, listHasFocus)
 
         val focusManager = LocalFocusManager.current
@@ -151,7 +136,8 @@ by boxScope {
             enter,
             exit,
             label,
-            content)
+            content
+        )
     }
 
     /**

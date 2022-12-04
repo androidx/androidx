@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material.ExperimentalTvMaterialApi
+import androidx.tv.material.bringIntoViewIfChildrenAreFocused
 import java.lang.Math.floorMod
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -111,7 +112,9 @@ fun Carousel(
         carouselState,
         focusState,
         onAutoScrollChange = { isAutoScrollActive = it })
+
     Box(modifier = modifier
+        .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
         .onFocusChanged {
             focusState = it
