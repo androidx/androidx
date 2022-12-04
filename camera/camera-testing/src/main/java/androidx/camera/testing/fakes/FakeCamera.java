@@ -65,6 +65,7 @@ public class FakeCamera implements CameraInternal {
     private Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
+    private List<UseCase> mUseCaseResetHistory = new ArrayList<>();
 
     @Nullable
     private SessionConfig mSessionConfig;
@@ -221,7 +222,7 @@ public class FakeCamera implements CameraInternal {
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Logger.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
-
+        mUseCaseResetHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
                 useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
@@ -298,6 +299,11 @@ public class FakeCamera implements CameraInternal {
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
         return mCameraInfoInternal;
+    }
+
+    @NonNull
+    public List<UseCase> getUseCaseResetHistory() {
+        return mUseCaseResetHistory;
     }
 
     private void checkNotReleased() {

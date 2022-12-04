@@ -42,6 +42,7 @@ import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CamcorderProfileUtil
@@ -115,6 +116,7 @@ class VideoCaptureTest {
     private lateinit var cameraFactory: CameraFactory
     private lateinit var cameraInfo: CameraInfoInternal
     private lateinit var surfaceManager: FakeCameraDeviceSurfaceManager
+    private lateinit var camera: FakeCamera
     private var surfaceRequestsToRelease = mutableListOf<SurfaceRequest>()
 
     @Before
@@ -200,6 +202,70 @@ class VideoCaptureTest {
                 CameraXExecutors.mainThreadExecutor()
             )
         )
+    }
+
+    @Test
+    fun invalidateAppSurfaceRequestWithProcessing_cameraNotReset() {
+        // Arrange: create videoCapture with processing.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture(createVideoOutput())
+        videoCapture.setProcessor(FakeSurfaceProcessorInternal(mainThreadExecutor()))
+        addAndAttachUseCases(videoCapture)
+        // Act: invalidate.
+        videoCapture.surfaceRequest.invalidate()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: videoCapture is not reset.
+        assertThat(camera.useCaseResetHistory).isEmpty()
+    }
+
+    @Test
+    fun invalidateNodeSurfaceRequest_cameraReset() {
+        // Arrange: create videoCapture.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture(createVideoOutput())
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        videoCapture.setProcessor(processor)
+        addAndAttachUseCases(videoCapture)
+        // Act: invalidate.
+        processor.surfaceRequest!!.invalidate()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: videoCapture is reset.
+        assertThat(camera.useCaseResetHistory).containsExactly(videoCapture)
+    }
+
+    @Test
+    fun invalidateAppSurfaceRequestWithoutProcessing_cameraReset() {
+        // Arrange: create videoCapture without processing.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture(createVideoOutput())
+        addAndAttachUseCases(videoCapture)
+        // Act: invalidate.
+        videoCapture.surfaceRequest.invalidate()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: videoCapture is reset.
+        assertThat(camera.useCaseResetHistory).containsExactly(videoCapture)
+    }
+
+    @Test
+    fun invalidateWhenDetached_appEdgeClosed() {
+        // Arrange: create Preview with processing then detach.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture(createVideoOutput())
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        videoCapture.setProcessor(processor)
+        addAndAttachUseCases(videoCapture)
+        val surfaceRequest = videoCapture.surfaceRequest
+        detachAndRemoveUseCases(videoCapture)
+        // Act: invalidate.
+        surfaceRequest.invalidate()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: camera is not reset.
+        assertThat(camera.useCaseResetHistory).isEmpty()
+        assertThat(surfaceRequest.deferrableSurface.isClosed).isTrue()
     }
 
     private fun testSetRotationWillSendCorrectResolution(
@@ -903,7 +969,7 @@ class VideoCaptureTest {
                 FakeCamcorderProfileProvider.Builder().addProfile(*profiles).build()
             setTimebase(timebase)
         }
-        val camera = FakeCamera(cameraId, null, cameraInfo)
+        camera = FakeCamera(cameraId, null, cameraInfo)
 
         cameraFactory = FakeCameraFactory().apply {
             insertDefaultBackCamera(cameraId) { camera }

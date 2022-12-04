@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
@@ -31,12 +32,12 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
-import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeDeferrableSurface
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -64,20 +65,23 @@ class SurfaceEdgeTest {
     private lateinit var surfaceEdge: SurfaceEdge
     private lateinit var fakeSurface: Surface
     private lateinit var fakeSurfaceTexture: SurfaceTexture
+    private lateinit var provider: FakeDeferrableSurface
 
     @Before
     fun setUp() {
         surfaceEdge = SurfaceEdge(
-            CameraEffect.PREVIEW, Size(640, 480),
+            CameraEffect.PREVIEW, INPUT_SIZE,
             Matrix(), true, Rect(), 0, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
+        provider = FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE)
     }
 
     @After
     fun tearDown() {
         surfaceEdge.close()
+        provider.close()
         fakeSurfaceTexture.release()
         fakeSurface.release()
     }
@@ -99,10 +103,8 @@ class SurfaceEdgeTest {
 
     @Test(expected = SurfaceClosedException::class)
     fun connectToClosedProvider_getsException() {
-        val closedDeferrableSurface = ImmediateSurface(fakeSurface).apply {
-            this.close()
-        }
-        surfaceEdge.setProvider(closedDeferrableSurface)
+        provider.close()
+        surfaceEdge.setProvider(provider)
     }
 
     @Test
@@ -193,8 +195,9 @@ class SurfaceEdgeTest {
         surfaceRequest.provideSurface(fakeSurface, mainThreadExecutor()) {}
         shadowOf(getMainLooper()).idle()
         // Assert: the surface is received.
-        assertThat(surfaceEdge.deferrableSurface.surface.isDone).isTrue()
-        assertThat(surfaceEdge.deferrableSurface.surface.get()).isEqualTo(fakeSurface)
+        val deferrableSurface = surfaceEdge.deferrableSurface
+        assertThat(deferrableSurface.surface.isDone).isTrue()
+        assertThat(deferrableSurface.surface.get()).isEqualTo(fakeSurface)
     }
 
     @Test
@@ -233,7 +236,7 @@ class SurfaceEdgeTest {
             completer = it
             return@getFuture null
         }
-        surfaceEdge.setProvider(object : DeferrableSurface() {
+        surfaceEdge.setProvider(object : DeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE) {
             override fun provideSurface(): ListenableFuture<Surface> {
                 return surfaceFuture
             }
@@ -242,8 +245,9 @@ class SurfaceEdgeTest {
         completer!!.set(fakeSurface)
         shadowOf(getMainLooper()).idle()
         // Assert: the surface is received.
-        assertThat(surfaceEdge.deferrableSurface.surface.isDone).isTrue()
-        assertThat(surfaceEdge.deferrableSurface.surface.get()).isEqualTo(fakeSurface)
+        val deferrableSurface = surfaceEdge.deferrableSurface
+        assertThat(deferrableSurface.surface.isDone).isTrue()
+        assertThat(deferrableSurface.surface.get()).isEqualTo(fakeSurface)
     }
 
     @Test
@@ -289,18 +293,87 @@ class SurfaceEdgeTest {
         assertThat(isSurfaceReleased).isEqualTo(true)
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun createSurfaceRequestTwice_throwsException() {
-        surfaceEdge.createSurfaceRequest(FakeCamera())
-        surfaceEdge.createSurfaceRequest(FakeCamera())
+    @Test
+    fun createSurfaceRequestThenInvalidate_canCreateSurfaceRequestAgain() {
+        // Arrange: set up the connection E2E
+        linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E()
+        // Act: invalidate.
+        surfaceEdge.invalidate()
+        // Arrange: set up the connection E2E again
+        linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E()
+    }
+
+    @Test
+    fun close_providerDeferrableSurfaceNotClosed() {
+        // Arrange.
+        surfaceEdge.setProvider(provider)
+        // Act.
+        surfaceEdge.close()
         shadowOf(getMainLooper()).idle()
+        // Assert: provider is not closed. The creator is responsible for closing it.
+        assertThat(provider.isClosed).isFalse()
+    }
+
+    @Test
+    fun close_surfaceRequestClosed() {
+        // Arrange.
+        var surfaceRequestClosed = false
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        surfaceRequest.provideSurface(fakeSurface, mainThreadExecutor()) {
+            surfaceRequestClosed = true
+        }
+        // Act.
+        surfaceEdge.close()
+        shadowOf(getMainLooper()).idle()
+        // Assert: SurfaceRequest is closed and the app should release the Surface.
+        assertThat(surfaceRequestClosed).isTrue()
+    }
+
+    @Test
+    fun setProviderThenInvalidate_canSetProviderAgain() {
+        // Arrange: set the provider and then invalidate.
+        val newProvider = FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE)
+        surfaceEdge.setProvider(provider)
+        surfaceEdge.invalidate()
+        // Act: set the provider again.
+        surfaceEdge.setProvider(newProvider)
+        // Assert: drain the main thread and there is no crash.
+        shadowOf(getMainLooper()).idle()
+        newProvider.close()
     }
 
     @Test(expected = IllegalStateException::class)
-    fun createSurfaceOutputTwice_throwsException() {
+    fun getDeferrableSurfaceThenSurfaceOutput_throwsException() {
         createSurfaceOutputFuture(surfaceEdge)
+        surfaceEdge.deferrableSurface
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun getSurfaceOutputThenDeferrableSurface_throwsException() {
+        surfaceEdge.deferrableSurface
         createSurfaceOutputFuture(surfaceEdge)
-        shadowOf(getMainLooper()).idle()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun createSurfaceRequestThenSetProvider_throwsException() {
+        surfaceEdge.createSurfaceRequest(FakeCamera())
+        surfaceEdge.setProvider(provider)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun setProviderThenCreateSurfaceRequest_throwsException() {
+        surfaceEdge.setProvider(provider)
+        surfaceEdge.createSurfaceRequest(FakeCamera())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setProviderWithDifferentSize_throwsException() {
+        val providerWithWrongSize = FakeDeferrableSurface(Size(10, 20), ImageFormat.PRIVATE)
+        try {
+            surfaceEdge.setProvider(providerWithWrongSize)
+        } finally {
+            providerWithWrongSize.close()
+        }
     }
 
     @Test
