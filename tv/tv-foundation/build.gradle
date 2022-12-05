@@ -477,6 +477,14 @@ copiedClasses.add(
         )
 )
 
+copiedClasses.add(
+        new CopiedClass(
+		"../../compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/gestures/ContentInViewModifier.kt",
+		"src/main/java/androidx/tv/foundation/ContentInViewModifier.kt",
+                "c08e23de9ddfed42c9dbb7569eef6198"
+        )
+)
+
 String generateMd5(String fileNameToHash) {
     try {
         MessageDigest digest = MessageDigest.getInstance("MD5")

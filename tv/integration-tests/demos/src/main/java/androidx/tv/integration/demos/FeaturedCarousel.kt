@@ -18,7 +18,6 @@ package androidx.tv.integration.demos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -49,16 +47,17 @@ import androidx.tv.material.carousel.CarouselItem
 @Composable
 fun FeaturedCarouselContent() {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        item { SampleLazyRow() }
+        items(3) { SampleLazyRow() }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                     repeat(3) {
-                        Box(modifier = Modifier
-                            .background(Color.Magenta.copy(alpha = 0.3f))
-                            .width(50.dp)
-                            .height(50.dp)
-                            .drawBorderOnFocus()
+                        Box(
+                            modifier = Modifier
+                                .background(Color.Magenta.copy(alpha = 0.3f))
+                                .width(50.dp)
+                                .height(50.dp)
+                                .drawBorderOnFocus()
                         )
                     }
                 }
@@ -75,7 +74,6 @@ fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
     return this
         .border(5.dp, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
         .onFocusChanged { isFocused = it.isFocused }
-        .focusable()
 }
 
 @OptIn(ExperimentalTvMaterialApi::class)
@@ -104,37 +102,27 @@ internal fun FeaturedCarousel() {
                 )
             }
         ) {
-            Card()
+            OverlayButton()
         }
     }
 }
 
 @Composable
-private fun Card() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(40.dp),
-        contentAlignment = Alignment.BottomStart
-    ) {
-        var isFocused by remember { mutableStateOf(false) }
+private fun OverlayButton() {
+    var isFocused by remember { mutableStateOf(false) }
 
-        Box(
-            modifier = Modifier
-                .border(
-                    width = 2.dp,
-                    color = if (isFocused) Color.Red else Color.Transparent,
-                    shape = RoundedCornerShape(50)
-                )
-        ) {
-            Button(
-                onClick = { },
-                modifier = Modifier
-                    .onFocusChanged { isFocused = it.isFocused }
-                    .padding(vertical = 2.dp, horizontal = 5.dp)
-            ) {
-                Text(text = "Play")
-            }
-        }
+    Button(
+        onClick = { },
+        modifier = Modifier
+            .onFocusChanged { isFocused = it.isFocused }
+            .padding(40.dp)
+            .border(
+                width = 2.dp,
+                color = if (isFocused) Color.Red else Color.Transparent,
+                shape = RoundedCornerShape(50)
+            )
+            .padding(vertical = 2.dp, horizontal = 5.dp)
+    ) {
+        Text(text = "Play")
     }
 }
