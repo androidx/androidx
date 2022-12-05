@@ -27,6 +27,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
@@ -101,7 +102,7 @@ class VideoCaptureDeviceTest(
         private const val VIDEO_RECORDING_COUNT_DOWN = 5
         private const val VIDEO_STARTED_COUNT_DOWN = 1
         private const val VIDEO_SAVED_COUNT_DOWN = 1
-        private const val TAG = "VideoRecordingTest"
+        private const val TAG = "VideoCaptureDeviceTest"
 
         @JvmStatic
         @BeforeClass
@@ -124,7 +125,9 @@ class VideoCaptureDeviceTest(
     }
 
     @get:Rule
-    val cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val activityRule: ActivityScenarioRule<FakeActivity> =
