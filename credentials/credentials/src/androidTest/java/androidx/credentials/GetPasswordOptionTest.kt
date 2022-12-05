@@ -32,7 +32,9 @@ class GetPasswordOptionTest {
         val option = GetPasswordOption()
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        assertThat(equals(option.data, Bundle.EMPTY)).isTrue()
+        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
+        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
+        assertThat(option.requireSystemProvider).isFalse()
     }
 
     @Test
@@ -40,7 +42,7 @@ class GetPasswordOptionTest {
         val option = GetPasswordOption()
 
         val convertedOption = createFrom(
-            option.type, option.data, option.requireSystemProvider
+            option.type, option.requestData, option.candidateQueryData, option.requireSystemProvider
         )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)

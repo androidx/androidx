@@ -36,7 +36,7 @@ public class GetCustomCredentialOptionJavaTest {
     public void constructor_nullType_throws() {
         assertThrows("Expected null type to throw NPE",
                 NullPointerException.class,
-                () -> new GetCustomCredentialOption(null, new Bundle(), false)
+                () -> new GetCustomCredentialOption(null, new Bundle(), new Bundle(), false)
         );
     }
 
@@ -44,7 +44,7 @@ public class GetCustomCredentialOptionJavaTest {
     public void constructor_nullBundle_throws() {
         assertThrows("Expected null bundle to throw NPE",
                 NullPointerException.class,
-                () -> new GetCustomCredentialOption("T", null, false)
+                () -> new GetCustomCredentialOption("T", null, new Bundle(), false)
         );
     }
 
@@ -52,13 +52,13 @@ public class GetCustomCredentialOptionJavaTest {
     public void constructor_emptyType_throws() {
         assertThrows("Expected empty type to throw IAE",
                 IllegalArgumentException.class,
-                () -> new GetCustomCredentialOption("", new Bundle(), false)
+                () -> new GetCustomCredentialOption("", new Bundle(), new Bundle(), false)
         );
     }
 
     @Test
     public void constructor_nonEmptyTypeNonNullBundle_success() {
-        new GetCustomCredentialOption("T", new Bundle(), true);
+        new GetCustomCredentialOption("T", new Bundle(), new Bundle(), true);
     }
 
     @Test
@@ -66,14 +66,19 @@ public class GetCustomCredentialOptionJavaTest {
         String expectedType = "TYPE";
         Bundle expectedBundle = new Bundle();
         expectedBundle.putString("Test", "Test");
+        Bundle expectedCandidateQueryDataBundle = new Bundle();
+        expectedCandidateQueryDataBundle.putBoolean("key", true);
 
         boolean expectedSystemProvider = true;
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
+                expectedCandidateQueryDataBundle,
                 expectedSystemProvider);
 
         assertThat(option.getType()).isEqualTo(expectedType);
-        assertThat(TestUtilsKt.equals(option.getData(), expectedBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getRequestData(), expectedBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
         assertThat(option.requireSystemProvider()).isEqualTo(expectedSystemProvider);
     }
 }

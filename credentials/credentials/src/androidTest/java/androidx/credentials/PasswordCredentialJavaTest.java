@@ -80,12 +80,12 @@ public class PasswordCredentialJavaTest {
         CreatePasswordRequest credential = new CreatePasswordRequest(idExpected, passwordExpected);
 
         assertThat(credential.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(credential.getData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(credential.getCredentialData(), expectedData)).isTrue();
     }
 
     @Test
     public void frameworkConversion_success() {
-        CreatePasswordRequest credential = new CreatePasswordRequest("id", "password");
+        PasswordCredential credential = new PasswordCredential("id", "password");
 
         Credential convertedCredential = Credential.createFrom(
                 credential.getType(), credential.getData());

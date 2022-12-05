@@ -36,9 +36,10 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true,
 ) : GetCredentialOption(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(requestJson, allowHybrid),
-    false
+    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    requestData = toRequestDataBundle(requestJson, allowHybrid),
+    candidateQueryData = toRequestDataBundle(requestJson, allowHybrid),
+    requireSystemProvider = false
 ) {
     init {
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
@@ -55,7 +56,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION"
 
         @JvmStatic
-        internal fun toBundle(requestJson: String, allowHybrid: Boolean): Bundle {
+        internal fun toRequestDataBundle(requestJson: String, allowHybrid: Boolean): Bundle {
             val bundle = Bundle()
             bundle.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,

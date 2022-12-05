@@ -92,7 +92,8 @@ class GetPublicKeyCredentialOptionTest {
         val option = GetPublicKeyCredentialOption(requestJsonExpected, allowHybridExpected)
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(option.data, expectedData)).isTrue()
+        assertThat(equals(option.requestData, expectedData)).isTrue()
+        assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
         assertThat(option.requireSystemProvider).isFalse()
     }
 
@@ -101,7 +102,7 @@ class GetPublicKeyCredentialOptionTest {
         val option = GetPublicKeyCredentialOption("json", true)
 
         val convertedOption = createFrom(
-            option.type, option.data, option.requireSystemProvider
+            option.type, option.requestData, option.candidateQueryData, option.requireSystemProvider
         )
 
         assertThat(convertedOption).isInstanceOf(
