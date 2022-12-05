@@ -270,13 +270,16 @@ public final class Preview extends UseCase {
                 /*hasCameraTransform=*/true,
                 requireNonNull(getCropRect(resolution)),
                 getRelativeRotation(camera),
-                /*mirroring=*/isFrontCamera(camera),
-                this::notifyReset);
+                /*mirroring=*/isFrontCamera(camera));
+        mCameraEdge.addOnInvalidatedListener(this::notifyReset);
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
         SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
                 singletonList(outConfig));
         SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
         SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+        appEdge.addOnInvalidatedListener(() -> {
+            // TODO: call appEdge.createSurfaceRequest and send the new request to the app.
+        });
 
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
