@@ -49,6 +49,9 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * An edge between two {@link Node} that is based on a {@link DeferrableSurface}.
  *
@@ -102,12 +105,11 @@ public class SurfaceEdge {
     @Nullable
     private SurfaceRequest mProviderSurfaceRequest;
 
-    @NonNull
-    private final Runnable mOnInvalidated;
-
     // TODO(b/259308680): recreate this variable when the downstream node changes.
     @NonNull
     private final SettableSurface mSettableSurface = new SettableSurface();
+
+    private final Set<Runnable> mOnInvalidatedListeners = new HashSet<>();
 
     /**
      * Please see the getters to understand the parameters.
@@ -119,8 +121,7 @@ public class SurfaceEdge {
             boolean hasCameraTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
-            boolean mirroring,
-            @NonNull Runnable onInvalidated) {
+            boolean mirroring) {
         mTargets = targets;
         mSize = size;
         mSensorToBufferTransform = sensorToBufferTransform;
@@ -128,7 +129,18 @@ public class SurfaceEdge {
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
-        mOnInvalidated = onInvalidated;
+    }
+
+    /**
+     * Adds a Runnable that gets invoked when the downstream pipeline is invalidated.
+     *
+     * <p>The added listeners are invoked when the downstream pipeline wants to replace the
+     * previously provided {@link Surface}. For example, when {@link SurfaceRequest#invalidate()}
+     * is called. When that happens, the edge should notify the upstream pipeline to get the new
+     * Surface.
+     */
+    public void addOnInvalidatedListener(@NonNull Runnable onInvalidated) {
+        mOnInvalidatedListeners.add(onInvalidated);
     }
 
     /**
@@ -273,25 +285,40 @@ public class SurfaceEdge {
     }
 
     /**
-     * Invalidate the previously provided {@link Surface} to provide a new one.
+     * Closes the current connection and notifies that a new connection is ready.
      *
-     * <p>Call this method to inform that the {@link Surface} previously provided via
-     * {@link #createSurfaceRequest(CameraInternal)} or
-     * {@link #createSurfaceRequest(CameraInternal, Range)} is no longer valid and should reacquire
-     * a new {@link Surface}.
+     * <p>Call this method to notify that the {@link Surface} previously provided via
+     * {@link #createSurfaceRequest} or {@link #setProvider} should no longer be used. The
+     * upstream pipeline should call {@link #getDeferrableSurface()} or
+     * {@link #createSurfaceOutputFuture} to get the new {@link Surface}.
      *
-     * <p>The method <strong>must</strong> be called when the surface provider is ready to provide
-     * a new {@link Surface}. (e.g. SurfaceView's surface is created when its window is visible.)
+     * <p>Only call this method when the surface provider is ready to provide a new {@link Surface}.
+     * For example, when {@link SurfaceRequest#invalidate()} is invoked or when a downstream
+     * {@link UseCase} resets.
+     *
+     * @see #close()
      */
     @MainThread
     public void invalidate() {
         checkMainThread();
         close();
-        mOnInvalidated.run();
+        // TODO: recreate mSettableSurface.
+        for (Runnable onInvalidated : mOnInvalidatedListeners) {
+            onInvalidated.run();
+        }
     }
 
     /**
-     * Closes the {@link DeferrableSurface} and notifies linked objects for the closure.
+     * Closes the current connection.
+     *
+     * <p>This method uses the mechanism in {@link DeferrableSurface} and/or
+     * {@link SurfaceOutputImpl} to notify the upstream pipeline that the {@link Surface}
+     * previously provided via {@link #createSurfaceRequest} or {@link #setProvider} should no
+     * longer be used. The upstream pipeline will stops writing to the {@link Surface}, and the
+     * downstream pipeline can choose to release the {@link Surface} once the writing stops.
+     *
+     * @see DeferrableSurface#close().
+     * @see #invalidate()
      */
     @MainThread
     public final void close() {

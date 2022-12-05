@@ -70,7 +70,7 @@ class SurfaceEdgeTest {
         surfaceEdge = SurfaceEdge(
             CameraEffect.PREVIEW, Size(640, 480),
             Matrix(), true, Rect(), 0, false
-        ) {}
+        )
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
     }
@@ -173,6 +173,19 @@ class SurfaceEdgeTest {
     }
 
     @Test
+    fun createSurfaceRequestAndInvalidate_edgeResets() {
+        // Arrange: listen for the reset.
+        var isReset = false
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        surfaceEdge.addOnInvalidatedListener { isReset = true }
+        // Act: invalidate the SurfaceRequest.
+        surfaceRequest.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert: edge is reset.
+        assertThat(isReset).isTrue()
+    }
+
+    @Test
     fun createSurfaceRequestAndProvide_surfaceIsPropagated() {
         // Arrange: create a SurfaceRequest.
         val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
@@ -198,7 +211,7 @@ class SurfaceEdgeTest {
         // Arrange.
         val surface = SurfaceEdge(
             CameraEffect.PREVIEW, Size(640, 480), Matrix(), hasCameraTransform, Rect(), 0, false
-        ) {}
+        )
         var transformationInfo: TransformationInfo? = null
 
         // Act: get the hasCameraTransform bit from the SurfaceRequest.
