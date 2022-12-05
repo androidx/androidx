@@ -245,9 +245,8 @@ internal fun measureLazyGrid(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            reverseLayout = reverseLayout,
             positionedItems = positionedItems,
-            measuredItemProvider = measuredItemProvider,
+            itemProvider = measuredItemProvider,
             spanLayoutProvider = spanLayoutProvider
         )
 
@@ -285,14 +284,14 @@ private fun calculateItemsOffsets(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-): MutableList<TvLazyGridPositionedItem> {
+): MutableList<LazyGridPositionedItem> {
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < min(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
         check(firstLineScrollOffset == 0)
     }
 
-    val positionedItems = ArrayList<TvLazyGridPositionedItem>(lines.fastSumBy { it.items.size })
+    val positionedItems = ArrayList<LazyGridPositionedItem>(lines.fastSumBy { it.items.size })
 
     if (hasSpareSpace) {
         val linesCount = lines.size
