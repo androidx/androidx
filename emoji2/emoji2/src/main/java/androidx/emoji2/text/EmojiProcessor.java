@@ -64,7 +64,7 @@ final class EmojiProcessor {
          * Returning {@code false} can abort this {@link #process} loop.
          */
         boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
-                EmojiMetadata metadata);
+                TypefaceEmojiRasterizer metadata);
 
         /**
          * @return the result after process.
@@ -155,7 +155,7 @@ final class EmojiProcessor {
         while (currentOffset < end) {
             final int codePoint = Character.codePointAt(charSequence, currentOffset);
             final int action = sm.check(codePoint);
-            EmojiMetadata currentNode = sm.getCurrentMetadata();
+            TypefaceEmojiRasterizer currentNode = sm.getCurrentMetadata();
             switch (action) {
                 case ACTION_FLUSH: {
                     // this happens when matching new unknown ZWJ sequences that are comprised of
@@ -190,7 +190,7 @@ final class EmojiProcessor {
         if (sm.isInFlushableState()) {
             // We matched exactly one emoji
             // EmojiCompat can completely handle this sequence
-            EmojiMetadata exactMatch = sm.getCurrentMetadata();
+            TypefaceEmojiRasterizer exactMatch = sm.getCurrentMetadata();
             if (exactMatch.getCompatAdded() <= metadataVersion) {
                 return EmojiCompat.EMOJI_SUPPORTED;
             }
@@ -573,15 +573,15 @@ final class EmojiProcessor {
      * @return {@code true} if the OS can render emoji, {@code false} otherwise
      */
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
-            final EmojiMetadata metadata) {
+            final TypefaceEmojiRasterizer metadata) {
         // if the existence is not calculated yet
-        if (metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_UNKNOWN) {
+        if (metadata.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_UNKNOWN) {
             final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end,
                     metadata.getSdkAdded());
             metadata.setHasGlyph(hasGlyph);
         }
 
-        return metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_EXISTS;
+        return metadata.getHasGlyph() == TypefaceEmojiRasterizer.HAS_GLYPH_EXISTS;
     }
 
     /**
@@ -700,14 +700,14 @@ final class EmojiProcessor {
         /**
          * @return the metadata node when ACTION_FLUSH is returned
          */
-        EmojiMetadata getFlushMetadata() {
+        TypefaceEmojiRasterizer getFlushMetadata() {
             return mFlushNode.getData();
         }
 
         /**
          * @return current pointer to the metadata node in the trie
          */
-        EmojiMetadata getCurrentMetadata() {
+        TypefaceEmojiRasterizer getCurrentMetadata() {
             return mCurrentNode.getData();
         }
 
@@ -906,7 +906,7 @@ final class EmojiProcessor {
 
         @Override
         public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
-                EmojiMetadata metadata) {
+                TypefaceEmojiRasterizer metadata) {
             if (spannable == null) {
                 spannable = new UnprecomputeTextOnModificationSpannable(
                         charSequence instanceof Spannable
@@ -938,7 +938,7 @@ final class EmojiProcessor {
 
         @Override
         public boolean handleEmoji(@NonNull CharSequence charSequence, int start, int end,
-                EmojiMetadata metadata) {
+                TypefaceEmojiRasterizer metadata) {
             if (start <= mOffset && mOffset < end) {
                 this.start = start;
                 this.end = end;

@@ -379,6 +379,8 @@ public class EmojiCompat {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final @NonNull MetadataRepoLoader mMetadataLoader;
 
+    private @NonNull final SpanFactory mSpanFactory;
+
     /**
      * @see Config#setReplaceAll(boolean)
      */
@@ -469,6 +471,8 @@ public class EmojiCompat {
         mGlyphChecker = config.mGlyphChecker;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
+        SpanFactory localSpanFactory = config.mSpanFactory;
+        mSpanFactory = localSpanFactory != null ? localSpanFactory : new DefaultSpanFactory();
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
             mInitCallbacks.addAll(config.mInitCallbacks);
         }
@@ -1174,21 +1178,44 @@ public class EmojiCompat {
     }
 
     /**
-     * Factory class that creates the EmojiSpans. By default it creates {@link TypefaceEmojiSpan}.
+     * Factory class that creates the EmojiSpans.
      *
-     * @hide
+     * By default it creates {@link TypefaceEmojiSpan}.
+     *
+     * Apps should use this only if they want to control the drawing of EmojiSpans for non-standard
+     * emoji display (for example, resizing or repositioning emoji).
      */
-    @RestrictTo(LIBRARY)
-    @RequiresApi(19)
-    static class SpanFactory {
+    public interface SpanFactory {
         /**
          * Create EmojiSpan instance.
          *
-         * @param metadata EmojiMetadata instance
+         * @param metadata EmojiMetadata instance, which can draw the emoji onto a Canvas.
          *
-         * @return EmojiSpan instance
+         * @return EmojiSpan instance that can use EmojiMetadata to draw emoji.
          */
-        EmojiSpan createSpan(@NonNull final EmojiMetadata metadata) {
+        @RequiresApi(19)
+        @NonNull
+        EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer metadata);
+    }
+
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static class DefaultSpanFactory implements SpanFactory {
+
+        /**
+         * Returns a TypefaceEmojiSpan.
+         *
+         * @param metadata EmojiMetadata instance, which can draw the emoji onto a Canvas.
+         *
+         * @return {@link TypefaceEmojiSpan}
+         */
+        @RequiresApi(19)
+        @NonNull
+        @Override
+        public EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer metadata) {
             return new TypefaceEmojiSpan(metadata);
         }
     }
@@ -1309,6 +1336,13 @@ public class EmojiCompat {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull
         final MetadataRepoLoader mMetadataLoader;
+
+        /**
+         * Used to create new EmojiSpans.
+         *
+         * May be set by developer using config to fully customize emoji display.
+         */
+        SpanFactory mSpanFactory;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         boolean mReplaceAll;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1512,6 +1546,18 @@ public class EmojiCompat {
         }
 
         /**
+         * Set the span factory used to actually draw emoji replacements.
+         *
+         * @param factory custum span factory that can draw the emoji replacements
+         * @return this
+         */
+        @NonNull
+        public Config setSpanFactory(@NonNull SpanFactory factory) {
+            mSpanFactory = factory;
+            return this;
+        }
+
+        /**
          * The interface that is used by EmojiCompat in order to check if a given emoji can be
          * rendered by the system.
          *
@@ -1687,7 +1733,7 @@ public class EmojiCompat {
             mMetadataRepo = metadataRepo;
             mProcessor = new EmojiProcessor(
                     mMetadataRepo,
-                    new SpanFactory(),
+                    mEmojiCompat.mSpanFactory,
                     mEmojiCompat.mGlyphChecker,
                     mEmojiCompat.mUseEmojiAsDefaultStyle,
                     mEmojiCompat.mEmojiAsDefaultStyleExceptions);

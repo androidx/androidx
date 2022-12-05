@@ -37,11 +37,16 @@ import org.junit.runner.RunWith;
 public class EmojiProcessorTest extends TestCase {
     private EmojiProcessor mProcessor;
 
-    TestEmojiMetadata mInitialCodepoint = new TestEmojiMetadata(new int[] {1}, 1, (short) 1);
-    TestEmojiMetadata mAnotherInitial = new TestEmojiMetadata(new int[] {2}, 2, (short) 1);
-    TestEmojiMetadata mAddedLast = new TestEmojiMetadata(new int[] {1, 2}, 3, (short) 2);
-    TestEmojiMetadata mUnrelatedLast = new TestEmojiMetadata(new int[] {3, 4}, 4, (short) 2);
-    TestEmojiMetadata mExactMatchLast = new TestEmojiMetadata(new int[] {5}, 5, (short) 2);
+    TestTypefaceEmojiRasterizer mInitialCodepoint = new TestTypefaceEmojiRasterizer(new int[]{1}, 1,
+            (short) 1);
+    TestTypefaceEmojiRasterizer mAnotherInitial = new TestTypefaceEmojiRasterizer(new int[]{2}, 2,
+            (short) 1);
+    TestTypefaceEmojiRasterizer mAddedLast = new TestTypefaceEmojiRasterizer(new int[]{1, 2}, 3,
+            (short) 2);
+    TestTypefaceEmojiRasterizer mUnrelatedLast = new TestTypefaceEmojiRasterizer(new int[]{3, 4}, 4,
+            (short) 2);
+    TestTypefaceEmojiRasterizer mExactMatchLast = new TestTypefaceEmojiRasterizer(new int[]{5}, 5,
+            (short) 2);
 
     @Before
     public void clearResourceIndex() {
@@ -51,7 +56,7 @@ public class EmojiProcessorTest extends TestCase {
         metadataRepo.put(mAddedLast);
         metadataRepo.put(mUnrelatedLast);
         metadataRepo.put(mExactMatchLast);
-        EmojiCompat.SpanFactory spanFactory = new EmojiCompat.SpanFactory();
+        EmojiCompat.SpanFactory spanFactory = new EmojiCompat.DefaultSpanFactory();
         EmojiCompat.GlyphChecker glyphChecker = (charSequence, start, end, sdkAdded) -> true;
         mProcessor = new EmojiProcessor(metadataRepo, spanFactory, glyphChecker, true, null);
     }
@@ -148,7 +153,8 @@ public class EmojiProcessorTest extends TestCase {
         return sb.toString();
     }
 
-    private void assertEmojiSpan(EmojiMetadata expectedMetadata, int expectedStart, int expectedEnd,
+    private void assertEmojiSpan(TypefaceEmojiRasterizer expectedMetadata, int expectedStart,
+            int expectedEnd,
             Spannable actual) {
         final EmojiSpan[] spans = actual.getSpans(expectedStart, expectedEnd, EmojiSpan.class);
         assertEquals(1, spans.length);
