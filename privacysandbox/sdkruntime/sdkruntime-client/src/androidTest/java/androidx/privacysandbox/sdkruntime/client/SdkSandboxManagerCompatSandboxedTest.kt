@@ -69,7 +69,7 @@ class SdkSandboxManagerCompatSandboxedTest {
         val sdkSandboxManager = mockSandboxManager(mContext)
         setupLoadSdkAnswer(sdkSandboxManager, SandboxedSdk(Binder()))
 
-        val managerCompat = SdkSandboxManagerCompat.obtain(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
         val sdkName = "test"
         val params = Bundle()
 
@@ -96,7 +96,7 @@ class SdkSandboxManagerCompatSandboxedTest {
         val sandboxedSdk = SandboxedSdk(Binder())
         setupLoadSdkAnswer(sdkSandboxManager, sandboxedSdk)
 
-        val managerCompat = SdkSandboxManagerCompat.obtain(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val result = runBlocking {
             managerCompat.loadSdk("test", Bundle())
@@ -119,7 +119,7 @@ class SdkSandboxManagerCompatSandboxedTest {
         )
         setupLoadSdkAnswer(sdkSandboxManager, loadSdkException)
 
-        val managerCompat = SdkSandboxManagerCompat.obtain(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {

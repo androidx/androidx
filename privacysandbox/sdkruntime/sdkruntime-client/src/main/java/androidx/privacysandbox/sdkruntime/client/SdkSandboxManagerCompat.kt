@@ -35,7 +35,6 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.toSandboxedSdkCompat
 import java.util.WeakHashMap
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -44,6 +43,40 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * Provides APIs to load [androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat]
  * into SDK sandbox process or locally, and then interact with them.
+ *
+ * SdkSandbox process is a java process running in a separate uid range. Each app has its own
+ * SDK sandbox process.
+ *
+ * First app needs to declare SDKs it depends on in it's AndroidManifest.xml
+ * using <uses-sdk-library> tag. App can only load SDKs it depends on into the
+ * SDK sandbox process.
+ *
+ * For loading SDKs locally App need to bundle and declare local SDKs in
+ * assets/RuntimeEnabledSdkTable.xml with following format:
+ *
+ * <runtime-enabled-sdk-table>
+ *     <runtime-enabled-sdk>
+ *         <package-name>com.sdk1</package-name>
+ *         <compat-config-path>assets/RuntimeEnabledSdk-com.sdk1/CompatSdkConfig.xml</compat-config-path>
+ *     </runtime-enabled-sdk>
+ *     <runtime-enabled-sdk>
+ *         <package-name>com.sdk2</package-name>
+ *         <compat-config-path>assets/RuntimeEnabledSdk-com.sdk2/CompatSdkConfig.xml</compat-config-path>
+ *     </runtime-enabled-sdk>
+ * </runtime-enabled-sdk-table>
+ *
+ * Each local SDK should have config with following format:
+ *
+ * <compat-config>
+ *     <dex-path>RuntimeEnabledSdk-sdk.package.name/dex/classes.dex</dex-path>
+ *     <dex-path>RuntimeEnabledSdk-sdk.package.name/dex/classes2.dex</dex-path>
+ *     <java-resources-root-path>RuntimeEnabledSdk-sdk.package.name/res</java-resources-root-path>
+ *     <compat-entrypoint>com.sdk.EntryPointClass</compat-entrypoint>
+ *     <resource-id-remapping>
+ *         <r-package-class>com.test.sdk.RPackage</r-package-class>
+ *         <resources-package-id>123</resources-package-id>
+ *     </resource-id-remapping>
+ * </compat-config>
  *
  * @see [SdkSandboxManager]
  */
@@ -57,6 +90,19 @@ class SdkSandboxManagerCompat private constructor(
 
     /**
      * Load SDK in a SDK sandbox java process or locally.
+     *
+     * App should already declare SDKs it depends on in its AndroidManifest using
+     * <use-sdk-library> tag. App can only load SDKs it depends on into the SDK Sandbox process.
+     *
+     * When client application loads the first SDK, a new SdkSandbox process will be
+     * created, otherwise other SDKs will be loaded into the same sandbox which already created for
+     * the client application.
+     *
+     * Alternatively App could bundle and declare local SDKs dependencies in
+     * assets/RuntimeEnabledSdkTable.xml to load SDKs locally.
+     *
+     * This API may only be called while the caller is running in the foreground. Calls from the
+     * background will result in a [LoadSdkCompatException] being thrown.
      *
      * @param sdkName name of the SDK to be loaded.
      * @param params additional parameters to be passed to the SDK in the form of a [Bundle]
@@ -106,7 +152,7 @@ class SdkSandboxManagerCompat private constructor(
         ): SandboxedSdkCompat {
             try {
                 val sandboxedSdk = loadSdkInternal(sdkName, params)
-                return toSandboxedSdkCompat(sandboxedSdk)
+                return SandboxedSdkCompat(sandboxedSdk)
             } catch (ex: LoadSdkException) {
                 throw toLoadCompatSdkException(ex)
             }
@@ -157,7 +203,7 @@ class SdkSandboxManagerCompat private constructor(
          *  @return SdkSandboxManagerCompat object.
          */
         @JvmStatic
-        fun obtain(context: Context): SdkSandboxManagerCompat {
+        fun from(context: Context): SdkSandboxManagerCompat {
             synchronized(sInstances) {
                 var instance = sInstances[context]
                 if (instance == null) {

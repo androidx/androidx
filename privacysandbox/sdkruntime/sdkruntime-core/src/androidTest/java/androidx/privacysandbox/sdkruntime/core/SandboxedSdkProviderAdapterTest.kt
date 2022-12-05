@@ -22,7 +22,6 @@ import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -169,7 +168,7 @@ class SandboxedSdkProviderAdapterTest {
         SandboxedSdkProviderAdapter.extractDelegate(): T = delegate as T
 
     class TestOnLoadReturnResultSdkProvider : SandboxedSdkProviderCompat() {
-        var mResult = create(Binder())
+        var mResult = SandboxedSdkCompat(Binder())
         var mLastOnLoadSdkBundle: Bundle? = null
 
         override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {

@@ -70,7 +70,7 @@ internal class SdkV1 private constructor(
         @SuppressLint("BanUncheckedReflection") // calling method on SandboxedSdkCompat class
         fun build(rawObject: Any): SandboxedSdkCompat {
             val binder = getInterfaceMethod.invoke(rawObject) as IBinder
-            return SandboxedSdkCompat.create(binder)
+            return SandboxedSdkCompat(binder)
         }
 
         companion object {

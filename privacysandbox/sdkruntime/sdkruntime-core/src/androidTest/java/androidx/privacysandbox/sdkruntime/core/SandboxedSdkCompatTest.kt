@@ -20,8 +20,6 @@ import android.app.sdksandbox.SandboxedSdk
 import android.os.Binder
 import android.os.Build.VERSION_CODES.TIRAMISU
 import androidx.core.os.BuildCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.create
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion.toSandboxedSdkCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -39,7 +37,7 @@ class SandboxedSdkCompatTest {
     fun getInterface_returnsBinderPassedToCreate() {
         val binder = Binder()
 
-        val sandboxedSdkCompat = create(binder)
+        val sandboxedSdkCompat = SandboxedSdkCompat(binder)
 
         assertThat(sandboxedSdkCompat.getInterface())
             .isSameInstanceAs(binder)
@@ -54,7 +52,7 @@ class SandboxedSdkCompatTest {
 
         val binder = Binder()
 
-        val toSandboxedSdkResult = create(binder).toSandboxedSdk()
+        val toSandboxedSdkResult = SandboxedSdkCompat(binder).toSandboxedSdk()
 
         assertThat(toSandboxedSdkResult.getInterface())
             .isSameInstanceAs(binder)
@@ -70,7 +68,7 @@ class SandboxedSdkCompatTest {
         val binder = Binder()
         val sandboxedSdk = SandboxedSdk(binder)
 
-        val toSandboxedSdkResult = toSandboxedSdkCompat(sandboxedSdk).toSandboxedSdk()
+        val toSandboxedSdkResult = SandboxedSdkCompat(sandboxedSdk).toSandboxedSdk()
 
         assertThat(toSandboxedSdkResult)
             .isSameInstanceAs(sandboxedSdk)

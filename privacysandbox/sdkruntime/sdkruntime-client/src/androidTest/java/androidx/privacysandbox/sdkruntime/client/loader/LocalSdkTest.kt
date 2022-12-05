@@ -109,7 +109,7 @@ internal class LocalSdkTest(
             if (params.getBoolean("needFail", false)) {
                 throw LoadSdkCompatException(RuntimeException(), params)
             }
-            return SandboxedSdkCompat.create(onLoadSdkBinder)
+            return SandboxedSdkCompat(onLoadSdkBinder)
         }
 
         override fun beforeUnloadSdk() {
