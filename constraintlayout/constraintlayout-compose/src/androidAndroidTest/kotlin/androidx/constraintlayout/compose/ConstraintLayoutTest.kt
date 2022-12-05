@@ -441,7 +441,9 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[0] = it.positionInRoot().round()
+                            position[0] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
                 val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
@@ -453,7 +455,9 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[1] = it.positionInRoot().round()
+                            position[1] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
                 Box(
@@ -464,7 +468,9 @@ class ConstraintLayoutTest {
                         }
                         .size(boxSize.toDp(), boxSize.toDp())
                         .onGloballyPositioned {
-                            position[2] = it.positionInRoot().round()
+                            position[2] = it
+                                .positionInRoot()
+                                .round()
                         }
                 )
             }
@@ -540,7 +546,9 @@ class ConstraintLayoutTest {
                             .layoutId("box$i")
                             .size(boxSize.toDp(), boxSize.toDp())
                             .onGloballyPositioned {
-                                position[i] = it.positionInRoot().round()
+                                position[i] = it
+                                    .positionInRoot()
+                                    .round()
                             }
                     )
                 }
@@ -1460,6 +1468,34 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             assertEquals(offset.roundToPx().toFloat(), obtainedX)
             assertEquals(2, builds)
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_doesNotRecomposeAgain_whenHelpersChange() = with(rule.density) {
+        var offset by mutableStateOf(10.dp)
+        var compositions = 0
+        rule.setContent {
+            ConstraintLayout {
+                ++compositions
+                val box = createRef()
+                val g = createGuidelineFromStart(offset)
+                Box(
+                    Modifier
+                        .constrainAs(box) {
+                            start.linkTo(g)
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            offset = 20.dp
+            assertEquals(1, compositions)
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, compositions)
         }
     }
 
