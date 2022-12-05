@@ -40,6 +40,9 @@ internal class KspRoundEnv(
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
+        if (annotationQualifiedName == "*") {
+            return emptySet()
+        }
         return env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
             .map { symbol ->
                 when (symbol) {
