@@ -146,7 +146,6 @@ public class EncoderImpl implements Encoder {
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
-    private static final long TIMESTAMP_ANY = -1;
     private static final int FAKE_BUFFER_INDEX = -9999;
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
@@ -408,29 +407,16 @@ public class EncoderImpl implements Encoder {
     }
 
     /**
-     * Stops the encoder.
-     *
-     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
-     * call {@link #start} to start again.
+     * {@inheritDoc}
      */
     @Override
     public void stop() {
-        stop(TIMESTAMP_ANY);
+        stop(NO_TIMESTAMP);
     }
 
+
     /**
-     * Stops the encoder with an expected stop time.
-     *
-     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
-     * call {@link #start} to start again.
-     *
-     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
-     * as to the given stop timestamp.
-     *
-     * <p>Use {@link #stop()} to stop the encoder without specifying expected stop time and let
-     * the Encoder to decide.
-     *
-     * @param expectedStopTimeUs The desired stop time.
+     * {@inheritDoc}
      */
     @Override
     public void stop(long expectedStopTimeUs) {
@@ -451,7 +437,7 @@ public class EncoderImpl implements Encoder {
                         throw new AssertionError("There should be a \"start\" before \"stop\"");
                     }
                     long stopTimeUs;
-                    if (expectedStopTimeUs == TIMESTAMP_ANY) {
+                    if (expectedStopTimeUs == NO_TIMESTAMP) {
                         stopTimeUs = stopTriggerTimeUs;
                     } else if (expectedStopTimeUs < startTimeUs) {
                         // If the recording is stopped immediately after started, it's possible
@@ -824,26 +810,32 @@ public class EncoderImpl implements Encoder {
                     + ", input buffers = " + mInputBufferSet.size());
         }
         Futures.successfulAsList(futures).addListener(() -> {
-            if (!futures.isEmpty()) {
-                Logger.d(mTag, "encoded data and input buffers are returned");
-            }
-            if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
-                // For a SurfaceInput, the codec is in control of de-queuing buffers from the
-                // underlying BufferQueue. If we stop the codec, then it will stop de-queuing
-                // buffers and the BufferQueue may run out of input buffers, causing the camera
-                // pipeline to stall. Instead of stopping, we will flush the codec. Since the
-                // codec is operating in asynchronous mode, this will cause the codec to continue
-                // to discard buffers. We should have already received the end-of-stream signal on
-                // an output buffer at this point, so those buffers are not needed anyways. We will
-                // defer resetting the codec until just before starting the codec again.
-                mMediaCodec.flush();
-                mIsFlushedAfterEndOfStream = true;
-            } else {
-                // Non-SurfaceInputs give us more control over input buffers. We can directly
-                // stop the codec instead of flushing.
-                // Additionally, if we already received a signal that the source is stopped, then
-                // there shouldn't be new buffers being produced, and we don't need to flush.
-                mMediaCodec.stop();
+            // If the encoder is not in ERROR state, stop the codec first before resetting.
+            // Otherwise, reset directly.
+            if (mState != ERROR) {
+                if (!futures.isEmpty()) {
+                    Logger.d(mTag, "encoded data and input buffers are returned");
+                }
+                if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
+                    // For a SurfaceInput, the codec is in control of de-queuing buffers from the
+                    // underlying BufferQueue. If we stop the codec, then it will stop de-queuing
+                    // buffers and the BufferQueue may run out of input buffers, causing the camera
+                    // pipeline to stall. Instead of stopping, we will flush the codec. Since the
+                    // codec is operating in asynchronous mode, this will cause the codec to
+                    // continue to discard buffers. We should have already received the
+                    // end-of-stream signal on an output buffer at this point, so those buffers
+                    // are not needed anyways. We will defer resetting the codec until just
+                    // before starting the codec again.
+                    mMediaCodec.flush();
+                    mIsFlushedAfterEndOfStream = true;
+                } else {
+                    // Non-SurfaceInputs give us more control over input buffers. We can directly
+                    // stop the codec instead of flushing.
+                    // Additionally, if we already received a signal that the source is stopped,
+                    // then there shouldn't be new buffers being produced, and we don't need to
+                    // flush.
+                    mMediaCodec.stop();
+                }
             }
             if (afterStop != null) {
                 afterStop.run();

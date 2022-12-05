@@ -1003,7 +1003,7 @@ public final class Recorder implements VideoOutput {
         if (shouldReset) {
             resetInternal();
         } else if (shouldStop) {
-            stopInternal(mInProgressRecording, null, errorCode, errorCause);
+            stopInternal(mInProgressRecording, Encoder.NO_TIMESTAMP, errorCode, errorCause);
         }
     }
 
@@ -1759,7 +1759,11 @@ public final class Recorder implements VideoOutput {
                     @Override
                     public void onFailure(@NonNull Throwable t) {
                         Logger.d(TAG, "Encodings end with error: " + t);
-                        finalizeInProgressRecording(ERROR_ENCODING_FAILED, t);
+                        // If the media muxer hasn't been set up, assume the encoding fails
+                        // because of no valid data has been produced.
+                        finalizeInProgressRecording(
+                                mMediaMuxer == null ? ERROR_NO_VALID_DATA : ERROR_ENCODING_FAILED,
+                                t);
                     }
                 },
                 // Can use direct executor since completers are always completed on sequential
@@ -1911,7 +1915,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
     void stopInternal(@NonNull RecordingRecord recordingToStop,
-            @Nullable Long explicitlyStopTime, @VideoRecordError int stopError,
+            long explicitlyStopTime, @VideoRecordError int stopError,
             @Nullable Throwable errorCause) {
         // Only stop recording if recording is in-progress and it is not already stopping.
         if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
@@ -1922,11 +1926,7 @@ public final class Recorder implements VideoOutput {
             mRecordingStopErrorCause = errorCause;
             if (isAudioEnabled()) {
                 clearPendingAudioRingBuffer();
-                if (explicitlyStopTime == null) {
-                    mAudioEncoder.stop();
-                } else {
-                    mAudioEncoder.stop(explicitlyStopTime);
-                }
+                mAudioEncoder.stop(explicitlyStopTime);
             }
             if (mPendingFirstVideoData != null) {
                 mPendingFirstVideoData.close();
@@ -1965,11 +1965,7 @@ public final class Recorder implements VideoOutput {
             // the encoder when the source has actually stopped in the FutureCallback.
             // If the recording is explicitly stopped by the user, pass the stop timestamp to the
             // encoder so that the encoding can be stop as close as to the actual stop time.
-            if (explicitlyStopTime == null) {
-                mVideoEncoder.stop();
-            } else {
-                mVideoEncoder.stop(explicitlyStopTime);
-            }
+            mVideoEncoder.stop(explicitlyStopTime);
         }
     }
 
@@ -2255,7 +2251,7 @@ public final class Recorder implements VideoOutput {
         }
 
         if (needsStop) {
-            stopInternal(recording, null, error, cause);
+            stopInternal(recording, Encoder.NO_TIMESTAMP, error, cause);
         }
     }
 
