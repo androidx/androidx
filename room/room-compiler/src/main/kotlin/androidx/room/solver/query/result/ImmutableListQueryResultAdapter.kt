@@ -38,9 +38,10 @@ class ImmutableListQueryResultAdapter(
             addLocalVariable(
                 name = immutableListBuilderName,
                 typeName = immutableListBuilderType,
-                assignExpr = XCodeBlock.ofNewInstance(
+                assignExpr = XCodeBlock.of(
                     language = language,
-                    GuavaTypeNames.IMMUTABLE_LIST_BUILDER
+                    "%T.builder()",
+                    GuavaTypeNames.IMMUTABLE_LIST
                 )
             )
 

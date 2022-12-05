@@ -31,7 +31,7 @@ public class MyDao_Impl(
         try {
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
             val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-            val _immutableListBuilder: ImmutableList.Builder<MyEntity> = ImmutableList.Builder()
+            val _immutableListBuilder: ImmutableList.Builder<MyEntity> = ImmutableList.builder()
             while (_cursor.moveToNext()) {
                 val _item: MyEntity
                 val _tmpPk: Int
@@ -57,7 +57,7 @@ public class MyDao_Impl(
         try {
             val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
             val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-            val _immutableListBuilder: ImmutableList.Builder<MyEntity?> = ImmutableList.Builder()
+            val _immutableListBuilder: ImmutableList.Builder<MyEntity?> = ImmutableList.builder()
             while (_cursor.moveToNext()) {
                 val _item: MyEntity?
                 val _tmpPk: Int
