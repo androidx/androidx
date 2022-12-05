@@ -1496,18 +1496,9 @@ class XProcessingStepTest {
                 return super.process(env, elementsByAnnotation, isLastRound)
             }
         }
-        val javacProcessor = object : JavacBasicAnnotationProcessor() {
-            override fun processingSteps() = listOf(step)
-        }
-        val ksProvider = SymbolProcessorProvider { environment ->
-            object : KspBasicAnnotationProcessor(environment) {
-                override fun processingSteps() = listOf(step)
-            }
-        }
         runProcessorTest(
             sources = listOf(kotlinSrc),
-            javacProcessors = listOf(javacProcessor),
-            symbolProcessorProviders = listOf(ksProvider)
+            createProcessingSteps = { listOf(step) }
         ) { }
         // 3 for each backend, 1st initial round, 2nd round due to new gen sources, 3rd round over
         assertThat(invocations).isEqualTo(

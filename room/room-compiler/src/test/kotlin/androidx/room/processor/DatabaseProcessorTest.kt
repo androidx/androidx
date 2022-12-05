@@ -482,7 +482,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
-            createProcessingStep = { DatabaseProcessingStep() }
+            createProcessingSteps = { listOf(DatabaseProcessingStep()) }
         ) { result ->
             result.generatedSourceFileWithPath("foo/bar/Db1_Impl.java")
             result.generatedSourceFileWithPath("foo/bar/Db2_Impl.java")
@@ -1562,7 +1562,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, bookDao) + dbs,
-            createProcessingStep = { DatabaseProcessingStep() },
+            createProcessingSteps = { listOf(DatabaseProcessingStep()) },
         ) {
             onCompilationResult?.invoke(it)
         }
