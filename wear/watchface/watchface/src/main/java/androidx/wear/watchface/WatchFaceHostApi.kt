@@ -130,10 +130,6 @@ public interface WatchFaceHostApi {
     /** Intent to launch the complication permission rationale activity. */
     public fun getComplicationRationaleIntent(): Intent?
 
-    /** Schedules a call to serialize [ComplicationSlotsManager]'s [ComplicationData]. */
-    @UiThread
-    public fun scheduleWriteComplicationDataCache()
-
     /**
      * Sent by the system at the top of the minute. This may trigger rendering if SysUI hasn't sent
      * called setWatchUiState.

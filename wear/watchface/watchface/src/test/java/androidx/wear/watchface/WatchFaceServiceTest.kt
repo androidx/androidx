@@ -2920,7 +2920,7 @@ public class WatchFaceServiceTest {
         )
 
         // Complication cache writes are deferred for 1s to try and batch up multiple updates.
-        runPostedTasksFor(1000)
+        runPostedTasksFor(2000)
         assertThat(complicationCache.size).isEqualTo(1)
         assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
@@ -3047,7 +3047,7 @@ public class WatchFaceServiceTest {
         )
 
         // Complication cache writes are deferred for 1s to try and batch up multiple updates.
-        runPostedTasksFor(1000)
+        runPostedTasksFor(2000)
         assertThat(complicationCache.size).isEqualTo(1)
         assertThat(complicationCache).containsKey(INTERACTIVE_INSTANCE_ID)
 
