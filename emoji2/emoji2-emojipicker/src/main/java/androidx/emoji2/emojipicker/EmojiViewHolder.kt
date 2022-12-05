@@ -20,7 +20,6 @@ import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View.GONE
-import android.view.View.OnClickListener
 import android.view.View.OnLongClickListener
 import android.view.View.VISIBLE
 import android.view.ViewGroup
@@ -46,12 +45,6 @@ internal class EmojiViewHolder(
     layoutInflater
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
-    private val onEmojiClickListener: OnClickListener = OnClickListener { v ->
-        v.findViewById<EmojiView>(R.id.emoji_view).emoji?.let {
-            onEmojiPickedListener(EmojiViewItem(it.toString(), emojiViewItem.variants))
-        }
-    }
-
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
         showPopupWindow(layoutInflater, emojiView) {
             PopupViewHelper(context).fillPopupView(
@@ -63,7 +56,7 @@ internal class EmojiViewHolder(
                 clickListener = { view ->
                     val emojiPickedInPopup = (view as EmojiView).emoji.toString()
                     onEmojiPickedFromPopupListener(emojiPickedInPopup)
-                    onEmojiClickListener.onClick(view)
+                    onEmojiPickedListener(makeEmojiViewItem(emojiPickedInPopup))
                     // variants[0] is always the base (i.e., primary) emoji
                     stickyVariantProvider.update(emojiViewItem.variants[0], emojiPickedInPopup)
                     this.dismiss()
@@ -83,15 +76,15 @@ internal class EmojiViewHolder(
         itemView.layoutParams = LayoutParams(width, height)
         emojiView = itemView.findViewById(R.id.emoji_view)
         emojiView.isClickable = true
-        emojiView.setOnClickListener(onEmojiClickListener)
+        emojiView.setOnClickListener { onEmojiPickedListener(emojiViewItem) }
         indicator = itemView.findViewById(R.id.variant_availability_indicator)
     }
 
     fun bindEmoji(
-        emojiViewItem: EmojiViewItem,
+        emoji: String,
     ) {
-        emojiView.emoji = emojiViewItem.emoji
-        this.emojiViewItem = emojiViewItem
+        emojiView.emoji = emoji
+        emojiViewItem = makeEmojiViewItem(emoji)
 
         if (emojiViewItem.variants.isNotEmpty()) {
             indicator.visibility = VISIBLE
@@ -131,4 +124,7 @@ internal class EmojiViewHolder(
             )
         }
     }
+
+    private fun makeEmojiViewItem(emoji: String) =
+        EmojiViewItem(emoji, BundledEmojiListLoader.getEmojiVariantsLookup()[emoji] ?: listOf())
 }

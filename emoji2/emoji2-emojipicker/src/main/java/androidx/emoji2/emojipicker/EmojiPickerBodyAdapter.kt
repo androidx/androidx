@@ -36,7 +36,7 @@ internal class EmojiPickerBodyAdapter(
     private val emojiGridColumns: Int,
     private val emojiGridRows: Float,
     private val stickyVariantProvider: StickyVariantProvider,
-    internal val emojiPickerItems: EmojiPickerItems,
+    private val emojiPickerItems: EmojiPickerItems,
     private val onEmojiPickedListener: EmojiPickerBodyAdapter.(EmojiViewItem) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
@@ -69,7 +69,7 @@ internal class EmojiPickerBodyAdapter(
                                     as EmojiViewData
                             ) {
                                 if (updateToSticky) {
-                                    primary = emoji
+                                    this.emoji = emoji
                                     notifyItemChanged(bindingAdapterPosition)
                                 }
                             }
@@ -95,11 +95,7 @@ internal class EmojiPickerBodyAdapter(
             ).text = (item as PlaceholderText).text
 
             ItemType.EMOJI -> {
-                (viewHolder as EmojiViewHolder).bindEmoji((item as EmojiViewData).let {
-                    EmojiViewItem(
-                        it.primary, it.variants
-                    )
-                })
+                (viewHolder as EmojiViewHolder).bindEmoji((item as EmojiViewData).emoji)
             }
 
             ItemType.PLACEHOLDER_EMOJI -> {}

@@ -53,9 +53,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 class EmojiPickerViewTestActivity : Activity() {
+    lateinit var emojiPickerView: EmojiPickerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.inflation_test)
+
+        emojiPickerView = findViewById(R.id.emojiPickerTest)
     }
 }
 
@@ -88,7 +92,7 @@ class EmojiPickerViewTest {
         activityTestRule.scenario.onActivity {
             val targetView = findViewByEmoji(
                 it.findViewById(R.id.emojiPickerTest),
-                "\uD83D\uDE00"
+                GRINNING_FACE
             )!!
             // No variant indicator
             assertEquals(
@@ -105,8 +109,6 @@ class EmojiPickerViewTest {
     @Test
     @SdkSuppress(minSdkVersion = 24)
     fun testCustomEmojiPickerView_hasVariant() {
-        // 👃 has variants
-        val NOSE_EMOJI = "\uD83D\uDC43"
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {
             view = it.findViewById(R.id.emojiPickerTest)
@@ -156,6 +158,8 @@ class EmojiPickerViewTest {
     @Ignore // b/260915957
     @Test
     fun testHeader_highlightCurrentCategory() {
+        disableRecent()
+
         assertSelectedHeaderIndex(0)
         scrollToEmoji(NOSE_EMOJI)
         assertSelectedHeaderIndex(1)
@@ -245,7 +249,18 @@ class EmojiPickerViewTest {
     private fun scrollToEmoji(emoji: String) = onView(withId(EmojiPickerViewR.id.emoji_picker_body))
         .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(emoji)))
 
+    private fun disableRecent() {
+        activityTestRule.scenario.onActivity {
+            it.emojiPickerView.setRecentEmojiProvider(object : RecentEmojiProvider {
+                override fun insert(emoji: String) {}
+
+                override suspend fun getRecentItemList(): List<String> = listOf()
+            })
+        }
+    }
+
     companion object {
+        const val GRINNING_FACE = "\uD83D\uDE00"
         const val NOSE_EMOJI = "\uD83D\uDC43"
         const val NOSE_EMOJI_DARK = "\uD83D\uDC43\uD83C\uDFFF"
         const val BAT = "\uD83E\uDD87"
