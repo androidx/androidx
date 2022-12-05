@@ -12,8 +12,8 @@ dependencies {
         implementation(project(":core:core-ktx"))
     }
 
-    api(project(":annotation:annotation"))
-    api(project(":annotation:annotation-experimental"))
+    api(projectOrArtifact(":annotation:annotation"))
+    api(projectOrArtifact(":annotation:annotation-experimental"))
     api("androidx.lifecycle:lifecycle-runtime:2.3.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
