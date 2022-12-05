@@ -16,11 +16,17 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouter2Utils.KEY_CONTROL_FILTERS;
+import static androidx.mediarouter.media.MediaRouter2Utils.KEY_DEVICE_TYPE;
+import static androidx.mediarouter.media.MediaRouter2Utils.KEY_EXTRAS;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.media.MediaRoute2Info;
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -28,6 +34,9 @@ import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /** Test for {@link MediaRouter2Utils}. */
 @SmallTest
@@ -59,5 +68,46 @@ public class MediaRouter2UtilsTest {
                 new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, /* name= */ "")
                         .build();
         assertNull(MediaRouter2Utils.toFwkMediaRoute2Info(descriptorWithEmptyName));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @Test
+    public void toFwkMediaRoute2Info_withDeduplicationIds() {
+        HashSet<String> dedupIds = new HashSet<>();
+        dedupIds.add("dedup_id1");
+        dedupIds.add("dedup_id2");
+        MediaRouteDescriptor descriptor =
+                new MediaRouteDescriptor.Builder(
+                                FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .setDeduplicationIds(dedupIds)
+                        .build();
+        assertTrue(
+                MediaRouter2Utils.toFwkMediaRoute2Info(descriptor)
+                        .getDeduplicationIds()
+                        .equals(dedupIds));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    @Test
+    public void toMediaRouteDescriptor_withDeduplicationIds() {
+        HashSet<String> dedupIds = new HashSet<>();
+        dedupIds.add("dedup_id1");
+        dedupIds.add("dedup_id2");
+        // Extras needed to make toMediaRouteDescriptor not return null.
+        Bundle extras = new Bundle();
+        extras.putBundle(KEY_EXTRAS, new Bundle());
+        extras.putInt(KEY_DEVICE_TYPE, MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
+        extras.putParcelableArrayList(KEY_CONTROL_FILTERS, new ArrayList<>());
+        MediaRoute2Info routeInfo =
+                new MediaRoute2Info.Builder(
+                                FAKE_MEDIA_ROUTE_DESCRIPTOR_ID, FAKE_MEDIA_ROUTE_DESCRIPTOR_NAME)
+                        .addFeature(MediaRoute2Info.FEATURE_REMOTE_PLAYBACK)
+                        .setDeduplicationIds(dedupIds)
+                        .setExtras(extras)
+                        .build();
+        assertTrue(
+                MediaRouter2Utils.toMediaRouteDescriptor(routeInfo)
+                        .getDeduplicationIds()
+                        .equals(dedupIds));
     }
 }

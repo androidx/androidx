@@ -172,6 +172,7 @@ package androidx.mediarouter.media {
     method public static androidx.mediarouter.media.MediaRouteDescriptor? fromBundle(android.os.Bundle?);
     method public int getConnectionState();
     method public java.util.List<android.content.IntentFilter!> getControlFilters();
+    method public java.util.Set<java.lang.String!> getDeduplicationIds();
     method public String? getDescription();
     method public int getDeviceType();
     method public android.os.Bundle? getExtras();
@@ -201,6 +202,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
     method @Deprecated public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnecting(boolean);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnectionState(int);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDeduplicationIds(java.util.Set<java.lang.String!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDescription(String?);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDeviceType(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setEnabled(boolean);
