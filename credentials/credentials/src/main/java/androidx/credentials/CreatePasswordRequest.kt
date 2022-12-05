@@ -46,8 +46,7 @@ class CreatePasswordRequest constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 
