@@ -42,6 +42,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import androidx.tv.material.ExperimentalTvMaterialApi
 import com.google.common.truth.Truth.assertThat
@@ -113,10 +114,40 @@ class ImmersiveListTest {
     }
 
     @Test
-    fun immersiveList_scrollToRegainFocus_checkBringIntoView() {
+    fun immersiveList_scrollToRegainFocusInLazyColumn_checkBringIntoView() {
         val focusRequesterList = mutableListOf<FocusRequester>()
         for (item in 0..2) { focusRequesterList.add(FocusRequester()) }
         setupContent(focusRequesterList)
+
+        // Initially first focusable element would be focused
+        rule.waitForIdle()
+        rule.onNodeWithTag("test-card-0").assertIsFocused()
+
+        // Scroll down to the Immersive List's first card
+        keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 3)
+        rule.waitForIdle()
+        rule.onNodeWithTag("list-card-0").assertIsFocused()
+        rule.onNodeWithTag("immersive-list").assertIsDisplayed()
+        assertThat(checkNodeCompletelyVisible("immersive-list")).isTrue()
+
+        // Scroll down to last element, making sure the immersive list is partially visible
+        keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
+        rule.waitForIdle()
+        rule.onNodeWithTag("test-card-4").assertIsFocused()
+        rule.onNodeWithTag("immersive-list").assertIsDisplayed()
+
+        // Scroll back to the immersive list to check if it's brought into view on regaining focus
+        keyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 2)
+        rule.waitForIdle()
+        rule.onNodeWithTag("immersive-list").assertIsDisplayed()
+        assertThat(checkNodeCompletelyVisible("immersive-list")).isTrue()
+    }
+
+    @Test
+    fun immersiveList_scrollToRegainFocusInTvLazyColumn_checkBringIntoView() {
+        val focusRequesterList = mutableListOf<FocusRequester>()
+        for (item in 0..2) { focusRequesterList.add(FocusRequester()) }
+        setupTvContent(focusRequesterList)
 
         // Initially first focusable element would be focused
         rule.waitForIdle()
@@ -157,7 +188,38 @@ class ImmersiveListTest {
     private fun setupContent(focusRequesterList: List<FocusRequester>) {
         val focusRequester = FocusRequester()
         rule.setContent {
-            LazyColumn() {
+            LazyColumn {
+                items(3) {
+                    val modifier =
+                        if (it == 0) Modifier.focusRequester(focusRequester)
+                        else Modifier
+                    BasicText(
+                        text = "test-card-$it",
+                        modifier = modifier
+                            .testTag("test-card-$it")
+                            .size(200.dp)
+                            .focusable()
+                    )
+                }
+                item { TestImmersiveList(focusRequesterList) }
+                items(2) {
+                    BasicText(
+                        text = "test-card-${it + 3}",
+                        modifier = Modifier
+                            .testTag("test-card-${it + 3}")
+                            .size(200.dp)
+                            .focusable()
+                    )
+                }
+            }
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+    }
+
+    private fun setupTvContent(focusRequesterList: List<FocusRequester>) {
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            TvLazyColumn {
                 items(3) {
                     val modifier =
                         if (it == 0) Modifier.focusRequester(focusRequester)
