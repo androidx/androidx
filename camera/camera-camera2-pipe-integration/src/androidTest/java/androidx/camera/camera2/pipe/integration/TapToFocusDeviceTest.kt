@@ -19,7 +19,8 @@ package androidx.camera.camera2.pipe.integration
 import android.content.Context
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AF_TRIGGER_START
-import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
@@ -35,11 +36,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers
 import org.junit.After
+import org.junit.Assume.assumeThat
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
@@ -61,9 +66,6 @@ class TapToFocusDeviceTest {
     private lateinit var camera: CameraUseCaseAdapter
     private lateinit var cameraControl: CameraControlAdapter
     private lateinit var comboListener: ComboRequestListener
-
-    private val firstCaptureListener = VerifyResultListener(1)
-    private val verifyResultListener = VerifyResultListener(100)
 
     @Before
     fun setUp() {
@@ -112,28 +114,48 @@ class TapToFocusDeviceTest {
     }
 
     private suspend fun verifyAeModeForAfTriggerStartByTapToFocus() {
+        val firstCaptureListener = VerifyResultListener(1)
+        val verifyResultListener = VerifyResultListener(Int.MAX_VALUE)
+
         comboListener.addListener(firstCaptureListener, Dispatchers.Default.asExecutor())
         comboListener.addListener(verifyResultListener, Dispatchers.Default.asExecutor())
 
         // waits for first capture callback to make sure camera is ready for startFocusAndMetering
-        firstCaptureListener.verify({ _, _ ->
-            val factory = SurfaceOrientedMeteringPointFactory(1f, 1f)
-            val meteringPoint = factory.createPoint(0f, 0f)
-            cameraControl.startFocusAndMetering(FocusMeteringAction.Builder(meteringPoint).build())
-            true
-        },
-            5000
-        )
+        firstCaptureListener.verify({ _, _ -> true }, 5000)
 
-        verifyResultListener.verify({ captureRequest, _ ->
-            (captureRequest[CaptureRequest.CONTROL_AF_TRIGGER] == CONTROL_AF_TRIGGER_START &&
-                captureRequest[CaptureRequest.CONTROL_AE_MODE] == CONTROL_AE_MODE_ON)
-        },
-            5000
+        val factory = SurfaceOrientedMeteringPointFactory(1f, 1f)
+        val meteringPoint = factory.createPoint(0f, 0f)
+        cameraControl.startFocusAndMetering(FocusMeteringAction.Builder(meteringPoint).build())
+
+        assumeTrue(
+            "Device can not start AF trigger",
+            !TimeoutCancellationException::class.java.isInstance(
+                runCatching {
+                    verifyResultListener.verify(
+                        { captureRequest, _ ->
+                            if (captureRequest[CONTROL_AF_TRIGGER] == CONTROL_AF_TRIGGER_START) {
+                                assumeThat(
+                                    "No AE mode in the CONTROL_AF_TRIGGER_START request",
+                                    captureRequest[CONTROL_AE_MODE],
+                                    CoreMatchers.notNullValue()
+                                )
+
+                                Truth.assertWithMessage(
+                                    "AE mode in CONTROL_AF_TRIGGER_START request is not as expected"
+                                ).that(captureRequest[CONTROL_AE_MODE])
+                                    .isEqualTo(CONTROL_AE_MODE_ON)
+
+                                return@verify true
+                            }
+                            return@verify false
+                        },
+                        5000
+                    )
+                }.exceptionOrNull()
+            )
         )
     }
 
-    @Ignore("b/261051860")
     @Test
     fun tapToFocusAfTriggerStart_aeModeIsControlAeModeOn_whenFlashModeOff() = runBlocking {
         bindUseCase(ImageCapture.FLASH_MODE_OFF)
