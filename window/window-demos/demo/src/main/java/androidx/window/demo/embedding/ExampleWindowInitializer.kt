@@ -18,6 +18,16 @@ package androidx.window.demo.embedding
 
 import android.content.Context
 import androidx.startup.Initializer
+import androidx.window.demo.R
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_REVERSED
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_FULLSCREEN_IN_PORTRAIT
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
+import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
+import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -28,27 +38,20 @@ import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
-import androidx.window.demo.R
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_REVERSED
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_FULLSCREEN_IN_PORTRAIT
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
 
 /**
  * Initializes SplitController with a set of statically defined rules.
  */
-class ExampleWindowInitializer : Initializer<SplitController> {
-    override fun create(context: Context): SplitController {
-        SplitController.initialize(context, R.xml.main_split_config)
-        val splitController = SplitController.getInstance(context)
-        if (splitController.isSplitAttributesCalculatorSupported()) {
-            splitController.setSplitAttributesCalculator(SampleSplitAttributesCalculator())
+class ExampleWindowInitializer : Initializer<RuleController> {
+    override fun create(context: Context): RuleController {
+        SplitController.getInstance(context).apply {
+            if (isSplitAttributesCalculatorSupported()) {
+                setSplitAttributesCalculator(SampleSplitAttributesCalculator())
+            }
         }
-        return splitController
+        return RuleController.getInstance(context).apply {
+            setRules(parseRules(R.xml.main_split_config))
+        }
     }
 
     /**
@@ -72,7 +75,7 @@ class ExampleWindowInitializer : Initializer<SplitController> {
             val tag = params.splitRuleTag
             val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
             when (tag?.substringBefore(SUFFIX_REVERSED)) {
-                TAG_USE_DEFAULT_SPLIT_ATTRIBUTES -> {
+                TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
                     return if (params.isDefaultMinSizeSatisfied) {
                         params.defaultSplitAttributes
                     } else {

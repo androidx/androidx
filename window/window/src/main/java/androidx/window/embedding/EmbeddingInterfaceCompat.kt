@@ -25,7 +25,7 @@ import androidx.window.extensions.embedding.ActivityEmbeddingComponent
  */
 internal interface EmbeddingInterfaceCompat {
 
-    fun setSplitRules(rules: Set<EmbeddingRule>)
+    fun setRules(rules: Set<EmbeddingRule>)
 
     fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface)
 

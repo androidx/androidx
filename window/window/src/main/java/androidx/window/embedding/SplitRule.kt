@@ -29,17 +29,15 @@ import kotlin.math.min
 
 /**
  * Split configuration rules for activities that are launched to side in a split.
- * Define the visual properties of the split. Can be set either statically via
- * [SplitController.Companion.initialize] or at runtime via
- * [SplitController.addRule]. The rules can only be  applied to activities that
- * belong to the same application and are running in the same process. The rules are always
- * applied only to activities that will be started  after the rules were set.
+ * Define the visual properties of the split. Can be set either via [RuleController.setRules] or
+ * via [RuleController.addRule]. The rules are always applied only to activities that will be
+ * started after the rules were set.
  *
  * Note that regardless of whether the minimal requirements ([minWidthDp], [minHeightDp] and
  * [minSmallestWidthDp]) are met or not, [SplitAttributesCalculator.computeSplitAttributesForParams]
  * will still be called for the rule if the calculator is registered via
- * [SplitController.setSplitAttributesCalculator]. Whether this [SplitRule]'s minimum requirements
- * are satisfied is dispatched in
+ * [SplitController.setSplitAttributesCalculator]. Whether this [SplitRule]'s
+ * minimum requirements are satisfied is dispatched in
  * [SplitAttributesCalculator.SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
  * The width and height could be verified in
  * [SplitAttributesCalculator.computeSplitAttributesForParams] as the sample linked below shows.
@@ -50,6 +48,8 @@ import kotlin.math.min
  * directions with different device states.
  *
  * @sample androidx.window.samples.embedding.splitWithOrientations
+ * @see androidx.window.embedding.SplitPairRule
+ * @see androidx.window.embedding.SplitPlaceholderRule
  */
 open class SplitRule internal constructor(
     tag: String? = null,

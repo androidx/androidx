@@ -27,8 +27,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
+import androidx.window.demo.R
+import androidx.window.demo.common.util.PictureInPictureUtil
+import androidx.window.demo.databinding.ActivitySplitPipActivityLayoutBinding
 import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
@@ -38,10 +42,6 @@ import androidx.window.embedding.SplitPlaceholderRule
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
-import androidx.window.demo.R
-import androidx.window.demo.databinding.ActivitySplitPipActivityLayoutBinding
-import androidx.window.demo.common.util.PictureInPictureUtil.setPictureInPictureParams
-import androidx.window.demo.common.util.PictureInPictureUtil.startPictureInPicture
 
 /**
  * Sample showcase of split activity rules with picture-in-picture. Allows the user to select some
@@ -52,6 +52,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     lateinit var splitController: SplitController
+    lateinit var ruleController: RuleController
     lateinit var viewBinding: ActivitySplitPipActivityLayoutBinding
     lateinit var componentNameA: ComponentName
     lateinit var componentNameB: ComponentName
@@ -77,6 +78,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             SplitPipActivityPlaceholder::class.java.name)
 
         splitController = SplitController.getInstance(this)
+        ruleController = RuleController.getInstance(this)
 
         // Buttons for split rules of the main activity.
         viewBinding.splitMainCheckBox.setOnCheckedChangeListener(this)
@@ -134,7 +136,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 return
             }
             R.id.enter_pip_button -> {
-                startPictureInPicture(this, autoEnterPip)
+                PictureInPictureUtil.startPictureInPicture(this, autoEnterPip)
             }
         }
     }
@@ -159,14 +161,14 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 }
             }
         }
-        setPictureInPictureParams(this, autoEnterPip)
+        PictureInPictureUtil.setPictureInPictureParams(this, autoEnterPip)
     }
 
     /** Enters PiP if enterPipOnUserLeave checkbox is checked. */
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (enterPipOnUserLeave) {
-            startPictureInPicture(this, autoEnterPip)
+            PictureInPictureUtil.startPictureInPicture(this, autoEnterPip)
         }
     }
 
@@ -174,7 +176,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     internal fun updateCheckboxes() {
         updatingConfigs = true
 
-        val curRules = splitController.getRules()
+        val curRules = ruleController.getRules()
         val splitRule = curRules.firstOrNull { isRuleForSplit(it) }
         val placeholderRule = curRules.firstOrNull { isRuleForPlaceholder(it) }
 
@@ -235,7 +237,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
 
     /** Updates the split rules based on the current selection on checkboxes. */
     private fun updateSplitRules() {
-        splitController.clearRegisteredRules()
+        ruleController.clearRules()
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(splitRatio))
             .build()
@@ -256,7 +258,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setClearTop(true)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
-            splitController.addRule(rule)
+            ruleController.addRule(rule)
         }
 
         if (viewBinding.usePlaceHolderCheckBox.isChecked) {
@@ -272,7 +274,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 .setFinishPrimaryWithPlaceholder(ADJACENT)
                 .setDefaultSplitAttributes(defaultSplitAttributes)
                 .build()
-            splitController.addRule(rule)
+            ruleController.addRule(rule)
         }
     }
 

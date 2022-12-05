@@ -39,7 +39,7 @@ internal class EmbeddingCompat constructor(
     private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
+    override fun setRules(rules: Set<EmbeddingRule>) {
         val r = adapter.translate(applicationContext, rules)
         embeddingExtension.setEmbeddingRules(r)
     }

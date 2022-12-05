@@ -23,14 +23,14 @@ import androidx.window.layout.WindowMetrics
 /**
  * A developer-defined [SplitAttributes] calculator to compute the current [SplitAttributes] with
  * the current device and window state if it is registered via
- * [SplitController.setSplitAttributesCalculator]. Then [computeSplitAttributesForParams] will be
- * called when there's
+ * [SplitController.setSplitAttributesCalculator]. Then
+ * [computeSplitAttributesForParams] will be called when there's
  * - An activity is started and matches a registered [SplitRule].
  * - There's a parent configuration update and there's an existing split pair.
  *
  * By default, [SplitRule.defaultSplitAttributes] are applied if the parent container's
  * [WindowMetrics] satisfies the [SplitRule]'s minimum dimensions requirements, which are
- * [SplitRule.minWidth], [SplitRule.minHeight] and [SplitRule.minSmallestWidth].
+ * [SplitRule.minWidthDp], [SplitRule.minHeightDp] and [SplitRule.minSmallestWidthDp].
  * The [SplitRule.defaultSplitAttributes] can be set by
  * - [SplitRule] Builder APIs, which are
  *   [SplitPairRule.Builder.setDefaultSplitAttributes] and
@@ -44,14 +44,15 @@ import androidx.window.layout.WindowMetrics
  * horizontally if the device is in
  * [tabletop posture](https://developer.android.com/guide/topics/ui/foldables#postures).
  * In this case, the [SplitAttributes] can be customized by this callback, which takes effects after
- * calling [SplitController.setSplitAttributesCalculator]. Developers can also clear the callback
- * via [SplitController.clearSplitAttributesCalculator]. Then, developers could implement
- * [computeSplitAttributesForParams] as the sample linked below shows.
+ * calling [SplitController.setSplitAttributesCalculator]. Developers can also
+ * clear the callback by [SplitController.clearSplitAttributesCalculator].
+ * Then, developers could implement [computeSplitAttributesForParams] as the sample linked below
+ * shows.
  *
  * **Note** that [SplitController.setSplitAttributesCalculator] and
  * [SplitController.clearSplitAttributesCalculator] are only supported if
- * [SplitController.isSplitAttributesCalculatorSupported] reports `true`. It's callers'
- * responsibility to check if [SplitAttributesCalculator] is supported by
+ * [SplitController.isSplitAttributesCalculatorSupported] reports `true`. It's
+ * callers' responsibility to check if [SplitAttributesCalculator] is supported by
  * [SplitController.isSplitAttributesCalculatorSupported] before using the
  * [SplitAttributesCalculator] feature. It is suggested to always set meaningful
  * [SplitRule.defaultSplitAttributes] in case [SplitAttributesCalculator] is not supported on
@@ -59,10 +60,8 @@ import androidx.window.layout.WindowMetrics
  *
  * @sample androidx.window.samples.embedding.splitAttributesCalculatorSample
  *
- * @see SplitRule.defaultSplitAttributes
- * @see SplitController.setSplitAttributesCalculator
- * @see SplitController.clearSplitAttributesCalculator
- * @see SplitController.isSplitAttributesCalculatorSupported
+ * @see androidx.window.embedding.SplitRule.defaultSplitAttributes
+ * @see androidx.window.embedding.SplitController.getSplitAttributesCalculator
  */
 interface SplitAttributesCalculator {
     /**
@@ -86,7 +85,8 @@ interface SplitAttributesCalculator {
         val defaultSplitAttributes: SplitAttributes,
         /**
          * Whether the [parentWindowMetrics] are larger than [SplitRule]'s minimum size criteria,
-         * which are [SplitRule.minWidth], [SplitRule.minHeight] and [SplitRule.minSmallestWidth]
+         * which are [SplitRule.minWidthDp], [SplitRule.minHeightDp] and
+         * [SplitRule.minSmallestWidthDp]
          */
         @get: JvmName("isDefaultMinSizeSatisfied")
         val isDefaultMinSizeSatisfied: Boolean,

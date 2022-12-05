@@ -24,71 +24,22 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * Controller class that gets information about the currently active activity
- * splits and provides interaction points to customize the splits and form new
- * splits.
- *
- * A split is a pair of containers that host activities in the same or different
- * processes, combined under the same parent window of the hosting task.
- *
- * A pair of activities can be put into a split by providing a static or runtime
- * split rule and then launching the activities in the same task using
- * [Activity.startActivity()][android.app.Activity.startActivity].
- *
- * Configure this class with the Jetpack library
- * [Initializer][androidx.startup.Initializer] or in
- * [Application.onCreate()][android.app.Application.onCreate] so the rules are
- * applied early in the application startup, before any activities complete
- * initialization.
- *
- * Rule updates apply only to future activity launches, not to already running
- * activities.
- *
- * @see initialize
- */
+* A singleton controller class that gets information about the currently active activity
+* splits and provides interaction points to customize the splits and form new
+* splits.
+*
+* A split is a pair of containers that host activities in the same or different
+* processes, combined under the same parent window of the hosting task.
+*
+* A pair of activities can be put into a split by providing a static or runtime
+* split rule and then launching the activities in the same task using
+* [Activity.startActivity()][android.app.Activity.startActivity].
+*/
 class SplitController private constructor(applicationContext: Context) {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
         .getInstance(applicationContext)
-    private var staticRules: Set<EmbeddingRule> = emptySet()
 
-    /**
-     * Returns a copy of the currently applied [rules][EmbeddingRule].
-     */
-    fun getRules(): Set<EmbeddingRule> {
-        return embeddingBackend.getRules()
-    }
-
-    /**
-     * Registers a new runtime rule, or updates an existing rule if the
-     * [tag][EmbeddingRule.tag] has been registered with [SplitController].
-     * Will be cleared automatically when the process is stopped.
-     *
-     * Note that updating the existing rule will **not** be applied to any existing split activity
-     * container, and will only be used for new split containers created with future activity
-     * launches.
-     *
-     * @param rule new [EmbeddingRule] to register.
-     */
-    fun addRule(rule: EmbeddingRule) {
-        embeddingBackend.addRule(rule)
-    }
-
-    /**
-     * Unregisters a runtime rule that was previously registered via [SplitController.addRule].
-     *
-     * @param rule the previously registered [EmbeddingRule] to unregister.
-     */
-    fun removeRule(rule: EmbeddingRule) {
-        embeddingBackend.removeRule(rule)
-    }
-
-    /**
-     * Unregisters all runtime rules added with [addRule].
-     */
-    fun clearRegisteredRules() {
-        embeddingBackend.setRules(staticRules)
-    }
-
+    // TODO(b/258356512): Make this method a flow API
     /**
      * Registers a listener for updates about the active split state(s) that this
      * activity is part of. An activity can be in zero, one or more active splits.
@@ -115,7 +66,7 @@ class SplitController private constructor(applicationContext: Context) {
     }
 
     /**
-     * Unregisters a runtime rule that was previously registered via [addSplitListener].
+     * Unregisters a listener that was previously registered via [addSplitListener].
      *
      * @param consumer the previously registered [Consumer] to unregister.
      */
@@ -139,22 +90,6 @@ class SplitController private constructor(applicationContext: Context) {
         return embeddingBackend.isSplitSupported()
     }
 
-    private fun setStaticRules(staticRules: Set<EmbeddingRule>) {
-        this.staticRules = staticRules
-        embeddingBackend.setRules(staticRules)
-    }
-
-    /**
-     * Checks if an activity is embedded and its presentation may be customized by its or any other
-     * process.
-     *
-     * @param activity the [Activity] to check.
-     */
-    // TODO(b/204399167) Migrate to a Flow
-    fun isActivityEmbedded(activity: Activity): Boolean {
-        return embeddingBackend.isActivityEmbedded(activity)
-    }
-
     /**
      * Sets or updates the previously registered [SplitAttributesCalculator].
      *
@@ -175,7 +110,7 @@ class SplitController private constructor(applicationContext: Context) {
      * Clears the previously set [SplitAttributesCalculator].
      * The caller **must** make sure [isSplitAttributesCalculatorSupported] before invoking.
      *
-     * @see setSplitAttributesCalculator
+     * @see androidx.window.embedding.SplitController.setSplitAttributesCalculator
      * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
      * `false`
      */
@@ -199,9 +134,9 @@ class SplitController private constructor(applicationContext: Context) {
         internal const val sDebug = false
 
         /**
-         * Gets the shared instance of the class.
+         * Obtains the singleton instance of [SplitController].
          *
-         * @param context the [Context] to initialize the controller with.
+         * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): SplitController {
@@ -213,31 +148,6 @@ class SplitController private constructor(applicationContext: Context) {
                 }
             }
             return globalInstance!!
-        }
-
-        /**
-         * Initializes the shared class instance with the split rules statically defined in an
-         * app-provided XML. The rules will be kept for the lifetime of the application process.
-         * <p>It's recommended to set the static rules via an [androidx.startup.Initializer], or
-         * [android.app.Application.onCreate], so that they are applied early in the application
-         * startup before any activities complete initialization. The rule updates only apply to
-         * future [android.app.Activity] launches and do not apply to already running activities.
-         * <p>Note that it is not necessary to call this function in order to use [SplitController].
-         * If the app doesn't have any static rule, it can use [addRule] to register rules at
-         * any time.
-         *
-         * @param context the [Context] to read the split resource from, and to initialize the
-         * controller with.
-         * @param staticRuleResourceId the resource containing the static split rules.
-         * @throws IllegalArgumentException if any of the rules in the XML is malformed or if
-         * there's a duplicated [tag][EmbeddingRule.tag].
-         */
-        @JvmStatic
-        fun initialize(context: Context, staticRuleResourceId: Int) {
-            val parser = SplitRuleParser()
-            val configs = parser.parseSplitRules(context, staticRuleResourceId)
-            val controllerInstance = getInstance(context)
-            controllerInstance.setStaticRules(configs ?: emptySet())
         }
     }
 }

@@ -16,11 +16,10 @@
 
 package androidx.window.embedding
 
-import android.app.Application
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.util.DisplayMetrics
 import androidx.test.core.app.ApplicationProvider
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -46,22 +45,17 @@ import org.junit.Test
  * @see ActivityRule
  */
 class EmbeddingRuleConstructionTests {
-    private lateinit var splitController: SplitController
-    private lateinit var application: Application
+    private val application = ApplicationProvider.getApplicationContext<Context>()
+    private val ruleController = RuleController.getInstance(application)
+    private val density = application.resources.displayMetrics.density
     private lateinit var validBounds: Rect
     private lateinit var invalidBounds: Rect
-    private lateinit var displayMetrics: DisplayMetrics
 
     @Before
     fun setUp() {
-        application = ApplicationProvider.getApplicationContext()
-        displayMetrics = application.resources.displayMetrics
         validBounds = minValidWindowBounds()
         invalidBounds = almostValidWindowBounds()
-        // Clear all registered rules
-        SplitController.initialize(application, 0)
-        splitController = SplitController.getInstance(application)
-        splitController.clearRegisteredRules()
+        ruleController.clearRules()
     }
 
     /**
@@ -69,9 +63,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPairRule_Xml() {
-        SplitController.initialize(application, R.xml.test_split_config_default_split_pair_rule)
-
-        val rules = splitController.getRules()
+        val rules = ruleController.parseRules(R.xml.test_split_config_default_split_pair_rule)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -83,17 +75,15 @@ class EmbeddingRuleConstructionTests {
         assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, validBounds))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, invalidBounds))
+        assertTrue(rule.checkParentBounds(density, validBounds))
+        assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /** Verifies that horizontal layout are set correctly when reading [SplitPairRule] from XML. */
     @Test
     fun testHorizontalLayout_SplitPairRule_Xml() {
-        SplitController.initialize(application,
-            R.xml.test_split_config_split_pair_rule_horizontal_layout)
-
-        val rules = splitController.getRules()
+        val rules = ruleController
+            .parseRules(R.xml.test_split_config_split_pair_rule_horizontal_layout)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -105,8 +95,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, validBounds))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, invalidBounds))
+        assertTrue(rule.checkParentBounds(density, validBounds))
+        assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /**
@@ -125,8 +115,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
         assertEquals(false, rule.clearTop)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, validBounds))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, invalidBounds))
+        assertTrue(rule.checkParentBounds(density, validBounds))
+        assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /**
@@ -203,10 +193,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Xml() {
-        SplitController.initialize(application,
-            R.xml.test_split_config_default_split_placeholder_rule)
-
-        val rules = splitController.getRules()
+        val rules = ruleController
+            .parseRules(R.xml.test_split_config_default_split_placeholder_rule)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -217,8 +205,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, validBounds))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, invalidBounds))
+        assertTrue(rule.checkParentBounds(density, validBounds))
+        assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /**
@@ -227,10 +215,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testHorizontalLayout_SplitPlaceholderRule_Xml() {
-        SplitController.initialize(application,
-            R.xml.test_split_config_split_placeholder_horizontal_layout)
-
-        val rules = splitController.getRules()
+        val rules = ruleController
+            .parseRules(R.xml.test_split_config_split_placeholder_horizontal_layout)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -241,8 +227,8 @@ class EmbeddingRuleConstructionTests {
         assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
         assertEquals(false, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertTrue(rule.checkParentBounds(displayMetrics.density, validBounds))
-        assertFalse(rule.checkParentBounds(displayMetrics.density, invalidBounds))
+        assertTrue(rule.checkParentBounds(density, validBounds))
+        assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /**
@@ -349,9 +335,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_ActivityRule_Xml() {
-        SplitController.initialize(application, R.xml.test_split_config_default_activity_rule)
-
-        val rules = splitController.getRules()
+        val rules = ruleController.parseRules(R.xml.test_split_config_default_activity_rule)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertNull(rule.tag)
@@ -364,9 +348,7 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testSetTagAndAlwaysExpand_ActivityRule_Xml() {
-        SplitController.initialize(application, R.xml.test_split_config_activity_rule_with_tag)
-
-        val rules = splitController.getRules()
+        val rules = ruleController.parseRules(R.xml.test_split_config_activity_rule_with_tag)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(TEST_TAG, rule.tag)
@@ -406,7 +388,7 @@ class EmbeddingRuleConstructionTests {
 
     private fun minValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = displayMetrics.density
+        val scale: Float = density
         // Convert the dps to pixels, based on density scale
         val minValidWidthPx = (DEFAULT_SPLIT_MIN_DIMENSION_DP * scale + 0.5f).toInt()
 
@@ -415,7 +397,7 @@ class EmbeddingRuleConstructionTests {
 
     private fun almostValidWindowBounds(): Rect {
         // Get the screen's density scale
-        val scale: Float = displayMetrics.density
+        val scale: Float = density
         // Convert the dps to pixels, based on density scale
         val minValidWidthPx = ((DEFAULT_SPLIT_MIN_DIMENSION_DP) - 1 * scale + 0.5f).toInt()
 
@@ -425,20 +407,19 @@ class EmbeddingRuleConstructionTests {
     @Test
     fun testIllegalTag_XML() {
         assertThrows(IllegalArgumentException::class.java) {
-            SplitController.initialize(application, R.xml.test_split_config_duplicated_tag)
+            ruleController.parseRules(R.xml.test_split_config_duplicated_tag)
         }
     }
 
     @Test
     fun testReplacingRuleWithTag() {
-        SplitController.initialize(application, R.xml.test_split_config_activity_rule_with_tag)
-
-        var rules = splitController.getRules()
+        var rules = ruleController.parseRules(R.xml.test_split_config_activity_rule_with_tag)
         assertEquals(1, rules.size)
         var rule = rules.first()
         assertEquals(TEST_TAG, rule.tag)
         val staticRule = rule as ActivityRule
         assertTrue(staticRule.alwaysExpand)
+        ruleController.setRules(rules)
 
         val filters = HashSet<ActivityFilter>()
         filters.add(
@@ -451,9 +432,9 @@ class EmbeddingRuleConstructionTests {
             .setAlwaysExpand(true)
             .setTag(TEST_TAG)
             .build()
-        splitController.addRule(rule1)
+        ruleController.addRule(rule1)
 
-        rules = splitController.getRules()
+        rules = ruleController.getRules()
         assertEquals(1, rules.size)
         rule = rules.first()
         assertEquals(rule1, rule)
@@ -466,9 +447,9 @@ class EmbeddingRuleConstructionTests {
             .setTag(TEST_TAG)
             .build()
 
-        splitController.addRule(rule2)
+        ruleController.addRule(rule2)
 
-        rules = splitController.getRules()
+        rules = ruleController.getRules()
         assertEquals(1, rules.size)
         rule = rules.first()
         assertEquals(rule2, rule)
