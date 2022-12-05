@@ -244,8 +244,7 @@ private val stableBuiltinTypes = mapOf(
     "com.google.common.collect.ImmutableEnumSet" to 0b1,
     "com.google.common.collect.ImmutableSet" to 0b1,
     // Kotlinx immutable
-    "kotlinx.collections.immutable.ImmutableList" to 0b1,
-    "kotlinx.collections.immutable.ImmutableSet" to 0b1,
+    "kotlinx.collections.immutable.ImmutableCollection" to 0b1,
     "kotlinx.collections.immutable.ImmutableMap" to 0b11,
     // Dagger
     "dagger.Lazy" to 0b1,
