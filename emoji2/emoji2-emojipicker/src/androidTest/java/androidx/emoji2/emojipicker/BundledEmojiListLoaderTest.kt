@@ -82,19 +82,4 @@ class BundledEmojiListLoaderTest {
         // 😀 has no variant
         assertFalse(result.containsKey("\uD83D\uDE00"))
     }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 24)
-    fun testGetPrimaryEmojiLookup_loaded() = runBlocking {
-        // delete cache and load again
-        FileCache.getInstance(context).emojiPickerCacheDir.deleteRecursively()
-        BundledEmojiListLoader.load(context)
-        val result = BundledEmojiListLoader.getPrimaryEmojiLookup()
-
-        // 👃 has variants (👃,👃,👃🏻,👃🏼,👃🏽,👃🏾,👃🏿)
-        assertTrue(result["\uD83D\uDC43\uD83C\uDFFD"]!! == "\uD83D\uDC43")
-        assertTrue(result["\uD83D\uDC43\uD83C\uDFFF"]!! == "\uD83D\uDC43")
-        // 😀 has no variant
-        assertFalse(result.containsKey("\uD83D\uDE00"))
-    }
 }
