@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.WakeLock
 import javax.inject.Inject
@@ -212,17 +213,11 @@ internal class VirtualCameraManager @Inject constructor(
         }
     }
 
-    @SuppressLint(
-        "MissingPermission", // Permissions are checked by calling methods.
-    )
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
         scope: CoroutineScope
     ): ActiveCamera? {
-        val metadata = cameraMetadata.getMetadata(cameraId)
         val requestTimestamp = Timestamps.now()
-
-        var cameraState: AndroidCameraState
         var attempts = 0
 
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
@@ -231,72 +226,14 @@ internal class VirtualCameraManager @Inject constructor(
 
         while (true) {
             attempts++
-            val instance = cameraManager.get()
-            cameraState = AndroidCameraState(
-                cameraId,
-                metadata,
-                attempts,
-                requestTimestamp
-            )
 
-            var exception: Throwable? = null
-            try {
-                Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        Api28Compat.openCamera(
-                            instance,
-                            cameraId.value,
-                            threads.camera2Executor,
-                            cameraState
-                        )
-                    } else {
-                        instance.openCamera(
-                            cameraId.value,
-                            cameraState,
-                            threads.camera2Handler
-                        )
-                    }
-                }
-
-                // Suspend until we are no longer in a "starting" state.
-                val result = cameraState.state.first {
-                    it !is CameraStateUnopened
-                }
-                if (result is CameraStateOpen) {
-                    return ActiveCamera(
-                        cameraState,
-                        scope,
-                        requestQueue
-                    )
-                }
-            } catch (e: Throwable) {
-                exception = e
-                Log.warn(e) { "CameraId ${cameraId.value}: Failed to open" }
+            val activeCamera = tryOpenCamera(cameraId, attempts, requestTimestamp, scope)
+            if (activeCamera != null) {
+                return activeCamera
             }
 
-            // TODO: Add logic to optimize retry handling for various error codes and exceptions.
-
-//            var errorCode: Int? = null
-//            if (lastResult is CameraClosed) {
-//                errorCode = lastResult.camera2ErrorCode
-//            }
-//
-//            if (lastException != null) {
-//                when (lastException) {
-//                    is CameraAccessException -> retry = true
-//                    is IllegalArgumentException -> retry = true
-//                    is SecurityException -> {
-//                        if ()
-//                    }
-//                }
-//            }
-
             if (attempts > 3) {
-                if (exception != null) {
-                    cameraState.closeWith(exception)
-                } else {
-                    cameraState.close()
-                }
+                Log.error { "Failed to open camera $cameraId after 3 retries" }
                 return null
             }
 
@@ -304,6 +241,67 @@ internal class VirtualCameraManager @Inject constructor(
             // retry immediately.
             awaitAvailableCameraId(cameraId, timeoutMillis = 500)
         }
+    }
+
+    @SuppressLint(
+        "MissingPermission", // Permissions are checked by calling methods.
+    )
+    private suspend fun tryOpenCamera(
+        cameraId: CameraId,
+        attempts: Int,
+        requestTimestamp: TimestampNs,
+        scope: CoroutineScope,
+    ): ActiveCamera? {
+        val instance = cameraManager.get()
+        val metadata = cameraMetadata.getMetadata(cameraId)
+        val cameraState = AndroidCameraState(
+            cameraId,
+            metadata,
+            attempts,
+            requestTimestamp
+        )
+
+        var exception: Throwable? = null
+        try {
+            Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    Api28Compat.openCamera(
+                        instance,
+                        cameraId.value,
+                        threads.camera2Executor,
+                        cameraState
+                    )
+                } else {
+                    instance.openCamera(
+                        cameraId.value,
+                        cameraState,
+                        threads.camera2Handler
+                    )
+                }
+            }
+
+            // Suspend until we are no longer in a "starting" state.
+            val result = cameraState.state.first {
+                it !is CameraStateUnopened
+            }
+            if (result is CameraStateOpen) {
+                return ActiveCamera(
+                    cameraState,
+                    scope,
+                    requestQueue
+                )
+            }
+        } catch (e: Throwable) {
+            exception = e
+            Log.warn(e) { "Failed to open $cameraId" }
+        }
+
+        if (exception != null) {
+            cameraState.closeWith(exception)
+        } else {
+            cameraState.close()
+        }
+        return null
     }
 
     /**

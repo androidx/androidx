@@ -19,9 +19,11 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
@@ -72,8 +74,8 @@ internal data class CameraStateClosed(
     // Record the duration the camera device took to invoke close() on the CameraDevice object.
     val cameraClosingDurationNs: DurationNs? = null,
 
-    // Record the Camera2 ErrorCode, if the camera closed due to an error.
-    val cameraErrorCode: Int? = null
+    // Record the camera ErrorCode, if the camera closed due to an error.
+    val cameraErrorCode: CameraError? = null
 ) : CameraState()
 
 internal enum class ClosedReason {
@@ -314,7 +316,8 @@ internal class AndroidCameraState(
             cameraDevice,
             @Suppress("SyntheticAccessor")
             ClosingInfo(
-                ClosedReason.CAMERA2_DISCONNECTED
+                ClosedReason.CAMERA2_DISCONNECTED,
+                errorCode = CameraError.ERROR_CAMERA_DISCONNECTED
             )
         )
         Debug.traceStop()
@@ -330,7 +333,7 @@ internal class AndroidCameraState(
             @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.CAMERA2_ERROR,
-                errorCode = errorCode
+                errorCode = CameraError.from(errorCode)
             )
         )
         Debug.traceStop()
@@ -352,11 +355,38 @@ internal class AndroidCameraState(
     }
 
     internal fun closeWith(throwable: Throwable) {
+        when (throwable) {
+            is CameraAccessException -> {
+                val error = CameraError.from(throwable)
+                // This can happen with CAMERA_ERROR where it can be ERROR_CAMERA_DEVICE or
+                // ERROR_CAMERA_SERVICE. We leave that till onError() tells us the actual error.
+                if (error == CameraError.ERROR_UNDETERMINED) {
+                    return
+                }
+                closeWith(throwable, error)
+            }
+
+            is IllegalArgumentException -> {
+                closeWith(throwable, CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION)
+            }
+
+            is SecurityException -> {
+                closeWith(throwable, CameraError.ERROR_SECURITY_EXCEPTION)
+            }
+
+            else -> {
+                throw IllegalArgumentException("Unexpected throwable: $throwable")
+            }
+        }
+    }
+
+    private fun closeWith(throwable: Throwable, cameraError: CameraError) {
         closeWith(
             null,
             @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.CAMERA2_EXCEPTION,
+                errorCode = cameraError,
                 exception = throwable
             )
         )
@@ -424,7 +454,7 @@ internal class AndroidCameraState(
     private data class ClosingInfo(
         val reason: ClosedReason,
         val closingTimestamp: TimestampNs = Timestamps.now(),
-        val errorCode: Int? = null,
+        val errorCode: CameraError? = null,
         val exception: Throwable? = null
     )
 
