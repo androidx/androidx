@@ -35,6 +35,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -262,6 +263,11 @@ public abstract class Player {
         if (ActivityCompat.checkSelfPermission(mContext,
                 Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(
+                            mContext,
+                            "POST_NOTIFICATIONS permission not available",
+                            Toast.LENGTH_LONG)
+                    .show();
             return;
         }
         notificationManager.notify(NOTIFICATION_ID, notification);
