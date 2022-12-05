@@ -1064,68 +1064,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun suggestedResolutionsForCustomOrderedResolutions() {
-
-        // Checks all suggested resolutions will become 640x480.
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, mockCameraMetadata, cameraId,
-            mockCamcorderProfileAdapter
-        )
-        val formatResolutionsPairList = arrayListOf<Pair<Int, Array<Size>>>().apply {
-            add(Pair.create(ImageFormat.JPEG, arrayOf(previewSize)))
-            add(Pair.create(ImageFormat.YUV_420_888, arrayOf(previewSize)))
-            add(Pair.create(ImageFormat.PRIVATE, arrayOf(previewSize)))
-        }
-        // Sets use cases custom ordered resolutions to 640x480 and 1280x720.
-        val imageCapture = ImageCapture.Builder()
-            .setCustomOrderedResolutions(listOf(vgaSize, previewSize))
-            // Other configurations should be ignored
-            .setTargetResolution(previewSize)
-            .setMaxResolution(Size(320, 240))
-            .setDefaultResolution(previewSize)
-            .setSupportedResolutions(formatResolutionsPairList)
-            .build()
-        val videoCapture = createVideoCapture(Quality.SD, Quality.HD)
-        val preview = Preview.Builder()
-            .setCustomOrderedResolutions(listOf(vgaSize, previewSize))
-            // Other configurations should be ignored
-            .setTargetResolution(previewSize)
-            .setMaxResolution(Size(320, 240))
-            .setDefaultResolution(previewSize)
-            .setSupportedResolutions(formatResolutionsPairList)
-            .build()
-        val useCases: MutableList<UseCase> = ArrayList()
-        useCases.add(imageCapture)
-        useCases.add(videoCapture)
-        useCases.add(preview)
-        val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            cameraFactory!!.getCamera(cameraId).cameraInfoInternal,
-            useCases,
-            useCaseConfigFactory
-        )
-        val suggestedResolutionMap: Map<UseCaseConfig<*>, Size> =
-            supportedSurfaceCombination.getSuggestedResolutions(
-                emptyList(),
-                ArrayList(useCaseToConfigMap.values)
-            )
-
-        // Checks all suggested resolutions will become 640x480.
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[imageCapture],
-            vgaSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[videoCapture],
-            vgaSize
-        )
-        Truth.assertThat(suggestedResolutionMap).containsEntry(
-            useCaseToConfigMap[preview],
-            vgaSize
-        )
-    }
-
-    @Test
     fun transformSurfaceConfigWithYUVAnalysisSize() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
@@ -1646,7 +1584,7 @@ class SupportedSurfaceCombinationTest {
         val resultList: List<Size?> = supportedSurfaceCombination.getSupportedOutputSizes(
             useCase.currentConfig
         )
-        Truth.assertThat(resultList).containsAtLeastElementsIn(customOrderedResolutions).inOrder()
+        Truth.assertThat(resultList).containsExactlyElementsIn(customOrderedResolutions).inOrder()
     }
 
     @Test

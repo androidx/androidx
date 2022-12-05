@@ -1195,52 +1195,6 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSuggestedResolutionsForCustomOrderedResolutions_LegacyApi() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        val size720p = Size(1280, 720)
-        val formatResolutionsPairList = arrayListOf<Pair<Int, Array<Size>>>().apply {
-            add(Pair.create(ImageFormat.JPEG, arrayOf(size720p)))
-            add(Pair.create(ImageFormat.YUV_420_888, arrayOf(size720p)))
-            add(Pair.create(ImageFormat.PRIVATE, arrayOf(size720p)))
-        }
-        // Sets use cases custom ordered resolutions to 640x480 and 1280x720.
-        val imageCapture = legacyUseCaseCreator.createUseCase(
-            IMAGE_CAPTURE_USE_CASE,
-            customOrderedResolutions = listOf(RESOLUTION_VGA, size720p),
-            // Other configurations should be ignored
-            preferredResolution = size720p,
-            maxResolution = Size(320, 240),
-            defaultResolution = size720p,
-            supportedResolutions = formatResolutionsPairList,
-        )
-        val videoCapture = createVideoCapture(Quality.SD, Quality.HD)
-        val preview = legacyUseCaseCreator.createUseCase(
-            PREVIEW_USE_CASE,
-            customOrderedResolutions = listOf(RESOLUTION_VGA, size720p),
-            // Other configurations should be ignored
-            preferredResolution = size720p,
-            maxResolution = Size(320, 240),
-            defaultResolution = size720p,
-            supportedResolutions = formatResolutionsPairList,
-        )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
-            supportedSurfaceCombination,
-            imageCapture,
-            videoCapture,
-            preview
-        )
-        // Checks all suggested resolutions is 640x480.
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(RESOLUTION_VGA)
-    }
-
-    @Test
     fun transformSurfaceConfigWithYUVAnalysisSize() {
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
