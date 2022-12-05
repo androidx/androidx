@@ -45,9 +45,10 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
     @get:JvmName("allowHybrid")
     val allowHybrid: Boolean = true
 ) : GetCredentialOption(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
-    false,
+    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    requestData = toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
+    candidateQueryData = toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
+    requireSystemProvider = true,
 ) {
 
     init {

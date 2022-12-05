@@ -144,8 +144,9 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         )
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(option.data, expectedData)).isTrue()
-        assertThat(option.requireSystemProvider).isFalse()
+        assertThat(equals(option.requestData, expectedData)).isTrue()
+        assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
+        assertThat(option.requireSystemProvider).isTrue()
     }
 
     @Test
@@ -153,7 +154,7 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         val option = GetPublicKeyCredentialOptionPrivileged("json", "rp", "clientDataHash", true)
 
         val convertedOption = createFrom(
-            option.type, option.data, option.requireSystemProvider
+            option.type, option.requestData, option.candidateQueryData, option.requireSystemProvider
         )
 
         assertThat(convertedOption).isInstanceOf(

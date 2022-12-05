@@ -37,6 +37,7 @@ class GetCustomCredentialOptionTest {
             GetCustomCredentialOption(
                 "",
                 Bundle(),
+                Bundle(),
                 false
             )
         }
@@ -44,7 +45,7 @@ class GetCustomCredentialOptionTest {
 
     @Test
     fun constructor_nonEmptyTypeNonNullBundle_success() {
-        GetCustomCredentialOption("T", Bundle(), true)
+        GetCustomCredentialOption("T", Bundle(), Bundle(), true)
     }
 
     @Test
@@ -52,14 +53,25 @@ class GetCustomCredentialOptionTest {
         val expectedType = "TYPE"
         val expectedBundle = Bundle()
         expectedBundle.putString("Test", "Test")
+        val expectedCandidateQueryDataBundle = Bundle()
+        expectedCandidateQueryDataBundle.putBoolean("key", true)
+
         val expectedSystemProvider = true
         val option = GetCustomCredentialOption(
             expectedType,
             expectedBundle,
+            expectedCandidateQueryDataBundle,
             expectedSystemProvider
         )
+
         assertThat(option.type).isEqualTo(expectedType)
-        assertThat(equals(option.data, expectedBundle)).isTrue()
+        assertThat(equals(option.requestData, expectedBundle)).isTrue()
+        assertThat(
+            equals(
+                option.candidateQueryData,
+                expectedCandidateQueryDataBundle
+            )
+        ).isTrue()
         assertThat(option.requireSystemProvider).isEqualTo(expectedSystemProvider)
     }
 }

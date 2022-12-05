@@ -23,20 +23,25 @@ import android.os.Bundle
  *
  * @property type the credential type determined by the credential-type-specific subclass
  * generated for custom use cases
- * @property data the request data in the [Bundle] format, generated for custom use cases
+ * @property requestData the request data in the [Bundle] format, generated for custom use cases
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
+ * the provider during the initial candidate query stage, which should not contain sensitive user
+ * information
  * @property requireSystemProvider true if must only be fulfilled by a system provider and false
  * otherwise
  * @throws IllegalArgumentException If [type] is empty
- * @throws NullPointerException If [data] or [type] is null
+ * @throws NullPointerException If [requestData] or [type] is null
  */
 open class GetCustomCredentialOption(
     final override val type: String,
-    final override val data: Bundle,
+    final override val requestData: Bundle,
+    final override val candidateQueryData: Bundle,
     @get:JvmName("requireSystemProvider")
     final override val requireSystemProvider: Boolean
 ) : GetCredentialOption(
     type,
-    data,
+    requestData,
+    candidateQueryData,
     requireSystemProvider
 ) {
     init {

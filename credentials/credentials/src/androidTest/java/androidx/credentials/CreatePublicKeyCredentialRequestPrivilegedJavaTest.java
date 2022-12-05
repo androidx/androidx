@@ -142,8 +142,9 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
                         allowHybridExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getData(), expectedData)).isTrue();
-        assertThat(request.getRequireSystemProvider()).isFalse();
+        assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
+        assertThat(request.getRequireSystemProvider()).isTrue();
     }
 
     @Test
@@ -153,7 +154,8 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
                         "json", "rp", "clientDataHash", true);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), request.getData(), request.getRequireSystemProvider()
+                request.getType(), request.getCredentialData(),
+                request.getCandidateQueryData(), request.getRequireSystemProvider()
         );
 
         assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequestPrivileged.class);

@@ -27,18 +27,23 @@ import android.os.Bundle
  *
  * @property type the credential type determined by the credential-type-specific subclass for custom
  * use cases
- * @property data the response data in the [Bundle] format for custom use cases
+ * @property credentialData the full credential creation request data in the [Bundle] format for
+ * custom use cases
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
+ * the provider during the initial candidate query stage, which should not contain sensitive user
+ * credential information
  * @property requireSystemProvider true if must only be fulfilled by a system provider and false
  * otherwise
  * @throws IllegalArgumentException If [type] is empty
- * @throws NullPointerException If [type] or [data] are null
+ * @throws NullPointerException If [type] or [credentialData] are null
  */
 open class CreateCustomCredentialRequest(
     final override val type: String,
-    final override val data: Bundle,
+    final override val credentialData: Bundle,
+    final override val candidateQueryData: Bundle,
     @get:JvmName("requireSystemProvider")
     final override val requireSystemProvider: Boolean
-) : CreateCredentialRequest(type, data, requireSystemProvider) {
+) : CreateCredentialRequest(type, credentialData, candidateQueryData, requireSystemProvider) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }
     }
