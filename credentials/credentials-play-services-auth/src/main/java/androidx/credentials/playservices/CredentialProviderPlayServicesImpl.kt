@@ -16,7 +16,6 @@
 
 package androidx.credentials.playservices
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.CancellationSignal
 import android.util.Log
@@ -50,11 +49,9 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) {
-            return
-        }
+        if (cancellationReviewer(cancellationSignal)) { return }
         CredentialProviderBeginSignInController(activity).invokePlayServices(
-            request, callback, executor)
+            request, callback, executor, cancellationSignal)
     }
 
     @SuppressWarnings("deprecated")
@@ -65,23 +62,23 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) {
-            return
-        }
+        if (cancellationReviewer(cancellationSignal)) { return }
         when (request) {
             is CreatePasswordRequest -> {
                 CredentialProviderCreatePasswordController.getInstance(
                     activity).invokePlayServices(
                     request,
                     callback,
-                    executor)
+                    executor,
+                    cancellationSignal)
             }
             is CreatePublicKeyCredentialRequest -> {
                 CredentialProviderCreatePublicKeyCredentialController.getInstance(
                     activity).invokePlayServices(
                     request,
                     callback,
-                    executor)
+                    executor,
+                    cancellationSignal)
             }
             else -> {
                 throw UnsupportedOperationException(
@@ -94,26 +91,23 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         return true
     }
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    private fun cancellationReviewer(
-        cancellationSignal: CancellationSignal?
-    ): Boolean {
-        if (cancellationSignal != null) {
-            if (cancellationSignal.isCanceled) {
-                Log.i(TAG, "Create credential already canceled before activity UI")
-                return true
-            }
-            cancellationSignal.setOnCancelListener {
-                // When this is notified, a map may be handy to shut of all activities
-                // TODO("Shut off activities that exist prior to cancellation")
-            }
-        } else {
-            Log.i(TAG, "No cancellationSignal found")
-        }
-        return false
-    }
-
     companion object {
         private val TAG = CredentialProviderPlayServicesImpl::class.java.name
+
+        internal fun cancellationReviewer(
+            cancellationSignal: CancellationSignal?
+        ): Boolean {
+            if (cancellationSignal != null) {
+                if (cancellationSignal.isCanceled) {
+                    Log.i(TAG, "the flow has been canceled")
+                    // TODO("See if there's a better way to message pass to avoid if statements")
+                    // TODO("And to use a single listener instead")
+                    return true
+                }
+            } else {
+                Log.i(TAG, "No cancellationSignal found")
+            }
+            return false
+        }
     }
 }

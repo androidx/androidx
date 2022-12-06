@@ -19,6 +19,7 @@ package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
@@ -31,7 +32,9 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialEncodingException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
+import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.HiddenActivity
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
@@ -56,13 +59,22 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     /**
      * The callback object state, used in the protected handleResponse method.
      */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse,
         CreateCredentialException>
 
     /**
      * The callback requires an executor to invoke it.
      */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private lateinit var executor: Executor
+
+    /**
+     * The cancellation signal, which is shuttled around to stop the flow at any moment prior to
+     * returning data.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private var cancellationSignal: CancellationSignal? = null
 
     private val resultReceiver = object : ResultReceiver(
         Handler(Looper.getMainLooper())
@@ -72,10 +84,9 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             resultData: Bundle
         ) {
             if (maybeReportErrorFromResultReceiver(resultData,
-                    { errType, errMsg ->
-                        createPublicKeyCredentialExceptionTypeToException(errType, errMsg)
-                    },
-                    executor = executor, callback = callback)) return
+                    CredentialProviderBaseController
+                        .Companion::createPublicKeyCredentialExceptionTypeToException,
+                    executor = executor, callback = callback, cancellationSignal)) return
             handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
                 resultData.getParcelable(RESULT_DATA_TAG))
         }
@@ -84,21 +95,27 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     override fun invokePlayServices(
         request: CreatePublicKeyCredentialRequest,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
-        executor: Executor
+        executor: Executor,
+        cancellationSignal: CancellationSignal?
     ) {
+        this.cancellationSignal = cancellationSignal
         this.callback = callback
         this.executor = executor
         val fidoRegistrationRequest: PublicKeyCredentialCreationOptions
         try {
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
-            // TODO("Merge with cancellation function CL")
-            executor.execute {
-                callback.onError(CreatePublicKeyCredentialEncodingException(e.message))
-            }
+            // TODO("Merge with updated error codes CL")
+            cancelAndCallbackException(CreatePublicKeyCredentialEncodingException(e.message),
+                cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
             return
         } catch (t: Throwable) {
-            executor.execute { callback.onError(CreateCredentialUnknownException(t.message)) }
+            cancelAndCallbackException(CreateCredentialUnknownException(t.message),
+                cancellationSignal) { e -> this.executor.execute { this.callback.onError(e) } }
+            return
+        }
+
+        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
         }
         val hiddenIntent = Intent(activity, HiddenActivity::class.java)
@@ -112,10 +129,14 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
-        if (maybeReportErrorResultCodeCreate(resultCode, TAG) { e -> this.executor.execute {
-                this.callback.onError(e) } }) return
+        if (maybeReportErrorResultCodeCreate(resultCode, TAG,
+                { e, s, f -> cancelAndCallbackException(e, s, f) }, { e -> this.executor.execute {
+                    this.callback.onError(e) } }, cancellationSignal)) return
         val bytes: ByteArray? = data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
         if (bytes == null) {
+            if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
+                return
+            }
             this.executor.execute { this.callback.onError(
                 CreatePublicKeyCredentialUnknownException(
                 "Internal error fido module giving null bytes")
@@ -123,19 +144,23 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             return
         }
         val cred: PublicKeyCredential = PublicKeyCredential.deserializeFromBytes(bytes)
-        if (PublicKeyCredentialControllerUtility.reportErrorIfExists(
-                this.callback, this.executor, cred)) {
+        val exception =
+            PublicKeyCredentialControllerUtility.publicKeyCredentialResponseContainsError(cred)
+        if (exception != null) {
+            cancelAndCallbackException(exception, cancellationSignal) { e ->
+                this.executor.execute { this.callback.onError(e) } }
             return
         }
         try {
             val response = this.convertResponseToCredentialManager(cred)
-            this.executor.execute { this.callback.onResult(response) }
+            cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
+                this.callback.onResult(e) } }
         } catch (e: JSONException) {
-            executor.execute {
-                callback.onError(CreatePublicKeyCredentialEncodingException(e.message)) }
+            cancelAndCallbackException(CreatePublicKeyCredentialEncodingException(e.message),
+                cancellationSignal) { ex -> this.executor.execute { this.callback.onError(ex) } }
         } catch (t: Throwable) {
-            executor.execute {
-                callback.onError(CreatePublicKeyCredentialUnknownException(t.message)) }
+            cancelAndCallbackException(CreatePublicKeyCredentialUnknownException(t.message),
+                cancellationSignal) { e -> this.executor.execute { this.callback.onError(e) } }
         }
     }
 

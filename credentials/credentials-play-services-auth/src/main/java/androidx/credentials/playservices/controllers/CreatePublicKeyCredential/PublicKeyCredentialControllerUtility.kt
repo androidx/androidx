@@ -18,14 +18,12 @@ package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
 import android.util.Base64
 import android.util.Log
-import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
-import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.GetPublicKeyCredentialOption
-import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialAbortException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialConstraintException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDataException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInvalidStateException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNetworkException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialNotAllowedException
@@ -43,6 +41,7 @@ import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse
+import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria
 import com.google.android.gms.fido.fido2.api.common.COSEAlgorithmIdentifier
 import com.google.android.gms.fido.fido2.api.common.ErrorCode
@@ -53,7 +52,6 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameter
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity
 import com.google.android.gms.fido.fido2.api.common.ResidentKeyRequirement
-import java.util.concurrent.Executor
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -202,19 +200,14 @@ class PublicKeyCredentialControllerUtility {
         /**
          * Indicates if an error was propagated from the underlying Fido API.
          *
-         * @param callback the callback invoked when the request succeeds or fails
-         * @param executor the callback will take place on this executor
          * @param cred the public key credential response object from fido
          *
-         * @return true if there is an error, false otherwise
+         * @return an exception if it exists, else null indicating no exception
          */
-        fun reportErrorIfExists(
-            callback: CredentialManagerCallback<CreateCredentialResponse,
-                CreateCredentialException>,
-            executor: Executor,
+        fun publicKeyCredentialResponseContainsError(
             cred: PublicKeyCredential
-        ): Boolean {
-            val authenticatorResponse = cred.response
+        ): CreatePublicKeyCredentialException? {
+            val authenticatorResponse: AuthenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
                 var exception = orderedErrorCodeToExceptions[code]
@@ -222,12 +215,9 @@ class PublicKeyCredentialControllerUtility {
                     exception = CreatePublicKeyCredentialUnknownException("unknown fido gms " +
                         "exception")
                 }
-                executor.execute { callback.onError(
-                    exception
-                ) }
-                return true
+                return exception
             }
-            return false
+            return null
         }
 
         internal fun parseOptionalExtensions(
