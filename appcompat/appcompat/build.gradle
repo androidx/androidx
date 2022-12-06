@@ -28,7 +28,7 @@ dependencies {
     api("androidx.fragment:fragment:1.5.4")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")
+    implementation(project(":lifecycle:lifecycle-runtime"))
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
     implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
     api("androidx.savedstate:savedstate:1.2.0")
