@@ -75,7 +75,6 @@ android {
 androidx {
     name = "Android Wear Watchface"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface"
 }

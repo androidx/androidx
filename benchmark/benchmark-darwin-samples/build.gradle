@@ -60,7 +60,6 @@ darwinBenchmark {
 
 androidx {
     name = "AndroidX Benchmarks - Darwin Samples"
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Samples"
 }

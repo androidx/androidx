@@ -38,7 +38,6 @@ android {
 androidx {
     name = "Android DB"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"
 }

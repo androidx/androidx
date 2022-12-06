@@ -99,7 +99,6 @@ android {
 androidx {
     name = "Android for Cars App Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
 }

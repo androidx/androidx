@@ -37,7 +37,6 @@ android {
 androidx {
     name = "Jetpack WindowManager Library Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2022"
     description = "Code samples for WindowManager Jetpack library."
 }

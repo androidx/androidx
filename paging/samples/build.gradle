@@ -54,7 +54,6 @@ dependencies {
 androidx {
     name = "AndroidX Paging Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Paging library"
 }

@@ -71,7 +71,6 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
 androidx {
     name = "AndroidX Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"
 }

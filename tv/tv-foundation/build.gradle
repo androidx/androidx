@@ -66,7 +66,6 @@ android {
 androidx {
     name = "androidx.tv:tv-foundation"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.TV
     inceptionYear = "2022"
     description = "This library makes it easier for developers" +
             "to write Jetpack Compose applications for TV devices by providing " +

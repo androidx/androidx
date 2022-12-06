@@ -61,7 +61,6 @@ android {
 androidx {
     name = "Android Navigation Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
 }

@@ -31,6 +31,3 @@ tasks["test"].configure { t ->
     t.outputs.upToDateWhen { false }
 }
 
-androidx {
-    mavenGroup = LibraryGroups.BUILDSRC_TESTS
-}

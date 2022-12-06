@@ -40,6 +40,3 @@ android {
     namespace "androidx.ads.identifier.benchmark"
 }
 
-androidx {
-    mavenGroup = LibraryGroups.ADS
-}

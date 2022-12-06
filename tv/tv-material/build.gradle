@@ -63,7 +63,6 @@ android {
 androidx {
     name = "androidx.tv:tv-material"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.TV
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
     targetsJavaConsumers = false

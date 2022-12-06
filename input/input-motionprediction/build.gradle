@@ -42,7 +42,6 @@ androidx {
     name = "Android Motion Prediction"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.INPUT_MOTIONPREDICTION
-    mavenGroup = LibraryGroups.INPUT
     inceptionYear = "2022"
     description = "reduce the latency of input interactions by predicting future MotionEvents"
 }

@@ -81,7 +81,6 @@ dependencies {
 androidx {
     name = "Android Benchmark - Macrobenchmark"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
 }

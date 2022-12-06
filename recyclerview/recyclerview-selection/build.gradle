@@ -40,7 +40,6 @@ androidx {
     name = "Android RecyclerView Selection"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW_SELECTION
-    mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2017"
     description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
 }

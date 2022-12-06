@@ -32,7 +32,6 @@ android {
 androidx {
     name = "ProtoLayout Renderer"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_PROTOLAYOUT
     inceptionYear = "2022"
     description = "Render ProtoLayouts to an Android surface"
 }

@@ -38,6 +38,3 @@ androidx {
     description = "Android App Startup Runtime"
 }
 
-androidx {
-    mavenGroup = LibraryGroups.STARTUP
-}

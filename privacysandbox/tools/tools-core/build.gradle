@@ -70,7 +70,6 @@ protobuf {
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
 }

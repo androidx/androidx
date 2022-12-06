@@ -30,7 +30,6 @@ androidx {
     name = "Jetpack WindowManager library Sidecar"
     publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface but should never publish")
-    mavenGroup = LibraryGroups.WINDOW_SIDECAR
     inceptionYear = "2020"
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
             "module instead."
