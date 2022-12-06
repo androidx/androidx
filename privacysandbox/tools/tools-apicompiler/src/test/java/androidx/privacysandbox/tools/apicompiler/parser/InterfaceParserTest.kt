@@ -24,6 +24,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -42,7 +43,7 @@ class InterfaceParserTest {
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk {
-                        suspend fun doStuff(x: Int, y: Int): String
+                        suspend fun doStuff(x: Int, y: Int?): String
                         suspend fun processList(list: List<Int>): List<String>
                         fun doMoreStuff()
                     }
@@ -62,7 +63,7 @@ class InterfaceParserTest {
                                         type = Types.int,
                                     ), Parameter(
                                         name = "y",
-                                        type = Types.int,
+                                        type = Types.int.asNullable(),
                                     )
                                 ),
                                 returnType = Types.string,
@@ -277,14 +278,6 @@ class InterfaceParserTest {
                 "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface are " +
                 "supported as return types."
         )
-    }
-
-    @Test
-    fun nullableParameter_fails() {
-        checkSourceFails(serviceMethod("suspend fun foo(x: Int?)"))
-            .containsError(
-                "Error in com.mysdk.MySdk.foo: nullable types are not supported."
-            )
     }
 
     @Test

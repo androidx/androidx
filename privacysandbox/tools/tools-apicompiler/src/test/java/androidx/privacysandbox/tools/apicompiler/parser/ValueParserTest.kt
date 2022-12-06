@@ -25,6 +25,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.room.compiler.processing.util.Source
 import com.google.common.truth.Truth.assertThat
@@ -47,7 +48,7 @@ class ValueParserTest {
                         suspend fun doStuff(request: MySdkRequest): MySdkResponse
                     }
                     @PrivacySandboxValue
-                    data class MySdkRequest(val id: Int, val message: String)
+                    data class MySdkRequest(val id: Int, val message: String?)
                     @PrivacySandboxValue
                     data class MySdkResponse(
                         val magicPayload: MagicPayload, val isTrulyMagic: Boolean)
@@ -77,7 +78,7 @@ class ValueParserTest {
                         type = Type(packageName = "com.mysdk", simpleName = "MySdkRequest"),
                         properties = listOf(
                             ValueProperty("id", Types.int),
-                            ValueProperty("message", Types.string),
+                            ValueProperty("message", Types.string.asNullable()),
                         )
                     ),
                     AnnotatedValue(
@@ -155,17 +156,6 @@ class ValueParserTest {
         checkSourceFails(dataClass)
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdkRequest.data: properties cannot be mutable."
-            )
-    }
-
-    @Test
-    fun dataClassWithNullableProperty_fails() {
-        val dataClass = annotatedValue(
-            "data class MySdkRequest(val id: Int, val data: String?)"
-        )
-        checkSourceFails(dataClass)
-            .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest.data: nullable types are not supported."
             )
     }
 

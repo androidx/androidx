@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNonNull
 
 class ModelValidator private constructor(val api: ParsedApi) {
     private val values = api.values.map(AnnotatedValue::type)
@@ -135,14 +136,17 @@ class ModelValidator private constructor(val api: ParsedApi) {
     private fun isValidCallbackParameterType(type: Type) =
         isValue(type) || isInterface(type) || isPrimitive(type) || isList(type)
 
-    private fun isValue(type: Type) = values.contains(type)
-    private fun isInterface(type: Type) = interfaces.contains(type)
-    private fun isCallback(type: Type) = callbacks.contains(type)
-    private fun isPrimitive(type: Type) = Types.primitiveTypes.contains(type)
+    private fun isValue(type: Type) = values.contains(type.asNonNull())
+    private fun isInterface(type: Type) = interfaces.contains(type.asNonNull())
+    private fun isCallback(type: Type) = callbacks.contains(type.asNonNull())
+    private fun isPrimitive(type: Type) = Types.primitiveTypes.contains(type.asNonNull())
     private fun isList(type: Type): Boolean {
         if (type.qualifiedName == "kotlin.collections.List") {
             require(type.typeParameters.size == 1) {
                 "List type should have one type parameter, found ${type.typeParameters}."
+            }
+            if (type.isNullable) {
+                errors.add("Nullable lists are not supported")
             }
             return type.typeParameters[0].let { isValue(it) || isPrimitive(it) }
         }

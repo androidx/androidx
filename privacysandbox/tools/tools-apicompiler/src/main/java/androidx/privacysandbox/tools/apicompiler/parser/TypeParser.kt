@@ -20,7 +20,6 @@ import androidx.privacysandbox.tools.core.model.Type
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Nullability
 import com.google.devtools.ksp.symbol.Variance
 
 internal class TypeParser(private val logger: KSPLogger) {
@@ -36,9 +35,6 @@ internal class TypeParser(private val logger: KSPLogger) {
         if (resolvedType.isError) {
             logger.error("Failed to resolve type for $debugName.")
         }
-        if (resolvedType.nullability == Nullability.NULLABLE) {
-            logger.error("Error in $debugName: nullable types are not supported.")
-        }
         val typeArguments = typeReference.element?.typeArguments?.mapNotNull {
             if (it.type == null) {
                 logger.error("Error in $debugName: null type argument.")
@@ -52,6 +48,7 @@ internal class TypeParser(private val logger: KSPLogger) {
             packageName = resolvedType.declaration.packageName.getFullName(),
             simpleName = resolvedType.declaration.simpleName.getShortName(),
             typeParameters = typeArguments.map { parseFromTypeReference(it, debugName) },
+            isNullable = resolvedType.isMarkedNullable,
         )
     }
 }
