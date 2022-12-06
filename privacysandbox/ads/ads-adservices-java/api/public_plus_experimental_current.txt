@@ -1,4 +1,34 @@
 // Signature format: 4.0
+package androidx.privacysandbox.ads.adservices.java.adselection {
+
+  public abstract class AdSelectionManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures? from(android.content.Context context);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> reportImpressionAsync(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome> selectAdsAsync(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig);
+    field public static final androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures.Companion Companion;
+  }
+
+  public static final class AdSelectionManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures? from(android.content.Context context);
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.java.customaudience {
+
+  public abstract class CustomAudienceManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures? from(android.content.Context context);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> joinCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request);
+    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> leaveCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures.Companion Companion;
+  }
+
+  public static final class CustomAudienceManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures? from(android.content.Context context);
+  }
+
+}
+
 package androidx.privacysandbox.ads.adservices.java.measurement {
 
   public abstract class MeasurementManagerFutures {

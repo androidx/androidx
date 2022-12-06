@@ -1,0 +1,149 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.privacysandbox.ads.adservices.java.customaudience
+
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
+import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager
+import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion.obtain
+import android.adservices.common.AdServicesPermissions
+import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Build
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
+import androidx.core.os.BuildCompat
+import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest
+import androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest
+import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+
+/**
+ * This class provides APIs for app and ad-SDKs to join / leave custom audiences.
+ * This class can be used by Java clients.
+ */
+abstract class CustomAudienceManagerFutures internal constructor() {
+
+    /**
+     * Adds the user to the given {@link CustomAudience}.
+     *
+     * <p>An attempt to register the user for a custom audience with the same combination of {@code
+     * ownerPackageName}, {@code buyer}, and {@code name} will cause the existing custom audience's
+     * information to be overwritten, including the list of ads data.
+     *
+     * <p>Note that the ads list can be completely overwritten by the daily background fetch job.
+     *
+     * <p>This call fails with an {@link SecurityException} if
+     *
+     * <ol>
+     *   <li>the {@code ownerPackageName} is not calling app's package name and/or
+     *   <li>the buyer is not authorized to use the API.
+     * </ol>
+     *
+     * <p>This call fails with an {@link IllegalArgumentException} if
+     *
+     * <ol>
+     *   <li>the storage limit has been exceeded by the calling application and/or
+     *   <li>any URI parameters in the {@link CustomAudience} given are not authenticated with the
+     *       {@link CustomAudience} buyer.
+     * </ol>
+     *
+     * <p>This call fails with {@link LimitExceededException} if the calling package exceeds the
+     * allowed rate limits and is throttled.
+     *
+     * <p>This call fails with an {@link IllegalStateException} if an internal service error is
+     * encountered.
+     *
+     * @param request The request to join custom audience.
+     */
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract fun joinCustomAudienceAsync(
+        request: JoinCustomAudienceRequest
+    ): ListenableFuture<Unit>
+
+    /**
+     * Attempts to remove a user from a custom audience by deleting any existing {@link
+     * CustomAudience} data, identified by {@code ownerPackageName}, {@code buyer}, and {@code
+     * name}.
+     *
+     * <p>This call fails with an {@link SecurityException} if
+     *
+     * <ol>
+     *   <li>the {@code ownerPackageName} is not calling app's package name; and/or
+     *   <li>the buyer is not authorized to use the API.
+     * </ol>
+     *
+     * <p>This call fails with {@link LimitExceededException} if the calling package exceeds the
+     * allowed rate limits and is throttled.
+     *
+     * <p>This call does not inform the caller whether the custom audience specified existed in
+     * on-device storage. In other words, it will fail silently when a buyer attempts to leave a
+     * custom audience that was not joined.
+     *
+     * @param request The request to leave custom audience.
+     */
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract fun leaveCustomAudienceAsync(
+        request: LeaveCustomAudienceRequest
+    ): ListenableFuture<Unit>
+
+    @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private class Api33Ext4JavaImpl(
+        private val mCustomAudienceManager: CustomAudienceManager?
+    ) : CustomAudienceManagerFutures() {
+        @DoNotInline
+        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+        override fun joinCustomAudienceAsync(
+            request: JoinCustomAudienceRequest
+        ): ListenableFuture<Unit> {
+            return CoroutineScope(Dispatchers.Default).async {
+                mCustomAudienceManager!!.joinCustomAudience(request)
+            }.asListenableFuture()
+        }
+
+        @DoNotInline
+        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+        override fun leaveCustomAudienceAsync(
+            request: LeaveCustomAudienceRequest
+        ): ListenableFuture<Unit> {
+            return CoroutineScope(Dispatchers.Default).async {
+                mCustomAudienceManager!!.leaveCustomAudience(request)
+            }.asListenableFuture()
+        }
+    }
+
+    companion object {
+        /**
+         *  Creates [CustomAudienceManagerFutures].
+         *
+         *  @return CustomAudienceManagerFutures object. If the device is running an incompatible
+         *  build, the value returned is null.
+         */
+        @JvmStatic
+        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+        @SuppressLint("NewApi", "ClassVerificationFailure")
+        fun from(context: Context): CustomAudienceManagerFutures? {
+            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
+            return obtain(context)?.let { Api33Ext4JavaImpl(it) }
+        }
+    }
+}
