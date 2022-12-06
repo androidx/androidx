@@ -362,6 +362,20 @@ class BooksDaoTest : TestDatabaseTest() {
     }
 
     @Test
+    fun deleteAndAddPublisher_immutableList() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.getPublishersImmutable().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
+        booksDao.deleteAndAddPublisher(TestUtil.PUBLISHER, TestUtil.PUBLISHER2)
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER2)))
+        }
+    }
+
+    @Test
     fun deleteAndAddPublisher_failure() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.getPublishers().run {
