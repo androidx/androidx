@@ -67,6 +67,7 @@ import androidx.compose.ui.zIndex
  * Examples:
  * @sample androidx.tv.samples.PillIndicatorTabRow
  * @sample androidx.tv.samples.UnderlinedIndicatorTabRow
+ * @sample androidx.tv.samples.TabRowWithDebounce
  * @sample androidx.tv.samples.OnClickNavigation
  *
  * @param selectedTabIndex the index of the currently selected tab
