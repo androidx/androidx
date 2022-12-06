@@ -216,6 +216,15 @@ internal class InteractiveWatchFaceImpl(
         }
     }
 
+    override fun getComplicationIdAt(xPos: Int, yPos: Int): Long {
+        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine,
+            "InteractiveWatchFaceImpl.getComplicationIdAt"
+        ) {
+            it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
+        } ?: Long.MIN_VALUE
+    }
+
     fun onDestroy() {
         // Note this is almost certainly called on the ui thread, from release() above.
         runBlocking {

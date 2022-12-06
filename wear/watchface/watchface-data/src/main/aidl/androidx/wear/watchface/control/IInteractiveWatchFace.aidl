@@ -35,12 +35,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 23
+    // Next Id: 24
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 6;
+    const int API_VERSION = 7;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -214,4 +214,12 @@ interface IInteractiveWatchFace {
      * @since API version 6.
      */
     void removeWatchFaceListener(in IWatchfaceListener listener) = 22;
+
+    /**
+     * Returns the ID of the complication at (xPos, yPos) or Long.MIN_VALUE if no such complication
+     * exists.
+     *
+     * @since API version 7.
+     */
+    long getComplicationIdAt(in int xPos, in int yPos) = 23;
 }

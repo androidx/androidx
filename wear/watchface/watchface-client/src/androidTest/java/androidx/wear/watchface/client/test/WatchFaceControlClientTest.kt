@@ -669,6 +669,21 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         interactiveInstance.close()
     }
 
+    @Test
+    fun getComplicationIdAt_customTapFilter() {
+        val wallpaperService = TestCustomTapFilterWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+
+        // When x & y are both even it's deemed to be a hit.
+        assertThat(interactiveInstance.getComplicationIdAt(0, 0)).isEqualTo(123)
+        assertNull(interactiveInstance.getComplicationIdAt(0, 1))
+        assertNull(interactiveInstance.getComplicationIdAt(1, 0))
+        assertNull(interactiveInstance.getComplicationIdAt(1, 1))
+        assertThat(interactiveInstance.getComplicationIdAt(2, 2)).isEqualTo(123)
+
+        interactiveInstance.close()
+    }
+
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     fun getDefaultProviderPolicies() {
