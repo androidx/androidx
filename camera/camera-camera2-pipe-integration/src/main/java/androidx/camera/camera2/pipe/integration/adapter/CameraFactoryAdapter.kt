@@ -27,11 +27,11 @@ import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
-import kotlinx.coroutines.runBlocking
 
 /**
  * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used
@@ -55,10 +55,22 @@ class CameraFactoryAdapter(
         result
     }
 
+    private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
+    private var mAvailableCameraIds: List<String>
+
     init {
         debug { "Created CameraFactoryAdapter" }
+
+        mAvailableCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+            this,
+            mAvailableCamerasSelector
+        )
     }
 
+    /**
+     * The [getCamera] method is responsible for providing CameraInternal object based on cameraID.
+     * Use cameraId from set of cameraIds provided by [getAvailableCameraIds] method.
+     */
     override fun getCamera(cameraId: String): CameraInternal =
         appComponent.cameraBuilder()
             .config(CameraConfig(CameraId(cameraId)))
@@ -66,7 +78,8 @@ class CameraFactoryAdapter(
             .getCameraInternal()
 
     override fun getAvailableCameraIds(): Set<String> =
-        runBlocking { appComponent.getCameraPipe().cameras().ids().map { it.value }.toSet() }
+        // Use a LinkedHashSet to preserve order
+        LinkedHashSet(mAvailableCameraIds)
 
     override fun getCameraManager(): Any? = appComponent
 }
