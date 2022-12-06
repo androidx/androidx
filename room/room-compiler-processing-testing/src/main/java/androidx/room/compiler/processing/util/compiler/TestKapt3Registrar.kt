@@ -17,6 +17,8 @@
 
 package androidx.room.compiler.processing.util.compiler
 
+import java.io.File
+import javax.annotation.processing.Processor
 import org.jetbrains.kotlin.base.kapt3.KaptFlag
 import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.base.kapt3.logString
@@ -25,7 +27,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
-import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.container.StorageComponentContainer
@@ -38,13 +40,11 @@ import org.jetbrains.kotlin.kapt3.base.LoadedProcessors
 import org.jetbrains.kotlin.kapt3.base.incremental.DeclaredProcType
 import org.jetbrains.kotlin.kapt3.base.incremental.IncrementalProcessor
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
+import org.jetbrains.kotlin.kapt3.util.doOpenInternalPackagesIfRequired
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.resolve.jvm.extensions.PartialAnalysisHandlerExtension
-import java.io.File
-import javax.annotation.processing.Processor
-import org.jetbrains.kotlin.kapt3.util.doOpenInternalPackagesIfRequired
 
 /**
  * Registers the KAPT component for the kotlin compilation.
@@ -53,11 +53,13 @@ import org.jetbrains.kotlin.kapt3.util.doOpenInternalPackagesIfRequired
  * https://github.com/JetBrains/kotlin/blob/master/plugins/kapt3/kapt3-compiler/src/
  *  org/jetbrains/kotlin/kapt3/Kapt3Plugin.kt
  */
+@Suppress("DEPRECATION") // TODO: Migrate ComponentRegistrar to CompilerPluginRegistrar
+@OptIn(ExperimentalCompilerApi::class)
 internal class TestKapt3Registrar(
     val processors: List<Processor>,
     val baseOptions: KaptOptions.Builder,
     val messageCollector: MessageCollector
-) : ComponentRegistrar {
+) : @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
     override fun registerProjectComponents(
         project: MockProject,
         configuration: CompilerConfiguration
