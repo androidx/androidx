@@ -3,6 +3,7 @@ set -e
 
 # This is a helper script to be called by androidx.sh
 # This script locates, parses, and merges build profiling information from various report files
+# A history of the results of running this script can be visualized at go/androidx-build-times
 
 cd "$(dirname $0)"
 
