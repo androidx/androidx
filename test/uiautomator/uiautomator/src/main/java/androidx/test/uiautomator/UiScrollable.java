@@ -509,17 +509,18 @@ public class UiScrollable extends UiCollection {
      * left-most edge for horizontal controls. Make sure to take into account
      * devices configured with right-to-left languages like Arabic and Hebrew.
      *
+     * @param maxSwipes maximum number of scrolls allowed
      * @param steps use steps to control the speed, so that it may be a scroll, or fling
-     * @return true on scrolled else false
+     * @return true if beginning reached within maxSwipes
      */
     public boolean scrollToBeginning(int maxSwipes, int steps) throws UiObjectNotFoundException {
         // protect against potential hanging and return after preset attempts
         for(int x = 0; x < maxSwipes; x++) {
             if(!scrollBackward(steps)) {
-                break;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -528,8 +529,8 @@ public class UiScrollable extends UiCollection {
      * left-most edge for horizontal controls. Make sure to take into account
      * devices configured with right-to-left languages like Arabic and Hebrew.
      *
-     * @param maxSwipes
-     * @return true on scrolled else false
+     * @param maxSwipes maximum number of scrolls allowed
+     * @return true if beginning reached within maxSwipes
      */
     public boolean scrollToBeginning(int maxSwipes) throws UiObjectNotFoundException {
         return scrollToBeginning(maxSwipes, SCROLL_STEPS);
@@ -541,8 +542,8 @@ public class UiScrollable extends UiCollection {
      * the left-most edge for horizontal controls. Make sure to take into
      * account devices configured with right-to-left languages like Arabic and Hebrew.
      *
-     * @param maxSwipes
-     * @return true on scrolled else false
+     * @param maxSwipes maximum number of flings allowed
+     * @return true if beginning reached within maxSwipes
      */
     public boolean flingToBeginning(int maxSwipes) throws UiObjectNotFoundException {
         return scrollToBeginning(maxSwipes, FLING_STEPS);
@@ -554,17 +555,18 @@ public class UiScrollable extends UiCollection {
      * horizontal controls. Make sure to take into account devices configured with
      * right-to-left languages like Arabic and Hebrew.
      *
+     * @param maxSwipes maximum number of scrolls allowed
      * @param steps use steps to control the speed, so that it may be a scroll, or fling
-     * @return true on scrolled else false
+     * @return true if end reached within maxSwipes
      */
     public boolean scrollToEnd(int maxSwipes, int steps) throws UiObjectNotFoundException {
         // protect against potential hanging and return after preset attempts
         for(int x = 0; x < maxSwipes; x++) {
             if(!scrollForward(steps)) {
-                break;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -573,8 +575,8 @@ public class UiScrollable extends UiCollection {
      * horizontal controls. Make sure to take into account devices configured with
      * right-to-left languages like Arabic and Hebrew.
      *
-     * @param maxSwipes
-     * @return true on scrolled, else false
+     * @param maxSwipes maximum number of scrolls allowed
+     * @return true if end reached within maxSwipes
      */
     public boolean scrollToEnd(int maxSwipes) throws UiObjectNotFoundException {
         return scrollToEnd(maxSwipes, SCROLL_STEPS);
@@ -586,8 +588,8 @@ public class UiScrollable extends UiCollection {
      * the right-most edge for horizontal controls. Make sure to take into
      * account devices configured with right-to-left languages like Arabic and Hebrew.
      *
-     * @param maxSwipes
-     * @return true on scrolled, else false
+     * @param maxSwipes maximum number of flings allowed
+     * @return true if end reached within maxSwipes
      */
     public boolean flingToEnd(int maxSwipes) throws UiObjectNotFoundException {
         return scrollToEnd(maxSwipes, FLING_STEPS);

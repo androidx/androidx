@@ -310,6 +310,21 @@ public class UiScrollableTest extends BaseTest {
     }
 
     @Test
+    public void testScrollToBeginning_notEnoughSwipes_failed() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject topText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/top_text"));
+
+        assertTrue(relativeLayout.scrollTextIntoView("This is the bottom"));
+        assertFalse(topText.exists());
+        assertFalse(relativeLayout.scrollToBeginning(1));
+        assertFalse(topText.exists());
+    }
+
+    @Test
     public void testScrollToBeginning() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
 
@@ -347,6 +362,20 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(bottomText.exists());
         assertTrue(relativeLayout.scrollToEnd(20, 50));
         assertTrue(bottomText.exists());
+    }
+
+    @Test
+    public void testScrollToEnd_notEnoughSwipes_failed() throws Exception {
+        launchTestActivity(VerticalScrollTestActivity.class);
+
+        UiScrollable relativeLayout = new UiScrollable(
+                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
+        UiObject bottomText = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/bottom_text"));
+
+        assertFalse(bottomText.exists());
+        assertFalse(relativeLayout.scrollToEnd(1));
+        assertFalse(bottomText.exists());
     }
 
     @Test
