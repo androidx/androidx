@@ -67,18 +67,19 @@ class HealthConnectClientUpsideDownImplTest {
     @get:Rule
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
-            *context.packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-            ).requestedPermissions
+            *context.packageManager
+                .getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+                )
+                .requestedPermissions
         )
 
     private lateinit var healthConnectClient: HealthConnectClient
 
     @Before
     fun setUp() {
-        healthConnectClient =
-            HealthConnectClientUpsideDownImpl(context)
+        healthConnectClient = HealthConnectClientUpsideDownImpl(context)
     }
 
     @After
@@ -88,100 +89,101 @@ class HealthConnectClientUpsideDownImplTest {
 
     @Test
     fun insertRecords() = runTest {
-        val response = healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = null
+        val response =
+            healthConnectClient.insertRecords(
+                listOf(
+                    StepsRecord(
+                        count = 100,
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(5678L),
+                        endZoneOffset = null
+                    )
                 )
             )
-        )
         assertThat(response.recordIdsList).hasSize(1)
     }
 
     @Test
     fun deleteRecords_byId() = runTest {
-        val recordIds = healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = null
-                ),
-                StepsRecord(
-                    count = 150,
-                    startTime = Instant.ofEpochMilli(12340L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(56780L),
-                    endZoneOffset = null
-                ),
-                StepsRecord(
-                    count = 200,
-                    startTime = Instant.ofEpochMilli(123400L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(567800L),
-                    endZoneOffset = null,
-                    metadata = Metadata(clientRecordId = "clientId")
-                ),
-            )
-        ).recordIdsList
+        val recordIds =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        StepsRecord(
+                            count = 100,
+                            startTime = Instant.ofEpochMilli(1234L),
+                            startZoneOffset = null,
+                            endTime = Instant.ofEpochMilli(5678L),
+                            endZoneOffset = null
+                        ),
+                        StepsRecord(
+                            count = 150,
+                            startTime = Instant.ofEpochMilli(12340L),
+                            startZoneOffset = null,
+                            endTime = Instant.ofEpochMilli(56780L),
+                            endZoneOffset = null
+                        ),
+                        StepsRecord(
+                            count = 200,
+                            startTime = Instant.ofEpochMilli(123400L),
+                            startZoneOffset = null,
+                            endTime = Instant.ofEpochMilli(567800L),
+                            endZoneOffset = null,
+                            metadata = Metadata(clientRecordId = "clientId")
+                        ),
+                    )
+                )
+                .recordIdsList
 
-        val initialRecords = healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                StepsRecord::class,
-                TimeRangeFilter.none()
-            )
-        ).records
+        val initialRecords =
+            healthConnectClient
+                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                .records
 
         healthConnectClient.deleteRecords(
-            StepsRecord::class, listOf(recordIds[1]),
+            StepsRecord::class,
+            listOf(recordIds[1]),
             listOf("clientId")
         )
 
         assertThat(
-            healthConnectClient.readRecords(
-                ReadRecordsRequest(
-                    StepsRecord::class,
-                    TimeRangeFilter.none()
-                )
-            ).records
-        ).containsExactly(initialRecords[0])
+                healthConnectClient
+                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                    .records
+            )
+            .containsExactly(initialRecords[0])
     }
 
     // TODO(b/264253708): remove @Ignore from this test case once bug is resolved
     @Test
     @Ignore("Blocked while investigating b/264253708")
     fun deleteRecords_byTimeRange() = runTest {
-        healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1_234L),
-                    startZoneOffset = ZoneOffset.UTC,
-                    endTime = Instant.ofEpochMilli(5_678L),
-                    endZoneOffset = ZoneOffset.UTC
-                ),
-                StepsRecord(
-                    count = 150,
-                    startTime = Instant.ofEpochMilli(12_340L),
-                    startZoneOffset = ZoneOffset.UTC,
-                    endTime = Instant.ofEpochMilli(56_780L),
-                    endZoneOffset = ZoneOffset.UTC
-                ),
+        healthConnectClient
+            .insertRecords(
+                listOf(
+                    StepsRecord(
+                        count = 100,
+                        startTime = Instant.ofEpochMilli(1_234L),
+                        startZoneOffset = ZoneOffset.UTC,
+                        endTime = Instant.ofEpochMilli(5_678L),
+                        endZoneOffset = ZoneOffset.UTC
+                    ),
+                    StepsRecord(
+                        count = 150,
+                        startTime = Instant.ofEpochMilli(12_340L),
+                        startZoneOffset = ZoneOffset.UTC,
+                        endTime = Instant.ofEpochMilli(56_780L),
+                        endZoneOffset = ZoneOffset.UTC
+                    ),
+                )
             )
-        ).recordIdsList
+            .recordIdsList
 
-        val initialRecords = healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                StepsRecord::class,
-                TimeRangeFilter.none()
-            )
-        ).records
+        val initialRecords =
+            healthConnectClient
+                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                .records
 
         healthConnectClient.deleteRecords(
             StepsRecord::class,
@@ -189,28 +191,29 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(
-            healthConnectClient.readRecords(
-                ReadRecordsRequest(
-                    StepsRecord::class,
-                    TimeRangeFilter.none()
-                )
-            ).records
-        ).containsExactly(initialRecords[1])
+                healthConnectClient
+                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                    .records
+            )
+            .containsExactly(initialRecords[1])
     }
 
     @Test
     fun updateRecords() = runTest {
-        val id = healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = null
+        val id =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        StepsRecord(
+                            count = 100,
+                            startTime = Instant.ofEpochMilli(1234L),
+                            startZoneOffset = null,
+                            endTime = Instant.ofEpochMilli(5678L),
+                            endZoneOffset = null
+                        )
+                    )
                 )
-            )
-        ).recordIdsList[0]
+                .recordIdsList[0]
 
         val insertedRecord = healthConnectClient.readRecord(StepsRecord::class, id).record
 
@@ -222,10 +225,7 @@ class HealthConnectClientUpsideDownImplTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
-                    metadata = Metadata(
-                        id,
-                        insertedRecord.metadata.dataOrigin
-                    )
+                    metadata = Metadata(id, insertedRecord.metadata.dataOrigin)
                 )
             )
         )
@@ -237,17 +237,18 @@ class HealthConnectClientUpsideDownImplTest {
 
     @Test
     fun readRecord_withId() = runTest {
-        val insertResponse = healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = ZoneOffset.UTC,
-                    endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = ZoneOffset.UTC
+        val insertResponse =
+            healthConnectClient.insertRecords(
+                listOf(
+                    StepsRecord(
+                        count = 100,
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = ZoneOffset.UTC,
+                        endTime = Instant.ofEpochMilli(5678L),
+                        endZoneOffset = ZoneOffset.UTC
+                    )
                 )
             )
-        )
 
         val readResponse =
             healthConnectClient.readRecord(StepsRecord::class, insertResponse.recordIdsList[0])
@@ -282,21 +283,20 @@ class HealthConnectClientUpsideDownImplTest {
             )
         )
 
-        val readResponse = healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                StepsRecord::class,
-                TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))
+        val readResponse =
+            healthConnectClient.readRecords(
+                ReadRecordsRequest(
+                    StepsRecord::class,
+                    TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))
+                )
             )
-        )
 
         assertThat(readResponse.records[0].count).isEqualTo(50)
     }
 
     @Test
     fun readRecord_noRecords_throwRemoteException() = runTest {
-        assertFailsWith<RemoteException> {
-            healthConnectClient.readRecord(StepsRecord::class, "1")
-        }
+        assertFailsWith<RemoteException> { healthConnectClient.readRecord(StepsRecord::class, "1") }
     }
 
     @Test
@@ -348,62 +348,50 @@ class HealthConnectClientUpsideDownImplTest {
 
     @Test
     fun getChangesToken() = runTest {
-        val token = healthConnectClient.getChangesToken(
-            ChangesTokenRequest(
-                setOf(StepsRecord::class),
-                setOf()
+        val token =
+            healthConnectClient.getChangesToken(
+                ChangesTokenRequest(setOf(StepsRecord::class), setOf())
             )
-        )
         assertThat(token).isNotEmpty()
     }
 
     @Test
     fun getChanges() = runTest {
-        val token = healthConnectClient.getChangesToken(
-            ChangesTokenRequest(
-                setOf(StepsRecord::class),
-                setOf()
+        val token =
+            healthConnectClient.getChangesToken(
+                ChangesTokenRequest(setOf(StepsRecord::class), setOf())
             )
-        )
 
-        val insertedRecordId = healthConnectClient.insertRecords(
-            listOf(
-                StepsRecord(
-                    count = 100,
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = ZoneOffset.UTC,
-                    endTime = Instant.ofEpochMilli(5678L),
-                    endZoneOffset = ZoneOffset.UTC
+        val insertedRecordId =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        StepsRecord(
+                            count = 100,
+                            startTime = Instant.ofEpochMilli(1234L),
+                            startZoneOffset = ZoneOffset.UTC,
+                            endTime = Instant.ofEpochMilli(5678L),
+                            endZoneOffset = ZoneOffset.UTC
+                        )
+                    )
                 )
-            )
-        ).recordIdsList[0]
+                .recordIdsList[0]
 
-        val record = healthConnectClient.readRecord(
-            StepsRecord::class,
-            insertedRecordId
-        ).record
+        val record = healthConnectClient.readRecord(StepsRecord::class, insertedRecordId).record
 
-        assertThat(healthConnectClient.getChanges(token).changes).containsExactly(
-            UpsertionChange(
-                record
-            )
-        )
+        assertThat(healthConnectClient.getChanges(token).changes)
+            .containsExactly(UpsertionChange(record))
 
         healthConnectClient.deleteRecords(StepsRecord::class, TimeRangeFilter.none())
 
-        assertThat(healthConnectClient.getChanges(token).changes).containsExactly(
-            DeletionChange(
-                insertedRecordId
-            )
-        )
+        assertThat(healthConnectClient.getChanges(token).changes)
+            .containsExactly(DeletionChange(insertedRecordId))
     }
 
     @Test
     fun filterGrantedPermissions_throwUOE() = runTest {
         assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.permissionController.filterGrantedPermissions(
-                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
-            )
+            healthConnectClient.permissionController.getGrantedPermissions()
         }
     }
 

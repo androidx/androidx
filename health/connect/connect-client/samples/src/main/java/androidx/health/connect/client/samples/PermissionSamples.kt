@@ -29,7 +29,7 @@ fun RequestPermission(activity: ActivityResultCaller) {
     val requestPermission =
         activity.registerForActivityResult(
             PermissionController.createRequestPermissionResultContract()
-        ) { grantedPermissions ->
+        ) { grantedPermissions: Set<HealthPermission> ->
             if (
                 grantedPermissions.contains(
                     HealthPermission.createReadPermission(StepsRecord::class)
@@ -41,4 +41,15 @@ fun RequestPermission(activity: ActivityResultCaller) {
             }
         }
     requestPermission.launch(setOf(HealthPermission.createReadPermission(StepsRecord::class)))
+}
+
+@Sampled
+suspend fun GetPermission(permissionController: PermissionController) {
+    val grantedPermissions = permissionController.getGrantedPermissions()
+
+    if (grantedPermissions.contains(HealthPermission.getReadPermission(StepsRecord::class))) {
+        // Read or process steps related health records.
+    } else {
+        // user denied permission
+    }
 }

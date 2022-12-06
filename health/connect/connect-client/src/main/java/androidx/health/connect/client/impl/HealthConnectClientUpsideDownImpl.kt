@@ -64,8 +64,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @suppress
  */
 @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-class HealthConnectClientUpsideDownImpl :
-    HealthConnectClient, PermissionController {
+class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
 
     private val context: Context
     private val timeSource: TimeSource
@@ -119,16 +118,16 @@ class HealthConnectClientUpsideDownImpl :
                     buildList {
                         recordIdsList.forEach {
                             add(
-                                RecordIdFilter.Builder(
-                                    recordType.toPlatformRecordClass()
-                                ).setId(it).build()
+                                RecordIdFilter.Builder(recordType.toPlatformRecordClass())
+                                    .setId(it)
+                                    .build()
                             )
                         }
                         clientRecordIdsList.forEach {
                             add(
-                                RecordIdFilter.Builder(
-                                    recordType.toPlatformRecordClass()
-                                ).setClientRecordId(it).build()
+                                RecordIdFilter.Builder(recordType.toPlatformRecordClass())
+                                    .setClientRecordId(it)
+                                    .build()
                             )
                         }
                     },
@@ -163,9 +162,9 @@ class HealthConnectClientUpsideDownImpl :
         val response = wrapPlatformException {
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
-                    ReadRecordsRequestUsingIds
-                        .Builder(recordType.toPlatformRecordClass())
-                        .addId(recordId).build(),
+                    ReadRecordsRequestUsingIds.Builder(recordType.toPlatformRecordClass())
+                        .addId(recordId)
+                        .build(),
                     Runnable::run,
                     continuation.asOutcomeReceiver()
                 )
@@ -261,7 +260,7 @@ class HealthConnectClientUpsideDownImpl :
         throw UnsupportedOperationException("Method not supported yet")
     }
 
-    override suspend fun filterGrantedPermissions(permissions: Set<String>): Set<String> {
+    override suspend fun getGrantedPermissions(): Set<String> {
         throw UnsupportedOperationException("Method not supported yet")
     }
 
