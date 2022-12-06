@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
@@ -61,9 +62,13 @@ class CameraFactoryAdapter(
     init {
         debug { "Created CameraFactoryAdapter" }
 
-        mAvailableCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+        val optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
             this,
             mAvailableCamerasSelector
+        )
+        mAvailableCameraIds = CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
+            appComponent.getCameraDevices(),
+            optimizedCameraIds
         )
     }
 
