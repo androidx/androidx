@@ -101,6 +101,9 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-kmp"))
                 implementation(project(":internal-testutils-datastore"))
+
+                // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
+                implementation(libs.kotlinTestJunit)
             }
         }
 
@@ -112,6 +115,9 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
+
+                // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
+                implementation(libs.kotlinTestJunit)
             }
         }
 
