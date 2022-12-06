@@ -36,7 +36,7 @@ dependencies {
     implementation(project(":core:core-ktx"))
     implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation projectOrArtifact(":annotation:annotation")
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
