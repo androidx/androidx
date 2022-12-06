@@ -46,4 +46,14 @@ object Types {
         simpleName = "List",
         typeParameters = listOf(elementType)
     )
+    fun Type.asNullable(): Type {
+        if (isNullable)
+            return this
+        return Type(packageName, simpleName, typeParameters, isNullable = true)
+    }
+    fun Type.asNonNull(): Type {
+        if (isNullable)
+            return Type(packageName, simpleName, typeParameters, isNullable = false)
+        return this
+    }
 }

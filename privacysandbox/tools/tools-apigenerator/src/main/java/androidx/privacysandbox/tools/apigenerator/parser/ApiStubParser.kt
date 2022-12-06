@@ -117,16 +117,18 @@ internal object ApiStubParser {
 
     private fun parseType(type: KmType): Type {
         val classifier = type.classifier
+        val isNullable = Flag.Type.IS_NULLABLE(type.flags)
         if (classifier !is KmClassifier.Class) {
             throw PrivacySandboxParsingException("Unsupported type in API description: $type")
         }
         val typeArguments = type.arguments.map { parseType(it.type!!) }
-        return parseClassName(classifier.name, typeArguments)
+        return parseClassName(classifier.name, typeArguments, isNullable)
     }
 
     private fun parseClassName(
         className: ClassName,
-        typeArguments: List<Type> = emptyList()
+        typeArguments: List<Type> = emptyList(),
+        isNullable: Boolean = false
     ): Type {
         // Package names are separated with slashes and nested classes are separated with dots.
         // (e.g com/example/OuterClass.InnerClass).
@@ -141,7 +143,7 @@ internal object ApiStubParser {
             )
         }
 
-        return Type(packageName, simpleName, typeArguments)
+        return Type(packageName, simpleName, typeArguments, isNullable)
     }
 
     private fun validate(api: ParsedApi) {
