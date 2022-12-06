@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
@@ -477,6 +478,67 @@ public abstract class AppSearchSessionCtsTestBase {
                 .addRequiredPermissionsForSchemaTypeVisibility("Email1",
                         ImmutableSet.of(SetSchemaRequest.READ_SMS))
                 .build();
+
+        assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.setSchemaAsync(request).get());
+    }
+
+    @Test
+    public void testGetSchema_longPropertyIndexingType() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new LongPropertyConfig.Builder("indexableLong")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                        .build()
+                ).addProperty(new LongPropertyConfig.Builder("long")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_longPropertyIndexingTypeNone_succeeds() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new LongPropertyConfig.Builder("long")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_longPropertyIndexingTypeRange_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new LongPropertyConfig.Builder("indexableLong")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
 
         assertThrows(UnsupportedOperationException.class, () ->
                 mDb1.setSchemaAsync(request).get());
