@@ -211,7 +211,7 @@ package androidx.glance.appwidget.action {
 
   public final class RunCallbackActionKt {
     method public static <T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass, optional androidx.glance.action.ActionParameters parameters);
-    method public static inline <reified T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action! actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
   }
 
   public final class SendBroadcastActionKt {
@@ -219,7 +219,7 @@ package androidx.glance.appwidget.action {
     method public static androidx.glance.action.Action actionSendBroadcast(android.content.Intent intent);
     method public static androidx.glance.action.Action actionSendBroadcast(android.content.ComponentName componentName);
     method public static <T extends android.content.BroadcastReceiver> androidx.glance.action.Action actionSendBroadcast(Class<T> receiver);
-    method public static inline <reified T extends android.content.BroadcastReceiver> androidx.glance.action.Action! actionSendBroadcast();
+    method public static inline <reified T extends android.content.BroadcastReceiver> androidx.glance.action.Action actionSendBroadcast();
   }
 
   public final class StartActivityIntentActionKt {
@@ -230,7 +230,7 @@ package androidx.glance.appwidget.action {
     method public static androidx.glance.action.Action actionStartService(android.content.Intent intent, optional boolean isForegroundService);
     method public static androidx.glance.action.Action actionStartService(android.content.ComponentName componentName, optional boolean isForegroundService);
     method public static <T extends android.app.Service> androidx.glance.action.Action actionStartService(Class<T> service, optional boolean isForegroundService);
-    method public static inline <reified T extends android.app.Service> androidx.glance.action.Action! actionStartService(optional boolean isForegroundService);
+    method public static inline <reified T extends android.app.Service> androidx.glance.action.Action actionStartService(optional boolean isForegroundService);
   }
 
   public final class ToggleableKt {

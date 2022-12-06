@@ -377,7 +377,7 @@ package androidx.core.text {
   }
 
   public final class SpannedStringKt {
-    method public static inline <reified T> T![]! getSpans(android.text.Spanned, optional int start, optional int end);
+    method public static inline <reified T> T![] getSpans(android.text.Spanned, optional int start, optional int end);
     method public static inline android.text.Spanned toSpanned(CharSequence);
   }
 
