@@ -70,7 +70,7 @@ class PublicKeyCredentialControllerUtility {
             if (json.has("challenge")) {
                 Log.d(TAG, "Set challenge")
                 val challenge: ByteArray =
-                    Base64.decode(json.getString("challenge"), Base64.URL_SAFE)
+                    Base64.decode(json.getString("challenge"), FLAGS)
                 builder.setChallenge(challenge)
             }
 
@@ -153,10 +153,10 @@ class PublicKeyCredentialControllerUtility {
                 val responseJson = JSONObject()
                 responseJson.put(
                     "clientDataJSON",
-                    Base64.encodeToString(authenticatorResponse.clientDataJSON, Base64.NO_WRAP))
+                    Base64.encodeToString(authenticatorResponse.clientDataJSON, FLAGS))
                 responseJson.put(
                     "attestationObject",
-                    Base64.encodeToString(authenticatorResponse.attestationObject, Base64.NO_WRAP))
+                    Base64.encodeToString(authenticatorResponse.attestationObject, FLAGS))
                 val transports = JSONArray(listOf(authenticatorResponse.transports))
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
@@ -172,7 +172,7 @@ class PublicKeyCredentialControllerUtility {
             }
 
             json.put("id", cred.id)
-            json.put("rawId", Base64.encodeToString(cred.rawId, Base64.NO_WRAP))
+            json.put("rawId", Base64.encodeToString(cred.rawId, FLAGS))
             json.put("type", cred.type)
             // TODO: add ExtensionsClientOUtputsJSON conversion
             return json.toString()
@@ -187,21 +187,22 @@ class PublicKeyCredentialControllerUtility {
                 val responseJson = JSONObject()
                 responseJson.put(
                     "clientDataJSON",
-                    Base64.encodeToString(authenticatorResponse.clientDataJSON, Base64.NO_WRAP))
+                    Base64.encodeToString(authenticatorResponse.clientDataJSON, FLAGS))
                 responseJson.put(
                     "assertionObject",
-                    Base64.encodeToString(authenticatorResponse.authenticatorData, Base64.NO_WRAP))
+                    Base64.encodeToString(authenticatorResponse.authenticatorData, FLAGS))
                 responseJson.put(
                     "signature",
-                    Base64.encodeToString(authenticatorResponse.signature, Base64.NO_WRAP))
+                    Base64.encodeToString(authenticatorResponse.signature, FLAGS))
                 json.put("response", responseJson)
             } else {
                 Log.e(
                     TAG,
-                    "Expected assertion response but got: " + authenticatorResponse.javaClass.name)
+                    "Expected assertion response but got: " + authenticatorResponse
+                        .javaClass.name)
             }
             json.put("id", publicKeyCred.id)
-            json.put("rawId", Base64.encodeToString(publicKeyCred.rawId, Base64.NO_WRAP))
+            json.put("rawId", Base64.encodeToString(publicKeyCred.rawId, FLAGS))
             json.put("type", publicKeyCred.type)
             return json.toString()
         }
@@ -216,7 +217,7 @@ class PublicKeyCredentialControllerUtility {
                 Log.i(TAG, "Rp Id : $rpId")
                 if (json.has("challenge")) {
                     val challenge: ByteArray =
-                        Base64.decode(json.getString("challenge"), Base64.URL_SAFE)
+                        Base64.decode(json.getString("challenge"), FLAGS)
                     return BeginSignInRequest.PasskeysRequestOptions.Builder()
                         .setSupported(true)
                         .setRpId(rpId)
@@ -262,6 +263,7 @@ class PublicKeyCredentialControllerUtility {
             return false
         }
 
+        private const val FLAGS = Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING
         private val TAG = PublicKeyCredentialControllerUtility::class.java.name
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
         CreatePublicKeyCredentialUnknownException("returned unknown transient failure"),

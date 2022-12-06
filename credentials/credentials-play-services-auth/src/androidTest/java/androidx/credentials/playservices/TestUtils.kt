@@ -16,27 +16,8 @@
 
 package androidx.credentials.playservices
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-
 class TestUtils {
     companion object {
-        @JvmStatic
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Suppress("deprecation")
-        fun clearFragmentManager(fragmentManager: android.app.FragmentManager) {
-            fragmentManager.fragments.forEach { f ->
-                fragmentManager.beginTransaction().remove(f)
-                    ?.commitAllowingStateLoss()
-            }
-            Log.i("Test", fragmentManager.fragments.toString())
-        // Within fragmentManager.fragments, even after removal of all, this exists by default:
-        // [ReportFragment{92dad5d #0 androidx.lifecycle.LifecycleDispatcher.report_fragment_tag}]
-        // It will only be removed after an actual fragment is added.
-        // This may be due to ActivityScenario simulations of Fragments and FragmentManagers.
-        }
-
         const val EXPECTED_LIFECYCLE_TAG =
             "androidx.lifecycle.LifecycleDispatcher.report_fragment_tag"
     }
