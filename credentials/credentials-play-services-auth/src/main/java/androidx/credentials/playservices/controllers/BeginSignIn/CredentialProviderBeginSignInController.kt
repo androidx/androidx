@@ -114,12 +114,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         try {
             val signInCredential = Identity.getSignInClient(activity)
                 .getSignInCredentialFromIntent(data)
-            Log.i(
-                TAG, "Credential returned : " + signInCredential.googleIdToken + " , " +
-                    signInCredential.id + " , " + signInCredential.password
-            )
             val response = convertResponseToCredentialManager(signInCredential)
-            Log.i(TAG, "Credential : " + response.credential.toString())
             this.executor.execute { this.callback.onResult(response) }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)

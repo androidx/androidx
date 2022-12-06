@@ -36,20 +36,26 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.fido.common.Transport
+import com.google.android.gms.fido.fido2.api.common.Attachment
+import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference
+import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse
-import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria
+import com.google.android.gms.fido.fido2.api.common.COSEAlgorithmIdentifier
 import com.google.android.gms.fido.fido2.api.common.ErrorCode
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialDescriptor
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity
 import com.google.android.gms.fido.fido2.api.common.ResidentKeyRequirement
 import java.util.concurrent.Executor
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -60,87 +66,33 @@ import org.json.JSONObject
 class PublicKeyCredentialControllerUtility {
 
     companion object {
+
+        // TODO("Make string constants for keys to the json")
+
+        /**
+         * This function converts a request json to a PublicKeyCredentialCreationOptions, where
+         * there should be a direct mapping from the input string to this data type. See
+         * [here](https://w3c.github.io/webauthn/#sctn-parseCreationOptionsFromJSON) for more
+         * details. This occurs in the registration, or create, flow for public key credentials.
+         *
+         * @param request a credential manager data type that holds a requestJson that is expected
+         * to parse completely into PublicKeyCredentialCreationOptions
+         * @throws JSONException If required data is not present in the requestJson
+         */
         @JvmStatic
         fun convert(request: CreatePublicKeyCredentialRequest): PublicKeyCredentialCreationOptions {
             val requestJson = request.requestJson
             val json = JSONObject(requestJson)
-            val builder: PublicKeyCredentialCreationOptions.Builder =
-                PublicKeyCredentialCreationOptions.Builder()
+            val builder = PublicKeyCredentialCreationOptions.Builder()
 
-            if (json.has("challenge")) {
-                Log.d(TAG, "Set challenge")
-                val challenge: ByteArray =
-                    Base64.decode(json.getString("challenge"), FLAGS)
-                builder.setChallenge(challenge)
-            }
+            parseRequiredChallengeAndUser(json, builder)
+            parseRequiredRpAndParams(json, builder)
 
-            if (json.has("user")) {
-                Log.d(TAG, "Set user")
-                val user: JSONObject = json.getJSONObject("user")
-                val id: String = user.getString("id")
-                val name: String = user.getString("name")
-                val displayName: String = user.getString("displayName")
-                builder.setUser(
-                    PublicKeyCredentialUserEntity(
-                        id.toByteArray(),
-                        name,
-                        "",
-                        displayName
-                    )
-                )
-            }
+            parseOptionalWithRequiredDefaultsAttestationAndExcludeCredentials(json, builder)
 
-            if (json.has("rp")) {
-                Log.d(TAG, "Set rp")
-                val rp: JSONObject = json.getJSONObject("rp")
-                val id: String = rp.getString("id")
-                val name: String = rp.getString("name")
-                builder.setRp(
-                    PublicKeyCredentialRpEntity(
-                        id,
-                        name,
-                        null
-                    )
-                )
-            }
-
-            if (json.has("timeout")) {
-                Log.d(TAG, "Set timeout")
-                val timeout: Double = json.getDouble("timeout") / 1000
-                builder.setTimeoutSeconds(timeout)
-            }
-
-            if (json.has("pubKeyCredParams")) {
-                Log.d(TAG, "Set pubKeyCredParams")
-                val pubKeyCredParams: JSONArray = json.getJSONArray("pubKeyCredParams")
-                val paramsList: MutableList<PublicKeyCredentialParameters> = ArrayList()
-                for (i in 0 until pubKeyCredParams.length()) {
-                    val param = pubKeyCredParams.getJSONObject(i)
-                    paramsList.add(
-                        PublicKeyCredentialParameters(
-                            param.getString("type"), param.getInt("alg"))
-                    )
-                }
-                builder.setParameters(paramsList)
-            }
-
-            if (json.has("authenticatorSelection")) {
-                Log.d("PasskeyRequestConverter", "Set authenticatorSelection")
-                val authenticatorSelection: JSONObject = json.getJSONObject(
-                    "authenticatorSelection")
-                val requireResidentKey = authenticatorSelection.getBoolean(
-                    "requireResidentKey")
-                val residentKey = authenticatorSelection.getString("residentKey")
-                builder.setAuthenticatorSelection(
-                    AuthenticatorSelectionCriteria.Builder()
-                        .setRequireResidentKey(requireResidentKey)
-                        .setResidentKeyRequirement(
-                            ResidentKeyRequirement.fromString(residentKey))
-                        .build()
-                )
-            }
-
-            builder.setExcludeList(ArrayList())
+            parseOptionalTimeout(json, builder)
+            parseOptionalAuthenticatorSelection(json, builder)
+            parseOptionalExtensions(json, builder)
 
             return builder.build()
         }
@@ -148,7 +100,7 @@ class PublicKeyCredentialControllerUtility {
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
 
-            val authenticatorResponse: AuthenticatorResponse = cred.response
+            val authenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
                 responseJson.put(
@@ -181,7 +133,8 @@ class PublicKeyCredentialControllerUtility {
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
             val json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
-            val authenticatorResponse: AuthenticatorResponse = publicKeyCred?.response!!
+            val authenticatorResponse = publicKeyCred?.response!!
+            Log.i(TAG, authenticatorResponse.clientDataJSON.toString())
 
             if (authenticatorResponse is AuthenticatorAssertionResponse) {
                 val responseJson = JSONObject()
@@ -189,7 +142,7 @@ class PublicKeyCredentialControllerUtility {
                     "clientDataJSON",
                     Base64.encodeToString(authenticatorResponse.clientDataJSON, FLAGS))
                 responseJson.put(
-                    "assertionObject",
+                    "authenticatorData",
                     Base64.encodeToString(authenticatorResponse.authenticatorData, FLAGS))
                 responseJson.put(
                     "signature",
@@ -213,10 +166,9 @@ class PublicKeyCredentialControllerUtility {
             // TODO : Make sure this is in compliance with w3
             val json = JSONObject(request.requestJson)
             if (json.has("rpId")) {
-                val rpId: String = json.getString("rpId")
-                Log.i(TAG, "Rp Id : $rpId")
+                val rpId = json.getString("rpId")
                 if (json.has("challenge")) {
-                    val challenge: ByteArray =
+                    val challenge =
                         Base64.decode(json.getString("challenge"), FLAGS)
                     return BeginSignInRequest.PasskeysRequestOptions.Builder()
                         .setSupported(true)
@@ -247,7 +199,7 @@ class PublicKeyCredentialControllerUtility {
             executor: Executor,
             cred: PublicKeyCredential
         ): Boolean {
-            val authenticatorResponse: AuthenticatorResponse = cred.response
+            val authenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
                 var exception = orderedErrorCodeToExceptions[code]
@@ -259,6 +211,192 @@ class PublicKeyCredentialControllerUtility {
                     exception
                 ) }
                 return true
+            }
+            return false
+        }
+
+        internal fun parseOptionalExtensions(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            if (json.has("extensions")) {
+                builder.setAuthenticationExtensions(AuthenticationExtensions.Builder().build())
+                // TODO("Parse this for required cases")
+            }
+        }
+
+        internal fun parseOptionalAuthenticatorSelection(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            if (json.has("authenticatorSelection")) {
+                val authenticatorSelection = json.getJSONObject(
+                    "authenticatorSelection"
+                )
+                val authSelectionBuilder = AuthenticatorSelectionCriteria.Builder()
+                val requireResidentKey = authenticatorSelection.optBoolean(
+                    "requireResidentKey", false)
+                val residentKey = authenticatorSelection
+                    .optString("residentKey", "")
+                var residentKeyRequirement: ResidentKeyRequirement? = null
+                if (residentKey.isNotEmpty()) {
+                    residentKeyRequirement = ResidentKeyRequirement.fromString(residentKey)
+                }
+                authSelectionBuilder
+                    .setRequireResidentKey(requireResidentKey)
+                    .setResidentKeyRequirement(residentKeyRequirement)
+                val authenticatorAttachmentString = authenticatorSelection
+                    .optString("authenticatorAttachment", "")
+                if (authenticatorAttachmentString.isNotEmpty()) {
+                    authSelectionBuilder.setAttachment(
+                        Attachment.fromString(
+                            authenticatorAttachmentString
+                        )
+                    )
+                }
+                // TODO("Note userVerification is not settable in current impl")
+                builder.setAuthenticatorSelection(
+                    authSelectionBuilder.build()
+                )
+            }
+        }
+
+        internal fun parseOptionalTimeout(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            if (json.has("timeout")) {
+                val timeout = json.getLong("timeout").toDouble() / 1000
+                builder.setTimeoutSeconds(timeout)
+            }
+        }
+
+        internal fun parseOptionalWithRequiredDefaultsAttestationAndExcludeCredentials(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            val excludeCredentialsList: MutableList<PublicKeyCredentialDescriptor> = ArrayList()
+            if (json.has("excludeCredentials")) {
+                val pubKeyDescriptorJSONs = json.getJSONArray("excludeCredentials")
+                for (i in 0 until pubKeyDescriptorJSONs.length()) {
+                    val descriptorJSON = pubKeyDescriptorJSONs.getJSONObject(i)
+                    val descriptorId = b64Decode(descriptorJSON.getString("id"))
+                    var transports: MutableList<Transport>? = null
+                    if (descriptorJSON.has("transports")) {
+                        transports = ArrayList()
+                        val descriptorTransports = descriptorJSON.getJSONArray(
+                            "transports"
+                        )
+                        for (j in 0 until descriptorTransports.length()) {
+                            transports.add(Transport.fromString(descriptorTransports.getString(j)))
+                        }
+                    }
+                    excludeCredentialsList.add(
+                        PublicKeyCredentialDescriptor(
+                            descriptorJSON.getString("type"),
+                            descriptorId, transports
+                        )
+                    ) // TODO("Confirm allowed mismatch with the spec such as the int algorithm")
+                }
+            }
+            builder.setExcludeList(excludeCredentialsList)
+
+            var attestationString = "none"
+            if (json.has("attestation")) {
+                attestationString = json.getString("attestation")
+            }
+            builder.setAttestationConveyancePreference(
+                AttestationConveyancePreference.fromString(attestationString)
+            )
+        }
+
+        internal fun parseRequiredRpAndParams(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            val rp = json.getJSONObject("rp")
+            val rpId = rp.getString("id")
+            val rpName = rp.optString("name", "")
+            // TODO("Decided things not in the spec but in fido impl are used")
+            // TODO("Come back to this if that is ever updated")
+            var rpIcon: String? = rp.optString("icon", "")
+            if (rpIcon!!.isEmpty()) {
+                rpIcon = null
+            }
+            builder.setRp(
+                PublicKeyCredentialRpEntity(
+                    rpId,
+                    rpName,
+                    rpIcon
+                )
+            )
+
+            val pubKeyCredParams = json.getJSONArray("pubKeyCredParams")
+            val paramsList: MutableList<PublicKeyCredentialParameters> = ArrayList()
+            for (i in 0 until pubKeyCredParams.length()) {
+                val param = pubKeyCredParams.getJSONObject(i)
+                val paramAlg = param.getLong("alg").toInt()
+                if (checkAlgSupported(paramAlg)) {
+                    paramsList.add(
+                        PublicKeyCredentialParameters(param.getString("type"), paramAlg))
+                }
+            }
+            builder.setParameters(paramsList)
+        }
+
+        internal fun parseRequiredChallengeAndUser(
+            json: JSONObject,
+            builder: PublicKeyCredentialCreationOptions.Builder
+        ) {
+            val challenge = b64Decode(json.getString("challenge"))
+            builder.setChallenge(challenge)
+
+            val user = json.getJSONObject("user")
+            val userId = b64Decode(user.getString("id"))
+            val userName = user.getString("name")
+            val displayName = user.getString("displayName")
+            val userIcon = user.optString("icon", "")
+            builder.setUser(
+                PublicKeyCredentialUserEntity(
+                    userId,
+                    userName,
+                    userIcon,
+                    displayName
+                )
+            )
+        }
+
+        /**
+         * Decode specific to public key credential encoded strings, or any string
+         * that requires NO_PADDING, NO_WRAP and URL_SAFE flags for base 64 decoding.
+         *
+         * @param str the string the decode into a bytearray
+         */
+        fun b64Decode(str: String): ByteArray {
+            return Base64.decode(str, FLAGS)
+        }
+
+        /**
+         * Encode specific to public key credential decoded strings, or any string
+         * that requires NO_PADDING, NO_WRAP and URL_SAFE flags for base 64 encoding.
+         *
+         * @param data the bytearray to encode into a string
+         */
+        fun b64Encode(data: ByteArray): String {
+            return Base64.encodeToString(data, FLAGS)
+        }
+
+        /**
+         * Some values are not supported in the webauthn spec - this catches those values
+         * and returns false - otherwise it returns true.
+         *
+         * @param alg the int code of the cryptography algorithm used in the webauthn flow
+         */
+        fun checkAlgSupported(alg: Int): Boolean {
+            try {
+                COSEAlgorithmIdentifier.fromCoseValue(alg)
+                return true
+            } catch (_: Throwable) {
             }
             return false
         }

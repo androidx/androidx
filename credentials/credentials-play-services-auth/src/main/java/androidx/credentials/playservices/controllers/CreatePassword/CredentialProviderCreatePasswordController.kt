@@ -67,16 +67,11 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
             resultCode: Int,
             resultData: Bundle
         ) {
-            Log.i(
-                TAG,
-                "onReceiveResult - CredentialProviderCreatePasswordController"
-            )
             if (maybeReportErrorFromResultReceiver(resultData,
                     { errType, errMsg ->
                         createCredentialExceptionTypeToException(errType, errMsg) },
                     executor = executor, callback = callback)) return
-            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
-                resultData.getParcelable(RESULT_DATA_TAG))
+            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode)
         }
     }
 
@@ -94,8 +89,7 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
         activity.startActivity(hiddenIntent)
     }
 
-    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i(TAG, "$data - the intent back - is un-used.")
+    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
