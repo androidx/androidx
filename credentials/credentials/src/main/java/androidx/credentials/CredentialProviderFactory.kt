@@ -33,13 +33,7 @@ class CredentialProviderFactory {
 
         /** The metadata key to be used when specifying the provider class name in the
          * android manifest file. */
-        private const val PRE_U_PROVIDER_CLASS_NAME_KEY =
-            "androidx.credentials.CREDENTIAL_PROVIDER_KEY"
-
-        /** The service name to be used when declaring a metadata holder service for the purpose
-         * of specifying a provider implementation class name. */
-        private const val PRE_U_CREDENTIAL_PROVIDER_SERVICE_NAME =
-            "CredentialProviderMetadataHolder"
+        private const val CREDENTIAL_PROVIDER_KEY = "androidx.credentials.CREDENTIAL_PROVIDER_KEY"
 
         /**
          * Returns the best available provider.
@@ -57,63 +51,51 @@ class CredentialProviderFactory {
         }
 
         private fun tryCreatePreUOemProvider(context: Context): CredentialProvider? {
-            val className: String? = getClassNameFromManifest(context)
-            return if (!className.isNullOrEmpty()) {
-                Log.i(TAG, "Classname retrieved from manifest: $className")
-                instantiatePreUProvider(className)
+            val classNames = getAllowedProvidersFromManifest(context)
+            if (classNames.isEmpty()) {
+                return null
             } else {
-                Log.i(TAG, "No class name found in the manifest")
-                null
+                return instantiatePreUProvider(classNames)
             }
         }
 
-        private fun instantiatePreUProvider(className: String): CredentialProvider? {
-            return try {
-                val klass = Class.forName(className)
-                val provider: CredentialProvider =
-                    klass.getConstructor().newInstance()
-                        as CredentialProvider
-                if (!provider.isAvailableOnDevice()) {
-                    Log.i(TAG, "Credential Provider library found but " +
-                        "not available on the device")
+        private fun instantiatePreUProvider(classNames: List<String>): CredentialProvider? {
+            var provider: CredentialProvider? = null
+            for (className in classNames) {
+                try {
+                    val klass = Class.forName(className)
+                    val p = klass.getConstructor().newInstance() as CredentialProvider
+                    if (p.isAvailableOnDevice()) {
+                        if (provider != null) {
+                            Log.i(TAG, "Only one active OEM CredentialProvider allowed")
+                            return null
+                        }
+                        provider = p
+                    }
+                } catch (_: Throwable) {
                 }
-                provider
-            } catch (throwable: Throwable) {
-                Log.i(TAG, "Unable to instantiate class using reflection: " +
-                    throwable.message)
-                null
             }
+            return provider
         }
 
         @Suppress("deprecation")
-        private fun getClassNameFromManifest(context: Context): String? {
-            Log.i(TAG, "Package name: " + context.packageName)
+        private fun getAllowedProvidersFromManifest(context: Context): List<String> {
             val packageInfo = context.packageManager
                 .getPackageInfo(context.packageName, PackageManager.GET_META_DATA or
                         PackageManager.GET_SERVICES)
 
-            var providerClassName = ""
-            if (packageInfo.services == null) {
-                Log.i(TAG, "No services found in the manifest")
-                return providerClassName
-            }
-            for (serviceInfo in packageInfo.services) {
-                if (serviceInfo.name.contains(PRE_U_CREDENTIAL_PROVIDER_SERVICE_NAME)) {
-                    Log.i(TAG, "Found service name: " + serviceInfo.name)
-                    val classname =
-                        serviceInfo.metaData.getString(PRE_U_PROVIDER_CLASS_NAME_KEY)
-                    if (!classname.isNullOrEmpty()) {
-                        if (providerClassName.isEmpty()) {
-                            providerClassName = classname
-                        } else {
-                            Log.i(TAG, "More than one credential provider " +
-                                "libraries found")
-                            return null
+            val classNames = mutableListOf<String>()
+            if (packageInfo.services != null) {
+                for (serviceInfo in packageInfo.services) {
+                    if (serviceInfo.metaData != null) {
+                        val className = serviceInfo.metaData.getString(CREDENTIAL_PROVIDER_KEY)
+                        if (className != null) {
+                            classNames.add(className)
                         }
                     }
                 }
             }
-            return providerClassName
+            return classNames.toList()
         }
     }
 }
