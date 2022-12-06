@@ -48,7 +48,7 @@ internal class EmojiPickerBodyAdapter(
             when (viewType.toItemType()) {
                 ItemType.CATEGORY_TITLE -> createSimpleHolder(R.layout.category_text_view, parent)
                 ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
-                    R.layout.emoji_picker_empty_category_text_view, parent
+                    R.layout.empty_category_text_view, parent
                 ) {
                     minimumHeight = (parent.measuredHeight / emojiGridRows).toInt()
                 }
