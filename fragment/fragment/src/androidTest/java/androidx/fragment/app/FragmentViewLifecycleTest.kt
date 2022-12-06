@@ -28,7 +28,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
@@ -285,7 +285,7 @@ class FragmentViewLifecycleTest {
                 if (owner == null) return@observeForever
 
                 observedLifecycleOwner = owner
-                observedTreeLifecycleOwner = fragment.view?.let { ViewTreeLifecycleOwner.get(it) }
+                observedTreeLifecycleOwner = fragment.view?.let { it.findViewTreeLifecycleOwner() }
                 observedTreeViewModelStoreOwner = fragment.view?.let {
                     ViewTreeViewModelStoreOwner.get(it)
                 }
@@ -301,7 +301,7 @@ class FragmentViewLifecycleTest {
         assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
 
         assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner after commitNow")
-            .that(ViewTreeLifecycleOwner.get(fragment.view ?: error("no fragment view created")))
+            .that((fragment.view ?: error("no fragment view created")).findViewTreeLifecycleOwner())
             .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
             "ViewTreeViewModelStoreOwner should match viewLifecycleOwner" +
@@ -414,7 +414,7 @@ class FragmentViewLifecycleTest {
         ): View? = FrameLayout(inflater.context)
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            onViewCreatedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
+            onViewCreatedLifecycleOwner = view.findViewTreeLifecycleOwner()
             onViewCreatedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
             onViewCreatedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
         }
