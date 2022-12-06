@@ -30,11 +30,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Predicate;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * Split configuration rules for split placeholders - activities used to occupy additional
@@ -162,6 +162,38 @@ public class SplitPlaceholderRule extends SplitRule {
         @Nullable
         private String mTag;
 
+        /**
+         * @deprecated Use {@link #Builder(Intent, Predicate, Predicate, Predicate)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #Builder(Intent, Predicate, Predicate, Predicate)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
+        @RequiresApi(Build.VERSION_CODES.N)
+        public Builder(@NonNull Intent placeholderIntent,
+                @NonNull java.util.function.Predicate<Activity> activityPredicate,
+                @NonNull java.util.function.Predicate<Intent> intentPredicate,
+                @NonNull java.util.function.Predicate<WindowMetrics> parentWindowMetricsPredicate) {
+            mActivityPredicate = activityPredicate::test;
+            mIntentPredicate = intentPredicate::test;
+            mPlaceholderIntent = placeholderIntent;
+            mParentWindowMetricsPredicate = parentWindowMetricsPredicate::test;
+        }
+
+        /**
+         * The {@link SplitPlaceholderRule} Builder constructor
+         * @param placeholderIntent the placeholder activity to launch if
+         *                         {@link SplitPlaceholderRule#checkParentMetrics(WindowMetrics)}
+         *                         is satisfied
+         * @param activityPredicate the {@link Predicate} to verify if a given {@link Activity}
+         *                         matches the rule
+         * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
+         *                         matches the rule
+         * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the placeholder
+         *                                     {@link Activity} should be launched with the given
+         *                                     {@link WindowMetrics}
+         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate,

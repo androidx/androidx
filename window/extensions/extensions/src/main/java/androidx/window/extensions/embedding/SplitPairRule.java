@@ -30,9 +30,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Predicate;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * Split configuration rules for activity pairs.
@@ -136,6 +136,37 @@ public class SplitPairRule extends SplitRule {
         @Nullable
         private String mTag;
 
+        /**
+         * @deprecated Use {@link #Builder(Predicate, Predicate, Predicate)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #Builder(Predicate, Predicate, Predicate)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
+        @RequiresApi(Build.VERSION_CODES.N)
+        public Builder(@NonNull java.util.function.Predicate<Pair<Activity, Activity>>
+                        activityPairPredicate,
+                @NonNull java.util.function.Predicate<Pair<Activity, Intent>>
+                        activityIntentPredicate,
+                @NonNull java.util.function.Predicate<WindowMetrics>
+                        parentWindowMetricsPredicate) {
+            mActivityPairPredicate = activityPairPredicate::test;
+            mActivityIntentPredicate = activityIntentPredicate::test;
+            mParentWindowMetricsPredicate = parentWindowMetricsPredicate::test;
+        }
+
+        /**
+         * The {@link SplitPairRule} builder constructor
+         *
+         * @param activityPairPredicate the {@link Predicate} to verify if an {@link Activity} pair
+         *                              matches this rule
+         * @param activityIntentPredicate the {@link Predicate} to verify if an ({@link Activity},
+         *                              {@link Intent}) pair matches this rule
+         * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the matched split
+         *                               pair is allowed to show side-by-side with the given
+         *                               parent {@link WindowMetrics}
+         * @since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
                 @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
