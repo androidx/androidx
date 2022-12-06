@@ -125,6 +125,9 @@ public abstract class StartupApiFeature {
 
     private static @Nullable Bundle getMetaDataFromWebViewManifestOrNull(@NonNull Context context) {
         PackageInfo systemWebViewPackage = WebViewCompat.getCurrentWebViewPackage(context);
+        if (systemWebViewPackage == null) {
+            return null;
+        }
         ComponentName compName =
                 new ComponentName(systemWebViewPackage.packageName, METADATA_HOLDER_SERVICE_NAME);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
