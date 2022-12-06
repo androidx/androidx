@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "Android Lifecycle LiveData"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"
 }

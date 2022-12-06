@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "AndroidX Compose UI Activity Integration Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2020"
     description = "Samples for Compose integration with Activity"
 }

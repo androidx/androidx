@@ -44,7 +44,6 @@ dependencies {
 androidx {
     name = "Android WorkManager Inspector"
     type = LibraryType.IDE_PLUGIN
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2020"
     description = "The implementation of WorkManager Inspector."
 }

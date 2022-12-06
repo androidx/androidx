@@ -87,7 +87,6 @@ afterEvaluate {
 androidx {
     name = "Wear ProtoLayout Proto"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_PROTOLAYOUT
     inceptionYear = "2022"
     description = "Jarjar the generated proto and proto-lite dependency for use by wear-protolayout"
     runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +

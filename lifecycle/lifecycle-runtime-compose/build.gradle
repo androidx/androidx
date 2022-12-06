@@ -56,7 +56,6 @@ dependencies {
 androidx {
     name = "Lifecycle Runtime Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
     runApiTasks = new RunApiTasks.Yes()

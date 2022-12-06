@@ -48,5 +48,4 @@ tasks.withType(KotlinCompile).configureEach {
 
 androidx {
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    mavenGroup = LibraryGroups.ANNOTATION
 }

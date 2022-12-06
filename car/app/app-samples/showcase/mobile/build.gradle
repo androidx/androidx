@@ -51,6 +51,3 @@ dependencies {
     implementation(project(":car:app:app-projected"))
 }
 
-androidx {
-    mavenGroup = LibraryGroups.CAR_APP
-}

@@ -55,7 +55,6 @@ android {
 androidx {
     name = "Android Wear Phone Interactions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_PHONE_INTERACTIONS
     inceptionYear = "2021"
     description = "Android Wear Phone Interactions"

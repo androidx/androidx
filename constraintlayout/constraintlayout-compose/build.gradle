@@ -112,7 +112,6 @@ androidx {
     name = "Android ConstraintLayout Compose Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
-    mavenGroup = LibraryGroups.CONSTRAINTLAYOUT
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
 }

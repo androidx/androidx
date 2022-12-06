@@ -57,7 +57,6 @@ androidx {
     name = "Android Emoji Compat"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI
-    mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 

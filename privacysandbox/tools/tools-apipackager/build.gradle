@@ -40,7 +40,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-apipackager"
     type = LibraryType.OTHER_CODE_PROCESSOR
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Packages API descriptions from SDKs compiled with Privacy Sandbox annotations."
 }

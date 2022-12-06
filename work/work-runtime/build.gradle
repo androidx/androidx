@@ -94,7 +94,6 @@ ksp {
 androidx {
     name = "Android WorkManager Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

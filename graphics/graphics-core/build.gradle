@@ -56,7 +56,6 @@ android {
 androidx {
     name = "Android Graphics Core"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GRAPHICS
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
 }

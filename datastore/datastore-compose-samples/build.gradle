@@ -71,6 +71,3 @@ protobuf {
     }
 }
 
-androidx {
-    mavenGroup = LibraryGroups.DATASTORE
-}

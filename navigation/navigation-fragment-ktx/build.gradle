@@ -32,7 +32,6 @@ dependencies {
 androidx {
     name = "Android Navigation Fragment Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Fragment-Ktx"
 }

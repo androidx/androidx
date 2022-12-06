@@ -40,7 +40,6 @@ dependencies {
 androidx {
     name = "AndroidX Compose UI Navigation Integration Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"
 }

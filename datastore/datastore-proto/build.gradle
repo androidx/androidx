@@ -54,7 +54,6 @@ protobuf {
 androidx {
     name = "Android Proto DataStore"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Proto DataStore"
     runApiTasks = new RunApiTasks.No("Unreleased library.")
