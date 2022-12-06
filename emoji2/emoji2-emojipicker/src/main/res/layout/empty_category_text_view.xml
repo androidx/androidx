@@ -14,13 +14,12 @@
   limitations under the License.
   -->
 
-<resources>
-    <attr name="EmojiPickerColorCategoryEmptyHintText" format="color" />
-    <attr name="EmojiPickerColorCategoryLabelText" format="color" />
-    <attr name="EmojiPickerColorHeaderIcon" format="color" />
-    <attr name="EmojiPickerColorHeaderIconSelected" format="color" />
-    <attr name="EmojiPickerStyleCategoryEmptyHintText" format="reference" />
-    <attr name="EmojiPickerStyleCategoryLabelText" format="reference" />
-    <attr name="EmojiPickerStyleHeaderIcon" format="reference" />
-    <attr name="EmojiPickerStyleHeaderIconUnderline" format="reference" />
-</resources>
+<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/emoji_picker_empty_category_view"
+    android:textColor="?android:attr/textColorPrimary"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:paddingEnd="7dp"
+    android:paddingStart="7dp"
+    android:textSize="16dp"/>

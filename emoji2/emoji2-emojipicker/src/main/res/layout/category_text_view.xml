@@ -16,7 +16,6 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:importantForAccessibility="no">
@@ -32,6 +31,6 @@
         android:gravity="center_vertical|start"
         android:letterSpacing="0.1"
         android:importantForAccessibility="yes"
-        style="?attr/EmojiPickerStyleCategoryLabelText"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="12dp" />
 </RelativeLayout>

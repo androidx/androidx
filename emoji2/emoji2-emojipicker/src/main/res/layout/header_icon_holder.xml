@@ -25,13 +25,13 @@
         android:layout_width="@dimen/emoji_picker_header_icon_width"
         android:layout_height="@dimen/emoji_picker_header_icon_height"
         android:gravity="center"
-        style="?attr/EmojiPickerStyleHeaderIcon"
+        android:tint="@drawable/icon_tint_selector"
         android:layout_gravity="center"/>
     <View
         android:id="@+id/emoji_picker_header_underline"
         android:layout_width="@dimen/emoji_picker_header_icon_underline_width"
         android:layout_height="@dimen/emoji_picker_header_icon_underline_height"
         android:layout_gravity="center_horizontal|bottom"
-        style="?attr/EmojiPickerStyleHeaderIconUnderline"
+        android:backgroundTint="@drawable/icon_tint_selector"
         android:background="@drawable/underline_rounded" />
 </FrameLayout>

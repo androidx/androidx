@@ -16,34 +16,6 @@
 
 <resources>
 
-    <style name="EmojiPickerStyleHeaderIcon">
-        <item name="android:tint">@drawable/icon_tint_selector</item>
-    </style>
-
-    <style name="EmojiPickerStyleHeaderIconUnderline">
-        <item name="android:backgroundTint">@drawable/icon_tint_selector</item>
-    </style>
-
-    <style name="EmojiPickerStyleCategoryEmptyHintText">
-        <item name="android:textColor">?attr/EmojiPickerColorCategoryEmptyHintText</item>
-    </style>
-
-    <style name="EmojiPickerCategoryContainer">
-        <item name="android:layout_marginBottom">8dp</item>
-    </style>
-
-    <style name="EmojiPickerStyleCategoryLabelText">
-        <item name="android:textColor">?attr/EmojiPickerColorCategoryLabelText</item>
-    </style>
-
-    <style name="EmojiPickerStylePopupViewHolder">
-        <item name="android:padding">@dimen/emoji_picker_popup_view_holder_padding_vertical</item>
-        <item name="android:paddingStart">@dimen/emoji_picker_popup_view_holder_padding_start</item>
-        <item name="android:paddingEnd">@dimen/emoji_picker_popup_view_holder_padding_end</item>
-        <item name="android:background">@drawable/popup_view_rounded_background</item>
-        <item name="android:elevation">@dimen/emoji_picker_popup_view_elevation</item>
-    </style>
-
     <style name="VariantPopupAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up_and_fade_in</item>
         <item name="android:windowExitAnimation">@anim/slide_down_and_fade_out</item>
