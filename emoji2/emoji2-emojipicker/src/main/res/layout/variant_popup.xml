@@ -19,5 +19,9 @@
     android:id="@+id/variant_popup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/EmojiPickerStylePopupViewHolder">
+    android:background="@drawable/popup_view_rounded_background"
+    android:padding="@dimen/emoji_picker_popup_view_holder_padding_vertical"
+    android:paddingStart="@dimen/emoji_picker_popup_view_holder_padding_start"
+    android:paddingEnd="@dimen/emoji_picker_popup_view_holder_padding_end"
+    android:elevation="@dimen/emoji_picker_popup_view_elevation">
 </GridLayout>
