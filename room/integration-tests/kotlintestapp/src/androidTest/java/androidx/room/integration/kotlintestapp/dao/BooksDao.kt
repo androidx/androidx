@@ -41,6 +41,8 @@ import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.base.Optional
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableListMultimap
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -358,6 +360,9 @@ interface BooksDao {
     @Query("SELECT * FROM Publisher")
     fun getPublishers(): List<Publisher>
 
+    @Query("SELECT * FROM Publisher")
+    fun getPublishersImmutable(): ImmutableList<Publisher>
+
     @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: String): Publisher
 
@@ -459,6 +464,9 @@ interface BooksDao {
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisher(): Map<Publisher, List<Book>>
+
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisherImmutable(): ImmutableListMultimap<Publisher, Book>
 
     @get:Query("SELECT * FROM Book")
     val allBooks: List<Book>
