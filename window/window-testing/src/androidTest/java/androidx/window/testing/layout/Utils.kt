@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.layout.WindowMetricsCalculator
-import androidx.window.layout.WindowMetricsCalculatorDecorator
+import android.os.Build
+import org.junit.Assume
 
-/**
- * A decorator to return [StubWindowMetricsCalculator] instead of the actual implementation.
- */
-@ExperimentalWindowApi
-internal object StubMetricDecorator : WindowMetricsCalculatorDecorator {
-    override fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator {
-        return StubWindowMetricsCalculator()
+internal object Utils {
+    fun assumePlatformAtOrAbove(version: Int) {
+        Assume.assumeTrue(Build.VERSION.SDK_INT >= version)
+    }
+
+    fun assumePlatformAtOrBelow(version: Int) {
+        Assume.assumeTrue(Build.VERSION.SDK_INT <= version)
     }
 }
