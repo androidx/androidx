@@ -670,4 +670,26 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             watchFaceColorsChangeListeners.remove(listener)
         }
     }
+
+    override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? = TraceEvent(
+        "getComplicationIdAt"
+    ).use {
+        if (iInteractiveWatchFace.apiVersion >= 7) {
+            val longId = iInteractiveWatchFace.getComplicationIdAt(x, y)
+            if (longId == Long.MIN_VALUE) {
+                null
+            } else {
+                longId.toInt()
+            }
+        } else {
+            complicationSlotsState.asSequence().firstOrNull {
+                it.value.isEnabled && when (it.value.boundsType) {
+                    ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                    ComplicationSlotBoundsType.BACKGROUND -> false
+                    ComplicationSlotBoundsType.EDGE -> false
+                    else -> false
+                }
+            }?.key
+        }
+    }
 }
