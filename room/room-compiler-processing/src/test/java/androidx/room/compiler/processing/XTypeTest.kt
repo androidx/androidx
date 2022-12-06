@@ -1437,4 +1437,31 @@ class XTypeTest {
             }
         }
     }
+
+    @Test
+    fun typeParameter_extendBound() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class Foo<E> {
+                fun justOneGeneric(): E = TODO()
+                fun listOfGeneric(): List<E> = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) {
+            val fooTypeElement = it.processingEnv.requireTypeElement("Foo")
+            fooTypeElement.getMethodByJvmName("justOneGeneric").returnType.let { type ->
+                assertThat(type.extendsBound()).isNull()
+            }
+            fooTypeElement.getMethodByJvmName("listOfGeneric").returnType.let { type ->
+                assertThat(type.extendsBound()).isNull()
+                type.typeArguments.forEach { typeArg ->
+                    assertThat(typeArg.extendsBound()).isNull()
+                }
+            }
+        }
+    }
 }
