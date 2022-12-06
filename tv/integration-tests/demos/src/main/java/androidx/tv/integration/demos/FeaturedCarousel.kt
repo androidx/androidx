@@ -18,6 +18,7 @@ package androidx.tv.integration.demos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ fun FeaturedCarouselContent() {
                                 .width(50.dp)
                                 .height(50.dp)
                                 .drawBorderOnFocus()
+                                .focusable()
                         )
                     }
                 }
