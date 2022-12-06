@@ -29,7 +29,7 @@
     <dimen name="emoji_picker_popup_view_holder_padding_vertical">10dp</dimen>
     <dimen name="emoji_picker_popup_view_holder_padding_start">10dp</dimen>
     <dimen name="emoji_picker_popup_view_holder_padding_end">10dp</dimen>
-    <dimen name="emoji_picker_popup_view_elevation">20dp</dimen>
+    <dimen name="emoji_picker_popup_view_elevation">8dp</dimen>
     <dimen name="emoji_picker_popup_view_holder_corner_radius">30dp</dimen>
     <dimen name="emoji_picker_skin_tone_circle_radius">6dp</dimen>
 </resources>

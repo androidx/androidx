@@ -32,14 +32,18 @@ import androidx.annotation.IntRange
  */
 internal class ItemGroup(
     @DrawableRes internal val categoryIconId: Int,
-    private val titleItem: CategoryTitle,
+    internal val titleItem: CategoryTitle,
     private val contentItems: List<EmojiViewData>,
     private val forceContentSize: Int? = null,
     private val emptyPlaceholderItem: PlaceholderText? = null
 ) {
 
-    val size: Int get() = 1 /* title */ +
-        (forceContentSize ?: maxOf(contentItems.size, if (emptyPlaceholderItem != null) 1 else 0))
+    val size: Int
+        get() = 1 /* title */ +
+            (forceContentSize ?: maxOf(
+                contentItems.size,
+                if (emptyPlaceholderItem != null) 1 else 0
+            ))
 
     operator fun get(index: Int): ItemViewData {
         if (index == 0) return titleItem
@@ -82,12 +86,18 @@ internal class EmojiPickerItems(
     @DrawableRes
     fun getHeaderIconId(@IntRange(from = 0) index: Int): Int = groups[index].categoryIconId
 
+    fun getHeaderIconDescription(@IntRange(from = 0) index: Int): String =
+        groups[index].titleItem.title
+
     fun groupIndexByItemPosition(@IntRange(from = 0) absolutePosition: Int): Int {
         var localPosition = absolutePosition
         var index = 0
         for (group in groups) {
             if (localPosition < group.size) return index
-            else { localPosition -= group.size; index++ }
+            else {
+                localPosition -= group.size
+                index++
+            }
         }
         throw IndexOutOfBoundsException()
     }

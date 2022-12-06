@@ -35,9 +35,9 @@ import kotlin.math.roundToInt
 internal class EmojiViewHolder(
     context: Context,
     parent: ViewGroup,
-    layoutInflater: LayoutInflater,
     width: Int,
     height: Int,
+    private val layoutInflater: LayoutInflater,
     private val stickyVariantProvider: StickyVariantProvider,
     private val onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
     private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
@@ -46,7 +46,7 @@ internal class EmojiViewHolder(
         .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
 ) {
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
-        showPopupWindow(layoutInflater, emojiView) {
+        showPopupWindow {
             PopupViewHelper(context).fillPopupView(
                 it,
                 layoutInflater,
@@ -59,7 +59,7 @@ internal class EmojiViewHolder(
                     onEmojiPickedListener(makeEmojiViewItem(emojiPickedInPopup))
                     // variants[0] is always the base (i.e., primary) emoji
                     stickyVariantProvider.update(emojiViewItem.variants[0], emojiPickedInPopup)
-                    this.dismiss()
+                    dismiss()
                     // Hover on the base emoji after popup dismissed
                     emojiView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
                 }
@@ -98,8 +98,6 @@ internal class EmojiViewHolder(
     }
 
     private fun showPopupWindow(
-        layoutInflater: LayoutInflater,
-        parent: EmojiView,
         init: PopupWindow.(GridLayout) -> Unit
     ) {
         val popupView = layoutInflater
@@ -108,16 +106,22 @@ internal class EmojiViewHolder(
         PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, false).apply {
             init(popupView)
             val location = IntArray(2)
-            parent.getLocationInWindow(location)
+            emojiView.getLocationInWindow(location)
             // Make the popup view center align with the target emoji view.
             val x =
-                location[0] + parent.width / 2f - popupView.columnCount * parent.width / 2f
-            val y = location[1] - popupView.rowCount * parent.height
+                location[0] + emojiView.width / 2f - popupView.columnCount * emojiView.width / 2f
+            val y =
+                location[1] - popupView.rowCount * emojiView.height -
+                    popupView.paddingBottom - popupView.paddingTop
             isOutsideTouchable = true
             isTouchable = true
             animationStyle = R.style.VariantPopupAnimation
+            elevation =
+                emojiView.context.resources
+                    .getDimensionPixelSize(R.dimen.emoji_picker_popup_view_elevation)
+                    .toFloat()
             showAtLocation(
-                parent,
+                emojiView,
                 Gravity.NO_GRAVITY,
                 x.roundToInt(),
                 y
