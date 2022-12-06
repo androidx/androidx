@@ -89,6 +89,12 @@ final class EmojiProcessor {
     private static final int ACTION_FLUSH = 3;
 
     /**
+     * The max number of characters look around in {@link #getEmojiStart(CharSequence, int)} and
+     * {@link #getEmojiEnd(CharSequence, int)}.
+     */
+    private static final int MAX_LOOK_AROUND_CHARACTER = 16;
+
+    /**
      * Factory used to create EmojiSpans.
      */
     @NonNull
@@ -215,8 +221,8 @@ final class EmojiProcessor {
         }
 
         // TODO: come up with some heuristic logic to better determine the interval
-        final int start = Math.max(0, offset - 10);
-        final int end = Math.min(charSequence.length(), offset + 10);
+        final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
+        final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
         return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
                 new EmojiProcessLookupCallback(offset)).start;
     }
@@ -238,8 +244,8 @@ final class EmojiProcessor {
         }
 
         // TODO: come up with some heuristic logic to better determine the interval
-        final int start = Math.max(0, offset - 10);
-        final int end = Math.min(charSequence.length(), offset + 10);
+        final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
+        final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
         return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
                 new EmojiProcessLookupCallback(offset)).end;
     }
