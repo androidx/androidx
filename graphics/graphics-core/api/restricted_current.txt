@@ -70,7 +70,7 @@ package androidx.graphics.lowlatency {
   }
 
   public final class SyncFenceCompatKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.graphics.lowlatency.SyncFenceCompat! createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @kotlin.jvm.JvmSynthetic public static androidx.graphics.lowlatency.SyncFenceCompat createNativeSyncFence(androidx.graphics.opengl.egl.EGLSpec);
   }
 
   public interface SyncStrategy {
@@ -158,7 +158,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EGLConfigAttributesKt {
-    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes! EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
+    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
   }
 
   public final class EGLException extends java.lang.RuntimeException {
