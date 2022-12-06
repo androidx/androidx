@@ -16,25 +16,13 @@
 
 package androidx.credentials.playservices;
 
-
-import static androidx.credentials.playservices.TestUtils.EXPECTED_LIFECYCLE_TAG;
-import static androidx.credentials.playservices.TestUtils.clearFragmentManager;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.GetCredentialRequest;
-import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.GetPasswordOption;
-import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController;
-import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -48,135 +36,8 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@RequiresApi(api = Build.VERSION_CODES.O)
 @SuppressWarnings("deprecation")
 public class CredentialProviderBeginSignInControllerJavaTest {
-
-    @Test
-    public void getInstance_createBrandNewFragment_constructSuccess() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
-            android.app.FragmentManager reusedFragmentManager = activity.getFragmentManager();
-
-            clearFragmentManager(reusedFragmentManager);
-
-            assertThat(reusedFragmentManager.getFragments().get(0).getTag().equals(
-                    EXPECTED_LIFECYCLE_TAG));
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-
-            CredentialProviderBeginSignInController actualBeginSignInController =
-                    CredentialProviderBeginSignInController.getInstance(reusedFragmentManager);
-
-            assertThat(actualBeginSignInController).isNotNull();
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-        });
-
-    }
-
-    @Test
-    public void getInstance_createDifferentFragment_replaceWithNewFragmentSuccess() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
-            android.app.FragmentManager reusedFragmentManager = activity.getFragmentManager();
-
-            clearFragmentManager(reusedFragmentManager);
-
-            assertThat(reusedFragmentManager.getFragments().get(0).getTag().equals(
-                    EXPECTED_LIFECYCLE_TAG));
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-
-            CredentialProviderCreatePasswordController oldFragment =
-                    CredentialProviderCreatePasswordController.getInstance(reusedFragmentManager);
-
-            assertThat(oldFragment).isNotNull();
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-
-            CredentialProviderBeginSignInController newFragment =
-                    CredentialProviderBeginSignInController.getInstance(reusedFragmentManager);
-
-            assertThat(newFragment).isNotNull();
-            assertThat(newFragment).isNotSameInstanceAs(oldFragment);
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-        });
-    }
-
-    @Test
-    public void getInstance_createFragment_replaceAttemptGivesBackSameFragmentSuccess() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
-            android.app.FragmentManager reusedFragmentManager = activity.getFragmentManager();
-
-            clearFragmentManager(reusedFragmentManager);
-
-            assertThat(reusedFragmentManager.getFragments().get(0).getTag().equals(
-                    EXPECTED_LIFECYCLE_TAG));
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-
-            CredentialProviderBeginSignInController expectedBeginSignInController =
-                    CredentialProviderBeginSignInController.getInstance(reusedFragmentManager);
-
-            assertThat(expectedBeginSignInController).isNotNull();
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-
-            CredentialProviderBeginSignInController actualBeginSignInController =
-                    CredentialProviderBeginSignInController.getInstance(reusedFragmentManager);
-
-            assertThat(actualBeginSignInController).isNotNull();
-            assertThat(actualBeginSignInController)
-                    .isSameInstanceAs(expectedBeginSignInController);
-            assertThat(reusedFragmentManager.getFragments().size()).isEqualTo(1);
-        });
-    }
-
-    @Test
-    public void invokePlayServices_success() {
-        // TODO(" Requires mocking inner Identity call. ")
-    }
-
-    @Test
-    public void convertResponseToCredentialManager_signInCredentialPasswordInput_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        // TODO add back String expectedId = "id";
-        // TODO add back String expectedPassword = "password";
-        // TODO add back String expectedType = PasswordCredential.TYPE_PASSWORD_CREDENTIAL;
-        activityScenario.onActivity(activity -> {
-            CredentialProviderBeginSignInController beginSignInController =
-                    CredentialProviderBeginSignInController
-                            .getInstance(activity.getFragmentManager());
-            beginSignInController.callback = new CredentialManagerCallback<GetCredentialResponse,
-                    GetCredentialException>() {
-                @Override
-                public void onResult(@NonNull GetCredentialResponse result) {
-
-                }
-                @Override
-                public void onError(@NonNull GetCredentialException e) {
-
-                }
-            };
-            beginSignInController.executor = Runnable::run;
-
-            /** TODO figure out how to test given updated changes
-            Credential actualResponse =
-                    beginSignInController
-                                    .convertResponseToCredentialManager(
-                                            new SignInCredential(expectedId, null, null,
-                                                    null, null, expectedPassword,
-                                                    null, null, null)
-                                    ).getCredential();
-
-            assertThat(actualResponse.getType()).isEqualTo(expectedType);
-            assertThat(((PasswordCredential) actualResponse).getPassword())
-                    .isEqualTo(expectedPassword);
-            assertThat(((PasswordCredential) actualResponse).getId()).isEqualTo(expectedId);
-             */
-        });
-    }
-
     @Test
     public void
             convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
@@ -186,7 +47,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
             BeginSignInRequest actualResponse =
                     CredentialProviderBeginSignInController
-                            .getInstance(activity.getFragmentManager())
+                            .getInstance(activity)
                             .convertRequestToPlayServices(new GetCredentialRequest(List.of(
                                     new GetPasswordOption()
                             )));
@@ -204,7 +65,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
             BeginSignInRequest actualResponse =
                     CredentialProviderBeginSignInController
-                        .getInstance(activity.getFragmentManager())
+                        .getInstance(activity)
                         .convertRequestToPlayServices(new GetCredentialRequest(List.of(
                                 new GetPasswordOption()
                         ), true));
@@ -224,7 +85,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                     "null get credential request must throw exception",
                     NullPointerException.class,
                     () -> CredentialProviderBeginSignInController
-                            .getInstance(activity.getFragmentManager())
+                            .getInstance(activity)
                             .convertRequestToPlayServices(null)
             );
         });
@@ -240,7 +101,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                     "null sign in credential response must throw exception",
                     NullPointerException.class,
                     () -> CredentialProviderBeginSignInController
-                            .getInstance(activity.getFragmentManager())
+                            .getInstance(activity)
                             .convertResponseToCredentialManager(null)
             );
         });

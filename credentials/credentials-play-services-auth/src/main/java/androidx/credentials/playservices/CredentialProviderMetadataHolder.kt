@@ -22,7 +22,7 @@ import android.os.IBinder
 
 /**
  * Metadata holder service for the purpose of defining the class that implements
- * the {@link androidx.credentials.CredentialProvider} interface
+ * the [androidx.credentials.CredentialProvider] interface
  *
  * @hide
  */

@@ -50,14 +50,11 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
-        val fragmentManager: android.app.FragmentManager = activity.fragmentManager
-        if (cancellationReviewer(fragmentManager, cancellationSignal)) {
+        if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
-        CredentialProviderBeginSignInController.getInstance(fragmentManager).invokePlayServices(
-            request, callback, executor
-        )
+        CredentialProviderBeginSignInController(activity).invokePlayServices(
+            request, callback, executor)
     }
 
     @SuppressWarnings("deprecated")
@@ -68,28 +65,24 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
-        val fragmentManager: android.app.FragmentManager = activity.fragmentManager
-        if (cancellationReviewer(fragmentManager, cancellationSignal)) {
+        if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        // TODO("Manage Fragment Lifecycle and Fragment Manager Properly")
         when (request) {
             is CreatePasswordRequest -> {
                 CredentialProviderCreatePasswordController.getInstance(
-                    fragmentManager).invokePlayServices(
+                    activity).invokePlayServices(
                     request,
                     callback,
                     executor)
             }
-
             is CreatePublicKeyCredentialRequest -> {
                 CredentialProviderCreatePublicKeyCredentialController.getInstance(
-                    fragmentManager).invokePlayServices(
+                    activity).invokePlayServices(
                     request,
                     callback,
                     executor)
             }
-
             else -> {
                 throw UnsupportedOperationException(
                     "Unsupported request; not password or publickeycredential")
@@ -103,7 +96,6 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
     private fun cancellationReviewer(
-        fragmentManager: android.app.FragmentManager,
         cancellationSignal: CancellationSignal?
     ): Boolean {
         if (cancellationSignal != null) {
@@ -112,11 +104,8 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
                 return true
             }
             cancellationSignal.setOnCancelListener {
-                // When this callback is notified, fragment manager may have fragments
-                fragmentManager.fragments.forEach { f ->
-                    fragmentManager.beginTransaction().remove(f)
-                        ?.commitAllowingStateLoss()
-                }
+                // When this is notified, a map may be handy to shut of all activities
+                // TODO("Shut off activities that exist prior to cancellation")
             }
         } else {
             Log.i(TAG, "No cancellationSignal found")

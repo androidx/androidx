@@ -16,11 +16,12 @@
 
 package androidx.credentials.playservices.controllers.CreatePassword
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.IntentSender
-import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.ResultReceiver
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialResponse
@@ -29,14 +30,11 @@ import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderController
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
-import com.google.android.gms.auth.api.identity.SavePasswordResult
 import com.google.android.gms.auth.api.identity.SignInPassword
-import com.google.android.gms.common.api.ApiException
 import java.util.concurrent.Executor
 
 /**
@@ -45,12 +43,13 @@ import java.util.concurrent.Executor
  * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePasswordController : CredentialProviderController<
+class CredentialProviderCreatePasswordController(private val activity: Activity) :
+    CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,
         Unit,
         CreateCredentialResponse,
-        CreateCredentialException>() {
+        CreateCredentialException>(activity) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -63,7 +62,32 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
      */
     private lateinit var executor: Executor
 
-    @SuppressLint("ClassVerificationFailure")
+    private val resultReceiver = object : ResultReceiver(
+        Handler(Looper.getMainLooper())
+    ) {
+        public override fun onReceiveResult(
+            resultCode: Int,
+            resultData: Bundle
+        ) {
+            Log.i(
+                TAG,
+                "onReceiveResult - CredentialProviderCreatePasswordController"
+            )
+            val isError = resultData.getBoolean(FAILURE_RESPONSE)
+            if (isError) {
+                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
+                Log.i(TAG, "onReceiveResult - error seen: $errType")
+                executor.execute { callback.onError(
+                    createCredentialExceptionTypeToException[errType]!!)
+                }
+            } else {
+                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
+                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
+                handleResponse(reqCode, resultCode, resIntent)
+            }
+        }
+    }
+
     override fun invokePlayServices(
         request: CreatePasswordRequest,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
@@ -72,55 +96,15 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
         this.callback = callback
         this.executor = executor
         val convertedRequest: SavePasswordRequest = this.convertRequestToPlayServices(request)
-        Identity.getCredentialSavingClient(activity)
-            .savePassword(convertedRequest)
-            .addOnSuccessListener { result: SavePasswordResult ->
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        startIntentSenderForResult(
-                            result.pendingIntent.intentSender,
-                            REQUEST_CODE_GIS_SAVE_PASSWORD,
-                            null, /* fillInIntent= */
-                            0, /* flagsMask= */
-                            0, /* flagsValue= */
-                            0, /* extraFlags= */
-                            null /* options= */
-                        )
-                    }
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.i(
-                        TAG, "Failed to send pending intent for savePassword" +
-                            " : " + e.message
-                    )
-                    val exception: CreateCredentialException = CreateCredentialUnknownException()
-                    executor.execute { ->
-                        callback.onError(
-                            exception
-                        )
-                    }
-                }
-            }
-            .addOnFailureListener { e: Exception ->
-                Log.i(TAG, "CreatePassword failed with : " + e.message)
-                var exception: CreateCredentialException = CreateCredentialUnknownException()
-                if (e is ApiException && e.statusCode in this.retryables) {
-                    exception = CreateCredentialInterruptedException()
-                }
-                executor.execute { ->
-                    callback.onError(
-                        exception
-                    )
-                }
-            }
-    }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        handleResponse(requestCode, resultCode, data)
+        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
+        generateHiddenActivityIntent(resultReceiver, hiddenIntent, CREATE_PASSWORD_TAG)
+        activity.startActivity(hiddenIntent)
     }
 
-    private fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "$data - the intent back - is un-used.")
-        if (uniqueRequestCode != REQUEST_CODE_GIS_SAVE_PASSWORD) {
+        if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
         if (resultCode != Activity.RESULT_OK) {
@@ -152,45 +136,23 @@ class CredentialProviderCreatePasswordController : CredentialProviderController<
 
     companion object {
         private val TAG = CredentialProviderCreatePasswordController::class.java.name
-        private const val REQUEST_CODE_GIS_SAVE_PASSWORD: Int = 1
-        // TODO("Ensure this works with the lifecycle")
+        private var controller: CredentialProviderCreatePasswordController? = null
+        // TODO("Ensure this is tested for multiple calls")
         /**
          * This finds a past version of the
          * [CredentialProviderCreatePasswordController] if it exists, otherwise
          * it generates a new instance.
          *
-         * @param fragmentManager a fragment manager pulled from an android activity
-         * @return a credential provider controller for CreatePublicKeyCredential
+         * @param activity the calling activity for this controller
+         * @return a credential provider controller for CreatePasswordController
          */
         @JvmStatic
-        fun getInstance(fragmentManager: android.app.FragmentManager):
+        fun getInstance(activity: Activity):
             CredentialProviderCreatePasswordController {
-            var controller = findPastController(REQUEST_CODE_GIS_SAVE_PASSWORD, fragmentManager)
             if (controller == null) {
-                controller = CredentialProviderCreatePasswordController()
-                fragmentManager.beginTransaction().add(controller,
-                    REQUEST_CODE_GIS_SAVE_PASSWORD.toString())
-                    .commitAllowingStateLoss()
-                fragmentManager.executePendingTransactions()
+                controller = CredentialProviderCreatePasswordController(activity)
             }
-            return controller
-        }
-
-        internal fun findPastController(
-            requestCode: Int,
-            fragmentManager: android.app.FragmentManager
-        ): CredentialProviderCreatePasswordController? {
-            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
-            try {
-                return oldFragment as CredentialProviderCreatePasswordController
-            } catch (e: Exception) {
-                Log.i(TAG, "Error with old fragment or null - replacement required")
-                if (oldFragment != null) {
-                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
-                }
-                // TODO("Ensure this is well tested for fragment issues")
-                return null
-            }
+            return controller!!
         }
     }
 }

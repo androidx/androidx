@@ -16,12 +16,12 @@
 
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.PendingIntent
 import android.content.Intent
-import android.content.IntentSender
-import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.ResultReceiver
 import android.util.Log
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
@@ -29,11 +29,9 @@ import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialInterruptedException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
+import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderController
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
@@ -45,13 +43,13 @@ import java.util.concurrent.Executor
  * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePublicKeyCredentialController :
+class CredentialProviderCreatePublicKeyCredentialController(private val activity: Activity) :
         CredentialProviderController<
             CreatePublicKeyCredentialRequest,
             PublicKeyCredentialCreationOptions,
             PublicKeyCredential,
             CreateCredentialResponse,
-            CreateCredentialException>() {
+            CreateCredentialException>(activity) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -64,7 +62,32 @@ class CredentialProviderCreatePublicKeyCredentialController :
      */
     private lateinit var executor: Executor
 
-    @SuppressLint("ClassVerificationFailure")
+    private val resultReceiver = object : ResultReceiver(
+        Handler(Looper.getMainLooper())
+    ) {
+        public override fun onReceiveResult(
+            resultCode: Int,
+            resultData: Bundle
+        ) {
+            Log.i(
+                TAG,
+                "onReceiveResult - CredentialProviderCreatePublicKeyCredentialController"
+            )
+            val isError = resultData.getBoolean(FAILURE_RESPONSE)
+            if (isError) {
+                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
+                Log.i(TAG, "onReceiveResult - error seen: $errType")
+                executor.execute { callback.onError(
+                    publicKeyCredentialExceptionTypeToException[errType]!!)
+                }
+            } else {
+                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
+                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
+                handleResponse(reqCode, resultCode, resIntent)
+            }
+        }
+    }
+
     override fun invokePlayServices(
         request: CreatePublicKeyCredentialRequest,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
@@ -74,59 +97,17 @@ class CredentialProviderCreatePublicKeyCredentialController :
         this.executor = executor
         val fidoRegistrationRequest: PublicKeyCredentialCreationOptions =
             this.convertRequestToPlayServices(request)
-        Fido.getFido2ApiClient(getActivity())
-            .getRegisterPendingIntent(fidoRegistrationRequest)
-            .addOnSuccessListener { result: PendingIntent ->
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        startIntentSenderForResult(
-                            result.intentSender,
-                            REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL,
-                            null, /* fillInIntent= */
-                            0, /* flagsMask= */
-                            0, /* flagsValue= */
-                            0, /* extraFlags= */
-                            null /* options= */
-                        )
-                    }
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.i(
-                        TAG,
-                        "Failed to send pending intent for fido client " +
-                            " : " + e.message
-                    )
-                    val exception: CreatePublicKeyCredentialException =
-                        CreatePublicKeyCredentialUnknownException()
-                    executor.execute { ->
-                        callback.onError(
-                            exception
-                        )
-                    }
-                }
-            }
-            .addOnFailureListener { e: Exception ->
-                var exception: CreatePublicKeyCredentialException =
-                    CreatePublicKeyCredentialUnknownException()
-                if (e is ApiException && e.statusCode in this.retryables) {
-                    exception = CreatePublicKeyCredentialInterruptedException()
-                }
-                Log.i(TAG, "Fido Registration failed with error: " + e.message)
-                executor.execute { ->
-                    callback.onError(
-                        exception
-                    )
-                }
-            }
+
+        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
+        generateHiddenActivityIntent(resultReceiver, hiddenIntent,
+            CREATE_PUBLIC_KEY_CREDENTIAL_TAG)
+        activity.startActivity(hiddenIntent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        handleResponse(requestCode, resultCode, data)
-    }
-
-    private fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "$uniqueRequestCode $resultCode $data")
-        if (uniqueRequestCode != REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL) {
+        if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
         if (resultCode != Activity.RESULT_OK) {
@@ -168,50 +149,24 @@ class CredentialProviderCreatePublicKeyCredentialController :
 
     companion object {
         private val TAG = CredentialProviderCreatePublicKeyCredentialController::class.java.name
-        private const val REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL: Int = 1
-        // TODO("Ensure this works with the lifecycle")
+        private var controller: CredentialProviderCreatePublicKeyCredentialController? = null
+        // TODO("Ensure this is tested for multiple calls")
 
         /**
          * This finds a past version of the
          * [CredentialProviderCreatePublicKeyCredentialController] if it exists, otherwise
          * it generates a new instance.
          *
-         * @param fragmentManager a fragment manager pulled from an android activity
+         * @param activity the calling activity for this controller
          * @return a credential provider controller for CreatePublicKeyCredential
          */
         @JvmStatic
-        fun getInstance(fragmentManager: android.app.FragmentManager):
+        fun getInstance(activity: Activity):
             CredentialProviderCreatePublicKeyCredentialController {
-            var controller = findPastController(
-                REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL,
-                fragmentManager)
             if (controller == null) {
-                controller = CredentialProviderCreatePublicKeyCredentialController()
-                fragmentManager.beginTransaction().add(controller,
-                    REQUEST_CODE_GIS_CREATE_PUBLIC_KEY_CREDENTIAL.toString())
-                    .commitAllowingStateLoss()
-                fragmentManager.executePendingTransactions()
+                controller = CredentialProviderCreatePublicKeyCredentialController(activity)
             }
-            return controller
-        }
-
-        internal fun findPastController(
-            requestCode: Int,
-            fragmentManager: android.app.FragmentManager
-        ): CredentialProviderCreatePublicKeyCredentialController? {
-            val oldFragment = fragmentManager.findFragmentByTag(requestCode.toString())
-            try {
-                return oldFragment as CredentialProviderCreatePublicKeyCredentialController
-            } catch (e: Exception) {
-                Log.i(
-                    TAG,
-                    "Error with old fragment or null - replacement required")
-                if (oldFragment != null) {
-                    fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss()
-                }
-                // TODO("Ensure this is well tested for fragment issues")
-                return null
-            }
+            return controller!!
         }
     }
 }
