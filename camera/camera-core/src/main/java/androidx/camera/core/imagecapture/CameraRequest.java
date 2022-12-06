@@ -31,13 +31,23 @@ import java.util.List;
 public final class CameraRequest {
 
     private final List<CaptureConfig> mCaptureConfigs;
+    private final TakePictureCallback mCallback;
 
-    public CameraRequest(@NonNull List<CaptureConfig> captureConfigs) {
+    public CameraRequest(@NonNull List<CaptureConfig> captureConfigs,
+            @NonNull TakePictureCallback callback) {
         mCaptureConfigs = captureConfigs;
+        mCallback = callback;
     }
 
     @NonNull
     List<CaptureConfig> getCaptureConfigs() {
         return mCaptureConfigs;
+    }
+
+    /**
+     * Returns true if the request has been aborted by the app/lifecycle.
+     */
+    boolean isAborted() {
+        return mCallback.isAborted();
     }
 }
