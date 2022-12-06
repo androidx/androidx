@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,9 +39,11 @@ import androidx.tv.material.Tab
 import androidx.tv.material.TabDefaults
 import androidx.tv.material.TabRow
 import androidx.tv.material.TabRowDefaults
+import kotlin.time.Duration.Companion.microseconds
+import kotlinx.coroutines.delay
 
 /**
- * Pill indicator tab row for reference
+ * Tab row with a Pill indicator
  */
 @Composable
 @Sampled
@@ -69,7 +72,7 @@ fun PillIndicatorTabRow() {
 }
 
 /**
- * Underlined indicator tab row for reference
+ * Tab row with an Underlined indicator
  */
 @Composable
 @Sampled
@@ -97,6 +100,44 @@ fun UnderlinedIndicatorTabRow() {
           fontSize = 12.sp,
           color = LocalContentColor.current,
           modifier = Modifier.padding(bottom = 4.dp)
+        )
+      }
+    }
+  }
+}
+
+/**
+ * Tab row with delay between tab changes
+ */
+@Composable
+@Sampled
+fun TabRowWithDebounce() {
+  val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+  var selectedTabIndex by remember { mutableStateOf(0) }
+
+  // This index will be used to show a panel
+  var tabPanelIndex by remember { mutableStateOf(selectedTabIndex) }
+
+  // Change the tab-panel only after some delay
+  LaunchedEffect(selectedTabIndex) {
+    delay(250.microseconds)
+    tabPanelIndex = selectedTabIndex
+  }
+
+  TabRow(
+    selectedTabIndex = selectedTabIndex,
+    separator = { Spacer(modifier = Modifier.width(12.dp)) },
+  ) {
+    tabs.forEachIndexed { index, tab ->
+      Tab(
+        selected = index == selectedTabIndex,
+        onFocus = { selectedTabIndex = index },
+      ) {
+        Text(
+          text = tab,
+          fontSize = 12.sp,
+          color = LocalContentColor.current,
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         )
       }
     }
