@@ -18,12 +18,13 @@ package androidx.camera.video
 
 import android.os.Build
 import android.util.Size
+import androidx.camera.core.AspectRatio.RATIO_16_9
+import androidx.camera.core.AspectRatio.RATIO_4_3
+import androidx.camera.core.AspectRatio.RATIO_DEFAULT
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
-import androidx.camera.video.VideoSpec.ASPECT_RATIO_16_9
-import androidx.camera.video.VideoSpec.ASPECT_RATIO_4_3
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,13 +52,13 @@ class QualityRatioToResolutionsTableTest {
         val table = QualityRatioToResolutionsTable(emptyList(), qualitySizeMap)
 
         // Assert.
-        assertThat(table.getResolutions(SD, VideoSpec.ASPECT_RATIO_AUTO))
+        assertThat(table.getResolutions(SD, RATIO_DEFAULT))
             .containsExactly(Size(640, 480))
-        assertThat(table.getResolutions(HD, VideoSpec.ASPECT_RATIO_AUTO))
+        assertThat(table.getResolutions(HD, RATIO_DEFAULT))
             .containsExactly(Size(1280, 720))
-        assertThat(table.getResolutions(FHD, VideoSpec.ASPECT_RATIO_AUTO))
+        assertThat(table.getResolutions(FHD, RATIO_DEFAULT))
             .containsExactly(Size(1920, 1080))
-        assertThat(table.getResolutions(UHD, VideoSpec.ASPECT_RATIO_AUTO))
+        assertThat(table.getResolutions(UHD, RATIO_DEFAULT))
             .containsExactly(Size(3840, 2160))
     }
 
@@ -90,7 +91,7 @@ class QualityRatioToResolutionsTableTest {
         val table = QualityRatioToResolutionsTable(input, qualitySizeMap)
 
         // Assert.
-        assertThat(table.getResolutions(SD, ASPECT_RATIO_4_3)).containsExactly(
+        assertThat(table.getResolutions(SD, RATIO_4_3)).containsExactly(
             Size(640, 480),
             Size(720, 540),
             Size(544, 408),
@@ -98,7 +99,7 @@ class QualityRatioToResolutionsTableTest {
             Size(800, 600),
         ).inOrder()
 
-        assertThat(table.getResolutions(SD, ASPECT_RATIO_16_9)).containsExactly(
+        assertThat(table.getResolutions(SD, RATIO_16_9)).containsExactly(
             Size(736, 412),
             Size(640, 360),
             Size(864, 480),
@@ -131,13 +132,13 @@ class QualityRatioToResolutionsTableTest {
         val table = QualityRatioToResolutionsTable(input, qualitySizeMap)
 
         // Assert.
-        assertThat(table.getResolutions(HD, ASPECT_RATIO_4_3)).containsExactly(
+        assertThat(table.getResolutions(HD, RATIO_4_3)).containsExactly(
             Size(1024, 768),
             Size(960, 720),
             Size(1280, 960),
         ).inOrder()
 
-        assertThat(table.getResolutions(HD, ASPECT_RATIO_16_9)).containsExactly(
+        assertThat(table.getResolutions(HD, RATIO_16_9)).containsExactly(
             Size(1280, 720),
         ).inOrder()
     }
@@ -166,12 +167,12 @@ class QualityRatioToResolutionsTableTest {
         val table = QualityRatioToResolutionsTable(input, qualitySizeMap)
 
         // Assert.
-        assertThat(table.getResolutions(FHD, ASPECT_RATIO_4_3)).containsExactly(
+        assertThat(table.getResolutions(FHD, RATIO_4_3)).containsExactly(
             Size(1632, 1224),
             Size(1440, 1080),
         ).inOrder()
 
-        assertThat(table.getResolutions(FHD, ASPECT_RATIO_16_9)).containsExactly(
+        assertThat(table.getResolutions(FHD, RATIO_16_9)).containsExactly(
             Size(1920, 1080),
         ).inOrder()
     }
@@ -205,7 +206,7 @@ class QualityRatioToResolutionsTableTest {
         val table = QualityRatioToResolutionsTable(input, qualitySizeMap)
 
         // Assert.
-        assertThat(table.getResolutions(UHD, ASPECT_RATIO_4_3)).containsExactly(
+        assertThat(table.getResolutions(UHD, RATIO_4_3)).containsExactly(
             Size(3280, 2448),
             Size(3264, 2448),
             Size(3200, 2400),
@@ -214,7 +215,7 @@ class QualityRatioToResolutionsTableTest {
             Size(4000, 3000),
         ).inOrder()
 
-        assertThat(table.getResolutions(UHD, ASPECT_RATIO_16_9)).containsExactly(
+        assertThat(table.getResolutions(UHD, RATIO_16_9)).containsExactly(
             Size(3840, 2160),
             Size(4128, 2322),
         ).inOrder()
