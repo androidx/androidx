@@ -45,7 +45,6 @@ abstract class TopicsManagerFutures internal constructor() {
      * @param request The GetTopicsRequest for obtaining Topics.
      * @return ListenableFuture to get the Topics response.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract fun getTopicsAsync(request: GetTopicsRequest): ListenableFuture<GetTopicsResponse>
 

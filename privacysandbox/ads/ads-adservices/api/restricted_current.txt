@@ -9,7 +9,7 @@ package androidx.privacysandbox.ads.adservices.adid {
   }
 
   public abstract class AdIdManager {
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public abstract suspend Object? getAdId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adid.AdId>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public abstract suspend Object? getAdId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adid.AdId>);
     method public static final androidx.privacysandbox.ads.adservices.adid.AdIdManager? obtain(android.content.Context context);
     field public static final androidx.privacysandbox.ads.adservices.adid.AdIdManager.Companion Companion;
   }
@@ -42,8 +42,8 @@ package androidx.privacysandbox.ads.adservices.adselection {
 
   public abstract class AdSelectionManager {
     method public static final androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager? obtain(android.content.Context context);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? reportImpression(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? selectAds(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? reportImpression(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? selectAds(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome>);
     field public static final androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion Companion;
   }
 
@@ -86,7 +86,7 @@ package androidx.privacysandbox.ads.adservices.appsetid {
   }
 
   public abstract class AppSetIdManager {
-    method @DoNotInline public abstract suspend Object? getAppSetId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.appsetid.AppSetId>);
+    method public abstract suspend Object? getAppSetId(kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.appsetid.AppSetId>);
     method public static final androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager? obtain(android.content.Context context);
     field public static final androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager.Companion Companion;
   }
@@ -160,8 +160,8 @@ package androidx.privacysandbox.ads.adservices.customaudience {
   }
 
   public abstract class CustomAudienceManager {
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? joinCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? leaveCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? joinCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? leaveCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static final androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager? obtain(android.content.Context context);
     field public static final androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion Companion;
   }
@@ -196,52 +196,48 @@ package androidx.privacysandbox.ads.adservices.customaudience {
 
 package androidx.privacysandbox.ads.adservices.measurement {
 
-  public final class DeletionRequest {
-    ctor public DeletionRequest(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode deletionMode, java.util.List<? extends android.net.Uri> domainUris, java.util.List<? extends android.net.Uri> originUris, java.time.Instant start, java.time.Instant end, androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior matchBehavior);
-    method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode getDeletionMode();
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DeletionRequest {
+    ctor public DeletionRequest(int deletionMode, int matchBehavior, optional java.time.Instant start, optional java.time.Instant end, optional java.util.List<? extends android.net.Uri> domainUris, optional java.util.List<? extends android.net.Uri> originUris);
+    method public int getDeletionMode();
     method public java.util.List<android.net.Uri> getDomainUris();
     method public java.time.Instant getEnd();
-    method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior getMatchBehavior();
+    method public int getMatchBehavior();
     method public java.util.List<android.net.Uri> getOriginUris();
     method public java.time.Instant getStart();
-    property public final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode deletionMode;
+    property public final int deletionMode;
     property public final java.util.List<android.net.Uri> domainUris;
     property public final java.time.Instant end;
-    property public final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior matchBehavior;
+    property public final int matchBehavior;
     property public final java.util.List<android.net.Uri> originUris;
     property public final java.time.Instant start;
+    field public static final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Companion Companion;
+    field public static final int DELETION_MODE_ALL = 0; // 0x0
+    field public static final int DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1; // 0x1
+    field public static final int MATCH_BEHAVIOR_DELETE = 0; // 0x0
+    field public static final int MATCH_BEHAVIOR_PRESERVE = 1; // 0x1
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class DeletionRequest.Builder {
-    ctor public DeletionRequest.Builder(optional androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode deletionMode, optional java.time.Instant start, optional java.time.Instant end, optional androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior matchBehavior);
+    ctor public DeletionRequest.Builder(int deletionMode, int matchBehavior);
     method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest build();
     method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Builder setDomainUris(java.util.List<? extends android.net.Uri> domainUris);
+    method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Builder setEnd(java.time.Instant end);
     method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Builder setOriginUris(java.util.List<? extends android.net.Uri> originUris);
+    method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Builder setStart(java.time.Instant start);
   }
 
-  public enum DeletionRequest.DeletionMode {
-    method public static androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode[] values();
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode DELETION_MODE_ALL;
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.DeletionMode DELETION_MODE_EXCLUDE_INTERNAL_DATA;
-  }
-
-  public enum DeletionRequest.MatchBehavior {
-    method public static androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior[] values();
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior MATCH_BEHAVIOR_DELETE;
-    enum_constant public static final androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.MatchBehavior MATCH_BEHAVIOR_PRESERVE;
+  public static final class DeletionRequest.Companion {
   }
 
   public abstract class MeasurementManager {
     ctor public MeasurementManager();
-    method @DoNotInline public abstract suspend Object? deleteRegistrations(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest deletionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? getMeasurementApiStatus(kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public abstract suspend Object? deleteRegistrations(androidx.privacysandbox.ads.adservices.measurement.DeletionRequest deletionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? getMeasurementApiStatus(kotlin.coroutines.Continuation<? super java.lang.Integer>);
     method public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerSource(android.net.Uri attributionSource, android.view.InputEvent? inputEvent, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerTrigger(android.net.Uri trigger, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebSource(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebTrigger(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerSource(android.net.Uri attributionSource, android.view.InputEvent? inputEvent, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerTrigger(android.net.Uri trigger, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebSource(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebTrigger(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion Companion;
     field public static final int MEASUREMENT_API_STATE_DISABLED = 0; // 0x0
     field public static final int MEASUREMENT_API_STATE_ENABLED = 1; // 0x1
@@ -251,7 +247,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method public androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
   }
 
-  public final class WebSourceParams {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebSourceParams {
     ctor public WebSourceParams(android.net.Uri registrationUri, boolean debugKeyAllowed);
     method public boolean getDebugKeyAllowed();
     method public android.net.Uri getRegistrationUri();
@@ -259,7 +255,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     property public final android.net.Uri registrationUri;
   }
 
-  public final class WebSourceRegistrationRequest {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebSourceRegistrationRequest {
     ctor public WebSourceRegistrationRequest(java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebSourceParams> webSourceParams, android.net.Uri topOriginUri, optional android.view.InputEvent? inputEvent, optional android.net.Uri? appDestination, optional android.net.Uri? webDestination, optional android.net.Uri? verifiedDestination);
     method public android.net.Uri? getAppDestination();
     method public android.view.InputEvent? getInputEvent();
@@ -284,7 +280,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method public androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest.Builder setWebDestination(android.net.Uri? webDestination);
   }
 
-  public final class WebTriggerParams {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebTriggerParams {
     ctor public WebTriggerParams(android.net.Uri registrationUri, boolean debugKeyAllowed);
     method public boolean getDebugKeyAllowed();
     method public android.net.Uri getRegistrationUri();
@@ -292,7 +288,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     property public final android.net.Uri registrationUri;
   }
 
-  public final class WebTriggerRegistrationRequest {
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebTriggerRegistrationRequest {
     ctor public WebTriggerRegistrationRequest(java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> webTriggerParams, android.net.Uri destination);
     method public android.net.Uri getDestination();
     method public java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> getWebTriggerParams();
@@ -336,7 +332,7 @@ package androidx.privacysandbox.ads.adservices.topics {
   }
 
   public abstract class TopicsManager {
-    method @DoNotInline @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public abstract suspend Object? getTopics(androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest request, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public abstract suspend Object? getTopics(androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest request, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse>);
     method public static final androidx.privacysandbox.ads.adservices.topics.TopicsManager? obtain(android.content.Context context);
     field public static final androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion Companion;
   }

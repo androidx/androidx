@@ -21,42 +21,60 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.Instant
 
-/** Deletion Request. */
-class DeletionRequest public constructor(
-    val deletionMode: DeletionMode,
-    val domainUris: List<Uri>,
-    val originUris: List<Uri>,
-    val start: Instant,
-    val end: Instant,
-    val matchBehavior: MatchBehavior
-    ) {
+/**
+ * Deletion Request.
+ * @param deletionMode Set the deletion mode for the supplied params.
+ *     [DELETION_MODE_ALL]: All data associated with the selected records will be
+ *     deleted.
+ *     [DELETION_MODE_EXCLUDE_INTERNAL_DATA]: All data except the internal system
+ *     data (e.g. rate limits) associated with the selected records will be deleted.
+ *
+ * @param matchBehavior Set the match behavior for the supplied params.
+ *     [MATCH_BEHAVIOR_DELETE]: This option will use the supplied params
+ *     (Origin URIs & Domain URIs) for selecting records for deletion.
+ *     [MATCH_BEHAVIOR_PRESERVE]: This option will preserve the data associated with the
+ *     supplied params (Origin URIs & Domain URIs) and select remaining records for deletion.
+ *
+ * @param start [Instant] Set the start of the deletion range. Not setting this or
+ *     passing in [java.time.Instant#MIN] will cause everything from the oldest record to
+ *     the specified end be deleted.
+ *
+ * @param end [Instant] Set the end of the deletion range. Not setting this or passing in
+ *     [java.time.Instant#MAX] will cause everything from the specified start until the
+ *     newest record to be deleted.
+ *
+ * @param domainUris the list of domain URI which will be used for matching. These will be matched
+ *     with records using the same domain or any subdomains. E.g. If domainUri is {@code
+ *     https://example.com}, then {@code https://a.example.com}, {@code https://example.com} and
+ *     {@code https://b.example.com} will match; {@code https://abcexample.com} will NOT match.
+ *     A null or empty list will match everything.
+ *
+ * @param originUris the list of origin URI which will be used for matching. These will be matched
+ *     with records using the same origin only, i.e. subdomains won't match. E.g. If originUri is
+ *     {@code https://a.example.com}, then {@code https://a.example.com} will match; {@code
+ *     https://example.com}, {@code https://b.example.com} and {@code https://abcexample.com}
+ *     will NOT match. A null or empty list will match everything.
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+class DeletionRequest(
+    val deletionMode: Int,
+    val matchBehavior: Int,
+    val start: Instant = Instant.MIN,
+    val end: Instant = Instant.MAX,
+    val domainUris: List<Uri> = emptyList(),
+    val originUris: List<Uri> = emptyList(),
+) {
 
-    /**
-     * Deletion modes for matched records.
-     */
-    enum class DeletionMode {
-        /** Deletion mode to delete all data associated with the selected records.  */
-        DELETION_MODE_ALL,
+    init {
+        require(deletionMode == DELETION_MODE_ALL ||
+            deletionMode == DELETION_MODE_EXCLUDE_INTERNAL_DATA) {
+            "DeletionMode undefined."
+        }
 
-        /**
-         * Deletion mode to delete all data except the internal data (e.g. rate limits) for the
-         * selected records.
-         */
-        DELETION_MODE_EXCLUDE_INTERNAL_DATA;
-    }
-
-    /**
-     * Matching Behaviors for params.
-     */
-    enum class MatchBehavior {
-        /** Match behavior option to delete the supplied params (Origin/Domains).  */
-        MATCH_BEHAVIOR_DELETE,
-
-        /**
-         * Match behavior option to preserve the supplied params (Origin/Domains) and delete
-         * everything else.
-         */
-        MATCH_BEHAVIOR_PRESERVE;
+        require(matchBehavior == MATCH_BEHAVIOR_DELETE ||
+            matchBehavior == MATCH_BEHAVIOR_PRESERVE) {
+            "MatchBehavior undefined."
+        }
     }
 
     override fun hashCode(): Int {
@@ -81,8 +99,33 @@ class DeletionRequest public constructor(
     }
 
     override fun toString(): String {
-        return "DeletionRequest { DeletionMode=$deletionMode, DomainUris=$domainUris, " +
-            "OriginUris=$originUris, Start=$start, End=$end, MatchBehavior=$matchBehavior }"
+        val deletionModeStr = if (deletionMode == DELETION_MODE_ALL) "DELETION_MODE_ALL"
+        else "DELETION_MODE_EXCLUDE_INTERNAL_DATA"
+        val matchBehaviorStr = if (matchBehavior == MATCH_BEHAVIOR_DELETE) "MATCH_BEHAVIOR_DELETE"
+        else "MATCH_BEHAVIOR_PRESERVE"
+        return "DeletionRequest { DeletionMode=$deletionModeStr, " +
+            "MatchBehavior=$matchBehaviorStr, " +
+            "Start=$start, End=$end, DomainUris=$domainUris, OriginUris=$originUris }"
+    }
+
+    companion object {
+        /** Deletion mode to delete all data associated with the selected records.  */
+        public const val DELETION_MODE_ALL = 0
+
+        /**
+         * Deletion mode to delete all data except the internal data (e.g. rate limits) for the
+         * selected records.
+         */
+        public const val DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1
+
+        /** Match behavior option to delete the supplied params (Origin/Domains).  */
+        public const val MATCH_BEHAVIOR_DELETE = 0
+
+        /**
+         * Match behavior option to preserve the supplied params (Origin/Domains) and delete
+         * everything else.
+         */
+        public const val MATCH_BEHAVIOR_PRESERVE = 1
     }
 
     /**
@@ -94,14 +137,6 @@ class DeletionRequest public constructor(
      *     {@link #DELETION_MODE_EXCLUDE_INTERNAL_DATA}: All data except the internal system
      *     data (e.g. rate limits) associated with the selected records will be deleted.
      *
-     * @param start {@link Instant} Set the start of the deletion range. Not setting this or
-     *     passing in {@link java.time.Instant#MIN} will cause everything from the oldest record to
-     *     the specified end be deleted.
-     *
-     * @param end {@link Instant} Set the end of the deletion range. Not setting this or passing in
-     *     {@link java.time.Instant#MAX} will cause everything from the specified start until the
-     *     newest record to be deleted.
-     *
      * @param matchBehavior {@link MatchBehavior} Set the match behavior for the supplied params.
      *     {@link #MATCH_BEHAVIOR_DELETE}: This option will use the supplied params
      *     (Origin URIs & Domain URIs) for selecting records for deletion.
@@ -110,13 +145,31 @@ class DeletionRequest public constructor(
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder constructor(
-        private val deletionMode: DeletionMode = DeletionMode.DELETION_MODE_ALL,
-        private val start: Instant = Instant.MIN,
-        private val end: Instant = Instant.MAX,
-        private val matchBehavior: MatchBehavior = MatchBehavior.MATCH_BEHAVIOR_DELETE
-        ) {
+        private val deletionMode: Int,
+        private val matchBehavior: Int
+    ) {
+        private var start: Instant = Instant.MIN
+        private var end: Instant = Instant.MAX
         private var domainUris: List<Uri> = emptyList()
         private var originUris: List<Uri> = emptyList()
+
+        /**
+         * Sets the start of the deletion range. Not setting this or passing in
+         * {@link java.time.Instant#MIN} will cause everything from the oldest record to the
+         * specified end be deleted.
+         */
+        fun setStart(start: Instant): Builder = apply {
+            this.start = start
+        }
+
+        /**
+         * Sets the end of the deletion range. Not setting this or passing in
+         * {@link java.time.Instant#MAX} will cause everything from the specified start until the
+         * newest record to be deleted.
+         */
+        fun setEnd(end: Instant): Builder = apply {
+            this.end = end
+        }
 
         /**
          * Set the list of domain URI which will be used for matching. These will be matched with
@@ -144,11 +197,11 @@ class DeletionRequest public constructor(
         fun build(): DeletionRequest {
             return DeletionRequest(
                 deletionMode,
-                domainUris,
-                originUris,
+                matchBehavior,
                 start,
                 end,
-                matchBehavior)
+                domainUris,
+                originUris)
         }
     }
 }

@@ -19,6 +19,7 @@ package androidx.privacysandbox.ads.adservices.java.measurement
 import android.adservices.measurement.MeasurementManager
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.OutcomeReceiver
 import android.view.InputEvent
 import androidx.annotation.RequiresApi
@@ -34,6 +35,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.lang.SuppressWarnings
+import java.time.Instant
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +69,7 @@ class MeasurementManagerFuturesTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressWarnings("NewApi")
     fun testDeleteRegistrationsAsync() {
         val measurementManager = mockMeasurementManager(mContext)
@@ -81,10 +84,13 @@ class MeasurementManagerFuturesTest {
         doAnswer(answer).`when`(measurementManager).deleteRegistrations(any(), any(), any())
 
         // Actually invoke the compat code.
-        val request = DeletionRequest.Builder()
-            .setDomainUris(listOf(uri1))
-            .setOriginUris(listOf(uri1))
-            .build()
+        val request = DeletionRequest(
+            DeletionRequest.DELETION_MODE_ALL,
+            DeletionRequest.MATCH_BEHAVIOR_DELETE,
+            Instant.now(),
+            Instant.now(),
+            listOf(uri1),
+            listOf(uri1))
 
         managerCompat!!.deleteRegistrationsAsync(request).get()
 

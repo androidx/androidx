@@ -47,7 +47,6 @@ abstract class AdIdManagerFutures internal constructor() {
      * @throws IllegalStateException if this API is not available.
      * @throws LimitExceededException if rate limit was reached.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
     abstract fun getAdIdAsync(): ListenableFuture<AdId>
 

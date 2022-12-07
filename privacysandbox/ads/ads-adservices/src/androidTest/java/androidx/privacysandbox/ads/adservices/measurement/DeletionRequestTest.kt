@@ -17,9 +17,11 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
 import java.time.Instant
 import org.junit.Test
@@ -29,44 +31,64 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DeletionRequestTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun testToString() {
         val now = Instant.now()
-        val result = "DeletionRequest { DeletionMode=DELETION_MODE_ALL, DomainUris=[www.abc.com]" +
-            ", OriginUris=[www.xyz.com], Start=$now, End=$now, " +
-            "MatchBehavior=MATCH_BEHAVIOR_DELETE }"
+        val result = "DeletionRequest { DeletionMode=DELETION_MODE_ALL, " +
+            "MatchBehavior=MATCH_BEHAVIOR_DELETE, " +
+            "Start=$now, End=$now, DomainUris=[www.abc.com], OriginUris=[www.xyz.com] }"
 
         val deletionRequest = DeletionRequest(
-            DeletionRequest.DeletionMode.DELETION_MODE_ALL,
+            DeletionRequest.DELETION_MODE_ALL,
+            DeletionRequest.MATCH_BEHAVIOR_DELETE,
+            now,
+            now,
             listOf(Uri.parse("www.abc.com")),
             listOf(Uri.parse("www.xyz.com")),
-            now,
-            now,
-            DeletionRequest.MatchBehavior.MATCH_BEHAVIOR_DELETE
         )
         Truth.assertThat(deletionRequest.toString()).isEqualTo(result)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun testEquals() {
-        val now = Instant.now()
         val deletionRequest1 = DeletionRequest(
-            DeletionRequest.DeletionMode.DELETION_MODE_ALL,
+            DeletionRequest.DELETION_MODE_ALL,
+            DeletionRequest.MATCH_BEHAVIOR_DELETE,
+            Instant.MIN,
+            Instant.MAX,
             listOf(Uri.parse("www.abc.com")),
-            listOf(Uri.parse("www.xyz.com")),
-            now,
-            now,
-            DeletionRequest.MatchBehavior.MATCH_BEHAVIOR_DELETE
-        )
+            listOf(Uri.parse("www.xyz.com")))
         val deletionRequest2 = DeletionRequest.Builder(
-            DeletionRequest.DeletionMode.DELETION_MODE_ALL,
-            now,
-            now,
-            DeletionRequest.MatchBehavior.MATCH_BEHAVIOR_DELETE)
+            deletionMode = DeletionRequest.DELETION_MODE_ALL,
+            matchBehavior = DeletionRequest.MATCH_BEHAVIOR_DELETE)
             .setDomainUris(listOf(Uri.parse("www.abc.com")))
             .setOriginUris(listOf(Uri.parse("www.xyz.com")))
             .build()
         Truth.assertThat(deletionRequest1 == deletionRequest2).isTrue()
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun testIllegalArguments() {
+        assertThrows<IllegalArgumentException> {
+            DeletionRequest(
+                2 /* Invalid deletionMode */,
+                DeletionRequest.MATCH_BEHAVIOR_DELETE,
+                Instant.MIN,
+                Instant.MAX,
+                listOf(Uri.parse("www.abc.com")),
+                listOf(Uri.parse("www.xyz.com")))
+        }.hasMessageThat().contains("DeletionMode undefined.")
+
+        assertThrows<IllegalArgumentException> {
+            DeletionRequest(
+                DeletionRequest.DELETION_MODE_ALL,
+                2 /* Invalid matchBehavior */,
+                Instant.MIN,
+                Instant.MAX,
+                listOf(Uri.parse("www.abc.com")),
+                listOf(Uri.parse("www.xyz.com")))
+        }.hasMessageThat().contains("MatchBehavior undefined.")
     }
 }
