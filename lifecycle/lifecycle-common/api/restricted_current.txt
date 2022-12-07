@@ -71,6 +71,7 @@ package androidx.lifecycle {
 
   public interface LifecycleOwner {
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Lifecycling {
