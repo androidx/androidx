@@ -281,7 +281,6 @@ class WorkManagerInspector(
         latch.await()
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 }
