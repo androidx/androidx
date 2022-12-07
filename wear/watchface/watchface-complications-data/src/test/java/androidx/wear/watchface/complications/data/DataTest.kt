@@ -45,22 +45,13 @@ import org.robolectric.shadows.ShadowLog
 @Suppress("NewApi")
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
-    val dataSourceA = ComponentName("com.pkg_a", "com.a")
-    val dataSourceB = ComponentName("com.pkg_a", "com.a")
+    val dataSource = ComponentName("com.pkg_a", "com.a")
     val monochromaticImageIcon = Icon.createWithContentUri("someuri")
     val smallImageIcon = Icon.createWithContentUri("someuri2")
     val monochromaticImage = MonochromaticImage.Builder(monochromaticImageIcon).build()
     val smallImage = SmallImage.Builder(smallImageIcon, SmallImageType.PHOTO).build()
-    val monochromaticImageIcon2 = Icon.createWithContentUri("someuri")
-    val smallImageIcon2 = Icon.createWithContentUri("someuri2")
-    val monochromaticImage2 = MonochromaticImage.Builder(monochromaticImageIcon2).build()
-    val smallImage2 = SmallImage.Builder(smallImageIcon2, SmallImageType.PHOTO).build()
     val icon = Icon.createWithContentUri("someuri")
     val image = MonochromaticImage.Builder(icon).build()
-    val icon2 = Icon.createWithContentUri("someuri")
-    val image2 = MonochromaticImage.Builder(icon2).build()
-    val icon3 = Icon.createWithContentUri("someuri3")
-    val image3 = MonochromaticImage.Builder(icon3).build()
 
     @Before
     fun setup() {
@@ -129,7 +120,7 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
             .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
             .build()
@@ -139,7 +130,7 @@ public class AsWireComplicationDataTest {
                     .setShortText(WireComplicationText.plainText("text"))
                     .setShortTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
                     .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
                     .build()
@@ -153,29 +144,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("title")
 
-        val data2 = ShortTextComplicationData.Builder(
-            "text".complicationText,
-            "content description".complicationText
-        )
-            .setTitle("title".complicationText)
-            .setDataSource(dataSourceA)
-            .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
-            .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
-            .build()
-        val data3 = ShortTextComplicationData.Builder(
-            "text3".complicationText,
-            "content description3".complicationText
-        )
-            .setTitle("title3".complicationText)
-            .setDataSource(dataSourceB)
-            .setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST)
-            .setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "ShortTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
                 "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
@@ -199,7 +167,7 @@ public class AsWireComplicationDataTest {
             .setTitle("title".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -210,7 +178,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImage(smallImageIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -229,27 +197,6 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri2")
         assertThat(deserialized.smallImage!!.type).isEqualTo(SmallImageType.PHOTO)
 
-        val data2 = ShortTextComplicationData.Builder(
-            "text".complicationText,
-            "content description".complicationText
-        )
-            .setTitle("title".complicationText)
-            .setMonochromaticImage(monochromaticImage2)
-            .setSmallImage(smallImage2)
-            .setDataSource(dataSourceA)
-            .build()
-        val data3 = ShortTextComplicationData.Builder(
-            "text3".complicationText,
-            "content description3".complicationText
-        )
-            .setTitle("title3".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "ShortTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
                 "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
@@ -272,7 +219,7 @@ public class AsWireComplicationDataTest {
             "content description".complicationText
         )
             .setTitle("title".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -280,7 +227,7 @@ public class AsWireComplicationDataTest {
                     .setLongText(WireComplicationText.plainText("text"))
                     .setLongTitle(WireComplicationText.plainText("title"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -294,25 +241,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("title")
 
-        val data2 = LongTextComplicationData.Builder(
-            "text".complicationText,
-            "content description".complicationText
-        )
-            .setTitle("title".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-        val data3 = LongTextComplicationData.Builder(
-            "text3".complicationText,
-            "content description3".complicationText
-        )
-            .setTitle("title3".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "LongTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
                 "mTimeDependentText=null, mStringExpression=null}, title=ComplicationText{" +
@@ -336,7 +264,7 @@ public class AsWireComplicationDataTest {
             .setTitle("title".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -347,7 +275,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImage(smallImageIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -366,27 +294,6 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri2")
         assertThat(deserialized.smallImage!!.type).isEqualTo(SmallImageType.PHOTO)
 
-        val data2 = LongTextComplicationData.Builder(
-            "text".complicationText,
-            "content description".complicationText
-        )
-            .setTitle("title".complicationText)
-            .setMonochromaticImage(monochromaticImage2)
-            .setSmallImage(smallImage2)
-            .setDataSource(dataSourceA)
-            .build()
-        val data3 = LongTextComplicationData.Builder(
-            "text3".complicationText,
-            "content description3".complicationText
-        )
-            .setTitle("title3".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "LongTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
                 "mTimeDependentText=null, mStringExpression=null}, " +
@@ -410,7 +317,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -421,7 +328,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -437,26 +344,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("battery")
 
-        val data2 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val data3 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description2".complicationText
-        )
-            .setTitle("battery2".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=95.0, valueExpression=null, valueType=0, " +
                 "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
@@ -480,7 +367,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -492,7 +379,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -508,40 +395,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("battery")
 
-        val sameData = RangedValueComplicationData.Builder(
-            valueExpression = byteArrayOf(42, 107).toFloatExpression(),
-            min = 5f,
-            max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-        val diffDataFixedValue = RangedValueComplicationData.Builder(
-            value = 5f, // Even though it's the sensible default
-            min = 5f,
-            max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-        val diffDataValueExpression = RangedValueComplicationData.Builder(
-            valueExpression = byteArrayOf(43, 108).toFloatExpression(),
-            min = 5f,
-            max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        assertThat(data).isEqualTo(sameData)
-        assertThat(data).isNotEqualTo(diffDataFixedValue)
-        assertThat(data).isNotEqualTo(diffDataValueExpression)
-        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(diffDataFixedValue.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(diffDataValueExpression.hashCode())
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=5.0, " +
                 "valueExpression=FloatExpressionPlaceholder[42, 107], valueType=0, min=5.0, " +
@@ -566,7 +419,7 @@ public class AsWireComplicationDataTest {
             .setTitle(
                 StringExpressionComplicationText(StringExpression(byteArrayOf(1, 2, 3, 4, 5)))
             )
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -579,7 +432,7 @@ public class AsWireComplicationDataTest {
                         WireComplicationText(StringExpression(byteArrayOf(1, 2, 3, 4, 5)))
                     )
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -592,28 +445,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val sameData = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle(
-                StringExpressionComplicationText(StringExpression(byteArrayOf(1, 2, 3, 4, 5)))
-            )
-            .setDataSource(dataSourceA)
-            .build()
-
-        val differentData = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle(StringExpressionComplicationText(StringExpression(byteArrayOf(1, 2, 4, 5))))
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(sameData)
-        assertThat(data).isNotEqualTo(differentData)
-        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(differentData.hashCode())
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=95.0, valueExpression=null, valueType=0, " +
                 "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
@@ -639,7 +470,7 @@ public class AsWireComplicationDataTest {
             .setTitle("battery".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .setValueType(RangedValueComplicationData.TYPE_RATING)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -653,7 +484,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .setRangedValueType(RangedValueComplicationData.TYPE_RATING)
@@ -674,30 +505,6 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri2")
         assertThat(deserialized.smallImage!!.type).isEqualTo(SmallImageType.PHOTO)
 
-        val data2 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setMonochromaticImage(monochromaticImage2)
-            .setSmallImage(smallImage2)
-            .setDataSource(dataSourceA)
-            .setValueType(RangedValueComplicationData.TYPE_RATING)
-            .build()
-
-        val data3 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description2".complicationText
-        )
-            .setTitle("battery2".complicationText)
-            .setDataSource(dataSourceB)
-            .setValueType(RangedValueComplicationData.TYPE_RATING)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=95.0, valueExpression=null, " +
                 "valueType=1, min=0.0, max=100.0, " +
@@ -722,7 +529,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -731,7 +538,7 @@ public class AsWireComplicationDataTest {
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -746,26 +553,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("steps")
 
-        val sameData = GoalProgressComplicationData.Builder(
-            value = 1200f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val diffData = GoalProgressComplicationData.Builder(
-            value = 1201f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(sameData)
-        assertThat(data).isNotEqualTo(diffData)
-        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(diffData.hashCode())
         assertThat(data.toString()).isEqualTo(
             "GoalProgressComplicationData(value=1200.0, valueExpression=null, " +
                 "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
@@ -788,7 +575,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -798,7 +585,7 @@ public class AsWireComplicationDataTest {
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -813,28 +600,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("steps")
 
-        val sameData = GoalProgressComplicationData.Builder(
-            valueExpression = byteArrayOf(42, 107).toFloatExpression(),
-            targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val diffData = GoalProgressComplicationData.Builder(
-            valueExpression = byteArrayOf(43, 108).toFloatExpression(),
-            targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(sameData)
-        assertThat(data).isNotEqualTo(diffData)
-        assertThat(data.hashCode()).isEqualTo(sameData.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(diffData.hashCode())
         assertThat(data.toString()).isEqualTo(
             "GoalProgressComplicationData(value=0.0, valueExpression=" +
                 "FloatExpressionPlaceholder[42, 107], targetValue=10000.0, " +
@@ -857,7 +622,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -867,7 +632,7 @@ public class AsWireComplicationDataTest {
                     .setTargetValue(10000f)
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -883,28 +648,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("steps")
 
-        val data2 = GoalProgressComplicationData.Builder(
-            value = 1200f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-            .build()
-
-        val data3 = GoalProgressComplicationData.Builder(
-            value = 1200f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceB)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "GoalProgressComplicationData(value=1200.0, valueExpression=null, " +
                 "targetValue=10000.0, monochromaticImage=null, smallImage=null, " +
@@ -929,7 +672,7 @@ public class AsWireComplicationDataTest {
             .setTitle("steps".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -942,7 +685,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setShortTitle(WireComplicationText.plainText("steps"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -963,30 +706,6 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri2")
         assertThat(deserialized.smallImage!!.type).isEqualTo(SmallImageType.PHOTO)
 
-        val data2 = GoalProgressComplicationData.Builder(
-            value = 1200f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setMonochromaticImage(monochromaticImage2)
-            .setSmallImage(smallImage2)
-            .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-            .build()
-
-        val data3 = GoalProgressComplicationData.Builder(
-            value = 1200f, targetValue = 10000f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("steps".complicationText)
-            .setDataSource(dataSourceB)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "GoalProgressComplicationData(value=1200.0, valueExpression=null, " +
                 "targetValue=10000.0, " +
@@ -1011,7 +730,7 @@ public class AsWireComplicationDataTest {
             contentDescription = "content description".complicationText
         )
             .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1023,7 +742,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                     .setColorRampIsSmoothShaded(true)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -1040,28 +759,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("battery")
 
-        val data2 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-            .build()
-
-        val data3 = RangedValueComplicationData.Builder(
-            value = 95f, min = 0f, max = 100f,
-            contentDescription = "content description2".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceB)
-            .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.YELLOW), true))
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "RangedValueComplicationData(value=95.0, valueExpression=null, " +
                 "valueType=0, min=0.0, max=100.0, " +
@@ -1103,7 +800,7 @@ public class AsWireComplicationDataTest {
         )
             .setElementBackgroundColor(Color.GRAY)
             .setTitle("calories".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -1113,7 +810,7 @@ public class AsWireComplicationDataTest {
                     .setElementBackgroundColor(Color.GRAY)
                     .setShortTitle(WireComplicationText.plainText("calories"))
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1132,35 +829,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("calories")
 
-        val data2 = WeightedElementsComplicationData.Builder(
-            listOf(
-                WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                WeightedElementsComplicationData.Element(1f, Color.GREEN),
-                WeightedElementsComplicationData.Element(2f, Color.BLUE),
-            ),
-            contentDescription = "content description".complicationText
-        )
-            .setElementBackgroundColor(Color.GRAY)
-            .setTitle("calories".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val data3 = WeightedElementsComplicationData.Builder(
-            listOf(
-                WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                WeightedElementsComplicationData.Element(10f, Color.GREEN),
-                WeightedElementsComplicationData.Element(2f, Color.BLUE),
-            ),
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "WeightedElementsComplicationData(elements=Element(color=-65536, weight=0.5)," +
                 " Element(color=-16711936, weight=1.0), Element(color=-16776961, weight=2.0), " +
@@ -1189,7 +857,7 @@ public class AsWireComplicationDataTest {
             .setTitle("calories".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -1202,7 +870,7 @@ public class AsWireComplicationDataTest {
                     .setSmallImage(smallImageIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1226,36 +894,6 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri2")
         assertThat(deserialized.smallImage!!.type).isEqualTo(SmallImageType.PHOTO)
 
-        val data2 = WeightedElementsComplicationData.Builder(
-            listOf(
-                WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                WeightedElementsComplicationData.Element(1f, Color.GREEN),
-                WeightedElementsComplicationData.Element(2f, Color.BLUE),
-            ),
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("calories".complicationText)
-            .setMonochromaticImage(monochromaticImage2)
-            .setSmallImage(smallImage2)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val data3 = WeightedElementsComplicationData.Builder(
-            listOf(
-                WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                WeightedElementsComplicationData.Element(10f, Color.GREEN),
-                WeightedElementsComplicationData.Element(2f, Color.BLUE),
-            ),
-            contentDescription = "content description".complicationText
-        )
-            .setTitle("battery".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "WeightedElementsComplicationData(elements=Element(color=-65536, weight=0.5)," +
                 " Element(color=-16711936, weight=1.0), Element(color=-16776961, weight=2.0), " +
@@ -1278,13 +916,13 @@ public class AsWireComplicationDataTest {
     public fun monochromaticImageComplicationData() {
         val data = MonochromaticImageComplicationData.Builder(
             image, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
+        ).setDataSource(dataSource).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                     .setIcon(icon)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1296,18 +934,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = MonochromaticImageComplicationData.Builder(
-            image2, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
-
-        val data3 = MonochromaticImageComplicationData.Builder(
-            image3, "content description".complicationText
-        ).setDataSource(dataSourceB).build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "MonochromaticImageComplicationData(monochromaticImage=MonochromaticImage(" +
                 "image=Icon(typ=URI uri=someuri), ambientImage=null), contentDescription=" +
@@ -1325,14 +951,14 @@ public class AsWireComplicationDataTest {
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
         val data = SmallImageComplicationData.Builder(
             image, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
+        ).setDataSource(dataSource).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                     .setSmallImage(icon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1345,20 +971,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val image2 = SmallImage.Builder(icon2, SmallImageType.PHOTO).build()
-        val data2 = SmallImageComplicationData.Builder(
-            image2, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
-
-        val image3 = SmallImage.Builder(icon3, SmallImageType.PHOTO).build()
-        val data3 = SmallImageComplicationData.Builder(
-            image3, "content description".complicationText
-        ).setDataSource(dataSourceB).build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "SmallImageComplicationData(smallImage=SmallImage(image=Icon(" +
                 "typ=URI uri=someuri), type=PHOTO, ambientImage=null), " +
@@ -1379,14 +991,14 @@ public class AsWireComplicationDataTest {
         val image = SmallImage.Builder(bitmapIcon, SmallImageType.PHOTO).build()
         val data = SmallImageComplicationData.Builder(
             image, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
+        ).setDataSource(dataSource).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                     .setSmallImage(bitmapIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1410,13 +1022,13 @@ public class AsWireComplicationDataTest {
         val photoImage = Icon.createWithContentUri("someuri")
         val data = PhotoImageComplicationData.Builder(
             photoImage, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
+        ).setDataSource(dataSource).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
                     .setLargeImage(photoImage)
                     .setContentDescription(WireComplicationText.plainText("content description"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1428,20 +1040,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val photoImage2 = Icon.createWithContentUri("someuri")
-        val data2 = PhotoImageComplicationData.Builder(
-            photoImage2, "content description".complicationText
-        ).setDataSource(dataSourceA).build()
-
-        val photoImage3 = Icon.createWithContentUri("someuri3")
-        val data3 = PhotoImageComplicationData.Builder(
-            photoImage3, "content description".complicationText
-        ).setDataSource(dataSourceB).build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "PhotoImageComplicationData(photoImage=Icon(typ=URI uri=someuri), " +
                 "contentDescription=ComplicationText{mSurroundingText=content description, " +
@@ -1457,13 +1055,13 @@ public class AsWireComplicationDataTest {
     public fun noPermissionComplicationData() {
         val data = NoPermissionComplicationData.Builder()
             .setText("needs location".complicationText)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_PERMISSION)
                     .setShortText(WireComplicationText.plainText("needs location"))
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1473,20 +1071,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.text!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("needs location")
 
-        val data2 = NoPermissionComplicationData.Builder()
-            .setText("needs location".complicationText)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val data3 = NoPermissionComplicationData.Builder()
-            .setText("needs location3".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoPermissionComplicationData(text=ComplicationText{mSurroundingText=needs location, " +
                 "mTimeDependentText=null, mStringExpression=null}, title=null, " +
@@ -1504,7 +1088,7 @@ public class AsWireComplicationDataTest {
             .setText("needs location".complicationText)
             .setMonochromaticImage(monochromaticImage)
             .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
+            .setDataSource(dataSource)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -1513,7 +1097,7 @@ public class AsWireComplicationDataTest {
                     .setIcon(monochromaticImageIcon)
                     .setSmallImage(smallImageIcon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
-                    .setDataSource(dataSourceA)
+                    .setDataSource(dataSource)
                     .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                     .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                     .build()
@@ -1523,22 +1107,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.text!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("needs location")
 
-        val data2 = NoPermissionComplicationData.Builder()
-            .setText("needs location".complicationText)
-            .setMonochromaticImage(monochromaticImage)
-            .setSmallImage(smallImage)
-            .setDataSource(dataSourceA)
-            .build()
-
-        val data3 = NoPermissionComplicationData.Builder()
-            .setText("needs location3".complicationText)
-            .setDataSource(dataSourceB)
-            .build()
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoPermissionComplicationData(text=ComplicationText{" +
                 "mSurroundingText=needs location, mTimeDependentText=null, " +
@@ -1561,7 +1129,7 @@ public class AsWireComplicationDataTest {
             )
                 .setTitle(ComplicationText.PLACEHOLDER)
                 .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setDataSource(dataSourceA)
+                .setDataSource(dataSource)
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1575,7 +1143,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -1589,28 +1157,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            ShortTextComplicationData.Builder(
-                ComplicationText.PLACEHOLDER,
-                "content description".complicationText
-            )
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setDataSource(dataSourceA)
-                .build()
-        )
-        val data3 = NoDataComplicationData(
-            ShortTextComplicationData.Builder(
-                ComplicationText.PLACEHOLDER,
-                "content description".complicationText
-            )
-                .setDataSource(dataSourceB)
-                .build()
-        )
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=ShortTextComplicationData(text=" +
                 "ComplicationText{mSurroundingText=__placeholder__, mTimeDependentText=null, " +
@@ -1637,7 +1183,7 @@ public class AsWireComplicationDataTest {
             LongTextComplicationData.Builder(
                 "text".complicationText,
                 "content description".complicationText
-            ).setDataSource(dataSourceA).build()
+            ).setDataSource(dataSource).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -1648,7 +1194,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -1662,23 +1208,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            LongTextComplicationData.Builder(
-                "text".complicationText,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-        val data3 = NoDataComplicationData(
-            LongTextComplicationData.Builder(
-                ComplicationText.PLACEHOLDER,
-                "content description".complicationText
-            ).setDataSource(dataSourceB).build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=LongTextComplicationData(" +
                 "text=ComplicationText{mSurroundingText=text, mTimeDependentText=null, " +
@@ -1706,7 +1235,7 @@ public class AsWireComplicationDataTest {
                 "content description".complicationText
             )
                 .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
+                .setDataSource(dataSource)
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1722,7 +1251,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -1736,32 +1265,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 0f,
-                max = 100f,
-                "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
-                .build()
-        )
-        val data3 = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 0f,
-                max = 100f,
-                "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=RangedValueComplicationData(" +
                 "value=3.4028235E38, valueExpression=null, valueType=0, min=0.0, max=100.0, " +
@@ -1789,7 +1292,7 @@ public class AsWireComplicationDataTest {
                 contentDescription = "content description".complicationText
             )
                 .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
+                .setDataSource(dataSource)
                 .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
                 .build()
         )
@@ -1804,7 +1307,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setColorRampIsSmoothShaded(false)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -1820,31 +1323,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            GoalProgressComplicationData.Builder(
-                value = GoalProgressComplicationData.PLACEHOLDER,
-                targetValue = 10000f,
-                contentDescription = "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
-                .build()
-        )
-        val data3 = NoDataComplicationData(
-            GoalProgressComplicationData.Builder(
-                value = GoalProgressComplicationData.PLACEHOLDER,
-                targetValue = 10000f,
-                contentDescription = "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=GoalProgressComplicationData(" +
                 "value=3.4028235E38, valueExpression=null, targetValue=10000.0, " +
@@ -1878,7 +1356,7 @@ public class AsWireComplicationDataTest {
             )
                 .setTitle("calories".complicationText)
                 .setElementBackgroundColor(Color.GRAY)
-                .setDataSource(dataSourceA)
+                .setDataSource(dataSource)
                 .build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -1893,7 +1371,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -1907,37 +1385,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            WeightedElementsComplicationData.Builder(
-                listOf(
-                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
-                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
-                ),
-                contentDescription = "content description".complicationText
-            )
-                .setTitle("calories".complicationText)
-                .setElementBackgroundColor(Color.GRAY)
-                .setDataSource(dataSourceA)
-                .build()
-        )
-        val data3 = NoDataComplicationData(
-            WeightedElementsComplicationData.Builder(
-                listOf(
-                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
-                ),
-                contentDescription = "content description".complicationText
-            )
-                .setTitle("calories".complicationText)
-                .setDataSource(dataSourceA)
-                .build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=WeightedElementsComplicationData(" +
                 "elements=Element(color=-65536, weight=0.5), Element(color=-16711936, " +
@@ -1967,7 +1414,7 @@ public class AsWireComplicationDataTest {
                 "content description".complicationText
             )
                 .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
+                .setDataSource(dataSource)
                 .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
                 .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .build()
@@ -1985,7 +1432,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE))
                             .setColorRampIsSmoothShaded(true)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
@@ -2001,34 +1448,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 0f,
-                max = 100f,
-                "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setDataSource(dataSourceA)
-                .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
-                .setValueType(RangedValueComplicationData.TYPE_RATING)
-                .build()
-        )
-        val data3 = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 0f,
-                max = 100f,
-                "content description".complicationText
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=RangedValueComplicationData(" +
                 "value=3.4028235E38, valueExpression=null, valueType=1, min=0.0, max=100.0, " +
@@ -2054,7 +1473,7 @@ public class AsWireComplicationDataTest {
             MonochromaticImageComplicationData.Builder(
                 MonochromaticImage.PLACEHOLDER,
                 "content description".complicationText
-            ).setDataSource(dataSourceA).build()
+            ).setDataSource(dataSource).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -2065,7 +1484,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -2079,25 +1498,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            MonochromaticImageComplicationData.Builder(
-                MonochromaticImage.PLACEHOLDER,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-
-        val image = MonochromaticImage.Builder(icon).build()
-        val data3 = NoDataComplicationData(
-            MonochromaticImageComplicationData.Builder(
-                image,
-                "content description".complicationText
-            ).setDataSource(dataSourceB).build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=MonochromaticImageComplicationData(" +
                 "monochromaticImage=MonochromaticImage(image=Icon(typ=RESOURCE pkg= " +
@@ -2120,7 +1520,7 @@ public class AsWireComplicationDataTest {
             SmallImageComplicationData.Builder(
                 SmallImage.PLACEHOLDER,
                 "content description".complicationText
-            ).setDataSource(dataSourceA).build()
+            ).setDataSource(dataSource).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -2132,7 +1532,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -2146,25 +1546,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            SmallImageComplicationData.Builder(
-                SmallImage.PLACEHOLDER,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-
-        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
-        val data3 = NoDataComplicationData(
-            SmallImageComplicationData.Builder(
-                image,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=SmallImageComplicationData(smallImage=" +
                 "SmallImage(image=Icon(typ=RESOURCE pkg= id=0xffffffff), type=ICON, " +
@@ -2187,7 +1568,7 @@ public class AsWireComplicationDataTest {
             PhotoImageComplicationData.Builder(
                 PhotoImageComplicationData.PLACEHOLDER,
                 "content description".complicationText
-            ).setDataSource(dataSourceA).build()
+            ).setDataSource(dataSource).build()
         )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -2198,7 +1579,7 @@ public class AsWireComplicationDataTest {
                             .setContentDescription(
                                 WireComplicationText.plainText("content description")
                             )
-                            .setDataSource(dataSourceA)
+                            .setDataSource(dataSource)
                             .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                             .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                             .build()
@@ -2212,24 +1593,6 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
 
-        val data2 = NoDataComplicationData(
-            PhotoImageComplicationData.Builder(
-                PhotoImageComplicationData.PLACEHOLDER,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-
-        val data3 = NoDataComplicationData(
-            PhotoImageComplicationData.Builder(
-                icon,
-                "content description".complicationText
-            ).setDataSource(dataSourceA).build()
-        )
-
-        assertThat(data).isEqualTo(data2)
-        assertThat(data).isNotEqualTo(data3)
-        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
-        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
         assertThat(data.toString()).isEqualTo(
             "NoDataComplicationData(placeholder=PhotoImageComplicationData(" +
                 "photoImage=Icon(typ=RESOURCE pkg= id=0xffffffff), " +

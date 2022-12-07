@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ComplicationExperimental::class)
-
 package android.support.wearable.complications
 
 import android.annotation.SuppressLint
@@ -34,16 +32,18 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
-import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicy
 import androidx.wear.watchface.complications.data.FloatExpression
 import androidx.wear.watchface.complications.data.toFloatExpression
+import androidx.wear.watchface.utility.iconEquals
+import androidx.wear.watchface.utility.iconHashCode
 import java.io.IOException
 import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import java.util.Objects
 
 /**
  * Container for complication data of all types.
@@ -597,7 +597,9 @@ class ComplicationData : Parcelable, Serializable {
      * Returns true if the ComplicationData contains a ranged value expression. I.e. if
      * [rangedValueExpression] can succeed.
      */
-    fun hasRangedValueExpression(): Boolean = isFieldValidForType(FIELD_VALUE_EXPRESSION, type)
+    fun hasRangedValueExpression(): Boolean =
+        isFieldValidForType(FIELD_VALUE_EXPRESSION, type) &&
+            fields.containsKey(FIELD_VALUE_EXPRESSION)
 
     /**
      * Returns the *valueExpression* field for this complication.
@@ -1177,6 +1179,200 @@ class ComplicationData : Parcelable, Serializable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun toStringNoRedaction() = "ComplicationData{mType=$type, mFields=$fields}"
+
+    override fun equals(other: Any?): Boolean =
+        other is ComplicationData &&
+            equalsWithoutExpressions(other) &&
+            (!isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue) &&
+            (!isFieldValidForType(FIELD_VALUE_EXPRESSION, type) ||
+                rangedValueExpression == other.rangedValueExpression) &&
+            (!isFieldValidForType(FIELD_SHORT_TITLE, type) || shortTitle == other.shortTitle) &&
+            (!isFieldValidForType(FIELD_SHORT_TEXT, type) || shortText == other.shortText) &&
+            (!isFieldValidForType(FIELD_LONG_TITLE, type) || longTitle == other.longTitle) &&
+            (!isFieldValidForType(FIELD_LONG_TEXT, type) || longText == other.longText) &&
+            (!isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type) ||
+                contentDescription == other.contentDescription) &&
+            (!isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) || placeholder == other.placeholder)
+
+    /** Similar to [equals], but avoids comparing evaluated fields (if expressions exist). */
+    infix fun equalsUnevaluated(other: ComplicationData): Boolean =
+        equalsWithoutExpressions(other) &&
+            if (
+                !isFieldValidForType(FIELD_VALUE_EXPRESSION, type) || rangedValueExpression == null
+            ) {
+                !isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue
+            } else {
+                rangedValueExpression == other.rangedValueExpression
+            } &&
+            (!isFieldValidForType(FIELD_SHORT_TITLE, type) ||
+                shortTitle equalsUnevaluated other.shortTitle) &&
+            (!isFieldValidForType(FIELD_SHORT_TEXT, type) ||
+                shortText equalsUnevaluated other.shortText) &&
+            (!isFieldValidForType(FIELD_LONG_TITLE, type) ||
+                longTitle equalsUnevaluated other.longTitle) &&
+            (!isFieldValidForType(FIELD_LONG_TEXT, type) ||
+                longText equalsUnevaluated other.longText) &&
+            (!isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type) ||
+                contentDescription.equalsUnevaluated(other.contentDescription)) &&
+            (!isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) ||
+                ((placeholder == null && other.placeholder == null) ||
+                    ((placeholder != null && other.placeholder != null) &&
+                        placeholder!! equalsUnevaluated other.placeholder!!)))
+
+    private infix fun ComplicationText?.equalsUnevaluated(other: ComplicationText?): Boolean =
+        (this == null && other == null) ||
+            ((this != null && other != null) &&
+                if (stringExpression == null) equals(other)
+                else stringExpression == other.stringExpression)
+
+    private fun equalsWithoutExpressions(other: ComplicationData): Boolean =
+        this === other || (
+            type == other.type &&
+                (!isFieldValidForType(FIELD_TAP_ACTION_LOST, type) ||
+                    tapActionLostDueToSerialization == other.tapActionLostDueToSerialization) &&
+                (!isFieldValidForType(FIELD_TIMELINE_START_TIME, type) ||
+                    timelineStartEpochSecond == other.timelineStartEpochSecond) &&
+                (!isFieldValidForType(FIELD_TIMELINE_END_TIME, type) ||
+                    timelineEndEpochSecond == other.timelineEndEpochSecond) &&
+                (!isFieldValidForType(FIELD_TIMELINE_ENTRIES, type) ||
+                    timelineEntries == other.timelineEntries) &&
+                (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) ||
+                    listEntries == other.listEntries) &&
+                (!isFieldValidForType(FIELD_DATA_SOURCE, type) ||
+                    dataSource == other.dataSource) &&
+                (!isFieldValidForType(FIELD_VALUE_TYPE, type) ||
+                    rangedValueType == other.rangedValueType) &&
+                (!isFieldValidForType(FIELD_MIN_VALUE, type) ||
+                    rangedMinValue == other.rangedMinValue) &&
+                (!isFieldValidForType(FIELD_MAX_VALUE, type) ||
+                    rangedMaxValue == other.rangedMaxValue) &&
+                (!isFieldValidForType(FIELD_TARGET_VALUE, type) ||
+                    targetValue == other.targetValue) &&
+                (!isFieldValidForType(FIELD_COLOR_RAMP, type) ||
+                    colorRamp contentEquals other.colorRamp) &&
+                (!isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type) ||
+                    isColorRampInterpolated == other.isColorRampInterpolated) &&
+                (!isFieldValidForType(FIELD_ICON, type) || icon iconEquals other.icon) &&
+                (!isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type) ||
+                    burnInProtectionIcon iconEquals other.burnInProtectionIcon) &&
+                (!isFieldValidForType(FIELD_SMALL_IMAGE, type) ||
+                    smallImage iconEquals other.smallImage) &&
+                (!isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type) ||
+                    burnInProtectionSmallImage iconEquals other.burnInProtectionSmallImage) &&
+                (!isFieldValidForType(FIELD_IMAGE_STYLE, type) ||
+                    smallImageStyle == other.smallImageStyle) &&
+                (!isFieldValidForType(FIELD_LARGE_IMAGE, type) ||
+                    largeImage iconEquals other.largeImage) &&
+                (!isFieldValidForType(FIELD_TAP_ACTION, type) || tapAction == other.tapAction) &&
+                (!isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type) ||
+                    elementWeights contentEquals other.elementWeights) &&
+                (!isFieldValidForType(FIELD_ELEMENT_COLORS, type) ||
+                    elementColors contentEquals other.elementColors) &&
+                (!isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type) ||
+                    elementBackgroundColor == other.elementBackgroundColor) &&
+                (!isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type) ||
+                    interactiveLayout contentEquals other.interactiveLayout) &&
+                (!isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type) ||
+                    listStyleHint == other.listStyleHint) &&
+                (!isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type) ||
+                    ambientLayout contentEquals other.ambientLayout) &&
+                (!isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type) ||
+                    layoutResources contentEquals other.layoutResources) &&
+                (!isFieldValidForType(FIELD_PERSISTENCE_POLICY, type) ||
+                    persistencePolicy == other.persistencePolicy) &&
+                (!isFieldValidForType(FIELD_DISPLAY_POLICY, type) ||
+                    displayPolicy == other.displayPolicy) &&
+                (!isFieldValidForType(FIELD_START_TIME, type) ||
+                    startDateTimeMillis == other.startDateTimeMillis) &&
+                (!isFieldValidForType(FIELD_END_TIME, type) ||
+                    endDateTimeMillis == other.endDateTimeMillis)
+            )
+
+    override fun hashCode(): Int = Objects.hash(
+        type,
+        if (isFieldValidForType(FIELD_TAP_ACTION_LOST, type)) {
+            tapActionLostDueToSerialization
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_TIMELINE_START_TIME, type)) {
+            timelineStartEpochSecond
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_TIMELINE_END_TIME, type)) timelineEndEpochSecond else null,
+        if (isFieldValidForType(FIELD_TIMELINE_ENTRIES, type)) timelineEntries else null,
+        if (isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type)) listEntries else null,
+        if (isFieldValidForType(FIELD_DATA_SOURCE, type)) dataSource else null,
+        if (isFieldValidForType(FIELD_VALUE, type)) rangedValue else null,
+        if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) rangedValueExpression else null,
+        if (isFieldValidForType(FIELD_VALUE_TYPE, type)) rangedValueType else null,
+        if (isFieldValidForType(FIELD_MIN_VALUE, type)) rangedMinValue else null,
+        if (isFieldValidForType(FIELD_MAX_VALUE, type)) rangedMaxValue else null,
+        if (isFieldValidForType(FIELD_TARGET_VALUE, type)) targetValue else null,
+        if (isFieldValidForType(FIELD_COLOR_RAMP, type)) colorRamp.contentHashCode() else null,
+        if (isFieldValidForType(FIELD_COLOR_RAMP_INTERPOLATED, type)) {
+            isColorRampInterpolated
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_SHORT_TITLE, type)) shortTitle else null,
+        if (isFieldValidForType(FIELD_SHORT_TEXT, type)) shortText else null,
+        if (isFieldValidForType(FIELD_LONG_TITLE, type)) longTitle else null,
+        if (isFieldValidForType(FIELD_LONG_TEXT, type)) longText else null,
+        if (isFieldValidForType(FIELD_ICON, type)) icon?.iconHashCode() else null,
+        if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+            burnInProtectionIcon?.iconHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) smallImage?.iconHashCode() else null,
+        if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+            burnInProtectionSmallImage?.iconHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) smallImageStyle else null,
+        if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) largeImage?.iconHashCode() else null,
+        if (isFieldValidForType(FIELD_TAP_ACTION, type)) tapAction else null,
+        if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) contentDescription else null,
+        if (isFieldValidForType(FIELD_ELEMENT_WEIGHTS, type)) {
+            elementWeights.contentHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_ELEMENT_COLORS, type)) {
+            elementColors.contentHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_ELEMENT_BACKGROUND_COLOR, type)) {
+            elementBackgroundColor
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type)) placeholder else null,
+        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_INTERACTIVE, type)) {
+            interactiveLayout.contentHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(EXP_FIELD_LIST_STYLE_HINT, type)) listStyleHint else null,
+        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_AMBIENT, type)) {
+            ambientLayout.contentHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(EXP_FIELD_PROTO_LAYOUT_RESOURCES, type)) {
+            layoutResources.contentHashCode()
+        } else {
+            null
+        },
+        if (isFieldValidForType(FIELD_PERSISTENCE_POLICY, type)) persistencePolicy else null,
+        if (isFieldValidForType(FIELD_DISPLAY_POLICY, type)) displayPolicy else null,
+        if (isFieldValidForType(FIELD_START_TIME, type)) startDateTimeMillis else null,
+        if (isFieldValidForType(FIELD_END_TIME, type)) endDateTimeMillis else null,
+    )
 
     /** Builder class for [ComplicationData]. */
     class Builder {
@@ -2088,28 +2284,47 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_DISPLAY_POLICY,
             ),
             TYPE_NO_DATA to setOf(
-                FIELD_CONTENT_DESCRIPTION,
+                FIELD_COLOR_RAMP,
+                FIELD_COLOR_RAMP_INTERPOLATED,
+                FIELD_DATA_SOURCE,
+                FIELD_DISPLAY_POLICY,
+                FIELD_ELEMENT_BACKGROUND_COLOR,
+                FIELD_ELEMENT_COLORS,
+                FIELD_ELEMENT_WEIGHTS,
+                FIELD_END_TIME,
                 FIELD_ICON,
                 FIELD_ICON_BURN_IN_PROTECTION,
                 FIELD_IMAGE_STYLE,
                 FIELD_LARGE_IMAGE,
-                FIELD_LONG_TEXT,
                 FIELD_LONG_TITLE,
+                FIELD_LONG_TEXT,
                 FIELD_MAX_VALUE,
                 FIELD_MIN_VALUE,
+                FIELD_PERSISTENCE_POLICY,
                 FIELD_PLACEHOLDER_FIELDS,
                 FIELD_PLACEHOLDER_TYPE,
-                FIELD_SHORT_TEXT,
-                FIELD_SHORT_TITLE,
                 FIELD_SMALL_IMAGE,
                 FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                FIELD_SHORT_TITLE,
+                FIELD_SHORT_TEXT,
+                FIELD_START_TIME,
                 FIELD_TAP_ACTION,
+                FIELD_TAP_ACTION_LOST,
+                FIELD_TARGET_VALUE,
+                FIELD_TIMELINE_START_TIME,
+                FIELD_TIMELINE_END_TIME,
+                FIELD_TIMELINE_ENTRIES,
+                FIELD_TIMELINE_ENTRY_TYPE,
                 FIELD_VALUE,
                 FIELD_VALUE_EXPRESSION,
                 FIELD_VALUE_TYPE,
-                FIELD_DATA_SOURCE,
-                FIELD_PERSISTENCE_POLICY,
-                FIELD_DISPLAY_POLICY,
+                EXP_FIELD_LIST_ENTRIES,
+                EXP_FIELD_LIST_ENTRY_TYPE,
+                EXP_FIELD_LIST_STYLE_HINT,
+                EXP_FIELD_PROTO_LAYOUT_AMBIENT,
+                EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
+                EXP_FIELD_PROTO_LAYOUT_RESOURCES,
+                FIELD_CONTENT_DESCRIPTION,
             ),
             EXP_TYPE_PROTO_LAYOUT to setOf(
                 FIELD_TAP_ACTION,
