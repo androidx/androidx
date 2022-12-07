@@ -16,6 +16,7 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.RoomPagingRx2TypeNames
 import androidx.room.processor.Context
@@ -33,7 +34,7 @@ fun RxJava2PagingSourceQueryResultBinderProvider(
         pagingSourceTypeName = PagingTypeNames.RX2_PAGING_SOURCE
     ).requireArtifact(
         context = context,
-        requiredType = rxjava2PagingSource,
+        requiredType = rxjava2PagingSource.toJavaPoet(),
         missingArtifactErrorMsg = MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT
     )
 }

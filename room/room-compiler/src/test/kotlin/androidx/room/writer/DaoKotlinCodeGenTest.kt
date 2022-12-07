@@ -632,6 +632,55 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun multiTypedPagingSourceResultBinder() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+            import androidx.paging.rxjava2.*
+            import androidx.paging.rxjava3.*
+
+            @Dao
+            abstract class MyDao {
+              @Query("SELECT pk FROM MyEntity")
+              abstract fun getAllIds(): androidx.paging.PagingSource<Int, MyEntity>
+
+              @Query("SELECT pk FROM MyEntity")
+              abstract fun getAllIdsRx2(): androidx.paging.rxjava2.RxPagingSource<Int, MyEntity>
+
+              @Query("SELECT pk FROM MyEntity")
+              abstract fun getAllIdsRx3(): androidx.paging.rxjava3.RxPagingSource<Int, MyEntity>
+
+              @Query("SELECT pk FROM MyEntity")
+              abstract fun getAllIdsGuava(): androidx.paging.ListenableFuturePagingSource<Int, MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_RX2_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+                COMMON.RX2_PAGING_SOURCE,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
+                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
+
+    @Test
     fun basicParameterAdapter_string() {
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(

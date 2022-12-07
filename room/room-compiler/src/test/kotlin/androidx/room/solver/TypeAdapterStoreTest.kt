@@ -1203,14 +1203,14 @@ class TypeAdapterStoreTest {
             assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
 
             val pagingSourceXRawType: XRawType? = invocation.context.processingEnv
-                .findType(PagingTypeNames.PAGING_SOURCE)?.rawType
+                .findType(PagingTypeNames.PAGING_SOURCE.canonicalName)?.rawType
             val returnedXRawType = parsedDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure returned type is the original PagingSource
             assertThat(returnedXRawType).isEqualTo(pagingSourceXRawType)
 
             val listenableFuturePagingSourceXRawType: XRawType? = invocation.context.processingEnv
-                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)?.rawType
+                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE.canonicalName)?.rawType
             assertThat(listenableFuturePagingSourceXRawType!!.isAssignableFrom(returnedXRawType))
                 .isFalse()
         }
@@ -1260,7 +1260,7 @@ class TypeAdapterStoreTest {
             // generic PagingSource.
             assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
             val listenableFuturePagingSourceXRawType: XRawType? = invocation.context.processingEnv
-                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)?.rawType
+                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE.canonicalName)?.rawType
             val returnedXRawType = parsedDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure the actual returned type from Provider is ListenableFuturePagingSource
@@ -1308,7 +1308,7 @@ class TypeAdapterStoreTest {
 
             assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
             val rxPagingSourceXRawType: XRawType? = invocation.context.processingEnv
-                .findType(PagingTypeNames.RX2_PAGING_SOURCE)?.rawType
+                .findType(PagingTypeNames.RX2_PAGING_SOURCE.canonicalName)?.rawType
             val returnedXRawType = parsedDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure the actual returned type from Provider is a Rx2PagingSource
@@ -1356,7 +1356,7 @@ class TypeAdapterStoreTest {
 
             assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
             val rxPagingSourceXRawType: XRawType? = invocation.context.processingEnv
-                .findType(PagingTypeNames.RX3_PAGING_SOURCE)?.rawType
+                .findType(PagingTypeNames.RX3_PAGING_SOURCE.canonicalName)?.rawType
             val returnedXRawType = parsedDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure the actual returned type from Provider is a RxPagingSource

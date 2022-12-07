@@ -13,9 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room.paging.rxjava2
 
-package androidx.room.paging.rxjava3;
+import android.database.Cursor
+import androidx.room.RoomDatabase
+import androidx.room.RoomSQLiteQuery
 
-public abstract class LimitOffsetRxPagingSource<T>
-        extends androidx.paging.rxjava3.RxPagingSource<Integer, T> {
+abstract class LimitOffsetRxPagingSource<T : Any>(
+    private val sourceQuery: RoomSQLiteQuery,
+    private val db: RoomDatabase,
+    vararg tables: String
+) : androidx.paging.rxjava2.RxPagingSource<Int, T>(
+    sourceQuery,
+    db,
+    *tables
+) {
+    protected abstract override fun convertRows(cursor: Cursor): List<T>
 }

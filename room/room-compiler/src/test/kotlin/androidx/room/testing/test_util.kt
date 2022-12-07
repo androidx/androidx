@@ -32,10 +32,6 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
-import androidx.room.ext.RoomPagingGuavaTypeNames
-import androidx.room.ext.RoomPagingRx2TypeNames
-import androidx.room.ext.RoomPagingRx3TypeNames
-import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
@@ -209,16 +205,14 @@ object COMMON {
     }
 
     val PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/PagingSource.java",
-            PagingTypeNames.PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/PagingSource.kt"
         )
     }
 
     val LIMIT_OFFSET_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/LimitOffsetPagingSource.java",
-            RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/LimitOffsetPagingSource.kt"
         )
     }
 
@@ -237,44 +231,38 @@ object COMMON {
     }
 
     val LISTENABLE_FUTURE_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/ListenableFuturePagingSource.java",
-            PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/ListenableFuturePagingSource.kt"
         )
     }
 
     val LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/LimitOffsetListenableFuturePagingSource.java",
-            RoomPagingGuavaTypeNames.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/LimitOffsetListenableFuturePagingSource.kt"
         )
     }
 
     val RX2_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/Rx2PagingSource.java",
-            PagingTypeNames.RX2_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/Rx2PagingSource.kt"
         )
     }
 
     val LIMIT_OFFSET_RX2_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/LimitOffsetRx2PagingSource.java",
-            RoomPagingRx2TypeNames.LIMIT_OFFSET_RX_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/LimitOffsetRx2PagingSource.kt"
         )
     }
 
     val RX3_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/Rx3PagingSource.java",
-            PagingTypeNames.RX3_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/Rx3PagingSource.kt"
         )
     }
 
     val LIMIT_OFFSET_RX3_PAGING_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/LimitOffsetRx3PagingSource.java",
-            RoomPagingRx3TypeNames.LIMIT_OFFSET_RX_PAGING_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/LimitOffsetRx3PagingSource.kt"
         )
     }
 
