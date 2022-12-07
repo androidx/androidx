@@ -268,8 +268,8 @@ class CustomTypeConverterResolutionTest {
         runProcessorTest(
             sources = sources + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
                 CUSTOM_TYPE_SET_CONVERTER_JFO,
-            createProcessingStep = {
-                DatabaseProcessingStep()
+            createProcessingSteps = {
+                listOf(DatabaseProcessingStep())
             },
             onCompilationResult = onCompilationResult
         )
