@@ -29,7 +29,7 @@ package androidx.work.testing {
   }
 
   public final class TestListenableWorkerBuilderKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W>! TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
@@ -38,7 +38,7 @@ package androidx.work.testing {
   }
 
   public final class TestWorkerBuilderKt {
-    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
+    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W>! TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
   }
 
   public final class WorkManagerTestInitHelper {
