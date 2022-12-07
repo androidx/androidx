@@ -177,7 +177,8 @@ public class ImagePipeline {
         return new Pair<>(
                 createCameraRequest(
                         captureBundle,
-                        takePictureRequest),
+                        takePictureRequest,
+                        takePictureCallback),
                 createProcessingRequest(
                         captureBundle,
                         takePictureRequest,
@@ -220,7 +221,8 @@ public class ImagePipeline {
 
     private CameraRequest createCameraRequest(
             @NonNull CaptureBundle captureBundle,
-            @NonNull TakePictureRequest takePictureRequest) {
+            @NonNull TakePictureRequest takePictureRequest,
+            @NonNull TakePictureCallback takePictureCallback) {
         List<CaptureConfig> captureConfigs = new ArrayList<>();
         String tagBundleKey = String.valueOf(captureBundle.hashCode());
         for (final CaptureStage captureStage : requireNonNull(captureBundle.getCaptureStages())) {
@@ -254,7 +256,7 @@ public class ImagePipeline {
             captureConfigs.add(builder.build());
         }
 
-        return new CameraRequest(captureConfigs);
+        return new CameraRequest(captureConfigs, takePictureCallback);
     }
 
     /**

@@ -203,6 +203,23 @@ class TakePictureManagerTest {
     }
 
     @Test
+    fun abortedRequest_ReceiveException_onCaptureFailureIsNotCalled() {
+        // Arrange: send request.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request)
+
+        // Act: pause and triage the exception.
+        takePictureManager.pause()
+        imageCaptureControl.shouldUsePendingResult = true
+        imageCaptureControl.pendingResultCompleter.setException(exception)
+        takePictureManager.resume()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(imagePipeline.captureErrorReceived).isNull()
+    }
+
+    @Test
     fun submitRequestFailsWithImageCaptureException_appGetsTheSameException() {
         // Arrange: configure ImageCaptureControl to always fail.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)

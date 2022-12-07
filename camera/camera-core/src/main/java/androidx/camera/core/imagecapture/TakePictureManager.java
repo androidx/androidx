@@ -250,13 +250,21 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
 
             @Override
             public void onFailure(@NonNull Throwable throwable) {
-                if (throwable instanceof ImageCaptureException) {
-                    mImagePipeline.notifyCaptureError((ImageCaptureException) throwable);
+                if (cameraRequest.isAborted()) {
+                    // When the pipeline is recreated, the in-flight request is aborted and
+                    // retried. On legacy devices, the camera may return CancellationException
+                    // for the aborted request which causes the retried request to fail. Return
+                    // early if the request has been aborted.
+                    return;
                 } else {
-                    mImagePipeline.notifyCaptureError(new ImageCaptureException(
-                            ERROR_CAPTURE_FAILED,
-                            "Failed to submit capture request",
-                            throwable));
+                    if (throwable instanceof ImageCaptureException) {
+                        mImagePipeline.notifyCaptureError((ImageCaptureException) throwable);
+                    } else {
+                        mImagePipeline.notifyCaptureError(new ImageCaptureException(
+                                ERROR_CAPTURE_FAILED,
+                                "Failed to submit capture request",
+                                throwable));
+                    }
                 }
                 mImageCaptureControl.unlockFlashMode();
             }
