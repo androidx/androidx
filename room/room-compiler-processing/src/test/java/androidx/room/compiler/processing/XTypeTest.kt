@@ -1193,6 +1193,7 @@ class XTypeTest {
             }
         }
 
+        val step = TypeArgumentProcessingStep()
         runProcessorTest(
             sources = listOf(Source.java(
                 "test.Foo",
@@ -1204,11 +1205,24 @@ class XTypeTest {
                 @interface Inspect {}
                 """.trimIndent()
             )),
-            createProcessingStep = { TypeArgumentProcessingStep() }
-        ) { result ->
-            result.hasError()
-            result.hasErrorCount(1)
-            result.hasErrorContaining("cannot find symbol")
+        ) { invocation ->
+            val elements =
+                step.annotations()
+                    .associateWith { annotation ->
+                        invocation.roundEnv.getElementsAnnotatedWith(annotation)
+                            .filterIsInstance<XTypeElement>()
+                            .toSet()
+                    }
+            step.process(
+                env = invocation.processingEnv,
+                elementsByAnnotation = elements,
+                isLastRound = false
+            )
+            invocation.assertCompilationResult {
+                hasError()
+                hasErrorCount(1)
+                hasErrorContaining("cannot find symbol")
+            }
         }
 
         runProcessorTest(
@@ -1223,7 +1237,7 @@ class XTypeTest {
             kotlincArguments = listOf(
                 "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"
             ),
-            createProcessingStep = { TypeArgumentProcessingStep() }
+            createProcessingSteps = { listOf(TypeArgumentProcessingStep()) }
         ) { result ->
             result.hasError()
             result.hasErrorCount(1)
@@ -1282,7 +1296,7 @@ class XTypeTest {
                 @interface Inspect {}
                 """.trimIndent()
             )),
-            createProcessingStep = { WildcardProcessingStep() }
+            createProcessingSteps = { listOf(WildcardProcessingStep()) }
         ) { result ->
             result.hasError()
             result.hasErrorCount(1)
@@ -1302,7 +1316,7 @@ class XTypeTest {
             kotlincArguments = listOf(
                 "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"
             ),
-            createProcessingStep = { WildcardProcessingStep() }
+            createProcessingSteps = { listOf(WildcardProcessingStep()) }
         ) { result ->
             result.hasError()
             result.hasErrorCount(1)
