@@ -67,7 +67,7 @@ internal class MotionLayoutTest {
     val rule = createComposeRule()
 
     /**
-     * Tests that [MotionLayoutScope.motionFontSize] works as expected.
+     * Tests that [MotionLayoutScope.customFontSize] works as expected.
      *
      * See custom_text_size_scene.json5
      */
@@ -138,19 +138,33 @@ internal class MotionLayoutTest {
                 progress = progress.value,
                 modifier = Modifier.size(200.dp)
             ) {
-                val props by motionProperties(id = "element")
+                val props = customProperties(id = "element")
                 Column(Modifier.layoutId("element")) {
                     Text(
-                        text = "Color: #${props.color("color").toArgb().toUInt().toString(16)}"
+                        text = "1) Color: #${props.color("color").toHexString()}"
                     )
                     Text(
-                        text = "Distance: ${props.distance("distance")}"
+                        text = "2) Distance: ${props.distance("distance")}"
                     )
                     Text(
-                        text = "FontSize: ${props.fontSize("fontSize")}"
+                        text = "3) FontSize: ${props.fontSize("fontSize")}"
                     )
                     Text(
-                        text = "Int: ${props.int("int")}"
+                        text = "4) Int: ${props.int("int")}"
+                    )
+
+                    // Missing properties
+                    Text(
+                        text = "5) Color: #${props.color("a").toHexString()}"
+                    )
+                    Text(
+                        text = "6) Distance: ${props.distance("b")}"
+                    )
+                    Text(
+                        text = "7) FontSize: ${props.fontSize("c")}"
+                    )
+                    Text(
+                        text = "8) Int: ${props.int("d")}"
                     )
                 }
             }
@@ -159,18 +173,32 @@ internal class MotionLayoutTest {
 
         progress.value = 0.25f
         rule.waitForIdle()
-        rule.onNodeWithText("Color: #ffffbaba").assertExists()
-        rule.onNodeWithText("Distance: 10.0.dp").assertExists()
-        rule.onNodeWithText("FontSize: 15.0.sp").assertExists()
-        rule.onNodeWithText("Int: 20").assertExists()
+        rule.onNodeWithText("1) Color: #ffffbaba").assertExists()
+        rule.onNodeWithText("2) Distance: 10.0.dp").assertExists()
+        rule.onNodeWithText("3) FontSize: 15.0.sp").assertExists()
+        rule.onNodeWithText("4) Int: 20").assertExists()
+
+        // Undefined custom properties
+        rule.onNodeWithText("5) Color: #0").assertExists()
+        rule.onNodeWithText("6) Distance: Dp.Unspecified").assertExists()
+        rule.onNodeWithText("7) FontSize: NaN.sp").assertExists()
+        rule.onNodeWithText("8) Int: 0").assertExists()
 
         progress.value = 0.75f
         rule.waitForIdle()
-        rule.onNodeWithText("Color: #ffba0000").assertExists()
-        rule.onNodeWithText("Distance: 15.0.dp").assertExists()
-        rule.onNodeWithText("FontSize: 25.0.sp").assertExists()
-        rule.onNodeWithText("Int: 35").assertExists()
+        rule.onNodeWithText("1) Color: #ffba0000").assertExists()
+        rule.onNodeWithText("2) Distance: 15.0.dp").assertExists()
+        rule.onNodeWithText("3) FontSize: 25.0.sp").assertExists()
+        rule.onNodeWithText("4) Int: 35").assertExists()
+
+        // Undefined custom properties
+        rule.onNodeWithText("5) Color: #0").assertExists()
+        rule.onNodeWithText("6) Distance: Dp.Unspecified").assertExists()
+        rule.onNodeWithText("7) FontSize: NaN.sp").assertExists()
+        rule.onNodeWithText("8) Int: 0").assertExists()
     }
+
+    private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
 @OptIn(ExperimentalMotionApi::class)
@@ -195,7 +223,7 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
             progress = progress,
             modifier = modifier
         ) {
-            val profilePicProperties = motionProperties(id = "profile_pic")
+            val profilePicProperties = customProperties(id = "profile_pic")
             Box(
                 modifier = Modifier
                     .layoutTestId("box")
@@ -208,16 +236,16 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
                     .clip(CircleShape)
                     .border(
                         width = 2.dp,
-                        color = profilePicProperties.value.color("background"),
+                        color = profilePicProperties.color("background"),
                         shape = CircleShape
                     )
                     .layoutTestId("profile_pic")
             )
             Text(
                 text = "Hello",
-                fontSize = motionFontSize("username", "textSize"),
+                fontSize = customFontSize("username", "textSize"),
                 modifier = Modifier.layoutTestId("username"),
-                color = profilePicProperties.value.color("background")
+                color = profilePicProperties.color("background")
             )
         }
     }

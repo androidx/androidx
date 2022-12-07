@@ -528,6 +528,54 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
 ) {
 
     @ExperimentalMotionApi
+    inner class CustomProperties internal constructor(private val id: String) {
+        /**
+         * Return the current [Color] value of the custom property [name], of the [id] layout.
+         *
+         * Returns [Color.Unspecified] if the property does not exist.
+         */
+        fun color(name: String): Color {
+            return measurer.getCustomColor(id, name, motionProgress.currentProgress)
+        }
+
+        /**
+         * Return the current [Color] value of the custom property [name], of the [id] layout.
+         *
+         * Returns [Color.Unspecified] if the property does not exist.
+         */
+        fun float(name: String): Float {
+            return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
+        }
+
+        /**
+         * Return the current [Int] value of the custom property [name], of the [id] layout.
+         *
+         * Returns `0` if the property does not exist.
+         */
+        fun int(name: String): Int {
+            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
+        }
+
+        /**
+         * Return the current [Dp] value of the custom property [name], of the [id] layout.
+         *
+         * Returns [Dp.Unspecified] if the property does not exist.
+         */
+        fun distance(name: String): Dp {
+            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
+        }
+
+        /**
+         * Return the current [TextUnit] value of the custom property [name], of the [id] layout.
+         *
+         * Returns [TextUnit.Unspecified] if the property does not exist.
+         */
+        fun fontSize(name: String): TextUnit {
+            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
+        }
+    }
+
+    @ExperimentalMotionApi // TODO: Remove for 1.2.0-alphaXX with all dependent functions
     inner class MotionProperties internal constructor(
         id: String,
         tag: String?
@@ -564,6 +612,10 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
         }
     }
 
+    @Deprecated(
+        "Unnecessary composable, name is also inconsistent for custom properties",
+        ReplaceWith("customProperties(id)")
+    )
     @Composable
     fun motionProperties(id: String): State<MotionProperties> =
     // TODO: There's no point on returning a [State] object, and probably no point on this being
@@ -572,27 +624,109 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
             mutableStateOf(MotionProperties(id, null))
         }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customProperties(id)"))
     fun motionProperties(id: String, tag: String): MotionProperties {
         return MotionProperties(id, tag)
     }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customColor(id, name)"))
     fun motionColor(id: String, name: String): Color {
         return measurer.getCustomColor(id, name, motionProgress.currentProgress)
     }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customFloat(id, name)"))
     fun motionFloat(id: String, name: String): Float {
         return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
     }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customInt(id, name)"))
     fun motionInt(id: String, name: String): Int {
         return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
     }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customDistance(id, name)"))
     fun motionDistance(id: String, name: String): Dp {
         return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
     }
 
+    @Deprecated("Deprecated for naming consistency", ReplaceWith("customFontSize(id, name)"))
     fun motionFontSize(id: String, name: String): TextUnit {
+        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
+    }
+
+    /**
+     * Returns a [CustomProperties] instance to access the values of custom properties defined for
+     * [id] in different return types: Color, Float, Int, Dp, TextUnit.
+     *
+     * &nbsp;
+     *
+     * Note that there are no type guarantees when setting or getting custom properties, so be
+     * mindful of the value type used for it in the MotionScene.
+     */
+    fun customProperties(id: String): CustomProperties = CustomProperties(id)
+
+    /**
+     * Return the current [Color] value of the custom property [name], of the [id] layout.
+     *
+     * Returns [Color.Unspecified] if the property does not exist.
+     *
+     * &nbsp;
+     *
+     * This is a short version of: `customProperties(id).color(name)`.
+     */
+    fun customColor(id: String, name: String): Color {
+        return measurer.getCustomColor(id, name, motionProgress.currentProgress)
+    }
+
+    /**
+     * Return the current [Color] value of the custom property [name], of the [id] layout.
+     *
+     * Returns [Color.Unspecified] if the property does not exist.
+     *
+     * &nbsp;
+     *
+     * This is a short version of: `customProperties(id).float(name)`.
+     */
+    fun customFloat(id: String, name: String): Float {
+        return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
+    }
+
+    /**
+     * Return the current [Int] value of the custom property [name], of the [id] layout.
+     *
+     * Returns `0` if the property does not exist.
+     *
+     * &nbsp;
+     *
+     * This is a short version of: `customProperties(id).int(name)`.
+     */
+    fun customInt(id: String, name: String): Int {
+        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
+    }
+
+    /**
+     * Return the current [Dp] value of the custom property [name], of the [id] layout.
+     *
+     * Returns [Dp.Unspecified] if the property does not exist.
+     *
+     * &nbsp;
+     *
+     * This is a short version of: `customProperties(id).distance(name)`.
+     */
+    fun customDistance(id: String, name: String): Dp {
+        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
+    }
+
+    /**
+     * Return the current [TextUnit] value of the custom property [name], of the [id] layout.
+     *
+     * Returns [TextUnit.Unspecified] if the property does not exist.
+     *
+     * &nbsp;
+     *
+     * This is a short version of: `customProperties(id).fontSize(name)`.
+     */
+    fun customFontSize(id: String, name: String): TextUnit {
         return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
     }
 }

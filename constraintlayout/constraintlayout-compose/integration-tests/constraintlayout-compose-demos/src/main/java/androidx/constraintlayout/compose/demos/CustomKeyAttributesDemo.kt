@@ -96,7 +96,7 @@ fun CustomColorInKeyAttributesDemo() {
         progress = 0f,
         modifier = Modifier.fillMaxSize()
     ) {
-        val background = motionColor(boxId, "background")
+        val background = customColor(boxId, "background")
         Box(
             modifier = Modifier
                 .layoutId(boxId)

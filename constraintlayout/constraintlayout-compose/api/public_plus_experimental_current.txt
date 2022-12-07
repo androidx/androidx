@@ -620,13 +620,27 @@ package androidx.constraintlayout.compose {
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope {
-    method public long motionColor(String id, String name);
-    method public float motionDistance(String id, String name);
-    method public float motionFloat(String id, String name);
-    method public long motionFontSize(String id, String name);
-    method public int motionInt(String id, String name);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> motionProperties(String id);
-    method public androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties motionProperties(String id, String tag);
+    method public long customColor(String id, String name);
+    method public float customDistance(String id, String name);
+    method public float customFloat(String id, String name);
+    method public long customFontSize(String id, String name);
+    method public int customInt(String id, String name);
+    method public androidx.constraintlayout.compose.MotionLayoutScope.CustomProperties customProperties(String id);
+    method @Deprecated public long motionColor(String id, String name);
+    method @Deprecated public float motionDistance(String id, String name);
+    method @Deprecated public float motionFloat(String id, String name);
+    method @Deprecated public long motionFontSize(String id, String name);
+    method @Deprecated public int motionInt(String id, String name);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> motionProperties(String id);
+    method @Deprecated public androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties motionProperties(String id, String tag);
+  }
+
+  @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope.CustomProperties {
+    method public long color(String name);
+    method public float distance(String name);
+    method public float float(String name);
+    method public long fontSize(String name);
+    method public int int(String name);
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope.MotionProperties {

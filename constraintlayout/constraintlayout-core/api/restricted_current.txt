@@ -2429,6 +2429,7 @@ package androidx.constraintlayout.core.state {
     method public void addCustomFloat(String!, float);
     method public float centerX();
     method public float centerY();
+    method public boolean containsCustom(String);
     method public androidx.constraintlayout.core.motion.CustomVariable! getCustomAttribute(String!);
     method public java.util.Set<java.lang.String!>! getCustomAttributeNames();
     method public int getCustomColor(String!);

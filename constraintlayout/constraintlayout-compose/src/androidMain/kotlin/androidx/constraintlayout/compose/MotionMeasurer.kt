@@ -478,17 +478,20 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
      * ConstraintWidget corresponding to [id], the value is calculated at the given [progress] value
      * on the current Transition.
      *
-     * Returns [Color.Black] if the custom property doesn't exist.
+     * Returns [Color.Unspecified] if the custom property doesn't exist.
      */
     fun getCustomColor(id: String, name: String, progress: Float): Color {
         if (!transition.contains(id)) {
-            return Color.Black
+            return Color.Unspecified
         }
         transition.interpolate(root.width, root.height, progress)
 
         val interpolatedFrame = transition.getInterpolated(id)
-        val color = interpolatedFrame.getCustomColor(name)
-        return Color(color)
+
+        if (!interpolatedFrame.containsCustom(name)) {
+            return Color.Unspecified
+        }
+        return Color(interpolatedFrame.getCustomColor(name))
     }
 
     /**
@@ -496,13 +499,14 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
      * ConstraintWidget corresponding to [id], the value is calculated at the given [progress] value
      * on the current Transition.
      *
-     * Returns `0f` if the custom property doesn't exist.
+     * Returns [Float.NaN] if the custom property doesn't exist.
      */
     fun getCustomFloat(id: String, name: String, progress: Float): Float {
         if (!transition.contains(id)) {
-            return 0f
+            return Float.NaN
         }
         transition.interpolate(root.width, root.height, progress)
+
         val interpolatedFrame = transition.getInterpolated(id)
         return interpolatedFrame.getCustomFloat(name)
     }
