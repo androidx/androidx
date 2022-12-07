@@ -32,6 +32,7 @@ import androidx.annotation.RequiresApi
 @RequiresApi(34)
 class BeginCreateCredentialProviderResponse constructor(
     val createEntries: List<CreateEntry>,
+    val remoteEntry: RemoteEntry?,
     val header: CharSequence?
     ) {
 
@@ -44,6 +45,7 @@ class BeginCreateCredentialProviderResponse constructor(
         // TODO("Add header and remote entry")
         private var createEntries: MutableList<CreateEntry> = mutableListOf()
         private var header: CharSequence? = null
+        private var remoteEntry: RemoteEntry? = null
 
         /** Adds a [CreateEntry] to be displayed on the selector */
         fun addCreateEntry(createEntry: CreateEntry): Builder {
@@ -63,13 +65,19 @@ class BeginCreateCredentialProviderResponse constructor(
             return this
         }
 
+        /** Sets a [RemoteEntry] that denotes the flow can be completed on a remote device */
+        fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
+            this.remoteEntry = remoteEntry
+            return this
+        }
+
         /**
          * Builds an instance of [BeginCreateCredentialProviderResponse]
          *
          * @throws IllegalArgumentException If [createEntries] is empty
          */
         fun build(): BeginCreateCredentialProviderResponse {
-            return BeginCreateCredentialProviderResponse(createEntries, header)
+            return BeginCreateCredentialProviderResponse(createEntries, remoteEntry, header)
         }
     }
 
@@ -86,6 +94,11 @@ class BeginCreateCredentialProviderResponse constructor(
                     Log.i(TAG, "Issue while creating framework class: " + e.message)
                 }
             }
+            builder.setRemoteCreateEntry(response.remoteEntry?.let {
+                RemoteEntry.toFrameworkCreateEntryClass(
+                    it
+                )
+            })
             return builder.build()
         }
     }

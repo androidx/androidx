@@ -15,13 +15,15 @@
  */
 package androidx.credentials.provider
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
-import android.graphics.drawable.Icon
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import java.util.Collections
 
 /**
  * An actionable entry that is shown on the user selector. When selected,
@@ -35,7 +37,6 @@ import androidx.annotation.VisibleForTesting
  * action entry
  * @property pendingIntent the [PendingIntent] to be invoked when user
  * selects this action entry
- * @property icon the icon to be displayed on the UI with this action entry
  *
  * @hide
  */
@@ -44,7 +45,6 @@ class Action constructor(
     val title: CharSequence,
     val subTitle: CharSequence?,
     val pendingIntent: PendingIntent,
-    val icon: Icon?
     ) {
 
     init {
@@ -52,24 +52,62 @@ class Action constructor(
     }
 
     companion object {
+        private const val TAG = "Action"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_TITLE = "HINT_ACTION_TITLE"
+        internal const val SLICE_HINT_TITLE =
+            "androidx.credentials.provider.action.HINT_ACTION_TITLE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_SUBTITLE = "HINT_ACTION_SUBTEXT"
+        internal const val SLICE_HINT_SUBTITLE =
+            "androidx.credentials.provider.action.HINT_ACTION_SUBTEXT"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_ICON = "HINT_ACTION_ICON"
+        internal const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.action.SLICE_HINT_PENDING_INTENT"
 
         @JvmStatic
         fun toSlice(action: Action): Slice {
             // TODO("Put the right spec and version value")
-            return Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
                 .addText(action.title, /*subType=*/null,
                     listOf(SLICE_HINT_TITLE))
                 .addText(action.subTitle, /*subType=*/null,
                     listOf(SLICE_HINT_SUBTITLE))
-                .addIcon(action.icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
-                .build()
+            sliceBuilder.addAction(action.pendingIntent,
+                Slice.Builder(sliceBuilder)
+                    .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
+                    .build(),
+                /*subType=*/null)
+            return sliceBuilder.build()
+        }
+
+        /**
+         * Returns an instance of [Action] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [toSlice]
+         */
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): Action? {
+            // TODO("Put the right spec and version value")
+            var title: CharSequence = ""
+            var subTitle: CharSequence? = null
+            var pendingIntent: PendingIntent? = null
+
+            slice.items.forEach {
+                if (it.hasHint(SLICE_HINT_TITLE)) {
+                    title = it.text
+                } else if (it.hasHint(SLICE_HINT_SUBTITLE)) {
+                    subTitle = it.text
+                } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
+                    pendingIntent = it.action
+                }
+            }
+
+            return try {
+                Action(title, subTitle, pendingIntent!!)
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
         }
 
         @JvmStatic
