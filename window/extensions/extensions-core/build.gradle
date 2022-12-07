@@ -48,7 +48,6 @@ androidx {
     name = "Jetpack WindowManager library Core Extensions"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
-    mavenGroup = LibraryGroups.WINDOW_EXTENSIONS
     inceptionYear = "2022"
     description = "The Core APIs for Window Manager Library Extensions"
 }
