@@ -29,7 +29,6 @@ androidx {
     name = "VersionedParcelable - Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
-    mavenGroup = LibraryGroups.VERSIONEDPARCELABLE
     inceptionYear = "2018"
     description = "Annotation processor for VersionedParcelable"
 }

@@ -45,7 +45,6 @@ androidx {
     name = "AndroidX Security Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
-    mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
 }

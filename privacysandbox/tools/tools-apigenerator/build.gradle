@@ -61,7 +61,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-apigenerator"
     type = LibraryType.OTHER_CODE_PROCESSOR
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
     runApiTasks = new RunApiTasks.No("API still under active development.")

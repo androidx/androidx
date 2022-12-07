@@ -138,7 +138,6 @@ dependencies {
 androidx {
     name = "Android Support Library collections"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
 }

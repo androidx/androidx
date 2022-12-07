@@ -60,7 +60,6 @@ dependencies {
 androidx {
     name = "Jetpack WindowManager library samples"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2020"
     description = "Demo of Jetpack WindowManager library APIs"
 }

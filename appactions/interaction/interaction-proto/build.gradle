@@ -34,7 +34,6 @@ android {
 androidx {
     name = "androidx.appactions.interaction:interaction-proto"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.APPACTIONS_INTERACTION
     inceptionYear = "2022"
     description = "Protos for use with App Action interaction libraries."
 }

@@ -32,7 +32,6 @@ android {
 androidx {
     name = "ProtoLayout Dynamic Expression"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_PROTOLAYOUT
     inceptionYear = "2022"
     description = "Create dynamic expressions (for late evaluation by a remote evaluator)."
 }

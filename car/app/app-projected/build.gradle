@@ -57,7 +57,6 @@ android {
 androidx {
     name = "Android for Cars App Library Projected Extension"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
 }

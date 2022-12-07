@@ -105,7 +105,6 @@ androidXMultiplatform {
 androidx {
     name = "Android DataStore"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"

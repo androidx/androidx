@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "Android Room-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Common"
 }

@@ -44,7 +44,6 @@ androidx {
     name = "Location Altitude Compatibility Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2022"
     description = "Provides compatibility APIs concerning location altitudes."
 }

@@ -42,5 +42,4 @@ android {
 
 androidx {
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    mavenGroup = LibraryGroups.BENCHMARK
 }

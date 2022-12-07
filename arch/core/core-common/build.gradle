@@ -31,7 +31,6 @@ dependencies {
 androidx {
     name = "Android Arch-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Common"
 }

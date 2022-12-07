@@ -45,7 +45,6 @@ dependencies {
 androidx {
     name = "Fragment Test Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
 }

@@ -67,7 +67,6 @@ android {
 androidx {
     name = "Android Wear Watchface Client"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Client library for controlling androidx watchfaces"
 }

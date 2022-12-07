@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "Android WorkManager RxJava2 Support"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false

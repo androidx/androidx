@@ -54,7 +54,6 @@ android {
 androidx {
     name = "AndroidX Leanback Grid"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LEANBACK
     mavenVersion = LibraryVersions.LEANBACK_GRID
     inceptionYear = "2021"
     description = "This library adds grid view components to be used in TV"

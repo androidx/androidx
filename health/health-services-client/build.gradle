@@ -76,7 +76,6 @@ androidx {
     name = "AndroidX Health Services Client Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
-    mavenGroup = LibraryGroups.HEALTH
     inceptionYear = "2021"
     description = "This library helps developers create performant health applications in a platform agnostic way"
 }

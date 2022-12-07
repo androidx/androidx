@@ -60,7 +60,6 @@ android {
 androidx {
     name = "Android Wear Compose Navigation"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "WearOS Compose Navigation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +

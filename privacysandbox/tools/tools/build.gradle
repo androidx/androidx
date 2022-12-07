@@ -30,7 +30,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Tools for communicating with SDKs running in the Privacy Sandbox."
     runApiTasks = new RunApiTasks.No("API still under active development.")

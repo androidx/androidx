@@ -33,7 +33,6 @@ android {
 androidx {
     name = "androidx.privacysandbox.sdkruntime:sdkruntime-core"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_SDKRUNTIME
     inceptionYear = "2022"
     description = "Provides components for SdkRuntime aware SDKs"
 }
