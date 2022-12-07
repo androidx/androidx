@@ -61,7 +61,6 @@ androidx {
 
     name = "AndroidX Metrics"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.METRICS
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
 }

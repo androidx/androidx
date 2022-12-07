@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "AndroidX Bluetooth Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BLUETOOTH
     inceptionYear = "2022"
     description = "AndroidX Bluetooth Framework Kotlin Library"
 }

@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "Samples library for TV packages"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.TV
     inceptionYear = "2022"
     description = "Contains the sample code for the APIs in the androidx.tv libraries"
 }

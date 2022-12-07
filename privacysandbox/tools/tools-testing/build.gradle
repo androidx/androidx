@@ -32,7 +32,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-testing"
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Testing utilities for privacysandbox tools."
 }

@@ -56,7 +56,6 @@ android {
 androidx {
     name = "androidx.privacysandbox.ads:ads-adservices-java"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_ADS
     inceptionYear = "2022"
     description = "write Java code to call PP APIs."
 }

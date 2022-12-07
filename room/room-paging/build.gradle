@@ -58,7 +58,6 @@ dependencies {
 androidx {
     name = "Room Paging"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2021"
     description = "Room Paging integration"
     publish = Publish.SNAPSHOT_AND_RELEASE

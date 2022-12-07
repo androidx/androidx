@@ -38,7 +38,6 @@ dependencies {
 androidx {
     name = "Biometric Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.BIOMETRIC
     inceptionYear = "2020"
     description = "Kotlin extensions for the Biometric Library."
 }

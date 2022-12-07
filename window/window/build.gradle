@@ -82,7 +82,6 @@ dependencies {
 androidx {
     name = "Jetpack WindowManager Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."

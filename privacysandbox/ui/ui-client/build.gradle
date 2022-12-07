@@ -34,7 +34,6 @@ android {
 androidx {
     name = "androidx.privacysandbox.ui:ui-client"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_UI
     inceptionYear = "2022"
     description = "show UI from an SDKRuntime aware SDK"
 }

@@ -73,6 +73,3 @@ android {
     }
 }
 
-androidx {
-    mavenGroup = LibraryGroups.DATASTORE
-}

@@ -49,5 +49,4 @@ dependencies {
 androidx {
     type = LibraryType.SAMPLES
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.CAR_APP
 }

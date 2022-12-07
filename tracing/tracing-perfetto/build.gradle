@@ -61,7 +61,6 @@ androidx {
     name = "AndroidX Tracing: Perfetto SDK"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
-    mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto SDK"
 }

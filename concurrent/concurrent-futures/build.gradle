@@ -31,7 +31,6 @@ dependencies {
 androidx {
     name = "AndroidX Futures"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.CONCURRENT
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
 }

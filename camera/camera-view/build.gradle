@@ -83,7 +83,6 @@ androidx {
     name = "Jetpack Camera View Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
 
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "UI tools for the Jetpack Camera Library, a library providing a consistent and " +
             "reliable camera foundation that enables great camera driven experiences across all " +

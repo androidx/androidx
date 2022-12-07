@@ -50,7 +50,6 @@ android {
 androidx {
     name = "Androidx library for Privacy Preserving APIs."
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_ADS
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "This library enables integration with Privacy Preserving APIs, which are part of Privacy Sandbox on Android."

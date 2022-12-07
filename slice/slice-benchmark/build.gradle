@@ -43,7 +43,6 @@ androidx {
     name = "Slices Benchmarks"
     publish = Publish.NONE
     mavenVersion = LibraryVersions.SLICE_BENCHMARK
-    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2018"
     description = "RecyclerView Benchmarks"
 }

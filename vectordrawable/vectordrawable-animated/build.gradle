@@ -37,7 +37,6 @@ androidx {
     name = "Android Support AnimatedVectorDrawable"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_ANIMATED
-    mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
     failOnDeprecationWarnings = false

@@ -28,7 +28,6 @@ android {
 androidx {
     name = "Android Glance Material"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2022"
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."

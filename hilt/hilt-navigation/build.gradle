@@ -35,7 +35,6 @@ androidx {
     name = "Android Navigation Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
-    mavenGroup = LibraryGroups.HILT
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
 }

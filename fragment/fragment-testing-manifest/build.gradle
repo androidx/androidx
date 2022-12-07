@@ -33,7 +33,6 @@ dependencies {
 androidx {
     name = "Fragment Testing Manifest dependency"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2022"
     description = "Fragment testing library that should be added as a debugImplementation dependency to add properties to the debug manifest necessary for testing an application"
 }

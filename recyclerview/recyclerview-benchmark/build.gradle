@@ -37,6 +37,3 @@ android {
     namespace "androidx.recyclerview.benchmark"
 }
 
-androidx {
-    mavenGroup = LibraryGroups.RECYCLERVIEW
-}

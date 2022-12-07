@@ -34,7 +34,6 @@ android {
 androidx {
     name = "androidx.privacysandbox.ui:ui-core"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_UI
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
 }
