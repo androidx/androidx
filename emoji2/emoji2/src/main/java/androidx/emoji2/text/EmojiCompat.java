@@ -1713,12 +1713,12 @@ public class EmojiCompat {
 
         @Override
         int getEmojiStart(@NonNull final CharSequence sequence, final int offset) {
-            return mProcessor.getEmojiStart(sequence, offset);
+            return mProcessor.getEmojiStart(sequence, offset, mEmojiCompat.mReplaceAll);
         }
 
         @Override
         int getEmojiEnd(@NonNull final CharSequence sequence, final int offset) {
-            return mProcessor.getEmojiEnd(sequence, offset);
+            return mProcessor.getEmojiEnd(sequence, offset, mEmojiCompat.mReplaceAll);
         }
 
         @Override
