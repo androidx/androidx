@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 
 import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterface;
@@ -33,13 +32,23 @@ import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterfac
 import java.io.FileNotFoundException;
 
 /**
- * TODO(1353048): Un-hide this after finishing the feature.
+ * WebView provides partial support for Android
+ * <a href="https://developer.android.com/develop/ui/views/touch-and-input/drag-drop">
+ * Drag and Drop</a> allowing images, text and links to be dragged out of a WebView.
  *
- * @hide
- * This should be added to the manifest in order to enable dragging images out.
+ * The content provider is required to make the images drag work, to enable, you should add this
+ * class to your manifest, for example:
+ *
+ * <pre class="prettyprint">
+ *  &lt;provider
+ *             android:authorities="{{your package}}.DropDataProvider"
+ *             android:name="androidx.webkit.DropDataContentProvider"
+ *             android:exported="false"
+ *             android:grantUriPermissions="true"/&gt;
+ * </pre>
+ *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class DropDataContentProvider extends ContentProvider {
+public final class DropDataContentProvider extends ContentProvider {
     DropDataContentProviderBoundaryInterface mImpl;
 
     @Override
