@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -108,17 +107,13 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_RELYING_PARTY = "androidx.credentials.BUNDLE_KEY_RELYING_PARTY"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_CLIENT_DATA_HASH =
+        internal const val BUNDLE_KEY_RELYING_PARTY =
+            "androidx.credentials.BUNDLE_KEY_RELYING_PARTY"
+        internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED =
+        internal const val BUNDLE_KEY_ALLOW_HYBRID = "androidx.credentials.BUNDLE_KEY_ALLOW_HYBRID"
+        internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        internal const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION" +
                 "_PRIVILEGED"
 

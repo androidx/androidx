@@ -88,13 +88,13 @@ class PendingIntentHandler {
         }
 
         /**
-         * Extract the [GetCredentialsProviderRequest] from the provider's
+         * Extract the [GetCredentialProviderRequest] from the provider's
          * [PendingIntent] invoked by the Android system.
          *
          * @hide
          */
         fun getGetCredentialsRequest(intent: Intent):
-            GetCredentialsProviderRequest? {
+            GetCredentialProviderRequest? {
             val frameworkReq = intent.getParcelableExtra(
                 "EXTRA_GET_CREDENTIAL_REQUEST",
                 GetCredentialsRequest::class.java
