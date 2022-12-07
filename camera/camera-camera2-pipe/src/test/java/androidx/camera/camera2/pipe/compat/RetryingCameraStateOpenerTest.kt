@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class VirtualCameraManagerTest {
+class RetryingCameraStateOpenerTest {
 
     private val fakeTimeSource = object : TimeSource {
         public var currentTimestamp = TimestampNs(0L)
@@ -42,7 +42,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_IN_USE,
                 1,
                 firstAttemptTimestamp,
@@ -57,7 +57,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(30_000_000_000L) // 30 seconds
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_IN_USE,
                 1,
                 firstAttemptTimestamp,
@@ -72,7 +72,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_UNDETERMINED,
                 1, firstAttemptTimestamp, fakeTimeSource
             )
@@ -85,7 +85,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_IN_USE,
                 1,
                 firstAttemptTimestamp,
@@ -95,7 +95,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should fail.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_IN_USE,
                 2,
                 firstAttemptTimestamp,
@@ -110,7 +110,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
                 1,
                 firstAttemptTimestamp,
@@ -120,7 +120,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should succeed as well.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED,
                 2,
                 firstAttemptTimestamp,
@@ -135,7 +135,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DISABLED,
                 1, firstAttemptTimestamp, fakeTimeSource
             )
@@ -143,7 +143,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should fail.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DISABLED,
                 2,
                 firstAttemptTimestamp,
@@ -158,7 +158,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DEVICE,
                 1,
                 firstAttemptTimestamp,
@@ -168,7 +168,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should succeed as well.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DEVICE,
                 2,
                 firstAttemptTimestamp,
@@ -183,7 +183,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_SERVICE,
                 1,
                 firstAttemptTimestamp,
@@ -193,7 +193,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should succeed as well.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_SERVICE,
                 2,
                 firstAttemptTimestamp,
@@ -208,7 +208,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DISCONNECTED,
                 1,
                 firstAttemptTimestamp,
@@ -218,7 +218,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should succeed as well.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_CAMERA_DISCONNECTED,
                 2,
                 firstAttemptTimestamp,
@@ -233,7 +233,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                 1,
                 firstAttemptTimestamp,
@@ -243,7 +243,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should succeed as well.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                 2,
                 firstAttemptTimestamp,
@@ -258,7 +258,7 @@ class VirtualCameraManagerTest {
         fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
 
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_SECURITY_EXCEPTION,
                 1, firstAttemptTimestamp, fakeTimeSource
             )
@@ -266,7 +266,7 @@ class VirtualCameraManagerTest {
 
         // Second attempt should fail.
         assertThat(
-            VirtualCameraManager.shouldRetry(
+            RetryingCameraStateOpener.shouldRetry(
                 CameraError.ERROR_SECURITY_EXCEPTION,
                 2,
                 firstAttemptTimestamp,
