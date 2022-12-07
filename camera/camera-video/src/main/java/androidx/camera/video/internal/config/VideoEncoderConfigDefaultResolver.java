@@ -27,6 +27,7 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace;
 import androidx.camera.video.internal.utils.DynamicRangeUtil;
 import androidx.core.util.Supplier;
 
@@ -107,6 +108,8 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
 
         int resolvedProfile = DynamicRangeUtil.dynamicRangeToCodecProfileLevelForMime(
                 mMimeType, mDynamicRange);
+        VideoEncoderDataSpace dataSpace =
+                VideoConfigUtil.mimeAndProfileToEncoderDataSpace(mMimeType, resolvedProfile);
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
@@ -115,6 +118,7 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)
                 .setProfile(resolvedProfile)
+                .setDataSpace(dataSpace)
                 .build();
     }
 

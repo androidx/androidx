@@ -25,6 +25,7 @@ import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.Timebase
 import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.video.VideoSpec
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -287,6 +288,88 @@ class VideoEncoderConfigDefaultResolverTest {
         }
     }
 
+    @Test
+    fun dataSpaceIsUnspecified_forUnsupportedMime() {
+        testMimeAndDynamicRangeResolvesToDataSpace(
+            UNSUPPORTED_MIME_TYPE,
+            DynamicRange.HLG_10_BIT,
+            VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+        )
+    }
+
+    @Test
+    fun dataSpaceIsChosenFromDynamicRange_hevc() {
+        val dynamicRangeToExpectedDataSpaces = mapOf(
+            // For backward compatibility, SDR maps to UNSPECIFIED
+            DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
+            DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
+            DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+            DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+        )
+
+        for (entry in dynamicRangeToExpectedDataSpaces) {
+            testMimeAndDynamicRangeResolvesToDataSpace(
+                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                entry.key,
+                entry.value
+            )
+        }
+    }
+
+    @Test
+    fun dataSpaceIsChosenFromDynamicRange_av1() {
+        val dynamicRangeToExpectedDataSpaces = mapOf(
+            // For backward compatibility, SDR maps to UNSPECIFIED
+            DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
+            DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
+            DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+            DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+        )
+
+        for (entry in dynamicRangeToExpectedDataSpaces) {
+            testMimeAndDynamicRangeResolvesToDataSpace(
+                MediaFormat.MIMETYPE_VIDEO_AV1,
+                entry.key,
+                entry.value
+            )
+        }
+    }
+
+    @Test
+    fun dataSpaceIsChosenFromDynamicRange_vp9() {
+        val dynamicRangeToExpectedDataSpaces = mapOf(
+            // For backward compatibility, SDR maps to UNSPECIFIED
+            DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
+            DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
+            DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+            DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+        )
+
+        for (entry in dynamicRangeToExpectedDataSpaces) {
+            testMimeAndDynamicRangeResolvesToDataSpace(
+                MediaFormat.MIMETYPE_VIDEO_VP9,
+                entry.key,
+                entry.value
+            )
+        }
+    }
+
+    @Test
+    fun dataSpaceIsChosenFromDynamicRange_dolbyVision() {
+        val dynamicRangeToExpectedDataSpaces = mapOf(
+            DynamicRange.DOLBY_VISION_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
+            DynamicRange.DOLBY_VISION_8_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT709,
+        )
+
+        for (entry in dynamicRangeToExpectedDataSpaces) {
+            testMimeAndDynamicRangeResolvesToDataSpace(
+                MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION,
+                entry.key,
+                entry.value
+            )
+        }
+    }
+
     private fun testMimeAndDynamicRangeResolveToProfile(
         mime: String,
         dynamicRange: DynamicRange,
@@ -304,6 +387,25 @@ class VideoEncoderConfigDefaultResolverTest {
             ).get().profile
         ).isEqualTo(
             expectedProfile
+        )
+    }
+
+    private fun testMimeAndDynamicRangeResolvesToDataSpace(
+        mime: String,
+        dynamicRange: DynamicRange,
+        expectedDataSpace: VideoEncoderDataSpace,
+    ) {
+        assertThat(
+            VideoEncoderConfigDefaultResolver(
+                mime,
+                TIMEBASE,
+                DEFAULT_VIDEO_SPEC,
+                EncoderProfilesUtil.RESOLUTION_1080P,
+                dynamicRange,
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+            ).get().dataSpace
+        ).isEqualTo(
+            expectedDataSpace
         )
     }
 }

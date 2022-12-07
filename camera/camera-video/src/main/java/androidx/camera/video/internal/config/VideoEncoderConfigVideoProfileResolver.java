@@ -28,6 +28,7 @@ import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace;
 import androidx.core.util.Supplier;
 
 import java.util.Objects;
@@ -101,6 +102,8 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
                 videoSpecBitrateRange);
 
         int resolvedProfile = mVideoProfile.getProfile();
+        VideoEncoderDataSpace dataSpace =
+                VideoConfigUtil.mimeAndProfileToEncoderDataSpace(mMimeType, resolvedProfile);
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
@@ -109,6 +112,7 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)
                 .setProfile(resolvedProfile)
+                .setDataSpace(dataSpace)
                 .build();
     }
 
