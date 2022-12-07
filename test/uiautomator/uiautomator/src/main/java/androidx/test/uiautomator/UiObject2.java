@@ -269,7 +269,6 @@ public class UiObject2 implements Searchable {
     }
 
     /** Returns the visible bounds of a {@code node}. */
-    @SuppressWarnings("RectIntersectReturnValueIgnored")
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
         Rect screen = new Rect();
         final int displayId = getDisplayId();
@@ -288,22 +287,7 @@ public class UiObject2 implements Searchable {
                 Log.d(TAG, String.format("Unable to get the display with id %d.", displayId));
             }
         }
-        Rect ret = AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen);
-
-        // Find the visible bounds of our first scrollable ancestor
-        for (AccessibilityNodeInfo ancestor = node.getParent(); ancestor != null;
-                ancestor = ancestor.getParent()) {
-            // If this ancestor is scrollable
-            if (ancestor.isScrollable()) {
-                // Trim any portion of the bounds that are hidden by the non-visible portion of our
-                // ancestor
-                Rect ancestorRect = getVisibleBounds(ancestor);
-                ret.intersect(ancestorRect);
-                break;
-            }
-        }
-
-        return ret;
+        return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen, true);
     }
 
     /** Returns a point in the center of this object's visible bounds. */
