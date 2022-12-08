@@ -48,6 +48,7 @@ class PendingIntentHandler {
          *
          * @hide
          */
+        @JvmStatic
         fun getCreateCredentialRequest(intent: Intent): CreateCredentialProviderRequest? {
             val frameworkReq: CreateCredentialRequest? =
                 intent.getParcelableExtra(
@@ -67,7 +68,7 @@ class PendingIntentHandler {
                         requireSystemProvider = false),
                 ApplicationInfo(
                     frameworkReq.callingPackage,
-                    arrayOf()
+                    ArrayList()
                 ))
         }
 
@@ -78,6 +79,7 @@ class PendingIntentHandler {
          *
          * @hide
          */
+        @JvmStatic
         fun setCreateCredentialResponse(
             intent: Intent,
             response: androidx.credentials.CreateCredentialResponse
@@ -93,6 +95,7 @@ class PendingIntentHandler {
          *
          * @hide
          */
+        @JvmStatic
         fun getGetCredentialsRequest(intent: Intent):
             GetCredentialProviderRequest? {
             val frameworkReq = intent.getParcelableExtra(
@@ -113,6 +116,7 @@ class PendingIntentHandler {
          *
          * @hide
          */
+        @JvmStatic
         // TODO ("Update to GetCredentialResponse when latest framework SDK is dropped")
         fun setGetCredentialResponse(
             intent: Intent,

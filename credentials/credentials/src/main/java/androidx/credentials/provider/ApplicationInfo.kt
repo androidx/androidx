@@ -30,7 +30,7 @@ import java.security.Signature
 class ApplicationInfo internal constructor(
     val appPackage: String,
     // TODO("Check for non empty when framework change available")
-    val appSignature: Array<Signature>
+    val appSignature: List<Signature>
     ) {
 
     init {

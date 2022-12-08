@@ -66,7 +66,7 @@ class PublicKeyCredentialEntry internal constructor(
         private var displayName: CharSequence? = null
         private var pendingIntent: PendingIntent? = null
         private var credential: Credential? = null
-        private var lastUsedTime: Long = 0
+        private var lastUsedTimeMillis: Long = 0
         private var icon: Icon? = null
 
         /**
@@ -111,8 +111,8 @@ class PublicKeyCredentialEntry internal constructor(
          *
          * This information will be used to sort the entries on the selector.
          */
-        fun setLastUsedTime(lastUsedTime: Long): Builder {
-            this.lastUsedTime = lastUsedTime
+        fun setLastUsedTimeMillis(lastUsedTimeMillis: Long): Builder {
+            this.lastUsedTimeMillis = lastUsedTimeMillis
             return this
         }
 
@@ -120,7 +120,7 @@ class PublicKeyCredentialEntry internal constructor(
         fun build(): PublicKeyCredentialEntry {
             return PublicKeyCredentialEntry(
                 username, displayName, pendingIntent,
-                credential, lastUsedTime, icon)
+                credential, lastUsedTimeMillis, icon)
         }
     }
 }

@@ -118,7 +118,7 @@ class PasswordCredentialEntry internal constructor(
          *
          * This information will be used to sort the entries on the selector.
          */
-        fun setLastUsedTime(lastUsedTimeMillis: Long): Builder {
+        fun setLastUsedTimeMillis(lastUsedTimeMillis: Long): Builder {
             this.lastUsedTimeMillis = lastUsedTimeMillis
             return this
         }

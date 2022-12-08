@@ -40,8 +40,8 @@ import java.util.Collections
 @RequiresApi(34)
 class RemoteEntry constructor(
     // TODO("Add a PublicKeyRemoteEntry as a derived class and set the type there")
-    val type: String = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     val pendingIntent: PendingIntent,
+    val type: String = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL
     ) {
     companion object {
         private const val TAG = "RemoteEntry"
@@ -93,7 +93,7 @@ class RemoteEntry constructor(
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     return try {
-                        RemoteEntry(type, it.action)
+                        RemoteEntry(it.action, type)
                     } catch (e: Exception) {
                         Log.i(TAG, "fromSlice failed with: " + e.message)
                         null
