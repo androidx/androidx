@@ -3297,6 +3297,114 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void tvExtenderSetGetChannelId() {
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
+        tvExtender.setChannelId("My cool channel");
+        assertEquals("My cool channel", tvExtender.getChannelId());
+    }
+
+    @Test
+    public void tvExtenderSetGetContentIntent() {
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        tvExtender.setContentIntent(intent);
+        assertEquals(intent, tvExtender.getContentIntent());
+    }
+
+    @Test
+    public void tvExtenderSetGetDeleteIntent() {
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        tvExtender.setDeleteIntent(intent);
+        assertEquals(intent, tvExtender.getDeleteIntent());
+    }
+
+    @Test
+    public void tvExtenderSetGetSuppressShowOverApps() {
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
+        tvExtender.setSuppressShowOverApps(true);
+        assertTrue(tvExtender.getSuppressShowOverApps());
+        tvExtender.setSuppressShowOverApps(false);
+        assertFalse(tvExtender.getSuppressShowOverApps());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void tvExtenderSetsExtras() {
+        PendingIntent contentIntent = createIntent("content");
+        PendingIntent deleteIntent = createIntent("delete");
+
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender()
+                .setChannelId("My cool channel")
+                .setContentIntent(contentIntent)
+                .setDeleteIntent(deleteIntent)
+                .setSuppressShowOverApps(true);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                "test channel")
+                .setSmallIcon(0)
+                .setContentTitle("title")
+                .setContentText("text");
+
+        builder = tvExtender.extend(builder);
+        Notification notification = builder.build();
+
+        Bundle tvExtensions =
+                notification.extras.getBundle(NotificationCompat.TvExtender.EXTRA_TV_EXTENDER);
+        assertNotNull(tvExtensions);
+        assertEquals("My cool channel",
+                tvExtensions.getString(NotificationCompat.TvExtender.EXTRA_CHANNEL_ID));
+        assertEquals(contentIntent,
+                ((PendingIntent) tvExtensions.getParcelable(
+                        NotificationCompat.TvExtender.EXTRA_CONTENT_INTENT)));
+        assertEquals(deleteIntent,
+                ((PendingIntent) tvExtensions.getParcelable(
+                        NotificationCompat.TvExtender.EXTRA_DELETE_INTENT)));
+        assertTrue(tvExtensions.getBoolean(
+                NotificationCompat.TvExtender.EXTRA_SUPPRESS_SHOW_OVER_APPS));
+        assertTrue(tvExtender.isAvailableOnTv());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void tvExtenderFromNotification() {
+        // Use TvExtender to set all the information in the Notification.
+        // Note that this relies on the tvExtenderSetsExtras to assure us of correctness.
+        PendingIntent contentIntent = createIntent("content");
+        PendingIntent deleteIntent = createIntent("delete");
+
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender()
+                .setChannelId("My cool channel")
+                .setContentIntent(contentIntent)
+                .setDeleteIntent(deleteIntent)
+                .setSuppressShowOverApps(true);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                "test channel")
+                .setSmallIcon(0)
+                .setContentTitle("title")
+                .setContentText("text");
+
+        builder = tvExtender.extend(builder);
+        Notification notification = builder.build();
+
+        // Recovers the tvExtender values from an already-extended Notification.
+        NotificationCompat.TvExtender recoveredExtender =
+                new NotificationCompat.TvExtender(notification);
+        assertEquals("My cool channel", recoveredExtender.getChannelId());
+        assertEquals(contentIntent, recoveredExtender.getContentIntent());
+        assertEquals(deleteIntent, recoveredExtender.getDeleteIntent());
+        assertTrue(recoveredExtender.getSuppressShowOverApps());
+        assertTrue(recoveredExtender.isAvailableOnTv());
+    }
+
+    @Test
+    public void emptyTvExtender() {
+        NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
+        assertTrue(tvExtender.isAvailableOnTv());
+    }
+
+    @Test
     public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
