@@ -165,7 +165,7 @@ internal class SurfaceControlUtils {
         ): HardwareBuffer
 
         init {
-            System.loadLibrary("sc-compat-test")
+            System.loadLibrary("graphics-core")
         }
     }
 }

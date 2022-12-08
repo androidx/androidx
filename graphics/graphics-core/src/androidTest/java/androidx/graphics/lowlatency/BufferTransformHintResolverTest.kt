@@ -34,6 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -155,6 +156,17 @@ internal class BufferTransformHintResolverTest() {
                 UNKNOWN_TRANSFORM,
                 getBufferTransformHintFromInstallOrientation(ORIENTATION_0, -123)
             )
+        }
+    }
+
+    @Test
+    fun testGetDisplayOrientationMethodLinked() {
+        try {
+            BufferTransformHintResolver.getDisplayOrientation()
+        } catch (linkError: UnsatisfiedLinkError) {
+            fail("Unable to resolve getDisplayOrientation")
+        } catch (exception: Exception) {
+            // Ignore other errors
         }
     }
 }

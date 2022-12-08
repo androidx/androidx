@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.hardware
+#ifndef ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H
+#define ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H
 
-/**
- * Helper class of jni bindings to verify dlopen/dlsym behavior to resolve sync_info_file and
- * sync_info_file_free methods
- */
-internal class SyncFenceBindings private constructor() {
-    companion object {
+jint loadBufferTransformHintResolverMethods(JNIEnv* env);
 
-        @JvmStatic
-        external fun nResolveSyncFileInfo(): Boolean
-
-        @JvmStatic
-        external fun nResolveSyncFileInfoFree(): Boolean
-
-        init {
-            System.loadLibrary("graphics-core")
-        }
-    }
-}
+#endif //ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H

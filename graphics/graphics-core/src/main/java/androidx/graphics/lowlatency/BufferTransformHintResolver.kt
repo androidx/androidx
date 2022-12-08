@@ -117,6 +117,7 @@ internal class BufferTransformHintResolver {
             System.loadLibrary("graphics-core")
         }
 
+        @JvmStatic
         external fun getDisplayOrientation(): String
     }
 }

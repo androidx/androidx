@@ -34,9 +34,7 @@ static constexpr int64_t SIGNAL_TIME_PENDING = INT64_MAX;
 #define ALOGW(msg, ...) \
     __android_log_print(ANDROID_LOG_ERROR, SYNC_FENCE, (msg))
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_androidx_hardware_SyncFence_nClose(JNIEnv *env, jobject thiz, jint fd) {
+void SyncFence_nClose(JNIEnv *env, jobject, jint fd) {
     close(fd);
 }
 
@@ -113,10 +111,7 @@ static void release_sync_file_info(struct sync_file_info* info) {
     }
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_androidx_hardware_SyncFence_nGetSignalTime(JNIEnv *env, jobject thiz,
-                                                jint fd) {
+jlong SyncFence_nGetSignalTime(JNIEnv *env, jobject, jint fd) {
     // Implementation sampled from Fence::getSignalTime in the framework
     if (fd == -1) {
         return SIGNAL_TIME_INVALID;
@@ -181,10 +176,7 @@ static int sync_wait(int fd, int timeout)
     return ret;
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_hardware_SyncFence_nWait(JNIEnv *env, jobject thiz, jint fd,
-                                       jint timeout_millis) {
+jboolean SyncFence_nWait(JNIEnv *env, jobject, jint fd, jint timeout_millis) {
     if (fd == -1) {
         return static_cast<jboolean>(true);
     }
@@ -196,18 +188,76 @@ Java_androidx_hardware_SyncFence_nWait(JNIEnv *env, jobject thiz, jint fd,
     return static_cast<jboolean>(err == 0);
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_hardware_SyncFenceBindings_00024Companion_nResolveSyncFileInfo(JNIEnv *env,
-                                                                             jobject thiz) {
+jboolean SyncFenceBindings_nResolveSyncFileInfo(JNIEnv *env, jclass) {
     load_libsync();
     return sync_file_info_ptr != nullptr;
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_hardware_SyncFenceBindings_00024Companion_nResolveSyncFileInfoFree(JNIEnv *env,
-                                                                                 jobject thiz) {
+jboolean SyncFenceBindings_nResolveSyncFileInfoFree(JNIEnv *env, jclass) {
     load_libsync();
     return sync_file_info_free_ptr != nullptr;
+}
+
+jint SyncFence_nDup(JNIEnv *env, jobject, jint fd) {
+    return static_cast<jint>(dup(static_cast<int>(fd)));
+}
+
+static const JNINativeMethod SYNC_FENCE_METHOD_TABLE[] = {
+        {
+            "nClose",
+            "(I)V",
+            (void*)SyncFence_nClose
+        },
+        {
+            "nGetSignalTime",
+            "(I)J",
+            (void*)SyncFence_nGetSignalTime
+        },
+        {
+            "nWait",
+            "(II)Z",
+            (void*)SyncFence_nWait
+        },
+        {
+            "nDup",
+            "(I)I",
+            (void*)SyncFence_nDup
+        }
+};
+
+static const JNINativeMethod SYNC_FENCE_TEST_METHOD_TABLE[] = {
+        {
+            "nResolveSyncFileInfo",
+            "()Z",
+            (void*)SyncFenceBindings_nResolveSyncFileInfo
+        },
+        {
+            "nResolveSyncFileInfoFree",
+            "()Z",
+            (void*)SyncFenceBindings_nResolveSyncFileInfoFree
+        }
+};
+
+jint loadSyncFenceMethods(JNIEnv* env) {
+    jclass syncFenceClass = env->FindClass("androidx/hardware/SyncFence");
+    if (syncFenceClass == nullptr) {
+        return JNI_ERR;
+    }
+
+    if (env->RegisterNatives(syncFenceClass, SYNC_FENCE_METHOD_TABLE,
+                             sizeof(SYNC_FENCE_METHOD_TABLE) / sizeof(JNINativeMethod)) != JNI_OK) {
+        return JNI_ERR;
+    }
+
+    jclass syncFenceTestBindings = env->FindClass("androidx/hardware/SyncFenceBindings");
+    if (syncFenceTestBindings == nullptr) {
+        return JNI_ERR;
+    }
+
+    if (env->RegisterNatives(syncFenceTestBindings, SYNC_FENCE_TEST_METHOD_TABLE,
+                    sizeof(SYNC_FENCE_TEST_METHOD_TABLE) / sizeof(JNINativeMethod)) != JNI_OK) {
+        return JNI_ERR;
+    }
+
+    return JNI_OK;
 }

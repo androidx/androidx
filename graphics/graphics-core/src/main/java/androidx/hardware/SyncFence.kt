@@ -148,7 +148,7 @@ class SyncFence(private var fd: Int) : AutoCloseable {
         const val SIGNAL_TIME_PENDING: Long = Long.MAX_VALUE
 
         init {
-            System.loadLibrary("sync-fence")
+            System.loadLibrary("graphics-core")
         }
     }
 }

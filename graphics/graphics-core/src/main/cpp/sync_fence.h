@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.hardware
+#ifndef ANDROIDX_SYNC_FENCE_H
+#define ANDROIDX_SYNC_FENCE_H
 
-/**
- * Helper class of jni bindings to verify dlopen/dlsym behavior to resolve sync_info_file and
- * sync_info_file_free methods
- */
-internal class SyncFenceBindings private constructor() {
-    companion object {
+jint loadSyncFenceMethods(JNIEnv* env);
 
-        @JvmStatic
-        external fun nResolveSyncFileInfo(): Boolean
-
-        @JvmStatic
-        external fun nResolveSyncFileInfoFree(): Boolean
-
-        init {
-            System.loadLibrary("graphics-core")
-        }
-    }
-}
+#endif //ANDROIDX_SYNC_FENCE_H
