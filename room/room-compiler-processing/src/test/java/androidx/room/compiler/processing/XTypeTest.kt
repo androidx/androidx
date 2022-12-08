@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_KTYPE_NAME
@@ -1449,6 +1450,79 @@ class XTypeTest {
                     assertThat(asMemberOf.parameterTypes.single().isTypeVariable()).isFalse()
                 }
             }
+        }
+    }
+
+    @Test
+    fun typeParameter_extendBound() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class Foo<E> {
+                fun justOneGeneric(): E = TODO()
+                fun listOfGeneric(): List<E> = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) {
+            val fooTypeElement = it.processingEnv.requireTypeElement("Foo")
+            fooTypeElement.getMethodByJvmName("justOneGeneric").returnType.let { type ->
+                assertThat(type.extendsBound()).isNull()
+            }
+            fooTypeElement.getMethodByJvmName("listOfGeneric").returnType.let { type ->
+                assertThat(type.extendsBound()).isNull()
+                type.typeArguments.forEach { typeArg ->
+                    assertThat(typeArg.extendsBound()).isNull()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun missingTypes_names() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            package test
+
+            class Foo {
+              fun bar(missing: MissingType) = TODO()
+              fun barQualified(missing: bar.MissingType) = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf(
+                "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"
+            ),
+        ) {
+            val fooTypeElement = it.processingEnv.requireTypeElement("test.Foo")
+            fooTypeElement.getMethodByJvmName("bar").parameters.single().let { param ->
+                if (it.isKsp) {
+                    // TODO(b/248552462): KSP doesn't expose simple names on error types, see:
+                    //  https://github.com/google/ksp/issues/1232
+                    assertThat(param.type.asTypeName())
+                        .isEqualTo(XClassName.get("error", "NonExistentClass"))
+                } else {
+                    assertThat(param.type.asTypeName())
+                        .isEqualTo(XClassName.get("", "MissingType"))
+                }
+            }
+            fooTypeElement.getMethodByJvmName("barQualified").parameters.single().let { param ->
+                if (it.isKsp) {
+                    // TODO(b/248552462): KSP doesn't expose simple names on error types, see:
+                    //  https://github.com/google/ksp/issues/1232
+                    assertThat(param.type.asTypeName())
+                        .isEqualTo(XClassName.get("error", "NonExistentClass"))
+                } else {
+                    assertThat(param.type.asTypeName())
+                        .isEqualTo(XClassName.get("", "bar.MissingType"))
+                }
+            }
+            it.assertCompilationResult { hasErrorContaining("Unresolved reference: MissingType") }
         }
     }
 }

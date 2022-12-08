@@ -178,7 +178,6 @@ internal fun ExecutableType.descriptor(): String {
  *
  * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
-@Suppress("DEPRECATION")
 internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() {
 
     override fun visitNoType(t: NoType, u: Unit): String = t.descriptor
@@ -197,8 +196,7 @@ internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() 
 
     override fun visitNull(t: NullType, u: Unit): String = visitUnknown(t, u)
 
-    override fun visitError(t: ErrorType, u: Unit): String =
-        throw TypeNotPresentException(t.toString(), null)
+    override fun visitError(t: ErrorType, u: Unit): String = visitDeclared(t, u)
 
     override fun visitIntersection(t: IntersectionType, u: Unit) = t.descriptor()
 
