@@ -42,10 +42,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
-import androidx.tv.foundation.lazy.LazyListBeyondBoundsInfo
 import androidx.tv.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.tv.foundation.lazy.lazyListBeyondBoundsModifier
-import androidx.tv.foundation.lazy.lazyListPinningModifier
 import androidx.tv.foundation.scrollableWithPivot
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
@@ -121,7 +118,6 @@ internal fun LazyList(
             )
             .clipScrollableContainer(orientation)
             .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
-            .lazyListPinningModifier(state, beyondBoundsInfo)
             .scrollableWithPivot(
                 orientation = orientation,
                 reverseDirection = ScrollableDefaults.reverseDirection(
@@ -321,6 +317,7 @@ private fun rememberLazyListMeasurePolicy(
             density = this,
             placementAnimator = placementAnimator,
             beyondBoundsInfo = beyondBoundsInfo,
+            pinnedItems = state.pinnedItems,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

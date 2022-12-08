@@ -48,7 +48,7 @@ internal fun rememberLazyListItemProvider(
         extraItemCount = { NearestItemsExtraItemCount }
     )
 
-    return remember(nearestItemsRangeState) {
+    return remember(nearestItemsRangeState, state) {
         val itemScope = TvLazyListItemScopeImpl()
         val itemProviderState = derivedStateOf {
             val listScope = TvLazyListScopeImpl().apply(latestContent.value)
@@ -56,7 +56,8 @@ internal fun rememberLazyListItemProvider(
                 listScope.intervals,
                 nearestItemsRangeState.value,
                 listScope.headerIndexes,
-                itemScope
+                itemScope,
+                state
             )
         }
         object : LazyListItemProvider,
@@ -73,13 +74,16 @@ private class LazyListItemProviderImpl(
     intervals: IntervalList<LazyListIntervalContent>,
     nearestItemsRange: IntRange,
     override val headerIndexes: List<Int>,
-    override val itemScope: TvLazyListItemScopeImpl
+    override val itemScope: TvLazyListItemScopeImpl,
+    state: TvLazyListState
 ) : LazyListItemProvider,
     LazyLayoutItemProvider by LazyLayoutItemProvider(
         intervals = intervals,
         nearestItemsRange = nearestItemsRange,
-        itemContent = { interval: LazyListIntervalContent, index: Int ->
-            interval.item.invoke(itemScope, index)
+        itemContent = { interval, index ->
+            LazyListPinnableContainerProvider(state, index) {
+                interval.value.item.invoke(itemScope, index - interval.startIndex)
+            }
         }
     )
 

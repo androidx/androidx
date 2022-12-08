@@ -86,7 +86,7 @@ private class LazyGridItemProviderImpl(
     intervals = intervals,
     nearestItemsRange = nearestItemsRange,
     itemContent = { interval, index ->
-        interval.item.invoke(TvLazyGridItemScopeImpl, index)
+        interval.value.item.invoke(TvLazyGridItemScopeImpl, index - interval.startIndex)
     }
 ) {
     override val spanLayoutProvider: LazyGridSpanLayoutProvider =
