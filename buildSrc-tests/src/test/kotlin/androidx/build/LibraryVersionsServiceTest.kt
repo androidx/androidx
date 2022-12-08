@@ -86,6 +86,34 @@ class LibraryVersionsServiceTest {
     }
 
     @Test
+    fun customComposeVersions() {
+        val toml = """
+            [versions]
+            COMPOSE_V1 = "1.2.3"
+            [groups]
+            COMPOSE = { group = "androidx.compose.suffix", atomicGroupVersion = "versions.COMPOSE_V1" }
+        """.trimIndent()
+        val noCustomVersion = createLibraryVersionsService(toml)
+        assertThat(
+            noCustomVersion.libraryGroups["COMPOSE"]
+        ).isEqualTo(
+            LibraryGroup(
+                group = "androidx.compose.suffix", atomicGroupVersion = Version("1.2.3")
+            )
+        )
+        val customComposeVersion = createLibraryVersionsService(
+            toml, composeCustomGroup = "not.androidx.compose", composeCustomVersion = "1.1.1"
+        )
+        assertThat(
+            customComposeVersion.libraryGroups["COMPOSE"]
+        ).isEqualTo(
+            LibraryGroup(
+                group = "not.androidx.compose.suffix", atomicGroupVersion = Version("1.1.1")
+            )
+        )
+    }
+
+    @Test
     fun missingVersionReference() {
         val service = createLibraryVersionsService(
             """
@@ -211,6 +239,8 @@ class LibraryVersionsServiceTest {
 
     private fun createLibraryVersionsService(
         tomlFile: String,
+        composeCustomVersion: String? = null,
+        composeCustomGroup: String? = null,
         useMultiplatformGroupVersions: Boolean = false
     ): LibraryVersionsService {
         val project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build()
@@ -219,6 +249,12 @@ class LibraryVersionsServiceTest {
         ) { spec ->
             spec.parameters.tomlFile = project.provider {
                 tomlFile
+            }
+            spec.parameters.composeCustomVersion = project.provider {
+                composeCustomVersion
+            }
+            spec.parameters.composeCustomGroup = project.provider {
+                composeCustomGroup
             }
             spec.parameters.useMultiplatformGroupVersions = project.provider {
                 useMultiplatformGroupVersions
