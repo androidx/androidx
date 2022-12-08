@@ -72,16 +72,18 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
             onListPresentable()
             /**
              * On new generation, SnapshotLoader needs the latest [ItemSnapshotList]
-             * index last updated by the initial refresh so that it can
-             * prepend/append from then on based on that index.
+             * state so that it can initialize lastAccessedIndex to prepend/append from onwards.
              *
-             * This last updated index is necessary because initial load
-             * key may not be 0, for example when [Pager].initialKey != 0
+             * This initial lastAccessedIndex is necessary because initial load
+             * key may not be 0, for example when [Pager].initialKey != 0. It is calculated
+             * based on [ItemSnapshotList.placeholdersBefore] + [1/2 initial load size] to match
+             * the initial ViewportHint that [PagingDataDiffer.presentNewList] sends on
+             * first generation to auto-trigger prefetches on either direction.
              *
              * Any subsequent SnapshotLoader loads are based on the index tracked by
              * [SnapshotLoader] internally.
              */
-            val lastLoadedIndex = snapshot().placeholdersBefore + snapshot().items.size - 1
+            val lastLoadedIndex = snapshot().placeholdersBefore + (snapshot().items.size / 2)
             loader.generations.value.lastAccessedIndex.set(lastLoadedIndex)
             return null
         }
