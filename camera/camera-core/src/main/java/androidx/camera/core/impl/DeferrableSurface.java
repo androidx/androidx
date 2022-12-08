@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -127,7 +128,7 @@ public abstract class DeferrableSurface {
     /**
      * Creates a new DeferrableSurface which has no use count.
      *
-     * @param size  the {@link Size} of the surface
+     * @param size   the {@link Size} of the surface
      * @param format the stream configuration format that the provided Surface will be used on.
      */
     public DeferrableSurface(@NonNull Size size, int format) {
@@ -337,6 +338,15 @@ public abstract class DeferrableSurface {
     public int getUseCount() {
         synchronized (mLock) {
             return mUseCount;
+        }
+    }
+
+    /** @hide */
+    @VisibleForTesting
+    @RestrictTo(Scope.TESTS)
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mClosed;
         }
     }
 
