@@ -26,6 +26,7 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_15;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_16;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_17;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
@@ -63,6 +64,7 @@ import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.impl.Migration_11_12;
 import androidx.work.impl.Migration_12_13;
 import androidx.work.impl.Migration_15_16;
+import androidx.work.impl.Migration_16_17;
 import androidx.work.impl.Migration_1_2;
 import androidx.work.impl.Migration_3_4;
 import androidx.work.impl.Migration_4_5;
@@ -600,6 +602,27 @@ public class WorkDatabaseMigrationTest {
         if (cursor.getCount() > 0) {
             throw new AssertionError("failed check");
         }
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion16_17() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_16);
+        String idOne = UUID.randomUUID().toString();
+        String idTwo = UUID.randomUUID().toString();
+        ContentValues valuesOne = contentValuesPre16(idOne);
+        valuesOne.remove("input_merger_class_name");
+        database.insert("workspec", CONFLICT_FAIL, valuesOne);
+        ContentValues valuesTwo = contentValuesPre16(idTwo);
+        database.insert("workspec", CONFLICT_FAIL, valuesTwo);
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_17, true,
+                Migration_16_17.INSTANCE);
+        Cursor workSpecs = database.query("SELECT id FROM WorkSpec");
+        assertThat(workSpecs.getCount(), is(1));
+        assertThat(workSpecs.moveToFirst(), is(true));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(idTwo));
         database.close();
     }
 

@@ -156,6 +156,7 @@ abstract class WorkDatabase : RoomDatabase() {
                 .addMigrations(Migration_11_12)
                 .addMigrations(Migration_12_13)
                 .addMigrations(Migration_15_16)
+                .addMigrations(Migration_16_17)
                 .fallbackToDestructiveMigration()
                 .build()
         }
