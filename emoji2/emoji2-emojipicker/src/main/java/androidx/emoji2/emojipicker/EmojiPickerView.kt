@@ -19,6 +19,7 @@ package androidx.emoji2.emojipicker
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import androidx.core.util.Consumer
 import androidx.core.view.ViewCompat
@@ -38,16 +39,17 @@ import kotlinx.coroutines.withContext
  */
 class EmojiPickerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) :
-    FrameLayout(context, attrs) {
+    FrameLayout(context, attrs, defStyleAttr) {
     /**
-     * This is the number of rows displayed in emoji picker. Some apps like Gboard have their
-     * default values(e.g. 7.5f which means there are height of 7.5 rows displayed on the UI).
-     * Clients could specify this value by their own. The default value will be used if
-     * emojiGridRows is set to non-positive value. Float value indicates that we will display
-     * partial of the last row and have content down, so the users get the idea that they can scroll
-     * down for more contents.
+     * The number of rows of the emoji picker.
+     *
+     * Default value will be used if emojiGridRows is set to non-positive value. Float value
+     * indicates that we will display partial of the last row and have content down, so the users
+     * get the idea that they can scroll down for more contents.
+     * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridRows
      */
     var emojiGridRows: Float = EmojiPickerConstants.DEFAULT_BODY_ROWS
         set(value) {
@@ -55,9 +57,10 @@ class EmojiPickerView @JvmOverloads constructor(
         }
 
     /**
-     * This is the number of columns of emoji picker. Some apps like Gboard have their default
-     * values(e.g. 9). Clients could specify this value by their own. The default value will be used
-     * if emojiGridColumns is set to non-positive value.
+     * The number of columns of the emoji picker.
+     *
+     * Default value will be used if emojiGridColumns is set to non-positive value.
+     * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridColumns
      */
     var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         set(value) {
@@ -232,5 +235,17 @@ class EmojiPickerView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Disallow clients to add view to the EmojiPickerView
+     *
+     * @param child the child view to be added
+     * @throws UnsupportedOperationException
+     */
+    override fun addView(child: View?) {
+        throw UnsupportedOperationException(
+            "Adding views to the EmojiPickerView is unsupported"
+        )
     }
 }
