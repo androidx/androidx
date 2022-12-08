@@ -26,6 +26,7 @@
 #include <android/sync.h>
 #include <android/hardware_buffer_jni.h>
 #include <mutex>
+#include "egl_utils.h"
 
 #define EGL_UTILS "EglUtils"
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, EGL_UTILS, __VA_ARGS__)
@@ -207,10 +208,8 @@ static PFNEGLDESTROYSYNCKHRPROC obtainEglDestroySyncKHR() {
             eglGetProcAddress("eglDestroySyncKHR"));
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nCreateImageFromHardwareBuffer(
-        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jobject hardware_buffer) {
+jlong EGLBindings_nCreateImageFromHardwareBuffer(
+        JNIEnv *env, jclass , jlong egl_display_ptr, jobject hardware_buffer) {
     static std::once_flag eglGetNativeClientBufferANDROIDFlag;
     static std::once_flag eglCreateImageKHRFlag;
     std::call_once(eglGetNativeClientBufferANDROIDFlag, [](){
@@ -246,10 +245,8 @@ Java_androidx_opengl_EGLBindings_00024Companion_nCreateImageFromHardwareBuffer(
     return reinterpret_cast<jlong>(image);
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nDestroyImageKHR(
-        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong egl_image_ptr) {
+jboolean EGLBindings_nDestroyImageKHR(
+        JNIEnv *env, jclass, jlong egl_display_ptr, jlong egl_image_ptr) {
     static std::once_flag eglDestroyImageKHRFlag;
     std::call_once(eglDestroyImageKHRFlag, [](){
         eglDestroyImageKHR = obtainEglDestroyImageKHR();
@@ -264,10 +261,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nDestroyImageKHR(
     return static_cast<jboolean>(eglDestroyImageKHR(display, eglImage));
 }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nImageTargetTexture2DOES(
-        JNIEnv *env, jobject thiz, jint target, jlong egl_image_ptr) {
+void EGLBindings_nImageTargetTexture2DOES(JNIEnv *env, jclass, jint target, jlong egl_image_ptr) {
     static std::once_flag glEGLImageTargetTexture2DOESFlag;
     std::call_once(glEGLImageTargetTexture2DOESFlag, [](){
         glEGLImageTargetTexture2DOES = obtainGlImageTargetTexture2DOES();
@@ -280,10 +274,8 @@ Java_androidx_opengl_EGLBindings_00024Companion_nImageTargetTexture2DOES(
     glEGLImageTargetTexture2DOES(target, reinterpret_cast<EGLImage>(egl_image_ptr));
 }
 
-extern "C"
-JNIEXPORT jint JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nDupNativeFenceFDANDROID(
-        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
+jint EGLBindings_nDupNativeFenceFDANDROID(JNIEnv *env, jclass, jlong egl_display_ptr,
+                                          jlong sync_ptr) {
     static std::once_flag eglDupNativeFenceFDANDROIDflag;
     std::call_once(eglDupNativeFenceFDANDROIDflag, [](){
         eglDupNativeFenceFDANDROID = obtainEglDupNativeFenceFDANDROID();
@@ -298,11 +290,8 @@ Java_androidx_opengl_EGLBindings_00024Companion_nDupNativeFenceFDANDROID(
     return (jint)eglDupNativeFenceFDANDROID(display, sync);
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nCreateSyncKHR(
-        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jint type,
-        jintArray attrs) {
+jlong EGLBindings_nCreateSyncKHR(JNIEnv *env, jclass, jlong egl_display_ptr, jint type,
+                                 jintArray attrs) {
     static std::once_flag eglCreateSyncKHRFlag;
     std::call_once(eglCreateSyncKHRFlag, [](){
         eglCreateSyncKHR = obtainEglCreateSyncKHR();
@@ -357,11 +346,9 @@ static int jniThrowIllegalArgumentException(JNIEnv* env, const char* msg) {
     }
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nGetSyncAttribKHR(
+jboolean EGLBindings_nGetSyncAttribKHR(
         JNIEnv *env,
-        jobject thiz,
+        jclass,
         jlong egl_display_ptr,
         jlong sync_ptr,
         jint attrib,
@@ -404,16 +391,14 @@ Java_androidx_opengl_EGLBindings_00024Companion_nGetSyncAttribKHR(
     return success;
 }
 
-extern "C"
-JNIEXPORT jint JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nClientWaitSyncKHR(
+jint EGLBindings_nClientWaitSyncKHR(
         JNIEnv *env,
-        jobject thiz,
+        jclass,
         jlong egl_display_ptr,
         jlong sync_ptr,
         jint flags,
         jlong timeout
-) {
+        ) {
     static std::once_flag eglClientWaitKRFlag;
     std::call_once(eglClientWaitKRFlag, []() {
         eglClientWaitSyncKHR = obtainEglClientWaitSyncKHR();
@@ -426,10 +411,12 @@ Java_androidx_opengl_EGLBindings_00024Companion_nClientWaitSyncKHR(
     return static_cast<jint>(eglClientWaitSyncKHR(display, sync, wait_flags, wait_timeout));
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nDestroySyncKHR(
-        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
+jboolean EGLBindings_nDestroySyncKHR(
+        JNIEnv *env,
+        jclass,
+        jlong egl_display_ptr,
+        jlong sync_ptr
+        ) {
     static std::once_flag eglDestroySyncKHRFlag;
     std::call_once(eglDestroySyncKHRFlag, [](){
         eglDestroySyncKHR = obtainEglDestroySyncKHR();
@@ -448,10 +435,8 @@ Java_androidx_opengl_EGLBindings_00024Companion_nDestroySyncKHR(
  * Helper method used in testing to verify if the eglGetNativeClientBufferANDROID method
  * is actually supported on the Android device.
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetNativeClientBufferAndroid(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglGetNativeClientBufferAndroid(
+        JNIEnv *env, jclass) {
     return obtainEglGetNativeClientBufferANDROID() != nullptr;
 }
 
@@ -459,10 +444,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetNativeClientBuffe
  * Helper method used in testing to verify if the eglCreateImageKHR method
  * is actually supported on the Android device.
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateImageKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglCreateImageKHR(JNIEnv *env, jclass) {
     return obtainEglCreateImageKHR() != nullptr;
 }
 
@@ -470,10 +452,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateImageKHR(
  * Helper method used in testing to verify if the eglDestroyImageKHR method
  * is actually supported on the Android device.
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroyImageKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglDestroyImageKHR(JNIEnv *env, jclass) {
     return obtainEglDestroyImageKHR() != nullptr;
 }
 
@@ -481,10 +460,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroyImageKHR(
  * Helper method used in testing to verify if the glImageTargetTexture2DOES method
  * is actually supported on the Android device.
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsGlImageTargetTexture2DOES(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsGlImageTargetTexture2DOES(JNIEnv *env, jclass) {
     return obtainGlImageTargetTexture2DOES() != nullptr;
 }
 
@@ -492,10 +468,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsGlImageTargetTexture2DO
  * Helper method used in testing to verify if the eglCreateSyncKHR method is actually supported
  * on the Android device
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateSyncKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglCreateSyncKHR(JNIEnv *env, jclass) {
     return obtainEglCreateSyncKHR() != nullptr;
 }
 
@@ -503,10 +476,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateSyncKHR(
  * Helper method used in testing to verify if the eglDestroySyncKHR method is actually supported
  * on the Android device
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglDestroySyncKHR(JNIEnv *env, jclass) {
     return obtainEglDestroySyncKHR() != nullptr;
 }
 
@@ -514,10 +484,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
  * Helper method used in testing to verify if the eglDupNativeFenceFDAndroid methid is actually
  * supported on the Android device
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsDupNativeFenceFDANDROID(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsDupNativeFenceFDANDROID(JNIEnv *env, jclass) {
     return obtainEglDupNativeFenceFDANDROID() != nullptr;
 }
 
@@ -525,10 +492,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsDupNativeFenceFDANDROID
  * Helper method used in testing to verify if the eglGetSyncAttribKHR method is actually supported
  * on the Android device
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetSyncAttribKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglGetSyncAttribKHR(JNIEnv *env, jclass) {
     return obtainEglGetSyncAttribKHR() != nullptr;
 }
 
@@ -536,10 +500,7 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetSyncAttribKHR(
  * Helper method used in testing to verify if the eglClientWaitSyncKHR method is actually supported
  * on the Android device
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglClientWaitSyncKHR(
-        JNIEnv *env, jobject thiz) {
+jboolean EGLBindings_nSupportsEglClientWaitSyncKHR(JNIEnv *env, jclass) {
     return obtainEglClientWaitSyncKHR() != nullptr;
 }
 
@@ -547,9 +508,111 @@ Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglClientWaitSyncKHR(
  * Java does not support unsigned long types. Ensure that our casting of Java types the native
  * equivalent matches.
  */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_opengl_EGLBindings_00024Companion_nEqualToNativeForeverTimeout(
-        JNIEnv *env, jobject thiz, jlong timeout_nanos) {
+jboolean EGLBindings_nEqualToNativeForeverTimeout(JNIEnv *env, jclass, jlong timeout_nanos) {
     return static_cast<EGLTimeKHR>(timeout_nanos) == EGL_FOREVER_KHR;
+}
+
+static const JNINativeMethod EGL_METHOD_TABLE[] = {
+        {
+            "nCreateImageFromHardwareBuffer",
+            "(JLandroid/hardware/HardwareBuffer;)J",
+            (void*)EGLBindings_nCreateImageFromHardwareBuffer
+        },
+        {
+            "nDestroyImageKHR",
+            "(JJ)Z",
+            (void*)EGLBindings_nDestroyImageKHR
+        },
+        {
+            "nImageTargetTexture2DOES",
+            "(IJ)V",
+            (void*)EGLBindings_nImageTargetTexture2DOES
+        },
+        {
+            "nDupNativeFenceFDANDROID",
+            "(JJ)I",
+            (void*)EGLBindings_nDupNativeFenceFDANDROID
+        },
+        {
+            "nCreateSyncKHR",
+            "(JI[I)J",
+            (void*)EGLBindings_nCreateSyncKHR
+        },
+        {
+            "nGetSyncAttribKHR",
+            "(JJI[II)Z",
+            (void*)EGLBindings_nGetSyncAttribKHR
+        },
+        {
+            "nClientWaitSyncKHR",
+            "(JJIJ)I",
+            (void*)EGLBindings_nClientWaitSyncKHR
+        },
+        {
+            "nDestroySyncKHR",
+            "(JJ)Z",
+            (void*)EGLBindings_nDestroySyncKHR
+        },
+        {
+            "nSupportsEglGetNativeClientBufferAndroid",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglGetNativeClientBufferAndroid
+        },
+        {
+            "nSupportsEglCreateImageKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglCreateImageKHR
+        },
+        {
+            "nSupportsEglDestroyImageKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglDestroyImageKHR
+        },
+        {
+            "nSupportsGlImageTargetTexture2DOES",
+            "()Z",
+            (void*)EGLBindings_nSupportsGlImageTargetTexture2DOES
+        },
+        {
+            "nSupportsEglCreateSyncKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglCreateSyncKHR
+        },
+        {
+            "nSupportsEglDestroySyncKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglDestroySyncKHR
+        },
+        {
+            "nSupportsDupNativeFenceFDANDROID",
+            "()Z",
+            (void*)EGLBindings_nSupportsDupNativeFenceFDANDROID
+        },
+        {
+            "nSupportsEglGetSyncAttribKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglGetSyncAttribKHR
+        },
+        {
+            "nSupportsEglClientWaitSyncKHR",
+            "()Z",
+            (void*)EGLBindings_nSupportsEglClientWaitSyncKHR
+        },
+        {
+            "nEqualToNativeForeverTimeout",
+            "(J)Z",
+            (void*)EGLBindings_nEqualToNativeForeverTimeout
+        }
+};
+
+jint loadEGLMethods(JNIEnv* env) {
+    jclass eglBindingsClass = env->FindClass("androidx/opengl/EGLBindings");
+    if (eglBindingsClass == nullptr) {
+        return JNI_ERR;
+    }
+    if (env->RegisterNatives(eglBindingsClass, EGL_METHOD_TABLE,
+                             sizeof(EGL_METHOD_TABLE) / sizeof(JNINativeMethod)) != JNI_OK) {
+        return JNI_ERR;
+    }
+    return JNI_OK;
 }

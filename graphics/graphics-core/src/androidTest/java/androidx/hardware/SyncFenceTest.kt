@@ -24,14 +24,15 @@ import androidx.test.filters.SmallTest
 import org.junit.Assert
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @SmallTest
 class SyncFenceTest {
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testDupSyncFenceFd() {
         val fileDescriptor = 7
@@ -40,7 +41,17 @@ class SyncFenceTest {
         Assert.assertNotEquals(fileDescriptor, JniBindings.nDupFenceFd(syncFence))
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    @Test
+    fun testWaitMethodLink() {
+        try {
+            SyncFence(8).await(1000)
+        } catch (linkError: UnsatisfiedLinkError) {
+            fail("Unable to resolve wait method")
+        } catch (exception: Exception) {
+            // Ignore other exceptions
+        }
+    }
+
     @Test
     fun testDupSyncFenceFdWhenInvalid() {
         // If the fence is invalid there should be no attempt to dup the fd it and -1
@@ -65,7 +76,6 @@ class SyncFenceTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testIsValid() {
         assertFalse(SyncFence(-1).isValid())

@@ -12,6 +12,9 @@ project("graphics-core")
 
 add_definitions(-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Oz -fvisibility=hidden -flto -fPIC -fno-exceptions -fno-rtti -fomit-frame-pointer -fdata-sections -ffunction-sections")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Oz -fvisibility=hidden -flto -fPIC -fno-exceptions -fno-rtti -fomit-frame-pointer -fdata-sections -ffunction-sections")
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -25,17 +28,11 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              graphics-core.cpp
-             egl_utils.cpp)
-
-add_library(
-            sync-fence
-            SHARED
-            sync_fence.cpp)
-
-add_library(
-        sc-compat-test
-        SHARED
-        sc_test_utils.cpp)
+             egl_utils.cpp
+             sync_fence.cpp
+             buffer_transform_hint_resolver.cpp
+             sc_test_utils.cpp
+        )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -64,12 +61,3 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        android)
 
-target_link_libraries(
-                    sync-fence
-                    ${log-lib}
-                    android)
-
-target_link_libraries(
-        sc-compat-test
-        ${log-lib}
-        android)
