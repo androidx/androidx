@@ -58,6 +58,7 @@ public object Outputs {
         // Be explicit about the TimeZone for stable formatting
         formatter.timeZone = TimeZone.getTimeZone("UTC")
 
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         @SuppressLint("NewApi")
         dirUsableByAppAndShell = when {
             Build.VERSION.SDK_INT >= 29 -> {
@@ -66,13 +67,13 @@ public object Outputs {
                 // Additionally, Benchmarks append user space traces to the ones produced
                 // by the Macro Benchmark run; and that is a lot simpler to do if we use the
                 // Media directory. (b/216588251)
-                InstrumentationRegistry.getInstrumentation().context.getFirstMountedMediaDir()
+                context.getFirstMountedMediaDir()
             }
             Build.VERSION.SDK_INT <= 22 -> {
                 // prior to API 23, shell didn't have access to externalCacheDir
-                InstrumentationRegistry.getInstrumentation().context.cacheDir
+                context.cacheDir
             }
-            else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
+            else -> context.externalCacheDir
         } ?: throw IllegalStateException(
             "Unable to select a directory for writing files, " +
                 "additionalTestOutputDir argument required to declare output dir."
