@@ -99,13 +99,13 @@ public final class ImageProcessingUtil {
     /**
      * Copies information from a given Bitmap to the address of the ByteBuffer
      *
-     * @param bitmap     source bitmap
-     * @param byteBuffer destination ByteBuffer
+     * @param bitmap            source bitmap
+     * @param byteBuffer        destination ByteBuffer
+     * @param bufferStride      the stride of the ByteBuffer
      */
     public static void copyBitmapToByteBuffer(@NonNull Bitmap bitmap,
-            @NonNull ByteBuffer byteBuffer) {
+            @NonNull ByteBuffer byteBuffer, int bufferStride) {
         int bitmapStride = bitmap.getRowBytes();
-        int bufferStride = bitmap.getWidth() * 4;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bitmapStride, bufferStride, width,
@@ -115,13 +115,14 @@ public final class ImageProcessingUtil {
     /**
      * Copies information from a ByteBuffer to the address of the Bitmap
      *
-     * @param bitmap     destination Bitmap
-     * @param byteBuffer source ByteBuffer
+     * @param bitmap            destination Bitmap
+     * @param byteBuffer        source ByteBuffer
+     * @param bufferStride      the stride of the ByteBuffer
+     *
      */
     public static void copyByteBufferToBitmap(@NonNull Bitmap bitmap,
-            @NonNull ByteBuffer byteBuffer) {
+            @NonNull ByteBuffer byteBuffer, int bufferStride) {
         int bitmapStride = bitmap.getRowBytes();
-        int bufferStride = bitmap.getWidth() * 4;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bufferStride, bitmapStride, width,
