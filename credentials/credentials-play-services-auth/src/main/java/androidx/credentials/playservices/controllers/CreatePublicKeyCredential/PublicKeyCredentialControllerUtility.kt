@@ -116,9 +116,7 @@ class PublicKeyCredentialControllerUtility {
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
             } else {
-                Log.e(
-                    TAG,
-                    "Expected registration response but got: " +
+                Log.e(TAG, "Expected registration response but got: " +
                         authenticatorResponse.javaClass.name)
             }
 
