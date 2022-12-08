@@ -26,19 +26,22 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
  */
+@CameraScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class FocusMeteringControl(
+class FocusMeteringControl @Inject constructor(
     val cameraProperties: CameraProperties,
     val useCaseManager: UseCaseManager,
     val threads: UseCaseThreads,
@@ -47,9 +50,11 @@ class FocusMeteringControl(
         cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
     fun startFocusAndMetering(
-        action: FocusMeteringAction,
-        defaultAspectRatio: Rational
+        action: FocusMeteringAction
     ): ListenableFuture<FocusMeteringResult> {
+        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
+        val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+
         // TODO(sushilnath): Throw a proper exception when (a). camera is null, (b) all of ae, af
         return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera!!.startFocusAndMeteringAsync(
@@ -71,6 +76,33 @@ class FocusMeteringControl(
                 afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
             ).await().toFocusMeteringResult(true)
         }.asListenableFuture()
+    }
+
+    // TODO(b/254790453): Add proper tests for the method, might be better to do it after adding the
+    //  logic to check the number of metering regions supported by device,
+    //  in this#meteringRegionsFromMeteringPoints()
+    fun isFocusMeteringSupported(
+        action: FocusMeteringAction
+    ): Boolean {
+        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
+        val defaultAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+
+        val rectanglesAe = meteringRegionsFromMeteringPoints(
+            action.meteringPointsAe,
+            sensorRect,
+            defaultAspectRatio
+        )
+        val rectanglesAf = meteringRegionsFromMeteringPoints(
+            action.meteringPointsAf,
+            sensorRect,
+            defaultAspectRatio
+        )
+        val rectanglesAwb = meteringRegionsFromMeteringPoints(
+            action.meteringPointsAwb,
+            sensorRect,
+            defaultAspectRatio
+        )
+        return rectanglesAe.isNotEmpty() || rectanglesAf.isNotEmpty() || rectanglesAwb.isNotEmpty()
     }
 
     // TODO: Move this to a lower level so it is automatically checked for all requests
