@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -39,13 +40,13 @@ class ComplicationDataExpressionEvaluator(
     val unevaluatedData: WireComplicationData,
 ) : AutoCloseable {
 
-    private val _data: MutableStateFlow<WireComplicationData?> = MutableStateFlow(null)
+    private val _data = MutableStateFlow<WireComplicationData?>(null)
 
     /**
      * The evaluated data, or `null` if it wasn't evaluated yet, or [NoDataComplicationData] if it
      * wasn't possible to evaluate the [unevaluatedData].
      */
-    val data = _data.asStateFlow()
+    val data: StateFlow<WireComplicationData?> = _data.asStateFlow()
 
     @GuardedBy("listeners")
     private val listeners = mutableMapOf<Listener, CoroutineScope>()
