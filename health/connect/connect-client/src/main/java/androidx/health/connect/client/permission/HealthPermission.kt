@@ -50,6 +50,7 @@ import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -390,6 +391,8 @@ internal constructor(
                 LeanBodyMassRecord::class to
                     READ_LEAN_BODY_MASS.substringAfter(READ_PERMISSION_PREFIX),
                 MenstruationFlowRecord::class to
+                    READ_MENSTRUATION.substringAfter(READ_PERMISSION_PREFIX),
+                MenstruationPeriodRecord::class to
                     READ_MENSTRUATION.substringAfter(READ_PERMISSION_PREFIX),
                 NutritionRecord::class to READ_NUTRITION.substringAfter(READ_PERMISSION_PREFIX),
                 OvulationTestRecord::class to
