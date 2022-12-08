@@ -25,7 +25,6 @@ import android.service.credentials.GetCredentialsRequest
 import android.service.credentials.GetCredentialsResponse
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.credentials.GetCredentialOption
 
 /**
  * Credential Provider base service to be extended by provider services.
@@ -44,28 +43,27 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
         cancellationSignal: CancellationSignal,
         callback: OutcomeReceiver<GetCredentialsResponse, CredentialProviderException>
     ) {
-        val structuredRequest =
-            GetCredentialsProviderRequest.Builder(
-                ApplicationInfo(
-                    request.callingPackage,
-                    arrayOf()))
+        val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> = mutableListOf()
         request.getCredentialOptions.forEach {
-            structuredRequest.addGetCredentialOption(
-                GetCredentialOption
+            beginGetCredentialOptions.add(
+                BeginGetCredentialOption
                     .createFrom(
                         it.type,
-                        it.data,
-                        it.data, // TODO : Set the candidate data and request data when ready
-                        it.requireSystemProvider()))
+                        // TODO("Update to it.candidateQueryData when ready on framework")
+                        it.data))
         }
-
-        val outcome = object : OutcomeReceiver<GetCredentialsProviderResponse,
+        val structuredRequest =
+            BeginGetCredentialsProviderRequest(
+                beginGetCredentialOptions,
+                // TODO("Add app signatures when ready on framework")
+                ApplicationInfo(request.callingPackage, arrayOf()))
+        val outcome = object : OutcomeReceiver<BeginGetCredentialsProviderResponse,
             CredentialProviderException> {
-            override fun onResult(response: GetCredentialsProviderResponse?) {
+            override fun onResult(response: BeginGetCredentialsProviderResponse?) {
                 Log.i(TAG, "onGetCredentials response returned from provider " +
                     "to jetpack library")
                 callback.onResult(response?.let {
-                    GetCredentialsProviderResponse.toFrameworkClass(it) })
+                    BeginGetCredentialsProviderResponse.toFrameworkClass(it) })
             }
 
             override fun onError(error: CredentialProviderException) {
@@ -75,7 +73,7 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
                 callback.onError(error)
             }
         }
-        onGetCredentialsRequest(structuredRequest.build(), cancellationSignal, outcome)
+        onBeginGetCredentialsRequest(structuredRequest, cancellationSignal, outcome)
     }
 
     final override fun onBeginCreateCredential(
@@ -110,13 +108,13 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
     /**
      * Called by the Credential Manager Jetpack library to get credentials stored with a provider
      * service. Provider services must extend this in order to handle a
-     * [GetCredentialsProviderRequest] request.
+     * [GetCredentialProviderRequest] request.
      *
      * Provider service must call one of the [callback] methods to notify the result of the
      * request.
      *
-     * @param [request] the [GetCredentialsProviderRequest] to handle
-     * See [GetCredentialsProviderResponse] for the response to be returned
+     * @param [request] the [GetCredentialProviderRequest] to handle
+     * See [BeginGetCredentialsProviderResponse] for the response to be returned
      * @param cancellationSignal signal for observing cancellation requests. The system will
      * use this to notify you that the result is no longer needed and you should stop
      * handling it in order to save your resources
@@ -124,10 +122,10 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
      *
      * @hide
      */
-    abstract fun onGetCredentialsRequest(
-        request: GetCredentialsProviderRequest,
+    abstract fun onBeginGetCredentialsRequest(
+        request: BeginGetCredentialsProviderRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<GetCredentialsProviderResponse, CredentialProviderException>
+        callback: OutcomeReceiver<BeginGetCredentialsProviderResponse, CredentialProviderException>
     )
 
     /**

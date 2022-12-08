@@ -19,11 +19,11 @@ import android.app.PendingIntent
 import android.service.credentials.GetCredentialsResponse
 import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
-import androidx.credentials.provider.GetCredentialsProviderResponse.Companion.createWithAuthentication
-import androidx.credentials.provider.GetCredentialsProviderResponse.Companion.createWithCredentialsResponseContent
+import androidx.credentials.provider.BeginGetCredentialsProviderResponse.Companion.createWithAuthentication
+import androidx.credentials.provider.BeginGetCredentialsProviderResponse.Companion.createWithCredentialsResponseContent
 
 /**
- * Response for [GetCredentialsProviderRequest] from a credential provider.
+ * Response for [BeginGetCredentialsProviderRequest] from a credential provider.
  *
  * If the provider is locked and cannot return any credentials, the [createWithAuthentication]
  * method should be used to create the response with an [AuthenticationAction]. When the user
@@ -37,7 +37,7 @@ import androidx.credentials.provider.GetCredentialsProviderResponse.Companion.cr
  * @hide
  */
 @RequiresApi(34)
-class GetCredentialsProviderResponse internal constructor(
+class BeginGetCredentialsProviderResponse internal constructor(
     val credentialsResponseContent: CredentialsResponseContent?,
     val authenticationAction: AuthenticationAction?
     ) {
@@ -51,22 +51,23 @@ class GetCredentialsProviderResponse internal constructor(
         @JvmStatic
         fun createWithAuthentication(
             authenticationAction: AuthenticationAction
-        ): GetCredentialsProviderResponse {
-            return GetCredentialsProviderResponse(
+        ): BeginGetCredentialsProviderResponse {
+            return BeginGetCredentialsProviderResponse(
                 /*credentialsResponseContent=*/null, authenticationAction)
         }
 
         @JvmStatic
         fun createWithCredentialsResponseContent(
             credentialsResponseContent: CredentialsResponseContent
-        ): GetCredentialsProviderResponse {
-            return GetCredentialsProviderResponse(
+        ): BeginGetCredentialsProviderResponse {
+            return BeginGetCredentialsProviderResponse(
                 credentialsResponseContent, /*authenticationAction=*/null)
         }
 
         @JvmStatic
-        internal fun toFrameworkClass(response: GetCredentialsProviderResponse):
+        internal fun toFrameworkClass(response: BeginGetCredentialsProviderResponse):
             GetCredentialsResponse {
+            // TODO("Return BeginGetCredentialsResponse when ready on the framework")
             return if (response.credentialsResponseContent != null) {
                 GetCredentialsResponse.createWithResponseContent(
                     CredentialsResponseContent.toFrameworkClass(
