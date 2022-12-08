@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
@@ -92,7 +93,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
@@ -131,7 +133,8 @@ class FakeUseCaseCamera(
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }

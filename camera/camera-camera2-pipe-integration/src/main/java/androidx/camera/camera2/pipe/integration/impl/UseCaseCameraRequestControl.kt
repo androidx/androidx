@@ -43,9 +43,9 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
+import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import javax.inject.Inject
 
 private const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -152,6 +152,7 @@ interface UseCaseCameraRequestControl {
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
         awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
 
     // Capture
@@ -273,13 +274,15 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>
+        awbRegions: List<MeteringRectangle>,
+        afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> = graph.acquireSession().use {
         it.lock3A(
             aeRegions = aeRegions,
             afRegions = afRegions,
             awbRegions = awbRegions,
-            afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
+            afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+            afTriggerStartAeMode = afTriggerStartAeMode
         )
     }
 

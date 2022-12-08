@@ -25,9 +25,9 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
+import java.util.concurrent.Semaphore
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import java.util.concurrent.Semaphore
 
 open class FakeCameraGraphSession : CameraGraph.Session {
 
@@ -53,6 +53,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {

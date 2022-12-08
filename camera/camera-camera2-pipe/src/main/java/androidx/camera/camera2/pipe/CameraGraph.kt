@@ -294,6 +294,8 @@ public interface CameraGraph : Closeable {
          * AF skips the initial state of the new mode's state machine and stays locks in the new
          * mode as well.
          *
+         * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
+         * AF_TRIGGER_START request, this value should not be retained for following requests
          * @param frameLimit the maximum number of frames to wait before we give up waiting for
          * this operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -313,6 +315,7 @@ public interface CameraGraph : Closeable {
             aeLockBehavior: Lock3ABehavior? = null,
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
+            afTriggerStartAeMode: AeMode? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AF_TRIGGER_START
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
@@ -47,7 +48,6 @@ import org.junit.After
 import org.junit.Assume.assumeThat
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +74,13 @@ class TapToFocusDeviceTest {
         assumeTrue(
             "Flash unit not available with a valid camera and lens facing back",
             CameraUtil.hasFlashUnitWithLensFacing(CameraSelector.LENS_FACING_BACK)
+        )
+
+        assumeTrue(
+            "CONTROL_AE_MODE_ON not available on device",
+            CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK)?.get(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES
+            )?.contains(CONTROL_AE_MODE_ON) ?: false
         )
 
         context = ApplicationProvider.getApplicationContext()
@@ -114,7 +121,7 @@ class TapToFocusDeviceTest {
     }
 
     private suspend fun verifyAeModeForAfTriggerStartByTapToFocus() {
-        val firstCaptureListener = VerifyResultListener(1)
+        val firstCaptureListener = VerifyResultListener(Int.MAX_VALUE)
         val verifyResultListener = VerifyResultListener(Int.MAX_VALUE)
 
         comboListener.addListener(firstCaptureListener, Dispatchers.Default.asExecutor())
@@ -162,14 +169,12 @@ class TapToFocusDeviceTest {
         verifyAeModeForAfTriggerStartByTapToFocus()
     }
 
-    @Ignore("b/255699318")
     @Test
     fun tapToFocusAfTriggerStart_aeModeIsControlAeModeOn_whenFlashModeOn() = runBlocking {
         bindUseCase(ImageCapture.FLASH_MODE_ON)
         verifyAeModeForAfTriggerStartByTapToFocus()
     }
 
-    @Ignore("b/255699318")
     @Test
     fun tapToFocusAfTriggerStart_aeModeIsControlAeModeOn_whenFlashModeAuto() = runBlocking {
         bindUseCase(ImageCapture.FLASH_MODE_AUTO)
