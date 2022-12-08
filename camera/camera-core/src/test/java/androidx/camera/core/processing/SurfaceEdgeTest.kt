@@ -87,6 +87,34 @@ class SurfaceEdgeTest {
     }
 
     @Test
+    fun provideSurfaceThenImmediatelyInvalidate_surfaceOutputFails() {
+        // Arrange: create SurfaceOutput and set provider.
+        var succeeded = false
+        var failed = false
+        val surfaceOutput = createSurfaceOutputFuture(surfaceEdge)
+        Futures.addCallback(surfaceOutput, object : FutureCallback<SurfaceOutput> {
+            override fun onSuccess(result: SurfaceOutput?) {
+                succeeded = true
+            }
+
+            override fun onFailure(t: Throwable) {
+                failed = true
+            }
+        }, mainThreadExecutor())
+        surfaceEdge.setProvider(provider)
+
+        // Act: Provides Surface then immediately invalidate. The mSettableSurface is recreated
+        // before the Surface Future callback is executed.
+        provider.setSurface(fakeSurface)
+        surfaceEdge.invalidate()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: surfaceOutput is not propagated.
+        assertThat(failed).isTrue()
+        assertThat(succeeded).isFalse()
+    }
+
+    @Test
     fun closeProviderAfterConnected_surfaceNotReleased() {
         // Arrange.
         val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())

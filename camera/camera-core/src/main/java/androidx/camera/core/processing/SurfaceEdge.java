@@ -20,7 +20,11 @@ import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture;
+import static androidx.camera.core.impl.utils.futures.Futures.immediateFuture;
+import static androidx.camera.core.impl.utils.futures.Futures.transformAsync;
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.ImageFormat;
@@ -48,7 +52,6 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -294,22 +297,23 @@ public class SurfaceEdge {
             @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
         checkAndSetHasConsumer();
-        return Futures.transformAsync(mSettableSurface.getSurface(),
+        SettableSurface settableSurface = mSettableSurface;
+        return transformAsync(mSettableSurface.getSurface(),
                 surface -> {
-                    Preconditions.checkNotNull(surface);
+                    checkNotNull(surface);
                     try {
-                        mSettableSurface.incrementUseCount();
+                        settableSurface.incrementUseCount();
                     } catch (DeferrableSurface.SurfaceClosedException e) {
-                        return Futures.immediateFailedFuture(e);
+                        return immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
                             getTargets(), getSize(), inputSize, cropRect, rotationDegrees,
                             mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(
-                            mSettableSurface::decrementUseCount,
+                            settableSurface::decrementUseCount,
                             directExecutor());
                     mConsumerToNotify = surfaceOutputImpl;
-                    return Futures.immediateFuture(surfaceOutputImpl);
+                    return immediateFuture(surfaceOutputImpl);
                 }, mainThreadExecutor());
     }
 
