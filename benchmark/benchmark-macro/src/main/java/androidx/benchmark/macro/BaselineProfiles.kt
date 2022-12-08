@@ -418,7 +418,7 @@ private fun summaryRecord(record: Summary): String {
         .append(
             """
                 To copy the profile use:
-                adb pull $deviceSpecifier"${record.profilePath}" .
+                adb ${deviceSpecifier}pull "${record.profilePath}" .
             """.trimIndent()
         )
 
@@ -429,7 +429,7 @@ private fun summaryRecord(record: Summary): String {
             .append(
                 """
                     To copy the startup profile use:
-                    adb pull $deviceSpecifier"${record.startupProfilePath}" .
+                    adb ${deviceSpecifier}pull "${record.startupProfilePath}" .
                 """.trimIndent()
             )
     }
