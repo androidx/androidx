@@ -188,6 +188,13 @@ class EmojiPickerViewTest {
         assertSelectedHeaderIndex(4)
     }
 
+    @Test(expected = UnsupportedOperationException::class)
+    fun testAddView_throwsException() {
+        activityTestRule.scenario.onActivity {
+            it.emojiPickerView.addView(View(context))
+        }
+    }
+
     private fun findViewByEmoji(root: View, emoji: String) =
         try {
             mutableListOf<View>().apply {
