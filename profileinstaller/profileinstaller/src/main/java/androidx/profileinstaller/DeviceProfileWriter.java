@@ -160,12 +160,10 @@ public class DeviceProfileWriter {
         if (mDesiredVersion == null) {
             return this;
         }
-        try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
-            try (InputStream is = fd.createInputStream()) {
+        try (InputStream is = mAssetManager.open(mProfileSourceLocation)) {
                 byte[] baselineVersion = ProfileTranscoder.readHeader(is, MAGIC_PROF);
                 mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
-            }
-        }  catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
         } catch (IOException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
