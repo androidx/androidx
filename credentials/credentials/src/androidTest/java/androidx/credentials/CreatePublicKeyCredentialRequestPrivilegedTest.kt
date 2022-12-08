@@ -151,7 +151,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(request.credentialData, expectedData)).isTrue()
         assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
-        assertThat(request.requireSystemProvider).isTrue()
+        assertThat(request.requireSystemProvider).isFalse()
     }
 
     @Test
