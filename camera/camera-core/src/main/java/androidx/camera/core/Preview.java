@@ -38,6 +38,8 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Collections.singletonList;
@@ -78,7 +80,6 @@ import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
@@ -88,7 +89,6 @@ import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
-import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -216,15 +216,12 @@ public final class Preview extends UseCase {
             return createPipelineWithNode(cameraId, config, resolution);
         }
 
-        Threads.checkMainThread();
+        checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         // Close previous session's deferrable surface before creating new one
         clearPipeline();
 
-        // TODO: Can be improved by only restarting part of the pipeline when using the
-        //  CaptureProcessor. e.g. only update the output Surface (between Processor/App), and
-        //  still use the same input Surface (between Camera/Processor). It's just simpler for now.
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
                 this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
@@ -252,10 +249,10 @@ public final class Preview extends UseCase {
             @NonNull PreviewConfig config,
             @NonNull Size resolution) {
         // Check arguments
-        Threads.checkMainThread();
-        Preconditions.checkNotNull(mSurfaceProcessor);
+        checkMainThread();
+        checkNotNull(mSurfaceProcessor);
         CameraInternal camera = getCamera();
-        Preconditions.checkNotNull(camera);
+        checkNotNull(camera);
 
         clearPipeline();
 
@@ -277,9 +274,7 @@ public final class Preview extends UseCase {
                 singletonList(outConfig));
         SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
         SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-        appEdge.addOnInvalidatedListener(() -> {
-            // TODO: call appEdge.createSurfaceRequest and send the new request to the app.
-        });
+        appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
 
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
@@ -293,6 +288,16 @@ public final class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, resolution);
         return sessionConfigBuilder;
+    }
+
+    @MainThread
+    private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge,
+            @NonNull CameraInternal camera) {
+        checkMainThread();
+        if (camera == getCamera()) {
+            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+            sendSurfaceRequest();
+        }
     }
 
     private static boolean isFrontCamera(@NonNull CameraInternal camera) {
@@ -458,7 +463,7 @@ public final class Preview extends UseCase {
     @UiThread
     public void setSurfaceProvider(@NonNull Executor executor,
             @Nullable SurfaceProvider surfaceProvider) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (surfaceProvider == null) {
             // SurfaceProvider is removed. Inactivate the use case.
             mSurfaceProvider = null;
@@ -481,8 +486,8 @@ public final class Preview extends UseCase {
     }
 
     private void sendSurfaceRequest() {
-        final SurfaceProvider surfaceProvider = Preconditions.checkNotNull(mSurfaceProvider);
-        final SurfaceRequest surfaceRequest = Preconditions.checkNotNull(mCurrentSurfaceRequest);
+        final SurfaceProvider surfaceProvider = checkNotNull(mSurfaceProvider);
+        final SurfaceRequest surfaceRequest = checkNotNull(mCurrentSurfaceRequest);
 
         mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
         sendTransformationInfoIfReady();

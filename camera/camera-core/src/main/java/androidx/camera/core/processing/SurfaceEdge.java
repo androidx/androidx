@@ -20,7 +20,10 @@ import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkState;
 
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -56,9 +59,14 @@ import java.util.Set;
  * An edge between two {@link Node} that is based on a {@link DeferrableSurface}.
  *
  * <p>This class contains a single {@link DeferrableSurface} with additional info such as size,
- * crop rect and transformation.
+ * crop rect and transformation. It also connects the downstream {@link DeferrableSurface} or
+ * {@link SurfaceRequest} that provides the {@link Surface}.
  *
- * <p>To connect a downstream node:
+ * <p>To set up a connection, configure both downstream/upstream nodes. Both downstream/upstream
+ * nodes can only be configured once for each connection. Trying to configure them again throws
+ * {@link IllegalStateException}.
+ *
+ * <p>To connect a downstream node(Surface provider):
  * <ul>
  * <li>For external source, call {@link #createSurfaceRequest} and send the
  * {@link SurfaceRequest} to the app. For example, sending the {@link SurfaceRequest} to
@@ -67,7 +75,7 @@ import java.util.Set;
  * from another {@link UseCase}. For example, when sharing one stream to two use cases.
  * </ul>
  *
- * <p>To connect a upstream node:
+ * <p>To connect a upstream node(surface consumer):
  * <ul>
  * <li>For external source, call {@link #createSurfaceOutputFuture} and send the
  * {@link SurfaceOutput} to the app. For example, sending the {@link SurfaceOutput} to
@@ -76,12 +84,10 @@ import java.util.Set;
  * {@link DeferrableSurface} on {@link SessionConfig}.
  * </ul>
  *
- * TODO(b/241910577): add a #clearProvider method to reset the connection. This is useful if the
- *  downstream is a UseCase. When the UseCase is reset(video pause/resume), we need to replace
- *  the {@link DeferrableSurface} and maybe provide a different Surface.
- *
- * <p>For the full workflow, please see {@code SurfaceEdgeTest
- * #linkBothProviderAndConsumer_surfaceAndResultsArePropagatedE2E}
+ * <p>The connection ends when the {@link #close()} or {@link #invalidate()} is called.
+ * The difference is that {@link #close()} only notifies the upstream pipeline that the
+ * {@link Surface} should no longer be used, and {@link #invalidate()} cleans the current
+ * connection so it can be connected again.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class SurfaceEdge {
@@ -95,20 +101,25 @@ public class SurfaceEdge {
     private final Size mSize;
     // Guarded by main thread.
     private int mRotationDegrees;
+
     // Guarded by main thread.
     @Nullable
     private SurfaceOutputImpl mConsumerToNotify;
-
     // Guarded by main thread.
     private boolean mHasConsumer = false;
+
     // Guarded by main thread.
     @Nullable
     private SurfaceRequest mProviderSurfaceRequest;
+    // Guarded by main thread.
+    private boolean mHasProvider;
 
-    // TODO(b/259308680): recreate this variable when the downstream node changes.
+    // Guarded by main thread.
     @NonNull
-    private final SettableSurface mSettableSurface = new SettableSurface();
+    private SettableSurface mSettableSurface;
 
+    // Guarded by main thread.
+    @NonNull
     private final Set<Runnable> mOnInvalidatedListeners = new HashSet<>();
 
     /**
@@ -129,6 +140,7 @@ public class SurfaceEdge {
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
+        mSettableSurface = new SettableSurface(size);
     }
 
     /**
@@ -139,15 +151,24 @@ public class SurfaceEdge {
      * is called. When that happens, the edge should notify the upstream pipeline to get the new
      * Surface.
      */
+    @MainThread
     public void addOnInvalidatedListener(@NonNull Runnable onInvalidated) {
+        checkMainThread();
         mOnInvalidatedListeners.add(onInvalidated);
     }
 
     /**
      * Gets the {@link DeferrableSurface} for upstream nodes.
+     *
+     * <p>This method throws {@link IllegalStateException} if the current {@link SurfaceEdge}
+     * already has a Surface consumer. To remove the current Surface consumer, call
+     * {@link #invalidate()} to reset the connection.
      */
     @NonNull
+    @MainThread
     public DeferrableSurface getDeferrableSurface() {
+        checkMainThread();
+        checkAndSetHasConsumer();
         return mSettableSurface;
     }
 
@@ -187,6 +208,7 @@ public class SurfaceEdge {
     public void setProvider(@NonNull DeferrableSurface provider)
             throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
+        checkAndSetHasProvider();
         mSettableSurface.setProvider(provider);
     }
 
@@ -226,11 +248,15 @@ public class SurfaceEdge {
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
             @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
+        checkAndSetHasProvider();
         // TODO(b/238230154) figure out how to support HDR.
         SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal,
                 expectedFpsRange, () -> mainThreadExecutor().execute(this::invalidate));
         try {
-            setProvider(surfaceRequest.getDeferrableSurface());
+            DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+            mSettableSurface.setProvider(deferrableSurface);
+            mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
+                    directExecutor());
         } catch (DeferrableSurface.SurfaceClosedException e) {
             // This should never happen. We just created the SurfaceRequest. It can't be closed.
             throw new AssertionError("Surface is somehow already closed", e);
@@ -253,6 +279,10 @@ public class SurfaceEdge {
      * <p>Do not provide the {@link SurfaceOutput} to external target if the
      * {@link ListenableFuture} fails.
      *
+     * <p>This method throws {@link IllegalStateException} if the current {@link SurfaceEdge}
+     * already has a Surface consumer. To remove the current Surface consumer, call
+     * {@link #invalidate()} to reset the connection.
+     *
      * @param inputSize       resolution of input image buffer
      * @param cropRect        crop rect of input image buffer
      * @param rotationDegrees expected rotation to the input image buffer
@@ -263,8 +293,7 @@ public class SurfaceEdge {
     public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
             @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
         checkMainThread();
-        Preconditions.checkState(!mHasConsumer, "Consumer can only be linked once.");
-        mHasConsumer = true;
+        checkAndSetHasConsumer();
         return Futures.transformAsync(mSettableSurface.getSurface(),
                 surface -> {
                     Preconditions.checkNotNull(surface);
@@ -302,7 +331,9 @@ public class SurfaceEdge {
     public void invalidate() {
         checkMainThread();
         close();
-        // TODO: recreate mSettableSurface.
+        mHasProvider = false;
+        mHasConsumer = false;
+        mSettableSurface = new SettableSurface(mSize);
         for (Runnable onInvalidated : mOnInvalidatedListeners) {
             onInvalidated.run();
         }
@@ -424,6 +455,16 @@ public class SurfaceEdge {
         }
     }
 
+    private void checkAndSetHasConsumer() {
+        checkState(!mHasConsumer, "Consumer can only be linked once.");
+        mHasConsumer = true;
+    }
+
+    private void checkAndSetHasProvider() {
+        checkState(!mHasProvider, "Provider can only be linked once.");
+        mHasProvider = true;
+    }
+
     /**
      * Gets whether the buffer needs to be horizontally mirrored based on {@link UseCase} config.
      */
@@ -447,8 +488,11 @@ public class SurfaceEdge {
 
         CallbackToFutureAdapter.Completer<Surface> mCompleter;
 
-        // Guarded by main thread.
         private boolean mHasProvider = false;
+
+        SettableSurface(@NonNull Size size) {
+            super(size, ImageFormat.PRIVATE);
+        }
 
         @NonNull
         @Override
@@ -459,22 +503,22 @@ public class SurfaceEdge {
         /**
          * Sets the {@link DeferrableSurface} that provides the surface.
          *
+         * @throws IllegalStateException    if the provider has already been set.
+         * @throws IllegalArgumentException if the provider's size is different than the size of
+         *                                  this {@link SettableSurface}.
          * @see SurfaceEdge#setProvider(DeferrableSurface)
          */
         @MainThread
-        public void setProvider(@NonNull DeferrableSurface provider) throws SurfaceClosedException {
+        public void setProvider(@NonNull DeferrableSurface provider)
+                throws SurfaceClosedException {
             checkMainThread();
-            Preconditions.checkState(!mHasProvider, "Provider can only be set once.");
+            checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
+                    "The provider's size must match the parent");
+            checkState(!mHasProvider, "Provider can only be set once.");
             mHasProvider = true;
             Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
-            getTerminationFuture().addListener(() -> {
-                provider.decrementUseCount();
-                // TODO(b/259308680): only close the provider if it's from the SurfaceRequest
-                //  created by SurfaceEdge. If the provider comes from another UseCase, it's the
-                //  UseCase's responsibility to close it when its lifecycle ends.
-                provider.close();
-            }, directExecutor());
+            getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
         }
     }
 }

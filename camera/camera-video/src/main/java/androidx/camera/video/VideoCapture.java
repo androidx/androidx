@@ -507,12 +507,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+            appEdge.addOnInvalidatedListener(
+                    () -> onAppEdgeInvalidated(appEdge, camera, config, resolution));
             mSurfaceRequest = appEdge.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraEdge.getDeferrableSurface();
+            DeferrableSurface latestDeferrableSurface = mDeferrableSurface;
             mDeferrableSurface.getTerminationFuture().addListener(() -> {
                 // If camera surface is the latest one, it means this pipeline can be abandoned.
                 // Clear the pipeline in order to trigger the surface complete event to appSurface.
-                if (cameraEdge.getDeferrableSurface() == mDeferrableSurface) {
+                if (latestDeferrableSurface == mDeferrableSurface) {
                     clearPipeline();
                 }
             }, CameraXExecutors.mainThreadExecutor());
@@ -543,6 +546,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         return sessionConfigBuilder;
+    }
+
+    private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge, @NonNull CameraInternal camera,
+            @NonNull VideoCaptureConfig<T> config, @NonNull Size resolution) {
+        if (camera == getCamera()) {
+            Timebase currentTimebase = camera.getCameraInfoInternal().getTimebase();
+            mSurfaceRequest = appEdge.createSurfaceRequest(camera);
+            config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, currentTimebase);
+            sendTransformationInfoIfReady(resolution);
+        }
     }
 
     /**
@@ -1111,6 +1124,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mSourceState = newState;
             getOutput().onSourceStateChanged(newState);
         }
+    }
+
+    @VisibleForTesting
+    @NonNull
+    SurfaceRequest getSurfaceRequest() {
+        return requireNonNull(mSurfaceRequest);
     }
 
     /**

@@ -151,11 +151,6 @@ public class SurfaceProcessorNode implements
                 /*rotationDegrees=*/0,
                 /*mirroring=*/false);
 
-        // TODO: instead of propagating it to the input and reconfigure the camera, we can call
-        //  SurfaceEdge#createSurfaceOutputFuture again and to provide the new Surface to the
-        //  node.
-        outputSurface.addOnInvalidatedListener(input::invalidate);
-
         return outputSurface;
     }
 
@@ -178,33 +173,44 @@ public class SurfaceProcessorNode implements
     }
 
     /**
-     * Creates {@link SurfaceOutput} and send them to {@link SurfaceProcessor}.
+     * Creates all {@link SurfaceOutput} and send them to {@link SurfaceProcessor}.
      */
     private void sendSurfaceOutputs(@NonNull SurfaceEdge input,
             @NonNull Map<OutConfig, SurfaceEdge> outputs) {
         for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
-            ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
-                    input.getSize(),
-                    output.getKey().getCropRect(),
-                    input.getRotationDegrees(),
-                    input.getMirroring());
-            Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
-                @Override
-                public void onSuccess(@Nullable SurfaceOutput output) {
-                    Preconditions.checkNotNull(output);
-                    try {
-                        mSurfaceProcessor.onOutputSurface(output);
-                    } catch (ProcessingException e) {
-                        Logger.e(TAG, "Failed to send SurfaceOutput to SurfaceProcessor.", e);
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Throwable t) {
-                    Logger.w(TAG, "Downstream node failed to provide Surface.", t);
-                }
-            }, mainThreadExecutor());
+            createAndSendSurfaceOutput(input, output);
+            // Send the new surface to SurfaceProcessor when it resets.
+            output.getValue().addOnInvalidatedListener(
+                    () -> createAndSendSurfaceOutput(input, output));
         }
+    }
+
+    /**
+     * Creates a single {@link SurfaceOutput} and send it to {@link SurfaceProcessor}.
+     */
+    private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
+            Map.Entry<OutConfig, SurfaceEdge> output) {
+        ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
+                input.getSize(),
+                output.getKey().getCropRect(),
+                input.getRotationDegrees(),
+                input.getMirroring());
+        Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
+            @Override
+            public void onSuccess(@Nullable SurfaceOutput output) {
+                Preconditions.checkNotNull(output);
+                try {
+                    mSurfaceProcessor.onOutputSurface(output);
+                } catch (ProcessingException e) {
+                    Logger.e(TAG, "Failed to send SurfaceOutput to SurfaceProcessor.", e);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Throwable t) {
+                Logger.w(TAG, "Downstream node failed to provide Surface.", t);
+            }
+        }, mainThreadExecutor());
     }
 
     /**

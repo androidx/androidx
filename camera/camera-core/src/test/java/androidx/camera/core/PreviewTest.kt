@@ -303,6 +303,57 @@ class PreviewTest {
     }
 
     @Test
+    fun invalidateAppSurfaceRequestWithProcessing_cameraNotReset() {
+        // Arrange: create Preview with processing.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
+        val surfaceRequest = createPreview(processor).mCurrentSurfaceRequest
+        // Act: invalidate.
+        surfaceRequest!!.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert: preview is not reset.
+        assertThat(backCamera.useCaseResetHistory).isEmpty()
+    }
+
+    @Test
+    fun invalidateNodeSurfaceRequest_cameraReset() {
+        // Arrange: create Preview with processing.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
+        val preview = createPreview(processor)
+        // Act: invalidate.
+        processor.surfaceRequest!!.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert: preview is reset.
+        assertThat(backCamera.useCaseResetHistory).containsExactly(preview)
+    }
+
+    @Test
+    fun invalidateAppSurfaceRequestWithoutProcessing_cameraReset() {
+        // Arrange: create Preview without processing.
+        val preview = createPreview()
+        val surfaceRequest = preview.mCurrentSurfaceRequest
+        // Act: invalidate
+        surfaceRequest!!.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert: preview is reset.
+        assertThat(backCamera.useCaseResetHistory).containsExactly(preview)
+    }
+
+    @Test
+    fun invalidateWhenDetached_deferrableSurfaceClosed() {
+        // Arrange: create Preview with processing then detach.
+        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
+        val preview = createPreview(processor)
+        val surfaceRequest = processor.surfaceRequest!!
+        preview.onDetach(backCamera)
+        // Act: invalidate.
+        surfaceRequest.invalidate()
+        shadowOf(getMainLooper()).idle()
+        // Assert: preview is not reset and the DeferrableSurface is closed.
+        assertThat(backCamera.useCaseResetHistory).isEmpty()
+        assertThat(surfaceRequest.deferrableSurface.isClosed).isTrue()
+    }
+
+    @Test
     fun bindAndUnbindPreview_surfacesPropagated() {
         // Arrange.
         val processor = FakeSurfaceProcessorInternal(
