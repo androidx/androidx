@@ -82,6 +82,14 @@ public interface SurfaceOutput {
     void close();
 
     /**
+     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void requestClose();
+
+    /**
      * Updates the 4 x 4 transformation matrix retrieved from the input {@link Surface}.
      *
      * <p>When the input {@link Surface} of {@link SurfaceProcessor} is backed by a
