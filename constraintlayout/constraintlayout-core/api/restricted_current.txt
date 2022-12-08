@@ -2300,6 +2300,7 @@ package androidx.constraintlayout.core.state {
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BASELINE_TO_TOP;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint BOTTOM_TO_TOP;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint CENTER_HORIZONTALLY;
@@ -2313,6 +2314,7 @@ package androidx.constraintlayout.core.state {
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint RIGHT_TO_RIGHT;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint START_TO_END;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint START_TO_START;
+    enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_BASELINE;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_BOTTOM;
     enum_constant public static final androidx.constraintlayout.core.state.State.Constraint TOP_TO_TOP;
   }

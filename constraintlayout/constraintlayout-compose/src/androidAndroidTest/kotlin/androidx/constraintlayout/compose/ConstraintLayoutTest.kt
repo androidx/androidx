@@ -34,7 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -2231,6 +2233,60 @@ class ConstraintLayoutTest {
         }
 
         assertEquals(1, constraintLayoutCompCount)
+    }
+
+    @Test
+    fun testBaselineConstraints() = with(rule.density) {
+        fun Modifier.withBaseline() = this.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val halfHeight = (placeable.height / 2f).roundToInt()
+            layout(
+                width = placeable.width,
+                height = placeable.height,
+                alignmentLines = mapOf(FirstBaseline to halfHeight)
+            ) {
+                placeable.place(0, 0)
+            }
+        }
+
+        val boxSize = 10
+        val box1Margin = 13
+        val box2Margin = -7f
+
+        var box1Position = IntOffset.Zero
+        var box2Position = IntOffset.Zero
+        rule.setContent {
+            ConstraintLayout {
+                val (box1, box2) = createRefs()
+                Box(
+                    Modifier
+                        .size(boxSize.toDp())
+                        .withBaseline()
+                        .constrainAs(box1) {
+                            baseline.linkTo(parent.top, box1Margin.toDp())
+                            start.linkTo(parent.start)
+                        }
+                        .onGloballyPositioned {
+                            box1Position = it.positionInRoot().round()
+                        })
+                Box(
+                    Modifier
+                        .size(boxSize.toDp())
+                        .withBaseline()
+                        .constrainAs(box2) {
+                            top.linkTo(box1.baseline, box2Margin.toDp())
+                        }
+                        .onGloballyPositioned {
+                            box2Position = it.positionInRoot().round()
+                        })
+            }
+        }
+        val expectedBox1Y = box1Margin - (boxSize * 0.5f).roundToInt()
+        val expectedBox2Y = expectedBox1Y + box2Margin + (boxSize * 0.5f).toInt()
+        rule.runOnIdle {
+            assertEquals(IntOffset(0, expectedBox1Y), box1Position)
+            assertEquals(IntOffset(0, expectedBox2Y.roundToInt()), box2Position)
+        }
     }
 
     private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {

@@ -528,4 +528,22 @@ private class ConstraintBaselineAnchorable constructor(
         }
         containerObject.put("baseline", constraintArray)
     }
+
+    /**
+     * Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor].
+     */
+    override fun linkTo(
+        anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
+        margin: Dp,
+        goneMargin: Dp
+    ) {
+        val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
+        val constraintArray = CLArray(charArrayOf()).apply {
+            add(CLString.from(anchor.id.toString()))
+            add(CLString.from(targetAnchorName))
+            add(CLNumber(margin.value))
+            add(CLNumber(goneMargin.value))
+        }
+        containerObject.put("baseline", constraintArray)
+    }
 }
