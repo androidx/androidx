@@ -344,7 +344,7 @@
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"已停用載入"</string>
     <string name="loading_screen" msgid="4771507490730308794">"載入畫面"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"使用切換按鈕新增/移除顏色"</string>
-    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"含有切換鈕的地圖範本"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"含有切換按鈕的地圖範本"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"避開收費站"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"路線選項"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"避開高速公路"</string>

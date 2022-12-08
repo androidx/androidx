@@ -344,14 +344,9 @@
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Բեռնումն անջատված է"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Էկրանի բեռնում"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Գույն ավելացնելու/հեռացնելու փոխանջատիչ"</string>
-    <!-- no translation found for map_template_toggle_demo_title (6510798293640092611) -->
-    <skip />
-    <!-- no translation found for avoid_tolls_row_title (5194057244144831024) -->
-    <skip />
-    <!-- no translation found for route_options_demo_title (4599699012716426514) -->
-    <skip />
-    <!-- no translation found for avoid_highways_row_title (4711913426200490304) -->
-    <skip />
-    <!-- no translation found for avoid_ferries_row_title (8232883866013711974) -->
-    <skip />
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Փոխանջատիչներով քարտեզի ձևանմուշ"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Խուսափել վճարովի ճանապարհներից"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Երթուղիների ընտրանքներ"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Խուսափել մայրուղիներից"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Խուսափել լաստանավերից"</string>
 </resources>
