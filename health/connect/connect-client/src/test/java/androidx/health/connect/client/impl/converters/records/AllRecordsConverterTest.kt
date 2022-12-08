@@ -54,6 +54,7 @@ import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -501,6 +502,21 @@ class AllRecordsConverterTest {
                 flow = MenstruationFlowRecord.FLOW_HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
+                metadata = TEST_METADATA
+            )
+
+        checkProtoAndRecordTypeNameMatch(data)
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testMenstruationPeriod() {
+        val data =
+            MenstruationPeriodRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 

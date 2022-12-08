@@ -56,6 +56,7 @@ import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -338,6 +339,14 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
+                )
+            "MenstruationPeriod" ->
+                MenstruationPeriodRecord(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    metadata = metadata,
                 )
             "OvulationTest" ->
                 OvulationTestRecord(

@@ -52,6 +52,7 @@ import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
 import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -109,6 +110,7 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "Hydration" to HydrationRecord::class,
         "LeanBodyMass" to LeanBodyMassRecord::class,
         "Menstruation" to MenstruationFlowRecord::class,
+        "MenstruationPeriod" to MenstruationPeriodRecord::class,
         "Nutrition" to NutritionRecord::class,
         "OvulationTest" to OvulationTestRecord::class,
         "OxygenSaturation" to OxygenSaturationRecord::class,
