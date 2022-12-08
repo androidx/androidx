@@ -18,7 +18,6 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -26,7 +25,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.awaitClose
@@ -49,13 +48,11 @@ import kotlinx.coroutines.withContext
  * one received by the suspending block. It is recommended that all [Dao] function invoked within
  * the [block] be suspending functions.
  *
- * The dispatcher used to execute the given [block] will utilize threads from Room's query executor.
+ * The internal dispatcher used to execute the given [block] will block an utilize a thread from
+ * Room's transaction executor until the [block] is complete.
  */
 public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
-    // Use inherited transaction context if available, this allows nested suspending transactions.
-    val transactionContext =
-        coroutineContext[TransactionElement]?.transactionDispatcher ?: createTransactionContext()
-    return withContext(transactionContext) {
+    val transactionBlock: suspend CoroutineScope.() -> R = transaction@{
         val transactionElement = coroutineContext[TransactionElement]!!
         transactionElement.acquire()
         try {
@@ -65,7 +62,7 @@ public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
                 val result = block.invoke()
                 @Suppress("DEPRECATION")
                 setTransactionSuccessful()
-                return@withContext result
+                return@transaction result
             } finally {
                 @Suppress("DEPRECATION")
                 endTransaction()
@@ -73,6 +70,51 @@ public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
         } finally {
             transactionElement.release()
         }
+    }
+    // Use inherited transaction context if available, this allows nested suspending transactions.
+    val transactionDispatcher = coroutineContext[TransactionElement]?.transactionDispatcher
+    return if (transactionDispatcher != null) {
+        withContext(transactionDispatcher, transactionBlock)
+    } else {
+        startTransactionCoroutine(coroutineContext, transactionBlock)
+    }
+}
+
+/**
+ * Suspend caller coroutine and start the transaction coroutine in a thread from the
+ * [RoomDatabase.transactionExecutor], resuming the caller coroutine with the result once done.
+ * The [context] will be a parent of the started coroutine to propagating cancellation and release
+ * the thread when cancelled.
+ */
+private suspend fun <R> RoomDatabase.startTransactionCoroutine(
+    context: CoroutineContext,
+    transactionBlock: suspend CoroutineScope.() -> R
+): R = suspendCancellableCoroutine { continuation ->
+    try {
+        transactionExecutor.execute {
+            try {
+                // Thread acquired, start the transaction coroutine using the parent context.
+                // The started coroutine will have an event loop dispatcher that we'll use for the
+                // transaction context.
+                runBlocking(context.minusKey(ContinuationInterceptor)) {
+                    val dispatcher = coroutineContext[ContinuationInterceptor]!!
+                    val transactionContext = createTransactionContext(dispatcher)
+                    continuation.resume(
+                        withContext(transactionContext, transactionBlock)
+                    )
+                }
+            } catch (ex: Throwable) {
+                // If anything goes wrong, propagate exception to the calling coroutine.
+                continuation.cancel(ex)
+            }
+        }
+    } catch (ex: RejectedExecutionException) {
+        // Couldn't acquire a thread, cancel coroutine.
+        continuation.cancel(
+            IllegalStateException(
+                "Unable to acquire a thread to perform the database transaction.", ex
+            )
+        )
     }
 }
 
@@ -82,8 +124,9 @@ public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
  * The context is a combination of a dispatcher, a [TransactionElement] and a thread local element.
  *
  * * The dispatcher will dispatch coroutines to a single thread that is taken over from the Room
- * query executor. If the coroutine context is switched, suspending DAO functions will be able to
- * dispatch to the transaction thread.
+ * transaction executor. If the coroutine context is switched, suspending DAO functions will be able
+ * to dispatch to the transaction thread. In reality the dispatcher is the event loop of a
+ * [runBlocking] started on the dedicated thread.
  *
  * * The [TransactionElement] serves as an indicator for inherited context, meaning, if there is a
  * switch of context, suspending DAO methods will be able to use the indicator to dispatch the
@@ -94,52 +137,13 @@ public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
  * if a blocking DAO method is invoked within the transaction coroutine. Never assign meaning to
  * this value, for now all we care is if its present or not.
  */
-private suspend fun RoomDatabase.createTransactionContext(): CoroutineContext {
-    val controlJob = Job()
-    // make sure to tie the control job to this context to avoid blocking the transaction if
-    // context get cancelled before we can even start using this job. Otherwise, the acquired
-    // transaction thread will forever wait for the controlJob to be cancelled.
-    // see b/148181325
-    coroutineContext[Job]?.invokeOnCompletion {
-        controlJob.cancel()
-    }
-    val dispatcher = transactionExecutor.acquireTransactionThread(controlJob)
-    val transactionElement = TransactionElement(controlJob, dispatcher)
+private fun RoomDatabase.createTransactionContext(
+    dispatcher: ContinuationInterceptor
+): CoroutineContext {
+    val transactionElement = TransactionElement(dispatcher)
     val threadLocalElement =
-        suspendingTransactionId.asContextElement(System.identityHashCode(controlJob))
+        suspendingTransactionId.asContextElement(System.identityHashCode(transactionElement))
     return dispatcher + transactionElement + threadLocalElement
-}
-
-/**
- * Acquires a thread from the executor and returns a [ContinuationInterceptor] to dispatch
- * coroutines to the acquired thread. The [controlJob] is used to control the release of the
- * thread by cancelling the job.
- */
-private suspend fun Executor.acquireTransactionThread(controlJob: Job): ContinuationInterceptor {
-    return suspendCancellableCoroutine { continuation ->
-        continuation.invokeOnCancellation {
-            // We got cancelled while waiting to acquire a thread, we can't stop our attempt to
-            // acquire a thread, but we can cancel the controlling job so once it gets acquired it
-            // is quickly released.
-            controlJob.cancel()
-        }
-        try {
-            execute {
-                runBlocking {
-                    // Thread acquired, resume coroutine.
-                    continuation.resume(coroutineContext[ContinuationInterceptor]!!)
-                    controlJob.join()
-                }
-            }
-        } catch (ex: RejectedExecutionException) {
-            // Couldn't acquire a thread, cancel coroutine.
-            continuation.cancel(
-                IllegalStateException(
-                    "Unable to acquire a thread to perform the database transaction.", ex
-                )
-            )
-        }
-    }
 }
 
 /**
@@ -149,7 +153,6 @@ private suspend fun Executor.acquireTransactionThread(controlJob: Job): Continua
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class TransactionElement(
-    private val transactionThreadControlJob: Job,
     internal val transactionDispatcher: ContinuationInterceptor
 ) : CoroutineContext.Element {
 
@@ -160,9 +163,7 @@ internal class TransactionElement(
 
     /**
      * Number of transactions (including nested ones) started with this element.
-     * Call [acquire] to increase the count and [release] to decrease it. If the count reaches zero
-     * when [release] is invoked then the transaction job is cancelled and the transaction thread
-     * is released.
+     * Call [acquire] to increase the count and [release] to decrease it.
      */
     private val referenceCount = AtomicInteger(0)
 
@@ -174,9 +175,6 @@ internal class TransactionElement(
         val count = referenceCount.decrementAndGet()
         if (count < 0) {
             throw IllegalStateException("Transaction was never started or was already released.")
-        } else if (count == 0) {
-            // Cancel the job that controls the transaction thread, causing it to be released.
-            transactionThreadControlJob.cancel()
         }
     }
 }
