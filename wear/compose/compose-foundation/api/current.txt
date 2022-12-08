@@ -244,6 +244,7 @@ package androidx.wear.compose.foundation.lazy {
   public sealed interface ScalingLazyListLayoutInfo {
     method public int getAfterAutoCenteringPadding();
     method public int getAfterContentPadding();
+    method public int getAnchorType();
     method public int getBeforeAutoCenteringPadding();
     method public int getBeforeContentPadding();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
@@ -255,6 +256,7 @@ package androidx.wear.compose.foundation.lazy {
     method public java.util.List<androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo> getVisibleItemsInfo();
     property public abstract int afterAutoCenteringPadding;
     property public abstract int afterContentPadding;
+    property public abstract int anchorType;
     property public abstract int beforeAutoCenteringPadding;
     property public abstract int beforeContentPadding;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;

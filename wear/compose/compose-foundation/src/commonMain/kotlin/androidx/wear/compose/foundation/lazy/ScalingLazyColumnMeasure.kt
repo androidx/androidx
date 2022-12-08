@@ -419,6 +419,7 @@ internal class DefaultScalingLazyListLayoutInfo(
     // Flag to indicate that initialization is complete and initial scroll index and offset have
     // been set.
     internal val initialized: Boolean,
+    override val anchorType: ScalingLazyListAnchorType,
 ) : ScalingLazyListLayoutInfo {
     override val visibleItemsInfo: List<ScalingLazyListItemInfo>
         // Do not report visible items until initialization is complete and the items are

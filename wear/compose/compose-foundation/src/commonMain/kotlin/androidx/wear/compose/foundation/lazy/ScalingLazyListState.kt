@@ -346,6 +346,7 @@ class ScalingLazyListState constructor(
                     totalItemsCount),
                 readyForInitialScroll = readyForInitialScroll,
                 initialized = initialized.value,
+                anchorType = anchorType.value!!,
             )
         }
     }
@@ -702,6 +703,7 @@ private object EmptyScalingLazyListLayoutInfo : ScalingLazyListLayoutInfo {
     override val afterContentPadding = 0
     override val beforeAutoCenteringPadding = 0
     override val afterAutoCenteringPadding = 0
+    override val anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter
 }
 
 internal fun ScalingLazyListLayoutInfo.internalVisibleItemInfo() =

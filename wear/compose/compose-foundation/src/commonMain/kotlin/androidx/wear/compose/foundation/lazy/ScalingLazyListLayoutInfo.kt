@@ -97,4 +97,9 @@ public sealed interface ScalingLazyListLayoutInfo {
      * reverseLayout set to false.
      */
     val afterAutoCenteringPadding: Int
+
+    /**
+     * How to anchor list items to the center-line of the viewport
+     */
+    val anchorType: ScalingLazyListAnchorType
 }

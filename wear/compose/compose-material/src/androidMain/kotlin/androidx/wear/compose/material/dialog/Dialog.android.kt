@@ -78,6 +78,7 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * @param properties Typically platform specific properties to further configure the dialog.
  * @param content Slot for dialog content such as [Alert] or [Confirmation].
  */
+@Suppress("DEPRECATION")
 @Composable
 public fun Dialog(
     showDialog: Boolean,

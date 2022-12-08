@@ -184,6 +184,7 @@ private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemInd
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun ScalingLazyColumnCardDemo(
     offset: Dp,
@@ -226,6 +227,7 @@ private fun ScalingLazyColumnCardDemo(
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun ScalingLazyColumnChipDemo(
     offset: Dp,
