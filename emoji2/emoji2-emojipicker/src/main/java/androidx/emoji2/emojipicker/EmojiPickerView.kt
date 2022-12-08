@@ -193,6 +193,9 @@ class EmojiPickerView @JvmOverloads constructor(
                             emojiPickerItems.groupIndexByItemPosition(position)
                     }
                 })
+                // Disable item insertion/deletion animation. This keeps view holder unchanged when
+                // item updates.
+                itemAnimator = null
             }
         }
     }

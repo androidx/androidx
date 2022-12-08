@@ -20,6 +20,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -52,13 +53,19 @@ internal class EmojiPickerHeaderAdapter(
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val isItemSelected = i == selectedGroupIndex
-        ViewCompat.requireViewById<AppCompatImageView>(
+        val headerIcon = ViewCompat.requireViewById<AppCompatImageView>(
             viewHolder.itemView,
             R.id.emoji_picker_header_icon
         ).apply {
             setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
             setOnClickListener { onHeaderIconClicked(i) }
             isSelected = isItemSelected
+            contentDescription = emojiPickerItems.getHeaderIconDescription(i)
+        }
+        if (isItemSelected) {
+            headerIcon.post {
+                headerIcon.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
+            }
         }
 
         ViewCompat.requireViewById<View>(viewHolder.itemView, R.id.emoji_picker_header_underline)
