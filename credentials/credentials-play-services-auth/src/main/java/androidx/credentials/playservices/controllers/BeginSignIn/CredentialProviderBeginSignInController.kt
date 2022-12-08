@@ -154,8 +154,13 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         } else if (response.googleIdToken != null) {
             TODO(" Implement GoogleIdTokenVersion")
         } else if (response.publicKeyCredential != null) {
-            cred = PublicKeyCredential(
-                PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response))
+            try {
+                cred = PublicKeyCredential(
+                    PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
+                )
+            } catch (t: Throwable) {
+                throw GetCredentialUnknownException(t.message)
+            }
         } else {
             Log.i(TAG, "Credential returned but no google Id or password or passkey found")
         }

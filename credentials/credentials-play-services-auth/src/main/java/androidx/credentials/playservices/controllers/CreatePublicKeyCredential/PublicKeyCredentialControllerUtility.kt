@@ -140,13 +140,22 @@ class PublicKeyCredentialControllerUtility {
                 val responseJson = JSONObject()
                 responseJson.put(
                     "clientDataJSON",
-                    Base64.encodeToString(authenticatorResponse.clientDataJSON, FLAGS))
+                    b64Encode(authenticatorResponse.clientDataJSON)
+                )
                 responseJson.put(
                     "authenticatorData",
-                    Base64.encodeToString(authenticatorResponse.authenticatorData, FLAGS))
+                    b64Encode(authenticatorResponse.authenticatorData)
+                )
                 responseJson.put(
                     "signature",
-                    Base64.encodeToString(authenticatorResponse.signature, FLAGS))
+                    b64Encode(authenticatorResponse.signature)
+                )
+                authenticatorResponse.userHandle?.let {
+                    responseJson.put(
+                        "userHandle", b64Encode(authenticatorResponse.userHandle!!)
+                    )
+                }
+                // TODO("attestation object is missing in fido impl")
                 json.put("response", responseJson)
             } else {
                 Log.e(
@@ -155,7 +164,7 @@ class PublicKeyCredentialControllerUtility {
                         .javaClass.name)
             }
             json.put("id", publicKeyCred.id)
-            json.put("rawId", Base64.encodeToString(publicKeyCred.rawId, FLAGS))
+            json.put("rawId", b64Encode(publicKeyCred.rawId))
             json.put("type", publicKeyCred.type)
             return json.toString()
         }
