@@ -101,7 +101,7 @@ class PublicKeyCredentialEntry internal constructor(
         }
 
         /** Sets the icon to be shown on the UI with this entry */
-        fun setIcon(icon: Icon): Builder {
+        fun setIcon(icon: Icon?): Builder {
             this.icon = icon
             return this
         }

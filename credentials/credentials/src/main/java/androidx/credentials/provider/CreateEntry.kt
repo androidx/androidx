@@ -135,21 +135,24 @@ class CreateEntry internal constructor(
 
         @JvmStatic
         fun toSlice(createEntry: CreateEntry): Slice {
+            // TODO("Use the right type and revision")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
-                .addText(createEntry.accountName, /*subType=*/null,
-                    listOf(SLICE_HINT_ACCOUNT_NAME))
-                .addIcon(createEntry.icon, /*subType=*/null, listOf(SLICE_HINT_ICON))
+            sliceBuilder.addText(createEntry.accountName, /*subType=*/null,
+                listOf(SLICE_HINT_ACCOUNT_NAME))
                 .addLong(createEntry.lastUsedTimeMillis, /*subType=*/null, listOf(
                     SLICE_HINT_LAST_USED_TIME_MILLIS))
-
-                val credentialCountBundle = convertCredentialCountInfoToBundle(
-                    createEntry.credentialCountInformation)
-                if (credentialCountBundle != null) {
-                    sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
-                        createEntry.credentialCountInformation), null, listOf(
-                        SLICE_CREDENTIAL_COUNT_INFORMATION))
-                }
-                return sliceBuilder.build()
+            if (createEntry.icon != null) {
+                sliceBuilder.addIcon(createEntry.icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON))
+            }
+            val credentialCountBundle = convertCredentialCountInfoToBundle(
+                createEntry.credentialCountInformation)
+            if (credentialCountBundle != null) {
+                sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
+                    createEntry.credentialCountInformation), null, listOf(
+                    SLICE_CREDENTIAL_COUNT_INFORMATION))
+            }
+            return sliceBuilder.build()
         }
 
         // TODO("Add fromSlice for UI to call")
@@ -171,7 +174,8 @@ class CreateEntry internal constructor(
         @JvmStatic
         internal fun toFrameworkClass(createEntry: CreateEntry):
             android.service.credentials.CreateEntry {
-            return android.service.credentials.CreateEntry(toSlice(createEntry),
+            return android.service.credentials.CreateEntry(
+                toSlice(createEntry),
                 createEntry.pendingIntent)
         }
     }
