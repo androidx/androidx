@@ -15,15 +15,19 @@
  */
 package androidx.credentials.provider
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManager
+import androidx.credentials.provider.Action.Companion.toSlice
+import java.util.Collections
 
 /**
  * An entry to be shown on the selector during a create flow initiated when an app calls
@@ -123,15 +127,22 @@ class CreateEntry internal constructor(
     }
 
     companion object {
+        private const val TAG = "CreateEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_ACCOUNT_NAME = "HINT_USER_PROVIDER_ACCOUNT_NAME"
+        internal const val SLICE_HINT_ACCOUNT_NAME =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_ICON = "HINT_PROFILE_ICON"
+        internal const val SLICE_HINT_ICON =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_CREDENTIAL_COUNT_INFORMATION =
-            "androidx.credentials.provider.SLICE_CREDENTIAL_COUNT_INFORMATION"
+        internal const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val SLICE_HINT_LAST_USED_TIME_MILLIS = "HINT_LAST_USED_TIME_MILLIS"
+        internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
         @JvmStatic
         fun toSlice(createEntry: CreateEntry): Slice {
@@ -145,17 +156,77 @@ class CreateEntry internal constructor(
                 sliceBuilder.addIcon(createEntry.icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON))
             }
-            val credentialCountBundle = convertCredentialCountInfoToBundle(
-                createEntry.credentialCountInformation)
-            if (credentialCountBundle != null) {
-                sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
-                    createEntry.credentialCountInformation), null, listOf(
-                    SLICE_CREDENTIAL_COUNT_INFORMATION))
-            }
+
+                val credentialCountBundle = convertCredentialCountInfoToBundle(
+                    createEntry.credentialCountInformation)
+                if (credentialCountBundle != null) {
+                    sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
+                        createEntry.credentialCountInformation), null, listOf(
+                        SLICE_HINT_CREDENTIAL_COUNT_INFORMATION))
+                }
+            sliceBuilder.addAction(createEntry.pendingIntent,
+                Slice.Builder(sliceBuilder)
+                    .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
+                    .build(),
+                /*subType=*/null)
             return sliceBuilder.build()
         }
 
-        // TODO("Add fromSlice for UI to call")
+        /**
+         * Returns an instance of [CreateEntry] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [toSlice]
+         */
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): CreateEntry? {
+            // TODO("Put the right spec and version value")
+            var accountName: CharSequence = ""
+            var icon: Icon? = null
+            var pendingIntent: PendingIntent? = null
+            var credentialCountInfo: List<CredentialCountInformation> = listOf()
+            var lastUsedTimeMillis: Long = 0
+
+            slice.items.forEach {
+                if (it.hasHint(SLICE_HINT_ACCOUNT_NAME)) {
+                    accountName = it.text
+                } else if (it.hasHint(SLICE_HINT_ICON)) {
+                    icon = it.icon
+                } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
+                    pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)) {
+                    credentialCountInfo = convertBundleToCredentialCountInfo(it.bundle)
+                } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
+                    lastUsedTimeMillis = it.long
+                }
+            }
+
+            return try {
+                CreateEntry(accountName, pendingIntent!!, icon,
+                    lastUsedTimeMillis, credentialCountInfo)
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
+        }
+
+        @JvmStatic
+        internal fun convertBundleToCredentialCountInfo(bundle: Bundle?):
+            List<CredentialCountInformation> {
+            val credentialCountList = ArrayList<CredentialCountInformation>()
+            if (bundle == null) {
+                return credentialCountList
+            }
+            bundle.keySet().forEach {
+                try {
+                    credentialCountList.add(
+                        CredentialCountInformation(it, bundle.getInt(it)))
+                } catch (e: Exception) {
+                    Log.i(TAG, "Issue unpacking credential count info bundle: " + e.message)
+                }
+            }
+            return credentialCountList
+        }
 
         @JvmStatic
         internal fun convertCredentialCountInfoToBundle(

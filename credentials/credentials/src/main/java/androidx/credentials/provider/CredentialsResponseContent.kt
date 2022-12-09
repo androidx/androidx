@@ -26,6 +26,7 @@ import java.util.Objects
  *
  * @property credentialEntries the list of [CredentialEntry] to be shown on the selector UI
  * @property actions the list of [Action] entries to be shown on the selector UI
+ * @property remoteEntry an entry denoting that the flow can be completed on a remote device
  * @throws IllegalStateException if both [credentialEntries] and [actions] are empty
  *
  * @hide
@@ -33,7 +34,8 @@ import java.util.Objects
 @RequiresApi(34)
 class CredentialsResponseContent internal constructor(
     val credentialEntries: List<CredentialEntry>,
-    val actions: List<Action>
+    val actions: List<Action>,
+    val remoteEntry: RemoteEntry?
     ) {
 
     init {
@@ -49,6 +51,7 @@ class CredentialsResponseContent internal constructor(
         // TODO("Add remote entry")
         private var credentialEntries: MutableList<CredentialEntry> = mutableListOf()
         private var actions: MutableList<Action> = mutableListOf()
+        private var remoteEntry: RemoteEntry? = null
 
         /**
          * Add a [CredentialEntry] to the [CredentialsResponseContent], to be shown on the
@@ -92,12 +95,20 @@ class CredentialsResponseContent internal constructor(
             return this
         }
 
+        /**
+         * Sets a a [RemoteEntry] denoting that this flow can be completed on a remote device
+         */
+        fun setRemoteEntry(remoteEntry: RemoteEntry?): Builder {
+            this.remoteEntry = remoteEntry
+            return this
+        }
+
         /** Builds an instance of [CredentialsResponseContent]
          *
          * @throws IllegalStateException if both [credentialEntries] and [actions] are empty
          */
         fun build(): CredentialsResponseContent {
-            return CredentialsResponseContent(credentialEntries, actions)
+            return CredentialsResponseContent(credentialEntries, actions, remoteEntry)
         }
     }
 
@@ -126,6 +137,11 @@ class CredentialsResponseContent internal constructor(
                     Log.i(TAG, "Issue parsing an action: " + e.message)
                 }
             }
+            builder.setRemoteCredentialEntry(credentialsResponseContent.remoteEntry?.let {
+                RemoteEntry.toFrameworkCredentialEntryClass(
+                    it
+                )
+            })
             return builder.build()
         }
     }
