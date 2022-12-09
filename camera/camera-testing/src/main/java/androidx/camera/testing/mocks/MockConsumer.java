@@ -16,10 +16,12 @@
 
 package androidx.camera.testing.mocks;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.testing.mocks.helpers.ArgumentCaptor;
 import androidx.camera.testing.mocks.helpers.CallTimes;
 import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 // TODO(b/239752223): We should change all the mock consumer to this manual mock for
 //  consistency, or try to figure out why this error only happens on certain tests.
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockConsumer<T> implements Consumer<T> {
 
     private CountDownLatch mLatch;
@@ -166,6 +169,31 @@ public class MockConsumer<T> implements Consumer<T> {
 
             mLatch = null;
         }
+    }
+
+    /**
+     * Verifies if there are {@link #accept} calls that haven't been verified.
+     *
+     * @param inOrder {@code true} to only verify the events after the last in order
+     *                verification, {@code false} otherwise.
+     */
+    public void verifyNoMoreAcceptCalls(boolean inOrder) {
+        if (inOrder) {
+            assertEquals("There are extra accept() calls after the last in-order verification",
+                    mIndexLastVerifiedInOrder, mEventList.size() - 1);
+        } else {
+            // TODO(b/261933110): To verify if there's an invocation that hasn't been verified, it
+            //  requires a field to specify whether each call has been verified for not. It's
+            //  better to have the behavior to align with mockito. Although since there's no this
+            //  kind of usage in our tests, we may add it later.
+        }
+    }
+
+    /**
+     * Clears the previous invocations of {@link #accept} method.
+     */
+    public void clearAcceptCalls() {
+        mEventList.clear();
     }
 
     @Override

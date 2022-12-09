@@ -19,6 +19,8 @@ package androidx.camera.testing.mocks;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
+import android.os.Build;
+
 import androidx.camera.testing.mocks.helpers.ArgumentCaptor;
 import androidx.camera.testing.mocks.helpers.CallTimes;
 
@@ -26,7 +28,14 @@ import junit.framework.AssertionFailedError;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class MockConsumerTest {
     public static final String DUMMY_STRING_1 = "dummy1";
     public static final String DUMMY_STRING_2 = "dummy2";
@@ -123,5 +132,33 @@ public class MockConsumerTest {
                 });
 
         assertEquals("Test failed for a timeout of 500 ms", error.getMessage());
+    }
+
+    @Test
+    public void clearAcceptCalls_canClearAcceptCalls() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(2), null);
+
+        mMockConsumer.clearAcceptCalls();
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(1), null);
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_canVerifyWhenInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, true, new CallTimes(2), null);
+        mMockConsumer.verifyNoMoreAcceptCalls(true);
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_throwsWhenInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, true, new CallTimes(2), null);
+        mMockConsumer.accept(new Object());
+        assertThrows(AssertionFailedError.class, () -> mMockConsumer.verifyNoMoreAcceptCalls(true));
     }
 }

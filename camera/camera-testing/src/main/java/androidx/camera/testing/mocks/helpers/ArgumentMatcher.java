@@ -16,11 +16,14 @@
 
 package androidx.camera.testing.mocks.helpers;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * An interface for matching arguments in {@link ArgumentCaptor} class.
  *
  * @param <T> the type of the arguments to capture
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ArgumentMatcher<T> {
 
     /**
