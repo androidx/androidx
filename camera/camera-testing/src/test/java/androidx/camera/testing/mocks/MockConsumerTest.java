@@ -16,25 +16,19 @@
 
 package androidx.camera.testing.mocks;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.Build;
 
 import androidx.camera.testing.mocks.helpers.ArgumentCaptor;
 import androidx.camera.testing.mocks.helpers.CallTimes;
-
-import junit.framework.AssertionFailedError;
+import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(RobolectricTestRunner.class)
-@DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class MockConsumerTest {
     public static final String DUMMY_STRING_1 = "dummy1";
@@ -61,9 +55,10 @@ public class MockConsumerTest {
         mMockConsumer.accept(new Object());
         mMockConsumer.accept(new Object());
 
-        AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                () -> mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(1), null));
-        assertEquals("accept() called 2 time(s) with Object, expected 1 times", error.getMessage());
+        checkAssertionError(
+                () -> mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(1), null),
+                "accept() called 2 time(s) with Object, expected 1 times"
+        );
     }
 
     @Test
@@ -96,7 +91,7 @@ public class MockConsumerTest {
 
         mMockConsumer.verifyAcceptCall(String.class, false, new CallTimes(2), captor);
 
-        assertEquals(DUMMY_STRING_2, captor.getValue());
+        assertThat(DUMMY_STRING_2).isEqualTo(captor.getValue());
     }
 
     @Test
@@ -126,12 +121,10 @@ public class MockConsumerTest {
             mMockConsumer.accept(DUMMY_STRING_1);
         }, "test thread").start();
 
-        AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                () -> {
-                    mMockConsumer.verifyAcceptCall(String.class, false, 500);
-                });
-
-        assertEquals("Test failed for a timeout of 500 ms", error.getMessage());
+        checkAssertionError(
+                () -> mMockConsumer.verifyAcceptCall(String.class, false, 500),
+                "Test failed for a timeout of 500 ms"
+        );
     }
 
     @Test
@@ -143,6 +136,56 @@ public class MockConsumerTest {
         mMockConsumer.clearAcceptCalls();
         mMockConsumer.accept(new Object());
         mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(1), null);
+    }
+
+    @Test
+    public void clearAcceptCalls_canVerifyNoMoreAcceptCalls_whenInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, true, new CallTimes(2), null);
+
+        mMockConsumer.clearAcceptCalls();
+        mMockConsumer.verifyNoMoreAcceptCalls(true);
+    }
+
+    @Test
+    public void clearAcceptCalls_verifyNoMoreAcceptCallsCanThrow_whenInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, true, new CallTimes(2), null);
+
+        mMockConsumer.clearAcceptCalls();
+        mMockConsumer.accept(new Object());
+
+        checkAssertionError(
+                () -> mMockConsumer.verifyNoMoreAcceptCalls(true),
+                "There are extra accept() calls after the last in-order verification"
+        );
+    }
+
+    @Test
+    public void clearAcceptCalls_canVerifyNoMoreAcceptCalls_whenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(2), null);
+
+        mMockConsumer.clearAcceptCalls();
+        mMockConsumer.verifyNoMoreAcceptCalls(false);
+    }
+
+    @Test
+    public void clearAcceptCalls_verifyNoMoreAcceptCallsCanThrow_whenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(2), null);
+
+        mMockConsumer.clearAcceptCalls();
+        mMockConsumer.accept(new Object());
+
+        checkAssertionError(
+                () -> mMockConsumer.verifyNoMoreAcceptCalls(false),
+                "There are extra accept() calls after the last verification"
+        );
     }
 
     @Test
@@ -159,6 +202,70 @@ public class MockConsumerTest {
         mMockConsumer.accept(new Object());
         mMockConsumer.verifyAcceptCall(Object.class, true, new CallTimes(2), null);
         mMockConsumer.accept(new Object());
-        assertThrows(AssertionFailedError.class, () -> mMockConsumer.verifyNoMoreAcceptCalls(true));
+
+        checkAssertionError(
+                () -> mMockConsumer.verifyNoMoreAcceptCalls(true),
+                "There are extra accept() calls after the last in-order verification"
+        );
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_canVerifyWhenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(2), null);
+        mMockConsumer.verifyNoMoreAcceptCalls(false);
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_canThrowWhenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimes(2), null);
+        mMockConsumer.accept(new Object());
+
+        checkAssertionError(
+                () -> mMockConsumer.verifyNoMoreAcceptCalls(false),
+                "There are extra accept() calls after the last verification"
+        );
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_callTimesAtLeast_canVerifyWhenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimesAtLeast(1), null);
+        mMockConsumer.verifyNoMoreAcceptCalls(false);
+    }
+
+    @Test
+    public void verifyNoMoreAcceptCall_callTimesAtLeast_canThrowWhenNotInOrder() {
+        mMockConsumer.accept(new Object());
+        mMockConsumer.accept(new Object());
+        mMockConsumer.verifyAcceptCall(Object.class, false, new CallTimesAtLeast(1), null);
+        mMockConsumer.accept(new Object());
+
+        checkAssertionError(() -> mMockConsumer.verifyNoMoreAcceptCalls(true));
+    }
+
+    private void checkAssertionError(Runnable runnable) {
+        checkAssertionError(runnable, null);
+    }
+
+    private void checkAssertionError(Runnable runnable, String errorMessage) {
+        boolean isExpectedErrorThrown = false;
+        try {
+            runnable.run();
+        } catch (AssertionError e) {
+            isExpectedErrorThrown = true;
+            if (errorMessage != null) {
+                assertThat(e).hasMessageThat().contains(errorMessage);
+            }
+        } finally {
+            if (!isExpectedErrorThrown) {
+                assertWithMessage("Expected AssertionError was not thrown in test").fail();
+            }
+        }
+
     }
 }

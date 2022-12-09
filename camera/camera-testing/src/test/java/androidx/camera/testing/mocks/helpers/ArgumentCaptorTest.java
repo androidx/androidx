@@ -25,17 +25,12 @@ import android.os.Build;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(RobolectricTestRunner.class)
-@DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ArgumentCaptorTest {
     private static final Object DUMMY_ARGUMENT_1 = new Object();
