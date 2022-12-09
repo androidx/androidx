@@ -17,7 +17,7 @@ package androidx.health.services.client {
     method public void setUpdateCallback(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public void setUpdateCallback(java.util.concurrent.Executor executor, androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startExerciseAsync(androidx.health.services.client.data.ExerciseConfig configuration);
-    method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void> updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig);
   }
 
   public final class ExerciseClientExtensionKt {
