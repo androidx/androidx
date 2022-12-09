@@ -518,6 +518,8 @@ public class SurfaceEdge {
             checkMainThread();
             checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
                     "The provider's size must match the parent");
+            checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
+                    + "setting a new provider.");
             checkState(!mHasProvider, "Provider can only be set once.");
             mHasProvider = true;
             Futures.propagate(provider.getSurface(), mCompleter);

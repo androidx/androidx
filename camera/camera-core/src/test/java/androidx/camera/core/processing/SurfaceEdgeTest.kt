@@ -86,6 +86,12 @@ class SurfaceEdgeTest {
         fakeSurface.release()
     }
 
+    @Test(expected = IllegalStateException::class)
+    fun setProviderOnClosedEdge_throwsException() {
+        surfaceEdge.close()
+        surfaceEdge.setProvider(provider)
+    }
+
     @Test
     fun provideSurfaceThenImmediatelyInvalidate_surfaceOutputFails() {
         // Arrange: create SurfaceOutput and set provider.
@@ -163,10 +169,10 @@ class SurfaceEdgeTest {
     }
 
     @Test
-    fun createSurfaceRequestWithClosedInstance_surfaceRequestCancelled() {
-        // Arrange: create a SurfaceRequest from a closed LinkableSurface
-        surfaceEdge.close()
+    fun createSurfaceRequestThenClose_surfaceRequestCancelled() {
+        // Arrange: create a SurfaceRequest then close.
         val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        surfaceEdge.close()
 
         // Act: provide a Surface and get the result.
         var result: SurfaceRequest.Result? = null
