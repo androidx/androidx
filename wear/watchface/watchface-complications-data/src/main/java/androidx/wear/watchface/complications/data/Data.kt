@@ -167,6 +167,12 @@ public sealed class ComplicationData constructor(
      */
     public open fun getNextChangeInstant(afterInstant: Instant): Instant = Instant.MAX
 
+    override fun equals(other: Any?): Boolean =
+        other is ComplicationData &&
+            asWireComplicationData() == other.asWireComplicationData()
+
+    override fun hashCode(): Int = asWireComplicationData().hashCode()
+
     /**
      * Builder for properties in common for most Complication Types.
      * @hide
@@ -297,32 +303,6 @@ public class NoDataComplicationData internal constructor(
         }.build().also { cachedWireComplicationData = it }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as NoDataComplicationData
-
-        if (placeholder != other.placeholder) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = placeholder.hashCode()
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
-    }
-
     override fun toString(): String {
         return "NoDataComplicationData(" +
             "placeholder=$placeholder, " +
@@ -356,16 +336,6 @@ public class EmptyComplicationData : ComplicationData(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
-
     override fun toString(): String {
         return "EmptyComplicationData()"
     }
@@ -395,16 +365,6 @@ public class NotConfiguredComplicationData : ComplicationData(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
 
     override fun toString(): String {
         return "NotConfiguredComplicationData()"
@@ -567,42 +527,6 @@ public class ShortTextComplicationData internal constructor(
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ShortTextComplicationData
-
-        if (text != other.text) return false
-        if (title != other.title) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = text.hashCode()
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
     }
 
     override fun toString(): String {
@@ -784,42 +708,6 @@ public class LongTextComplicationData internal constructor(
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as LongTextComplicationData
-
-        if (text != other.text) return false
-        if (title != other.title) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = text.hashCode()
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
     }
 
     override fun toString(): String {
@@ -1193,54 +1081,6 @@ public class RangedValueComplicationData internal constructor(
         builder.setRangedValueType(valueType)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as RangedValueComplicationData
-
-        if (value != other.value) return false
-        if (valueExpression != other.valueExpression) return false
-        if (valueType != other.valueType) return false
-        if (min != other.min) return false
-        if (max != other.max) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (title != other.title) return false
-        if (text != other.text) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (colorRamp != other.colorRamp) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = value.hashCode()
-        result = 31 * result + (valueExpression?.hashCode() ?: 0)
-        result = 31 * result + valueType
-        result = 31 * result + min.hashCode()
-        result = 31 * result + max.hashCode()
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (text?.hashCode() ?: 0)
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + colorRamp.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
-    }
-
     override fun toString(): String {
         val valueString = if (WireComplicationData.shouldRedact()) {
             "REDACTED"
@@ -1572,50 +1412,6 @@ internal constructor(
             builder.setColorRamp(it.colors)
             builder.setColorRampIsSmoothShaded(it.interpolated)
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as GoalProgressComplicationData
-
-        if (value != other.value) return false
-        if (valueExpression != other.valueExpression) return false
-        if (targetValue != other.targetValue) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (title != other.title) return false
-        if (text != other.text) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (colorRamp != other.colorRamp) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = value.hashCode()
-        result = 31 * result + (valueExpression?.hashCode() ?: 0)
-        result = 31 * result + targetValue.hashCode()
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (text?.hashCode() ?: 0)
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + colorRamp.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
     }
 
     override fun toString(): String {
@@ -1960,40 +1756,6 @@ internal constructor(
         text?.isPlaceholder() == true || title?.isPlaceholder() == true ||
         monochromaticImage?.isPlaceholder() == true || smallImage?.isPlaceholder() == true
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as WeightedElementsComplicationData
-
-        if (elements != other.elements) return false
-        if (elementBackgroundColor != other.elementBackgroundColor) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (title != other.title) return false
-        if (text != other.text) return false
-        if (contentDescription != other.contentDescription) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = elements.hashCode()
-        result = 31 * result + elementBackgroundColor
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (text?.hashCode() ?: 0)
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-
-        return result
-    }
-
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -2117,36 +1879,6 @@ public class MonochromaticImageComplicationData internal constructor(
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as MonochromaticImageComplicationData
-
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = monochromaticImage.hashCode()
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
-    }
-
     override fun hasPlaceholderFields() = monochromaticImage.isPlaceholder()
 
     override fun toString(): String {
@@ -2261,36 +1993,6 @@ public class SmallImageComplicationData internal constructor(
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as SmallImageComplicationData
-
-        if (smallImage != other.smallImage) return false
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = smallImage.hashCode()
-        result = 31 * result + (contentDescription?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
     }
 
     override fun toString(): String {
@@ -2413,53 +2115,6 @@ public class PhotoImageComplicationData internal constructor(
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PhotoImageComplicationData
-
-        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                IconHelperP.equals(photoImage, other.photoImage)
-            } else {
-                IconHelperBeforeP.equals(photoImage, other.photoImage)
-            }
-        ) return false
-
-        if (contentDescription != other.contentDescription) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            var result = IconHelperP.hashCode(photoImage)
-            result = 31 * result + (contentDescription?.hashCode() ?: 0)
-            result = 31 * result + tapActionLostDueToSerialization.hashCode()
-            result = 31 * result + (tapAction?.hashCode() ?: 0)
-            result = 31 * result + dataSource.hashCode()
-            result = 31 * result + persistencePolicy.hashCode()
-            result = 31 * result + displayPolicy.hashCode()
-            result
-        } else {
-            var result = IconHelperBeforeP.hashCode(photoImage)
-            result = 31 * result + (contentDescription?.hashCode() ?: 0)
-            result = 31 * result + tapActionLostDueToSerialization.hashCode()
-            result = 31 * result + (tapAction?.hashCode() ?: 0)
-            result = 31 * result + validTimeRange.hashCode()
-            result = 31 * result + dataSource.hashCode()
-            result = 31 * result + persistencePolicy.hashCode()
-            result = 31 * result + displayPolicy.hashCode()
-            result
-        }
     }
 
     override fun toString(): String {
@@ -2590,40 +2245,6 @@ public class NoPermissionComplicationData internal constructor(
             monochromaticImage?.addToWireComplicationData(this)
             smallImage?.addToWireComplicationData(this)
         }.build().also { cachedWireComplicationData = it }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as NoPermissionComplicationData
-
-        if (text != other.text) return false
-        if (title != other.title) return false
-        if (monochromaticImage != other.monochromaticImage) return false
-        if (smallImage != other.smallImage) return false
-        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
-        if (tapAction != other.tapAction) return false
-        if (validTimeRange != other.validTimeRange) return false
-        if (dataSource != other.dataSource) return false
-        if (persistencePolicy != other.persistencePolicy) return false
-        if (displayPolicy != other.displayPolicy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = text?.hashCode() ?: 0
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
-        result = 31 * result + (smallImage?.hashCode() ?: 0)
-        result = 31 * result + tapActionLostDueToSerialization.hashCode()
-        result = 31 * result + (tapAction?.hashCode() ?: 0)
-        result = 31 * result + validTimeRange.hashCode()
-        result = 31 * result + dataSource.hashCode()
-        result = 31 * result + persistencePolicy.hashCode()
-        result = 31 * result + displayPolicy.hashCode()
-        return result
     }
 
     override fun toString(): String {
