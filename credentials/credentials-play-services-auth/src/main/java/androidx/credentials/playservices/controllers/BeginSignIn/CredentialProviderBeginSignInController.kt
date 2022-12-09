@@ -37,6 +37,7 @@ import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.BeginSignIn.BeginSignInControllerUtility.Companion.constructBeginSignInRequest
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -79,18 +80,12 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             resultData: Bundle
         ) {
             Log.i(TAG, "onReceiveResult - CredentialProviderBeginSignInController")
-            val isError = resultData.getBoolean(FAILURE_RESPONSE)
-            if (isError) {
-                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
-                Log.i(TAG, "onReceiveResult - error seen: $errType")
-                executor.execute {
-                    callback.onError(getCredentialExceptionTypeToException[errType]!!)
-                }
-            } else {
-                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
-                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
-                handleResponse(reqCode, resultCode, resIntent)
-            }
+            if (maybeReportErrorFromResultReceiver(resultData,
+                    CredentialProviderBaseController
+                        .Companion::getCredentialExceptionTypeToException,
+                    executor = executor, callback = callback)) return
+            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
+                resultData.getParcelable(RESULT_DATA_TAG))
         }
     }
 
@@ -113,29 +108,26 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             Log.i(TAG, "returned request code does not match what was given")
             return
         }
-        if (resultCode != Activity.RESULT_OK) {
-            var exception: GetCredentialException = GetCredentialUnknownException()
-            if (resultCode == Activity.RESULT_CANCELED) {
-                exception = GetCredentialCancellationException()
-            }
-            this.executor.execute { -> this.callback.onError(exception) }
-            return
-        }
+        if (maybeReportErrorResultCodeGet(resultCode, TAG) { e -> this.executor.execute {
+                    this.callback.onError(e) } }
+        ) return
         try {
             val signInCredential = Identity.getSignInClient(activity)
                 .getSignInCredentialFromIntent(data)
-            Log.i(TAG, "Credential returned : " + signInCredential.googleIdToken + " , " +
-                signInCredential.id + " , " + signInCredential.password)
+            Log.i(
+                TAG, "Credential returned : " + signInCredential.googleIdToken + " , " +
+                    signInCredential.id + " , " + signInCredential.password
+            )
             val response = convertResponseToCredentialManager(signInCredential)
             Log.i(TAG, "Credential : " + response.credential.toString())
             this.executor.execute { this.callback.onResult(response) }
         } catch (e: ApiException) {
-            var exception: GetCredentialException = GetCredentialUnknownException()
+            var exception: GetCredentialException = GetCredentialUnknownException(e.message)
             if (e.statusCode == CommonStatusCodes.CANCELED) {
                 Log.i(TAG, "User cancelled the prompt!")
-                exception = GetCredentialCancellationException()
+                exception = GetCredentialCancellationException(e.message)
             } else if (e.statusCode in retryables) {
-                exception = GetCredentialInterruptedException()
+                exception = GetCredentialInterruptedException(e.message)
             }
             executor.execute { ->
                 callback.onError(

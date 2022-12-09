@@ -28,9 +28,7 @@ import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.CredentialManagerCallback
-import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
@@ -73,18 +71,12 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
                 TAG,
                 "onReceiveResult - CredentialProviderCreatePasswordController"
             )
-            val isError = resultData.getBoolean(FAILURE_RESPONSE)
-            if (isError) {
-                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
-                Log.i(TAG, "onReceiveResult - error seen: $errType")
-                executor.execute { callback.onError(
-                    createCredentialExceptionTypeToException[errType]!!)
-                }
-            } else {
-                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
-                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
-                handleResponse(reqCode, resultCode, resIntent)
-            }
+            if (maybeReportErrorFromResultReceiver(resultData,
+                    { errType, errMsg ->
+                        createCredentialExceptionTypeToException(errType, errMsg) },
+                    executor = executor, callback = callback)) return
+            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
+                resultData.getParcelable(RESULT_DATA_TAG))
         }
     }
 
@@ -107,14 +99,8 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
-        if (resultCode != Activity.RESULT_OK) {
-            var exception: CreateCredentialException = CreateCredentialUnknownException()
-            if (resultCode == Activity.RESULT_CANCELED) {
-                exception = CreateCredentialCancellationException()
-            }
-            this.executor.execute { -> this.callback.onError(exception) }
-            return
-        }
+        if (maybeReportErrorResultCodeCreate(resultCode, TAG) { e -> this.executor.execute {
+            this.callback.onError(e) } }) return
         Log.i(TAG, "Saving password succeeded")
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
         this.executor.execute { -> this.callback.onResult(response) }

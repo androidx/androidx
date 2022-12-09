@@ -27,7 +27,6 @@ import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManagerCallback
-import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import androidx.credentials.playservices.HiddenActivity
@@ -73,18 +72,13 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
                 TAG,
                 "onReceiveResult - CredentialProviderCreatePublicKeyCredentialController"
             )
-            val isError = resultData.getBoolean(FAILURE_RESPONSE)
-            if (isError) {
-                val errType = resultData.getString(EXCEPTION_TYPE_TAG)
-                Log.i(TAG, "onReceiveResult - error seen: $errType")
-                executor.execute { callback.onError(
-                    publicKeyCredentialExceptionTypeToException[errType]!!)
-                }
-            } else {
-                val reqCode = resultData.getInt(ACTIVITY_REQUEST_CODE_TAG)
-                val resIntent: Intent? = resultData.getParcelable(RESULT_DATA_TAG)
-                handleResponse(reqCode, resultCode, resIntent)
-            }
+            if (maybeReportErrorFromResultReceiver(resultData,
+                    { errType, errMsg ->
+                        createPublicKeyCredentialExceptionTypeToException(errType, errMsg)
+                    },
+                    executor = executor, callback = callback)) return
+            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
+                resultData.getParcelable(RESULT_DATA_TAG))
         }
     }
 
@@ -110,15 +104,8 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
-        if (resultCode != Activity.RESULT_OK) {
-            var exception: CreateCredentialException =
-                CreatePublicKeyCredentialUnknownException()
-            if (resultCode == Activity.RESULT_CANCELED) {
-                exception = CreateCredentialCancellationException()
-            }
-            this.executor.execute { -> this.callback.onError(exception) }
-            return
-        }
+        if (maybeReportErrorResultCodeCreate(resultCode, TAG) { e -> this.executor.execute {
+                this.callback.onError(e) } }) return
         val bytes: ByteArray? = data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
         if (bytes == null) {
             this.executor.execute { this.callback.onError(
@@ -128,7 +115,7 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             return
         }
         val cred: PublicKeyCredential = PublicKeyCredential.deserializeFromBytes(bytes)
-        if (PublicKeyCredentialControllerUtility.publicKeyCredentialResponseContainsError(
+        if (PublicKeyCredentialControllerUtility.reportErrorIfExists(
                 this.callback, this.executor, cred)) {
             return
         }
