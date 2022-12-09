@@ -17,11 +17,13 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
+import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.annotation.RequiresApi
 import androidx.credentials.Credential
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
+import androidx.credentials.R
 
 /**
  * A password credential entry that is displayed on the account selector UI. This
@@ -46,14 +48,16 @@ import androidx.credentials.PublicKeyCredential
  */
 @RequiresApi(34)
 class PasswordCredentialEntry internal constructor(
+    typeDisplayName: CharSequence,
     username: CharSequence,
     displayName: CharSequence?,
     pendingIntent: PendingIntent?,
     credential: Credential?,
     lastUsedTimeMillis: Long,
-    icon: Icon?
+    icon: Icon
 ) : CredentialEntry(PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    username, displayName, pendingIntent, credential, lastUsedTimeMillis, icon
+    typeDisplayName, username, displayName, pendingIntent, credential,
+    lastUsedTimeMillis, icon
 ) {
 
     /**
@@ -70,6 +74,7 @@ class PasswordCredentialEntry internal constructor(
      */
     class Builder {
         // TODO("Add auto select")
+        private val context: Context
         private val username: CharSequence
         private var displayName: CharSequence? = null
         private var pendingIntent: PendingIntent? = null
@@ -84,7 +89,8 @@ class PasswordCredentialEntry internal constructor(
          * Providers should use this constructor when an additional activity is required
          * before returning the final [PasswordCredential]
          */
-        constructor(username: CharSequence, pendingIntent: PendingIntent) {
+        constructor(context: Context, username: CharSequence, pendingIntent: PendingIntent) {
+            this.context = context
             this.username = username
             this.pendingIntent = pendingIntent
         }
@@ -96,7 +102,8 @@ class PasswordCredentialEntry internal constructor(
          * Providers should use this constructor when the credential to be returned is available
          * and no additional activity is required.
          */
-        constructor(username: CharSequence, credential: PasswordCredential) {
+        constructor(context: Context, username: CharSequence, credential: PasswordCredential) {
+            this.context = context
             this.username = username
             this.credential = credential
         }
@@ -125,9 +132,14 @@ class PasswordCredentialEntry internal constructor(
 
         /** Builds an instance of [PasswordCredentialEntry] */
         fun build(): PasswordCredentialEntry {
-            return PasswordCredentialEntry(
+            if (icon == null) {
+                icon = Icon.createWithResource(context, R.drawable.ic_password)
+            }
+            val typeDisplayName = context.getString(
+                R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL)
+            return PasswordCredentialEntry(typeDisplayName,
                 username, displayName, pendingIntent,
-                credential, lastUsedTimeMillis, icon)
+                credential, lastUsedTimeMillis, icon!!)
         }
     }
 }

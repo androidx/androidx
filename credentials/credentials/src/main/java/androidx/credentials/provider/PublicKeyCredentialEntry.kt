@@ -17,11 +17,13 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
+import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.annotation.RequiresApi
 import androidx.credentials.Credential
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
+import androidx.credentials.R
 
 /**
  * A public key credential entry that is displayed on the account selector UI.
@@ -44,15 +46,16 @@ import androidx.credentials.PublicKeyCredential
  */
 @RequiresApi(34)
 class PublicKeyCredentialEntry internal constructor(
+    typeDisplayName: CharSequence,
     username: CharSequence,
     displayName: CharSequence?,
     pendingIntent: PendingIntent?,
     credential: Credential?,
     lastUsedTime: Long,
-    icon: Icon?
+    icon: Icon
 ) : CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, username, displayName,
-    pendingIntent, credential, lastUsedTime, icon
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, typeDisplayName,
+    username, displayName, pendingIntent, credential, lastUsedTime, icon
 ) {
 
     /**
@@ -62,6 +65,7 @@ class PublicKeyCredentialEntry internal constructor(
      */
     class Builder {
         // TODO("Add autoSelect")
+        private val context: Context
         private val username: CharSequence
         private var displayName: CharSequence? = null
         private var pendingIntent: PendingIntent? = null
@@ -76,7 +80,8 @@ class PublicKeyCredentialEntry internal constructor(
          * Providers should use this constructor when an additional activity is required
          * before returning the final [PasswordCredential]
          */
-        constructor(username: CharSequence, pendingIntent: PendingIntent) {
+        constructor(context: Context, username: CharSequence, pendingIntent: PendingIntent) {
+            this.context = context
             this.username = username
             this.pendingIntent = pendingIntent
         }
@@ -89,7 +94,8 @@ class PublicKeyCredentialEntry internal constructor(
          * Providers should use this constructor when the credential to be returned is available
          * and no additional activity is required.
          */
-        constructor(username: CharSequence, credential: PasswordCredential) {
+        constructor(context: Context, username: CharSequence, credential: PasswordCredential) {
+            this.context = context
             this.username = username
             this.credential = credential
         }
@@ -118,9 +124,14 @@ class PublicKeyCredentialEntry internal constructor(
 
         /** Builds an instance of [PublicKeyCredentialEntry] */
         fun build(): PublicKeyCredentialEntry {
-            return PublicKeyCredentialEntry(
+            if (icon == null) {
+                icon = Icon.createWithResource(context, R.drawable.ic_password)
+            }
+            val typeDisplayName = context.getString(
+                R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)
+            return PublicKeyCredentialEntry(typeDisplayName,
                 username, displayName, pendingIntent,
-                credential, lastUsedTimeMillis, icon)
+                credential, lastUsedTimeMillis, icon!!)
         }
     }
 }

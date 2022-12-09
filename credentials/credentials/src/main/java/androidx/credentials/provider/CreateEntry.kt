@@ -42,7 +42,7 @@ import java.util.Collections
  * @property pendingIntent the [PendingIntent] to be fired when this
  * [CreateEntry] is selected
  * @property lastUsedTimeMillis the last used time of the account/group underlying this entry
- * @property credentialCountInformation a list of count information per credential type
+ * @property credentialCountInformationList a list of count information per credential type
  * @throws IllegalArgumentException If [accountName] is empty
  *
  * @hide
