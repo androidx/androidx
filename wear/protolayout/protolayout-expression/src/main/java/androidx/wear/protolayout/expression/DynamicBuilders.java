@@ -32,6 +32,7 @@ import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
+import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -379,6 +380,29 @@ public final class DynamicBuilders {
     @NonNull
     DynamicProto.DynamicInt32 toDynamicInt32Proto();
 
+    /** Creates a constant-valued {@link DynamicInt32}. */
+    @NonNull
+    static DynamicInt32 constant(int constant) {
+      return new FixedInt32.Builder().setValue(constant).build();
+    }
+
+    /**
+     * Creates a {@link DynamicInt32} that is bound to the value of an item of the State.
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with an int value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicInt32 fromState(@NonNull String stateKey) {
+      return new StateInt32Source.Builder().setSourceKey(stateKey).build();
+    }
+
+    /** Convert the value represented by this {@link DynamicInt32} into a {@link DynamicFloat}. */
+    @NonNull
+    default DynamicFloat asFloat() {
+      return new Int32ToFloatOp.Builder().setInput(this).build();
+    }
+
     /**
      * Get the fingerprint for this object or null if unknown.
      *
@@ -465,7 +489,7 @@ public final class DynamicBuilders {
 
     /**
      * Gets digit grouping used. Grouping size and grouping character depend on the current locale.
-     * If not defined, defaults to false. For example,in the English locale, using grouping with
+     * If not defined, defaults to false. For example, in the English locale, using grouping with
      * 1234 would yield "1,234". Intended for testing purposes only.
      *
      * @since 1.2
@@ -537,7 +561,7 @@ public final class DynamicBuilders {
 
       /**
        * Sets digit grouping used. Grouping size and grouping character depend on the current
-       * locale. If not defined, defaults to false. For example,in the English locale, using
+       * locale. If not defined, defaults to false. For example, in the English locale, using
        * grouping with 1234 would yield "1,234".
        *
        * @since 1.2
@@ -638,7 +662,7 @@ public final class DynamicBuilders {
 
   /**
    * A conditional operator which yields an string depending on the boolean operand. This implements
-   * "string result = condition ? if_true : if_false".
+   * "string result = condition ? value_if_true : value_if_false".
    *
    * @since 1.2
    */
@@ -1089,6 +1113,23 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     DynamicProto.DynamicString toDynamicStringProto();
+
+    /** Creates a constant-valued {@link DynamicString}. */
+    @NonNull
+    static DynamicString constant(@NonNull String constant) {
+      return new FixedString.Builder().setValue(constant).build();
+    }
+
+    /**
+     * Creates a {@link DynamicString} that is bound to the value of an item of the State.
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a string value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicString fromState(@NonNull String stateKey) {
+      return new StateStringSource.Builder().setSourceKey(stateKey).build();
+    }
 
     /**
      * Get the fingerprint for this object or null if unknown.
@@ -1561,6 +1602,35 @@ public final class DynamicBuilders {
     @NonNull
     DynamicProto.DynamicFloat toDynamicFloatProto();
 
+    /** Creates a constant-valued {@link DynamicFloat}. */
+    @NonNull
+    static DynamicFloat constant(float constant) {
+      return new FixedFloat.Builder().setValue(constant).build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} that is bound to the value of an item of the State.
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a float value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicFloat fromState(@NonNull String stateKey) {
+      return new StateFloatSource.Builder().setSourceKey(stateKey).build();
+    }
+
+    /**
+     * Returns a {@link DynamicInt32} which holds the largest integer value that is smaller than or
+     * equal to this {@link DynamicFloat}, i.e. {@code int result = (int) Math.floor(this)}
+     */
+    @NonNull
+    default DynamicInt32 asInt() {
+      return new FloatToInt32Op.Builder()
+          .setRoundMode(DynamicBuilders.ROUND_MODE_FLOOR)
+          .setInput(this)
+          .build();
+    }
+
     /**
      * Get the fingerprint for this object or null if unknown.
      *
@@ -1917,6 +1987,23 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     DynamicProto.DynamicBool toDynamicBoolProto();
+
+    /** Creates a constant-valued {@link DynamicBool}. */
+    @NonNull
+    static DynamicBool constant(boolean constant) {
+      return new FixedBool.Builder().setValue(constant).build();
+    }
+
+    /**
+     * Creates a {@link DynamicBool} that is bound to the value of an item of the State.
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a boolean value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicBool fromState(@NonNull String stateKey) {
+      return new StateBoolSource.Builder().setSourceKey(stateKey).build();
+    }
 
     /**
      * Get the fingerprint for this object or null if unknown.
@@ -2302,6 +2389,23 @@ public final class DynamicBuilders {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     DynamicProto.DynamicColor toDynamicColorProto();
+
+    /** Creates a constant-valued {@link DynamicColor}. */
+    @NonNull
+    static DynamicColor constant(@ColorInt int constant) {
+      return new FixedColor.Builder().setArgb(constant).build();
+    }
+
+    /**
+     * Creates a {@link DynamicColor} that is bound to the value of an item of the State.
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the provider's
+     *     state.
+     */
+    @NonNull
+    static DynamicColor fromState(@NonNull String stateKey) {
+      return new StateColorSource.Builder().setSourceKey(stateKey).build();
+    }
 
     /**
      * Get the fingerprint for this object or null if unknown.

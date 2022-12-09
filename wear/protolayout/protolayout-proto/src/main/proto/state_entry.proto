@@ -1,4 +1,4 @@
-// State of a tile.
+// State entries of a provider.
 syntax = "proto3";
 
 package androidx.wear.protolayout.expression.proto;

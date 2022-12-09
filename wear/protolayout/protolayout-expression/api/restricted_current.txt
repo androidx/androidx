@@ -5,21 +5,44 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicBool extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool constant(boolean);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromState(String);
   }
 
   public static interface DynamicBuilders.DynamicColor extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor constant(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromState(String);
   }
 
   public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 asInt();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat constant(float);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat fromState(String);
   }
 
   public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat asFloat();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 constant(int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 fromState(String);
   }
 
   public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString constant(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromState(String);
   }
 
   public static interface DynamicBuilders.DynamicType {
+  }
+
+  public final class StateEntryBuilders {
+  }
+
+  public static interface StateEntryBuilders.StateEntryValue {
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromBool(boolean);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromColor(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromFloat(float);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromInt(int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromString(String);
   }
 
 }

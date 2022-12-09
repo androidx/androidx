@@ -81,7 +81,8 @@ message StateInt32Source {
 }
 
 // A conditional operator which yields an integer depending on the boolean
-// operand. This implements "int result = condition ? value_if_true : value_if_false".
+// operand. This implements "int result = condition ? value_if_true :
+// value_if_false".
 message ConditionalInt32Op {
   // The condition to use.
   DynamicBool condition = 1;
@@ -156,7 +157,7 @@ message Int32FormatOp {
 
   // Digit grouping used. Grouping size and grouping character depend on the
   // current locale. If not defined, defaults to false.
-  // For example,in the English locale, using grouping with 1234 would yield
+  // For example, in the English locale, using grouping with 1234 would yield
   // "1,234".
   bool grouping_used = 5;
 }
@@ -168,7 +169,8 @@ message StateStringSource {
 }
 
 // A conditional operator which yields an string depending on the boolean
-// operand. This implements "string result = condition ? if_true : if_false".
+// operand. This implements "string result = condition ? value_if_true :
+// value_if_false".
 message ConditionalStringOp {
   // The condition to use.
   DynamicBool condition = 1;
@@ -275,7 +277,7 @@ message AnimatableFixedFloat {
 // updates, it will animate between the old and new values.
 //
 // If this node receives an invalid value (e.g. as a result of an upstream node
-// having no value), then it will emit a single invalid value, and forget it
+// having no value), then it will emit a single invalid value, and forget its
 // "stored" value. The next valid value that arrives is then used as the
 // "first" value again.
 message AnimatableDynamicFloat {

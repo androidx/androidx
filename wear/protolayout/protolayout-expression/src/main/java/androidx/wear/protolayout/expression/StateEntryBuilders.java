@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.expression;
 
 import android.annotation.SuppressLint;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -28,8 +29,8 @@ import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
 import androidx.wear.protolayout.expression.proto.StateEntryProto;
 
-/** Builders for state of a tile. */
-final class StateEntryBuilders {
+/** Builders for state entries of a provider. */
+public final class StateEntryBuilders {
   private StateEntryBuilders() {}
 
   /**
@@ -47,6 +48,36 @@ final class StateEntryBuilders {
     @NonNull
     StateEntryProto.StateEntryValue toStateEntryValueProto();
 
+    /** Creates a boolean {@link StateEntryValue}. */
+    @NonNull
+    static StateEntryValue fromBool(boolean constant) {
+      return new FixedBool.Builder().setValue(constant).build();
+    }
+
+    /** Creates a int {@link StateEntryValue}. */
+    @NonNull
+    static StateEntryValue fromInt(int constant) {
+      return new FixedInt32.Builder().setValue(constant).build();
+    }
+
+    /** Creates a float {@link StateEntryValue}. */
+    @NonNull
+    static StateEntryValue fromFloat(float constant) {
+      return new FixedFloat.Builder().setValue(constant).build();
+    }
+
+    /** Creates a color {@link StateEntryValue}. */
+    @NonNull
+    static StateEntryValue fromColor(@ColorInt int constant) {
+      return new FixedColor.Builder().setArgb(constant).build();
+    }
+
+    /** Creates a string {@link StateEntryValue}. */
+    @NonNull
+    static StateEntryValue fromString(@NonNull String constant) {
+      return new FixedString.Builder().setValue(constant).build();
+    }
+
     /**
      * Get the fingerprint for this object or null if unknown.
      *
@@ -56,8 +87,11 @@ final class StateEntryBuilders {
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link StateEntryValue} objects. */
-    @SuppressLint("StaticFinalBuilder")
+    /** Builder to create {@link StateEntryValue} objects.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
       /** Builds an instance with values accumulated in this Builder. */
