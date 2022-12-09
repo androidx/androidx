@@ -50,7 +50,7 @@ class CreatePublicKeyCredentialRequestPrivileged @JvmOverloads constructor(
     // The whole request data should be passed during the query phase.
     candidateQueryData = toCredentialDataBundle(
         requestJson, relyingParty, clientDataHash, allowHybrid),
-    requireSystemProvider = true,
+    requireSystemProvider = false,
 ) {
 
     init {

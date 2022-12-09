@@ -140,7 +140,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
-        assertThat(option.getRequireSystemProvider()).isTrue();
+        assertThat(option.getRequireSystemProvider()).isFalse();
     }
 
     @Test

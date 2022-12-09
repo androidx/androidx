@@ -146,7 +146,7 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.requestData, expectedData)).isTrue()
         assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
-        assertThat(option.requireSystemProvider).isTrue()
+        assertThat(option.requireSystemProvider).isFalse()
     }
 
     @Test

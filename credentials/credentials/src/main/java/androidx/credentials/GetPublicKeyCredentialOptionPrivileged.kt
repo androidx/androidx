@@ -48,7 +48,7 @@ class GetPublicKeyCredentialOptionPrivileged @JvmOverloads constructor(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     requestData = toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
     candidateQueryData = toBundle(requestJson, relyingParty, clientDataHash, allowHybrid),
-    requireSystemProvider = true,
+    requireSystemProvider = false,
 ) {
 
     init {
