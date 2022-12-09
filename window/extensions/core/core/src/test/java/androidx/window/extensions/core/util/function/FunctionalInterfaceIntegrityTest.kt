@@ -17,6 +17,7 @@
 package androidx.window.extensions.core.util.function
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Verifies the integrity of functional interface defined in extensions core. */
@@ -27,10 +28,10 @@ class FunctionalInterfaceIntegrityTest {
      */
     @Test
     fun testConsumerHasOnlyOneMethod() {
-        val testConsumer = Consumer<Int> {}
+        val testConsumer = Consumer<Int> { }
         val consumerClass = testConsumer.javaClass
-        assertEquals(consumerClass.simpleName, Consumer::class.java.simpleName)
-        assertEquals(consumerClass.methods.size, 1)
+        assertTrue(Consumer::class.java.isInstance(testConsumer))
+        assertEquals(1, consumerClass.declaredMethods.size)
     }
 
     /**
@@ -41,8 +42,8 @@ class FunctionalInterfaceIntegrityTest {
     fun testPredicateHasOnlyOneMethod() {
         val testPredicate = Predicate<Int> { true }
         val predicateClass = testPredicate.javaClass
-        assertEquals(predicateClass.simpleName, Predicate::class.java.simpleName)
-        assertEquals(predicateClass.methods.size, 1)
+        assertTrue(Predicate::class.java.isInstance(testPredicate))
+        assertEquals(1, predicateClass.declaredMethods.size)
     }
 
     /**
@@ -53,7 +54,7 @@ class FunctionalInterfaceIntegrityTest {
     fun testFunctionHasOnlyOneMethod() {
         val testFunction = Function<Int, Float> { num -> num.toFloat() }
         val functionClass = testFunction.javaClass
-        assertEquals(functionClass.simpleName, Function::class.java.simpleName)
-        assertEquals(functionClass.methods.size, 1)
+        assertTrue(Function::class.java.isInstance(testFunction))
+        assertEquals(1, functionClass.declaredMethods.size)
     }
 }
