@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -207,7 +206,6 @@ public class PositionIndicatorTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 29) // b/260235088
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPadding() {
         scrollableScalingLazyColumnPositionAndSize(
