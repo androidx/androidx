@@ -207,7 +207,8 @@ final class EmojiProcessor {
     /**
      * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
      */
-    int getEmojiStart(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+    int getEmojiStart(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset,
+            boolean processAll) {
         if (offset < 0 || offset >= charSequence.length()) {
             return -1;
         }
@@ -223,14 +224,15 @@ final class EmojiProcessor {
         // TODO: come up with some heuristic logic to better determine the interval
         final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
         final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
-        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
+        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, processAll,
                 new EmojiProcessLookupCallback(offset)).start;
     }
 
     /**
      * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
      */
-    int getEmojiEnd(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+    int getEmojiEnd(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset,
+            boolean processAll) {
         if (offset < 0 || offset >= charSequence.length()) {
             return -1;
         }
@@ -246,7 +248,7 @@ final class EmojiProcessor {
         // TODO: come up with some heuristic logic to better determine the interval
         final int start = Math.max(0, offset - MAX_LOOK_AROUND_CHARACTER);
         final int end = Math.min(charSequence.length(), offset + MAX_LOOK_AROUND_CHARACTER);
-        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, true,
+        return process(charSequence, start, end, EmojiCompat.EMOJI_COUNT_UNLIMITED, processAll,
                 new EmojiProcessLookupCallback(offset)).end;
     }
 

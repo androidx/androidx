@@ -124,20 +124,20 @@ public class EmojiProcessorTest extends TestCase {
     @Test
     public void sequence_getEmojiStartEnd() {
         final CharSequence source = sequenceFor(77, 1, 1, 2, 77);
-        assertEquals(-1, mProcessor.getEmojiStart(source, 0));
-        assertEquals(-1, mProcessor.getEmojiEnd(source, 0));
+        assertEquals(-1, mProcessor.getEmojiStart(source, 0, true));
+        assertEquals(-1, mProcessor.getEmojiEnd(source, 0, true));
 
-        assertEquals(1, mProcessor.getEmojiStart(source, 1));
-        assertEquals(2, mProcessor.getEmojiEnd(source, 1));
+        assertEquals(1, mProcessor.getEmojiStart(source, 1, true));
+        assertEquals(2, mProcessor.getEmojiEnd(source, 1, true));
 
-        assertEquals(2, mProcessor.getEmojiStart(source, 2));
-        assertEquals(4, mProcessor.getEmojiEnd(source, 2));
+        assertEquals(2, mProcessor.getEmojiStart(source, 2, true));
+        assertEquals(4, mProcessor.getEmojiEnd(source, 2, true));
 
-        assertEquals(2, mProcessor.getEmojiStart(source, 3));
-        assertEquals(4, mProcessor.getEmojiEnd(source, 3));
+        assertEquals(2, mProcessor.getEmojiStart(source, 3, true));
+        assertEquals(4, mProcessor.getEmojiEnd(source, 3, true));
 
-        assertEquals(-1, mProcessor.getEmojiStart(source, 4));
-        assertEquals(-1, mProcessor.getEmojiEnd(source, 4));
+        assertEquals(-1, mProcessor.getEmojiStart(source, 4, true));
+        assertEquals(-1, mProcessor.getEmojiEnd(source, 4, true));
     }
 
     private CharSequence sequenceFor(int... codepoints) {
