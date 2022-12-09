@@ -23,7 +23,7 @@ package androidx.privacysandbox.ads.adservices.customaudience
  */
 class JoinCustomAudienceRequest public constructor(val customAudience: CustomAudience) {
     /**
-     * Checks whether two {@link JoinCustomAudienceRequest} objects contain the same information.
+     * Checks whether two [JoinCustomAudienceRequest] objects contain the same information.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -32,7 +32,7 @@ class JoinCustomAudienceRequest public constructor(val customAudience: CustomAud
     }
 
     /**
-     * Returns the hash of the {@link JoinCustomAudienceRequest} object's data.
+     * Returns the hash of the [JoinCustomAudienceRequest] object's data.
      */
     override fun hashCode(): Int {
         return customAudience.hashCode()

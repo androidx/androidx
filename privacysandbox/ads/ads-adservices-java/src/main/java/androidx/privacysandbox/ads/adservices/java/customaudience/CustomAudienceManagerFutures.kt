@@ -17,12 +17,14 @@
 package androidx.privacysandbox.ads.adservices.java.customaudience
 
 import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
+import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion.obtain
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -41,33 +43,33 @@ import kotlinx.coroutines.async
 abstract class CustomAudienceManagerFutures internal constructor() {
 
     /**
-     * Adds the user to the given {@link CustomAudience}.
+     * Adds the user to the given [CustomAudience].
      *
-     * <p>An attempt to register the user for a custom audience with the same combination of {@code
+     * An attempt to register the user for a custom audience with the same combination of {@code
      * ownerPackageName}, {@code buyer}, and {@code name} will cause the existing custom audience's
      * information to be overwritten, including the list of ads data.
      *
-     * <p>Note that the ads list can be completely overwritten by the daily background fetch job.
+     * Note that the ads list can be completely overwritten by the daily background fetch job.
      *
-     * <p>This call fails with an {@link SecurityException} if
+     * This call fails with an [SecurityException] if
      *
      * <ol>
      *   <li>the {@code ownerPackageName} is not calling app's package name and/or
      *   <li>the buyer is not authorized to use the API.
      * </ol>
      *
-     * <p>This call fails with an {@link IllegalArgumentException} if
+     * This call fails with an [IllegalArgumentException] if
      *
      * <ol>
      *   <li>the storage limit has been exceeded by the calling application and/or
-     *   <li>any URI parameters in the {@link CustomAudience} given are not authenticated with the
-     *       {@link CustomAudience} buyer.
+     *   <li>any URI parameters in the [CustomAudience] given are not authenticated with the
+     *       [CustomAudience] buyer.
      * </ol>
      *
-     * <p>This call fails with {@link LimitExceededException} if the calling package exceeds the
+     * This call fails with [LimitExceededException] if the calling package exceeds the
      * allowed rate limits and is throttled.
      *
-     * <p>This call fails with an {@link IllegalStateException} if an internal service error is
+     * This call fails with an [IllegalStateException] if an internal service error is
      * encountered.
      *
      * @param request The request to join custom audience.
@@ -79,21 +81,21 @@ abstract class CustomAudienceManagerFutures internal constructor() {
     ): ListenableFuture<Unit>
 
     /**
-     * Attempts to remove a user from a custom audience by deleting any existing {@link
-     * CustomAudience} data, identified by {@code ownerPackageName}, {@code buyer}, and {@code
+     * Attempts to remove a user from a custom audience by deleting any existing
+     * [CustomAudience] data, identified by {@code ownerPackageName}, {@code buyer}, and {@code
      * name}.
      *
-     * <p>This call fails with an {@link SecurityException} if
+     * This call fails with an [SecurityException] if
      *
      * <ol>
      *   <li>the {@code ownerPackageName} is not calling app's package name; and/or
      *   <li>the buyer is not authorized to use the API.
      * </ol>
      *
-     * <p>This call fails with {@link LimitExceededException} if the calling package exceeds the
+     * This call fails with [LimitExceededException] if the calling package exceeds the
      * allowed rate limits and is throttled.
      *
-     * <p>This call does not inform the caller whether the custom audience specified existed in
+     * This call does not inform the caller whether the custom audience specified existed in
      * on-device storage. In other words, it will fail silently when a buyer attempts to leave a
      * custom audience that was not joined.
      *

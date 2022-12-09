@@ -21,7 +21,7 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 /**
  * The request object to leave a custom audience.
  *
- * @param buyer an {@link AdTechIdentifier} containing the custom audience's buyer's domain.
+ * @param buyer an [AdTechIdentifier] containing the custom audience's buyer's domain.
  * @param name the String name of the custom audience.
  */
 class LeaveCustomAudienceRequest public constructor(

@@ -23,6 +23,8 @@ import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.os.LimitExceededException
+import android.os.TransactionTooLargeException
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -31,6 +33,7 @@ import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
 import androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -46,24 +49,24 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * application.
      *
      * @param adSelectionConfig the config The input {@code adSelectionConfig} is provided by the
-     * Ads SDK and the {@link AdSelectionConfig} object is transferred via a Binder call. For this
+     * Ads SDK and the [AdSelectionConfig] object is transferred via a Binder call. For this
      * reason, the total size of these objects is bound to the Android IPC limitations. Failures to
-     * transfer the {@link AdSelectionConfig} will throws an {@link TransactionTooLargeException}.
+     * transfer the [AdSelectionConfig] will throws an [TransactionTooLargeException].
      *
-     * <p>The output is passed by the receiver, which either returns an {@link AdSelectionOutcome}
-     * for a successful run, or an {@link Exception} includes the type of the exception thrown and
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
+     * for a successful run, or an [Exception] includes the type of the exception thrown and
      * the corresponding error message.
      *
-     * <p>If the {@link IllegalArgumentException} is thrown, it is caused by invalid input argument
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
      * the API received to run the ad selection.
      *
-     * <p>If the {@link IllegalStateException} is thrown with error message "Failure of AdSelection
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * <p>If the {@link TimeoutException} is thrown, it is caused when a timeout is encountered
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
      * during bidding, scoring, or overall selection process to find winning Ad.
      *
-     * <p>If the {@link LimitExceededException} is thrown, it is caused when the calling package
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
      * exceeds the allowed rate limits and is throttled.
      */
     @DoNotInline
@@ -73,8 +76,8 @@ abstract class AdSelectionManagerFutures internal constructor() {
     ): ListenableFuture<AdSelectionOutcome>
 
     /**
-     * Report the given impression. The {@link ReportImpressionRequest} is provided by the Ads SDK.
-     * The receiver either returns a {@code void} for a successful run, or an {@link Exception}
+     * Report the given impression. The [ReportImpressionRequest] is provided by the Ads SDK.
+     * The receiver either returns a {@code void} for a successful run, or an [Exception]
      * indicates the error.
      *
      * @param reportImpressionRequest the request for reporting impression.
