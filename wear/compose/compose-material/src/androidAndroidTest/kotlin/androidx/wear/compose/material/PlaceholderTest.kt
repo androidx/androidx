@@ -19,6 +19,7 @@ package androidx.wear.compose.material
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -354,6 +355,59 @@ class PlaceholderTest {
         rule.onNodeWithTag("test-item")
             .captureToImage()
             .assertContainsColor(expectedBackgroundColor, 80f)
+    }
+
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Composable
+    fun TestPlaceholderChip(contents: String?, currentState: StableRef<PlaceholderState?>) {
+        val placeholderState = rememberPlaceholderState {
+            contents != null
+        }.also { currentState.value = it }
+        Chip(
+            modifier = Modifier
+                .testTag("test-item")
+                .placeholderShimmer(placeholderState),
+            content = {},
+            onClick = {},
+            colors = PlaceholderDefaults.placeholderChipColors(
+                originalChipColors = ChipDefaults.primaryChipColors(),
+                placeholderState = placeholderState,
+            ),
+            border = ChipDefaults.chipBorder(),
+        )
+        LaunchedEffect(placeholderState) {
+            placeholderState.startPlaceholderAnimation()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Test
+    fun placeholder_lambda_update_works() {
+        val placeholderState = StableRef<PlaceholderState?>(null)
+        val contentsHolder = StableRef<MutableState<String?>>(mutableStateOf(null))
+        rule.setContentWithTheme {
+            val contents: MutableState<String?> = remember { mutableStateOf(null) }
+            contentsHolder.value = contents
+            TestPlaceholderChip(contents = contents.value, placeholderState)
+        }
+
+        rule.waitForIdle()
+
+        placeholderState.value?.initializeTestFrameMillis()
+
+        assertThat(placeholderState.value).isNotNull()
+        assertThat(placeholderState.value?.placeholderStage)
+            .isEqualTo(PlaceholderStage.ShowPlaceholder)
+
+        contentsHolder.value.value = "Test"
+
+        // Trigger move to WipeOff stage
+        placeholderState.value?.advanceFrameMillisAndCheckState(
+            1, PlaceholderStage.WipeOff)
+
+        placeholderState.value?.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS, PlaceholderStage.ShowContent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

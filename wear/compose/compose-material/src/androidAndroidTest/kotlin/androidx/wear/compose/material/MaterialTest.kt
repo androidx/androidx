@@ -342,3 +342,5 @@ private fun writeToDevice(
     }
     return file
 }
+
+class StableRef<T>(var value: T)
