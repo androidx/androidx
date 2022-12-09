@@ -91,18 +91,7 @@ class RuleController private constructor(private val applicationContext: Context
         embeddingBackend.setRules(rules)
     }
 
-    /**
-     * Parses [EmbeddingRule]s from XML rule definitions.
-     *
-     * The [EmbeddingRule]s can then set by [setRules].
-     *
-     * @param staticRuleResourceId the resource containing the static split rules.
-     * @throws IllegalArgumentException if any of the rules in the XML are malformed.
-     */
-    fun parseRules(@XmlRes staticRuleResourceId: Int): Set<EmbeddingRule> =
-        RuleParser.parseRules(applicationContext, staticRuleResourceId) ?: emptySet()
-
-    /** Clears the rules previously registered  by [addRule] or [setRules]. */
+    /** Clears the rules previously registered by [addRule] or [setRules]. */
     fun clearRules() {
         embeddingBackend.setRules(emptySet())
     }
@@ -126,5 +115,18 @@ class RuleController private constructor(private val applicationContext: Context
                 return globalInstance!!
             }
         }
+
+        /**
+         * Parses [EmbeddingRule]s from XML rule definitions.
+         *
+         * The [EmbeddingRule]s can then set by [setRules].
+         *
+         * @param context the context that contains the XML rule definition resources
+         * @param staticRuleResourceId the resource containing the static split rules.
+         * @throws IllegalArgumentException if any of the rules in the XML are malformed.
+         */
+        @JvmStatic
+        fun parseRules(context: Context, @XmlRes staticRuleResourceId: Int): Set<EmbeddingRule> =
+            RuleParser.parseRules(context.applicationContext, staticRuleResourceId) ?: emptySet()
     }
 }
