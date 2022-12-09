@@ -134,6 +134,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         TestGlanceAppWidget.sizeMode = SizeMode.Single
     }
 
+    @Ignore // b/261993523
     @Test
     fun createSimpleAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
@@ -186,6 +187,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @FlakyTest(bugId = 249803914)
     @Test
     fun createResponsiveAppWidget() {
@@ -224,6 +226,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createTextWithFillMaxDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -250,6 +253,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createTextViewWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -263,6 +267,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createBoxWithExactDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -279,6 +284,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createBoxWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -296,6 +302,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createColumnWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -319,6 +326,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createRowWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -342,6 +350,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createRowWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
@@ -367,6 +376,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createColumnWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
@@ -392,6 +402,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createColumnWithTwoTexts2() {
         TestGlanceAppWidget.uiDefinition = {
@@ -417,6 +428,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
@@ -443,6 +455,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun createImage() {
         TestGlanceAppWidget.uiDefinition = {
@@ -458,6 +471,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun drawableBackground() {
         TestGlanceAppWidget.uiDefinition = {
@@ -497,6 +511,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun bitmapBackground() {
         TestGlanceAppWidget.uiDefinition = {
@@ -523,6 +538,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun removeAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
@@ -564,6 +580,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             .isFalse()
     }
 
+    @Ignore // b/261993523
     @Test
     fun updateAll() = runTest {
         TestGlanceAppWidget.uiDefinition = {
@@ -577,6 +594,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun updateIf() = runTest {
         val didRun = AtomicBoolean(false)
@@ -628,6 +646,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(didRun.get()).isFalse()
     }
 
+    @Ignore // b/261993523
     @Test
     fun viewState() {
         TestGlanceAppWidget.uiDefinition = {
@@ -653,6 +672,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun actionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -694,6 +714,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
     }
 
+    @Ignore // b/261993523
     @Test
     fun multipleActionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -725,6 +746,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(2)
     }
 
+    @Ignore // b/261993523
     @Test
     fun wrapAroundFillMaxSize() {
         TestGlanceAppWidget.uiDefinition = {
@@ -842,6 +864,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         // if no crash, we're good
     }
 
+    @Ignore // b/261993523
     @Test
     fun radioActionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -866,6 +889,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(2)
     }
 
+    @Ignore // b/261993523
     @Test
     fun lambdaActionCallback() = runTest {
         if (!useSessionManager) return@runTest
@@ -894,6 +918,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @FlakyTest(bugId = 259938473)
     @Test
     fun unsetActionCallback() = runTest {
@@ -937,6 +962,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun unsetCompoundButtonActionCallback() = runTest {
         TestGlanceAppWidget.uiDefinition = {
@@ -982,6 +1008,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CompoundButtonActionTest.received.get()).isEmpty()
     }
 
+    @Ignore // b/261993523
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun compoundButtonsOnlyHaveOneAction() {
@@ -1009,6 +1036,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun elementsWithActionsHaveRipples() {
         TestGlanceAppWidget.uiDefinition = {
@@ -1031,6 +1059,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun elementsWithNoActionsDontHaveRipples() {
         TestGlanceAppWidget.uiDefinition = {
@@ -1044,6 +1073,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun compoundButtonsDoNotHaveRipples() {
@@ -1062,6 +1092,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
+    @Ignore // b/261993523
     @Test
     fun cancellingContentCoroutineMakesContentLeaveComposition() = runBlocking {
         if (!useSessionManager) return@runBlocking
