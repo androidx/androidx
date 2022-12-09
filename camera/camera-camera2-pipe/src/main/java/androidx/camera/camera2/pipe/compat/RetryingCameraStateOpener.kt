@@ -218,7 +218,7 @@ internal class RetryingCameraStateOpener @Inject constructor(
                     return null
                 }
 
-                if (!shouldRetry(errorCode, attempts, requestTimestamp)) {
+                if (!shouldRetry(errorCode, attempts, requestTimestamp, timeSource)) {
                     Log.error {
                         "Failed to open camera $cameraId after $attempts attempts " +
                             "and ${(Timestamps.now(timeSource) - requestTimestamp).formatMs()}. " +

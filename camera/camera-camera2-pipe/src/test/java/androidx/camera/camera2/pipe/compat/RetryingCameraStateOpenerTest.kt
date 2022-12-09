@@ -16,25 +16,68 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraDevice
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.core.TimeSource
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.TimestampNs
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class RetryingCameraStateOpenerTest {
+    private val cameraId0 = CameraId("0")
+    private val cameraMetadataProvider = object : CameraMetadataProvider {
+        override suspend fun getMetadata(cameraId: CameraId): CameraMetadata =
+            FakeCameraMetadata(cameraId = cameraId)
 
-    private val fakeTimeSource = object : TimeSource {
-        public var currentTimestamp = TimestampNs(0L)
-
-        override fun now() = currentTimestamp
+        override fun awaitMetadata(cameraId: CameraId): CameraMetadata =
+            FakeCameraMetadata(cameraId = cameraId)
     }
+
+    // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
+    private val cameraOpener = object : CameraOpener {
+        var toThrow: Throwable? = null
+        var numberOfOpens = 0
+
+        override fun openCamera(cameraId: CameraId, stateCallback: CameraDevice.StateCallback) {
+            numberOfOpens++
+            toThrow?.let {
+                throw it
+            }
+        }
+    }
+
+    private val fakeTimeSource = FakeTimeSource()
+
+    private val cameraStateOpener =
+        CameraStateOpener(cameraOpener, cameraMetadataProvider, fakeTimeSource)
+
+    private val cameraAvailabilityMonitor = object : CameraAvailabilityMonitor {
+        override suspend fun awaitAvailableCamera(
+            cameraId: CameraId,
+            timeoutMillis: Long
+        ): Boolean = true
+    }
+
+    private val retryingCameraStateOpener =
+        RetryingCameraStateOpener(cameraStateOpener, cameraAvailabilityMonitor, fakeTimeSource)
 
     @Test
     fun testCameraRetryReturnsTrueWithinTimeout() {
@@ -273,5 +316,31 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource
             )
         ).isFalse()
+    }
+
+    @Test
+    fun cameraStateOpenerReturnsCorrectError() = runTest {
+        cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
+        val result =
+            cameraStateOpener.tryOpenCamera(cameraId0, 1, Timestamps.now(fakeTimeSource))
+
+        assertThat(result.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
+    }
+
+    @Test
+    fun retryingCameraStateOpenerRetriesCorrectly() = runTest {
+        cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(cameraId0)
+        }
+        // Advance the time to allow for retries.
+        advanceTimeBy(200)
+        advanceUntilIdle()
+
+        // Now make the retry time limit expire to conclude openCameraWithRetry().
+        fakeTimeSource.currentTimestamp = TimestampNs(30_000_000_000)
+
+        assertThat(result.await()).isNull()
+        assertThat(cameraOpener.numberOfOpens).isEqualTo(2)
     }
 }
