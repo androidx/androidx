@@ -20,6 +20,7 @@ import static junit.framework.TestCase.assertTrue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.testing.mocks.helpers.CallTimes;
 
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> the parameter type to be observed
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockObserver<T> implements Observable.Observer<T> {
     private final Map<T, Integer> mNewDataCount = new HashMap<>();
 

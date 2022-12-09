@@ -16,16 +16,21 @@
 
 package androidx.camera.testing.mocks.helpers;
 
+import androidx.annotation.IntRange;
+import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
+
 /**
  * Utility for defining the number of invocations allowed while testing fake class methods.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CallTimesAtLeast extends CallTimes {
     /**
      * Creates a new instance of {@link CallTimesAtLeast} with the given parameter.
      *
      * @param times the minimum number of invocations that should be occurring
      */
-    public CallTimesAtLeast(int times) {
+    public CallTimesAtLeast(@IntRange(from = 0) int times) {
         super(times);
     }
 
@@ -37,7 +42,9 @@ public class CallTimesAtLeast extends CallTimes {
      *          {@code false} otherwise
      */
     @Override
-    public boolean isSatisfied(int actualCallCount) {
+    public boolean isSatisfied(@IntRange(from = 0) int actualCallCount) {
+        Preconditions.checkArgument(actualCallCount >= 0, "The invocation times can not be "
+                + "negative.");
         return actualCallCount >= mTimes;
     }
 }
