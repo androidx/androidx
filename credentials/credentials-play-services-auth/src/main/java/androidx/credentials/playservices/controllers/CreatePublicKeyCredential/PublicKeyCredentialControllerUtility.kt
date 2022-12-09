@@ -241,7 +241,7 @@ class PublicKeyCredentialControllerUtility {
          *
          * @return true if there is an error, false otherwise
          */
-        fun publicKeyCredentialResponseContainsError(
+        fun reportErrorIfExists(
             callback: CredentialManagerCallback<CreateCredentialResponse,
                 CreateCredentialException>,
             executor: Executor,

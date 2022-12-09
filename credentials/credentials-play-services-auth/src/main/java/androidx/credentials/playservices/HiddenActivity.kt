@@ -62,13 +62,13 @@ open class HiddenActivity : Activity() {
 
         when (type) {
             CredentialProviderBaseController.BEGIN_SIGN_IN_TAG -> {
-                handleBeginSignIn(resultReceiver!!)
+                handleBeginSignIn()
             }
             CredentialProviderBaseController.CREATE_PASSWORD_TAG -> {
-                handleCreatePassword(resultReceiver!!)
+                handleCreatePassword()
             }
             CredentialProviderBaseController.CREATE_PUBLIC_KEY_CREDENTIAL_TAG -> {
-                handleCreatePublicKeyCredential(resultReceiver!!)
+                handleCreatePublicKeyCredential()
             } else -> {
                 Log.i(TAG, "Unknown type")
                 finish()
@@ -76,7 +76,7 @@ open class HiddenActivity : Activity() {
         }
     }
 
-    private fun handleCreatePublicKeyCredential(resultReceiver: ResultReceiver) {
+    private fun handleCreatePublicKeyCredential() {
         val fidoRegistrationRequest: PublicKeyCredentialCreationOptions? = intent
             .getParcelableExtra(CredentialProviderBaseController.REQUEST_TAG)
         val requestCode: Int = intent.getIntExtra(
@@ -102,8 +102,9 @@ open class HiddenActivity : Activity() {
                             "Failed to send pending intent for fido client " +
                                 " : " + e.message
                         )
-                        setupFailure(resultReceiver,
-                            CreatePublicKeyCredentialUnknownException::class.java.name)
+                        setupFailure(resultReceiver!!,
+                            CreatePublicKeyCredentialUnknownException::class.java.name,
+                            "IntentSender failure on public key creation - " + e.message)
                     }
                 }
                 .addOnFailureListener { e: Exception ->
@@ -113,7 +114,8 @@ open class HiddenActivity : Activity() {
                         CredentialProviderBaseController.retryables) {
                         errName = CreatePublicKeyCredentialInterruptedException::class.java.name
                     }
-                    setupFailure(resultReceiver, errName)
+                    setupFailure(resultReceiver!!, errName, e.message +
+                        " - fido registration failure")
                 }
         } ?: run {
             Log.i(TAG, "request is null, nothing to launch for public key credentials")
@@ -121,15 +123,16 @@ open class HiddenActivity : Activity() {
         }
     }
 
-    private fun setupFailure(resultReceiver: ResultReceiver, errName: String) {
+    private fun setupFailure(resultReceiver: ResultReceiver, errName: String, errMsg: String) {
         val bundle = Bundle()
-        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE, true)
+        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE_TAG, true)
         bundle.putString(CredentialProviderBaseController.EXCEPTION_TYPE_TAG, errName)
+        bundle.putString(CredentialProviderBaseController.EXCEPTION_MESSAGE_TAG, errMsg)
         resultReceiver.send(Integer.MAX_VALUE, bundle)
         finish()
     }
 
-    private fun handleBeginSignIn(resultReceiver: ResultReceiver) {
+    private fun handleBeginSignIn() {
         val params: BeginSignInRequest? = intent.getParcelableExtra(
             CredentialProviderBaseController.REQUEST_TAG)
         val requestCode: Int = intent.getIntExtra(
@@ -154,8 +157,9 @@ open class HiddenActivity : Activity() {
                         TAG, "Couldn't start One Tap UI in " +
                             "beginSignIn: " + e.localizedMessage
                     )
-                    setupFailure(resultReceiver,
-                        GetCredentialUnknownException::class.java.name)
+                    setupFailure(resultReceiver!!,
+                        GetCredentialUnknownException::class.java.name,
+                            " - one tap ui intent sender failure - " + e.message)
                 }
             }.addOnFailureListener { e: Exception ->
                 Log.i(TAG, "On Begin Sign In Failure:  " + e.message)
@@ -164,7 +168,8 @@ open class HiddenActivity : Activity() {
                     CredentialProviderBaseController.retryables) {
                     errName = GetCredentialInterruptedException::class.java.name
                 }
-                setupFailure(resultReceiver, errName)
+                setupFailure(resultReceiver!!, errName, e.message +
+                    " - begin sign in failure response from one tap")
             }
         } ?: run {
             Log.i(TAG, "params is null, nothing to launch for begin sign in")
@@ -172,7 +177,7 @@ open class HiddenActivity : Activity() {
         }
     }
 
-    private fun handleCreatePassword(resultReceiver: ResultReceiver) {
+    private fun handleCreatePassword() {
         val params: SavePasswordRequest? = intent.getParcelableExtra(
             CredentialProviderBaseController.REQUEST_TAG)
         val requestCode: Int = intent.getIntExtra(
@@ -199,8 +204,9 @@ open class HiddenActivity : Activity() {
                             TAG, "Couldn't start save password UI in " +
                                 "create password: " + e.localizedMessage
                         )
-                        setupFailure(resultReceiver,
-                            GetCredentialUnknownException::class.java.name)
+                        setupFailure(resultReceiver!!,
+                            GetCredentialUnknownException::class.java.name,
+                                " - save password UI intent sender failure" + e.message)
                     }
             }.addOnFailureListener { e: Exception ->
                     Log.i(TAG, "On Create Password Failure:  " + e.message)
@@ -209,7 +215,8 @@ open class HiddenActivity : Activity() {
                         CredentialProviderBaseController.retryables) {
                         errName = CreateCredentialInterruptedException::class.java.name
                     }
-                    setupFailure(resultReceiver, errName)
+                    setupFailure(resultReceiver!!, errName, e.message + " - save password " +
+                        "failure response from one tap")
             }
         } ?: run {
             Log.i(TAG, "params is null, nothing to launch for create password")
@@ -221,7 +228,7 @@ open class HiddenActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.i(TAG, "onActivityResult : $requestCode , $resultCode")
         val bundle = Bundle()
-        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE, false)
+        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE_TAG, false)
         bundle.putInt(CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG, requestCode)
         bundle.putParcelable(CredentialProviderBaseController.RESULT_DATA_TAG, data)
         resultReceiver?.send(resultCode, bundle)
