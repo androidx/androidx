@@ -54,6 +54,7 @@ import java.util.Collections
 open class CredentialEntry constructor(
     // TODO("Add credential type display name for both CredentialEntry & CreateEntry")
     val type: String,
+    val typeDisplayName: CharSequence,
     val username: CharSequence,
     val displayName: CharSequence?,
     val pendingIntent: PendingIntent?,
@@ -73,6 +74,9 @@ open class CredentialEntry constructor(
 
     companion object {
         private const val TAG = "CredentialEntry"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_USERNAME =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
@@ -94,6 +98,8 @@ open class CredentialEntry constructor(
             // TODO("Put the right revision value")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
                 credentialEntry.type, 1))
+                .addText(credentialEntry.typeDisplayName, /*subType=*/null,
+                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
                 .addText(credentialEntry.username, /*subType=*/null,
                     listOf(SLICE_HINT_USERNAME))
                 .addText(credentialEntry.displayName, /*subType=*/null,
@@ -122,14 +128,17 @@ open class CredentialEntry constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): CredentialEntry? {
-            var username: CharSequence = ""
-            var displayName: CharSequence = ""
+            var typeDisplayName: CharSequence? = null
+            var username: CharSequence? = null
+            var displayName: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var lastUsedTimeMillis: Long = 0
 
             slice.items.forEach {
-                if (it.hasHint(SLICE_HINT_USERNAME)) {
+                if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
+                    typeDisplayName = it.text
+                } else if (it.hasHint(SLICE_HINT_USERNAME)) {
                     username = it.text
                 } else if (it.hasHint(SLICE_HINT_DISPLAYNAME)) {
                     displayName = it.text
@@ -143,8 +152,8 @@ open class CredentialEntry constructor(
             }
 
             return try {
-
-                CredentialEntry(slice.spec!!.type, username, displayName, pendingIntent!!,
+                CredentialEntry(slice.spec!!.type, typeDisplayName!!, username!!,
+                    displayName, pendingIntent!!,
                     /*credential=*/null,
                     lastUsedTimeMillis, icon)
             } catch (e: Exception) {
