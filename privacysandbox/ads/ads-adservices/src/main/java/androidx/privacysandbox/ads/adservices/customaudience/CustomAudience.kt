@@ -25,7 +25,7 @@ import java.time.Instant
 /**
  * Represents the information necessary for a custom audience to participate in ad selection.
  *
- * <p>A custom audience is an abstract grouping of users with similar demonstrated interests. This
+ * A custom audience is an abstract grouping of users with similar demonstrated interests. This
  * class is a collection of some data stored on a device that is necessary to serve advertisements
  * targeting a single custom audience.
  *
@@ -101,7 +101,7 @@ class CustomAudience public constructor(
             "biddingLogicUri=$biddingLogicUri, ads=$ads"
     }
 
-    /** Builder for {@link CustomAudience} objects. */
+    /** Builder for [CustomAudience] objects. */
     @SuppressWarnings("OptionalBuilderConstructorArgument")
     public class Builder(
         private var buyer: AdTechIdentifier,
@@ -128,25 +128,25 @@ class CustomAudience public constructor(
          * Sets the [CustomAudience] object's name.
          *
          * @param name  The custom audience's name is an arbitrary string provided by the owner and
-         * buyer on creation of the {@link CustomAudience} object.
+         * buyer on creation of the [CustomAudience] object.
          */
         fun setName(name: String): Builder = apply {
             this.name = name
         }
 
         /**
-         * On creation of the {@link CustomAudience} object, an optional activation time may be set
+         * On creation of the [CustomAudience] object, an optional activation time may be set
          * in the future, in order to serve a delayed activation. If the field is not set, the
-         * {@link CustomAudience} will be activated at the time of joining.
+         * [CustomAudience] will be activated at the time of joining.
          *
-         * <p>For example, a custom audience for lapsed users may not activate until a threshold of
+         * For example, a custom audience for lapsed users may not activate until a threshold of
          * inactivity is reached, at which point the custom audience's ads will participate in the
          * ad selection process, potentially redirecting lapsed users to the original owner
          * application.
          *
-         * <p>The maximum delay in activation is 60 days from initial creation.
+         * The maximum delay in activation is 60 days from initial creation.
          *
-         * <p>If specified, the activation time must be an earlier instant than the expiration time.
+         * If specified, the activation time must be an earlier instant than the expiration time.
          *
          * @param activationTime activation time, truncated to milliseconds, after which the
          * [CustomAudience] will serve ads.
@@ -160,12 +160,12 @@ class CustomAudience public constructor(
          * ad/bidding data updates or participation in the ad selection process. The custom audience
          * will then be deleted from memory by the next daily update.
          *
-         * <p>If no expiration time is provided on creation of the {@link CustomAudience}, expiry will
+         * If no expiration time is provided on creation of the [CustomAudience], expiry will
          * default to 60 days from activation.
          *
-         * <p>The maximum expiry is 60 days from initial activation.
+         * The maximum expiry is 60 days from initial activation.
          *
-         * @param expirationTime the timestamp {@link Instant}, truncated to milliseconds, after
+         * @param expirationTime the timestamp [Instant], truncated to milliseconds, after
          * which the custom audience should be removed.
          */
         fun setExpirationTime(expirationTime: Instant): Builder = apply {
@@ -186,13 +186,13 @@ class CustomAudience public constructor(
          * User bidding signals are optionally provided by buyers to be consumed by buyer-provided
          * JavaScript during ad selection in an isolated execution environment.
          *
-         * <p>If the user bidding signals are not a valid JSON object that can be consumed by the
+         * If the user bidding signals are not a valid JSON object that can be consumed by the
          * buyer's JS, the custom audience will not be eligible for ad selection.
          *
-         * <p>If not specified, the {@link CustomAudience} will not participate in ad selection
+         * If not specified, the [CustomAudience] will not participate in ad selection
          * until user bidding signals are provided via the daily update for the custom audience.
          *
-         * @param userBiddingSignals an {@link AdSelectionSignals} object representing the user
+         * @param userBiddingSignals an [AdSelectionSignals] object representing the user
          * bidding signals for the custom audience
          */
         fun setUserBiddingSignals(userBiddingSignals: AdSelectionSignals): Builder = apply {
@@ -205,10 +205,10 @@ class CustomAudience public constructor(
          * that will only be used to query the trusted server for a buyer's bidding logic during ad
          * selection.
          *
-         * <p>If not specified, the {@link CustomAudience} will not participate in ad selection
+         * If not specified, the [CustomAudience] will not participate in ad selection
          * until trusted bidding data are provided via the daily update for the custom audience.
          *
-         * @param trustedBiddingSignals a {@link TrustedBiddingData} object containing the custom
+         * @param trustedBiddingSignals a [TrustedBiddingData] object containing the custom
          * audience's trusted bidding data.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -227,14 +227,14 @@ class CustomAudience public constructor(
         }
 
         /**
-         * This list of {@link AdData} objects is a full and complete list of the ads that will be
-         * served by this {@link CustomAudience} during the ad selection process.
+         * This list of [AdData] objects is a full and complete list of the ads that will be
+         * served by this [CustomAudience] during the ad selection process.
          *
-         * <p>If not specified, or if an empty list is provided, the {@link CustomAudience} will not
+         * If not specified, or if an empty list is provided, the [CustomAudience] will not
          * participate in ad selection until a valid list of ads are provided via the daily update
          * for the custom audience.
          *
-         * @param ads a {@link List} of {@link AdData} objects representing ads currently served by
+         * @param ads a [List] of [AdData] objects representing ads currently served by
          * the custom audience.
          */
         fun setAds(ads: List<AdData>): Builder = apply {
@@ -242,7 +242,7 @@ class CustomAudience public constructor(
         }
 
         /**
-         * Builds an instance of a {@link CustomAudience}.
+         * Builds an instance of a [CustomAudience].
          */
         fun build(): CustomAudience {
             return CustomAudience(

@@ -23,9 +23,9 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 /**
  * Contains the configuration of the ad selection process.
  *
- * <p>Instances of this class are created by SDKs to be provided as arguments to the {@link
- * AdSelectionManager#selectAds} and {@link AdSelectionManager#reportImpression} methods in {@link
- * AdSelectionManager}.
+ * Instances of this class are created by SDKs to be provided as arguments to the
+ * [AdSelectionManager#selectAds] and [AdSelectionManager#reportImpression] methods in
+ * [AdSelectionManager].
  *
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
  * @param decisionLogicUri the URI used to retrieve the JS code containing the seller/SSP scoreAd

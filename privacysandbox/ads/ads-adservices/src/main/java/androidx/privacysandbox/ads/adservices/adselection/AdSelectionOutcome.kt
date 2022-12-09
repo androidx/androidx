@@ -19,9 +19,9 @@ package androidx.privacysandbox.ads.adservices.adselection
 import android.net.Uri
 
 /**
- * This class represents  input to the {@link AdSelectionManager#selectAds} in the
- * {@link AdSelectionManager}. This field is populated in the case of a successful
- * {@link AdSelectionManager#selectAds} call.
+ * This class represents  input to the [AdSelectionManager#selectAds] in the
+ * [AdSelectionManager]. This field is populated in the case of a successful
+ * [AdSelectionManager#selectAds] call.
  *
  * @param adSelectionId An ID unique only to a device user that identifies a successful ad
  *     selection.
