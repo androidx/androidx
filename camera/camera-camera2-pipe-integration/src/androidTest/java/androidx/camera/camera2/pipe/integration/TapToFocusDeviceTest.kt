@@ -104,15 +104,13 @@ class TapToFocusDeviceTest {
     }
 
     private fun bindUseCase(@ImageCapture.FlashMode flashMode: Int) {
-        val imageCapture = ImageCapture.Builder().build()
+        val imageCapture = ImageCapture.Builder().setFlashMode(flashMode).build()
 
         camera = CameraUtil.createCameraAndAttachUseCase(
             context,
             cameraSelector,
             imageCapture
         )
-
-        imageCapture.flashMode = flashMode
 
         cameraControl = camera.cameraControl as CameraControlAdapter
 

@@ -110,11 +110,8 @@ class UseCaseManager @Inject constructor(
         }
         Log.debug { "Attaching $useCases from $this" }
 
-        // Notify state attached to use cases
-        for (useCase in useCases) {
-            if (!attachedUseCases.contains(useCase)) {
-                useCase.onStateAttached()
-            }
+        val unattachedUseCases = useCases.filter { useCase ->
+            !attachedUseCases.contains(useCase)
         }
 
         if (attachedUseCases.addAll(useCases)) {
@@ -123,6 +120,11 @@ class UseCaseManager @Inject constructor(
                 return
             }
             refreshAttachedUseCases(attachedUseCases)
+        }
+
+        // Notify state attached to use cases that weren't attached before
+        for (useCase in unattachedUseCases) {
+            useCase.onStateAttached()
         }
     }
 

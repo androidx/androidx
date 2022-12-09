@@ -18,6 +18,13 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+import android.hardware.camera2.TotalCaptureResult
+import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
@@ -27,6 +34,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -164,11 +172,86 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         )
     }
 
-    private fun canTakePicture(flashMode: Int, captureMode: Int) = runBlocking {
-        val imageCapture = ImageCapture.Builder()
-            .setFlashMode(flashMode)
-            .setCaptureMode(captureMode)
-            .build()
+    @Test
+    fun requestAeModeIsOnAlwaysFlash_whenCapturedWithFlashOn() {
+        Assume.assumeFalse(
+            "Cuttlefish API 29 has AE mode availability issue for flash enabled modes." +
+                "Unable to test.",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+        )
+
+        Assume.assumeTrue(
+            "Flash unit not available with back lens facing camera",
+            CameraUtil.hasFlashUnitWithLensFacing(BACK_LENS_FACING)
+        )
+
+        var isAlwaysFlash = true
+
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            captureCallback = object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    isAlwaysFlash = isAlwaysFlash and
+                        (request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+                }
+            }
+        )
+
+        Truth.assertThat(isAlwaysFlash).isTrue()
+    }
+
+    @Test
+    fun requestAeModeIsOnAutoFlash_whenCapturedWithFlashOn() {
+        Assume.assumeFalse(
+            "Cuttlefish API 29 has AE mode availability issue for flash enabled modes." +
+                "Unable to test.",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+        )
+
+        Assume.assumeTrue(
+            "Flash unit not available with back lens facing camera",
+            CameraUtil.hasFlashUnitWithLensFacing(BACK_LENS_FACING)
+        )
+
+        var isAutoFlash = true
+
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_AUTO,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            captureCallback = object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    isAutoFlash = isAutoFlash and
+                        (request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH)
+                }
+            }
+        )
+
+        Truth.assertThat(isAutoFlash).isTrue()
+    }
+
+    private fun canTakePicture(
+        flashMode: Int,
+        captureMode: Int,
+        captureCallback: CameraCaptureSession.CaptureCallback? = null
+    ) = runBlocking {
+        val imageCapture = ImageCapture.Builder().also { builder ->
+            captureCallback?.let {
+                CameraPipeUtil.setCameraCaptureSessionCallback(
+                    implName,
+                    builder,
+                    it
+                )
+            }
+        }.setFlashMode(flashMode).setCaptureMode(captureMode).build()
 
         val preview = Preview.Builder().build()
 
