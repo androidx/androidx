@@ -344,14 +344,9 @@
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Încărcare dezactivată"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Ecran de încărcare"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Comută pentru a adăuga / elimina culori"</string>
-    <!-- no translation found for map_template_toggle_demo_title (6510798293640092611) -->
-    <skip />
-    <!-- no translation found for avoid_tolls_row_title (5194057244144831024) -->
-    <skip />
-    <!-- no translation found for route_options_demo_title (4599699012716426514) -->
-    <skip />
-    <!-- no translation found for avoid_highways_row_title (4711913426200490304) -->
-    <skip />
-    <!-- no translation found for avoid_ferries_row_title (8232883866013711974) -->
-    <skip />
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Șablon pentru hartă cu comutatoare"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Fără drumuri cu taxă"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Opțiuni pentru traseu"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Fără autostrăzi"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Fără feriboturi"</string>
 </resources>
