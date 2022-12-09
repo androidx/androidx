@@ -2,7 +2,18 @@
 package androidx.appsearch.localstorage {
 
   public class LocalStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSessionAsync(androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.localstorage.LocalStorage.SearchContext);
+  }
+
+  public static final class LocalStorage.GlobalSearchContext {
+    method public java.util.concurrent.Executor getWorkerExecutor();
+  }
+
+  public static final class LocalStorage.GlobalSearchContext.Builder {
+    ctor public LocalStorage.GlobalSearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext build();
+    method public androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
   }
 
   public static final class LocalStorage.SearchContext {
