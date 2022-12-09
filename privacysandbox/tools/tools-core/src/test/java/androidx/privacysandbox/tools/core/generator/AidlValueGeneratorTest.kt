@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.testing.loadFilesFromDirectory
 import com.google.common.truth.Truth.assertThat
@@ -41,6 +42,7 @@ class AidlValueGeneratorTest {
                 ValueProperty("intProperty", Types.int),
                 ValueProperty("booleanProperty", Types.boolean),
                 ValueProperty("longProperty", Types.long),
+                ValueProperty("maybeFloatProperty", Types.float.asNullable()),
             )
         )
         val outerValue = AnnotatedValue(
@@ -48,6 +50,7 @@ class AidlValueGeneratorTest {
             listOf(
                 ValueProperty("innerValue", innerValue.type),
                 ValueProperty("innerValueList", Types.list(innerValue.type)),
+                ValueProperty("maybeInnerValue", innerValue.type.asNullable()),
             )
         )
 
@@ -76,6 +79,14 @@ class AidlValueGeneratorTest {
                                 Parameter("inputValues", Types.list(outerValue.type))
                             ),
                             returnType = Types.list(outerValue.type),
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "suspendMethodWithNullableValues",
+                            parameters = listOf(
+                                Parameter("maybeValue", outerValue.type.asNullable())
+                            ),
+                            returnType = outerValue.type.asNullable(),
                             isSuspend = true,
                         ),
                         Method(

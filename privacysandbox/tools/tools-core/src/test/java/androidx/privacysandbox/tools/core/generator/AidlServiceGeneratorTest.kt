@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.testing.loadFilesFromDirectory
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -62,6 +63,12 @@ class AidlServiceGeneratorTest {
                             name = "suspendMethodWithLists",
                             parameters = listOf(Parameter("l", Types.list(Types.int))),
                             returnType = Types.list(Types.string),
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "suspendMethodWithNullables",
+                            parameters = listOf(Parameter("maybeInt", Types.int.asNullable())),
+                            returnType = Types.string.asNullable(),
                             isSuspend = true,
                         ),
                         Method(

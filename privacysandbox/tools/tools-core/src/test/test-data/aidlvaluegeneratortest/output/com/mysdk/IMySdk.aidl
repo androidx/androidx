@@ -10,4 +10,5 @@ oneway interface IMySdk {
     void suspendMethodReceivingValue(in ParcelableOuterValue inputValue, IUnitTransactionCallback transactionCallback);
     void suspendMethodThatReturnsValue(IOuterValueTransactionCallback transactionCallback);
     void suspendMethodWithListsOfValues(in ParcelableOuterValue[] inputValues, IListOuterValueTransactionCallback transactionCallback);
+    void suspendMethodWithNullableValues(in ParcelableOuterValue maybeValue, IOuterValueTransactionCallback transactionCallback);
 }
