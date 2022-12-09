@@ -29,6 +29,7 @@ import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import java.io.File
@@ -114,7 +115,10 @@ class AidlGenerator private constructor(
         addMethod(method.name) {
             method.parameters.forEach { addParameter(it) }
             if (method.isSuspend) {
-                addParameter("transactionCallback", transactionCallback(method.returnType))
+                addParameter(
+                    "transactionCallback",
+                    transactionCallback(wrapWithListIfNeeded(method.returnType))
+                )
             }
         }
     }
@@ -127,7 +131,7 @@ class AidlGenerator private constructor(
         addParameter(
             parameter.name,
             aidlType,
-            isIn = api.valueMap.containsKey(parameter.type) || aidlType.isList
+            isIn = api.valueMap.containsKey(parameter.type.asNonNull()) || aidlType.isList
         )
     }
 
@@ -144,7 +148,7 @@ class AidlGenerator private constructor(
         return annotatedInterfaces
             .flatMap(AnnotatedInterface::methods)
             .filter(Method::isSuspend)
-            .map(Method::returnType).toSet()
+            .map { wrapWithListIfNeeded(it.returnType) }.toSet()
             .map { generateTransactionCallback(it) }
     }
 
@@ -215,7 +219,8 @@ class AidlGenerator private constructor(
     private fun transactionCallback(type: Type) =
         AidlTypeSpec(Type(api.getOnlyService().type.packageName, type.transactionCallbackName()))
 
-    private fun getAidlTypeDeclaration(type: Type): AidlTypeSpec {
+    private fun getAidlTypeDeclaration(rawType: Type): AidlTypeSpec {
+        val type = wrapWithListIfNeeded(rawType)
         api.valueMap[type]?.let { return it.aidlType() }
         api.callbackMap[type]?.let { return it.aidlType() }
         api.interfaceMap[type]?.let { return it.aidlType() }
@@ -235,6 +240,22 @@ class AidlGenerator private constructor(
                 "Unsupported type conversion ${type.qualifiedName}"
             )
         }
+    }
+
+    /**
+     * Removes nullability from a type, and applies necessary changes to represent it in AIDL.
+     *
+     * For primitives, this means wrapping it inside a list, since AIDL doesn't support nullable
+     * primitives.
+     */
+    private fun wrapWithListIfNeeded(type: Type): Type {
+        if (!type.isNullable) return type
+        val nonNullType = type.asNonNull()
+        // Nullable primitives are represented with lists.
+        if (Types.primitiveTypes.contains(nonNullType)) {
+            return Types.list(nonNullType)
+        }
+        return nonNullType
     }
 }
 
@@ -259,4 +280,5 @@ internal fun AnnotatedValue.aidlType() =
 
 internal fun AnnotatedInterface.aidlType() = AidlTypeSpec(Type(type.packageName, aidlName()))
 
-internal fun primitive(name: String) = AidlTypeSpec(Type("", name), requiresImport = false)
+internal fun primitive(name: String, isList: Boolean = false) =
+    AidlTypeSpec(Type("", name), requiresImport = false, isList = isList)
