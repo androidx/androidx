@@ -56,7 +56,7 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
             BeginGetCredentialsProviderRequest(
                 beginGetCredentialOptions,
                 // TODO("Add app signatures when ready on framework")
-                ApplicationInfo(request.callingPackage, arrayOf()))
+                ApplicationInfo(request.callingPackage, ArrayList()))
         val outcome = object : OutcomeReceiver<BeginGetCredentialsProviderResponse,
             CredentialProviderException> {
             override fun onResult(response: BeginGetCredentialsProviderResponse?) {

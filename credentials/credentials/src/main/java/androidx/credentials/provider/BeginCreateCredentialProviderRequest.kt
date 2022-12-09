@@ -49,12 +49,12 @@ open class BeginCreateCredentialProviderRequest internal constructor(
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
                         BeginCreatePasswordCredentialRequest.createFrom(
                             data,
-                            ApplicationInfo(callingPackage, arrayOf())
+                            ApplicationInfo(callingPackage, ArrayList())
                         )
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             data,
-                            ApplicationInfo(callingPackage, arrayOf())
+                            ApplicationInfo(callingPackage, ArrayList())
                         )
                     else -> throw FrameworkClassParsingException()
                 }
@@ -62,7 +62,7 @@ open class BeginCreateCredentialProviderRequest internal constructor(
                 // TODO: Change to custom class when ready
                 BeginCreateCredentialProviderRequest(
                     type,
-                    ApplicationInfo(callingPackage, arrayOf())
+                    ApplicationInfo(callingPackage, ArrayList())
                 )
             }
         }

@@ -53,7 +53,7 @@ class CreateEntry internal constructor(
     val pendingIntent: PendingIntent,
     val icon: Icon?,
     val lastUsedTimeMillis: Long,
-    val credentialCountInformation: List<CredentialCountInformation>
+    val credentialCountInformationList: List<CredentialCountInformation>
     ) {
 
     init {
@@ -86,6 +86,7 @@ class CreateEntry internal constructor(
          * This information will be displayed on the [CreateEntry] to help the user
          * make a choice.
          */
+        @Suppress("MissingGetterMatchingBuilder")
         fun addCredentialCountInformation(info: CredentialCountInformation): Builder {
             credentialCountInformationList.add(info)
             return this
@@ -110,7 +111,7 @@ class CreateEntry internal constructor(
         }
 
         /** Sets the last time this account was used */
-        fun setLastUsedTime(lastUsedTimeMillis: Long): Builder {
+        fun setLastUsedTimeMillis(lastUsedTimeMillis: Long): Builder {
             this.lastUsedTimeMillis = lastUsedTimeMillis
             return this
         }
@@ -158,10 +159,10 @@ class CreateEntry internal constructor(
             }
 
                 val credentialCountBundle = convertCredentialCountInfoToBundle(
-                    createEntry.credentialCountInformation)
+                    createEntry.credentialCountInformationList)
                 if (credentialCountBundle != null) {
                     sliceBuilder.addBundle(convertCredentialCountInfoToBundle(
-                        createEntry.credentialCountInformation), null, listOf(
+                        createEntry.credentialCountInformationList), null, listOf(
                         SLICE_HINT_CREDENTIAL_COUNT_INFORMATION))
                 }
             sliceBuilder.addAction(createEntry.pendingIntent,
@@ -230,13 +231,13 @@ class CreateEntry internal constructor(
 
         @JvmStatic
         internal fun convertCredentialCountInfoToBundle(
-            credentialCountInformation: List<CredentialCountInformation>
+            credentialCountInformationList: List<CredentialCountInformation>
         ): Bundle? {
-            if (credentialCountInformation.isEmpty()) {
+            if (credentialCountInformationList.isEmpty()) {
                 return null
             }
             val bundle = Bundle()
-            credentialCountInformation.forEach {
+            credentialCountInformationList.forEach {
                 bundle.putInt(it.type, it.count)
             }
             return bundle
