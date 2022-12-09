@@ -58,6 +58,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
     ) {
         state.reset()
         constraintSet.applyTo(state, measurables)
+        buildMapping(state, measurables)
         state.apply(root)
         root.children.fastForEach { it.isAnimated = true }
         applyRootSize(constraints)
@@ -185,8 +186,10 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             )
             this.transition.updateFrom(root, Transition.END)
             transition?.applyKeyFramesTo(this.transition)
+        } else {
+            // Have to remap even if there's no reason to remeasure
+            buildMapping(state, measurables)
         }
-
         this.transition.interpolate(root.width, root.height, progress)
         root.width = this.transition.interpolatedWidth
         root.height = this.transition.interpolatedHeight

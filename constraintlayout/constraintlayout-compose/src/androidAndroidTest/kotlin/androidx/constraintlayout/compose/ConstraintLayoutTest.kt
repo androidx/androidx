@@ -19,6 +19,7 @@ package androidx.constraintlayout.compose
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -2267,7 +2269,9 @@ class ConstraintLayoutTest {
                             start.linkTo(parent.start)
                         }
                         .onGloballyPositioned {
-                            box1Position = it.positionInRoot().round()
+                            box1Position = it
+                                .positionInRoot()
+                                .round()
                         })
                 Box(
                     Modifier
@@ -2277,7 +2281,9 @@ class ConstraintLayoutTest {
                             top.linkTo(box1.baseline, box2Margin.toDp())
                         }
                         .onGloballyPositioned {
-                            box2Position = it.positionInRoot().round()
+                            box2Position = it
+                                .positionInRoot()
+                                .round()
                         })
             }
         }
@@ -2286,6 +2292,80 @@ class ConstraintLayoutTest {
         rule.runOnIdle {
             assertEquals(IntOffset(0, expectedBox1Y), box1Position)
             assertEquals(IntOffset(0, expectedBox2Y.roundToInt()), box2Position)
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_withParentIntrinsics() = with(rule.density) {
+        val rootBoxWidth = 200
+        val box1Size = 40
+        val box2Size = 70
+
+        var rootSize = IntSize.Zero
+        var clSize = IntSize.Zero
+        var box1Position = IntOffset.Zero
+        var box2Position = IntOffset.Zero
+
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .width(rootBoxWidth.toDp())
+                    .height(IntrinsicSize.Max)
+                    .background(Color.LightGray)
+                    .onGloballyPositioned {
+                        rootSize = it.size
+                    }
+            ) {
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .background(Color.Yellow)
+                        .onGloballyPositioned {
+                            clSize = it.size
+                        }
+                ) {
+                    val (one, two) = createRefs()
+                    val horChain =
+                        createHorizontalChain(one, two, chainStyle = ChainStyle.Packed(0f))
+                    constrain(horChain) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    Box(
+                        Modifier
+                            .size(box1Size.toDp())
+                            .background(Color.Green)
+                            .constrainAs(one) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .onGloballyPositioned {
+                                box1Position = it.positionInRoot().round()
+                            })
+                    Box(
+                        Modifier
+                            .size(box2Size.toDp())
+                            .background(Color.Red)
+                            .constrainAs(two) {
+                                width = Dimension.preferredWrapContent
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .onGloballyPositioned {
+                                box2Position = it.positionInRoot().round()
+                            })
+                }
+            }
+        }
+
+        val expectedSize = IntSize(rootBoxWidth, box2Size)
+        val expectedBox1Y = ((box2Size / 2f) - (box1Size / 2f)).roundToInt()
+        rule.runOnIdle {
+            assertEquals(expectedSize, rootSize)
+            assertEquals(expectedSize, clSize)
+            assertEquals(IntOffset(0, expectedBox1Y), box1Position)
+            assertEquals(IntOffset(box1Size, 0), box2Position)
         }
     }
 

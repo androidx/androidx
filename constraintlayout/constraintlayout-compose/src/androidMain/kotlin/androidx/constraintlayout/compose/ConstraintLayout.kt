@@ -1358,6 +1358,8 @@ internal open class Measurer(
                 SolverDimension.createWrap().min(constraints.minHeight)
             }
         )
+        state.mParent.width.apply(state, root, ConstraintWidget.HORIZONTAL)
+        state.mParent.height.apply(state, root, ConstraintWidget.VERTICAL)
         // Build constraint set and apply it to the state.
         state.rootIncomingConstraints = constraints
         state.isLtr = layoutDirection == LayoutDirection.Ltr
@@ -1370,6 +1372,7 @@ internal open class Measurer(
         } else {
             buildMapping(state, measurables)
         }
+
         applyRootSize(constraints)
         root.updateHierarchy()
 
@@ -1717,6 +1720,11 @@ object DesignElements {
  * [ConstraintLayoutParentData.ref] or [ConstraintLayoutTagParentData.constraintLayoutId].
  *
  * The Tag is set from [ConstraintLayoutTagParentData.constraintLayoutTag].
+ *
+ * This should always be performed for every Measure call, since there's no guarantee that the
+ * [Measurable]s will be the same instance, even if there's seemingly no changes.
+ * Should be called before applying the [State] or, if there's no need to apply it, should be called
+ * before measuring.
  */
 internal fun buildMapping(state: State, measurables: List<Measurable>) {
     measurables.fastForEach { measurable ->
