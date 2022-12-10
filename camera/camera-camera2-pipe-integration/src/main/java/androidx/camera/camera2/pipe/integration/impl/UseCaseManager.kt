@@ -117,9 +117,9 @@ class UseCaseManager @Inject constructor(
         if (attachedUseCases.addAll(useCases)) {
             if (shouldAddRepeatingUseCase(getRunningUseCases())) {
                 addRepeatingUseCase()
-                return
+            } else {
+                refreshAttachedUseCases(attachedUseCases)
             }
-            refreshAttachedUseCases(attachedUseCases)
         }
 
         // Notify state attached to use cases that weren't attached before
