@@ -45,8 +45,14 @@ public class ContactPointTest {
         ContactPoint contactPoint =
                 new ContactPoint.Builder(namespace, id, label)
                         .setDocumentScore(score)
-                        .setCreationTimestampMillis(creationMillis)
                         .setDocumentTtlMillis(ttlMillis)
+                        .setCreationTimestampMillis(creationMillis)
+                        .setName("my contact point")
+                        .addAlternateName("my alternate contact point")
+                        .addAlternateName("my alternate contact point 2")
+                        .setDescription("this is my contact point")
+                        .setImage("content://images/contactpoint1")
+                        .setUrl("content://contactpoint/1")
                         .setEmails(emails)
                         .setAddresses(addresses)
                         .setTelephones(telephones)
@@ -57,6 +63,13 @@ public class ContactPointTest {
         assertThat(contactPoint.getDocumentScore()).isEqualTo(score);
         assertThat(contactPoint.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(contactPoint.getDocumentTtlMillis()).isEqualTo(ttlMillis);
+        assertThat(contactPoint.getName()).isEqualTo("my contact point");
+        assertThat(contactPoint.getAlternateNames()).isNotNull();
+        assertThat(contactPoint.getAlternateNames())
+                .containsExactly("my alternate contact point", "my alternate contact point 2");
+        assertThat(contactPoint.getDescription()).isEqualTo("this is my contact point");
+        assertThat(contactPoint.getImage()).isEqualTo("content://images/contactpoint1");
+        assertThat(contactPoint.getUrl()).isEqualTo("content://contactpoint/1");
         assertThat(contactPoint.getLabel()).isEqualTo(label);
         assertThat(contactPoint.getEmails()).isEqualTo(emails);
         assertThat(contactPoint.getAddresses()).isEqualTo(addresses);
@@ -84,6 +97,12 @@ public class ContactPointTest {
                         .setDocumentScore(score)
                         .setCreationTimestampMillis(creationMillis)
                         .setDocumentTtlMillis(ttlMillis)
+                        .setName("my contact point")
+                        .addAlternateName("my alternate contact point")
+                        .addAlternateName("my alternate contact point 2")
+                        .setDescription("this is my contact point")
+                        .setImage("content://images/contactpoint1")
+                        .setUrl("content://contactpoint/1")
                         .setEmails(emails)
                         .setAddresses(addresses)
                         .setTelephones(telephones)
@@ -96,6 +115,13 @@ public class ContactPointTest {
         assertThat(contactPointCopy.getDocumentScore()).isEqualTo(score);
         assertThat(contactPointCopy.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(contactPointCopy.getDocumentTtlMillis()).isEqualTo(ttlMillis);
+        assertThat(contactPointCopy.getName()).isEqualTo("my contact point");
+        assertThat(contactPointCopy.getAlternateNames()).isNotNull();
+        assertThat(contactPointCopy.getAlternateNames())
+                .containsExactly("my alternate contact point", "my alternate contact point 2");
+        assertThat(contactPointCopy.getDescription()).isEqualTo("this is my contact point");
+        assertThat(contactPointCopy.getImage()).isEqualTo("content://images/contactpoint1");
+        assertThat(contactPointCopy.getUrl()).isEqualTo("content://contactpoint/1");
         assertThat(contactPointCopy.getLabel()).isEqualTo(label);
         assertThat(contactPointCopy.getEmails()).isEqualTo(emails);
         assertThat(contactPointCopy.getAddresses()).isEqualTo(addresses);
@@ -128,6 +154,12 @@ public class ContactPointTest {
                         .setDocumentScore(score)
                         .setCreationTimestampMillis(creationMillis)
                         .setDocumentTtlMillis(ttlMillis)
+                        .setName("my contact point")
+                        .addAlternateName("my alternate contact point")
+                        .addAlternateName("my alternate contact point 2")
+                        .setDescription("this is my contact point")
+                        .setImage("content://images/contactpoint1")
+                        .setUrl("content://contactpoint/1")
                         .setEmails(emails)
                         .setAddresses(addresses)
                         .setTelephones(telephones);
@@ -150,6 +182,13 @@ public class ContactPointTest {
         assertThat(contactPoint.getDocumentScore()).isEqualTo(score);
         assertThat(contactPoint.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(contactPoint.getDocumentTtlMillis()).isEqualTo(ttlMillis);
+        assertThat(contactPoint.getName()).isEqualTo("my contact point");
+        assertThat(contactPoint.getAlternateNames()).isNotNull();
+        assertThat(contactPoint.getAlternateNames())
+                .containsExactly("my alternate contact point", "my alternate contact point 2");
+        assertThat(contactPoint.getDescription()).isEqualTo("this is my contact point");
+        assertThat(contactPoint.getImage()).isEqualTo("content://images/contactpoint1");
+        assertThat(contactPoint.getUrl()).isEqualTo("content://contactpoint/1");
         assertThat(contactPoint.getLabel()).isEqualTo(label);
         assertThat(contactPoint.getEmails()).isEqualTo(originalEmails);
         assertThat(contactPoint.getAddresses()).isEqualTo(originalAddresses);
@@ -173,6 +212,12 @@ public class ContactPointTest {
                         .setDocumentScore(score)
                         .setCreationTimestampMillis(creationMillis)
                         .setDocumentTtlMillis(ttlMillis)
+                        .setName("my contact point")
+                        .addAlternateName("my alternate contact point")
+                        .addAlternateName("my alternate contact point 2")
+                        .setDescription("this is my contact point")
+                        .setImage("content://images/contactpoint1")
+                        .setUrl("content://contactpoint/1")
                         .setEmails(emails)
                         .setAddresses(addresses)
                         .setTelephones(telephones)
@@ -185,6 +230,16 @@ public class ContactPointTest {
         assertThat(doc.getScore()).isEqualTo(score);
         assertThat(doc.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(doc.getTtlMillis()).isEqualTo(ttlMillis);
+        assertThat(doc.getPropertyString("name")).isEqualTo("my contact point");
+        assertThat(doc.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(doc.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate contact point", "my alternate contact point 2");
+        assertThat(doc.getPropertyString("description"))
+                .isEqualTo("this is my contact point");
+        assertThat(doc.getPropertyString("image"))
+                .isEqualTo("content://images/contactpoint1");
+        assertThat(doc.getPropertyString("url"))
+                .isEqualTo("content://contactpoint/1");
         assertThat(doc.getPropertyString("label")).isEqualTo(label);
         assertThat(doc.getPropertyStringArray("email")).asList().isEqualTo(emails);
         assertThat(doc.getPropertyStringArray("address")).asList().isEqualTo(addresses);

@@ -121,6 +121,11 @@ public class PersonTest {
                 .setDocumentScore(score)
                 .setDocumentTtlMillis(ttlMillis)
                 .setCreationTimestampMillis(creationMillis)
+                .addAlternateName("my alternate person")
+                .addAlternateName("my alternate person 2")
+                .setDescription("this is my person")
+                .setImage("content://images/person1")
+                .setUrl("content://person/1")
                 .setGivenName(givenName)
                 .setMiddleName(middleName)
                 .setFamilyName(familyName)
@@ -141,6 +146,12 @@ public class PersonTest {
         assertThat(person.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(person.getDocumentTtlMillis()).isEqualTo(ttlMillis);
         assertThat(person.getName()).isEqualTo(name);
+        assertThat(person.getAlternateNames()).isNotNull();
+        assertThat(person.getAlternateNames())
+                .containsExactly("my alternate person", "my alternate person 2");
+        assertThat(person.getDescription()).isEqualTo("this is my person");
+        assertThat(person.getImage()).isEqualTo("content://images/person1");
+        assertThat(person.getUrl()).isEqualTo("content://person/1");
         assertThat(person.getGivenName()).isEqualTo(givenName);
         assertThat(person.getMiddleName()).isEqualTo(middleName);
         assertThat(person.getFamilyName()).isEqualTo(familyName);
@@ -228,6 +239,11 @@ public class PersonTest {
                 .setDocumentScore(score)
                 .setDocumentTtlMillis(ttlMillis)
                 .setCreationTimestampMillis(creationMillis)
+                .addAlternateName("my alternate person")
+                .addAlternateName("my alternate person 2")
+                .setDescription("this is my person")
+                .setImage("content://images/person1")
+                .setUrl("content://person/1")
                 .setGivenName(givenName)
                 .setMiddleName(middleName)
                 .setFamilyName(familyName)
@@ -250,6 +266,12 @@ public class PersonTest {
         assertThat(personCopy.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(personCopy.getDocumentTtlMillis()).isEqualTo(ttlMillis);
         assertThat(personCopy.getName()).isEqualTo(name);
+        assertThat(personCopy.getAlternateNames()).isNotNull();
+        assertThat(personCopy.getAlternateNames())
+                .containsExactly("my alternate person", "my alternate person 2");
+        assertThat(personCopy.getDescription()).isEqualTo("this is my person");
+        assertThat(personCopy.getImage()).isEqualTo("content://images/person1");
+        assertThat(personCopy.getUrl()).isEqualTo("content://person/1");
         assertThat(personCopy.getGivenName()).isEqualTo(givenName);
         assertThat(personCopy.getMiddleName()).isEqualTo(middleName);
         assertThat(personCopy.getFamilyName()).isEqualTo(familyName);
@@ -303,6 +325,10 @@ public class PersonTest {
         Person person = new Person.Builder(namespace, id, name)
                 .build();
 
+        assertThat(person.getAdditionalNames()).isEmpty();
+        assertThat(person.getDescription()).isNull();
+        assertThat(person.getImage()).isNull();
+        assertThat(person.getUrl()).isNull();
         assertThat(person.getGivenName()).isNull();
         assertThat(person.getMiddleName()).isNull();
         assertThat(person.getFamilyName()).isNull();
@@ -360,6 +386,11 @@ public class PersonTest {
                 .setDocumentScore(score)
                 .setDocumentTtlMillis(ttlMillis)
                 .setCreationTimestampMillis(creationMillis)
+                .addAlternateName("my alternate person")
+                .addAlternateName("my alternate person 2")
+                .setDescription("this is my person")
+                .setImage("content://images/person1")
+                .setUrl("content://person/1")
                 .setGivenName(givenName)
                 .setMiddleName(middleName)
                 .setFamilyName(familyName)
@@ -393,6 +424,12 @@ public class PersonTest {
         assertThat(person.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(person.getDocumentTtlMillis()).isEqualTo(ttlMillis);
         assertThat(person.getName()).isEqualTo(name);
+        assertThat(person.getAlternateNames()).isNotNull();
+        assertThat(person.getAlternateNames())
+                .containsExactly("my alternate person", "my alternate person 2");
+        assertThat(person.getDescription()).isEqualTo("this is my person");
+        assertThat(person.getImage()).isEqualTo("content://images/person1");
+        assertThat(person.getUrl()).isEqualTo("content://person/1");
         assertThat(person.getGivenName()).isEqualTo(givenName);
         assertThat(person.getMiddleName()).isEqualTo(middleName);
         assertThat(person.getFamilyName()).isEqualTo(familyName);
@@ -444,6 +481,11 @@ public class PersonTest {
                 .setDocumentScore(score)
                 .setDocumentTtlMillis(ttlMillis)
                 .setCreationTimestampMillis(creationMillis)
+                .addAlternateName("my alternate person")
+                .addAlternateName("my alternate person 2")
+                .setDescription("this is my person")
+                .setImage("content://images/person1")
+                .setUrl("content://person/1")
                 .setGivenName(givenName)
                 .setMiddleName(middleName)
                 .setFamilyName(familyName)
@@ -465,6 +507,12 @@ public class PersonTest {
         assertThat(person.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(person.getDocumentTtlMillis()).isEqualTo(ttlMillis);
         assertThat(person.getName()).isEqualTo(name);
+        assertThat(person.getAlternateNames()).isNotNull();
+        assertThat(person.getAlternateNames())
+                .containsExactly("my alternate person", "my alternate person 2");
+        assertThat(person.getDescription()).isEqualTo("this is my person");
+        assertThat(person.getImage()).isEqualTo("content://images/person1");
+        assertThat(person.getUrl()).isEqualTo("content://person/1");
         assertThat(person.getGivenName()).isEqualTo(givenName);
         assertThat(person.getMiddleName()).isEqualTo(middleName);
         assertThat(person.getFamilyName()).isEqualTo(familyName);
@@ -485,6 +533,15 @@ public class PersonTest {
         assertThat(doc.getCreationTimestampMillis()).isEqualTo(creationMillis);
         assertThat(doc.getTtlMillis()).isEqualTo(ttlMillis);
         assertThat(doc.getPropertyString("name")).isEqualTo(name);
+        assertThat(doc.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(doc.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate person", "my alternate person 2");
+        assertThat(doc.getPropertyString("description"))
+                .isEqualTo("this is my person");
+        assertThat(doc.getPropertyString("image"))
+                .isEqualTo("content://images/person1");
+        assertThat(doc.getPropertyString("url"))
+                .isEqualTo("content://person/1");
         assertThat(doc.getPropertyString("givenName")).isEqualTo(givenName);
         assertThat(doc.getPropertyString("middleName")).isEqualTo(middleName);
         assertThat(doc.getPropertyString("familyName")).isEqualTo(familyName);
