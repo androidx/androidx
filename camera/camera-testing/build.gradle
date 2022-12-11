@@ -17,7 +17,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -41,6 +40,7 @@ dependencies {
     implementation("androidx.test.espresso:espresso-core:3.5.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
     implementation(libs.junit)
+    implementation(libs.truth)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 
