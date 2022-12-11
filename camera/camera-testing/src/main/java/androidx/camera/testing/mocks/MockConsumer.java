@@ -18,6 +18,7 @@ package androidx.camera.testing.mocks;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -25,6 +26,7 @@ import androidx.camera.testing.mocks.helpers.ArgumentCaptor;
 import androidx.camera.testing.mocks.helpers.CallTimes;
 import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
 import androidx.core.util.Consumer;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +44,8 @@ import java.util.concurrent.TimeUnit;
 //  consistency, or try to figure out why this error only happens on certain tests.
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockConsumer<T> implements Consumer<T> {
+
+    private static final long NO_TIMEOUT = 0;
 
     private CountDownLatch mLatch;
 
@@ -92,10 +96,6 @@ public class MockConsumer<T> implements Consumer<T> {
     }
 
     private boolean isVerified() {
-        if (mClassTypeToVerify == null || mCallTimes == null) {
-            return false;
-        }
-
         return mCallTimes.isSatisfied(getMatchingEventCount());
     }
 
@@ -104,30 +104,11 @@ public class MockConsumer<T> implements Consumer<T> {
      *
      * @param captor the argument captor to record the arguments passed to {@link #accept} method
      *               matching the provided {@code classType}
-     * @see #verifyAcceptCall(Class, boolean, long, CallTimes)
+     * @see #verifyAcceptCall(Class, boolean, long, CallTimes, ArgumentCaptor)
      */
     public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
             @NonNull CallTimes callTimes, @Nullable ArgumentCaptor<T> captor) {
-        mClassTypeToVerify = classType;
-        mCallTimes = callTimes;
-        mInOrder = inOrder;
-
-        assertWithMessage(
-                "accept() called " + getMatchingEventCount() + " time(s) with "
-                        + classType.getSimpleName() + (inOrder ? " in order" : "") + ", expected "
-                        + (callTimes instanceof CallTimesAtLeast ? " at least " : "")
-                        + callTimes.getTimes() + " times"
-        ).that(isVerified()).isTrue();
-
-        markMatchingEventsAsVerified();
-
-        if (inOrder) {
-            mIndexLastVerifiedInOrder = getLastVerifiedEventInOrder();
-        }
-
-        if (captor != null) {
-            captor.setArguments(mEventList);
-        }
+        verifyAcceptCall(classType, inOrder, NO_TIMEOUT, callTimes, captor);
     }
 
     /**
@@ -136,10 +117,10 @@ public class MockConsumer<T> implements Consumer<T> {
      * <p>{@code callTimes} defaults to {@code new CallTimes(1)} which ensures that
      * {@link #accept} method was invoked exactly once with given verification parameters.
      *
-     * @see #verifyAcceptCall(Class, boolean, long, CallTimes)
+     * @see #verifyAcceptCall(Class, boolean, long, CallTimes, ArgumentCaptor)
      */
     public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
-            long timeoutInMillis) {
+            @IntRange(from = 0) long timeoutInMillis) {
         verifyAcceptCall(classType, inOrder, timeoutInMillis, new CallTimes(1));
     }
 
@@ -156,22 +137,52 @@ public class MockConsumer<T> implements Consumer<T> {
      *                        {@link junit.framework.AssertionFailedError} is thrown
      * @param callTimes       the condition for how many times {@link #accept} method should be
      *                        called
+     * @see #verifyAcceptCall(Class, boolean, long, CallTimes, ArgumentCaptor)
      */
     public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
-            long timeoutInMillis, @NonNull CallTimes callTimes) {
+            @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes) {
+        verifyAcceptCall(classType, inOrder, timeoutInMillis, callTimes, null);
+    }
+
+    /**
+     * Verifies if {@link #accept} method was invoked properly during test.
+     *
+     * <p>Usually invoked from a method with {@link org.junit.Test} annotation.
+     *
+     * @param classType       the class type to verify for the parameter of {@link #accept(Object)}
+     *                        method, this is checked with {@link Class#isInstance(Object)} method
+     * @param inOrder         the {@link #verifyAcceptCall} method invocations with {@code inOrder =
+     *                        true} are chained together to make sure they were in order
+     * @param timeoutInMillis the time limit to wait for asynchronous operation after which
+     *                        {@link junit.framework.AssertionFailedError} is thrown
+     * @param callTimes       the condition for how many times {@link #accept} method should be
+     *                        called
+     * @param captor          the argument captor to record the arguments passed to
+     *                        {@link #accept} method matching the provided {@code classType}
+     */
+    public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
+            @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes,
+            @Nullable ArgumentCaptor<T> captor) {
+        Preconditions.checkNotNull(classType, "The class type can not be null.");
+        Preconditions.checkState(timeoutInMillis >= 0,
+                "Timeout can not be negative: " + timeoutInMillis);
+        Preconditions.checkNotNull(callTimes, "The call times criteria can not be null.");
+
         mClassTypeToVerify = classType;
         mCallTimes = callTimes;
         mInOrder = inOrder;
 
         if (!isVerified()) {
-            mLatch = new CountDownLatch(1);
-
-            try {
-                assertWithMessage(
-                        "Test failed for a timeout of " + timeoutInMillis + " ms"
-                ).that(mLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS)).isTrue();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            if (timeoutInMillis != NO_TIMEOUT) {
+                mLatch = new CountDownLatch(1);
+                try {
+                    assertWithMessage(
+                            "Test failed for a timeout of " + timeoutInMillis + " ms"
+                    ).that(mLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS)).isTrue();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                mLatch = null;
             }
 
             assertWithMessage(
@@ -181,14 +192,16 @@ public class MockConsumer<T> implements Consumer<T> {
                             + (callTimes instanceof CallTimesAtLeast ? " at least " : "")
                             + callTimes.getTimes() + " times"
             ).that(isVerified()).isTrue();
+        }
 
-            markMatchingEventsAsVerified();
+        markMatchingEventsAsVerified();
 
-            if (inOrder) {
-                mIndexLastVerifiedInOrder = getLastVerifiedEventInOrder();
-            }
+        if (inOrder) {
+            mIndexLastVerifiedInOrder = getLastVerifiedEventInOrder();
+        }
 
-            mLatch = null;
+        if (captor != null) {
+            captor.setArguments(mEventList);
         }
     }
 
