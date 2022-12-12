@@ -37,7 +37,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
-import androidx.camera.core.SurfaceProcessor;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
@@ -129,8 +128,9 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
+     * @inheritDoc
      */
+    @Override
     public void requestClose() {
         AtomicReference<Consumer<Event>> eventListenerRef = new AtomicReference<>();
         Executor executor = null;

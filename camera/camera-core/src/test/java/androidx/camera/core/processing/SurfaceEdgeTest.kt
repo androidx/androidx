@@ -121,6 +121,12 @@ class SurfaceEdgeTest {
     }
 
     @Test
+    fun setSameProviderTwice_noException() {
+        surfaceEdge.setProvider(provider)
+        surfaceEdge.setProvider(provider)
+    }
+
+    @Test
     fun closeProviderAfterConnected_surfaceNotReleased() {
         // Arrange.
         val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
