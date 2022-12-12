@@ -24,4 +24,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- Theme to show the expanded dialog Activity as transparent. -->
+    <style name="ExpandedDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
 </resources>
