@@ -194,6 +194,7 @@ fun collectStableBaselineProfile(
  * Builds a [MacrobenchmarkScope] instance after checking for the necessary pre-requisites.
  */
 private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
+    Arguments.throwIfError()
     require(
         Build.VERSION.SDK_INT >= 33 ||
             (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
