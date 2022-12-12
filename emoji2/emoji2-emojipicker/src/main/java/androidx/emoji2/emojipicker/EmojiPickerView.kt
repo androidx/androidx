@@ -116,7 +116,7 @@ class EmojiPickerView @JvmOverloads constructor(
                 onEmojiPickedListener?.accept(emojiViewItem)
 
                 scope.launch {
-                    recentEmojiProvider.insert(emojiViewItem.emoji)
+                    recentEmojiProvider.recordSelection(emojiViewItem.emoji)
                     refreshRecentItems()
                 }
             }
@@ -204,7 +204,7 @@ class EmojiPickerView @JvmOverloads constructor(
     }
 
     private suspend fun refreshRecentItems() {
-        val recent = recentEmojiProvider.getRecentItemList()
+        val recent = recentEmojiProvider.getRecentEmojiList()
         recentItems.clear()
         recentItems.addAll(recent.map {
             EmojiViewData(
@@ -222,7 +222,7 @@ class EmojiPickerView @JvmOverloads constructor(
         this.onEmojiPickedListener = onEmojiPickedListener
     }
 
-    internal fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
+    fun setRecentEmojiProvider(recentEmojiProvider: RecentEmojiProvider) {
         this.recentEmojiProvider = recentEmojiProvider
 
         if (::emojiPickerItems.isInitialized) {
