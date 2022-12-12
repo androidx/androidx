@@ -19,7 +19,6 @@ package androidx.credentials
 import android.app.Activity
 import android.content.Context
 import android.credentials.CredentialManager
-import android.credentials.CredentialManagerException
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.util.Log
@@ -52,12 +51,12 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onGetCredential")
 
         val outcome = object : OutcomeReceiver<
-            android.credentials.GetCredentialResponse, CredentialManagerException> {
+            android.credentials.GetCredentialResponse, android.credentials.GetCredentialException> {
             override fun onResult(response: android.credentials.GetCredentialResponse) {
                 Log.i(TAG, "GetCredentialResponse returned from framework")
                 callback.onResult(convertGetResponseToJetpackClass(response))
             }
-            override fun onError(error: CredentialManagerException) {
+            override fun onError(error: android.credentials.GetCredentialException) {
                 Log.i(TAG, "GetCredentialResponse error returned from framework")
                 // TODO("Covert to the appropriate exception")
                 callback.onError(GetCredentialUnknownException(error.message))
@@ -82,13 +81,14 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
 
         val outcome = object : OutcomeReceiver<
             android.credentials.CreateCredentialResponse,
-            CredentialManagerException> {
+            android.credentials.CreateCredentialException> {
             override fun onResult(response: android.credentials.CreateCredentialResponse) {
                 Log.i(TAG, "Create Result returned from framework: ")
                 callback.onResult(CreateCredentialResponse.createFrom(
                     request.type, response.data))
             }
-            override fun onError(error: CredentialManagerException) {
+
+            override fun onError(error: android.credentials.CreateCredentialException) {
                 Log.i(TAG, "CreateCredentialResponse error returned from framework")
                 // TODO("Covert to the appropriate exception")
                 callback.onError(CreateCredentialUnknownException(error.message))
@@ -113,9 +113,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         request.getCredentialOptions.forEach {
             builder.addGetCredentialOption(
                 android.credentials.GetCredentialOption(
-                    // TODO: Update to split credential and request data when
-                    // framework changes ready
-                    it.type, it.requestData, it.requireSystemProvider
+                    it.type, it.candidateQueryData, it.requestData, it.requireSystemProvider
                 ))
         }
         return builder.build()

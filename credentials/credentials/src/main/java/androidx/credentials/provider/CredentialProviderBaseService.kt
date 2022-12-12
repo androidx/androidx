@@ -21,8 +21,9 @@ import android.os.OutcomeReceiver
 import android.service.credentials.BeginCreateCredentialResponse
 import android.service.credentials.CredentialProviderException
 import android.service.credentials.CredentialProviderService
-import android.service.credentials.GetCredentialsRequest
-import android.service.credentials.GetCredentialsResponse
+import android.service.credentials.BeginGetCredentialsRequest
+import android.service.credentials.BeginGetCredentialsResponse
+import android.util.ArraySet
 import android.util.Log
 import androidx.annotation.RequiresApi
 
@@ -38,25 +39,25 @@ import androidx.annotation.RequiresApi
  */
 @RequiresApi(34)
 abstract class CredentialProviderBaseService : CredentialProviderService() {
-    final override fun onGetCredentials(
-        request: GetCredentialsRequest,
+    final override fun onBeginGetCredentials(
+        request: BeginGetCredentialsRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<GetCredentialsResponse, CredentialProviderException>
+        callback: OutcomeReceiver<BeginGetCredentialsResponse, CredentialProviderException>
     ) {
         val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> = mutableListOf()
-        request.getCredentialOptions.forEach {
+        request.beginGetCredentialOptions.forEach {
             beginGetCredentialOptions.add(
                 BeginGetCredentialOption
                     .createFrom(
                         it.type,
-                        // TODO("Update to it.candidateQueryData when ready on framework")
-                        it.data))
+                        it.candidateQueryData))
         }
         val structuredRequest =
             BeginGetCredentialsProviderRequest(
                 beginGetCredentialOptions,
-                // TODO("Add app signatures when ready on framework")
-                ApplicationInfo(request.callingPackage, ArrayList()))
+                CallingAppInfo(request.callingPackage,
+                    ArraySet()
+                ))
         val outcome = object : OutcomeReceiver<BeginGetCredentialsProviderResponse,
             CredentialProviderException> {
             override fun onResult(response: BeginGetCredentialsProviderResponse?) {

@@ -16,7 +16,7 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
-import android.service.credentials.GetCredentialsResponse
+import android.service.credentials.BeginGetCredentialsResponse
 import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.provider.BeginGetCredentialsProviderResponse.Companion.createWithAuthentication
@@ -66,15 +66,15 @@ class BeginGetCredentialsProviderResponse internal constructor(
 
         @JvmStatic
         internal fun toFrameworkClass(response: BeginGetCredentialsProviderResponse):
-            GetCredentialsResponse {
+            BeginGetCredentialsResponse {
             // TODO("Return BeginGetCredentialsResponse when ready on the framework")
             return if (response.credentialsResponseContent != null) {
-                GetCredentialsResponse.createWithResponseContent(
+                BeginGetCredentialsResponse.createWithResponseContent(
                     CredentialsResponseContent.toFrameworkClass(
                         response.credentialsResponseContent)
                 )
             } else if (response.authenticationAction != null) {
-                GetCredentialsResponse.createWithAuthentication(
+                BeginGetCredentialsResponse.createWithAuthentication(
                     AuthenticationAction.toFrameworkClass(response.authenticationAction)
                 )
             } else {

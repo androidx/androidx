@@ -30,5 +30,5 @@ import androidx.credentials.CreateCredentialRequest
 @RequiresApi(34)
 class CreateCredentialProviderRequest internal constructor(
     val callingRequest: CreateCredentialRequest,
-    val applicationInfo: ApplicationInfo
+    val callingAppInfo: CallingAppInfo
 )

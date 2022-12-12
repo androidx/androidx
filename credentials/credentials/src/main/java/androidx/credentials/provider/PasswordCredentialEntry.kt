@@ -20,9 +20,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.annotation.RequiresApi
-import androidx.credentials.Credential
 import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 
 /**
@@ -33,13 +31,10 @@ import androidx.credentials.R
  * @property username the username of the account holding the password credential
  * @property displayName the displayName of the account holding the password credential
  * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
- * @property credential the [PublicKeyCredential] to be returned to the calling app when
- * the user selects this entry. Set this here only if no further interaction is required
  * @property lastUsedTimeMillis the last used time of this entry
  * @property icon the icon to be displayed with this entry on the selector
  *
- * @throws IllegalArgumentException if [username] is empty
- * @throws IllegalStateException if both [pendingIntent] and [credential] are null, or both
+ * @throws IllegalArgumentException if [username] is empty, or [pendingIntent] is null
  * are non null
  *
  * @see CredentialEntry
@@ -51,13 +46,13 @@ class PasswordCredentialEntry internal constructor(
     typeDisplayName: CharSequence,
     username: CharSequence,
     displayName: CharSequence?,
-    pendingIntent: PendingIntent?,
-    credential: Credential?,
+    pendingIntent: PendingIntent,
     lastUsedTimeMillis: Long,
-    icon: Icon
+    icon: Icon,
+    autoSelectAllowed: Boolean
 ) : CredentialEntry(PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    typeDisplayName, username, displayName, pendingIntent, credential,
-    lastUsedTimeMillis, icon
+    typeDisplayName, username, displayName, pendingIntent, lastUsedTimeMillis,
+    icon, autoSelectAllowed
 ) {
 
     /**
@@ -65,8 +60,6 @@ class PasswordCredentialEntry internal constructor(
      *
      * @property displayName the displayname of the account holding the credential
      * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
-     * @property credential the [PasswordCredential] to be returned to the calling app when
-     * the user selects this entry
      * @property lastUsedTimeMillis the last used time of this entry
      * @property icon the icon to be displayed with this entry on the selector
      *
@@ -78,9 +71,9 @@ class PasswordCredentialEntry internal constructor(
         private val username: CharSequence
         private var displayName: CharSequence? = null
         private var pendingIntent: PendingIntent? = null
-        private var credential: Credential? = null
         private var lastUsedTimeMillis: Long = 0
         private var icon: Icon? = null
+        private var autoSelectAllowed = false
 
         /**
          * @property username the username of the account holding the credential
@@ -93,19 +86,6 @@ class PasswordCredentialEntry internal constructor(
             this.context = context
             this.username = username
             this.pendingIntent = pendingIntent
-        }
-
-        /**
-         * @property username the username of the account holding the credential
-         * @property credential the [PasswordCredential] to be returned when the entry is selected
-         *
-         * Providers should use this constructor when the credential to be returned is available
-         * and no additional activity is required.
-         */
-        constructor(context: Context, username: CharSequence, credential: PasswordCredential) {
-            this.context = context
-            this.username = username
-            this.credential = credential
         }
 
         /** Sets a displayname to be shown on the UI with this entry */
@@ -138,8 +118,8 @@ class PasswordCredentialEntry internal constructor(
             val typeDisplayName = context.getString(
                 R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL)
             return PasswordCredentialEntry(typeDisplayName,
-                username, displayName, pendingIntent,
-                credential, lastUsedTimeMillis, icon!!)
+                username, displayName, pendingIntent!!,
+                lastUsedTimeMillis, icon!!, autoSelectAllowed)
         }
     }
 }
