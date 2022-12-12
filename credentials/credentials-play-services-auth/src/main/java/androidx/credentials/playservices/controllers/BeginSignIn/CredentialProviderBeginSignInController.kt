@@ -19,6 +19,7 @@ package androidx.credentials.playservices.controllers.BeginSignIn
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
@@ -34,6 +35,7 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.BeginSignIn.BeginSignInControllerUtility.Companion.constructBeginSignInRequest
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
@@ -72,6 +74,13 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     lateinit var executor: Executor
 
+    /**
+     * The cancellation signal, which is shuttled around to stop the flow at any moment prior to
+     * returning data.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private var cancellationSignal: CancellationSignal? = null
+
     private val resultReceiver = object : ResultReceiver(
         Handler(Looper.getMainLooper())
     ) {
@@ -79,11 +88,10 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             resultCode: Int,
             resultData: Bundle
         ) {
-            Log.i(TAG, "onReceiveResult - CredentialProviderBeginSignInController")
             if (maybeReportErrorFromResultReceiver(resultData,
                     CredentialProviderBaseController
                         .Companion::getCredentialExceptionTypeToException,
-                    executor = executor, callback = callback)) return
+                    executor = executor, callback = callback, cancellationSignal)) return
             handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
                 resultData.getParcelable(RESULT_DATA_TAG))
         }
@@ -92,10 +100,15 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
     override fun invokePlayServices(
         request: GetCredentialRequest,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
-        executor: Executor
+        executor: Executor,
+        cancellationSignal: CancellationSignal?
     ) {
+        this.cancellationSignal = cancellationSignal
         this.callback = callback
         this.executor = executor
+
+        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) { return }
+
         val convertedRequest: BeginSignInRequest = this.convertRequestToPlayServices(request)
         val hiddenIntent = Intent(activity, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
@@ -108,14 +121,15 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             Log.i(TAG, "returned request code does not match what was given")
             return
         }
-        if (maybeReportErrorResultCodeGet(resultCode, TAG) { e -> this.executor.execute {
-                    this.callback.onError(e) } }
-        ) return
+        if (maybeReportErrorResultCodeGet(resultCode, TAG,
+                { e, s, f -> cancelAndCallbackException(e, s, f) }, { e -> this.executor.execute {
+                    this.callback.onError(e) } }, cancellationSignal)) return
         try {
             val signInCredential = Identity.getSignInClient(activity)
                 .getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
-            this.executor.execute { this.callback.onResult(response) }
+            cancelAndCallbackResult(response, cancellationSignal) { e -> this.executor.execute {
+                    this.callback.onResult(e) } }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)
             if (e.statusCode == CommonStatusCodes.CANCELED) {
@@ -124,18 +138,12 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             } else if (e.statusCode in retryables) {
                 exception = GetCredentialInterruptedException(e.message)
             }
-            executor.execute { ->
-                callback.onError(
-                    exception
-                )
-            }
+            cancelAndCallbackException(exception, cancellationSignal) { ex ->
+                this.executor.execute { this.callback.onError(ex) } }
             return
         } catch (e: GetCredentialException) {
-            executor.execute { ->
-                callback.onError(
-                    e
-                )
-            }
+            cancelAndCallbackException(e, cancellationSignal) { ex ->
+                this.executor.execute { this.callback.onError(ex) } }
         }
     }
 
