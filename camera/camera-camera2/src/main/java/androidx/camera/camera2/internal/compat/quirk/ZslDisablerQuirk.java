@@ -26,21 +26,25 @@ import java.util.Locale;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 252818931
+ *     Bug Id: 252818931, 261744070
  *     Description: On certain devices, the captured image has color issue for reprocessing. We
  *                  need to disable zero-shutter lag and return false for
  *                  {@link CameraInfo#isZslSupported()}.
- *     Device(s): Samsung Fold4
+ *     Device(s): Samsung Fold4, Xiaomi Mi 8
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ZslDisablerQuirk implements Quirk {
 
     static boolean load() {
-        return isSamsungFold4();
+        return isSamsungFold4() || isXiaoMiMi8();
     }
 
     private static boolean isSamsungFold4() {
         return "samsung".equalsIgnoreCase(Build.BRAND)
                 && android.os.Build.MODEL.toUpperCase(Locale.US).startsWith("SM-F936");
+    }
+    private static boolean isXiaoMiMi8() {
+        return "xiaomi".equalsIgnoreCase(Build.BRAND)
+                && android.os.Build.MODEL.toUpperCase(Locale.US).startsWith("MI 8");
     }
 }

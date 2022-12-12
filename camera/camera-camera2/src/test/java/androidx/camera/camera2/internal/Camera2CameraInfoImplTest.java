@@ -518,7 +518,7 @@ public class Camera2CameraInfoImplTest {
 
     @Config(minSdk = 23)
     @Test
-    public void isZslSupported_hasZslDisablerQuirk_returnFalse()
+    public void isZslSupported_hasZslDisablerQuirkSamsung_returnFalse()
             throws CameraAccessExceptionCompat {
         ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-F936B");
@@ -533,10 +533,40 @@ public class Camera2CameraInfoImplTest {
 
     @Config(minSdk = 23)
     @Test
-    public void isZslSupported_hasNoZslDisablerQuirk_returnTrue()
+    public void isZslSupported_hasNoZslDisablerQuirkSamsung_returnTrue()
             throws CameraAccessExceptionCompat {
         ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G973");
+
+        init(/* hasReprocessingCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isTrue();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasZslDisablerQuirkXiaomi_returnFalse()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "xiaomi");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "Mi 8");
+
+        init(/* hasReprocessingCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isFalse();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasNoZslDisablerQuirkXiaomi_returnTrue()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "xiaomi");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "Mi A1");
 
         init(/* hasReprocessingCapabilities = */ true);
 
