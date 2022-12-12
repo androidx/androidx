@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -102,6 +99,7 @@ dependencies {
     androidTestImplementation(libs.leakcanary)
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
