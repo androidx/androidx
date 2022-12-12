@@ -22,12 +22,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
-import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialEncodingException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialUnknownException
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderController
@@ -35,6 +37,7 @@ import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import java.util.concurrent.Executor
+import org.json.JSONException
 
 /**
  * A controller to handle the CreatePublicKeyCredential flow with play services.
@@ -68,10 +71,6 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
             resultCode: Int,
             resultData: Bundle
         ) {
-            Log.i(
-                TAG,
-                "onReceiveResult - CredentialProviderCreatePublicKeyCredentialController"
-            )
             if (maybeReportErrorFromResultReceiver(resultData,
                     { errType, errMsg ->
                         createPublicKeyCredentialExceptionTypeToException(errType, errMsg)
@@ -89,9 +88,19 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     ) {
         this.callback = callback
         this.executor = executor
-        val fidoRegistrationRequest: PublicKeyCredentialCreationOptions =
-            this.convertRequestToPlayServices(request)
-
+        val fidoRegistrationRequest: PublicKeyCredentialCreationOptions
+        try {
+            fidoRegistrationRequest = this.convertRequestToPlayServices(request)
+        } catch (e: JSONException) {
+            // TODO("Merge with cancellation function CL")
+            executor.execute {
+                callback.onError(CreatePublicKeyCredentialEncodingException(e.message))
+            }
+            return
+        } catch (t: Throwable) {
+            executor.execute { callback.onError(CreateCredentialUnknownException(t.message)) }
+            return
+        }
         val hiddenIntent = Intent(activity, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,
@@ -100,7 +109,6 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i(TAG, "$uniqueRequestCode $resultCode $data")
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
             return
         }
@@ -123,12 +131,14 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         this.executor.execute { this.callback.onResult(response) }
     }
 
-    override fun convertRequestToPlayServices(request: CreatePublicKeyCredentialRequest):
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun convertRequestToPlayServices(request: CreatePublicKeyCredentialRequest):
         PublicKeyCredentialCreationOptions {
         return PublicKeyCredentialControllerUtility.convert(request)
     }
 
-    override fun convertResponseToCredentialManager(response: PublicKeyCredential):
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun convertResponseToCredentialManager(response: PublicKeyCredential):
         CreateCredentialResponse {
         return CreatePublicKeyCredentialResponse(PublicKeyCredentialControllerUtility
             .toCreatePasskeyResponseJson(response))

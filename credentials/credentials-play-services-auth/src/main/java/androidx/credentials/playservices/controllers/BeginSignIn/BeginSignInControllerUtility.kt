@@ -61,7 +61,7 @@ class BeginSignInControllerUtility {
                             .build()
                     )
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
-                    Log.i(TAG, "See request for passkey $option")
+                    Log.i(TAG, "See request for GET passkey ${option.requestJson}")
                     requestBuilder.setPasskeysSignInRequestOptions(
                         convertToPlayAuthPasskeyRequest(option)
                     )
