@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Describes the properties of a route.
@@ -65,6 +67,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_SETTINGS_INTENT = "settingsIntent";
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
+    static final String KEY_DEDUPLICATION_IDS = "deduplicationIds";
 
     final Bundle mBundle;
     List<String> mGroupMemberIds;
@@ -296,6 +299,20 @@ public final class MediaRouteDescriptor {
     public int getVolumeHandling() {
         return mBundle.getInt(KEY_VOLUME_HANDLING,
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED);
+    }
+
+    /**
+     * Gets the route's deduplication ids.
+     *
+     * <p>Two routes are considered to come from the same receiver device if any of their respective
+     * deduplication ids match.
+     */
+    @NonNull
+    public Set<String> getDeduplicationIds() {
+        ArrayList<String> deduplicationIds = mBundle.getStringArrayList(KEY_DEDUPLICATION_IDS);
+        return deduplicationIds != null
+                ? Collections.unmodifiableSet(new HashSet<>(deduplicationIds))
+                : Collections.emptySet();
     }
 
     /**
@@ -763,6 +780,21 @@ public final class MediaRouteDescriptor {
         @NonNull
         public Builder setVolumeHandling(int volumeHandling) {
             mBundle.putInt(KEY_VOLUME_HANDLING, volumeHandling);
+            return this;
+        }
+
+        /**
+         * Sets the route's deduplication ids.
+         *
+         * <p>Two routes are considered to come from the same receiver device if any of their
+         * respective deduplication ids match.
+         *
+         * @param deduplicationIds A set of strings that uniquely identify the receiver device that
+         *     backs this route.
+         */
+        @NonNull
+        public Builder setDeduplicationIds(@NonNull Set<String> deduplicationIds) {
+            mBundle.putStringArrayList(KEY_DEDUPLICATION_IDS, new ArrayList<>(deduplicationIds));
             return this;
         }
 

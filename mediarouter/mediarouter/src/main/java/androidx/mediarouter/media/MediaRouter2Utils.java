@@ -35,9 +35,12 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.ArraySet;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +68,7 @@ class MediaRouter2Utils {
 
     private MediaRouter2Utils() {}
 
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
         if (descriptor == null) {
@@ -87,6 +91,10 @@ class MediaRouter2Utils {
                 //TODO: set client package name
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
                 ;
+
+        if (BuildCompat.isAtLeastU()) {
+            Api34Impl.setDeduplicationIds(builder, descriptor.getDeduplicationIds());
+        }
 
         switch (descriptor.getDeviceType()) {
             case DEVICE_TYPE_TV:
@@ -118,6 +126,7 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRouteDescriptor toMediaRouteDescriptor(
             @Nullable MediaRoute2Info fwkMediaRoute2Info) {
@@ -134,6 +143,10 @@ class MediaRouter2Utils {
                 .setExtras(fwkMediaRoute2Info.getExtras())
                 .setEnabled(true)
                 .setCanDisconnect(false);
+
+        if (BuildCompat.isAtLeastU()) {
+            builder.setDeduplicationIds(Api34Impl.getDeduplicationIds(fwkMediaRoute2Info));
+        }
 
         CharSequence description = fwkMediaRoute2Info.getDescription();
         if (description != null) {
@@ -275,5 +288,20 @@ class MediaRouter2Utils {
                 return MediaControlIntent.CATEGORY_REMOTE_PLAYBACK;
         }
         return routeFeature;
+    }
+
+    @RequiresApi(api = 34)
+    private static final class Api34Impl {
+
+        @DoNotInline
+        public static void setDeduplicationIds(
+                MediaRoute2Info.Builder builder, Set<String> deduplicationIds) {
+            builder.setDeduplicationIds(deduplicationIds);
+        }
+
+        @DoNotInline
+        public static Set<String> getDeduplicationIds(MediaRoute2Info fwkMediaRoute2Info) {
+            return fwkMediaRoute2Info.getDeduplicationIds();
+        }
     }
 }
