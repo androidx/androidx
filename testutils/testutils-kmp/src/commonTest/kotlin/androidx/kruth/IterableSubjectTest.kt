@@ -95,120 +95,103 @@ class IterableSubjectTest {
         }
     }
 
-//    @Test
-//    fun doesNotContainDuplicates() {
-//        assertThat(listOf(1, 2, 3)).containsNoDuplicates()
-//    }
-//
-//    @Test
-//    fun doesNotContainDuplicatesMixedTypes() {
-//        assertThat(listOf(1, 2, 2L, 3)).containsNoDuplicates()
-//    }
+    @Test
+    fun doesNotContainDuplicates() {
+        assertThat(listOf(1, 2, 3)).containsNoDuplicates()
+    }
 
-//    @Test
-//    fun doesNotContainDuplicatesFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 2, 3)).containsNoDuplicates()
-//        assertFailureKeys("expected not to contain duplicates", "but contained", "full contents")
-//        assertFailureValue("but contained", "[2 x 2]")
-//        assertFailureValue("full contents", "[1, 2, 2, 3]")
-//    }
+    @Test
+    fun doesNotContainDuplicatesMixedTypes() {
+        assertThat(listOf<Any>(1, 2, 2L, 3)).containsNoDuplicates()
+    }
 
-//    @Test
-//    fun iterableContainsAnyOf() {
-//        assertThat(listOf(1, 2, 3)).containsAnyOf(1, 5)
-//    }
+    @Test
+    fun doesNotContainDuplicatesFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 2, 3)).containsNoDuplicates()
+        }
+    }
 
-//    @Test
-//    fun iterableContainsAnyOfWithNull() {
-//        assertThat(listOf(1, null, 3)).containsAnyOf(null, 5)
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfWithNullInThirdAndFinalPosition() {
-//        assertThat(listOf(1, null, 3)).containsAnyOf(4, 5, null as Int?)
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfFailure() {
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAnyOf(5, 6, 0)
-//        assertFailureKeys("expected to contain any of", "but was")
-//        assertFailureValue("expected to contain any of", "[5, 6, 0]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfFailsWithSameToStringAndHomogeneousList() {
-//        expectFailureWhenTestingThat(listOf(1L, 2L, 3L)).containsAnyOf(2, 3)
-//        assertFailureKeys(
-//            "expected to contain any of", "but did not", "though it did contain", "full contents"
-//        )
-//        assertFailureValue("expected to contain any of", "[2, 3] (java.lang.Integer)")
-//        assertFailureValue("though it did contain", "[2, 3] (java.lang.Long)")
-//        assertFailureValue("full contents", "[1, 2, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfFailsWithSameToStringAndHomogeneousListWithDuplicates() {
-//        expectFailureWhenTestingThat(listOf(3L, 3L)).containsAnyOf(2, 3, 3)
-//        assertFailureKeys(
-//            "expected to contain any of", "but did not", "though it did contain", "full contents"
-//        )
-//        assertFailureValue("expected to contain any of", "[2, 3 [2 copies]] (java.lang.Integer)")
-//        assertFailureValue("though it did contain", "[3 [2 copies]] (java.lang.Long)")
-//        assertFailureValue("full contents", "[3, 3]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfFailsWithSameToStringAndNullInSubject() {
-//        expectFailureWhenTestingThat(listOf(null, "abc")).containsAnyOf("def", "null")
-//        assertFailureKeys(
-//            "expected to contain any of", "but did not", "though it did contain", "full contents"
-//        )
-//        assertFailureValue("expected to contain any of", "[def, null] (java.lang.String)")
-//        assertFailureValue("though it did contain", "[null (null type)]")
-//        assertFailureValue("full contents", "[null, abc]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfFailsWithSameToStringAndNullInExpectation() {
-//        expectFailureWhenTestingThat(listOf("null", "abc")).containsAnyOf("def", null)
-//        assertFailureKeys(
-//            "expected to contain any of", "but did not", "though it did contain", "full contents"
-//        )
-//        assertFailureValue(
-//            "expected to contain any of",
-//            "[def (java.lang.String), null (null type)]"
-//        )
-//        assertFailureValue("though it did contain", "[null] (java.lang.String)")
-//        assertFailureValue("full contents", "[null, abc]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyOfWithOneShotIterable() {
-//        val iterator: Iterator<Any> = listOf(2 as Any, 1, "b").iterator()
-//        val iterable: Iterable<Any> = object : Iterable<Any?> {
-//            override fun iterator(): Iterator<Any> {
-//                return iterator
-//            }
-//        }
-//        assertThat(iterable).containsAnyOf(3, "a", 7, "b", 0)
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyInIterable() {
-//        assertThat(listOf(1, 2, 3)).containsAnyIn(listOf(1, 10, 100))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAnyIn(listOf(5, 6, 0))
-//        assertFailureKeys("expected to contain any of", "but was")
-//        assertFailureValue("expected to contain any of", "[5, 6, 0]")
-//    }
-//
-//    @Test
-//    fun iterableContainsAnyInArray() {
-//        assertThat(listOf(1, 2, 3)).containsAnyIn(arrayOf(1, 10, 100))
-//        expectFailureWhenTestingThat(listOf(1, 2, 3)).containsAnyIn(arrayOf(5, 6, 0))
-//        assertFailureKeys("expected to contain any of", "but was")
-//        assertFailureValue("expected to contain any of", "[5, 6, 0]")
-//    }
-//
+    @Test
+    fun iterableContainsAnyOf() {
+        assertThat(listOf(1, 2, 3)).containsAnyOf(1, 5)
+    }
+
+    @Test
+    fun iterableContainsAnyOfWithNull() {
+        assertThat(listOf(1, null, 3)).containsAnyOf(null, 5)
+    }
+
+    @Test
+    fun iterableContainsAnyOfWithNullInThirdAndFinalPosition() {
+        assertThat(listOf(1, null, 3)).containsAnyOf(4, 5, null as Int?)
+    }
+
+    @Test
+    fun iterableContainsAnyOfFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAnyOf(5, 6, 0)
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyOfFailsWithSameToStringAndHomogeneousList() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1L, 2L, 3L)).containsAnyOf(5, 6, 0)
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyOfFailsWithSameToStringAndHomogeneousListWithDuplicates() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(3L, 3L)).containsAnyOf(2, 3, 3)
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyOfFailsWithSameToStringAndNullInSubject() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(null, "abc")).containsAnyOf("def", "null")
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyOfFailsWithSameToStringAndNullInExpectation() {
+        assertFailsWith<AssertionError> {
+            assertThat(listOf("null", "abc")).containsAnyOf("def", null)
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyOfWithOneShotIterable() {
+        val iterator = listOf(2 as Any, 1, "b").iterator()
+
+        val iterable =
+            object : Iterable<Any> {
+                override fun iterator(): Iterator<Any> = iterator
+            }
+
+        assertThat(iterable).containsAnyOf(3, "a", 7, "b", 0)
+    }
+
+    @Test
+    fun iterableContainsAnyInIterable() {
+        assertThat(listOf(1, 2, 3)).containsAnyIn(listOf(1, 10, 100))
+
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAnyIn(listOf(5, 6, 0))
+        }
+    }
+
+    @Test
+    fun iterableContainsAnyInArray() {
+        assertThat(listOf(1, 2, 3)).containsAnyIn(arrayOf(1, 10, 100))
+
+        assertFailsWith<AssertionError> {
+            assertThat(listOf(1, 2, 3)).containsAnyIn(arrayOf(5, 6, 0))
+        }
+    }
+
 //    @Test
 //    fun iterableContainsAtLeast() {
 //        assertThat(listOf(1, 2, 3)).containsAtLeast(1, 2)
