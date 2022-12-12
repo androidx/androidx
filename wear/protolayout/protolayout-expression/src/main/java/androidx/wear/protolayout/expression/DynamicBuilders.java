@@ -1722,6 +1722,85 @@ public final class DynamicBuilders {
     }
 
     /**
+     * Creates a {@link DynamicFloat} which will animate over the range of floats from {@code start}
+     * to {@code end}.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     */
+    @NonNull
+    static DynamicFloat animate(float start, float end) {
+      return new AnimatableFixedFloat.Builder().setFromValue(start).setToValue(end).build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} which will animate over the range of floats from {@code start}
+     * to {@code end} with the given animation parameters.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicFloat animate(float start, float end, @NonNull AnimationSpec spec) {
+      return new AnimatableFixedFloat.Builder()
+          .setFromValue(start)
+          .setToValue(end)
+          .setSpec(spec)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicFloat} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a float value from the providers
+     *     state.
+     */
+    @NonNull
+    static DynamicFloat animate(@NonNull String stateKey) {
+      return new AnimatableDynamicFloat.Builder().setInput(fromState(stateKey)).build();
+    }
+
+    /**
+     * Creates a {@link DynamicFloat} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicFloat} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a float value from the providers
+     *     state.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicFloat animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+      return new AnimatableDynamicFloat.Builder()
+          .setInput(fromState(stateKey))
+          .setSpec(spec)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicFloat} that is bound to the value of this {@link DynamicFloat} and
+     * every time its value is changing, it animates from its current value to the new value.
+     *
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    default DynamicFloat animate(@NonNull AnimationSpec spec) {
+      return new AnimatableDynamicFloat.Builder().setInput(this).setSpec(spec).build();
+    }
+
+    /**
+     * Returns a {@link DynamicFloat} that is bound to the value of this {@link DynamicFloat} and
+     * every time its value is changing, it animates from its current value to the new value.
+     */
+    @NonNull
+    default DynamicFloat animate() {
+      return new AnimatableDynamicFloat.Builder().setInput(this).build();
+    }
+
+    /**
      * Returns a {@link DynamicInt32} which holds the largest integer value that is smaller than or
      * equal to this {@link DynamicFloat}, i.e. {@code int result = (int) Math.floor(this)}
      */
@@ -2642,6 +2721,86 @@ public final class DynamicBuilders {
     @NonNull
     static DynamicColor fromState(@NonNull String stateKey) {
       return new StateColorSource.Builder().setSourceKey(stateKey).build();
+    }
+
+    /**
+     * Creates a {@link DynamicColor} which will animate over the range of colors from {@code start}
+     * to {@code end}.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     */
+    @NonNull
+    static DynamicColor animate(@ColorInt int start, @ColorInt int end) {
+      return new AnimatableFixedColor.Builder().setFromArgb(start).setToArgb(end).build();
+    }
+
+    /**
+     * Creates a {@link DynamicColor} which will animate over the range of colors from {@code start}
+     * to {@code end} with the given animation parameters.
+     *
+     * @param start The start value of the range.
+     * @param end The end value of the range.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicColor animate(
+        @ColorInt int start, @ColorInt int end, @NonNull AnimationSpec spec) {
+      return new AnimatableFixedColor.Builder()
+          .setFromArgb(start)
+          .setToArgb(end)
+          .setSpec(spec)
+          .build();
+    }
+
+    /**
+     * Creates a {@link DynamicColor} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicColor} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     *     state.
+     */
+    @NonNull
+    static DynamicColor animate(@NonNull String stateKey) {
+      return new AnimatableDynamicColor.Builder().setInput(fromState(stateKey)).build();
+    }
+
+    /**
+     * Creates a {@link DynamicColor} that is bound to the value of an item of the State. Every time
+     * the state value changes, this {@link DynamicColor} will animate from its current value to the
+     * new value (from the state).
+     *
+     * @param stateKey The key to a {@link StateEntryValue} with a color value from the providers
+     *     state.
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    static DynamicColor animate(@NonNull String stateKey, @NonNull AnimationSpec spec) {
+      return new AnimatableDynamicColor.Builder()
+          .setInput(fromState(stateKey))
+          .setSpec(spec)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicColor} that is bound to the value of this {@link DynamicColor} and
+     * every time its value is changing, it animates from its current value to the new value.
+     *
+     * @param spec The animation parameters.
+     */
+    @NonNull
+    default DynamicColor animate(@NonNull AnimationSpec spec) {
+      return new AnimatableDynamicColor.Builder().setInput(this).setSpec(spec).build();
+    }
+
+    /**
+     * Returns a {@link DynamicColor} that is bound to the value of this {@link DynamicColor} and
+     * every time its value is changing, it animates from its current value to the new value.
+     */
+    @NonNull
+    default DynamicColor animate() {
+      return new AnimatableDynamicColor.Builder().setInput(this).build();
     }
 
     /**
