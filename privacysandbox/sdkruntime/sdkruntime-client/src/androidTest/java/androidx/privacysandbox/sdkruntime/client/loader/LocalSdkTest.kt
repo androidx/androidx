@@ -17,12 +17,12 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxedSdkContextCompat
+import androidx.privacysandbox.sdkruntime.client.loader.storage.TestLocalSdkStorage
+import androidx.privacysandbox.sdkruntime.client.loader.storage.toClassPathString
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
@@ -30,9 +30,8 @@ import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import dalvik.system.InMemoryDexClassLoader
-import java.nio.ByteBuffer
-import java.nio.channels.Channels
+import dalvik.system.BaseDexClassLoader
+import java.io.File
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,19 +125,26 @@ internal class LocalSdkTest(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    internal class TestClassLoaderFactory : SdkLoader.ClassLoaderFactory {
-        override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
-            val assetManager = ApplicationProvider.getApplicationContext<Context>().assets
-            assetManager.open(sdkConfig.dexPaths[0]).use { inputStream ->
-                val byteBuffer = ByteBuffer.allocate(inputStream.available())
-                Channels.newChannel(inputStream).read(byteBuffer)
-                byteBuffer.flip()
-                return InMemoryDexClassLoader(
-                    byteBuffer,
-                    parent
-                )
+    internal class TestClassLoaderFactory(
+        private val testStorage: TestLocalSdkStorage
+    ) : SdkLoader.ClassLoaderFactory {
+        override fun createClassLoaderFor(
+            sdkConfig: LocalSdkConfig,
+            parent: ClassLoader
+        ): ClassLoader {
+            val sdkDexFiles = testStorage.dexFilesFor(sdkConfig)
+
+            val optimizedDirectory = File(sdkDexFiles.files[0].parentFile, "DexOpt")
+            if (!optimizedDirectory.exists()) {
+                optimizedDirectory.mkdirs()
             }
+
+            return BaseDexClassLoader(
+                sdkDexFiles.toClassPathString(),
+                optimizedDirectory,
+                /* librarySearchPath = */ null,
+                parent
+            )
         }
     }
 
@@ -148,6 +154,7 @@ internal class LocalSdkTest(
         sdkProviderClass: String
     ) {
         val localSdkConfig = LocalSdkConfig(
+            packageName = "test.$apiVersion.$sdkProviderClass",
             dexPaths = listOf(dexPath),
             entryPoint = sdkProviderClass
         )
@@ -165,25 +172,24 @@ internal class LocalSdkTest(
         @Parameterized.Parameters(name = "sdk: {0}, version: {1}")
         @JvmStatic
         fun params(): List<Array<Any>> = buildList {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assertThat(SDKS.size).isEqualTo(Versions.API_VERSION)
+            assertThat(SDKS.size).isEqualTo(Versions.API_VERSION)
 
-                for (i in SDKS.indices) {
-                    val sdk = SDKS[i]
-                    assertThat(sdk.apiVersion).isEqualTo(i + 1)
+            val assetsSdkLoader = createAssetsSdkLoader()
+            for (i in SDKS.indices) {
+                val sdk = SDKS[i]
+                assertThat(sdk.apiVersion).isEqualTo(i + 1)
 
-                    val loadedSdk = loadTestSdkFromAssets(sdk)
-                    assertThat(loadedSdk.extractApiVersion())
-                        .isEqualTo(sdk.apiVersion)
+                val loadedSdk = assetsSdkLoader.loadSdk(sdk.localSdkConfig)
+                assertThat(loadedSdk.extractApiVersion())
+                    .isEqualTo(sdk.apiVersion)
 
-                    add(
-                        arrayOf(
-                            sdk.localSdkConfig.dexPaths[0],
-                            sdk.apiVersion,
-                            loadedSdk
-                        )
+                add(
+                    arrayOf(
+                        sdk.localSdkConfig.dexPaths[0],
+                        sdk.apiVersion,
+                        loadedSdk
                     )
-                }
+                )
             }
 
             // add SDK loaded from test sources
@@ -199,7 +205,7 @@ internal class LocalSdkTest(
         private fun loadTestSdkFromSource(): LocalSdk {
             val sdkLoader = SdkLoader(
                 object : SdkLoader.ClassLoaderFactory {
-                    override fun loadSdk(
+                    override fun createClassLoaderFor(
                         sdkConfig: LocalSdkConfig,
                         parent: ClassLoader
                     ): ClassLoader = javaClass.classLoader!!
@@ -209,19 +215,23 @@ internal class LocalSdkTest(
 
             return sdkLoader.loadSdk(
                 LocalSdkConfig(
+                    packageName = "test.CurrentVersionProviderLoadTest",
                     dexPaths = emptyList(),
                     entryPoint = CurrentVersionProviderLoadTest::class.java.name
                 )
             )
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
-        private fun loadTestSdkFromAssets(sdk: TestSdkInfo): LocalSdk {
-            val sdkLoader = SdkLoader(
-                TestClassLoaderFactory(),
-                ApplicationProvider.getApplicationContext()
+        private fun createAssetsSdkLoader(): SdkLoader {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val testStorage = TestLocalSdkStorage(
+                context,
+                rootFolder = File(context.cacheDir, "LocalSdkTest")
             )
-            return sdkLoader.loadSdk(sdk.localSdkConfig)
+            return SdkLoader(
+                TestClassLoaderFactory(testStorage),
+                context
+            )
         }
     }
 }

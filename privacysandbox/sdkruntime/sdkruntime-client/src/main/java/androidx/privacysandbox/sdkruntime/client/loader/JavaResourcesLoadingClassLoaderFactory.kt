@@ -24,16 +24,35 @@ import java.util.Enumeration
 /**
  * Delegate java resources related calls to app classloader.
  *
- * Classloaders normally delegate calls to parent classloader first, that's why using this
- * classloader as parent overrides java resources for all classes loaded by child classloaders.
+ * Classloaders normally delegate calls to parent classloader first, that's why this factory
+ * creates classloader that will work with java resources and pass is as parent to
+ * [codeClassLoaderFactory] thus overrides java resources for all classes loaded down the line.
  *
  * Add [LocalSdkConfig.javaResourcesRoot] as prefix to resource names before delegating calls,
  * thus allowing isolating java resources for different local sdks.
  */
 internal class JavaResourcesLoadingClassLoaderFactory(
-    private val appClassloader: ClassLoader
+    private val appClassloader: ClassLoader,
+    private val codeClassLoaderFactory: SdkLoader.ClassLoaderFactory
 ) : SdkLoader.ClassLoaderFactory {
-    override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
+    override fun createClassLoaderFor(
+        sdkConfig: LocalSdkConfig,
+        parent: ClassLoader
+    ): ClassLoader {
+        val javaResourcesLoadingClassLoader = createJavaResourcesLoadingClassLoader(
+            sdkConfig,
+            parent
+        )
+        return codeClassLoaderFactory.createClassLoaderFor(
+            sdkConfig,
+            parent = javaResourcesLoadingClassLoader
+        )
+    }
+
+    private fun createJavaResourcesLoadingClassLoader(
+        sdkConfig: LocalSdkConfig,
+        parent: ClassLoader
+    ): ClassLoader {
         return if (sdkConfig.javaResourcesRoot == null) {
             parent
         } else {

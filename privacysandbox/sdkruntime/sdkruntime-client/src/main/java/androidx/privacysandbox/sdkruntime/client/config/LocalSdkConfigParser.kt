@@ -41,7 +41,7 @@ internal class LocalSdkConfigParser private constructor(
     private val xmlParser: XmlPullParser
 ) {
 
-    private fun readConfig(): LocalSdkConfig {
+    private fun readConfig(packageName: String): LocalSdkConfig {
         xmlParser.require(XmlPullParser.START_DOCUMENT, NAMESPACE, null)
         xmlParser.nextTag()
 
@@ -100,7 +100,13 @@ internal class LocalSdkConfigParser private constructor(
             throw XmlPullParserException("No $DEX_PATH_ELEMENT_NAME tags found")
         }
 
-        return LocalSdkConfig(dexPaths, entryPoint, javaResourcesRoot, resourceRemapping)
+        return LocalSdkConfig(
+            packageName,
+            dexPaths,
+            entryPoint,
+            javaResourcesRoot,
+            resourceRemapping
+        )
     }
 
     private fun readResourceRemappingConfig(): ResourceRemappingConfig {
@@ -160,12 +166,12 @@ internal class LocalSdkConfigParser private constructor(
         private const val RESOURCE_REMAPPING_CLASS_ELEMENT_NAME = "r-package-class"
         private const val RESOURCE_REMAPPING_ID_ELEMENT_NAME = "resources-package-id"
 
-        fun parse(inputStream: InputStream): LocalSdkConfig {
+        fun parse(inputStream: InputStream, packageName: String): LocalSdkConfig {
             val parser = Xml.newPullParser()
             try {
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
                 parser.setInput(inputStream, null)
-                return LocalSdkConfigParser(parser).readConfig()
+                return LocalSdkConfigParser(parser).readConfig(packageName)
             } finally {
                 parser.setInput(null)
             }

@@ -46,13 +46,15 @@ class LocalSdkConfigsHolderTest {
             "androidx.privacysandbox.sdkruntime.test.v1"
         )
 
-        assertThat(result).isNotNull()
-        assertThat(result!!.dexPaths)
-            .containsExactly("RuntimeEnabledSdks/V1/classes.dex")
-        assertThat(result.javaResourcesRoot)
-            .isEqualTo("RuntimeEnabledSdks/V1/javaresources")
-        assertThat(result.entryPoint)
-            .isEqualTo("androidx.privacysandbox.sdkruntime.test.v1.CompatProvider")
+        assertThat(result)
+            .isEqualTo(
+                LocalSdkConfig(
+                    packageName = "androidx.privacysandbox.sdkruntime.test.v1",
+                    dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
+                    entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
+                    javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources"
+                )
+            )
     }
 
     @Test

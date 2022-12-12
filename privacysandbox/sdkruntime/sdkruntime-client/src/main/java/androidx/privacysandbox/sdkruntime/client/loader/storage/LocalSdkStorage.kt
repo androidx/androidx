@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.privacysandbox.sdkruntime.client.config
+
+package androidx.privacysandbox.sdkruntime.client.loader.storage
+
+import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 
 /**
- * Information required for loading SDK bundled with App.
- *
+ * Provides interface for getting SDK related files.
  */
-internal data class LocalSdkConfig(
-    val packageName: String,
-    val dexPaths: List<String>,
-    val entryPoint: String,
-    val javaResourcesRoot: String? = null,
-    val resourceRemapping: ResourceRemappingConfig? = null
-)
-
-internal data class ResourceRemappingConfig(
-    val rPackageClassName: String,
-    val packageId: Int
-)
+internal interface LocalSdkStorage {
+    /**
+     * Get [LocalSdkDexFiles] for bundled SDK.
+     *
+     * @param sdkConfig sdk config
+     * @return [LocalSdkDexFiles] if DEX files available or null if not.
+     */
+    fun dexFilesFor(sdkConfig: LocalSdkConfig): LocalSdkDexFiles?
+}

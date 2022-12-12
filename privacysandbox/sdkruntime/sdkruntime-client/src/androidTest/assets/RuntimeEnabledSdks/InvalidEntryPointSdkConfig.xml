@@ -13,13 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<runtime-enabled-sdk-table>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/V1/CompatSdkConfig.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.test.v1</package-name>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/InvalidEntryPointSdkConfig.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.test.invalidEntryPoint</package-name>
-    </runtime-enabled-sdk>
-</runtime-enabled-sdk-table>
+<compat-config>
+    <compat-entrypoint>InvalidEntryPoint</compat-entrypoint>
+    <dex-path>RuntimeEnabledSdks/V1/classes.dex</dex-path>
+</compat-config>

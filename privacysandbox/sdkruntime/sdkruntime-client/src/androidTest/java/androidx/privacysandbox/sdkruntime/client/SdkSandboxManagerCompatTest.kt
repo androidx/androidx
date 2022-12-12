@@ -23,6 +23,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,9 +35,9 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.Mockito.any
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -79,9 +80,7 @@ class SdkSandboxManagerCompatTest {
             }
         }
 
-        verify(context, Mockito.atLeastOnce()).assets
-        verify(context, Mockito.atLeastOnce()).classLoader
-        verifyNoMoreInteractions(context)
+        verify(context, Mockito.never()).getSystemService(any())
     }
 
     @Test
@@ -104,8 +103,7 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
-    fun loadSdk_whenLocalSdkExistsAndAtLeastApi27_returnResultFromCompatLoadSdk() {
+    fun loadSdk_whenLocalSdkExists_returnResultFromCompatLoadSdk() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
@@ -118,8 +116,7 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
-    fun loadSdk_LocalSdkExistsAndAtLeastApi27_rethrowsExceptionFromCompatLoadSdk() {
+    fun loadSdk_whenLocalSdkExists_rethrowsExceptionFromCompatLoadSdk() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
@@ -137,19 +134,21 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O)
-    fun loadSdk_whenLocalSdkExistsAndApiPre27_throwsSandboxDisabledException() {
+    fun loadSdk_whenLocalSdkFailedToLoad_throwsInternalErrorException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
-                managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+                managerCompat.loadSdk(
+                    sdkName = "androidx.privacysandbox.sdkruntime.test.invalidEntryPoint",
+                    params = Bundle()
+                )
             }
         }
 
-        assertThat(result.loadSdkErrorCode)
-            .isEqualTo(LoadSdkCompatException.LOAD_SDK_SDK_SANDBOX_DISABLED)
+        assertThat(result.loadSdkErrorCode).isEqualTo(LOAD_SDK_INTERNAL_ERROR)
+        assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
     }
 
     private fun isSandboxAvailable(): Boolean {

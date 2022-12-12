@@ -41,6 +41,7 @@ class InMemorySdkClassLoaderFactoryTest {
             ApplicationProvider.getApplicationContext()
         )
         testSdkInfo = LocalSdkConfig(
+            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
             dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
             entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
             javaResourcesRoot = "RuntimeEnabledSdks/V1/"
@@ -49,17 +50,23 @@ class InMemorySdkClassLoaderFactoryTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
-    fun create_whenApi27_returnClassloader() {
-        val classLoader = factoryUnderTest.loadSdk(testSdkInfo, javaClass.classLoader!!)
+    fun createClassLoaderFor_whenApi27_returnClassloader() {
+        val classLoader = factoryUnderTest.createClassLoaderFor(
+            testSdkInfo,
+            javaClass.classLoader!!
+        )
         val loadedEntryPointClass = classLoader.loadClass(testSdkInfo.entryPoint)
         assertThat(loadedEntryPointClass.classLoader).isEqualTo(classLoader)
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O)
-    fun create_whenApiPre27_throwsSandboxDisabledException() {
+    fun createClassLoaderFor_whenApiPre27_throwsSandboxDisabledException() {
         val ex = assertThrows(LoadSdkCompatException::class.java) {
-            factoryUnderTest.loadSdk(testSdkInfo, javaClass.classLoader!!)
+            factoryUnderTest.createClassLoaderFor(
+                testSdkInfo,
+                javaClass.classLoader!!
+            )
         }
 
         assertThat(ex.loadSdkErrorCode)
