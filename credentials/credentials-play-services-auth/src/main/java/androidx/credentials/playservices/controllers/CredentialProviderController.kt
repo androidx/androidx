@@ -18,6 +18,7 @@ package androidx.credentials.playservices.controllers
 
 import android.app.Activity
 import android.os.Bundle
+import android.os.CancellationSignal
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -25,6 +26,7 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import java.util.concurrent.Executor
 
 /**
@@ -45,6 +47,27 @@ import java.util.concurrent.Executor
 abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
     E1 : Any>(private val activity: Activity) : CredentialProviderBaseController(activity) {
 
+    protected fun cancelAndCallbackException(
+        exception: E1,
+        cancellationSignal: CancellationSignal?,
+        onError: (E1) -> Unit
+    ) {
+        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
+            return
+        }
+        onError(exception)
+    }
+
+    protected fun cancelAndCallbackResult(
+        result: R1,
+        cancellationSignal: CancellationSignal?,
+        onResult: (R1) -> Unit
+    ) {
+        if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
+            return
+        }
+        onResult(result)
+    }
     /**
      * This handles result code exception reporting across all create flows.
      *
@@ -53,7 +76,13 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
     protected fun maybeReportErrorResultCodeCreate(
         resultCode: Int,
         type: String,
-        onError: (CreateCredentialException) -> Unit
+        cancelOnError: (
+            CreateCredentialException,
+            CancellationSignal?,
+            (CreateCredentialException) -> Unit
+        ) -> Unit,
+        onError: (CreateCredentialException) -> Unit,
+        cancellationSignal: CancellationSignal?
     ): Boolean {
         if (resultCode != Activity.RESULT_OK) {
             var exception: CreateCredentialException = CreateCredentialUnknownException(
@@ -62,7 +91,7 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
                 exception = CreateCredentialCancellationException(
                     generateErrorStringCanceled(type))
             }
-            onError(exception)
+            cancelOnError(exception, cancellationSignal, onError)
             return true
         }
         return false
@@ -86,14 +115,17 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         resultData: Bundle,
         conversionFn: (String?, String?) -> E1,
         executor: Executor,
-        callback: CredentialManagerCallback<R1, E1>
+        callback: CredentialManagerCallback<R1, E1>,
+        cancellationSignal: CancellationSignal?
     ): Boolean {
         val isError = resultData.getBoolean(FAILURE_RESPONSE_TAG)
         if (!isError) { return false }
         val errType = resultData.getString(EXCEPTION_TYPE_TAG)
         val errMsg = resultData.getString(EXCEPTION_MESSAGE_TAG)
         val exception = conversionFn(errType, errMsg)
-        executor.execute { callback.onError(exception) }
+        cancelAndCallbackException(exception, cancellationSignal) { e ->
+            executor.execute { callback.onError(e) }
+        }
         return true
     }
 
@@ -105,7 +137,13 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
     protected fun maybeReportErrorResultCodeGet(
         resultCode: Int,
         type: String,
-        onError: (GetCredentialException) -> Unit
+        cancelOnError: (
+            GetCredentialException,
+            CancellationSignal?,
+            (GetCredentialException) -> Unit
+        ) -> Unit,
+        onError: (GetCredentialException) -> Unit,
+        cancellationSignal: CancellationSignal?
     ): Boolean {
         if (resultCode != Activity.RESULT_OK) {
             var exception: GetCredentialException = GetCredentialUnknownException(
@@ -114,7 +152,7 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
                 exception = GetCredentialCancellationException(
                     generateErrorStringCanceled(type))
             }
-            onError(exception)
+            cancelOnError(exception, cancellationSignal, onError)
             return true
         }
         return false
@@ -131,7 +169,8 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
     abstract fun invokePlayServices(
         request: T1,
         callback: CredentialManagerCallback<R1, E1>,
-        executor: Executor
+        executor: Executor,
+        cancellationSignal: CancellationSignal?
     )
 
     /**
