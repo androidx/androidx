@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
+import androidx.wear.protolayout.expression.ConditionScopes.ConditionScope;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
@@ -401,6 +402,74 @@ public final class DynamicBuilders {
     @NonNull
     default DynamicFloat asFloat() {
       return new Int32ToFloatOp.Builder().setInput(this).build();
+    }
+
+    /**
+     * Returns a {@link DynamicString} that contains the formatted value of this {@link
+     * DynamicInt32} (with default formatting parameters). As an example, in the English locale, the
+     * following is equal to {@code DynamicString.constant("12")}
+     *
+     * <pre>
+     *   DynamicInt32.constant(12).format()
+     * </pre>
+     */
+    @NonNull
+    default DynamicString format() {
+      return IntFormatter.with().buildForInput(this);
+    }
+
+    /**
+     * Returns a {@link DynamicString} that contains the formatted value of this {@link
+     * DynamicInt32}. As an example, in the English locale, the following is equal to {@code
+     * DynamicString.constant("0,012")}
+     *
+     * <pre>
+     *   DynamicInt32.constant(12)
+     *            .format(
+     *                IntFormatter.with().minIntegerDigits(4).groupingUsed(true));
+     * </pre>
+     *
+     * @param formatter The formatting parameter.
+     */
+    @NonNull
+    default DynamicString format(@NonNull IntFormatter formatter) {
+      return formatter.buildForInput(this);
+    }
+
+    /** Allows formatting {@link DynamicInt32} into a {@link DynamicString}. */
+    class IntFormatter {
+      private final Int32FormatOp.Builder builder;
+
+      private IntFormatter() {
+        builder = new Int32FormatOp.Builder();
+      }
+
+      /** Creates an instance of {@link IntFormatter} with default configuration. */
+      @NonNull
+      public static IntFormatter with() {
+        return new IntFormatter();
+      }
+
+      /**
+       * Sets minimum number of integer digits for the formatter. Defaults to one if not specified.
+       */
+      @NonNull
+      public IntFormatter minIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
+        builder.setMinIntegerDigits(minIntegerDigits);
+        return this;
+      }
+
+      /** Sets whether grouping is used for the formatter. Defaults to false if not specified. */
+      @NonNull
+      public IntFormatter groupingUsed(boolean groupingUsed) {
+        builder.setGroupingUsed(groupingUsed);
+        return this;
+      }
+
+      @NonNull
+      Int32FormatOp buildForInput(@NonNull DynamicInt32 dynamicInt32) {
+        return builder.setInput(dynamicInt32).build();
+      }
     }
 
     /**
@@ -1132,6 +1201,39 @@ public final class DynamicBuilders {
     }
 
     /**
+     * Creates a {@link DynamicString} that is bound to the result of a conditional expression. It
+     * will use the value given in either {@link ConditionScope#use} or {@link
+     * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code condition}.
+     *
+     * @param condition The value used for evaluting this condition.
+     */
+    @NonNull
+    static ConditionScope<DynamicString, String> onCondition(@NonNull DynamicBool condition) {
+      return new ConditionScopes.ConditionScope<>(
+          (trueValue, falseValue) ->
+              new ConditionalStringOp.Builder()
+                  .setCondition(condition)
+                  .setValueIfTrue(trueValue)
+                  .setValueIfFalse(falseValue)
+                  .build(),
+          DynamicString::constant);
+    }
+
+    /**
+     * Returns a new {@link DynamicString} that has the result of concatenating this {@link
+     * DynamicString} with {@code other}. i.e. {@code result = this + other}
+     *
+     * @param other The right hand side operand of the concatenation.
+     */
+    @NonNull
+    default DynamicString concat(@NonNull DynamicString other) {
+      return new DynamicBuilders.ConcatStringOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(other)
+          .build();
+    }
+
+    /**
      * Get the fingerprint for this object or null if unknown.
      *
      * @hide
@@ -1632,6 +1734,96 @@ public final class DynamicBuilders {
     }
 
     /**
+     * Returns a {@link DynamicString} that contains the formatted value of this {@link
+     * DynamicFloat} (with default formatting parameters). As an example, in the English locale, the
+     * following is equal to {@code DynamicString.constant("12.346")}
+     *
+     * <pre>
+     *   DynamicFloat.constant(12.34567f).format();
+     * </pre>
+     */
+    @NonNull
+    default DynamicString format() {
+      return FloatFormatter.with().buildForInput(this);
+    }
+
+    /**
+     * Returns a {@link DynamicString} that contains the formatted value of this {@link
+     * DynamicFloat}. As an example, in the English locale, the following is equal to {@code
+     * DynamicString.constant("0,012.34")}
+     *
+     * <pre>
+     *   DynamicFloat.constant(12.345f)
+     *       .format(
+     *           FloatFormatter.with().maxFractionDigits(2).minIntegerDigits(4).groupingUsed(true));
+     * </pre>
+     *
+     * @param formatter The formatting parameter.
+     */
+    @NonNull
+    default DynamicString format(@NonNull FloatFormatter formatter) {
+      return formatter.buildForInput(this);
+    }
+
+    /** Allows formatting {@link DynamicFloat} into a {@link DynamicString}. */
+    class FloatFormatter {
+      private final FloatFormatOp.Builder builder;
+
+      private FloatFormatter() {
+        builder = new FloatFormatOp.Builder();
+      }
+
+      /** Creates an instance of {@link FloatFormatter} with default configuration. */
+      @NonNull
+      public static FloatFormatter with() {
+        return new FloatFormatter();
+      }
+
+      /**
+       * Sets minimum number of fraction digits for the formatter. Defaults to zero if not
+       * specified. minimumFractionDigits must be <= maximumFractionDigits. If the condition is not
+       * satisfied, then minimumFractionDigits will be used for both fields.
+       */
+      @NonNull
+      public FloatFormatter minFractionDigits(@IntRange(from = 0) int minFractionDigits) {
+        builder.setMinFractionDigits(minFractionDigits);
+        return this;
+      }
+
+      /**
+       * Sets maximum number of fraction digits for the formatter. Defaults to three if not
+       * specified. minimumFractionDigits must be <= maximumFractionDigits. If the condition is not
+       * satisfied, then minimumFractionDigits will be used for both fields.
+       */
+      @NonNull
+      public FloatFormatter maxFractionDigits(@IntRange(from = 0) int maxFractionDigits) {
+        builder.setMaxFractionDigits(maxFractionDigits);
+        return this;
+      }
+
+      /**
+       * Sets minimum number of integer digits for the formatter. Defaults to one if not specified.
+       */
+      @NonNull
+      public FloatFormatter minIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
+        builder.setMinIntegerDigits(minIntegerDigits);
+        return this;
+      }
+
+      /** Sets whether grouping is used for the formatter. Defaults to false if not specified. */
+      @NonNull
+      public FloatFormatter groupingUsed(boolean groupingUsed) {
+        builder.setGroupingUsed(groupingUsed);
+        return this;
+      }
+
+      @NonNull
+      FloatFormatOp buildForInput(@NonNull DynamicFloat dynamicFloat) {
+        return builder.setInput(dynamicFloat).build();
+      }
+    }
+
+    /**
      * Get the fingerprint for this object or null if unknown.
      *
      * @hide
@@ -2003,6 +2195,51 @@ public final class DynamicBuilders {
     @NonNull
     static DynamicBool fromState(@NonNull String stateKey) {
       return new StateBoolSource.Builder().setSourceKey(stateKey).build();
+    }
+
+    /** Returns a {@link DynamicBool} that has the same value as this {@link DynamicBool}. */
+    @NonNull
+    default DynamicBool isTrue() {
+      return this;
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that has the opposite value of this {@link DynamicBool}. i.e.
+     * {code result = !this}
+     */
+    @NonNull
+    default DynamicBool isFalse() {
+      return new NotBoolOp.Builder().setInput(this).build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if this {@link DynamicBool} and {@code input} are
+     * both true, otherwise it is false. i.e. {@code boolean result = this && input}
+     *
+     * @param input The right hand operand of the "and" operation.
+     */
+    @NonNull
+    default DynamicBool and(@NonNull DynamicBool input) {
+      return new LogicalBoolOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(input)
+          .setOperationType(DynamicBuilders.LOGICAL_OP_TYPE_AND)
+          .build();
+    }
+
+    /**
+     * Returns a {@link DynamicBool} that is true if this {@link DynamicBool} or {@code input} are
+     * true, otherwise it is false. i.e. {@code boolean result = this || input}
+     *
+     * @param input The right hand operand of the "or" operation.
+     */
+    @NonNull
+    default DynamicBool or(@NonNull DynamicBool input) {
+      return new LogicalBoolOp.Builder()
+          .setInputLhs(this)
+          .setInputRhs(input)
+          .setOperationType(DynamicBuilders.LOGICAL_OP_TYPE_OR)
+          .build();
     }
 
     /**

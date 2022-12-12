@@ -16,6 +16,9 @@
 
 package androidx.wear.protolayout.expression;
 
+import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_AND;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_OR;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
@@ -42,5 +45,41 @@ public final class DynamicBoolTest {
 
         assertThat(stateBool.toDynamicBoolProto().getStateSource().getSourceKey()).isEqualTo(
                 STATE_KEY);
+    }
+
+    @Test
+    public void andOpBool() {
+        DynamicBool firstBool = DynamicBool.constant(false);
+        DynamicBool secondBool = DynamicBool.constant(true);
+
+        DynamicBool result = firstBool.and(secondBool);
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
+                .isEqualTo(LOGICAL_OP_TYPE_AND);
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
+                .isEqualTo(firstBool.toDynamicBoolProto());
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
+                .isEqualTo(secondBool.toDynamicBoolProto());
+    }
+
+    @Test
+    public void orOpBool() {
+        DynamicBool firstBool = DynamicBool.constant(false);
+        DynamicBool secondBool = DynamicBool.constant(true);
+
+        DynamicBool result = firstBool.or(secondBool);
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getOperationType())
+                .isEqualTo(LOGICAL_OP_TYPE_OR);
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputLhs())
+                .isEqualTo(firstBool.toDynamicBoolProto());
+        assertThat(result.toDynamicBoolProto().getLogicalOp().getInputRhs())
+                .isEqualTo(secondBool.toDynamicBoolProto());
+    }
+
+    public void negateOpBool() {
+        DynamicBool firstBool = DynamicBool.constant(true);
+
+        assertThat(firstBool.isTrue().toDynamicBoolProto()).isEqualTo(firstBool);
+        assertThat(firstBool.toDynamicBoolProto().getNotOp().getInput())
+                .isEqualTo(firstBool);
     }
 }

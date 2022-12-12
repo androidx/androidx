@@ -24,6 +24,7 @@ import org.robolectric.RobolectricTestRunner;
 
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 
 @RunWith(RobolectricTestRunner.class)
 public final class DynamicInt32Test {
@@ -54,5 +55,33 @@ public final class DynamicInt32Test {
 
         assertThat(dynamicFloat.toDynamicFloatProto().getInt32ToFloatOperation()
                 .getInput().getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
+    }
+
+    public void formatInt32_defaultParameters() {
+        DynamicInt32 constantInt32 = DynamicInt32.constant(CONSTANT_VALUE);
+
+        DynamicBuilders.DynamicString defaultFormat = constantInt32.format();
+
+        DynamicProto.Int32FormatOp int32FormatOp =
+                defaultFormat.toDynamicStringProto().getInt32FormatOp();
+        assertThat(int32FormatOp.getInput()).isEqualTo(constantInt32.toDynamicInt32Proto());
+        assertThat(int32FormatOp.getGroupingUsed()).isEqualTo(false);
+        assertThat(int32FormatOp.hasMinIntegerDigits()).isFalse();
+    }
+    @Test
+    public void formatInt32_customFormatter() {
+        DynamicInt32 constantInt32 = DynamicInt32.constant(CONSTANT_VALUE);
+        boolean groupingUsed = true;
+        int minIntegerDigits = 3;
+        DynamicInt32.IntFormatter intFormatter = DynamicInt32.IntFormatter.with()
+                .minIntegerDigits(minIntegerDigits).groupingUsed(groupingUsed);
+
+        DynamicBuilders.DynamicString customFormat = constantInt32.format(intFormatter);
+
+        DynamicProto.Int32FormatOp int32FormatOp =
+                customFormat.toDynamicStringProto().getInt32FormatOp();
+        assertThat(int32FormatOp.getInput()).isEqualTo(constantInt32.toDynamicInt32Proto());
+        assertThat(int32FormatOp.getGroupingUsed()).isEqualTo(groupingUsed);
+        assertThat(int32FormatOp.getMinIntegerDigits()).isEqualTo(minIntegerDigits);
     }
 }

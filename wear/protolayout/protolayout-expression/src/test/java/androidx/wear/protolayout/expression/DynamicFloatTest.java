@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +31,10 @@ import org.robolectric.RobolectricTestRunner;
 public final class DynamicFloatTest {
     private static final String STATE_KEY = "state-key";
     private static final float CONSTANT_VALUE = 42.42f;
+    private static final boolean DEFAULT_GROUPING = false;
+    private static final int DEFAULT_MAX_FRACTION_DIGITS = 3;
+    private static final int DEFAULT_MIN_FRACTION_DIGITS = 0;
+    private static final int DEFAULT_MIN_INTEGER_DIGIT = 1;
 
     @Test
     public void constantFloat() {
@@ -54,5 +60,42 @@ public final class DynamicFloatTest {
 
         assertThat(dynamicInt32.toDynamicInt32Proto().getFloatToInt()
                 .getInput().getFixed().getValue()).isWithin(0.0001f).of(CONSTANT_VALUE);
+    }
+
+    @Test
+    public void formatFloat_defaultParameters() {
+        DynamicFloat constantFloat = DynamicFloat.constant(CONSTANT_VALUE);
+
+        DynamicString defaultFormat = constantFloat.format();
+
+        DynamicProto.FloatFormatOp floatFormatOp =
+                defaultFormat.toDynamicStringProto().getFloatFormatOp();
+        assertThat(floatFormatOp.getInput()).isEqualTo(constantFloat.toDynamicFloatProto());
+        assertThat(floatFormatOp.getGroupingUsed()).isEqualTo(false);
+        assertThat(floatFormatOp.hasMaxFractionDigits()).isFalse();
+        assertThat(floatFormatOp.getMinFractionDigits()).isEqualTo(0);
+        assertThat(floatFormatOp.hasMinIntegerDigits()).isFalse();
+    }
+    @Test
+    public void formatFloat_customFormatter() {
+        DynamicFloat constantFloat = DynamicFloat.constant(CONSTANT_VALUE);
+        boolean groupingUsed = true;
+        int minFractionDigits = 1;
+        int maxFractionDigits = 2;
+        int minIntegerDigits = 3;
+        DynamicFloat.FloatFormatter floatFormatter =
+                DynamicFloat.FloatFormatter.with().minFractionDigits(minFractionDigits)
+                        .maxFractionDigits(maxFractionDigits).minIntegerDigits(minIntegerDigits)
+                        .groupingUsed(groupingUsed);
+
+        DynamicString customFormat = constantFloat.format(floatFormatter);
+
+        DynamicProto.FloatFormatOp floatFormatOp =
+                customFormat.toDynamicStringProto().getFloatFormatOp();
+        assertThat(floatFormatOp.getInput()).isEqualTo(constantFloat.toDynamicFloatProto());
+        assertThat(floatFormatOp.getGroupingUsed()).isEqualTo(groupingUsed);
+        assertThat(floatFormatOp.getMaxFractionDigits()).isEqualTo(maxFractionDigits);
+        assertThat(floatFormatOp.getMinFractionDigits()).isEqualTo(minFractionDigits);
+        assertThat(floatFormatOp.getMinIntegerDigits()).isEqualTo(minIntegerDigits);
     }
 }

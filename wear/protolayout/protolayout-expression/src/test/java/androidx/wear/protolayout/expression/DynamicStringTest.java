@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,5 +44,49 @@ public final class DynamicStringTest {
 
         assertThat(stateString.toDynamicStringProto().getStateSource().getSourceKey()).isEqualTo(
                 STATE_KEY);
+    }
+
+    @Test
+    public void constantString_concat() {
+        DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
+        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+
+        DynamicString resultString = firstString.concat(secondString);
+
+        DynamicProto.ConcatStringOp concatOp = resultString.toDynamicStringProto().getConcatOp();
+        assertThat(concatOp.getInputLhs()).isEqualTo(firstString.toDynamicStringProto());
+        assertThat(concatOp.getInputRhs()).isEqualTo(secondString.toDynamicStringProto());
+    }
+
+    @Test
+    public void constantString_conditional() {
+        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.constant(true);
+        DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
+        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+
+        DynamicString resultString =
+                DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
+
+        DynamicProto.ConditionalStringOp conditionalOp = resultString.toDynamicStringProto()
+                .getConditionalOp();
+        assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
+        assertThat(conditionalOp.getValueIfTrue()).isEqualTo(firstString.toDynamicStringProto());
+        assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
+    }
+
+    @Test
+    public void rawString_conditional() {
+        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.constant(true);
+        String firstString = "raw-string";
+        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+
+        DynamicString resultString =
+                DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
+
+        DynamicProto.ConditionalStringOp conditionalOp = resultString.toDynamicStringProto()
+                .getConditionalOp();
+        assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
+        assertThat(conditionalOp.getValueIfTrue().getFixed().getValue()).isEqualTo(firstString);
+        assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
     }
 }
