@@ -16,11 +16,16 @@
 package androidx.compose.material
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
@@ -35,6 +40,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -236,11 +242,12 @@ class ProgressIndicatorTest {
         }
         val tag = "progress_indicator"
         rule.setContent {
-            LinearProgressIndicator(
-                modifier = Modifier.testTag(tag).size(expectedWidth, expectedHeight),
-                progress = 1f,
-                color = Color.Blue
-            )
+            Box(Modifier.testTag(tag)) {
+                LinearProgressIndicator(
+                    modifier = Modifier.size(expectedWidth, expectedHeight),
+                    progress = 1f,
+                    color = Color.Blue)
+            }
         }
 
         rule.onNodeWithTag(tag)
@@ -261,11 +268,11 @@ class ProgressIndicatorTest {
         rule.mainClock.autoAdvance = false
         val tag = "progress_indicator"
         rule.setContent {
-
-            LinearProgressIndicator(
-                modifier = Modifier.testTag(tag).size(expectedWidth, expectedHeight),
-                color = Color.Blue
-            )
+            Box(Modifier.testTag(tag)) {
+                LinearProgressIndicator(
+                    modifier = Modifier.size(expectedWidth, expectedHeight),
+                    color = Color.Blue)
+            }
         }
 
         rule.mainClock.advanceTimeBy(100)
@@ -283,5 +290,159 @@ class ProgressIndicatorTest {
                     it.assertPixelColor(Color.Blue, 0, i)
                 }
             }
+    }
+
+    @Test
+    fun indeterminateLinearProgressIndicator_semanticsNodeBounds() {
+        val padding = 10.dp
+        val paddingPx = with(rule.density) { padding.roundToPx() }
+
+        val expectedWidth = with(rule.density) { ExpectedLinearWidth.roundToPx() }
+        val expectedHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() + paddingPx * 2 }
+        val expectedSize = IntSize(expectedWidth, expectedHeight)
+
+        // Adding a testTag on the progress bar itself captures the progress bar as well as its
+        // padding.
+        val tag = "progress_indicator"
+        rule.setContent {
+            LinearProgressIndicator(Modifier.testTag(tag))
+        }
+
+        val node = rule.onNodeWithTag(tag)
+            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val nodeBounds = node.boundsInRoot
+
+        // Check that the SemanticsNode bounds of a LinearProgressIndicator include the padding.
+        // This means that the SemanticsNode bounds are big enough to trigger TalkBack's green
+        // focus indicator.
+        assertEquals(expectedSize.width.toFloat(), nodeBounds.width)
+        assertEquals(expectedSize.height.toFloat(), nodeBounds.height)
+    }
+
+    @Test
+    fun indeterminateLinearProgressIndicator_visualBounds() {
+        val expectedWidth = with(rule.density) { ExpectedLinearWidth.roundToPx() }
+        val expectedHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() }
+        val expectedSize = IntSize(expectedWidth, expectedHeight)
+
+        // The bounds of a testTag on a box that contains the progress indicator are not affected
+        // by the padding added on the layout of the progress bar.
+        val tag = "progress_indicator"
+        rule.setContent {
+            Box(Modifier.testTag(tag)) {
+                LinearProgressIndicator()
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag)
+            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val nodeBounds = node.boundsInRoot
+
+        // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
+        assertEquals(expectedSize.width.toFloat(), nodeBounds.width)
+        assertEquals(expectedSize.height.toFloat(), nodeBounds.height)
+    }
+
+    @Test
+    fun determinateLinearProgressIndicator_semanticsNodeBounds() {
+        val padding = 10.dp
+        val paddingPx = with(rule.density) { padding.roundToPx() }
+
+        val expectedWidth = with(rule.density) { ExpectedLinearWidth.roundToPx() }
+        val expectedHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() + paddingPx * 2 }
+        val expectedSize = IntSize(expectedWidth, expectedHeight)
+
+        // Adding a testTag on the progress bar itself captures the progress bar as well as its
+        // padding.
+        val tag = "progress_indicator"
+        rule.setContent {
+            LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = 1f)
+        }
+
+        val node = rule.onNodeWithTag(tag)
+            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val nodeBounds = node.boundsInRoot
+
+        // Check that the SemanticsNode bounds of a LinearProgressIndicator include the padding.
+        // This means that the SemanticsNode bounds are big enough to trigger TalkBack's green
+        // focus indicator.
+        assertEquals(expectedSize.width.toFloat(), nodeBounds.width)
+        assertEquals(expectedSize.height.toFloat(), nodeBounds.height)
+    }
+
+    @Test
+    fun determinateLinearProgressIndicator_visualBounds() {
+        val expectedWidth = with(rule.density) { ExpectedLinearWidth.roundToPx() }
+        val expectedHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() }
+        val expectedSize = IntSize(expectedWidth, expectedHeight)
+
+        // The bounds of a testTag on a box that contains the progress indicator are not affected
+        // by the padding added on the layout of the progress bar.
+        val tag = "progress_indicator"
+        rule.setContent {
+            Box(Modifier.testTag(tag)) {
+                LinearProgressIndicator(progress = 1f)
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag)
+            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val nodeBounds = node.boundsInRoot
+
+        // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
+        assertEquals(expectedSize.width.toFloat(), nodeBounds.width)
+        assertEquals(expectedSize.height.toFloat(), nodeBounds.height)
+    }
+
+    @Test
+    fun determinateLinearProgressIndicator_scrollingBounds() {
+        val padding = 10.dp
+        val paddingPx = with(rule.density) { padding.roundToPx() }
+
+        val expectedWidth = with(rule.density) { ExpectedLinearWidth.roundToPx() }
+        val expectedHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() }
+        val expectedSize = IntSize(expectedWidth, expectedHeight)
+
+        val paddingHeight = with(rule.density) { ExpectedLinearHeight.roundToPx() + paddingPx * 2 }
+        val paddingSize = IntSize(expectedWidth, paddingHeight)
+
+        val withPaddingTag = "with_padding"
+        val visualTag = "visual_tag"
+        rule.setContent {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Add some content to the scrollable column
+                repeat(20) {
+                    Text("Item $it")
+                }
+                // The visual tag will measure the visual bounds of the indicator, while
+                // the withPadding tag will measure with padding.
+                Box(Modifier.testTag(visualTag)) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.testTag(withPaddingTag), progress = 1f
+                    )
+                }
+                repeat(20) {
+                    Text("Item $it")
+                }
+            }
+        }
+
+        val indicatorNode = rule.onNodeWithTag(visualTag)
+            .fetchSemanticsNode("couldn't find node with tag $visualTag")
+        val indicatorBounds = indicatorNode.boundsInRoot
+        // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
+        assertEquals(expectedSize.width.toFloat(), indicatorBounds.width)
+        assertEquals(expectedSize.height.toFloat(), indicatorBounds.height)
+
+        val semanticsNode = rule.onNodeWithTag(withPaddingTag)
+            .fetchSemanticsNode("couldn't find node with tag $withPaddingTag")
+        // Make sure to get the bounds with no clipping applied by
+        // using Rect(positionInRoot, size.toSize()).
+        val semanticsBound = Rect(semanticsNode.positionInRoot, semanticsNode.size.toSize())
+        // Check that the SemanticsNode bounds of the scrolling column are as expected.
+        assertEquals(paddingSize.height.toFloat(), semanticsBound.height)
     }
 }
