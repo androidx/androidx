@@ -18,9 +18,7 @@ package androidx.credentials.playservices
 
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 
 class TestUtils {
@@ -103,127 +101,6 @@ class TestUtils {
                 setValue.add(values[i].toString())
             }
             return setValue
-        }
-
-        /**
-         * Generates a JSON for the **create request** flow that is maximally filled given the inputs,
-         * so it can always be a representative json to any input to compare against for this
-         * create request flow, acting as a 'subset' as during parsing certain values may have
-         * been removed if not required from the input based on the fido impl flow. I.e. the input
-         * that generates the [PublicKeyCredentialCreationOptions] we utilize here must be a
-         * superset based on the FIDO Implementation, *not* the spec! Then during parsing, further
-         * values may have been removed, meaning the JSON formed from
-         * [PublicKeyCredentialCreationOptions] is a guaranteed subset, never greater than the
-         * input json superset.
-         */
-        @Throws(JSONException::class)
-        fun createJsonObjectFromPublicKeyCredentialCreationOptions(
-            options: PublicKeyCredentialCreationOptions
-        ): JSONObject {
-            val json = JSONObject()
-            configureRpAndUser(options, json)
-            configureChallengeParamsAndTimeout(options, json)
-            configureDescriptors(options, json)
-            configureSelectionCriteriaAndAttestation(options, json)
-
-            // TODO("Handle extensions in this testing parsing")
-            return json
-        }
-
-        private fun configureSelectionCriteriaAndAttestation(
-            options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
-        ) {
-            val selectionCriteria = options.authenticatorSelection
-            selectionCriteria?.let {
-                val authSelect = JSONObject()
-                val authAttachment = selectionCriteria.attachmentAsString
-                if (authAttachment != null) authSelect.put(
-                    "authenticatorAttachment",
-                    authAttachment
-                )
-                val residentKey = selectionCriteria.residentKeyRequirementAsString
-                if (residentKey != null) authSelect.put("residentKey", residentKey)
-                if (selectionCriteria.requireResidentKey != null) {
-                    val requireResidentKey = selectionCriteria.requireResidentKey!!
-                    authSelect.put("requireResidentKey", requireResidentKey)
-                }
-                json.put("authenticatorSelection", authSelect)
-                // TODO("Missing userVerification in fido impl")
-            }
-            val attestation = options.attestationConveyancePreferenceAsString
-            if (attestation != null) {
-                json.put("attestation", attestation)
-            }
-        }
-
-        private fun configureDescriptors(
-            options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
-        ) {
-            val descriptors = options.excludeList
-            val descriptor = JSONArray()
-            if (descriptors != null) {
-                for (descriptorJSON in descriptors) {
-                    val descriptorI = JSONObject()
-                    descriptorI.put("id", b64Encode(descriptorJSON.id))
-                    descriptorI.put("type", descriptorJSON.type)
-                    descriptorI.put("transports", descriptorJSON.transports)
-                    descriptor.put(descriptorI)
-                }
-            }
-            json.put("excludeCredentials", descriptor)
-        }
-
-        private fun configureChallengeParamsAndTimeout(
-            options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
-        ) {
-            val requiredChallenge = options.challenge
-            json.put("challenge", b64Encode(requiredChallenge))
-            val publicKeyCredentialParameters = options.parameters
-            val parameters = JSONArray()
-            for (params in publicKeyCredentialParameters) {
-                val paramI = JSONObject()
-                paramI.put("type", params.typeAsString)
-                paramI.put("alg", params.algorithmIdAsInteger)
-                parameters.put(paramI)
-            }
-            json.put("pubKeyCredParams", parameters)
-            if (options.timeoutSeconds != null) {
-                val optionalTimeout = options.timeoutSeconds!!
-                json.put("timeout", optionalTimeout)
-            }
-        }
-
-        private fun configureRpAndUser(
-            options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
-        ) {
-            val rpJson = JSONObject()
-            val rpRequired = options.rp
-            val rpName = rpRequired.name
-            rpJson.put("name", rpName)
-            val rpId = rpRequired.id
-            rpJson.put("id", rpId)
-            val optionalRpIcon = rpRequired.icon
-            if (optionalRpIcon != null) {
-                rpJson.put("icon", optionalRpIcon)
-            }
-            json.put("rp", rpJson)
-            val userJson = JSONObject()
-            val userRequired = options.user
-            val userId = userRequired.id
-            userJson.put("id", b64Encode(userId))
-            val userName = userRequired.name
-            userJson.put("name", userName)
-            val userDisplayName = userRequired.displayName
-            userJson.put("displayName", userDisplayName)
-            val optionalUserIcon = userRequired.icon
-            if (optionalUserIcon != null) {
-                userJson.put("icon", optionalUserIcon)
-            }
-            json.put("user", userJson)
         }
 
         @JvmStatic
