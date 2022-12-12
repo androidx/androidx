@@ -448,7 +448,7 @@ class VideoRecordingTest(
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
-        val videoCaptureMonitor = RecorderTest.VideoCaptureMonitor()
+        val videoCaptureMonitor = VideoCaptureMonitor()
         videoCapture.startVideoRecording(temporaryFolder.newFile(), videoCaptureMonitor).use {
             // Ensure the Recorder is initialized before start test.
             videoCaptureMonitor.waitForVideoCaptureStatus()
@@ -1080,10 +1080,46 @@ class VideoRecordingTest(
         )
 }
 
-private fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
+private class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
+    private var countDown: CountDownLatch? = null
+
+    fun waitForVideoCaptureStatus(
+        count: Int = 10,
+        timeoutMillis: Long = TimeUnit.SECONDS.toMillis(10)
+    ) {
+        assertWithMessage("Video recording doesn't start").that(synchronized(this) {
+            countDown = CountDownLatch(count)
+            countDown
+        }!!.await(timeoutMillis, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    override fun accept(event: VideoRecordEvent?) {
+        when (event) {
+            is VideoRecordEvent.Status -> {
+                synchronized(this) {
+                    countDown?.countDown()
+                }
+            }
+            else -> {
+                // Ignore other events.
+            }
+        }
+    }
+}
+
+internal fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
     try {
         block(this)
     } finally {
         release()
     }
 }
+
+internal fun MediaMetadataRetriever.hasAudio(): Boolean =
+    extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes"
+
+internal fun MediaMetadataRetriever.hasVideo(): Boolean =
+    extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) == "yes"
+
+internal fun MediaMetadataRetriever.getDuration(): Long? =
+    extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
