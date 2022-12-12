@@ -104,6 +104,63 @@ open class IterableSubject<T>(actual: Iterable<T>?) : Subject<Iterable<T>>(actua
         }
     }
 
+    /** Checks that the subject does not contain duplicate elements. */
+    fun containsNoDuplicates() {
+        requireNonNull(actual) { "Expected not to contain duplicates, but was null" }
+
+        val duplicates = actual.groupBy { it }.values.filter { it.size > 1 }
+
+        if (duplicates.isNotEmpty()) {
+            fail("Expected not to contain duplicates, but contained $duplicates")
+        }
+    }
+
+    /** Checks that the subject contains at least one of the provided objects or fails. */
+    fun containsAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
+        containsAnyIn(listOf(first, second, *rest))
+    }
+
+    /**
+     * Checks that the subject contains at least one of the objects contained in the provided
+     * collection or fails.
+     */
+    fun containsAnyIn(expected: Iterable<*>?) {
+        requireNonNull(expected)
+        val actual = requireNonNull(actual).toList()
+
+        if (expected.any { it in actual }) {
+            return
+        }
+
+        val matchingItems = actual.retainMatchingToString(expected)
+        if (matchingItems.isNotEmpty()) {
+            fail(
+                "Expected to contain any of $expected, but did not. " +
+                    "Though it did contain $matchingItems"
+            )
+        } else {
+            fail("Expected to contain any of $expected, but did not")
+        }
+    }
+
+    /**
+     * Checks that the subject contains at least one of the objects contained in the provided array or
+     * fails.
+     */
+    fun containsAnyIn(expected: Array<out Any?>?) {
+        containsAnyIn(requireNonNull(expected).asList())
+    }
+
+    /**
+     * Checks that the subject contains exactly the provided objects or fails.
+     *
+     * Multiplicity is respected. For example, an object duplicated exactly 3 times in the
+     * [Iterable] parameter asserts that the object must likewise be duplicated exactly 3 times in
+     * the subject.
+     *
+     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder]
+     * on the object returned by this method.
+     */
     fun containsExactlyElementsIn(required: Iterable<*>?): Ordered {
         val actualIter = requireNonNull(actual).iterator()
         val requiredIter = requireNonNull(required).iterator()
