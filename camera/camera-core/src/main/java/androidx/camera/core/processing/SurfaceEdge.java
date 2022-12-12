@@ -114,8 +114,6 @@ public class SurfaceEdge {
     // Guarded by main thread.
     @Nullable
     private SurfaceRequest mProviderSurfaceRequest;
-    // Guarded by main thread.
-    private boolean mHasProvider;
 
     // Guarded by main thread.
     @NonNull
@@ -201,17 +199,15 @@ public class SurfaceEdge {
      * <p>This method is for organizing the pipeline internally. For example, using the output of
      * one {@link UseCase} as the input of another {@link UseCase} for stream sharing.
      *
-     * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
-     * already has a provider.
+     * <p>This method is idempotent. Calling it with the same provider no-ops. Calling it with a
+     * different provider throws {@link IllegalStateException}.
      *
-     * @throws DeferrableSurface.SurfaceClosedException when the provider is already closed. This
-     *                                                  should never happen.
+     * @throws DeferrableSurface.SurfaceClosedException when the provider is already closed.
      */
     @MainThread
     public void setProvider(@NonNull DeferrableSurface provider)
             throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
-        checkAndSetHasProvider();
         mSettableSurface.setProvider(provider);
     }
 
@@ -251,18 +247,23 @@ public class SurfaceEdge {
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
             @Nullable Range<Integer> expectedFpsRange) {
         checkMainThread();
-        checkAndSetHasProvider();
         // TODO(b/238230154) figure out how to support HDR.
         SurfaceRequest surfaceRequest = new SurfaceRequest(getSize(), cameraInternal,
                 expectedFpsRange, () -> mainThreadExecutor().execute(this::invalidate));
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
-            mSettableSurface.setProvider(deferrableSurface);
-            mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
-                    directExecutor());
+            if (mSettableSurface.setProvider(deferrableSurface)) {
+                mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
+                        directExecutor());
+            }
         } catch (DeferrableSurface.SurfaceClosedException e) {
             // This should never happen. We just created the SurfaceRequest. It can't be closed.
             throw new AssertionError("Surface is somehow already closed", e);
+        } catch (RuntimeException e) {
+            // This should never happen. It indicates a bug in CameraX code. Close the
+            // SurfaceRequest just to be safe.
+            surfaceRequest.willNotProvideSurface();
+            throw e;
         }
         mProviderSurfaceRequest = surfaceRequest;
         notifyTransformationInfoUpdate();
@@ -335,7 +336,6 @@ public class SurfaceEdge {
     public void invalidate() {
         checkMainThread();
         close();
-        mHasProvider = false;
         mHasConsumer = false;
         mSettableSurface = new SettableSurface(mSize);
         for (Runnable onInvalidated : mOnInvalidatedListeners) {
@@ -459,14 +459,12 @@ public class SurfaceEdge {
         }
     }
 
+    /**
+     * Check the edge only has one consumer defensively.
+     */
     private void checkAndSetHasConsumer() {
         checkState(!mHasConsumer, "Consumer can only be linked once.");
         mHasConsumer = true;
-    }
-
-    private void checkAndSetHasProvider() {
-        checkState(!mHasProvider, "Provider can only be linked once.");
-        mHasProvider = true;
     }
 
     /**
@@ -492,7 +490,7 @@ public class SurfaceEdge {
 
         CallbackToFutureAdapter.Completer<Surface> mCompleter;
 
-        private boolean mHasProvider = false;
+        private DeferrableSurface mProvider;
 
         SettableSurface(@NonNull Size size) {
             super(size, ImageFormat.PRIVATE);
@@ -507,24 +505,36 @@ public class SurfaceEdge {
         /**
          * Sets the {@link DeferrableSurface} that provides the surface.
          *
+         * <p>This method is idempotent. Calling it with the same provider no-ops.
+         *
+         * @return true if the provider is set; false if the same provider has already been set.
          * @throws IllegalStateException    if the provider has already been set.
          * @throws IllegalArgumentException if the provider's size is different than the size of
          *                                  this {@link SettableSurface}.
+         * @throws SurfaceClosedException   if the provider is already closed.
          * @see SurfaceEdge#setProvider(DeferrableSurface)
          */
         @MainThread
-        public void setProvider(@NonNull DeferrableSurface provider)
+        public boolean setProvider(@NonNull DeferrableSurface provider)
                 throws SurfaceClosedException {
             checkMainThread();
+            checkNotNull(provider);
+            if (mProvider == provider) {
+                // Same provider has already been set. Ignore.
+                return false;
+            }
+            checkState(mProvider == null, "A different provider has been set. To change the "
+                    + "provider, call SurfaceEdge#invalidate before calling "
+                    + "SurfaceEdge#setProvider");
             checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
                     "The provider's size must match the parent");
             checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
                     + "setting a new provider.");
-            checkState(!mHasProvider, "Provider can only be set once.");
-            mHasProvider = true;
+            mProvider = provider;
             Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
             getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
+            return true;
         }
     }
 }
