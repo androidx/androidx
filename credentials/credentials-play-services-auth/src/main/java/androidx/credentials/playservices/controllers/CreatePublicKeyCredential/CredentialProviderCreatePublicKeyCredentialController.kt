@@ -127,8 +127,16 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
                 this.callback, this.executor, cred)) {
             return
         }
-        val response = this.convertResponseToCredentialManager(cred)
-        this.executor.execute { this.callback.onResult(response) }
+        try {
+            val response = this.convertResponseToCredentialManager(cred)
+            this.executor.execute { this.callback.onResult(response) }
+        } catch (e: JSONException) {
+            executor.execute {
+                callback.onError(CreatePublicKeyCredentialEncodingException(e.message)) }
+        } catch (t: Throwable) {
+            executor.execute {
+                callback.onError(CreatePublicKeyCredentialUnknownException(t.message)) }
+        }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

@@ -99,16 +99,21 @@ class PublicKeyCredentialControllerUtility {
 
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
-
             val authenticatorResponse = cred.response
+            val authenticatorAttachment = cred.authenticatorAttachment
+            val clientExtensionResults = cred.clientExtensionResults
+            Log.i(TAG, "clientExtensionResults: ${
+                clientExtensionResults?.uvmEntries?.uvmEntryList}")
+            // TODO("Extension types have hidden values, update once gms fido updates")
+            // TODO("Ask why it is missing conditional mediation available")
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
                 responseJson.put(
                     "clientDataJSON",
-                    Base64.encodeToString(authenticatorResponse.clientDataJSON, FLAGS))
+                    b64Encode(authenticatorResponse.clientDataJSON))
                 responseJson.put(
                     "attestationObject",
-                    Base64.encodeToString(authenticatorResponse.attestationObject, FLAGS))
+                    b64Encode(authenticatorResponse.attestationObject))
                 val transports = JSONArray(listOf(authenticatorResponse.transports))
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
@@ -119,12 +124,12 @@ class PublicKeyCredentialControllerUtility {
                         authenticatorResponse.javaClass.name)
             }
 
-            if (cred.authenticatorAttachment != null) {
-                json.put("authenticatorAttachment", String(cred.rawId))
+            if (authenticatorAttachment != null) {
+                json.put("authenticatorAttachment", authenticatorAttachment)
             }
 
             json.put("id", cred.id)
-            json.put("rawId", Base64.encodeToString(cred.rawId, FLAGS))
+            json.put("rawId", b64Encode(cred.rawId))
             json.put("type", cred.type)
             // TODO: add ExtensionsClientOUtputsJSON conversion
             return json.toString()
@@ -173,6 +178,7 @@ class PublicKeyCredentialControllerUtility {
         fun convertToPlayAuthPasskeyRequest(request: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeysRequestOptions {
             // TODO : Make sure this is in compliance with w3
+            Log.i(TAG, "Parsing to play auth (get request side)")
             val json = JSONObject(request.requestJson)
             if (json.has("rpId")) {
                 val rpId = json.getString("rpId")
