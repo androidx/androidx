@@ -633,10 +633,14 @@ public final class Recorder implements VideoOutput {
 
     /**
      * Gets the aspect ratio of this Recorder.
+     *
+     * @return the value from {@link Builder#setAspectRatio(int)} or
+     * {@link AspectRatio#RATIO_DEFAULT} if not set.
      */
-    @VideoSpec.AspectRatio
-    int getAspectRatio() {
-        return getObservableData(mMediaSpec).getVideoSpec().getAspectRatio();
+    @AspectRatio.Ratio
+    public int getAspectRatio() {
+        return VideoSpec.toPublicRatio(
+                getObservableData(mMediaSpec).getVideoSpec().getAspectRatio());
     }
 
     /**
@@ -2979,7 +2983,11 @@ public final class Recorder implements VideoOutput {
          * <p>If no quality selector is provided, the default is
          * {@link Recorder#DEFAULT_QUALITY_SELECTOR}.
          *
+         * <p>{@link #setAspectRatio(int)} can be used with to specify the intended video aspect
+         * ratio.
+         *
          * @see QualitySelector
+         * @see #setAspectRatio(int)
          */
         @NonNull
         public Builder setQualitySelector(@NonNull QualitySelector qualitySelector) {
@@ -2991,10 +2999,30 @@ public final class Recorder implements VideoOutput {
         }
 
         /**
-         * Sets the aspect ratio of this Recorder.
+         * Sets the video aspect ratio of this Recorder.
+         *
+         * <p>The final video resolution will be based on the input aspect ratio and the
+         * QualitySelector in {@link #setQualitySelector(QualitySelector)}. Both settings will be
+         * respected. For example, if the aspect ratio is 4:3 and the preferred quality in
+         * QualitySelector is HD, then a HD quality resolution with 4:3 aspect ratio such as
+         * 1280x960 or 960x720 will be used. CameraX will choose an appropriate one depending on
+         * the resolutions supported by the camera and the codec capabilities. With this setting,
+         * no other aspect ratios (such as 16:9) will be used, nor any other qualities (such as
+         * UHD, FHD and SD). If no resolution with the settings can be found, it will fail to
+         * bind VideoCapture. Therefore, a recommended way is to provide a flexible
+         * QualitySelector if there is no specific video quality requirement, such as the setting
+         * in {@link Recorder#DEFAULT_QUALITY_SELECTOR}.
+         *
+         * <p>The default value is {@link AspectRatio#RATIO_DEFAULT}. If no aspect ratio is set, the
+         * selected resolution will be based only on the QualitySelector.
+         *
+         * @param aspectRatio the aspect ratio. Possible values are {@link AspectRatio#RATIO_4_3}
+         *                    and {@link AspectRatio#RATIO_16_9}.
+         *
+         * @see #setQualitySelector(QualitySelector)
          */
         @NonNull
-        Builder setAspectRatio(@AspectRatio.Ratio int aspectRatio) {
+        public Builder setAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             mMediaSpecBuilder.configureVideo(builder -> builder.setAspectRatio(aspectRatio));
             return this;
         }

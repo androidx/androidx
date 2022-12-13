@@ -4,6 +4,7 @@ package androidx.camera.core {
   @RequiresApi(21) public class AspectRatio {
     field public static final int RATIO_16_9 = 1; // 0x1
     field public static final int RATIO_4_3 = 0; // 0x0
+    field public static final int RATIO_DEFAULT = -1; // 0xffffffff
   }
 
   @RequiresApi(21) public interface Camera {

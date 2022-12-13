@@ -30,6 +30,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AspectRatio {
+    // TODO(b/260655422): Revise every place that has to take RATIO_DEFAULT into account.
+    /** The aspect ratio representing no preference for aspect ratio. */
+    public static final int RATIO_DEFAULT = -1;
     /** 4:3 standard aspect ratio. */
     public static final int RATIO_4_3 = 0;
     /** 16:9 standard aspect ratio. */
@@ -41,7 +44,7 @@ public class AspectRatio {
     /**
      * @hide
      */
-    @IntDef({RATIO_4_3, RATIO_16_9})
+    @IntDef({RATIO_DEFAULT, RATIO_4_3, RATIO_16_9})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface Ratio {
