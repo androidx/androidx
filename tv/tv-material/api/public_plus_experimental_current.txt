@@ -44,24 +44,22 @@ package androidx.tv.material {
 package androidx.tv.material.carousel {
 
   @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselDefaults {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public void Indicator(androidx.tv.material.carousel.CarouselState carouselState, int slideCount, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
     method public androidx.compose.animation.EnterTransition getEnterTransition();
     method public androidx.compose.animation.ExitTransition getExitTransition();
-    method public long getTimeToDisplaySlideMillis();
     property public final androidx.compose.animation.EnterTransition EnterTransition;
     property public final androidx.compose.animation.ExitTransition ExitTransition;
-    property public final long TimeToDisplaySlideMillis;
     field public static final androidx.tv.material.carousel.CarouselDefaults INSTANCE;
+    field public static final long TimeToDisplaySlideMillis = 5000L; // 0x1388L
   }
 
   @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselItemDefaults {
     method public androidx.compose.animation.EnterTransition getOverlayEnterTransition();
-    method public long getOverlayEnterTransitionStartDelayMillis();
     method public androidx.compose.animation.ExitTransition getOverlayExitTransition();
     property public final androidx.compose.animation.EnterTransition OverlayEnterTransition;
-    property public final long OverlayEnterTransitionStartDelayMillis;
     property public final androidx.compose.animation.ExitTransition OverlayExitTransition;
     field public static final androidx.tv.material.carousel.CarouselItemDefaults INSTANCE;
+    field public static final long OverlayEnterTransitionStartDelayMillis = 200L; // 0xc8L
   }
 
   public final class CarouselItemKt {
@@ -73,10 +71,10 @@ package androidx.tv.material.carousel {
   }
 
   @androidx.compose.runtime.Stable @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselState {
-    ctor public CarouselState(optional int initialSlideIndex);
-    method public int getSlideIndex();
+    ctor public CarouselState(optional int initialActiveSlideIndex);
+    method public int getActiveSlideIndex();
     method public androidx.tv.material.carousel.ScrollPauseHandle pauseAutoScroll(int slideIndex);
-    property public final int slideIndex;
+    property public final int activeSlideIndex;
   }
 
   @androidx.tv.material.ExperimentalTvMaterialApi public sealed interface ScrollPauseHandle {
