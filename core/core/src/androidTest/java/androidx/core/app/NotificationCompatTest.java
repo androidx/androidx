@@ -2927,6 +2927,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @Test
     @SdkSuppress(minSdkVersion = 20)
+    public void action_builder_fromAndroidActionAllowsZeroResIcon() {
+        // Create action with a 0 resId Icon.
+        Notification.Action action = new Notification.Action.Builder(0, "title", null)
+                .build();
+        // Create a Compat Action Builder from the Android Action.
+        NotificationCompat.Action compatAction =
+                NotificationCompat.Action.Builder.fromAndroidAction(action).build();
+        // The zero res icon is not set, but the action is created.
+        assertNull(compatAction.getIconCompat());
+        assertEquals("title", compatAction.getTitle());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
     public void action_semanticAction_toAndFromNotification() {
         NotificationCompat.Action action =
                 newActionBuilder()
