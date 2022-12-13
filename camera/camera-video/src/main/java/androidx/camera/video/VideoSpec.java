@@ -70,17 +70,30 @@ public abstract class VideoSpec {
             QualitySelector.fromOrderedList(Arrays.asList(Quality.FHD, Quality.HD, Quality.SD),
                     FallbackStrategy.higherQualityOrLowerThan(Quality.FHD));
 
+    // TODO: Remove constants ASPECT_RATIO_* and directly use AspectRatio.RATIO_*.
     /**
      * The aspect ratio representing no preference for aspect ratio.
      *
      * <p>Using this value with {@link Builder#setAspectRatio(int)} allows the video frame
      * producer to choose an appropriate aspect ratio based on its current state.
      */
-    static final int ASPECT_RATIO_AUTO = -1;
+    static final int ASPECT_RATIO_AUTO = androidx.camera.core.AspectRatio.RATIO_DEFAULT;
     /** The aspect ratio with width 16 by height 9. */
     static final int ASPECT_RATIO_4_3 = androidx.camera.core.AspectRatio.RATIO_4_3;
     /** The aspect ratio with width 4 by height 3. */
     static final int ASPECT_RATIO_16_9 = androidx.camera.core.AspectRatio.RATIO_16_9;
+
+    @androidx.camera.core.AspectRatio.Ratio
+    static int toPublicRatio(@AspectRatio int ratio) {
+        switch (ratio) {
+            case ASPECT_RATIO_AUTO:
+            case ASPECT_RATIO_4_3:
+            case ASPECT_RATIO_16_9:
+                return ratio;
+            default:
+                throw new AssertionError("Undefined aspect ratio: " + ratio);
+        }
+    }
 
     /** @hide */
     @IntDef({ASPECT_RATIO_AUTO, ASPECT_RATIO_4_3, ASPECT_RATIO_16_9})
