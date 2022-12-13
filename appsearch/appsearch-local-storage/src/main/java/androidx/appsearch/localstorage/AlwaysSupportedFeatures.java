@@ -47,6 +47,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
                 // fall through
             case Features.TOKENIZER_TYPE_RFC822:
+                // fall through
+            case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
                 return true;
             default:
                 return false;

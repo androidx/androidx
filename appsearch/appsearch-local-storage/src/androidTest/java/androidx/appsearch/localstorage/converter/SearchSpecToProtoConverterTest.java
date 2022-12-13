@@ -126,6 +126,27 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
+    public void testToAdvancedRankingSpecProto() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setOrder(ORDER_ASCENDING)
+                .setRankingStrategy("this.documentScore()").build();
+
+        ScoringSpecProto scoringSpecProto = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(),
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of()).toScoringSpecProto();
+
+        assertThat(scoringSpecProto.getOrderBy().getNumber())
+                .isEqualTo(ScoringSpecProto.Order.Code.ASC_VALUE);
+        assertThat(scoringSpecProto.getRankBy().getNumber())
+                .isEqualTo(ScoringSpecProto.RankingStrategy.Code.ADVANCED_SCORING_EXPRESSION_VALUE);
+        assertThat(scoringSpecProto.getAdvancedScoringExpression())
+                .isEqualTo("this.documentScore()");
+    }
+
+    @Test
     public void testToResultSpecProto() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultCountPerPage(123)
