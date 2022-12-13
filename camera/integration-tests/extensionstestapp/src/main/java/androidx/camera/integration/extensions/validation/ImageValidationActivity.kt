@@ -46,11 +46,9 @@ import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IM
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_URI
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_LENS_FACING
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_RESULT
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_TYPE
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
-import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_TESTED
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_BIND_TO_LIFECYCLE_FAILED
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
@@ -85,6 +83,7 @@ class ImageValidationActivity : AppCompatActivity() {
     private var extensionMode = INVALID_EXTENSION_MODE
     private val result = Intent()
     private var lensFacing = INVALID_LENS_FACING
+    private lateinit var testResults: TestResults
     private lateinit var testType: String
     private lateinit var cameraId: String
     private lateinit var failButton: ImageButton
@@ -103,6 +102,7 @@ class ImageValidationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.image_validation_activity)
+        testResults = TestResults.getInstance(this)
 
         testType = intent?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!
         cameraId = intent?.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
@@ -110,7 +110,6 @@ class ImageValidationActivity : AppCompatActivity() {
         extensionMode = intent.getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, INVALID_EXTENSION_MODE)
 
         result.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
-        result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_NOT_TESTED)
         val requestCode = intent.getIntExtra(INTENT_EXTRA_KEY_REQUEST_CODE, -1)
         setResult(requestCode, result)
 
@@ -148,8 +147,13 @@ class ImageValidationActivity : AppCompatActivity() {
             errorCode == ERROR_CODE_TAKE_PICTURE_FAILED ||
             errorCode == ERROR_CODE_SAVE_IMAGE_FAILED
         ) {
-            result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_FAILED)
             Log.e(TAG, "Failed to take a picture with error code: $errorCode")
+            testResults.updateTestResultAndSave(
+                testType,
+                cameraId,
+                extensionMode,
+                TEST_RESULT_FAILED
+            )
             finish()
             return
         }
@@ -236,13 +240,23 @@ class ImageValidationActivity : AppCompatActivity() {
     private fun setupButtonControls() {
         failButton = findViewById(R.id.fail_button)
         failButton.setOnClickListener {
-            result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_FAILED)
+            testResults.updateTestResultAndSave(
+                testType,
+                cameraId,
+                extensionMode,
+                TEST_RESULT_FAILED
+            )
             finish()
         }
 
         passButton = findViewById(R.id.pass_button)
         passButton.setOnClickListener {
-            result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_PASSED)
+            testResults.updateTestResultAndSave(
+                testType,
+                cameraId,
+                extensionMode,
+                TEST_RESULT_PASSED
+            )
             finish()
         }
 
