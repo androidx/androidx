@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.lifecycle.ProcessLifecycleInitializer#dependencies():
+    Method androidx.lifecycle.ProcessLifecycleInitializer.dependencies has changed return type from java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> to java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>>
