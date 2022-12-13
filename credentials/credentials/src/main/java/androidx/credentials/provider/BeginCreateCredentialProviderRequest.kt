@@ -32,10 +32,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @hide
  */
 @RequiresApi(34)
-open class BeginCreateCredentialProviderRequest internal constructor(
+abstract class BeginCreateCredentialProviderRequest internal constructor(
+    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val type: String,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val type: String,
     val callingAppInfo: CallingAppInfo
     ) {
     companion object {
@@ -60,9 +60,9 @@ open class BeginCreateCredentialProviderRequest internal constructor(
                     else -> throw FrameworkClassParsingException()
                 }
             } catch (e: FrameworkClassParsingException) {
-                // TODO: Change to custom class when ready
-                BeginCreateCredentialProviderRequest(
+                BeginCreateCustomCredentialRequest(
                     type,
+                    data,
                     CallingAppInfo(packageName, ArraySet())
                 )
             }

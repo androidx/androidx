@@ -21,14 +21,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CreatePasswordRequest.Companion.BUNDLE_KEY_ID
-import androidx.credentials.PasswordCredential
 
 /**
- * Request to begin saving a password credential, received by the provider with a
+ * Request to begin saving a custom credential, received by the provider with a
  * CredentialProviderBaseService.onBeginCreateCredentialRequest call.
  *
- * This request will not contain all parameters needed to store the password. Provider must
+ * This request will not contain all parameters needed to store the credential. Provider must
  * use the initial parameters to determine if the password can be stored, and return
  * a list of [CreateEntry], denoting the accounts/groups where the password can be stored.
  * When user selects one of the returned [CreateEntry], the corresponding [PendingIntent] set on
@@ -36,37 +34,24 @@ import androidx.credentials.PasswordCredential
  * complete [CreatePasswordRequest]. This request will contain all required parameters to
  * actually store the password.
  *
- * @property id the id of the password to be stored
- * @property callingAppInfo the information of the calling app for which the password needs to
- * be stored
- * @throws NullPointerException If [id] is null
- * @throws IllegalArgumentException If [id] is empty
+ * @property type the type of this custom credential type
+ * @property data the request parameters for the custom credential option
+ * @throws IllegalArgumentException If [type] is empty
+ * @throws NullPointerException If [type] or [data] is null
  *
  * @see BeginCreateCredentialProviderRequest
  *
  * @hide
  */
-// TODO ("Add custom class similar to developer side")
 @RequiresApi(34)
-class BeginCreatePasswordCredentialRequest internal constructor(
-    val id: String,
+class BeginCreateCustomCredentialRequest internal constructor(
+    override val type: String,
+    val data: Bundle,
     callingAppInfo: CallingAppInfo
 ) : BeginCreateCredentialProviderRequest(
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    type,
     callingAppInfo) {
-
     init {
-        require(id.isNotEmpty()) { "id must not be empty" }
-    }
-
-    companion object {
-        @JvmStatic
-        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
-            BeginCreatePasswordCredentialRequest {
-            return BeginCreatePasswordCredentialRequest(
-                data.getString(BUNDLE_KEY_ID)!!,
-                callingAppInfo
-            )
-        }
+        require(type.isNotEmpty()) { "type must not be empty" }
     }
 }
