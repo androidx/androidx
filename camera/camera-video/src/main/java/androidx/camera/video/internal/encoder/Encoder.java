@@ -51,6 +51,9 @@ public interface Encoder {
     @NonNull
     EncoderInfo getEncoderInfo();
 
+    /** Returns target bitrate configured on the encoder */
+    int getConfiguredBitrate();
+
     /**
      * Starts the encoder.
      *
