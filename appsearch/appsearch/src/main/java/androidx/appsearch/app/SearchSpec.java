@@ -1071,6 +1071,11 @@ public final class SearchSpec {
          *
          * @param joinSpec a specification on how to perform the Join operation.
          */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
+        // @exportToFramework:endStrip()
         @NonNull
         public Builder setJoinSpec(@NonNull JoinSpec joinSpec) {
             resetIfBuilt();
