@@ -293,14 +293,8 @@ public interface ExerciseClient {
      * @param exerciseTypeConfig a configuration containing the new values for the configurable
      * attributes
      * @return a [ListenableFuture] that completes when the configuration has been updated.
-     * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
-     * implemented this method. Developers should use [ServiceBackedExerciseClient], which is
-     * guaranteed to have this method implemented.
-     * @see ServiceBackedExerciseClient
      */
     public fun updateExerciseTypeConfigAsync(
         exerciseTypeConfig: ExerciseTypeConfig
-    ): ListenableFuture<Void> {
-        throw NotImplementedError()
-    }
+    ): ListenableFuture<Void>
 }

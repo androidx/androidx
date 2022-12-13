@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.health.services.client.ExerciseClient#updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig):
+    Added method androidx.health.services.client.ExerciseClient.updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig)
