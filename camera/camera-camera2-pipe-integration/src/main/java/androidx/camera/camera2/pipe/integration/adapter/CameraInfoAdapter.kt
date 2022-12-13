@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
@@ -65,6 +66,7 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val cameraCallbackMap: CameraCallbackMap,
+    private val focusMeteringControl: FocusMeteringControl
 ) : CameraInfoInternal {
     private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
     @OptIn(ExperimentalCamera2Interop::class)
@@ -152,10 +154,8 @@ class CameraInfoAdapter @Inject constructor(
         return defaultQuirks
     }
 
-    override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
-        Log.warn { "TODO: isFocusAndMeteringSupported are not yet supported." }
-        return false
-    }
+    override fun isFocusMeteringSupported(action: FocusMeteringAction) =
+        focusMeteringControl.isFocusMeteringSupported(action)
 
     override fun isZslSupported(): Boolean {
         Log.warn { "TODO: isZslSupported are not yet supported." }
