@@ -22,6 +22,11 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.emojipicker.RecentEmojiProvider
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +38,13 @@ class MainActivity : AppCompatActivity() {
             findViewById<EditText>(R.id.edit_text).append(it.emoji)
         }
         view.setRecentEmojiProvider(CustomRecentEmojiProvider(applicationContext))
+
+        CoroutineScope(EmptyCoroutineContext).launch(Dispatchers.Main) {
+            // delay a few seconds to view the layout reformat
+            delay(3000)
+            view.emojiGridColumns = 8
+            view.emojiGridRows = 8.3f
+        }
     }
 }
 
