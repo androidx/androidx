@@ -22,8 +22,7 @@ import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRule
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
-import androidx.window.extensions.embedding.SplitAttributesCalculator as OEMSplitAttributesCalculator
-import androidx.window.extensions.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
+import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OEMSplitAttributesCalculatorParams
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitPairRule as OEMSplitPairRule
 import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRuleBuilder
@@ -43,8 +42,8 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
-import androidx.window.embedding.SplitAttributesCalculator.SplitAttributesCalculatorParams
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
@@ -136,14 +135,9 @@ internal class EmbeddingAdapter(
         SplitType.ratio(splitRatio.ratio)
 
     fun translateSplitAttributesCalculator(
-        calculator: SplitAttributesCalculator
-    ): OEMSplitAttributesCalculator =
-        OEMSplitAttributesCalculator { oemSplitAttributesCalculatorParams ->
-            translateSplitAttributes(
-                calculator.computeSplitAttributesForParams(
-                    translate(oemSplitAttributesCalculatorParams)
-                )
-            )
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
+            translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
     @SuppressLint("NewApi")
@@ -152,18 +146,18 @@ internal class EmbeddingAdapter(
     ): SplitAttributesCalculatorParams = let {
         val taskWindowMetrics = params.parentWindowMetrics
         val taskConfiguration = params.parentConfiguration
+        val windowLayoutInfo = params.parentWindowLayoutInfo
         val defaultSplitAttributes = params.defaultSplitAttributes
         val isDefaultMinSizeSatisfied = params.isDefaultMinSizeSatisfied
-        val windowLayoutInfo = params.parentWindowLayoutInfo
         val splitRuleTag = params.splitRuleTag
         val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics)
 
         SplitAttributesCalculatorParams(
             windowMetrics,
             taskConfiguration,
+            ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
             translate(defaultSplitAttributes),
             isDefaultMinSizeSatisfied,
-            ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
             splitRuleTag,
         )
     }

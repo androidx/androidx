@@ -17,10 +17,12 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
+import androidx.window.extensions.core.util.function.Function;
 
 import java.util.List;
 import java.util.Set;
@@ -80,18 +82,24 @@ public interface ActivityEmbeddingComponent {
     boolean isActivityEmbedded(@NonNull Activity activity);
 
     /**
-     * Sets a {@link SplitAttributesCalculator}.
+     * Sets a callback to compute the {@link SplitAttributes} for the {@link SplitRule} and current
+     * window state provided in {@link SplitAttributesCalculatorParams}. This method can be used
+     * to dynamically configure the split layout properties when new activities are launched or
+     * window properties change. If set, {@link SplitRule#getDefaultSplitAttributes() the default
+     * split properties} and {@link SplitRule#checkParentMetrics(WindowMetrics) restrictions}
+     * will be ignored, and the callback will be invoked for every change.
      *
-     * @param calculator the calculator to set. It will replace the previously set
-     * {@link SplitAttributesCalculator} if it exists.
+     * @param calculator the callback to set. It will replace the previously set callback if it
+     *                  exists.
      * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
-    void setSplitAttributesCalculator(@NonNull SplitAttributesCalculator calculator);
+    void setSplitAttributesCalculator(
+            @NonNull Function<SplitAttributesCalculatorParams, SplitAttributes> calculator);
 
     /**
-     * Clears the previously set {@link SplitAttributesCalculator}.
+     * Clears the previously callback set in {@link #setSplitAttributesCalculator(Function)}.
      *
-     * @see #setSplitAttributesCalculator(SplitAttributesCalculator)
+     * @see #setSplitAttributesCalculator(Function)
      * @since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
