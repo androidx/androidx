@@ -24,6 +24,9 @@ class FakeVideoEncoderInfo(
     var _widthAlignment: Int = 2,
     var _heightAlignment: Int = 2,
 ) : FakeEncoderInfo(), VideoEncoderInfo {
+    override fun isSizeSupported(width: Int, height: Int) =
+        _supportedWidths.contains(width) && _supportedHeights.contains(height) &&
+            width.mod(_widthAlignment) == 0 && height.mod(_heightAlignment) == 0
 
     override fun getSupportedWidths(): Range<Int> {
         return _supportedWidths

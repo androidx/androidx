@@ -118,7 +118,6 @@ import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
-import androidx.core.util.Supplier;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -263,7 +262,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setTargetRotation(@RotationValue int rotation) {
         if (setTargetRotationInternal(rotation)) {
-            sendTransformationInfoIfReady(getAttachedSurfaceResolution());
+            sendTransformationInfoIfReady();
         }
     }
 
@@ -315,7 +314,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
-        sendTransformationInfoIfReady(getAttachedSurfaceResolution());
+        sendTransformationInfoIfReady();
     }
 
     /**
@@ -419,10 +418,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return Builder.fromConfig(config);
     }
 
-    private void sendTransformationInfoIfReady(@Nullable Size resolution) {
+    private void sendTransformationInfoIfReady() {
         CameraInternal cameraInternal = getCamera();
         SurfaceRequest surfaceRequest = mSurfaceRequest;
-        Rect cropRect = getCropRect(resolution);
+        Rect cropRect = mCropRect;
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
             int relativeRotation = getRelativeRotation(cameraInternal);
             int targetRotation = getAppTargetRotation();
@@ -443,20 +442,25 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * Gets the crop rect for {@link VideoCapture}.
+     * Calculates the crop rect.
      *
      * <p>Fall back to the full {@link Surface} rect if {@link ViewPort} crop rect is not
-     * available. Returns null if no valid crop rect. This could happen if the
-     * {@link VideoCapture} is not attached to a camera.
+     * available. The returned crop rect is adjusted if it is not valid to the video encoder.
      */
-    @Nullable
-    private Rect getCropRect(@Nullable Size surfaceResolution) {
+    @NonNull
+    private Rect calculateCropRect(@NonNull Size surfaceResolution,
+            @Nullable VideoEncoderInfo videoEncoderInfo) {
+        Rect cropRect;
         if (getViewPortCropRect() != null) {
-            return getViewPortCropRect();
-        } else if (surfaceResolution != null) {
-            return new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
+            cropRect = getViewPortCropRect();
+        } else {
+            cropRect = new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
         }
-        return null;
+        if (videoEncoderInfo == null || videoEncoderInfo.isSizeSupported(cropRect.width(),
+                cropRect.height())) {
+            return cropRect;
+        }
+        return adjustCropRectToValidSize(cropRect, surfaceResolution, videoEncoderInfo);
     }
 
     @SuppressLint("WrongConstant")
@@ -478,18 +482,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  for behavioral consistency.
         Range<Integer> targetFpsRange = requireNonNull(
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
-        Rect cropRect = requireNonNull(getCropRect(resolution));
+        MediaSpec mediaSpec = requireNonNull(getMediaSpec());
+        VideoCapabilities videoCapabilities = VideoCapabilities.from(camera.getCameraInfo());
+        VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
+                videoCapabilities, mediaSpec, resolution, targetFpsRange);
+        mCropRect = calculateCropRect(resolution, videoEncoderInfo);
+        mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution));
         Timebase timebase;
-        mNode = createNodeIfNeeded(isCropNeeded(cropRect, resolution));
         if (mNode != null) {
-            MediaSpec mediaSpec = requireNonNull(getMediaSpec());
-            timebase = camera.getCameraInfoInternal().getTimebase();
-            mCropRect = adjustCropRectIfNeeded(cropRect, resolution,
-                    () -> getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
-                            VideoCapabilities.from(camera.getCameraInfo()), timebase, mediaSpec,
-                            resolution, targetFpsRange));
             // Make sure the previously created camera edge is cleared before creating a new one.
             checkState(mCameraEdge == null);
+            timebase = camera.getCameraInfoInternal().getTimebase();
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
                     resolution,
@@ -508,7 +511,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(
-                    () -> onAppEdgeInvalidated(appEdge, camera, config, resolution));
+                    () -> onAppEdgeInvalidated(appEdge, camera, config, timebase));
             mSurfaceRequest = appEdge.createSurfaceRequest(camera, targetFpsRange);
             mDeferrableSurface = cameraEdge.getDeferrableSurface();
             DeferrableSurface latestDeferrableSurface = mDeferrableSurface;
@@ -529,11 +532,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
             // UPTIME when encoder surface is directly sent to camera.
             timebase = Timebase.UPTIME;
-            mCropRect = cropRect;
         }
 
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
-        sendTransformationInfoIfReady(resolution);
+        sendTransformationInfoIfReady();
         // Since VideoCapture is in video module and can't be recognized by core module, use
         // MediaCodec class instead.
         mDeferrableSurface.setContainerClass(MediaCodec.class);
@@ -549,12 +551,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge, @NonNull CameraInternal camera,
-            @NonNull VideoCaptureConfig<T> config, @NonNull Size resolution) {
+            @NonNull VideoCaptureConfig<T> config, @NonNull Timebase timebase) {
         if (camera == getCamera()) {
-            Timebase currentTimebase = camera.getCameraInfoInternal().getTimebase();
             mSurfaceRequest = appEdge.createSurfaceRequest(camera);
-            config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, currentTimebase);
-            sendTransformationInfoIfReady(resolution);
+            config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
+            sendTransformationInfoIfReady();
         }
     }
 
@@ -619,9 +620,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
         private static final Function<VideoEncoderConfig, VideoEncoderInfo>
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = encoderInfo -> {
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = encoderConfig -> {
                     try {
-                        return VideoEncoderInfoImpl.from(encoderInfo);
+                        return VideoEncoderInfoImpl.from(encoderConfig);
                     } catch (InvalidConfigException e) {
                         Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
                         return null;
@@ -735,21 +736,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     SurfaceProcessorNode getNode() {
         return mNode;
-    }
-
-    @MainThread
-    @NonNull
-    private Rect adjustCropRectIfNeeded(@NonNull Rect cropRect, @NonNull Size resolution,
-            @NonNull Supplier<VideoEncoderInfo> videoEncoderInfoFinder) {
-        if (!isCropNeeded(cropRect, resolution)) {
-            return cropRect;
-        }
-        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.get();
-        if (videoEncoderInfo == null) {
-            Logger.w(TAG, "Crop is needed but can't find the encoder info to adjust the cropRect");
-            return cropRect;
-        }
-        return adjustCropRectToValidSize(cropRect, resolution, videoEncoderInfo);
     }
 
     /**
@@ -908,7 +894,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private VideoEncoderInfo getVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
             @NonNull VideoCapabilities videoCapabilities,
-            @NonNull Timebase timebase,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> targetFps) {
@@ -916,13 +901,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return mVideoEncoderInfo;
         }
 
+        // Find the nearest CamcorderProfile
+        CamcorderProfileProxy camcorderProfileProxy =
+                videoCapabilities.findHighestSupportedCamcorderProfileFor(resolution);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
-                videoCapabilities, timebase, mediaSpec, resolution, targetFps);
+                camcorderProfileProxy, mediaSpec, resolution, targetFps);
         if (videoEncoderInfo == null) {
+            // If VideoCapture cannot find videoEncoderInfo, it means that VideoOutput should
+            // also not be able to find the encoder. VideoCapture will not handle this situation
+            // and leave it to VideoOutput to respond.
+            Logger.w(TAG, "Can't find videoEncoderInfo");
             return null;
         }
 
-        videoEncoderInfo = VideoEncoderInfoWrapper.from(videoEncoderInfo, resolution);
+        Size profileSize = camcorderProfileProxy != null ? new Size(
+                camcorderProfileProxy.getVideoFrameWidth(),
+                camcorderProfileProxy.getVideoFrameHeight()) : null;
+        videoEncoderInfo = VideoEncoderInfoWrapper.from(videoEncoderInfo, profileSize);
 
         // Cache the VideoEncoderInfo as it should be the same when recreating the pipeline.
         // This avoids recreating the MediaCodec instance to get encoder information.
@@ -935,20 +930,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private static VideoEncoderInfo resolveVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
-            @NonNull VideoCapabilities videoCapabilities,
-            @NonNull Timebase timebase,
+            @Nullable CamcorderProfileProxy camcorderProfileProxy,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> targetFps) {
-        // Find the nearest CamcorderProfile
-        CamcorderProfileProxy camcorderProfileProxy =
-                videoCapabilities.findHighestSupportedCamcorderProfileFor(resolution);
-
         // Resolve the VideoEncoderConfig
         MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, camcorderProfileProxy);
         VideoEncoderConfig videoEncoderConfig = resolveVideoEncoderConfig(
                 videoMimeInfo,
-                timebase,
+                // Timebase won't affect the found EncoderInfo so give a arbitrary one.
+                Timebase.UPTIME,
                 mediaSpec.getVideoSpec(),
                 resolution,
                 targetFps);

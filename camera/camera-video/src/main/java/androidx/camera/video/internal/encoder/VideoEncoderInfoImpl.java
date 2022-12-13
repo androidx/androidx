@@ -55,6 +55,11 @@ public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncode
         mVideoCapabilities = Objects.requireNonNull(mCodecCapabilities.getVideoCapabilities());
     }
 
+    @Override
+    public boolean isSizeSupported(int width, int height) {
+        return mVideoCapabilities.isSizeSupported(width, height);
+    }
+
     @NonNull
     @Override
     public Range<Integer> getSupportedWidths() {
