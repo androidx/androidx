@@ -50,9 +50,7 @@ import java.util.concurrent.TimeoutException;
  */
 class InteractionController {
 
-    private static final String LOG_TAG = InteractionController.class.getSimpleName();
-
-    private static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
+    private static final String TAG = InteractionController.class.getSimpleName();
 
     private final KeyCharacterMap mKeyCharacterMap =
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
@@ -153,10 +151,10 @@ class InteractionController {
         try {
             return getUiAutomation().executeAndWaitForEvent(command, filter, timeout);
         } catch (TimeoutException e) {
-            Log.w(LOG_TAG, "runAndwaitForEvents timed out waiting for events");
+            Log.w(TAG, String.format("Timed out waiting %dms for command and events.", timeout));
             return null;
         } catch (Exception e) {
-            Log.e(LOG_TAG, "exception from executeCommandAndWaitForAccessibilityEvent", e);
+            Log.e(TAG, "Exception while waiting for command and events.", e);
             return null;
         }
     }
@@ -202,8 +200,6 @@ class InteractionController {
      * @return true if the click executed successfully
      */
     public boolean clickNoSync(int x, int y) {
-        Log.d(LOG_TAG, "clickNoSync (" + x + ", " + y + ")");
-
         if (touchDown(x, y)) {
             SystemClock.sleep(REGULAR_CLICK_LENGTH);
             return touchUp(x, y);
@@ -221,10 +217,6 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean clickAndSync(final int x, final int y, long timeout) {
-
-        String logString = String.format("clickAndSync(%d, %d)", x, y);
-        Log.d(LOG_TAG, logString);
-
         return runAndWaitForEvents(clickRunnable(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
@@ -240,9 +232,6 @@ class InteractionController {
      * @return true if both events occurred in the expected order
      */
     public boolean clickAndWaitForNewWindow(final int x, final int y, long timeout) {
-        String logString = String.format("clickAndWaitForNewWindow(%d, %d)", x, y);
-        Log.d(LOG_TAG, logString);
-
         return runAndWaitForEvents(clickRunnable(x, y), new WaitForAllEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED |
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED), timeout) != null;
@@ -290,10 +279,6 @@ class InteractionController {
      * @return true if successful.
      */
     public boolean longTapNoSync(int x, int y) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "longTapNoSync (" + x + ", " + y + ")");
-        }
-
         if (touchDown(x, y)) {
             SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
             return touchUp(x, y);
@@ -311,28 +296,18 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean longTapAndSync(final int x, final int y, long timeout) {
-
-        String logString = String.format("clickAndSync(%d, %d)", x, y);
-        Log.d(LOG_TAG, logString);
-
         return runAndWaitForEvents(longTapRunnable(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
 
     boolean touchDown(int x, int y) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "touchDown (" + x + ", " + y + ")");
-        }
         mDownTime = SystemClock.uptimeMillis();
         MotionEvent event = getMotionEvent(mDownTime, mDownTime, MotionEvent.ACTION_DOWN, x, y);
         return injectEventSync(event);
     }
 
     boolean touchUp(int x, int y) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "touchUp (" + x + ", " + y + ")");
-        }
         final long eventTime = SystemClock.uptimeMillis();
         MotionEvent event = getMotionEvent(mDownTime, eventTime, MotionEvent.ACTION_UP, x, y);
         mDownTime = 0;
@@ -340,9 +315,6 @@ class InteractionController {
     }
 
     private boolean touchMove(int x, int y) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "touchMove (" + x + ", " + y + ")");
-        }
         final long eventTime = SystemClock.uptimeMillis();
         MotionEvent event = getMotionEvent(mDownTime, eventTime, MotionEvent.ACTION_MOVE, x, y);
         return injectEventSync(event);
@@ -360,9 +332,6 @@ class InteractionController {
      */
     public boolean scrollSwipe(final int downX, final int downY, final int upX, final int upY,
             final int steps) {
-        Log.d(LOG_TAG, "scrollSwipe (" +  downX + ", " + downY + ", " + upX + ", "
-                + upY + ", " + steps +")");
-
         Runnable command = () -> swipe(downX, downY, upX, upY, steps);
 
         // Collect all accessibility events generated during the swipe command and get the
@@ -386,19 +355,16 @@ class InteractionController {
         if (event.getFromIndex() != -1 && event.getToIndex() != -1 && event.getItemCount() != -1) {
             foundEnd = event.getFromIndex() == 0 ||
                     (event.getItemCount() - 1) == event.getToIndex();
-            Log.d(LOG_TAG, "scrollSwipe reached scroll end: " + foundEnd);
         } else if (event.getScrollX() != -1 && event.getScrollY() != -1) {
             // Determine if we are scrolling vertically or horizontally.
             if (downX == upX) {
                 // Vertical
                 foundEnd = event.getScrollY() == 0 ||
                         event.getScrollY() == event.getMaxScrollY();
-                Log.d(LOG_TAG, "Vertical scrollSwipe reached scroll end: " + foundEnd);
             } else if (downY == upY) {
                 // Horizontal
                 foundEnd = event.getScrollX() == 0 ||
                         event.getScrollX() == event.getMaxScrollX();
-                Log.d(LOG_TAG, "Horizontal scrollSwipe reached scroll end: " + foundEnd);
             }
         }
         recycleAccessibilityEvents(events);
@@ -525,10 +491,6 @@ class InteractionController {
 
 
     public boolean sendText(String text) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "sendText (" + text + ")");
-        }
-
         KeyEvent[] events = mKeyCharacterMap.getEvents(text.toCharArray());
 
         if (events != null) {
@@ -551,10 +513,6 @@ class InteractionController {
     }
 
     public boolean sendKey(int keyCode, int metaState) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "sendKey (" + keyCode + ", " + metaState + ")");
-        }
-
         final long eventTime = SystemClock.uptimeMillis();
         KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN,
                 keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
@@ -764,7 +722,6 @@ class InteractionController {
             ret &= injectEventSync(event);
         }
 
-        Log.i(LOG_TAG, "x " + pointerCoords[0].x);
         // first to touch down is last up
         event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 1,
                 properties, pointerCoords, 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
