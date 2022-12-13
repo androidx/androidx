@@ -68,7 +68,7 @@ class UseCaseManagerTest {
     @After
     fun tearDown() = runBlocking {
         useCaseManagerList.forEach { it.close() }
-        useCaseList.forEach { it.onDetached() }
+        useCaseList.forEach { it.onUnbind() }
     }
 
     @Test
@@ -264,7 +264,7 @@ class UseCaseManagerTest {
             }
 
     private fun UseCase.simulateActivation() {
-        onAttach(FakeCamera("0"), null, null)
+        bindToCamera(FakeCamera("0"), null, null)
         updateSuggestedResolution(Size(640, 480))
     }
 }

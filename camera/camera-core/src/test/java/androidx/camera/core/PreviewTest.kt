@@ -120,7 +120,7 @@ class PreviewTest {
         }
         cameraUseCaseAdapter = null
         if (::previewToDetach.isInitialized) {
-            previewToDetach.onDetached()
+            previewToDetach.onUnbind()
         }
         CameraXUtil.shutdown().get()
     }
@@ -344,7 +344,7 @@ class PreviewTest {
         val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
         val preview = createPreview(processor)
         val surfaceRequest = processor.surfaceRequest!!
-        preview.onDetach(backCamera)
+        preview.unbindFromCamera(backCamera)
         // Act: invalidate.
         surfaceRequest.invalidate()
         shadowOf(getMainLooper()).idle()
@@ -381,7 +381,7 @@ class PreviewTest {
             .isEqualTo(processor.inputSurface)
 
         // Act: unbind Preview.
-        preview.onDetached()
+        preview.onUnbind()
         shadowOf(getMainLooper()).idle()
 
         // Assert: processor and processor surface is released.
@@ -618,7 +618,7 @@ class PreviewTest {
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
             )!! as OptionsBundle
         )
-        previewToDetach.onAttach(camera, null, previewConfig)
+        previewToDetach.bindToCamera(camera, null, previewConfig)
 
         previewToDetach.onSuggestedResolutionUpdated(Size(640, 480))
         return previewToDetach

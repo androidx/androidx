@@ -188,7 +188,7 @@ public final class Camera2CameraImplTest {
         }
 
         for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.onDetached();
+            fakeUseCase.onUnbind();
         }
     }
 
@@ -1032,7 +1032,7 @@ public final class Camera2CameraImplTest {
                     cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
                             cameraSelector.getLensFacing();
             mCameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
-            onAttach(new FakeCamera(mCameraId, null,
+            bindToCamera(new FakeCamera(mCameraId, null,
                             new FakeCameraInfoInternal(mCameraId, 0, lensFacing)),
                     null, null);
             updateSuggestedResolution(new Size(640, 480));
@@ -1047,8 +1047,8 @@ public final class Camera2CameraImplTest {
         }
 
         @Override
-        public void onDetached() {
-            super.onDetached();
+        public void onUnbind() {
+            super.onUnbind();
             close();
         }
 

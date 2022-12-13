@@ -204,7 +204,7 @@ class UseCaseManager @Inject constructor(
             if (attachedUseCases.isNotEmpty()) {
                 detach(attachedUseCases.toList())
             }
-            meteringRepeating.onDetached()
+            meteringRepeating.onUnbind()
             closingCameraJobs.toList()
         }
         closingJobs.joinAll()
@@ -294,7 +294,7 @@ class UseCaseManager @Inject constructor(
     private fun removeRepeatingUseCase() {
         deactivate(meteringRepeating)
         detach(listOf(meteringRepeating))
-        meteringRepeating.onDetached()
+        meteringRepeating.onUnbind()
     }
 
     private fun Collection<UseCase>.onlyVideoCapture(): Boolean {

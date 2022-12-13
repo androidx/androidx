@@ -338,7 +338,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onDetached() {
+    public void onUnbind() {
         clearPipeline();
     }
 
