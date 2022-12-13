@@ -54,6 +54,10 @@ class EmojiPickerView @JvmOverloads constructor(
     var emojiGridRows: Float = EmojiPickerConstants.DEFAULT_BODY_ROWS
         set(value) {
             field = if (value > 0) value else EmojiPickerConstants.DEFAULT_BODY_ROWS
+            // this step is to ensure the layout refresh when emojiGridRows is reset
+            if (isLaidOut) {
+                showEmojiPickerView()
+            }
         }
 
     /**
@@ -65,6 +69,10 @@ class EmojiPickerView @JvmOverloads constructor(
     var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         set(value) {
             field = if (value > 0) value else EmojiPickerConstants.DEFAULT_BODY_COLUMNS
+            // this step is to ensure the layout refresh when emojiGridColumns is reset
+            if (isLaidOut) {
+                showEmojiPickerView()
+            }
         }
 
     private val stickyVariantProvider = StickyVariantProvider(context)
@@ -171,6 +179,8 @@ class EmojiPickerView @JvmOverloads constructor(
                 )
             })
 
+        // clear view's children in case of resetting layout
+        removeAllViews()
         with(inflate(context, R.layout.emoji_picker, this)) {
             // set headerView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_header).apply {
