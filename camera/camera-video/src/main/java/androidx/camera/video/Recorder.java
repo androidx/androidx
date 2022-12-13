@@ -46,10 +46,12 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -90,6 +92,7 @@ import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.utils.OutputUtil;
 import androidx.camera.video.internal.workaround.CorrectNegativeLatLongForMediaMuxer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -379,6 +382,12 @@ public final class Recorder implements VideoOutput {
     long mFirstRecordingVideoDataTimeUs = Long.MAX_VALUE;
     @VisibleForTesting
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    int mFirstRecordingVideoBitrate = 0;
+    @VisibleForTesting
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Range<Integer> mVideoEncoderBitrateRange = null;
+    @VisibleForTesting
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFirstRecordingAudioDataTimeUs = Long.MAX_VALUE;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mPreviousRecordingVideoDataTimeUs = Long.MAX_VALUE;
@@ -629,6 +638,17 @@ public final class Recorder implements VideoOutput {
     @Nullable
     public Executor getExecutor() {
         return mUserProvidedExecutor;
+    }
+
+    /**
+     * Gets the target video encoding bitrate of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setTargetVideoEncodingBitRate(int)} on the
+     * builder used to create this recorder. Returns 0, if
+     * {@link Builder#setTargetVideoEncodingBitRate(int)} is not called.
+     */
+    public int getTargetVideoEncodingBitRate() {
+        return getObservableData(mMediaSpec).getVideoSpec().getBitrate().getLower();
     }
 
     /**
@@ -1208,6 +1228,9 @@ public final class Recorder implements VideoOutput {
 
         try {
             mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
+            mVideoEncoderBitrateRange =
+                    ((VideoEncoderInfo) mVideoEncoder.getEncoderInfo()).getSupportedBitrateRange();
+            mFirstRecordingVideoBitrate = mVideoEncoder.getConfiguredBitrate();
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize video encoder.", e);
             onEncoderSetupError(e);
@@ -2995,6 +3018,37 @@ public final class Recorder implements VideoOutput {
                     "The specified quality selector can't be null.");
             mMediaSpecBuilder.configureVideo(
                     builder -> builder.setQualitySelector(qualitySelector));
+            return this;
+        }
+
+        /**
+         * Sets the intended video encoding bitrate for recording.
+         *
+         * <p>The target video encoding bitrate attempts to keep the actual video encoding
+         * bitrate close to the requested {@code bitrate}. Bitrate may vary during a recording
+         * depending on the scene
+         * being recorded.
+         *
+         * <p>Additional checks will be performed on the requested {@code bitrate} to make sure the
+         * specified bitrate is applicable, and sometimes the passed bitrate will be changed
+         * internally to ensure the video recording can proceed smoothly based on the
+         * capabilities of the platform.
+         *
+         * <p>This API only affects the video stream and should not be considered the
+         * target for the entire recording. The audio stream's bitrate is not affected by this API.
+         *
+         * @param bitrate the target video encoding bitrate in bits per second.
+         * @throws IllegalArgumentException if bitrate is 0 or less.
+         */
+        @NonNull
+        public Builder setTargetVideoEncodingBitRate(@IntRange(from = 1) int bitrate) {
+            if (bitrate <= 0) {
+                throw new IllegalArgumentException("The requested target bitrate " + bitrate
+                        + " is not supported. Target bitrate must be greater than 0.");
+            }
+
+            mMediaSpecBuilder.configureVideo(
+                    builder -> builder.setBitrate(new Range<>(bitrate, bitrate)));
             return this;
         }
 

@@ -23,6 +23,7 @@ class FakeVideoEncoderInfo(
     var _supportedHeights: Range<Int> = Range.create(0, Integer.MAX_VALUE),
     var _widthAlignment: Int = 2,
     var _heightAlignment: Int = 2,
+    var _supportedBitrateRange: Range<Int> = Range(1, Int.MAX_VALUE)
 ) : FakeEncoderInfo(), VideoEncoderInfo {
     override fun isSizeSupported(width: Int, height: Int) =
         _supportedWidths.contains(width) && _supportedHeights.contains(height) &&
@@ -50,5 +51,9 @@ class FakeVideoEncoderInfo(
 
     override fun getHeightAlignment(): Int {
         return _heightAlignment
+    }
+
+    override fun getSupportedBitrateRange(): Range<Int> {
+        return _supportedBitrateRange
     }
 }

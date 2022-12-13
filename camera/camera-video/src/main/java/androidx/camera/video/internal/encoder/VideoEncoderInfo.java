@@ -70,4 +70,10 @@ public interface VideoEncoderInfo extends EncoderInfo {
      * <p>This is usually a power-of-2 value that video height must be a multiple of.
      */
     int getHeightAlignment();
+
+    /**
+     * Returns the video encoder's bitrate range.
+     */
+    @NonNull
+    Range<Integer> getSupportedBitrateRange();
 }
