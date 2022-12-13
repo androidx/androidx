@@ -19,7 +19,9 @@ package androidx.health.connect.client.impl
 import android.content.Context
 import android.healthconnect.HealthConnectException
 import android.healthconnect.HealthConnectManager
+import android.healthconnect.ReadRecordsRequestUsingIds
 import android.os.Build
+import android.os.RemoteException
 import androidx.annotation.RequiresApi
 import androidx.core.os.asOutcomeReceiver
 import androidx.health.connect.client.HealthConnectClient
@@ -28,6 +30,8 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
+import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
+import androidx.health.connect.client.impl.platform.records.toSdkRecord
 import androidx.health.connect.client.impl.platform.response.toKtResponse
 import androidx.health.connect.client.impl.platform.toKtException
 import androidx.health.connect.client.permission.HealthPermission
@@ -93,11 +97,27 @@ class HealthConnectClientUpsideDownImpl(private val context: Context) :
         throw UnsupportedOperationException("Method not supported yet")
     }
 
+    @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
         recordId: String
     ): ReadRecordResponse<T> {
-        throw UnsupportedOperationException("Method not supported yet")
+        val response = wrapPlatformException {
+            suspendCancellableCoroutine { continuation
+                ->
+                healthConnectManager.readRecords(
+                    ReadRecordsRequestUsingIds
+                        .Builder(recordType.toPlatformRecordClass())
+                        .addId(recordId).build(),
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
+        if (response.records.isEmpty()) {
+            throw RemoteException("No records")
+        }
+        return ReadRecordResponse(response.records[0].toSdkRecord() as T)
     }
 
     override suspend fun <T : Record> readRecords(

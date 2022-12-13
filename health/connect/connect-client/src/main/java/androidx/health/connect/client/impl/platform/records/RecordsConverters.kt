@@ -19,6 +19,11 @@
 
 package androidx.health.connect.client.impl.platform.records
 
+import android.healthconnect.datatypes.DataOrigin as PlatformDataOrigin
+import android.healthconnect.datatypes.Device as PlatformDevice
+import android.healthconnect.datatypes.Metadata as PlatformMetadata
+import android.healthconnect.datatypes.Record as PlatformRecord
+import android.healthconnect.datatypes.StepsRecord as PlatformStepsRecord
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -27,27 +32,53 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import kotlin.reflect.KClass
 
-internal fun Record.toPlatformRecord(): android.healthconnect.datatypes.Record {
+internal fun KClass<out Record>.toPlatformRecordClass():
+    Class<out PlatformRecord> {
+    return when (this) {
+        StepsRecord::class -> PlatformStepsRecord::class.java
+        else -> throw IllegalArgumentException("Unsupported record type $this")
+    }
+}
+
+internal fun Record.toPlatformRecord(): PlatformRecord {
     return when (this) {
         is StepsRecord ->
-            android.healthconnect.datatypes.StepsRecord.Builder(
-                    metadata.toPlatformMetadata(),
-                    startTime,
-                    endTime,
-                    count
-                )
+            PlatformStepsRecord.Builder(
+                metadata.toPlatformMetadata(),
+                startTime,
+                endTime,
+                count
+            )
                 .apply {
                     startZoneOffset?.let { setStartZoneOffset(it) }
                     endZoneOffset?.let { setEndZoneOffset(it) }
                 }
                 .build()
+
         else -> throw IllegalArgumentException("Unsupported record $this")
     }
 }
 
-internal fun Metadata.toPlatformMetadata(): android.healthconnect.datatypes.Metadata {
-    return android.healthconnect.datatypes.Metadata.Builder()
+internal fun PlatformRecord.toSdkRecord(): Record {
+    return when (this) {
+        is PlatformStepsRecord ->
+            StepsRecord(
+                startTime,
+                startZoneOffset,
+                endTime,
+                endZoneOffset,
+                count,
+                metadata.toSdkMetadata()
+            )
+
+        else -> throw IllegalArgumentException("Unsupported record $this")
+    }
+}
+
+internal fun Metadata.toPlatformMetadata(): PlatformMetadata {
+    return PlatformMetadata.Builder()
         .apply {
             device?.toPlatformDevice()?.let { setDevice(it) }
             setLastModifiedTime(lastModifiedTime)
@@ -59,9 +90,20 @@ internal fun Metadata.toPlatformMetadata(): android.healthconnect.datatypes.Meta
         .build()
 }
 
-internal fun Device.toPlatformDevice(): android.healthconnect.datatypes.Device {
-    @Suppress("WrongConstant") // Platform intdef and jetpack intdef matches in value.
-    return android.healthconnect.datatypes.Device.Builder()
+internal fun PlatformMetadata.toSdkMetadata(): Metadata {
+    return Metadata(
+        id,
+        dataOrigin.toSdkDataOrigin(),
+        lastModifiedTime,
+        clientRecordId,
+        clientRecordVersion,
+        device.toSdkDevice()
+    )
+}
+
+internal fun Device.toPlatformDevice(): PlatformDevice {
+    @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
+    return PlatformDevice.Builder()
         .apply {
             setType(type)
             manufacturer?.let { setManufacturer(it) }
@@ -70,8 +112,17 @@ internal fun Device.toPlatformDevice(): android.healthconnect.datatypes.Device {
         .build()
 }
 
-internal fun DataOrigin.toPlatformDataOrigin(): android.healthconnect.datatypes.DataOrigin {
-    return android.healthconnect.datatypes.DataOrigin.Builder()
+internal fun PlatformDevice.toSdkDevice(): Device {
+    @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
+    return Device(manufacturer, model, type)
+}
+
+internal fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
+    return PlatformDataOrigin.Builder()
         .apply { setPackageName(packageName) }
         .build()
+}
+
+internal fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
+    return DataOrigin(packageName ?: "")
 }

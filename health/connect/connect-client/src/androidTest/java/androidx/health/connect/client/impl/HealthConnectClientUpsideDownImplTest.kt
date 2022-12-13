@@ -17,6 +17,8 @@
 package androidx.health.connect.client.impl
 
 import android.annotation.TargetApi
+import android.os.Build
+import android.os.RemoteException
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
@@ -27,20 +29,19 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.lang.UnsupportedOperationException
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.ZoneOffset
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import android.os.Build
-import com.google.common.truth.Truth.assertThat
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -82,15 +83,17 @@ class HealthConnectClientUpsideDownImplTest {
 
     @Test
     fun insertRecords() = runTest {
-        val response = healthConnectClient.insertRecords(listOf(
-            StepsRecord(
-                count = 100,
-                startTime = Instant.ofEpochMilli(1234L),
-                startZoneOffset = null,
-                endTime = Instant.ofEpochMilli(5678L),
-                endZoneOffset = null
+        val response = healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = null
+                )
             )
-        ))
+        )
         assertThat(response.recordIdsList).hasSize(1)
     }
 
@@ -102,9 +105,35 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun readRecord_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.readRecord(StepsRecord::class, "id")
+    fun readRecord_noRecords_throwRemoteException() = runTest {
+        assertFailsWith<RemoteException> {
+            healthConnectClient.readRecord(StepsRecord::class, "1")
+        }
+    }
+
+    @Test
+    fun readRecord() = runTest {
+        val insertResponse = healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC
+                )
+            )
+        )
+
+        val readResponse =
+            healthConnectClient.readRecord(StepsRecord::class, insertResponse.recordIdsList[0])
+
+        with(readResponse.record) {
+            assertThat(count).isEqualTo(100)
+            assertThat(startTime).isEqualTo(Instant.ofEpochMilli(1234L))
+            assertThat(startZoneOffset).isEqualTo(ZoneOffset.UTC)
+            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(5678L))
+            assertThat(endZoneOffset).isEqualTo(ZoneOffset.UTC)
         }
     }
 
