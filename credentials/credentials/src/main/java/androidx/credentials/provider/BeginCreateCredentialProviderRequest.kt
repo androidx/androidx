@@ -17,6 +17,7 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
+import android.util.ArraySet
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential
@@ -35,26 +36,26 @@ open class BeginCreateCredentialProviderRequest internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val type: String,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val applicationInfo: ApplicationInfo
+    val callingAppInfo: CallingAppInfo
     ) {
     companion object {
         internal fun createFrom(
             type: String,
             data: Bundle,
             // TODO("Change to framework ApplicationInfo")
-            callingPackage: String
+            packageName: String
         ): BeginCreateCredentialProviderRequest {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
                         BeginCreatePasswordCredentialRequest.createFrom(
                             data,
-                            ApplicationInfo(callingPackage, ArrayList())
+                            CallingAppInfo(packageName, ArraySet())
                         )
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             data,
-                            ApplicationInfo(callingPackage, ArrayList())
+                            CallingAppInfo(packageName, ArraySet())
                         )
                     else -> throw FrameworkClassParsingException()
                 }
@@ -62,7 +63,7 @@ open class BeginCreateCredentialProviderRequest internal constructor(
                 // TODO: Change to custom class when ready
                 BeginCreateCredentialProviderRequest(
                     type,
-                    ApplicationInfo(callingPackage, ArrayList())
+                    CallingAppInfo(packageName, ArraySet())
                 )
             }
         }

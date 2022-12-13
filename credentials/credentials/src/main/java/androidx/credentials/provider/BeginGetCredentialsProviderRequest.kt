@@ -21,14 +21,14 @@ package androidx.credentials.provider
  *
  * @property beginGetCredentialOptions a list of [BeginGetCredentialOption] where each option
  * contains per credential type request parameters
- * @property applicationInfo information pertaining the calling application
+ * @property callingAppInfo information pertaining the calling application
  * @throws IllegalArgumentException If [beginGetCredentialOptions] is empty
  *
  * @hide
  */
 class BeginGetCredentialsProviderRequest internal constructor(
     val beginGetCredentialOptions: List<BeginGetCredentialOption>,
-    val applicationInfo: ApplicationInfo
+    val callingAppInfo: CallingAppInfo
     ) {
 
     init {

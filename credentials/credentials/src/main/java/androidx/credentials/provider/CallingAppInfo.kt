@@ -16,8 +16,6 @@
 
 package androidx.credentials.provider
 
-import java.security.Signature
-
 /**
  * Information about the calling app. This is a read-only data class that
  * providers should use to retrieve information about the calling app.
@@ -27,10 +25,10 @@ import java.security.Signature
  *
  * @hide
  */
-class ApplicationInfo internal constructor(
+class CallingAppInfo internal constructor(
     val appPackage: String,
     // TODO("Check for non empty when framework change available")
-    val appSignature: List<Signature>
+    val appSignature: Set<android.content.pm.Signature>
     ) {
 
     init {

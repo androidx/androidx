@@ -37,7 +37,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * parameters to actually register a public key.
  *
  * @property json the request json to be used for registering the public key credential
- * @property applicationInfo the information of the calling app for which the passwords needs to
+ * @property callingAppInfo the information of the calling app for which the passwords needs to
  * be stored
  *
  * @see BeginCreateCredentialProviderRequest
@@ -47,10 +47,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequest internal constructor(
     val json: String,
-    applicationInfo: ApplicationInfo
+    callingAppInfo: CallingAppInfo
 ) : BeginCreateCredentialProviderRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    applicationInfo) {
+    callingAppInfo) {
 
     init {
         require(json.isNotEmpty()) { "json must not be empty" }
@@ -59,11 +59,11 @@ class BeginCreatePublicKeyCredentialRequest internal constructor(
     /** @hide */
     companion object {
         @JvmStatic
-        internal fun createFrom(data: Bundle, applicationInfo: ApplicationInfo):
+        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                return BeginCreatePublicKeyCredentialRequest(requestJson!!, applicationInfo)
+                return BeginCreatePublicKeyCredentialRequest(requestJson!!, callingAppInfo)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

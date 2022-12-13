@@ -16,15 +16,15 @@
 
 package androidx.credentials.provider
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.credentials.CreateCredentialResponse
-import android.credentials.Credential
-import android.service.credentials.CredentialProviderService
-import android.util.Log
-import android.app.PendingIntent
 import android.service.credentials.CreateCredentialRequest
-import android.service.credentials.GetCredentialsRequest
+import android.service.credentials.CredentialProviderService
+import android.util.ArraySet
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.credentials.GetCredentialResponse
 
 /**
  * PendingIntentHandler to be used by credential providers to extract requests from
@@ -66,9 +66,9 @@ class PendingIntentHandler {
                         frameworkReq.data,
                         frameworkReq.data,
                         requireSystemProvider = false),
-                ApplicationInfo(
+                CallingAppInfo(
                     frameworkReq.callingPackage,
-                    ArrayList()
+                    ArraySet()
                 ))
         }
 
@@ -85,7 +85,7 @@ class PendingIntentHandler {
             response: androidx.credentials.CreateCredentialResponse
         ) {
             intent.putExtra(
-                CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESULT,
+                CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE,
                 CreateCredentialResponse(response.data))
         }
 
@@ -99,32 +99,32 @@ class PendingIntentHandler {
         fun getGetCredentialsRequest(intent: Intent):
             GetCredentialProviderRequest? {
             val frameworkReq = intent.getParcelableExtra(
-                "EXTRA_GET_CREDENTIAL_REQUEST",
-                GetCredentialsRequest::class.java
+                CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
+                android.service.credentials.GetCredentialRequest::class.java
             )
             if (frameworkReq == null) {
                 Log.i(TAG, "Get request from framework is null")
+                return null
             }
-            // TODO("Implement")
-            return null
+            return GetCredentialProviderRequest.createFrom(frameworkReq)
         }
 
         /**
          * Set the [android.credentials.GetCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent] set on
-         * [CreateEntry]
+         * activity invoked by the [PendingIntent] set on [CreateEntry]
          *
          * @hide
          */
         @JvmStatic
-        // TODO ("Update to GetCredentialResponse when latest framework SDK is dropped")
         fun setGetCredentialResponse(
             intent: Intent,
-            response: androidx.credentials.Credential
+            response: GetCredentialResponse
         ) {
             intent.putExtra(
-                CredentialProviderService.EXTRA_CREDENTIAL_RESULT,
-                Credential(response.type, response.data)
+                CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE,
+                android.credentials.GetCredentialResponse(
+                    android.credentials.Credential(response.credential.type,
+                        response.credential.data))
             )
         }
     }

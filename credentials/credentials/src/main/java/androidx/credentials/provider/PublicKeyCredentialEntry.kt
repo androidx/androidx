@@ -20,7 +20,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.drawable.Icon
 import androidx.annotation.RequiresApi
-import androidx.credentials.Credential
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
@@ -33,13 +32,10 @@ import androidx.credentials.R
  * @property username the username of the account holding the public key credential
  * @property displayName the displayName of the account holding the public key credential
  * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
- * @property credential the [PublicKeyCredential] to be returned to the calling app when
- * the user selects this entry. Set this only if no further interaction is required
  * @property lastUsedTimeMillis the last used time of this entry
  * @property icon the icon to be displayed with this entry on the selector
  *
- * @throws IllegalArgumentException if [username] is empty
- * @throws IllegalStateException if both [pendingIntent] and [credential] are null, or both
+ * @throws IllegalArgumentException if [username] is empty, or [pendingIntent] is null
  * are non null
  *
  * @hide
@@ -49,13 +45,13 @@ class PublicKeyCredentialEntry internal constructor(
     typeDisplayName: CharSequence,
     username: CharSequence,
     displayName: CharSequence?,
-    pendingIntent: PendingIntent?,
-    credential: Credential?,
+    pendingIntent: PendingIntent,
     lastUsedTime: Long,
-    icon: Icon
+    icon: Icon,
+    autoSelectAllowed: Boolean
 ) : CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, typeDisplayName,
-    username, displayName, pendingIntent, credential, lastUsedTime, icon
+    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, typeDisplayName, username, displayName,
+    pendingIntent, lastUsedTime, icon, autoSelectAllowed
 ) {
 
     /**
@@ -69,9 +65,9 @@ class PublicKeyCredentialEntry internal constructor(
         private val username: CharSequence
         private var displayName: CharSequence? = null
         private var pendingIntent: PendingIntent? = null
-        private var credential: Credential? = null
         private var lastUsedTimeMillis: Long = 0
         private var icon: Icon? = null
+        private var autoSelectAllowed: Boolean = false
 
         /**
          * @param username the username of the account holding the credential
@@ -86,20 +82,6 @@ class PublicKeyCredentialEntry internal constructor(
             this.pendingIntent = pendingIntent
         }
 
-        // TODO("Consider removing this constructor for public key but hold till 2-phase get flow")
-        /**
-         * @param username the username of the account holding the credential
-         * @param credential the [PasswordCredential] to be returned when the entry is selected
-         *
-         * Providers should use this constructor when the credential to be returned is available
-         * and no additional activity is required.
-         */
-        constructor(context: Context, username: CharSequence, credential: PasswordCredential) {
-            this.context = context
-            this.username = username
-            this.credential = credential
-        }
-
         /** Sets a displayName to be shown on the UI with this entry */
         fun setDisplayName(displayName: CharSequence?): Builder {
             this.displayName = displayName
@@ -109,6 +91,15 @@ class PublicKeyCredentialEntry internal constructor(
         /** Sets the icon to be shown on the UI with this entry */
         fun setIcon(icon: Icon?): Builder {
             this.icon = icon
+            return this
+        }
+        /**
+         * Sets whether the entry should be auto-selected.
+         * The value is fale by default
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
+            this.autoSelectAllowed = autoSelectAllowed
             return this
         }
 
@@ -130,8 +121,8 @@ class PublicKeyCredentialEntry internal constructor(
             val typeDisplayName = context.getString(
                 R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)
             return PublicKeyCredentialEntry(typeDisplayName,
-                username, displayName, pendingIntent,
-                credential, lastUsedTimeMillis, icon!!)
+                username, displayName, pendingIntent!!,
+                lastUsedTimeMillis, icon!!, autoSelectAllowed)
         }
     }
 }

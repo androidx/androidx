@@ -24,8 +24,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.Credential
-import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.provider.Action.Companion.toSlice
 import androidx.credentials.provider.CreateEntry.Companion.toSlice
 import java.util.Collections
@@ -38,14 +36,11 @@ import java.util.Collections
  * @property username the username of the account holding the credential
  * @property displayName the displayName of the account holding the credential
  * @property pendingIntent the [PendingIntent] to be invoked when the user selects this entry
- * @property credential the [Credential] to be returned to the calling app when the user selects
- * this entry
  * only one of the selector
  * @property lastUsedTimeMillis the last used time of this entry
  * @property icon the icon to be displayed with this entry on the selector
  *
- * @throws IllegalArgumentException If [type] or [username] is empty
- * @throws IllegalStateException If both [pendingIntent] and [credential] are null, or both
+ * @throws IllegalArgumentException If [type] or [username] is empty, or [pendingIntent] is null
  * are non null
  *
  * @hide
@@ -57,19 +52,15 @@ open class CredentialEntry constructor(
     val typeDisplayName: CharSequence,
     val username: CharSequence,
     val displayName: CharSequence?,
-    val pendingIntent: PendingIntent?,
-    val credential: Credential?,
+    val pendingIntent: PendingIntent,
     // TODO("Consider using Instant or other strongly typed time data type")
     val lastUsedTimeMillis: Long,
-    val icon: Icon?
+    val icon: Icon?,
+    var autoSelectAllowed: Boolean
     ) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
         require(username.isNotEmpty()) { "type must not be empty" }
-        check(!((pendingIntent == null && credential == null) ||
-            (pendingIntent != null && credential != null))) {
-            "Must set either pendingIntent or credential, and not both or none"
-        }
     }
 
     companion object {
@@ -92,10 +83,22 @@ open class CredentialEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_AUTO_ALLOWED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val AUTO_SELECT_TRUE_STRING = "true"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val AUTO_SELECT_FALSE_STRING = "false"
 
         @JvmStatic
         internal fun toSlice(credentialEntry: CredentialEntry): Slice {
             // TODO("Put the right revision value")
+            val autoSelectAllowed = if (credentialEntry.autoSelectAllowed) {
+                AUTO_SELECT_TRUE_STRING
+            } else {
+                AUTO_SELECT_FALSE_STRING
+            }
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
                 credentialEntry.type, 1))
                 .addText(credentialEntry.typeDisplayName, /*subType=*/null,
@@ -106,17 +109,17 @@ open class CredentialEntry constructor(
                     listOf(SLICE_HINT_DISPLAYNAME))
                 .addLong(credentialEntry.lastUsedTimeMillis, /*subType=*/null,
                     listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
+                .addText(autoSelectAllowed, /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_ALLOWED))
             if (credentialEntry.icon != null) {
                 sliceBuilder.addIcon(credentialEntry.icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON))
             }
-            if (credentialEntry.pendingIntent != null) {
-                sliceBuilder.addAction(credentialEntry.pendingIntent,
-                    Slice.Builder(sliceBuilder)
-                        .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
-                        .build(),
-                    /*subType=*/null)
-            }
+            sliceBuilder.addAction(credentialEntry.pendingIntent,
+                Slice.Builder(sliceBuilder)
+                    .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
+                    .build(),
+                /*subType=*/null)
             return sliceBuilder.build()
         }
 
@@ -134,6 +137,7 @@ open class CredentialEntry constructor(
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var lastUsedTimeMillis: Long = 0
+            var autoSelectAllowed = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -148,14 +152,18 @@ open class CredentialEntry constructor(
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTimeMillis = it.long
+                } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
+                    val autoSelectValue = it.text
+                    if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
+                        autoSelectAllowed = true
+                    }
                 }
             }
 
             return try {
                 CredentialEntry(slice.spec!!.type, typeDisplayName!!, username!!,
                     displayName, pendingIntent!!,
-                    /*credential=*/null,
-                    lastUsedTimeMillis, icon)
+                    lastUsedTimeMillis, icon, autoSelectAllowed)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
@@ -164,21 +172,10 @@ open class CredentialEntry constructor(
 
         internal fun toFrameworkClass(credentialEntry: CredentialEntry):
             android.service.credentials.CredentialEntry {
-            return if (credentialEntry.pendingIntent != null) {
-                android.service.credentials.CredentialEntry.Builder(
-                    credentialEntry.type, toSlice(credentialEntry),
-                    credentialEntry.pendingIntent
-                ).build()
-            } else if (credentialEntry.credential != null) {
-                android.service.credentials.CredentialEntry.Builder(
-                    credentialEntry.type, toSlice(credentialEntry),
-                    android.credentials.Credential(
-                        credentialEntry.type,
-                        credentialEntry.credential.data)
-                ).build()
-            } else {
-                throw FrameworkClassParsingException()
-            }
+            return android.service.credentials.CredentialEntry.Builder(
+                credentialEntry.type, toSlice(credentialEntry),
+                credentialEntry.pendingIntent
+            ).build()
         }
     }
 }

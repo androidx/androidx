@@ -16,7 +16,10 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
+import android.util.ArraySet
+import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialOption
+import androidx.credentials.GetCredentialRequest
 
 /**
  * Request received by the provider after the query phase of the get flow is complete and the
@@ -27,13 +30,35 @@ import androidx.credentials.GetCredentialOption
  * set on the [CredentialEntry] that the user selected. The request can be extracted by using
  * the PendingIntentHandler.
  *
- * @property getCredentialOption an instance of [GetCredentialOption] that contains the credential
+ * @property callingAppRequest an instance of [GetCredentialRequest] that contains the credential
  * type request parameters for the final credential request
  * @property callingAppInfo information pertaining to the calling application
  *
  * @hide
  */
+@RequiresApi(34)
 class GetCredentialProviderRequest internal constructor(
-    val getCredentialOption: GetCredentialOption,
-    val callingAppInfo: ApplicationInfo
-    )
+    val callingAppRequest: GetCredentialRequest,
+    val callingAppInfo: CallingAppInfo
+    ) {
+    companion object {
+        internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
+        GetCredentialProviderRequest {
+            val options = ArrayList<GetCredentialOption>()
+            request.getCredentialOptions.forEach {
+                options.add(GetCredentialOption.createFrom(
+                    it.type, it.candidateQueryData,
+                    it.credentialRetrievalData, it.requireSystemProvider()))
+            }
+            return GetCredentialProviderRequest(
+                GetCredentialRequest.Builder()
+                    .setGetCredentialOptions(options)
+                    .setAutoSelectAllowed(false)
+                    .build(),
+                CallingAppInfo(
+                    request.callingPackage,
+                    ArraySet()
+                ))
+        }
+    }
+}

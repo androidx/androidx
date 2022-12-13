@@ -37,7 +37,7 @@ import androidx.credentials.PasswordCredential
  * actually store the password.
  *
  * @property id the id of the password to be stored
- * @property applicationInfo the information of the calling app for which the password needs to
+ * @property callingAppInfo the information of the calling app for which the password needs to
  * be stored
  * @throws NullPointerException If [id] is null
  * @throws IllegalArgumentException If [id] is empty
@@ -50,10 +50,10 @@ import androidx.credentials.PasswordCredential
 @RequiresApi(34)
 class BeginCreatePasswordCredentialRequest internal constructor(
     val id: String,
-    applicationInfo: ApplicationInfo
+    callingAppInfo: CallingAppInfo
 ) : BeginCreateCredentialProviderRequest(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    applicationInfo) {
+    callingAppInfo) {
 
         init {
             require(id.isNotEmpty()) { "id must not be empty" }
@@ -61,12 +61,12 @@ class BeginCreatePasswordCredentialRequest internal constructor(
 
     companion object {
         @JvmStatic
-        internal fun createFrom(data: Bundle, applicationInfo: ApplicationInfo):
+        internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo):
             BeginCreatePasswordCredentialRequest {
             return BeginCreatePasswordCredentialRequest(
                 data.getString(BUNDLE_KEY_ID)!!,
                 // TODO("Propagate appSignature")
-                applicationInfo
+                callingAppInfo
             )
         }
     }
