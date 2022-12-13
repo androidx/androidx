@@ -33,6 +33,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -187,6 +188,38 @@ class UseCaseManagerTest {
         // Assert
         val enabledUseCases = useCaseManager.camera?.runningUseCases
         assertThat(enabledUseCases).isEmpty()
+    }
+
+    @Test
+    fun onStateAttachedInvokedExactlyOnce_whenUseCaseAttachedAndMeteringRepeatingAdded() {
+        // Arrange
+        val useCaseManager = createUseCaseManager()
+        val imageCapture = createImageCapture()
+        val useCase = FakeUseCase()
+
+        // Act
+        useCaseManager.activate(imageCapture)
+        useCaseManager.activate(useCase)
+        useCaseManager.attach(listOf(imageCapture, useCase))
+
+        // Assert
+        assertThat(useCase.stateAttachedCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onStateAttachedInvokedExactlyOnce_whenUseCaseAttachedAndMeteringRepeatingNotAdded() {
+        // Arrange
+        val useCaseManager = createUseCaseManager()
+        val preview = createPreview()
+        val useCase = FakeUseCase()
+
+        // Act
+        useCaseManager.activate(preview)
+        useCaseManager.activate(useCase)
+        useCaseManager.attach(listOf(preview, useCase))
+
+        // Assert
+        assertThat(useCase.stateAttachedCount).isEqualTo(1)
     }
 
     @OptIn(ExperimentalCamera2Interop::class)
