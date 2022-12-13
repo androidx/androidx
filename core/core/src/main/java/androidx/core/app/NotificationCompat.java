@@ -6214,7 +6214,8 @@ public class NotificationCompat {
             public static Builder fromAndroidAction(@NonNull Notification.Action action) {
                 final Builder builder;
                 if (Build.VERSION.SDK_INT >= 23 && Api23Impl.getIcon(action) != null) {
-                    IconCompat iconCompat = IconCompat.createFromIcon(Api23Impl.getIcon(action));
+                    IconCompat iconCompat = IconCompat.createFromIconOrNullIfZeroResId(
+                            Api23Impl.getIcon(action));
                     builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
                             action.actionIntent);
                 } else {
