@@ -16,24 +16,14 @@
 
 package androidx.camera.camera2.pipe.integration.interop
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
-import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
-import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.integration.config.CameraConfig
-import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
-import androidx.camera.camera2.pipe.integration.impl.CameraProperties
-import androidx.camera.camera2.pipe.integration.impl.EvCompControl
-import androidx.camera.camera2.pipe.integration.impl.TorchControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
-import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
-import androidx.camera.camera2.pipe.integration.testing.FakeEvCompCompat
-import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
@@ -45,12 +35,7 @@ import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.lifecycle.LiveData
 import com.google.common.truth.Truth
-import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executor
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -59,22 +44,6 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCamera2Interop::class)
 class Camera2CameraInfoTest {
-
-    private val useCaseThreads by lazy {
-        val executor = MoreExecutors.directExecutor()
-        val dispatcher = executor.asCoroutineDispatcher()
-        val cameraScope = CoroutineScope(
-            SupervisorJob() +
-                dispatcher +
-                CoroutineName("UseCaseSurfaceManagerTest")
-        )
-
-        UseCaseThreads(
-            cameraScope,
-            executor,
-            dispatcher
-        )
-    }
 
     @Test
     fun canGetId_fromCamera2CameraInfo() {
@@ -96,7 +65,9 @@ class Camera2CameraInfoTest {
                     FakeCameraMetadata(
                         characteristics = mapOf(
                             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                                cameraHardwareLevel
+                                cameraHardwareLevel,
+                            CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to
+                                Rect(0, 0, 640, 480)
                         )
                     )
                 )
@@ -195,23 +166,6 @@ class Camera2CameraInfoTest {
             }
         }
         Camera2CameraInfo.from(wrongCameraInfo)
-    }
-
-    private fun createCameraInfoAdapter(
-        cameraId: CameraId = CameraId("0"),
-        cameraProperties: CameraProperties = FakeCameraProperties(cameraId = cameraId),
-    ): CameraInfoAdapter {
-        return CameraInfoAdapter(
-            cameraProperties,
-            CameraConfig(cameraId),
-            CameraStateAdapter(),
-            CameraControlStateAdapter(
-                ZoomControl(FakeZoomCompat()),
-                EvCompControl(FakeEvCompCompat()),
-                TorchControl(cameraProperties, useCaseThreads),
-            ),
-            CameraCallbackMap(),
-        )
     }
 
     // TODO: Port https://android-review.googlesource.com/c/platform/frameworks/support/+/1757509

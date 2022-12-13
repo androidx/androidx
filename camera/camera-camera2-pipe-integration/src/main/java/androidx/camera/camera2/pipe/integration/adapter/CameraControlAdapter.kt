@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
@@ -70,18 +69,13 @@ class CameraControlAdapter @Inject constructor(
     private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val evCompControl: EvCompControl,
     private val flashControl: FlashControl,
+    private val focusMeteringControl: FocusMeteringControl,
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val zoomControl: ZoomControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private val focusMeteringControl = FocusMeteringControl(
-        cameraProperties,
-        useCaseManager,
-        threads
-    )
-
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
     }
@@ -112,9 +106,7 @@ class CameraControlAdapter @Inject constructor(
     override fun startFocusAndMetering(
         action: FocusMeteringAction
     ): ListenableFuture<FocusMeteringResult> {
-        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
-        val sensorAspectRatio = Rational(sensorRect.width(), sensorRect.height())
-        return focusMeteringControl.startFocusAndMetering(action, sensorAspectRatio)
+        return focusMeteringControl.startFocusAndMetering(action)
     }
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
