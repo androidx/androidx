@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.SearchSuggestionResult;
+
 import org.junit.Test;
 
-// TODO(b/227356108): move this test to cts test once we un-hide search suggestion API.
-public class SearchSuggestionResultTest {
+public class SearchSuggestionResultCtsTest {
     @Test
     public void testBuildDefaultSearchSuggestionResult() {
         SearchSuggestionResult searchSuggestionResult =

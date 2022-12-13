@@ -229,6 +229,10 @@ public interface AppSearchSession extends Closeable {
      *     <li>"f    " - Ending in trailing space.
      * </ul>
      *
+     * <p>Property restrict query like "subject:f" is not supported in suggestion API. It will
+     * return suggested String starting with "f" even if the term appears other than "subject"
+     * property.
+     *
      * @param suggestionQueryExpression the non empty query string to search suggestions
      * @param searchSuggestionSpec      spec for setting document filters
      * @return The pending result of performing this operation which resolves to a List of
@@ -237,9 +241,9 @@ public interface AppSearchSession extends Closeable {
      *         in {@link #search}.
      *
      * @see #search(String, SearchSpec)
-     * @hide
+     * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
      */
-    //TODO(b/227356108) un-hide this API after fix following issues.
+    //TODO(b/227356108) Change the comment in this API after fix following issues.
     // 1: support property restrict tokenization, Example: [subject:car] will return ["cart",
     // "carburetor"] if AppSearch has documents contain those terms.
     // 2: support multiple terms, Example: [bar f] will return suggestions [bar foo] that could
