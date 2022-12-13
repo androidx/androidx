@@ -23,6 +23,7 @@ import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
@@ -131,6 +132,15 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     override fun isAvailableOnDevice(): Boolean {
         // TODO("Base it on API level check")
         return true
+    }
+
+    override fun onClearCredential(
+        request: ClearCredentialStateRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>
+    ) {
+        TODO("Not yet implemented")
     }
 
     companion object {
