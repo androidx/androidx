@@ -25,6 +25,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
@@ -66,6 +67,14 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
         splitController = SplitController.getInstance(this)
+        if (!splitController.isSplitSupported()) {
+            Toast.makeText(
+                this, R.string.toast_split_not_support,
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        }
         ruleController = RuleController.getInstance(this)
 
         setContentView(viewBinding.root)

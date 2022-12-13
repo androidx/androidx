@@ -18,7 +18,14 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
+import androidx.window.WindowProperties
+import androidx.window.embedding.SplitController.Api31Impl.isSplitPropertyEnabled
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -35,9 +42,10 @@ import kotlin.concurrent.withLock
 * split rule and then launching the activities in the same task using
 * [Activity.startActivity()][android.app.Activity.startActivity].
 */
-class SplitController private constructor(applicationContext: Context) {
+class SplitController private constructor(private val applicationContext: Context) {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
         .getInstance(applicationContext)
+    private var splitPropertyEnabled: Boolean = false
 
     // TODO(b/258356512): Make this method a flow API
     /**
@@ -85,9 +93,22 @@ class SplitController private constructor(applicationContext: Context) {
      * `isSplitSupported` always returns `true`, and if the split is collapsed,
      * activities are launched on top, following the non-activity embedding
      * model.
+     *
+     * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
+     * must be enabled in AndroidManifest within <application> in order to get the correct
+     * state or `false` will be returned by default.
      */
     fun isSplitSupported(): Boolean {
-        return embeddingBackend.isSplitSupported()
+        if (!splitPropertyEnabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                splitPropertyEnabled = isSplitPropertyEnabled(applicationContext)
+            } else {
+                // The PackageManager#getProperty API is not supported before S, assuming
+                // the property is enabled to keep the same behavior on earlier platforms.
+                splitPropertyEnabled = true
+            }
+        }
+        return splitPropertyEnabled && embeddingBackend.isSplitSupported()
     }
 
     /**
@@ -130,6 +151,7 @@ class SplitController private constructor(applicationContext: Context) {
         @Volatile
         private var globalInstance: SplitController? = null
         private val globalLock = ReentrantLock()
+        private const val TAG = "SplitController"
 
         internal const val sDebug = false
 
@@ -148,6 +170,33 @@ class SplitController private constructor(applicationContext: Context) {
                 }
             }
             return globalInstance!!
+        }
+    }
+
+    @RequiresApi(31)
+    private object Api31Impl {
+        @DoNotInline
+        fun isSplitPropertyEnabled(applicationContext: Context): Boolean {
+            val property = try {
+                applicationContext.packageManager.getProperty(
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
+                    applicationContext.packageName
+                )
+            } catch (e: PackageManager.NameNotFoundException) {
+                Log.e(
+                    TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                    " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                )
+                return false
+            }
+            if (!property.isBoolean) {
+                Log.e(
+                    TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                    " must have a boolean value"
+                )
+                return false
+            }
+            return property.boolean
         }
     }
 }

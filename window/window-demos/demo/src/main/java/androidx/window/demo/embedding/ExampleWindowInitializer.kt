@@ -50,7 +50,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
             }
         }
         return RuleController.getInstance(context).apply {
-            setRules(RuleController.parseRules(context, R.xml.main_split_config))
+            if (SplitController.getInstance(context).isSplitSupported()) {
+                setRules(RuleController.parseRules(context, R.xml.main_split_config))
+            }
         }
     }
 

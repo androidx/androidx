@@ -62,4 +62,28 @@ object WindowProperties {
      */
     const val PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE =
         "android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * that an app must specify to inform the system that the app is ActivityEmbedding
+     * split feature enabled. In other words, the ActivityEmbedding splits feature cannot be
+     * used if the app has no property set.
+     *
+     * With this property, the system could provide custom behaviors for the apps that
+     * have ActivityEmbedding split feature enabled. For example, the fixed-portrait orientation
+     * requests of the activities could be ignored by the system in order to provide seamless
+     * ActivityEmbedding split experiences while holding the large-screen devices in landscape mode.
+     *
+     * **Syntax:**
+     * <pre>
+     * &lt;application&gt;
+     *   &lt;property
+     *     android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
+     *     android:value="true|false"/&gt;
+     * &lt;/application&gt;
+     * </pre>
+     */
+    const val PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED =
+        "android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
 }
