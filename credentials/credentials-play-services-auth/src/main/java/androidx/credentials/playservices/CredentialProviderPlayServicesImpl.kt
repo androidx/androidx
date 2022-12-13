@@ -21,6 +21,8 @@ import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
@@ -37,6 +39,8 @@ import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProvi
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import java.util.concurrent.Executor
 
 /**
@@ -48,6 +52,9 @@ import java.util.concurrent.Executor
 @Suppress("deprecation")
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @set:RestrictTo(RestrictTo.Scope.TESTS)
+    var googleApiAvailability = GoogleApiAvailability.getInstance()
     override fun onGetCredential(
         request: GetCredentialRequest,
         activity: Activity,
@@ -93,8 +100,14 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         }
     }
     override fun isAvailableOnDevice(): Boolean {
-        // TODO("Call play services availability API")
-        return true
+        val resultCode = isGooglePlayServicesAvailable(context)
+        return resultCode == ConnectionResult.SUCCESS
+    }
+
+    // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
+    // TODO(Most codes indicate failure, but two indicate retry-ability - look into handling.)
+    private fun isGooglePlayServicesAvailable(context: Context): Int {
+        return googleApiAvailability.isGooglePlayServicesAvailable(context)
     }
 
     override fun onClearCredential(
