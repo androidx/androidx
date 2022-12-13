@@ -211,6 +211,16 @@ class ReportDrawnTest {
     }
 
     @Test
+    fun reportAfterComposition() {
+        rule.setContent {
+            ReportDrawn()
+        }
+
+        rule.waitForIdle()
+        assertThat(rule.activity.reportFullyDrawnCalled).isTrue()
+    }
+
+    @Test
     fun removedCondition() {
         var condition1 by mutableStateOf(false)
         val condition2 by mutableStateOf(false)
