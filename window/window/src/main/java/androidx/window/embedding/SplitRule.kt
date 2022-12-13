@@ -34,15 +34,13 @@ import kotlin.math.min
  * started after the rules were set.
  *
  * Note that regardless of whether the minimal requirements ([minWidthDp], [minHeightDp] and
- * [minSmallestWidthDp]) are met or not, [SplitAttributesCalculator.computeSplitAttributesForParams]
- * will still be called for the rule if the calculator is registered via
- * [SplitController.setSplitAttributesCalculator]. Whether this [SplitRule]'s
- * minimum requirements are satisfied is dispatched in
- * [SplitAttributesCalculator.SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
- * The width and height could be verified in
- * [SplitAttributesCalculator.computeSplitAttributesForParams] as the sample linked below shows.
- * It is useful if this rule is supported to split the parent container in different directions
- * with different device states.
+ * [minSmallestWidthDp]) are met or not, the callback set in
+ * [SplitController.setSplitAttributesCalculator] will still be called for the rule if the
+ * calculator is registered via [SplitController.setSplitAttributesCalculator].
+ * Whether this [SplitRule]'s minimum requirements are satisfied is dispatched in
+ * [SplitAttributesCalculatorParams.isDefaultMinSizeSatisfied] instead.
+ * The width and height could be verified in the [SplitAttributes] calculator callback
+ * as the sample linked below shows.
  *
  * It is useful if this [SplitRule] is supported to split the parent container in different
  * directions with different device states.

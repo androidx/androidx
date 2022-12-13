@@ -68,7 +68,9 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
-    override fun setSplitAttributesCalculator(calculator: SplitAttributesCalculator) {
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
         if (!isSplitAttributesCalculatorSupported()) {
             throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
                 "on the device.")
