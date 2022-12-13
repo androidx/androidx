@@ -130,7 +130,7 @@ class StubDelegatesGenerator(
             ParameterSpec(
                 "transactionCallback", ClassName(
                     basePackageName,
-                    method.returnType.transactionCallbackName()
+                    wrapWithListIfNeeded(method.returnType).transactionCallbackName()
                 )
             )
         )

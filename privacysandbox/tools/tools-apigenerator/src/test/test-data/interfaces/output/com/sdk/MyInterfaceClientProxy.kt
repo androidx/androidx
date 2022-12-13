@@ -34,4 +34,9 @@ public class MyInterfaceClientProxy(
         remote.doSomething((firstInterface as MyInterfaceClientProxy).remote, (secondInterface as
                 MySecondInterfaceClientProxy).remote)
     }
+
+    public override fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?): Unit {
+        remote.doSomethingWithNullableInterface(maybeInterface?.let { notNullValue -> (notNullValue
+                as MySecondInterfaceClientProxy).remote })
+    }
 }

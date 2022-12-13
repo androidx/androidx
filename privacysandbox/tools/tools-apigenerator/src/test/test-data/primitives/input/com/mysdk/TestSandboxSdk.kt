@@ -41,4 +41,6 @@ interface TestSandboxSdk {
     suspend fun processShortList(x: List<Short>): List<Short>
 
     suspend fun processStringList(x: List<String>): List<String>
+
+    suspend fun processNullableInt(x: Int?): Int?
 }

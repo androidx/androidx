@@ -20,6 +20,7 @@ import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -38,6 +39,16 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
      */
     fun convertToModelCode(type: Type, expression: String): CodeBlock {
         require(type != Types.unit) { "Cannot convert Unit." }
+        if (type.isNullable) {
+            if (Types.primitiveTypes.contains(type.asNonNull())) {
+                return CodeBlock.of("%L.firstOrNull()", expression)
+            }
+            return CodeBlock.of(
+                "%L?.let { notNullValue -> %L }",
+                expression,
+                convertToModelCode(type.asNonNull(), "notNullValue")
+            )
+        }
         val value = api.valueMap[type]
         if (value != null) {
             return CodeBlock.of("%M(%L)", value.fromParcelableNameSpec(), expression)
@@ -84,6 +95,24 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
      */
     fun convertToBinderCode(type: Type, expression: String): CodeBlock {
         require(type != Types.unit) { "Cannot convert to Unit." }
+        if (type.isNullable) {
+            val nonNullType = type.asNonNull()
+            if (Types.primitiveTypes.contains(nonNullType)) {
+                val createBinderListFunction = createBinderList(nonNullType)
+                return CodeBlock.of(
+                    "if (%L == null) %L() else %L(%L)",
+                    expression,
+                    createBinderListFunction,
+                    createBinderListFunction,
+                    expression
+                )
+            }
+            return CodeBlock.of(
+                "%L?.let { notNullValue -> %L }",
+                expression,
+                convertToBinderCode(nonNullType, "notNullValue")
+            )
+        }
         val value = api.valueMap[type]
         if (value != null) {
             return CodeBlock.of("%M(%L)", value.toParcelableNameSpec(), expression)
@@ -126,6 +155,17 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         else -> "toTypedArray"
     }
 
+    private fun createBinderList(type: Type) = when (type) {
+        Types.boolean -> "booleanArrayOf"
+        Types.int -> "intArrayOf"
+        Types.long -> "longArrayOf"
+        Types.short -> "intArrayOf"
+        Types.float -> "floatArrayOf"
+        Types.double -> "doubleArrayOf"
+        Types.char -> "charArrayOf"
+        else -> "arrayOf"
+    }
+
     protected abstract fun convertToInterfaceBinderCode(
         annotatedInterface: AnnotatedInterface,
         expression: String
@@ -133,6 +173,13 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
 
     /** Convert the given model type declaration to its binder equivalent. */
     fun convertToBinderType(type: Type): TypeName {
+        if (type.isNullable) {
+            val nonNullType = type.asNonNull()
+            if (Types.primitiveTypes.contains(nonNullType)) {
+                return convertToBinderListType(nonNullType)
+            }
+            return convertToBinderType(nonNullType).copy(nullable = true)
+        }
         val value = api.valueMap[type]
         if (value != null) {
             return value.parcelableNameSpec()
@@ -146,12 +193,12 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             return sandboxInterface.aidlType().innerType.poetTypeName()
         }
         if (type.qualifiedName == List::class.qualifiedName)
-            return convertToBinderListType(type)
+            return convertToBinderListType(type.typeParameters[0])
         return type.poetTypeName()
     }
 
     private fun convertToBinderListType(type: Type): TypeName =
-        when (type.typeParameters[0]) {
+        when (type) {
             Types.boolean -> ClassName("kotlin", "BooleanArray")
             Types.int -> ClassName("kotlin", "IntArray")
             Types.long -> ClassName("kotlin", "LongArray")
@@ -160,6 +207,6 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             Types.double -> ClassName("kotlin", "DoubleArray")
             Types.char -> ClassName("kotlin", "CharArray")
             else -> ClassName("kotlin", "Array")
-                .parameterizedBy(convertToBinderType(type.typeParameters[0]))
+                .parameterizedBy(convertToBinderType(type))
         }
 }

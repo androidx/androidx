@@ -8,6 +8,8 @@ import androidx.privacysandbox.tools.PrivacySandboxValue
 interface SdkInterface {
     suspend fun exampleMethod(request: SdkRequest): SdkResponse
 
+    suspend fun processNullableValues(request: SdkRequest?): SdkResponse?
+
     suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse>
 }
 
@@ -22,12 +24,15 @@ data class InnerSdkValue(
     val hugeNumber: Double,
     val myInterface: MyInterface,
     val numbers: List<Int>,
+    val maybeNumber: Int?,
+    val maybeInterface: MyInterface?,
 )
 
 @PrivacySandboxValue
 data class SdkRequest(
     val id: Long,
     val innerValue: InnerSdkValue,
+    val maybeInnerValue: InnerSdkValue?,
     val moreValues: List<InnerSdkValue>
 )
 

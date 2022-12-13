@@ -200,6 +200,29 @@ public class TestSandboxSdkClientProxy(
         }
     }
 
+    public override suspend fun processNullableInt(x: Int?): Int? = suspendCancellableCoroutine {
+        var mCancellationSignal: ICancellationSignal? = null
+        val transactionCallback = object: IListIntTransactionCallback.Stub() {
+            override fun onCancellable(cancellationSignal: ICancellationSignal) {
+                if (it.isCancelled) {
+                    cancellationSignal.cancel()
+                }
+                mCancellationSignal = cancellationSignal
+            }
+            override fun onSuccess(result: IntArray) {
+                it.resumeWith(Result.success(result.firstOrNull()))
+            }
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
+            }
+        }
+        remote.processNullableInt(if (x == null) intArrayOf() else intArrayOf(x),
+                transactionCallback)
+        it.invokeOnCancellation {
+            mCancellationSignal?.cancel()
+        }
+    }
+
     public override suspend fun processShortList(x: List<Short>): List<Short> =
             suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null

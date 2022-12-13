@@ -11,7 +11,10 @@ public object InnerSdkValueConverter {
                 floatingPoint = parcelable.floatingPoint,
                 hugeNumber = parcelable.hugeNumber,
                 myInterface = MyInterfaceClientProxy(parcelable.myInterface),
-                numbers = parcelable.numbers.toList())
+                numbers = parcelable.numbers.toList(),
+                maybeNumber = parcelable.maybeNumber.firstOrNull(),
+                maybeInterface = parcelable.maybeInterface?.let { notNullValue ->
+                        MyInterfaceClientProxy(notNullValue) })
         return annotatedValue
     }
 
@@ -26,6 +29,10 @@ public object InnerSdkValueConverter {
         parcelable.hugeNumber = annotatedValue.hugeNumber
         parcelable.myInterface = (annotatedValue.myInterface as MyInterfaceClientProxy).remote
         parcelable.numbers = annotatedValue.numbers.toIntArray()
+        parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else
+                intArrayOf(annotatedValue.maybeNumber)
+        parcelable.maybeInterface = annotatedValue.maybeInterface?.let { notNullValue ->
+                (notNullValue as MyInterfaceClientProxy).remote }
         return parcelable
     }
 }

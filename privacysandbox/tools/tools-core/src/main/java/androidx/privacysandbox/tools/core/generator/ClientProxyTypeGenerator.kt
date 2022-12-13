@@ -97,7 +97,7 @@ class ClientProxyTypeGenerator(
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(
             basePackageName,
-            method.returnType.transactionCallbackName(),
+            wrapWithListIfNeeded(method.returnType).transactionCallbackName(),
             "Stub"
         )
 
