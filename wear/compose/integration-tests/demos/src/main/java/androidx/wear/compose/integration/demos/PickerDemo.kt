@@ -612,6 +612,11 @@ public fun DatePicker(
             initialNumberOfOptions = 12,
             initiallySelectedOption = date.monthValue - 1
         )
+        val initiallySelectedMonthDays = date.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
+        val dayState = rememberPickerState(
+            initialNumberOfOptions = initiallySelectedMonthDays,
+            initiallySelectedOption = date.dayOfMonth - 1
+        )
         val maxDayInMonth by remember {
             derivedStateOf {
                 val firstDayOfMonth =
@@ -623,10 +628,6 @@ public fun DatePicker(
                 firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
             }
         }
-        val dayState = rememberPickerState(
-            initialNumberOfOptions = maxDayInMonth,
-            initiallySelectedOption = date.dayOfMonth - 1
-        )
         var focusedElement by remember {
             mutableStateOf(
                 if (talkbackEnabled)
