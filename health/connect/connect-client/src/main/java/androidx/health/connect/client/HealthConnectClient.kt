@@ -17,11 +17,13 @@ package androidx.health.connect.client
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RestrictTo
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -416,9 +418,7 @@ interface HealthConnectClient {
                 throw IllegalStateException("Service not available")
             }
             val enabledPackage =
-                providerPackageNames.first {
-                    isPackageInstalled(context.packageManager, it)
-                }
+                providerPackageNames.first { isPackageInstalled(context.packageManager, it) }
             return HealthConnectClientImpl(
                 enabledPackage,
                 HealthDataService.getClient(context, enabledPackage)
@@ -432,14 +432,16 @@ interface HealthConnectClient {
             packageManager: PackageManager,
             packageName: String,
         ): Boolean {
-            val isPackageInstalledAndEnabled =
+            val packageInfo: PackageInfo =
                 try {
-                    @Suppress("Deprecation") // getApplicationInfo deprecated in T
-                    packageManager.getApplicationInfo(packageName, /* flags= */ 0).enabled
+                    @Suppress("Deprecation") // getPackageInfo deprecated in T
+                    packageManager.getPackageInfo(packageName, /* flags= */ 0)
                 } catch (e: PackageManager.NameNotFoundException) {
-                    false
+                    return false
                 }
-            return isPackageInstalledAndEnabled && hasBindableService(packageManager, packageName)
+            return packageInfo.applicationInfo.enabled &&
+                PackageInfoCompat.getLongVersionCode(packageInfo) > 35000 &&
+                hasBindableService(packageManager, packageName)
         }
 
         internal fun hasBindableService(
