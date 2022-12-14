@@ -21,7 +21,6 @@ import android.graphics.PixelFormat;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -38,17 +37,6 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
-    /**
-     * Returns the LensFacing of this camera.
-     *
-     * @return One of {@link androidx.camera.core.CameraSelector#LENS_FACING_FRONT},
-     * {@link androidx.camera.core.CameraSelector#LENS_FACING_BACK}, or <code>null</code> if the
-     * LensFacing does not fall into one of these two categories.
-     */
-    // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which
-    // can be used to represent non-BACK or FRONT facing lenses.
-    @Nullable
-    Integer getLensFacing();
 
     /**
      * Returns the camera id of this camera.
