@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertTrue;
@@ -103,7 +105,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -155,9 +159,28 @@ public final class CaptureSessionTest {
     private final List<DeferrableSurface> mDeferrableSurfaces = new ArrayList<>();
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
-            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    );
+    public TestRule getUseCameraRule() {
+        if (SDK_INT >= 19) {
+            return CameraUtil.grantCameraPermissionAndPreTest(
+                    new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+            );
+        } else {
+            // Camera2Config.defaultConfig() requires API 19, so returning
+            // a noop rule so it doesn't crash when run on API <19
+            return new NoopRule();
+        }
+    }
+
+    public static class NoopRule implements TestRule {
+        @NonNull
+        @Override
+        public Statement apply(@NonNull Statement base, @NonNull Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() {}
+            };
+        }
+    }
 
     @BeforeClass
     public static void setUpClass() {
