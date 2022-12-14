@@ -75,6 +75,10 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector textStartsWith(String);
   }
 
+  public interface Condition<T, U> {
+    method public U! apply(T!);
+  }
+
   public final class Configurator {
     method public long getActionAcknowledgmentTimeout();
     method public static androidx.test.uiautomator.Configurator getInstance();
@@ -101,15 +105,16 @@ package androidx.test.uiautomator {
     enum_constant public static final androidx.test.uiautomator.Direction UP;
   }
 
-  public abstract class EventCondition<U> {
+  public abstract class EventCondition<U> implements android.app.UiAutomation.AccessibilityEventFilter {
     ctor public EventCondition();
+    method public abstract U! getResult();
   }
 
   public interface IAutomationSupport {
     method public void sendStatus(int, android.os.Bundle);
   }
 
-  public abstract class SearchCondition<U> {
+  public abstract class SearchCondition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.Searchable,U> {
     ctor public SearchCondition();
   }
 
@@ -200,7 +205,7 @@ package androidx.test.uiautomator {
     method public boolean takeScreenshot(java.io.File);
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
-    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice,U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
     method public boolean waitForWindowUpdate(String?, long);
@@ -308,11 +313,10 @@ package androidx.test.uiautomator {
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
-    method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
-    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>, long);
   }
 
-  public abstract class UiObject2Condition<U> {
+  public abstract class UiObject2Condition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.UiObject2,U> {
     ctor public UiObject2Condition();
   }
 

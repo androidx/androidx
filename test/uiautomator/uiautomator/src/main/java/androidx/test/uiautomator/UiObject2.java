@@ -147,25 +147,12 @@ public class UiObject2 implements Searchable {
     /**
      * Waits for a {@code condition} to be met.
      *
-     * @param condition The {@link UiObject2Condition} to wait for.
+     * @param condition The {@link Condition} to evaluate.
      * @param timeout   The maximum time in milliseconds to wait for.
      * @return The final result returned by the {@code condition}, or {@code null} if the {@code
      * condition} was not met before the {@code timeout}.
      */
-    public <U> U wait(@NonNull UiObject2Condition<U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
-        return mWaitMixin.wait(condition, timeout);
-    }
-
-    /**
-     * Waits for a {@code condition} to be met.
-     *
-     * @param condition The {@link SearchCondition} to evaluate.
-     * @param timeout   The maximum time in milliseconds to wait for.
-     * @return The final result returned by the {@code condition}, or {@code null} if the {@code
-     * condition} was not met before the {@code timeout}.
-     */
-    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+    public <U> U wait(@NonNull Condition<? super UiObject2, U> condition, long timeout) {
         Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
         return mWaitMixin.wait(condition, timeout);
     }
