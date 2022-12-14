@@ -19,21 +19,31 @@ package androidx.camera.integration.core
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+import android.hardware.camera2.CaptureRequest.FLASH_MODE
+import android.hardware.camera2.CaptureRequest.FLASH_MODE_OFF
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFlashQuirk
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFlashNotFireQuirk
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -174,39 +184,15 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
 
     @Test
     fun requestAeModeIsOnAlwaysFlash_whenCapturedWithFlashOn() {
-        Assume.assumeFalse(
-            "Cuttlefish API 29 has AE mode availability issue for flash enabled modes." +
-                "Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
-        )
-
-        Assume.assumeTrue(
-            "Flash unit not available with back lens facing camera",
-            CameraUtil.hasFlashUnitWithLensFacing(BACK_LENS_FACING)
-        )
-
-        var isAlwaysFlash = true
-
-        canTakePicture(
-            flashMode = ImageCapture.FLASH_MODE_ON,
-            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-            captureCallback = object : CameraCaptureSession.CaptureCallback() {
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    isAlwaysFlash = isAlwaysFlash and
-                        (request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-                }
-            }
-        )
-
-        Truth.assertThat(isAlwaysFlash).isTrue()
+        verifyRequestAeModeForFlashModeCapture(ImageCapture.FLASH_MODE_ON)
     }
 
     @Test
-    fun requestAeModeIsOnAutoFlash_whenCapturedWithFlashOn() {
+    fun requestAeModeIsOnAutoFlash_whenCapturedWithFlashAuto() {
+        verifyRequestAeModeForFlashModeCapture(ImageCapture.FLASH_MODE_AUTO)
+    }
+
+    private fun verifyRequestAeModeForFlashModeCapture(@ImageCapture.FlashMode flashMode: Int) {
         Assume.assumeFalse(
             "Cuttlefish API 29 has AE mode availability issue for flash enabled modes." +
                 "Unable to test.",
@@ -218,30 +204,52 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             CameraUtil.hasFlashUnitWithLensFacing(BACK_LENS_FACING)
         )
 
-        var isAutoFlash = true
+        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+            @Volatile var isFlashModeSet = false
+            @Volatile var isAeModeExpected = true
 
-        canTakePicture(
-            flashMode = ImageCapture.FLASH_MODE_AUTO,
-            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-            captureCallback = object : CameraCaptureSession.CaptureCallback() {
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    isAutoFlash = isAutoFlash and
-                        (request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH)
+            private val expectedAeMode = when (flashMode) {
+                ImageCapture.FLASH_MODE_ON -> CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                ImageCapture.FLASH_MODE_AUTO -> CONTROL_AE_MODE_ON_AUTO_FLASH
+                else -> CONTROL_AE_MODE_ON
+            }
+
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult
+            ) {
+                if (request[FLASH_MODE] != null && request[FLASH_MODE] != FLASH_MODE_OFF) {
+                    isFlashModeSet = true
+                }
+
+                if (request[CONTROL_AE_MODE] != expectedAeMode) {
+                    isAeModeExpected = false
                 }
             }
+        }
+
+        canTakePicture(
+            flashMode = flashMode,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            captureCallback = captureCallback,
+            flashMustBeSupported = true
         )
 
-        Truth.assertThat(isAutoFlash).isTrue()
+        Assume.assumeFalse(
+            "The test verifies only flash controlling with CONTROL_AE_MODE request." +
+                " AE mode is set to CONTROL_AE_MODE_ON when FLASH_MODE is used.",
+            captureCallback.isFlashModeSet
+        )
+
+        Truth.assertThat(captureCallback.isAeModeExpected).isTrue()
     }
 
     private fun canTakePicture(
         flashMode: Int,
         captureMode: Int,
-        captureCallback: CameraCaptureSession.CaptureCallback? = null
+        captureCallback: CameraCaptureSession.CaptureCallback? = null,
+        flashMustBeSupported: Boolean = false
     ) = runBlocking {
         val imageCapture = ImageCapture.Builder().also { builder ->
             captureCallback?.let {
@@ -258,9 +266,21 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
 
-            var fakeLifecycleOwner = FakeLifecycleOwner()
+            val fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview)
+            val camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                imageCapture,
+                preview
+            )
+
+            if (flashMustBeSupported) {
+                Assume.assumeTrue(
+                    "Test with flashMode($flashMode) is not supported on this device",
+                    isFlashTestSupported(camera, flashMode),
+                )
+            }
         }
 
         // Take picture after preview is ready for a while. It can cause issue on some devices when
@@ -288,6 +308,31 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
                     surfaceTexture.release()
                 }
             })
+    }
+
+    private fun isFlashTestSupported(
+        camera: Camera,
+        @ImageCapture.FlashMode flashMode: Int
+    ): Boolean {
+        when (flashMode) {
+            ImageCapture.FLASH_MODE_AUTO -> {
+                val cameraInfo: CameraInfo = camera.cameraInfo
+                if (cameraInfo is CameraInfoInternal) {
+                    val deviceQuirks = DeviceQuirks.getAll()
+                    val cameraQuirks = cameraInfo.cameraQuirks
+                    if (deviceQuirks.contains(
+                            CrashWhenTakingPhotoWithAutoFlashAEModeQuirk::class.java
+                        ) ||
+                        cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk::class.java) ||
+                        cameraQuirks.contains(ImageCaptureFlashNotFireQuirk::class.java)
+                    ) {
+                        return false
+                    }
+                }
+            }
+            else -> {}
+        }
+        return true
     }
 
     private class FakeImageCaptureCallback(capturesCount: Int) :
