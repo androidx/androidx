@@ -3037,6 +3037,9 @@ public final class Recorder implements VideoOutput {
          * <p>This API only affects the video stream and should not be considered the
          * target for the entire recording. The audio stream's bitrate is not affected by this API.
          *
+         * <p>If this method isn't called, an appropriate bitrate for normal video
+         * recording is selected by default. Only call this method if a custom bitrate is desired.
+         *
          * @param bitrate the target video encoding bitrate in bits per second.
          * @throws IllegalArgumentException if bitrate is 0 or less.
          */
