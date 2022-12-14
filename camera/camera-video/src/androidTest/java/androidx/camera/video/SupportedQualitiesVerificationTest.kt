@@ -170,9 +170,6 @@ class SupportedQualitiesVerificationTest(
     @After
     fun tearDown() {
         if (this::cameraProvider.isInitialized) {
-            instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
-            }
             cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
         for (surfaceProcessor in surfaceProcessorsToRelease) {

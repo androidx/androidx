@@ -99,9 +99,6 @@ class Camera2InteropIntegrationTest(
     @After
     fun tearDown(): Unit = runBlocking {
         processCameraProvider?.apply {
-            withContext(Dispatchers.Main) {
-                unbindAll()
-            }
             shutdown().await()
         }
     }
