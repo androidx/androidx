@@ -4771,20 +4771,25 @@ public class NotificationCompat {
         public CallStyle() {
         }
 
+        /**
+         * Creates a CallStyle linked to a notification builder.
+         *
+         * @param builder       the notification builder to link
+         */
         public CallStyle(@Nullable Builder builder) {
             setBuilder(builder);
         }
 
         /**
-         * Create a CallStyle for an incoming call.
+         * Creates a CallStyle for an incoming call.
          * This notification will have a decline and an answer action, will allow a single
          * custom {@link Builder#addAction(Action) action}, and will have a default
          * {@link Builder#setContentText(CharSequence) content text} for an incoming call.
          *
-         * @param person        The person displayed as the caller.
-         *                      The person also needs to have a non-empty name associated with it.
-         * @param declineIntent The intent to be sent when the user taps the decline action
-         * @param answerIntent  The intent to be sent when the user taps the answer action
+         * @param person        the person displayed as the caller
+         *                      the person also needs to have a non-empty name associated with it
+         * @param declineIntent the intent to be sent when the user taps the decline action
+         * @param answerIntent  the intent to be sent when the user taps the answer action
          */
         @NonNull
         public static CallStyle forIncomingCall(@NonNull Person person,
@@ -4797,14 +4802,14 @@ public class NotificationCompat {
         }
 
         /**
-         * Create a CallStyle for an ongoing call.
+         * Creates a CallStyle for an ongoing call.
          * This notification will have a hang up action, will allow up to two
          * custom {@link Builder#addAction(Action) actions}, and will have a default
          * {@link Builder#setContentText(CharSequence) content text} for an ongoing call.
          *
-         * @param person       The person displayed as being on the other end of the call.
-         *                     The person also needs to have a non-empty name associated with it.
-         * @param hangUpIntent The intent to be sent when the user taps the hang up action
+         * @param person       the person displayed as being on the other end of the call
+         *                     the person also needs to have a non-empty name associated with it
+         * @param hangUpIntent the intent to be sent when the user taps the hang up action
          */
         @NonNull
         public static CallStyle forOngoingCall(@NonNull Person person,
@@ -4817,16 +4822,16 @@ public class NotificationCompat {
         }
 
         /**
-         * Create a CallStyle for a call that is being screened.
+         * Creates a CallStyle for a call that is being screened.
          * This notification will have a hang up and an answer action, will allow a single
          * custom {@link Builder#addAction(Action) action}, and will have a default
          * {@link Builder#setContentText(CharSequence) content text} for a call that is being
          * screened.
          *
-         * @param person       The person displayed as the caller.
-         *                     The person also needs to have a non-empty name associated with it.
-         * @param hangUpIntent The intent to be sent when the user taps the hang up action
-         * @param answerIntent The intent to be sent when the user taps the answer action
+         * @param person       the person displayed as the caller
+         *                     the person also needs to have a non-empty name associated with it
+         * @param hangUpIntent the intent to be sent when the user taps the hang up action
+         * @param answerIntent the intent to be sent when the user taps the answer action
          */
         @NonNull
         public static CallStyle forScreeningCall(@NonNull Person person,
@@ -4839,12 +4844,12 @@ public class NotificationCompat {
         }
 
         /**
-         * @param callType      The type of the call (for example, CALL_TYPE_INCOMING).
-         * @param person        The person displayed for the incoming call.
-         *                      The user also needs to have a non-empty name associated with it.
-         * @param hangUpIntent  The intent to be sent when the user taps the hang up action
-         * @param declineIntent The intent to be sent when the user taps the decline action
-         * @param answerIntent  The intent to be sent when the user taps the answer action
+         * @param callType      the type of the call (for example, CALL_TYPE_INCOMING)
+         * @param person        the person displayed for the incoming call
+         *                      the user also needs to have a non-empty name associated with it
+         * @param hangUpIntent  the intent to be sent when the user taps the hang up action
+         * @param declineIntent the intent to be sent when the user taps the decline action
+         * @param answerIntent  the intent to be sent when the user taps the answer action
          */
         private CallStyle(@CallType int callType, @NonNull Person person,
                 @Nullable PendingIntent hangUpIntent, @Nullable PendingIntent declineIntent,
@@ -4870,8 +4875,8 @@ public class NotificationCompat {
         }
 
         /**
-         * Optional icon to be displayed with {@link #setVerificationText(CharSequence) text}
-         * as a verification status of the caller.
+         * Sets an optional icon to be displayed with {@link #setVerificationText(CharSequence)
+         * text} as a verification status of the caller.
          */
         @RequiresApi(23)
         @NonNull
@@ -4882,8 +4887,8 @@ public class NotificationCompat {
         }
 
         /**
-         * Optional icon to be displayed with {@link #setVerificationText(CharSequence) text}
-         * as a verification status of the caller.
+         * Sets an optional icon to be displayed with {@link #setVerificationText(CharSequence)
+         * text} as a verification status of the caller.
          */
         @NonNull
         public CallStyle setVerificationIcon(@Nullable Bitmap verificationIcon) {
@@ -4892,7 +4897,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Optional text to be displayed with an {@link #setVerificationIcon(Icon) icon}
+         * Sets optional text to be displayed with an {@link #setVerificationIcon(Icon) icon}
          * as a verification status of the caller.
          */
         @NonNull
@@ -4902,7 +4907,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Optional color to be used as a hint for the Answer action button's color.
+         * Sets an optional color to be used as a hint for the Answer action button's color.
          * The system may change this color to ensure sufficient contrast with the background.
          * The system may choose to disregard this hint if the notification is not colorized.
          */
@@ -4913,7 +4918,8 @@ public class NotificationCompat {
         }
 
         /**
-         * Optional color to be used as a hint for the Decline or Hang Up action button's color.
+         * Sets an optional color to be used as a hint for the Decline or Hang Up action button's
+         * color.
          * The system may change this color to ensure sufficient contrast with the background.
          * The system may choose to disregard this hint if the notification is not colorized.
          */
