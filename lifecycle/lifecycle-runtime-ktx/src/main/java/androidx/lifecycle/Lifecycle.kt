@@ -73,7 +73,7 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      */
     @Deprecated(
         message = "launchWhenCreated is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever" +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
             "the Lifecycle state is at least Lifecycle.State.CREATED."
     )
     @Suppress("DEPRECATION")
@@ -92,7 +92,7 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      */
     @Deprecated(
         message = "launchWhenStarted is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever" +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
             "the Lifecycle state is at least Lifecycle.State.STARTED."
     )
     @Suppress("DEPRECATION")
@@ -111,7 +111,7 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      */
     @Deprecated(
         message = "launchWhenResumed is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever" +
+            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
             "the Lifecycle state is at least Lifecycle.State.RESUMED."
     )
     @Suppress("DEPRECATION")
