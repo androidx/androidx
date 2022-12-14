@@ -106,6 +106,10 @@ class TestResults private constructor(val context: Context) {
         extensionMode: Int,
         testResult: Int
     ) {
+        Log.d(
+            TAG, "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
+                ", extensionMode: $extensionMode, testResult: $testResult"
+        )
         cameraExtensionResultMap[Pair(testType, cameraId)]!![extensionMode] = testResult
         saveTestResults()
     }
