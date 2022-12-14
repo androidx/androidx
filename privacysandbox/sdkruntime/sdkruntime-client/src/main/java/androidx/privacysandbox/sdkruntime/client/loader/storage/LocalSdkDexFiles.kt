@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.privacysandbox.sdkruntime.client.config
+
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
+package androidx.privacysandbox.sdkruntime.client.loader.storage
+
+import androidx.annotation.RestrictTo
+import java.io.File
 
 /**
- * Information required for loading SDK bundled with App.
- *
+ * Represent SDK Dex files extracted to device storage.
  */
-internal data class LocalSdkConfig(
-    val packageName: String,
-    val dexPaths: List<String>,
-    val entryPoint: String,
-    val javaResourcesRoot: String? = null,
-    val resourceRemapping: ResourceRemappingConfig? = null
+internal data class LocalSdkDexFiles(
+    val files: List<File>
 )
 
-internal data class ResourceRemappingConfig(
-    val rPackageClassName: String,
-    val packageId: Int
-)
+/**
+ * Convert [LocalSdkDexFiles] to ClassPath string.
+ */
+internal fun LocalSdkDexFiles.toClassPathString() =
+    files.joinToString(separator = File.pathSeparator, transform = File::getPath)

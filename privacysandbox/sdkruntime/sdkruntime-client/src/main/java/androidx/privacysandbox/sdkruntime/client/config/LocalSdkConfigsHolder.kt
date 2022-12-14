@@ -45,7 +45,7 @@ internal class LocalSdkConfigsHolder private constructor(
             val data = buildMap {
                 for ((packageName, configPath) in sdkTable) {
                     context.assets.open(configPath).use { sdkConfigAsset ->
-                        val sdkInfo = LocalSdkConfigParser.parse(sdkConfigAsset)
+                        val sdkInfo = LocalSdkConfigParser.parse(sdkConfigAsset, packageName)
                         put(packageName, sdkInfo)
                     }
                 }

@@ -20,7 +20,6 @@ import android.content.res.AssetManager
 import android.os.Build
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import dalvik.system.InMemoryDexClassLoader
@@ -29,10 +28,7 @@ import java.nio.channels.Channels
 
 /**
  * Loading SDK in memory on API 27+
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFactory {
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
@@ -41,7 +37,10 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     ) : InMemorySdkClassLoaderFactory() {
 
         @DoNotInline
-        override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
+        override fun createClassLoaderFor(
+            sdkConfig: LocalSdkConfig,
+            parent: ClassLoader
+        ): ClassLoader {
             try {
                 val buffers = arrayOfNulls<ByteBuffer>(sdkConfig.dexPaths.size)
                 for (i in sdkConfig.dexPaths.indices) {
@@ -65,7 +64,10 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
 
     internal class FailImpl : InMemorySdkClassLoaderFactory() {
         @DoNotInline
-        override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
+        override fun createClassLoaderFor(
+            sdkConfig: LocalSdkConfig,
+            parent: ClassLoader
+        ): ClassLoader {
             throw LoadSdkCompatException(
                 LoadSdkCompatException.LOAD_SDK_SDK_SANDBOX_DISABLED,
                 "Can't use InMemoryDexClassLoader"

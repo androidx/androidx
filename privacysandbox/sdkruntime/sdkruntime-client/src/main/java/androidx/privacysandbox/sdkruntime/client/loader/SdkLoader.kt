@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.loader
 import android.content.Context
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkV1
+import androidx.privacysandbox.sdkruntime.client.loader.storage.CachedLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 
 /**
@@ -29,7 +30,7 @@ internal class SdkLoader internal constructor(
 ) {
 
     internal interface ClassLoaderFactory {
-        fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader
+        fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader
     }
 
     /**
@@ -43,7 +44,10 @@ internal class SdkLoader internal constructor(
      * @return LocalSdk implementation for loaded SDK
      */
     fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdk {
-        val classLoader = classLoaderFactory.loadSdk(sdkConfig, getParentClassLoader())
+        val classLoader = classLoaderFactory.createClassLoaderFor(
+            sdkConfig,
+            getParentClassLoader()
+        )
         return createLocalSdk(classLoader, sdkConfig)
     }
 
@@ -58,7 +62,7 @@ internal class SdkLoader internal constructor(
             }
         } catch (ex: Exception) {
             throw LoadSdkCompatException(
-                LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+                LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
                 "Failed to instantiate local SDK",
                 ex
             )
@@ -77,24 +81,35 @@ internal class SdkLoader internal constructor(
          * first:
          *  1. [JavaResourcesLoadingClassLoaderFactory] - to provide java resources to classes
          *  loaded by child classloaders;
-         *  2. [InMemorySdkClassLoaderFactory] - to load SDK classes.
+         *  2a. [FileClassLoaderFactory] - first trying to use factory that extracting SDK Dex
+         *  to storage and load it using [dalvik.system.BaseDexClassLoader].
+         *  Supports all platform versions (Api14+, minSdkVersion for library).
+         *  2b. [InMemorySdkClassLoaderFactory] - fallback for low available space. Trying to load
+         *  SDK in-memory using [dalvik.system.InMemoryDexClassLoader].
+         *  Supports Api27+ only, fails SDK loading on non-supported platform versions.
+         *
+         * @param context App context
+         * @param lowSpaceThreshold Minimal available space in bytes required to proceed with
+         * extracting SDK Dex files.
          *
          * @return SdkLoader that could load SDKs with their resources.
          */
-        fun create(context: Context): SdkLoader {
-            val classLoaderFactory = JavaResourcesLoadingClassLoaderFactory(context.classLoader)
-                .andThen(
-                    InMemorySdkClassLoaderFactory.create(context)
+        fun create(
+            context: Context,
+            lowSpaceThreshold: Long = 100 * 1024 * 1024
+        ): SdkLoader {
+            val cachedLocalSdkStorage = CachedLocalSdkStorage.create(
+                context,
+                lowSpaceThreshold
+            )
+            val classLoaderFactory = JavaResourcesLoadingClassLoaderFactory(
+                context.classLoader,
+                codeClassLoaderFactory = FileClassLoaderFactory(
+                    cachedLocalSdkStorage,
+                    fallback = InMemorySdkClassLoaderFactory.create(context)
                 )
+            )
             return SdkLoader(classLoaderFactory, context)
-        }
-
-        private fun ClassLoaderFactory.andThen(next: ClassLoaderFactory): ClassLoaderFactory {
-            val prev = this
-            return object : ClassLoaderFactory {
-                override fun loadSdk(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader =
-                    next.loadSdk(sdkConfig, prev.loadSdk(sdkConfig, parent))
-            }
         }
     }
 }

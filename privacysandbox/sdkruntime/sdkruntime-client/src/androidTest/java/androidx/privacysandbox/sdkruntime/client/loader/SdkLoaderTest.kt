@@ -15,22 +15,25 @@
  */
 package androidx.privacysandbox.sdkruntime.client.loader
 
+import android.content.Context
 import android.os.Build
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 class SdkLoaderTest {
 
     private lateinit var sdkLoader: SdkLoader
@@ -39,10 +42,12 @@ class SdkLoaderTest {
 
     @Before
     fun setUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         sdkLoader = SdkLoader.create(
-            ApplicationProvider.getApplicationContext()
+            context
         )
         testSdkConfig = LocalSdkConfig(
+            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
             dexPaths = listOf(
                 "RuntimeEnabledSdks/V1/classes.dex",
                 "RuntimeEnabledSdks/RPackage.dex"
@@ -54,6 +59,9 @@ class SdkLoaderTest {
                 packageId = 42
             )
         )
+
+        // Clean extracted SDKs between tests
+        File(context.cacheDir, "RuntimeEnabledSdk").deleteRecursively()
     }
 
     @Test
@@ -101,5 +109,34 @@ class SdkLoaderTest {
         val value = packageIdField.get(null)
 
         assertThat(value).isEqualTo(42)
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O)
+    fun testLowSpace_failPreApi27() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val sdkLoaderWithLowSpaceMode = SdkLoader.create(
+            context,
+            lowSpaceThreshold = Long.MAX_VALUE
+        )
+
+        assertThrows(LoadSdkCompatException::class.java) {
+            sdkLoaderWithLowSpaceMode.loadSdk(testSdkConfig)
+        }.hasMessageThat().isEqualTo("Can't use InMemoryDexClassLoader")
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
+    fun testLowSpace_notFailApi27() {
+        val sdkLoaderWithLowSpaceMode = SdkLoader.create(
+            ApplicationProvider.getApplicationContext(),
+            lowSpaceThreshold = Long.MAX_VALUE
+        )
+
+        val loadedSdk = sdkLoaderWithLowSpaceMode.loadSdk(testSdkConfig)
+        val classLoader = loadedSdk.extractSdkProviderClassloader()
+
+        val entryPointClass = classLoader.loadClass(testSdkConfig.entryPoint)
+        assertThat(entryPointClass).isNotNull()
     }
 }
