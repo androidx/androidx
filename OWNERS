@@ -14,7 +14,6 @@ juliamcclellan@google.com
 lpf@google.com
 mount@google.com
 natnaelbelay@google.com
-nickanthony@google.com
 owengray@google.com
 romainguy@android.com
 saff@google.com
@@ -26,7 +25,7 @@ tiem@google.com
 yboyar@google.com
 
 per-file *settings.gradle = set noparent
-per-file *settings.gradle = nickanthony@google.com, alanv@google.com, aurimas@google.com
+per-file *settings.gradle = alanv@google.com, aurimas@google.com
 per-file *libraryversions.toml = jnichol@google.com
 
 # Copybara can self-approve CLs within synced docs.
