@@ -26,7 +26,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -85,6 +87,26 @@ class TopicsManagerTest {
 
         // Verify that the result of the compat call is correct.
         verifyResponse(result)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun testTopicsAsyncPreviewNotSupported() {
+        val topicsManager = mockTopicsManager(mContext)
+        setupTopicsResponse(topicsManager)
+        val managerCompat = obtain(mContext)
+
+        val request = GetTopicsRequest.Builder()
+            .setSdkName(mSdkName)
+            .setShouldRecordObservation(false)
+            .build()
+
+        // Actually invoke the compat code.
+        assertThrows<IllegalArgumentException> {
+            runBlocking {
+                managerCompat!!.getTopics(request)
+            }
+        }.hasMessageThat().contains("shouldRecordObservation not supported yet.")
     }
 
     @RequiresApi(34)

@@ -78,9 +78,11 @@ abstract class TopicsManager internal constructor() {
         private fun convertRequest(
             request: GetTopicsRequest
         ): android.adservices.topics.GetTopicsRequest {
+            if (!request.shouldRecordObservation) {
+                throw IllegalArgumentException("shouldRecordObservation not supported yet.")
+            }
             return android.adservices.topics.GetTopicsRequest.Builder()
                 .setAdsSdkName(request.sdkName)
-                .setShouldRecordObservation(request.shouldRecordObservation)
                 .build()
         }
 
