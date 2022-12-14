@@ -134,15 +134,6 @@ class FakeUseCaseCamera(
         return CompletableDeferred(Unit)
     }
 
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
-    ): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
-    }
-
     override fun close(): Job {
         return CompletableDeferred(Unit)
     }

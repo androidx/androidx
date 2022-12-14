@@ -21,14 +21,11 @@ package androidx.camera.camera2.pipe.testing
 import android.content.Context
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -116,15 +113,6 @@ class TestUseCaseCamera(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority
     ): Deferred<Unit> {
-        throw NotImplementedError("Not implemented")
-    }
-
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
-    ): Deferred<Result3A> {
         throw NotImplementedError("Not implemented")
     }
 

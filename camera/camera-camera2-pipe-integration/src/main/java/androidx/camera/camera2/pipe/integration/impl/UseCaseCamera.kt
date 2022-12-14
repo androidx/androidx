@@ -20,12 +20,9 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
-import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
@@ -65,14 +62,6 @@ interface UseCaseCamera {
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
-
-    // 3A
-    suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode? = null
-    ): Deferred<Result3A>
 
     // Lifecycle
     fun close(): Job
@@ -137,19 +126,6 @@ class UseCaseCameraImpl @Inject constructor(
             CompletableDeferred(Unit)
         }
     }
-
-    override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
-    ): Deferred<Result3A> =
-        requestControl.startFocusAndMeteringAsync(
-            aeRegions,
-            afRegions,
-            awbRegions,
-            afTriggerStartAeMode
-        )
 
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
