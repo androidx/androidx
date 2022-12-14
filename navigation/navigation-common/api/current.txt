@@ -325,6 +325,8 @@ package androidx.navigation {
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
   }
 
   public final class NavOptions {
