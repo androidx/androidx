@@ -124,13 +124,9 @@ class TopicsManagerFuturesTest {
         // Set up the request that we expect the compat code to invoke.
         val expectedRequest = android.adservices.topics.GetTopicsRequest.Builder()
             .setAdsSdkName(mSdkName)
-            .setShouldRecordObservation(true)
             .build()
 
         Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
-        Assert.assertEquals(
-            expectedRequest.shouldRecordObservation(),
-            topicsRequest.shouldRecordObservation())
     }
 
     @RequiresApi(34)
