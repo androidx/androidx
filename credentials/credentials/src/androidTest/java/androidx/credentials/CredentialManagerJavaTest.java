@@ -24,11 +24,11 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.credentials.exceptions.ClearCredentialException;
-import androidx.credentials.exceptions.ClearCredentialUnknownException;
+import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
-import androidx.credentials.exceptions.CreateCredentialUnknownException;
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.GetCredentialException;
-import androidx.credentials.exceptions.GetCredentialUnknownException;
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -72,8 +72,8 @@ public class CredentialManagerJavaTest {
                     @Override
                     public void onResult(@NonNull CreateCredentialResponse result) {}
             });
-        assertThat(loadedResult.get().getType()).isEqualTo(
-                CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION);
+        assertThat(loadedResult.get().getClass()).isEqualTo(
+                CreateCredentialProviderConfigurationException.class);
         // TODO("Add manifest tests and separate tests for pre and post U API Levels")
     }
 
@@ -100,8 +100,8 @@ public class CredentialManagerJavaTest {
                 @Override
                 public void onResult(@NonNull GetCredentialResponse result) {}
             });
-        assertThat(loadedResult.get().getType()).isEqualTo(
-                GetCredentialUnknownException.TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION);
+        assertThat(loadedResult.get().getClass()).isEqualTo(
+                GetCredentialProviderConfigurationException.class);
         // TODO("Add manifest tests and separate tests for pre and post U API Levels")
     }
 
@@ -126,8 +126,8 @@ public class CredentialManagerJavaTest {
                     @Override
                     public void onResult(@NonNull Void result) {}
                 });
-        assertThat(loadedResult.get().getType()).isEqualTo(ClearCredentialUnknownException
-                .TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION);
+        assertThat(loadedResult.get().getClass()).isEqualTo(
+                ClearCredentialProviderConfigurationException.class);
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 }

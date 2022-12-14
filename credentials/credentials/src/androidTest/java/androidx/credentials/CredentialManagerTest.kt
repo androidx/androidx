@@ -19,11 +19,11 @@ package androidx.credentials
 import android.app.Activity
 import android.os.Looper
 import androidx.credentials.exceptions.ClearCredentialException
-import androidx.credentials.exceptions.ClearCredentialUnknownException
+import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -53,7 +53,7 @@ class CredentialManagerTest {
         if (Looper.myLooper() == null) {
             Looper.prepare()
         }
-        assertThrows<CreateCredentialUnknownException> {
+        assertThrows<CreateCredentialProviderConfigurationException> {
             credentialManager.executeCreateCredential(
                 CreatePasswordRequest("test-user-id", "test-password"),
                 Activity()
@@ -70,7 +70,7 @@ class CredentialManagerTest {
         val request = GetCredentialRequest.Builder()
             .addGetCredentialOption(GetPasswordOption())
             .build()
-        assertThrows<GetCredentialUnknownException> {
+        assertThrows<GetCredentialProviderConfigurationException> {
             credentialManager.executeGetCredential(request, Activity())
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
@@ -81,7 +81,7 @@ class CredentialManagerTest {
         if (Looper.myLooper() == null) {
             Looper.prepare()
         }
-        assertThrows<ClearCredentialUnknownException> {
+        assertThrows<ClearCredentialProviderConfigurationException> {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
@@ -104,8 +104,9 @@ class CredentialManagerTest {
                 override fun onError(e: CreateCredentialException) { loadedResult.set(e) }
             }
         )
-        assertThat(loadedResult.get().type).isEqualTo(CreateCredentialUnknownException
-            .TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION)
+        assertThat(loadedResult.get().type).isEqualTo(
+            CreateCredentialProviderConfigurationException
+            .TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION)
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 
@@ -128,8 +129,9 @@ class CredentialManagerTest {
                 override fun onError(e: GetCredentialException) { loadedResult.set(e) }
             }
         )
-        assertThat(loadedResult.get().type).isEqualTo(GetCredentialUnknownException
-            .TYPE_GET_CREDENTIAL_UNKNOWN_EXCEPTION)
+        assertThat(loadedResult.get().type).isEqualTo(
+            GetCredentialProviderConfigurationException
+            .TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION)
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 
@@ -148,8 +150,9 @@ class CredentialManagerTest {
                 override fun onResult(result: Void?) {}
             })
 
-        assertThat(loadedResult.get().type).isEqualTo(ClearCredentialUnknownException
-            .TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION)
+        assertThat(loadedResult.get().type).isEqualTo(
+            ClearCredentialProviderConfigurationException
+            .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION)
         // TODO(Add manifest tests and separate tests for pre and post U API Levels")
     }
 }

@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 
 /**
- * Represents an error encountered during a create flow with Credential Manager. See
+ * Represents an error thrown during a create flow with Credential Manager. See
  * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
  *
  * @see CredentialManager

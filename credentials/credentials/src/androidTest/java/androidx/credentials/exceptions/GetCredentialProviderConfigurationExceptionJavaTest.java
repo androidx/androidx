@@ -26,24 +26,26 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class GetCredentialCancellationExceptionJavaTest {
-    @Test(expected = GetCredentialCancellationException.class)
-    public void construct_inputNonEmpty_success() throws GetCredentialCancellationException {
-        throw new GetCredentialCancellationException("msg");
+public class GetCredentialProviderConfigurationExceptionJavaTest {
+    @Test(expected = GetCredentialProviderConfigurationException.class)
+    public void construct_inputNonEmpty_success() throws
+            GetCredentialProviderConfigurationException {
+        throw new GetCredentialProviderConfigurationException("msg");
     }
 
-    @Test(expected = GetCredentialCancellationException.class)
-    public void construct_errorMessageNull_success() throws GetCredentialCancellationException {
-        throw new GetCredentialCancellationException(null);
+    @Test(expected = GetCredentialProviderConfigurationException.class)
+    public void construct_errorMessageNull_success() throws
+            GetCredentialProviderConfigurationException {
+        throw new GetCredentialProviderConfigurationException(null);
     }
 
     @Test
     public void getter_success() {
-        Class<GetCredentialCancellationException> expectedClass =
-                GetCredentialCancellationException.class;
+        Class<GetCredentialProviderConfigurationException> expectedClass =
+                GetCredentialProviderConfigurationException.class;
         String expectedMessage = "message";
-        GetCredentialCancellationException exception = new
-                GetCredentialCancellationException(expectedMessage);
+        GetCredentialProviderConfigurationException exception = new
+                GetCredentialProviderConfigurationException(expectedMessage);
         assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }

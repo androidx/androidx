@@ -39,12 +39,12 @@ public class CreateCredentialCancellationExceptionJavaTest {
 
     @Test
     public void getter_success() {
-        String expectedType =
-                CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION;
+        Class<CreateCredentialCancellationException> expectedClass =
+                CreateCredentialCancellationException.class;
         String expectedMessage = "message";
         CreateCredentialCancellationException exception = new
                 CreateCredentialCancellationException(expectedMessage);
-        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getClass()).isEqualTo(expectedClass);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
 }
