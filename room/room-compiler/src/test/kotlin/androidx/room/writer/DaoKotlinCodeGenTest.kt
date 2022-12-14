@@ -1586,4 +1586,38 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             expectedFilePath = getTestGoldenPath(testName)
         )
     }
+
+    @Test
+    fun dataSource() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import androidx.paging.*
+
+            @Dao
+            abstract class MyDao {
+                @Query("SELECT * from MyEntity")
+                abstract fun getDataSourceFactory(): DataSource.Factory<Int, MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                src,
+                databaseSrc,
+                COMMON.DATA_SOURCE_FACTORY,
+                COMMON.POSITIONAL_DATA_SOURCE
+            ),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
 }
