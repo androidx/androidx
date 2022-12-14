@@ -37,9 +37,9 @@ import androidx.health.connect.client.records.metadata.DataOrigin as SdkDataOrig
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @SmallTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-// Comment the SDK suppress to run on emulators thats lower than U.
+// Comment the SDK suppress to run on emulators lower than U.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-class RecordsConverterTest {
+class RecordsConvertersTest {
 
     @Test
     fun stepsRecord_convertFromSdkToPlatformClass() {

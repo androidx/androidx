@@ -34,7 +34,7 @@ import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import kotlin.reflect.KClass
 
-internal fun KClass<out Record>.toPlatformRecordClass():
+fun KClass<out Record>.toPlatformRecordClass():
     Class<out PlatformRecord> {
     return when (this) {
         StepsRecord::class -> PlatformStepsRecord::class.java
@@ -42,7 +42,7 @@ internal fun KClass<out Record>.toPlatformRecordClass():
     }
 }
 
-internal fun Record.toPlatformRecord(): PlatformRecord {
+fun Record.toPlatformRecord(): PlatformRecord {
     return when (this) {
         is StepsRecord ->
             PlatformStepsRecord.Builder(
@@ -61,7 +61,7 @@ internal fun Record.toPlatformRecord(): PlatformRecord {
     }
 }
 
-internal fun PlatformRecord.toSdkRecord(): Record {
+fun PlatformRecord.toSdkRecord(): Record {
     return when (this) {
         is PlatformStepsRecord ->
             StepsRecord(
@@ -77,7 +77,7 @@ internal fun PlatformRecord.toSdkRecord(): Record {
     }
 }
 
-internal fun Metadata.toPlatformMetadata(): PlatformMetadata {
+fun Metadata.toPlatformMetadata(): PlatformMetadata {
     return PlatformMetadata.Builder()
         .apply {
             device?.toPlatformDevice()?.let { setDevice(it) }
@@ -90,7 +90,7 @@ internal fun Metadata.toPlatformMetadata(): PlatformMetadata {
         .build()
 }
 
-internal fun PlatformMetadata.toSdkMetadata(): Metadata {
+fun PlatformMetadata.toSdkMetadata(): Metadata {
     return Metadata(
         id,
         dataOrigin.toSdkDataOrigin(),
@@ -101,7 +101,7 @@ internal fun PlatformMetadata.toSdkMetadata(): Metadata {
     )
 }
 
-internal fun Device.toPlatformDevice(): PlatformDevice {
+fun Device.toPlatformDevice(): PlatformDevice {
     @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
     return PlatformDevice.Builder()
         .apply {
@@ -112,17 +112,17 @@ internal fun Device.toPlatformDevice(): PlatformDevice {
         .build()
 }
 
-internal fun PlatformDevice.toSdkDevice(): Device {
+fun PlatformDevice.toSdkDevice(): Device {
     @Suppress("WrongConstant") // Platform intdef and jetpack intdef match in value.
     return Device(manufacturer, model, type)
 }
 
-internal fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
+fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
     return PlatformDataOrigin.Builder()
         .apply { setPackageName(packageName) }
         .build()
 }
 
-internal fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
+fun PlatformDataOrigin.toSdkDataOrigin(): DataOrigin {
     return DataOrigin(packageName ?: "")
 }

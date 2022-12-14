@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @MediumTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-// Comment the SDK suppress to run on emulators thats lower than U.
+// Comment the SDK suppress to run on emulators lower than U.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class HealthConnectClientUpsideDownImplTest {
 
@@ -112,7 +112,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun readRecord() = runTest {
+    fun readRecord_withId() = runTest {
         val insertResponse = healthConnectClient.insertRecords(
             listOf(
                 StepsRecord(
@@ -138,18 +138,34 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun readRecords_throwUOE() = runTest {
-        assertFailsWith<UnsupportedOperationException> {
-            healthConnectClient.readRecords(
-                ReadRecordsRequest(
-                    StepsRecord::class,
-                    TimeRangeFilter.between(
-                        Instant.ofEpochMilli(1234L),
-                        Instant.ofEpochMilli(1235L)
-                    )
-                )
+    fun readRecords_withFilters() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(5678L),
+                    endZoneOffset = ZoneOffset.UTC
+                ),
+                StepsRecord(
+                    count = 50,
+                    startTime = Instant.ofEpochMilli(12340L),
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = Instant.ofEpochMilli(56780L),
+                    endZoneOffset = ZoneOffset.UTC
+                ),
             )
-        }
+        )
+
+        val readResponse = healthConnectClient.readRecords(
+            ReadRecordsRequest(
+                StepsRecord::class,
+                TimeRangeFilter.after(Instant.ofEpochMilli(10_000L))
+            )
+        )
+
+        assertThat(readResponse.records[0].count).isEqualTo(50)
     }
 
     @Test

@@ -29,6 +29,9 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.impl.platform.time.SystemDefaultTimeSource
+import androidx.health.connect.client.impl.platform.time.TimeSource
+import androidx.health.connect.client.impl.platform.records.toPlatformReadRecordsRequestUsingFilters
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
 import androidx.health.connect.client.impl.platform.records.toSdkRecord
@@ -55,11 +58,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @suppress
  */
 @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-class HealthConnectClientUpsideDownImpl(private val context: Context) :
+class HealthConnectClientUpsideDownImpl :
     HealthConnectClient, PermissionController {
 
-    private val healthConnectManager: HealthConnectManager =
-        context.getSystemService(Context.HEALTHCONNECT_SERVICE) as HealthConnectManager
+    private val context: Context
+    private val timeSource: TimeSource
+    private val healthConnectManager: HealthConnectManager
+
+    constructor(context: Context) : this(context, SystemDefaultTimeSource)
+
+    internal constructor(context: Context, timeSource: TimeSource) {
+        this.context = context
+        this.timeSource = timeSource
+        this.healthConnectManager =
+            context.getSystemService(Context.HEALTHCONNECT_SERVICE) as HealthConnectManager
+    }
 
     override val permissionController: PermissionController
         get() = this
@@ -120,10 +133,22 @@ class HealthConnectClientUpsideDownImpl(private val context: Context) :
         return ReadRecordResponse(response.records[0].toSdkRecord() as T)
     }
 
+    @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
-        throw UnsupportedOperationException("Method not supported yet")
+        val response = wrapPlatformException {
+            suspendCancellableCoroutine { continuation
+                ->
+                healthConnectManager.readRecords(
+                    request.toPlatformReadRecordsRequestUsingFilters(timeSource),
+                    Runnable::run,
+                    continuation.asOutcomeReceiver()
+                )
+            }
+        }
+        // TODO(b/262573513): pass page token
+        return ReadRecordsResponse(response.records.map { it.toSdkRecord() as T }, null)
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
