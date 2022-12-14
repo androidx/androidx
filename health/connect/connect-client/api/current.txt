@@ -712,6 +712,16 @@ package androidx.health.connect.client.records {
   public static final class HydrationRecord.Companion {
   }
 
+  public final class IntermenstrualBleedingRecord implements androidx.health.connect.client.records.Record {
+    ctor public IntermenstrualBleedingRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getTime();
+    method public java.time.ZoneOffset? getZoneOffset();
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant time;
+    property public java.time.ZoneOffset? zoneOffset;
+  }
+
   public final class LeanBodyMassRecord implements androidx.health.connect.client.records.Record {
     ctor public LeanBodyMassRecord(java.time.Instant time, java.time.ZoneOffset? zoneOffset, androidx.health.connect.client.units.Mass mass, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.units.Mass getMass();
