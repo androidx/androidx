@@ -16,9 +16,13 @@
 
 package androidx.appsearch.localstorage.stats;
 
+import static androidx.appsearch.stats.SchemaMigrationStats.NO_MIGRATION;
+import static androidx.appsearch.stats.SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.core.util.Preconditions;
 
 /**
@@ -29,6 +33,7 @@ import androidx.core.util.Preconditions;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SetSchemaStats {
+
     @NonNull
     private final String mPackageName;
 
@@ -53,10 +58,12 @@ public final class SetSchemaStats {
     private final int mConvertToResponseLatencyMillis;
     private final int mDispatchChangeNotificationsLatencyMillis;
     private final int mOptimizeLatencyMillis;
-    boolean mIsPackageObserved;
-    int mGetOldSchemaLatencyMillis;
-    int mGetObserverLatencyMillis;
-    int mPreparingChangeNotificationLatencyMillis;
+    private final boolean mIsPackageObserved;
+    private final int mGetOldSchemaLatencyMillis;
+    private final int mGetObserverLatencyMillis;
+    private final int mPreparingChangeNotificationLatencyMillis;
+    @SchemaMigrationStats.SchemaMigrationCallType
+    private final int mSchemaMigrationCallType;
 
     SetSchemaStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -85,6 +92,7 @@ public final class SetSchemaStats {
         mGetObserverLatencyMillis = builder.mGetObserverLatencyMillis;
         mPreparingChangeNotificationLatencyMillis =
                 builder.mPreparingChangeNotificationLatencyMillis;
+        mSchemaMigrationCallType = builder.mSchemaMigrationCallType;
     }
 
     /** Returns calling package name. */
@@ -215,6 +223,11 @@ public final class SetSchemaStats {
         return mPreparingChangeNotificationLatencyMillis;
     }
 
+    /** Gets the type indicate how this set schema call relative to schema migration cases */
+    public @SchemaMigrationStats.SchemaMigrationCallType int getSchemaMigrationCallType() {
+        return mSchemaMigrationCallType;
+    }
+
     /** Builder for {@link SetSchemaStats}. */
     public static class Builder {
         @NonNull
@@ -243,6 +256,8 @@ public final class SetSchemaStats {
         int mGetOldSchemaLatencyMillis;
         int mGetObserverLatencyMillis;
         int mPreparingChangeNotificationLatencyMillis;
+        @SchemaMigrationStats.SchemaMigrationCallType
+        int mSchemaMigrationCallType;
 
         /** Constructor for the {@link Builder}. */
         public Builder(@NonNull String packageName, @NonNull String database) {
@@ -399,6 +414,16 @@ public final class SetSchemaStats {
         public Builder setPreparingChangeNotificationLatencyMillis(
                 int preparingChangeNotificationLatencyMillis) {
             mPreparingChangeNotificationLatencyMillis = preparingChangeNotificationLatencyMillis;
+            return this;
+        }
+
+        /** Sets the type indicate how this set schema call relative to schema migration cases */
+        @NonNull
+        public Builder setSchemaMigrationCallType(
+                @SchemaMigrationStats.SchemaMigrationCallType int schemaMigrationCallType) {
+            Preconditions.checkArgumentInRange(schemaMigrationCallType, NO_MIGRATION,
+                    SECOND_CALL_APPLY_NEW_SCHEMA, "schemaMigrationCallType");
+            mSchemaMigrationCallType = schemaMigrationCallType;
             return this;
         }
 
