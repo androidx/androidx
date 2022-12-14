@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.credentials.playservices;
+package androidx.credentials.playservices.beginsignin;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetPasswordOption;
+import androidx.credentials.playservices.TestCredentialsActivity;
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
