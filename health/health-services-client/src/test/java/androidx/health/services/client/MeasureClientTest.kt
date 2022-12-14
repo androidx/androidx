@@ -171,21 +171,21 @@ class MeasureClientTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun capabilitiesReturnsCorrectValue_catchException() = runTest {
-        var isRemoteException = false
+        var isHealthServiceException = false
         val deferred = async {
             service.supportedDataTypes = setOf(DataType.HEART_RATE_BPM)
             client.registerMeasureCallback(DataType.HEART_RATE_BPM, callback)
             service.setException()
             try {
                 client.getCapabilities()
-            } catch (e: RemoteException) {
-                isRemoteException = true
+            } catch (e: RuntimeException) {
+                isHealthServiceException = true
             }
         }
         advanceMainLooperIdle()
         deferred.await()
 
-        Truth.assertThat(isRemoteException).isTrue()
+        Truth.assertThat(isHealthServiceException).isTrue()
     }
 
     class FakeCallback : MeasureCallback {
@@ -241,6 +241,7 @@ class MeasureClientTest {
 
         val registerEvents = mutableListOf<RegisterEvent>()
         val unregisterEvents = mutableListOf<UnregisterEvent>()
+        var callingAppHasPermissions = true
 
         override fun getApiVersion() = 42
 
@@ -249,8 +250,12 @@ class MeasureClientTest {
             callback: IMeasureCallback,
             statusCallback: IStatusCallback
         ) {
-            registerEvents += RegisterEvent(request, callback, statusCallback)
-            statusCallbackAction.invoke(statusCallback)
+            if (callingAppHasPermissions) {
+                registerEvents += RegisterEvent(request, callback, statusCallback)
+                statusCallbackAction.invoke(statusCallback)
+            } else {
+                statusCallback.onFailure("Missing permissions")
+            }
         }
 
         override fun unregisterCallback(

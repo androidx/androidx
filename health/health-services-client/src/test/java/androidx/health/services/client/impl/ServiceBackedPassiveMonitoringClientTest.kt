@@ -20,7 +20,6 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Looper
-import android.os.RemoteException
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
@@ -138,7 +137,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         }
 
         assertThat(exception).isNotNull()
-        assertThat(exception?.cause).isInstanceOf(RemoteException::class.java)
+        assertThat(exception?.cause).isInstanceOf(RuntimeException::class.java)
         assertThat(exception).hasMessageThat()
             .contains("DataType for the requested passive goal is not tracked")
     }
