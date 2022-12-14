@@ -24,26 +24,17 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
-import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompatImpl
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
-import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
-import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
-import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
-import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
-import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -87,56 +78,21 @@ object FakeCameraInfoAdapterCreator {
             ),
             cameraId
         )
-    ): CameraInfoAdapter {
-        val zoomControl = ZoomControl(FakeZoomCompat())
-        val evCompControl = EvCompControl(FakeEvCompCompat())
-        val torchControl = TorchControl(cameraProperties, useCaseThreads)
-
-        val cameraControlStateAdapter = CameraControlStateAdapter(
-            zoomControl,
-            evCompControl,
-            torchControl,
-        )
-
-        val camera2CameraControl = Camera2CameraControl.create(
-            Camera2CameraControlCompatImpl(useCaseThreads),
-            useCaseThreads,
-            ComboRequestListener()
-        )
-
-        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
-        val useCaseManager = UseCaseManager(
-            CameraConfig(cameraId),
-            object : UseCaseCameraComponent.Builder {
-                override fun config(
-                    config: UseCaseCameraConfig
-                ): UseCaseCameraComponent.Builder {
-                    TODO("Not yet implemented")
-                }
-
-                override fun build(): UseCaseCameraComponent {
-                    TODO("Not yet implemented")
-                }
-            },
-            setOf(evCompControl, torchControl, zoomControl)
-                as java.util.Set<UseCaseCameraControl>,
-            camera2CameraControl,
-            CameraStateAdapter(),
+    ) = CameraInfoAdapter(
+        cameraProperties,
+        CameraConfig(cameraId),
+        CameraStateAdapter(),
+        CameraControlStateAdapter(
+            ZoomControl(FakeZoomCompat()),
+            EvCompControl(FakeEvCompCompat()),
+            TorchControl(cameraProperties, useCaseThreads),
+        ),
+        CameraCallbackMap(),
+        FocusMeteringControl(
             cameraProperties,
-            DisplayInfoManager(ApplicationProvider.getApplicationContext())
-        )
-
-        return CameraInfoAdapter(
-            cameraProperties,
-            CameraConfig(cameraId),
-            CameraStateAdapter(),
-            cameraControlStateAdapter,
-            CameraCallbackMap(),
-            FocusMeteringControl(
-                cameraProperties,
-                useCaseManager,
-                useCaseThreads
-            )
-        )
-    }
+            useCaseThreads
+        ).apply {
+            useCaseCamera = FakeUseCaseCamera()
+        }
+    )
 }

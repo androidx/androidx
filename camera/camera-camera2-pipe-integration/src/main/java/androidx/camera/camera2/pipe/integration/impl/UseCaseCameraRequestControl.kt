@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -44,6 +45,7 @@ import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
@@ -154,6 +156,8 @@ interface UseCaseCameraRequestControl {
         awbRegions: List<MeteringRectangle>,
         afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
+
+    suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
 
     // Capture
     suspend fun issueSingleCaptureAsync(
@@ -284,6 +288,12 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
             afTriggerStartAeMode = afTriggerStartAeMode
         )
+    }
+
+    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+        // TODO(b/205662153): Implement to cancel FocusAndMetering.
+        Log.warn { "TODO: cancelFocusAndMetering is not yet supported" }
+        return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 
     override suspend fun issueSingleCaptureAsync(
