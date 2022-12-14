@@ -17,8 +17,10 @@
 package androidx.credentials.playservices
 
 import android.app.Activity
+import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
@@ -27,11 +29,14 @@ import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.CredentialProvider
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
+import com.google.android.gms.auth.api.identity.Identity
 import java.util.concurrent.Executor
 
 /**
@@ -41,7 +46,8 @@ import java.util.concurrent.Executor
  * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderPlayServicesImpl : CredentialProvider {
+class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
+
     override fun onGetCredential(
         request: GetCredentialRequest,
         activity: Activity,
@@ -89,6 +95,43 @@ class CredentialProviderPlayServicesImpl : CredentialProvider {
     override fun isAvailableOnDevice(): Boolean {
         // TODO("Call play services availability API")
         return true
+    }
+
+    override fun onClearCredential(
+        request: ClearCredentialStateRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>
+    ) {
+        if (cancellationReviewer(cancellationSignal)) {
+            return
+        }
+        Identity.getSignInClient(context)
+            .signOut()
+            .addOnSuccessListener {
+                var isCanceled = false
+                cancellationSignal?.let {
+                    isCanceled = cancellationSignal.isCanceled
+                }
+                if (!isCanceled) {
+                    Log.i(TAG, "Signed out successfully!")
+                    executor.execute { callback.onResult(null) }
+                }
+            }
+            .addOnFailureListener { e ->
+                run {
+                    var isCanceled = false
+                    cancellationSignal?.let {
+                        isCanceled = cancellationSignal.isCanceled
+                    }
+                    if (!isCanceled) {
+                        Log.i(TAG, "Sign out failed with $e")
+                        executor.execute {
+                            callback.onError(ClearCredentialUnknownException("$e"))
+                        }
+                    }
+                }
+            }
     }
 
     companion object {

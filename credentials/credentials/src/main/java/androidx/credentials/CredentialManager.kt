@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialException
@@ -195,8 +196,8 @@ class CredentialManager private constructor(private val context: Context) {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<Void, ClearCredentialException> {
-            override fun onResult(result: Void) {
+        val callback = object : CredentialManagerCallback<Void?, ClearCredentialException> {
+            override fun onResult(result: Void?) {
                 continuation.resume(Unit)
             }
 
@@ -297,8 +298,15 @@ class CredentialManager private constructor(private val context: Context) {
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Void, ClearCredentialException>,
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>,
     ) {
-        throw UnsupportedOperationException("Unimplemented")
+        val provider: CredentialProvider? = CredentialProviderFactory
+            .getBestAvailableProvider(context)
+        if (provider == null) {
+            // TODO (Update with the right error code when ready)
+            callback.onError(ClearCredentialUnknownException("No providers found"))
+            return
+        }
+        provider.onClearCredential(request, cancellationSignal, executor, callback)
     }
 }

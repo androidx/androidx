@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.app.Activity
 import android.os.CancellationSignal
+import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import java.util.concurrent.Executor
@@ -27,7 +28,8 @@ import java.util.concurrent.Executor
  * will fulfill Credential Manager requests.
  *
  * <p>Note that for SDK version 33 and below, this interface can be implemented by any OEM
- * provider that wishes to return credentials. A provider must :
+ * provider that wishes to return credentials. The implementation must have a constructor with a
+ * context parameter. A provider must :
  * <ol>
  *     <li>Release a dedicated provider library that developers can add as a dependency.
  *     <li>Include an empty CredentialProviderService in the provider library for the purposes of
@@ -82,4 +84,19 @@ interface CredentialProvider {
 
     /** Determines whether the provider is available on this device, or not. */
     fun isAvailableOnDevice(): Boolean
+
+    /**
+     * Invoked on a request to clear a credential.
+     *
+     * @param request the request for clearing the app user's credential state
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    fun onClearCredential(
+        request: ClearCredentialStateRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>,
+    )
 }
