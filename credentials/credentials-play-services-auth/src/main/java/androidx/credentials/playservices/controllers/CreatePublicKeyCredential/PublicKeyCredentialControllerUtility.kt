@@ -45,6 +45,8 @@ import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria
 import com.google.android.gms.fido.fido2.api.common.COSEAlgorithmIdentifier
 import com.google.android.gms.fido.fido2.api.common.ErrorCode
+import com.google.android.gms.fido.fido2.api.common.FidoAppIdExtension
+import com.google.android.gms.fido.fido2.api.common.GoogleThirdPartyPaymentExtension
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialDescriptor
@@ -52,6 +54,7 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameter
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity
 import com.google.android.gms.fido.fido2.api.common.ResidentKeyRequirement
+import com.google.android.gms.fido.fido2.api.common.UserVerificationMethodExtension
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -98,11 +101,6 @@ class PublicKeyCredentialControllerUtility {
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
             val authenticatorResponse = cred.response
-            val authenticatorAttachment = cred.authenticatorAttachment
-            val clientExtensionResults = cred.clientExtensionResults
-            Log.i(TAG, "clientExtensionResults: ${
-                clientExtensionResults?.uvmEntries?.uvmEntryList}")
-            // TODO("Extension types have hidden values, update once gms fido updates")
             // TODO("Ask why it is missing conditional mediation available")
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
@@ -120,15 +118,39 @@ class PublicKeyCredentialControllerUtility {
                         authenticatorResponse.javaClass.name)
             }
 
-            if (authenticatorAttachment != null) {
-                json.put("authenticatorAttachment", authenticatorAttachment)
-            }
+            addOptionalAuthenticatorAttachmentAndExtensions(cred, json)
 
             json.put("id", cred.id)
             json.put("rawId", b64Encode(cred.rawId))
             json.put("type", cred.type)
-            // TODO: add ExtensionsClientOUtputsJSON conversion
             return json.toString()
+        }
+
+        private fun addOptionalAuthenticatorAttachmentAndExtensions(
+            cred: PublicKeyCredential,
+            json: JSONObject
+        ) {
+            val authenticatorAttachment = cred.authenticatorAttachment
+            val clientExtensionResults = cred.clientExtensionResults
+
+            if (authenticatorAttachment != null) {
+                json.put("authenticatorAttachment", authenticatorAttachment)
+            }
+
+            if (clientExtensionResults != null) {
+                val uvmEntriesList = clientExtensionResults.uvmEntries.uvmEntryList
+                if (uvmEntriesList != null) {
+                    val uvmEntriesJSON = JSONArray()
+                    for (entry in uvmEntriesList) {
+                        val uvmEntryJSON = JSONObject()
+                        uvmEntryJSON.put("userVerificationMethod", entry.userVerificationMethod)
+                        uvmEntryJSON.put("keyProtectionType", entry.keyProtectionType)
+                        uvmEntryJSON.put("matcherProtectionType", entry.matcherProtectionType)
+                        uvmEntriesJSON.put(uvmEntryJSON)
+                    }
+                    json.put("uvm", uvmEntriesJSON)
+                }
+            }
         }
 
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
@@ -223,8 +245,26 @@ class PublicKeyCredentialControllerUtility {
             builder: PublicKeyCredentialCreationOptions.Builder
         ) {
             if (json.has("extensions")) {
-                builder.setAuthenticationExtensions(AuthenticationExtensions.Builder().build())
-                // TODO("Parse this for required cases")
+                val extensions = json.getJSONObject("extensions")
+                val extensionBuilder = AuthenticationExtensions.Builder()
+                val appIdExtension = extensions.optString("appid", "")
+                if (appIdExtension.isNotEmpty()) {
+                    extensionBuilder.setFido2Extension(FidoAppIdExtension(appIdExtension))
+                }
+                val thirdPartyPaymentExtension = extensions.optBoolean("thirdPartyPayment", false)
+                if (thirdPartyPaymentExtension) {
+                    extensionBuilder.setGoogleThirdPartyPaymentExtension(
+                        GoogleThirdPartyPaymentExtension(true)
+                    )
+                }
+                val uvmStatus = extensions.optBoolean("uvm", false)
+                if (uvmStatus) {
+                    extensionBuilder.setUserVerificationMethodExtension(
+                        UserVerificationMethodExtension(true)
+                    )
+                }
+                // TODO("Ensure JSON keys are correctly named")
+                builder.setAuthenticationExtensions(extensionBuilder.build())
             }
         }
 
