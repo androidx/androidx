@@ -144,6 +144,8 @@ public class SplitActivityBase extends AppCompatActivity
                 Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
             }
         });
+        mViewBinding.launchExpandedDialogButton.setOnClickListener((View v) ->
+                startActivity(new Intent(this, ExpandedDialogActivity.class)));
 
         // Listen for split configuration checkboxes to update the rules before launching
         // activities.
@@ -310,86 +312,99 @@ public class SplitActivityBase extends AppCompatActivity
         final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
                 .build();
-        Set<SplitPairFilter> pairFilters = new HashSet<>();
-        pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
-                new ComponentName("*", "*"), null));
-        SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
-                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setFinishPrimaryWithSecondary(NEVER)
-                .setFinishSecondaryWithPrimary(NEVER)
-                .setClearTop(true)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build();
+
         if (mViewBinding.splitMainCheckBox.isChecked()) {
+            // Split main with any activity.
+            final Set<SplitPairFilter> pairFilters = new HashSet<>();
+            pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
+                    new ComponentName("*", "*"), null));
+            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
+                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setFinishPrimaryWithSecondary(NEVER)
+                    .setFinishSecondaryWithPrimary(NEVER)
+                    .setClearTop(true)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build();
             mRuleController.addRule(rule);
         }
 
-        Set<ActivityFilter> activityFilters = new HashSet<>();
-        activityFilters.add(new ActivityFilter(componentName(SplitActivityB.class), null));
-        Intent intent = new Intent();
-        intent.setComponent(
-                componentName("SplitActivityPlaceholder"));
-        SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule.Builder(
-                activityFilters,
-                intent
-        )
-                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
-                .setFinishPrimaryWithPlaceholder(ADJACENT)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
-            mRuleController.addRule(placeholderRule);
+            // Split B with placeholder.
+            final Set<ActivityFilter> activityFilters = new HashSet<>();
+            activityFilters.add(new ActivityFilter(componentName(SplitActivityB.class), null));
+            final Intent intent = new Intent();
+            intent.setComponent(componentName(SplitActivityPlaceholder.class));
+            final SplitPlaceholderRule rule = new SplitPlaceholderRule.Builder(
+                    activityFilters,
+                    intent
+            )
+                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
+                    .setFinishPrimaryWithPlaceholder(ADJACENT)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build();
+            mRuleController.addRule(rule);
         }
 
-        pairFilters = new HashSet<>();
-        pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
-                componentName(SplitActivityC.class), null));
-        rule = new SplitPairRule.Builder(pairFilters)
-                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setFinishPrimaryWithSecondary(
-                        mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
-                )
-                .setFinishSecondaryWithPrimary(
-                        mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
-                )
-                .setClearTop(true)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build();
         if (mViewBinding.splitBCCheckBox.isChecked()) {
+            // Split B with C.
+            final Set<SplitPairFilter> pairFilters = new HashSet<>();
+            pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
+                    componentName(SplitActivityC.class), null));
+            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
+                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setFinishPrimaryWithSecondary(
+                            mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
+                    )
+                    .setFinishSecondaryWithPrimary(
+                            mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
+                    )
+                    .setClearTop(true)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build();
             mRuleController.addRule(rule);
         }
 
-        pairFilters = new HashSet<>();
-        pairFilters.add(new SplitPairFilter(new ComponentName("*", "*"),
-                componentName(SplitActivityF.class), null));
-        rule = new SplitPairRule.Builder(pairFilters)
-                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setFinishPrimaryWithSecondary(NEVER)
-                .setFinishSecondaryWithPrimary(NEVER)
-                .setClearTop(true)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build();
         if (mViewBinding.splitWithFCheckBox.isChecked()) {
+            // Split any activity with F.
+            final Set<SplitPairFilter> pairFilters = new HashSet<>();
+            pairFilters.add(new SplitPairFilter(new ComponentName("*", "*"),
+                    componentName(SplitActivityF.class), null));
+            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
+                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setFinishPrimaryWithSecondary(NEVER)
+                    .setFinishSecondaryWithPrimary(NEVER)
+                    .setClearTop(true)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build();
             mRuleController.addRule(rule);
         }
 
-        activityFilters = new HashSet<>();
-        activityFilters.add(new ActivityFilter(componentName(SplitActivityE.class), null));
-        ActivityRule activityRule = new ActivityRule.Builder(activityFilters)
-                .setAlwaysExpand(true)
-                .build();
         if (mViewBinding.fullscreenECheckBox.isChecked()) {
+            // Launch E in fullscreen.
+            final Set<ActivityFilter> activityFilters = new HashSet<>();
+            activityFilters.add(new ActivityFilter(componentName(SplitActivityE.class), null));
+            final ActivityRule activityRule = new ActivityRule.Builder(activityFilters)
+                    .setAlwaysExpand(true)
+                    .build();
             mRuleController.addRule(activityRule);
         }
+
+        // Always expand the dialog activity.
+        final Set<ActivityFilter> dialogActivityFilters = new HashSet<>();
+        dialogActivityFilters.add(new ActivityFilter(componentName(
+                ExpandedDialogActivity.class), null));
+        mRuleController.addRule(new ActivityRule.Builder(dialogActivityFilters)
+                .setAlwaysExpand(true)
+                .build());
     }
 
     ComponentName componentName(Class<? extends Activity> activityClass) {
