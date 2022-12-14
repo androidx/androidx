@@ -461,6 +461,7 @@ public class CameraXActivity extends AppCompatActivity {
         mSessionVideosUriSet.deleteAllUris();
     }
 
+    @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     @ImageCapture.CaptureMode
     int getCaptureMode() {
         if (mZslToggle.isChecked()) {
@@ -824,15 +825,19 @@ public class CameraXActivity extends AppCompatActivity {
             Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
             CameraSelector switchedCameraSelector =
                     getSwitchedCameraSelector(mCurrentCameraSelector);
-
-            if (isUseCasesCombinationSupported(switchedCameraSelector, mUseCases)) {
-                mCurrentCameraSelector = switchedCameraSelector;
-                tryBindUseCases();
-            } else {
-                String msg = "Camera of the other lens facing can't support current use case "
-                        + "combination.";
-                Log.d(TAG, msg);
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            try {
+                if (isUseCasesCombinationSupported(switchedCameraSelector, mUseCases)) {
+                    mCurrentCameraSelector = switchedCameraSelector;
+                    tryBindUseCases();
+                } else {
+                    String msg = "Camera of the other lens facing can't support current use case "
+                            + "combination.";
+                    Log.d(TAG, msg);
+                    Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                }
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(this, "Failed to swich Camera. Error:" + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -973,6 +978,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
