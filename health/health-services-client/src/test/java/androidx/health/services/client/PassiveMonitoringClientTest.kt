@@ -126,6 +126,31 @@ class PassiveMonitoringClientTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
+    fun registersPassiveListenerServiceSynchronously_throwsSecurityException() = runTest {
+        launch {
+            val config = PassiveListenerConfig(
+                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                shouldUserActivityInfoBeRequested = true,
+                dailyGoals = setOf(),
+                healthEventTypes = setOf()
+            )
+
+            var exception: Exception? = null
+            service.callingAppHasPermissions = false
+            try {
+                client.setPassiveListenerService(FakeListenerService::class.java, config)
+            } catch (e: SecurityException) {
+                exception = e
+            }
+
+            Truth.assertThat(exception).isNotNull()
+            Truth.assertThat(exception).isInstanceOf(SecurityException::class.java)
+        }
+        advanceMainLooperIdle()
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
     fun flushSynchronously() = runTest {
         launch {
             val config = PassiveListenerConfig(
@@ -209,11 +234,11 @@ class PassiveMonitoringClientTest {
         client.setPassiveListenerCallback(config, callback)
         var isExceptionCaught = false
         val deferred = async {
-            service.setException()
+            service.throwException = true
             try {
 
                 client.getCapabilities()
-            } catch (e: RemoteException) {
+            } catch (e: RuntimeException) {
                 isExceptionCaught = true
             }
         }
@@ -276,14 +301,15 @@ class PassiveMonitoringClientTest {
         private val registeredCallbacks = mutableListOf<IPassiveListenerCallback>()
         private val unregisterServicePackageNames = mutableListOf<String>()
         private val unregisterCallbackPackageNames = mutableListOf<String>()
-        private var throwExcepotion = false
+        var throwException = false
+        var callingAppHasPermissions = true
 
         override fun getApiVersion() = 42
 
         override fun getCapabilities(
             request: CapabilitiesRequest
         ): PassiveMonitoringCapabilitiesResponse {
-            if (throwExcepotion) {
+            if (throwException) {
                 throw RemoteException("Remote Exception")
             }
             registerGetCapabilitiesRequests.add(request)
@@ -300,8 +326,12 @@ class PassiveMonitoringClientTest {
             request: PassiveListenerServiceRegistrationRequest,
             statusCallback: IStatusCallback
         ) {
-            registerServiceRequests += request
-            statusCallbackAction.invoke(statusCallback)
+            if (callingAppHasPermissions) {
+                registerServiceRequests += request
+                statusCallbackAction.invoke(statusCallback)
+            } else {
+                statusCallback.onFailure("Missing permissions")
+            }
         }
 
         override fun registerPassiveListenerCallback(
@@ -337,10 +367,6 @@ class PassiveMonitoringClientTest {
                 supportedHealthEventTypes = setOf(HealthEvent.Type.FALL_DETECTED),
                 supportedUserActivityStates = setOf(UserActivityState.USER_ACTIVITY_PASSIVE)
             )
-        }
-
-        fun setException() {
-            throwExcepotion = true
         }
     }
 }

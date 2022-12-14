@@ -130,7 +130,7 @@ class ExerciseClientTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun callbackShouldMatchRequested_justSampleType_prepareExerciseSynchronously_ThrowsException() =
+    fun prepareExerciseSynchronously_ThrowsException() =
         runTest {
             launch {
                 val warmUpConfig = WarmUpConfig(
@@ -139,18 +139,43 @@ class ExerciseClientTest {
                 )
                 var exception: Exception? = null
                 client.setUpdateCallback(callback)
-                // Mocking the calling app already has an active exercise in
-                // progress or if it does not have the required permissions
+                // Mocking the calling app already has an active exercise in progress
                 service.throwException = true
 
                 try {
                     client.prepareExercise(warmUpConfig)
-                } catch (e: RemoteException) {
+                } catch (e: RuntimeException) {
                     exception = e
                 }
 
                 Truth.assertThat(exception).isNotNull()
-                Truth.assertThat(exception).isInstanceOf(RemoteException::class.java)
+                Truth.assertThat(exception).isInstanceOf(RuntimeException::class.java)
+            }
+            advanceMainLooperIdle()
+        }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun prepareExerciseSynchronously_ThrowsSecurityException() =
+        runTest {
+            launch {
+                val warmUpConfig = WarmUpConfig(
+                    ExerciseType.WALKING,
+                    setOf(DataType.HEART_RATE_BPM),
+                )
+                var exception: Exception? = null
+                client.setUpdateCallback(callback)
+                // Mocking the calling app does not have the required permissions
+                service.callingAppHasPermissions = false
+
+                try {
+                    client.prepareExercise(warmUpConfig)
+                } catch (e: SecurityException) {
+                    exception = e
+                }
+
+                Truth.assertThat(exception).isNotNull()
+                Truth.assertThat(exception).isInstanceOf(SecurityException::class.java)
             }
             advanceMainLooperIdle()
         }
@@ -238,6 +263,34 @@ class ExerciseClientTest {
         }
         advanceMainLooperIdle()
     }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun startExerciseSynchronously_ThrowsSecurityException() =
+        runTest {
+            launch {
+                val exerciseConfig = ExerciseConfig(
+                    ExerciseType.WALKING,
+                    setOf(DataType.HEART_RATE_BPM, DataType.HEART_RATE_BPM_STATS),
+                    isAutoPauseAndResumeEnabled = false,
+                    isGpsEnabled = false
+                )
+                var exception: Exception? = null
+                client.setUpdateCallback(callback)
+                // Mocking the calling app does not have the required permissions
+                service.callingAppHasPermissions = false
+
+                try {
+                    client.startExercise(exerciseConfig)
+                } catch (e: SecurityException) {
+                    exception = e
+                }
+
+                Truth.assertThat(exception).isNotNull()
+                Truth.assertThat(exception).isInstanceOf(SecurityException::class.java)
+            }
+            advanceMainLooperIdle()
+        }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
@@ -517,7 +570,7 @@ class ExerciseClientTest {
             service.throwException = true
             try {
                 client.getCurrentExerciseInfo()
-            } catch (e: RemoteException) {
+            } catch (e: RuntimeException) {
                 isException = true
             }
         }
@@ -649,6 +702,44 @@ class ExerciseClientTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
+    fun getCapabilitiesSynchronously_cancelled() = runTest {
+        var isCancellationException = false
+        val deferred = async {
+            client.getCapabilities()
+        }
+        val cancellationDeferred = async {
+            deferred.cancel(CancellationException())
+        }
+        try {
+            deferred.await()
+        } catch (e: CancellationException) {
+            isCancellationException = true
+        }
+        cancellationDeferred.await()
+
+        Truth.assertThat(isCancellationException).isTrue()
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun getCapabilitiesSynchronously_Exception() = runTest {
+        var isExceptionCaught = false
+        val deferred = async {
+            service.setException()
+            try {
+                client.getCapabilities()
+            } catch (e: RuntimeException) {
+                isExceptionCaught = true
+            }
+        }
+        advanceMainLooperIdle()
+        deferred.await()
+
+        Truth.assertThat(isExceptionCaught).isTrue()
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
     fun updateExerciseTypeConfigForActiveExercise() = runTest {
         service.exerciseConfig = ExerciseConfig.builder(ExerciseType.GOLF).build()
         val exerciseTypeConfig =
@@ -702,6 +793,7 @@ class ExerciseClientTest {
         override fun getApiVersion(): Int = 12
         val goals = mutableListOf<ExerciseGoal<*>>()
         var throwException = false
+        var callingAppHasPermissions = true
         val registerGetCapabilitiesRequests = mutableListOf<CapabilitiesRequest>()
 
         override fun prepareExercise(
@@ -710,8 +802,10 @@ class ExerciseClientTest {
         ) {
             if (throwException) {
                 statusCallback.onFailure("Remote Exception")
-            } else {
+            } else if (callingAppHasPermissions) {
                 statusCallbackAction.invoke(statusCallback)
+            } else {
+                statusCallback.onFailure("Missing permissions")
             }
         }
 
@@ -719,10 +813,14 @@ class ExerciseClientTest {
             startExerciseRequest: StartExerciseRequest?,
             statusCallback: IStatusCallback?
         ) {
-            exerciseConfig = startExerciseRequest?.exerciseConfig
-            exerciseConfig?.exerciseGoals?.let { goals.addAll(it) }
-            statusCallbackAction.invoke(statusCallback)
-            testExerciseStates = TestExerciseStates.STARTED
+            if (callingAppHasPermissions) {
+                exerciseConfig = startExerciseRequest?.exerciseConfig
+                exerciseConfig?.exerciseGoals?.let { goals.addAll(it) }
+                statusCallbackAction.invoke(statusCallback)
+                testExerciseStates = TestExerciseStates.STARTED
+            } else {
+                statusCallback?.onFailure("Missing permissions")
+            }
         }
 
         override fun pauseExercise(packageName: String?, statusCallback: IStatusCallback?) {
