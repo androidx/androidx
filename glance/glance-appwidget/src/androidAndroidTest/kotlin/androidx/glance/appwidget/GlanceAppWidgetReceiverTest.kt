@@ -35,8 +35,10 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -98,6 +100,8 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.take
@@ -134,7 +138,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         TestGlanceAppWidget.sizeMode = SizeMode.Single
     }
 
-    @Ignore // b/261993523
     @Test
     fun createSimpleAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
@@ -187,7 +190,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @FlakyTest(bugId = 249803914)
     @Test
     fun createResponsiveAppWidget() {
@@ -226,7 +228,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createTextWithFillMaxDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -253,7 +254,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createTextViewWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -267,7 +267,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createBoxWithExactDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -284,7 +283,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createBoxWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -302,7 +300,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createColumnWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -326,7 +323,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createRowWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
@@ -350,7 +346,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createRowWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
@@ -376,7 +371,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createColumnWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
@@ -402,7 +396,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createColumnWithTwoTexts2() {
         TestGlanceAppWidget.uiDefinition = {
@@ -428,7 +421,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
@@ -455,7 +447,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun createImage() {
         TestGlanceAppWidget.uiDefinition = {
@@ -471,7 +462,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun drawableBackground() {
         TestGlanceAppWidget.uiDefinition = {
@@ -511,7 +501,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun bitmapBackground() {
         TestGlanceAppWidget.uiDefinition = {
@@ -538,7 +527,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun removeAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
@@ -580,7 +568,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
             .isFalse()
     }
 
-    @Ignore // b/261993523
     @Test
     fun updateAll() = runTest {
         TestGlanceAppWidget.uiDefinition = {
@@ -594,7 +581,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun updateIf() = runTest {
         val didRun = AtomicBoolean(false)
@@ -646,7 +632,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(didRun.get()).isFalse()
     }
 
-    @Ignore // b/261993523
     @Test
     fun viewState() {
         TestGlanceAppWidget.uiDefinition = {
@@ -672,7 +657,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun actionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -714,7 +698,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
     }
 
-    @Ignore // b/261993523
     @Test
     fun multipleActionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -746,7 +729,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(2)
     }
 
-    @Ignore // b/261993523
     @Test
     fun wrapAroundFillMaxSize() {
         TestGlanceAppWidget.uiDefinition = {
@@ -802,8 +784,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
                     checked = true,
                     onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
                         actionParametersOf(CompoundButtonActionTest.key to switch)
-                    ),
-                    text = switch
+                    ), text = switch
                 )
             }
         }
@@ -864,7 +845,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         // if no crash, we're good
     }
 
-    @Ignore // b/261993523
     @Test
     fun radioActionCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -889,7 +869,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CallbackTest.received.get()).containsExactly(2)
     }
 
-    @Ignore // b/261993523
     @Test
     fun lambdaActionCallback() = runTest {
         if (!useSessionManager) return@runTest
@@ -918,7 +897,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @FlakyTest(bugId = 259938473)
     @Test
     fun unsetActionCallback() = runTest {
@@ -937,7 +915,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
 
         mHostRule.startHost()
-
         mHostRule.onHostView { root ->
             val view =
                 checkNotNull(
@@ -945,7 +922,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
                 )
             assertThat(view.hasOnClickListeners()).isTrue()
         }
-
         updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
             it[testBoolKey] = false
         }
@@ -962,7 +938,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun unsetCompoundButtonActionCallback() = runTest {
         TestGlanceAppWidget.uiDefinition = {
@@ -1008,7 +983,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         assertThat(CompoundButtonActionTest.received.get()).isEmpty()
     }
 
-    @Ignore // b/261993523
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun compoundButtonsOnlyHaveOneAction() {
@@ -1036,7 +1010,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun elementsWithActionsHaveRipples() {
         TestGlanceAppWidget.uiDefinition = {
@@ -1059,7 +1032,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
     fun elementsWithNoActionsDontHaveRipples() {
         TestGlanceAppWidget.uiDefinition = {
@@ -1073,7 +1045,6 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun compoundButtonsDoNotHaveRipples() {
@@ -1092,17 +1063,20 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
         }
     }
 
-    @Ignore // b/261993523
     @Test
-    fun cancellingContentCoroutineMakesContentLeaveComposition() = runBlocking {
-        if (!useSessionManager) return@runBlocking
-
+        fun cancellingContentCoroutineCausesContentToLeaveComposition() = runBlocking {
+            if (!useSessionManager) return@runBlocking
         val currentEffectState = MutableStateFlow(EffectState.Initial)
-        TestGlanceAppWidget.uiDefinition = {
-            DisposableEffect(true) {
-                currentEffectState.tryEmit(EffectState.Started)
-                onDispose {
-                    currentEffectState.tryEmit(EffectState.Disposed)
+        var contentJob: Job? = null
+        TestGlanceAppWidget.onProvideGlance = {
+            coroutineScope {
+                contentJob = launch {
+                    provideContent {
+                        DisposableEffect(true) {
+                            currentEffectState.tryEmit(EffectState.Started)
+                            onDispose { currentEffectState.tryEmit(EffectState.Disposed) }
+                        }
+                    }
                 }
             }
         }
@@ -1112,7 +1086,7 @@ class GlanceAppWidgetReceiverTest(val useSessionManager: Boolean) {
                 0 -> assertThat(state).isEqualTo(EffectState.Initial)
                 1 -> {
                     assertThat(state).isEqualTo(EffectState.Started)
-                    assertNotNull(TestGlanceAppWidget.contentCoroutine.get()).cancel()
+                    assertNotNull(contentJob).cancel()
                 }
                 2 -> assertThat(state).isEqualTo(EffectState.Disposed)
             }

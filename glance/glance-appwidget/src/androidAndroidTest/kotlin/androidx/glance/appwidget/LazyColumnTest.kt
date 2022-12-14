@@ -35,7 +35,6 @@ import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -69,7 +68,6 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest(bugId = 206481702)
     @Test
     fun item_withoutItemIds_createsNonStableList() {
         TestGlanceAppWidget.uiDefinition = {
@@ -148,7 +146,7 @@ class LazyColumnTest {
             assertThat(adapter.getItemId(0)).isEqualTo(0L)
             assertThat(adapter.getItemId(1)).isEqualTo(2L)
             assertThat(adapter.getItemId(2)).isEqualTo(4L)
-            assertThat(adapter.getItemId(3)).isEqualTo(ReservedItemIdRangeEnd)
+            assertThat(adapter.getItemId(3)).isEqualTo(ReservedItemIdRangeEnd - 3)
         }
     }
 

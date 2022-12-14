@@ -61,7 +61,6 @@ internal fun applyVerticalGridScope(
     alignment: Alignment,
     content: LazyVerticalGridScope.() -> Unit
 ): @Composable () -> Unit {
-    var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl = object : LazyVerticalGridScope {
         override fun item(itemId: Long, content: @Composable LazyItemScope.() -> Unit) {
@@ -87,9 +86,9 @@ internal fun applyVerticalGridScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.forEach { (itemId, composable) ->
-            val id = itemId.takeIf {
-              it != LazyVerticalGridScope.UnspecifiedItemId } ?: nextImplicitItemId--
+        itemList.forEachIndexed { index, (itemId, composable) ->
+            val id = itemId.takeIf { it != LazyVerticalGridScope.UnspecifiedItemId }
+                ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyVerticalGridScope.UnspecifiedItemId) {
                 "Implicit list item ids exhausted."
             }

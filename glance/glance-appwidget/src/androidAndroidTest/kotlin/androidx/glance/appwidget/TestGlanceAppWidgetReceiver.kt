@@ -48,6 +48,17 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
         uiDefinition()
     }
 
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) {
+        onProvideGlance?.invoke(this)
+        onProvideGlance = null
+        provideContent(uiDefinition)
+    }
+
+    var onProvideGlance: (suspend TestGlanceAppWidget.() -> Unit)? = null
+
     private var onDeleteBlock: ((GlanceId) -> Unit)? = null
 
     fun setOnDeleteBlock(block: (GlanceId) -> Unit) {

@@ -16,6 +16,7 @@
 
 package androidx.glance.session
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +32,10 @@ import kotlinx.coroutines.launch
  * notifications (which are necessary in order for recompositions to be scheduled in response to
  * state changes). These will be sent on Dispatchers.Default.
  * This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
+ * @suppress
  */
-internal object GlobalSnapshotManager {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
 
     fun ensureStarted() {

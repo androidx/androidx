@@ -33,17 +33,17 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SessionWorkerTest {
     private val sessionManager = TestSessionManager()
@@ -62,7 +62,7 @@ class SessionWorkerTest {
     }
 
     @Test
-    fun createSessionWorker() = runBlocking {
+    fun createSessionWorker() = runTest {
         launch {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
@@ -72,7 +72,7 @@ class SessionWorkerTest {
     }
 
     @Test
-    fun sessionWorkerRunsComposition() = runBlocking {
+    fun sessionWorkerRunsComposition() = runTest {
         launch {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
@@ -90,7 +90,7 @@ class SessionWorkerTest {
     }
 
     @Test
-    fun sessionWorkerCallsProvideGlance(): Unit = runBlocking {
+    fun sessionWorkerCallsProvideGlance(): Unit = runTest {
         launch {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
@@ -102,7 +102,7 @@ class SessionWorkerTest {
     }
 
     @Test
-    fun sessionWorkerStateChangeTriggersRecomposition() = runBlocking {
+    fun sessionWorkerStateChangeTriggersRecomposition() = runTest {
         launch {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
@@ -126,7 +126,7 @@ class SessionWorkerTest {
     }
 
     @Test
-    fun sessionWorkerReceivesActions() = runBlocking {
+    fun sessionWorkerReceivesActions() = runTest {
         launch {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
@@ -195,11 +195,11 @@ class TestSession(
     }
 
     var provideGlanceCalled = 0
-    override suspend fun provideGlance(
+    override fun provideGlance(
         context: Context
-    ): Flow<@Composable @GlanceComposable () -> Unit> {
+    ): @Composable @GlanceComposable () -> Unit {
         provideGlanceCalled++
-        return flowOf(content)
+        return content
     }
 
     override suspend fun processEmittableTree(context: Context, root: EmittableWithChildren) {

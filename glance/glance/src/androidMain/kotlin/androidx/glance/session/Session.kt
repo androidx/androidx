@@ -23,7 +23,6 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.flow.Flow
 
 typealias SetContentFn = suspend (@Composable @GlanceComposable () -> Unit) -> Unit
 
@@ -45,9 +44,7 @@ abstract class Session(val key: String) {
     /**
      * Provide the Glance composable to be run in the [androidx.compose.runtime.Composition].
      */
-    abstract suspend fun provideGlance(
-        context: Context,
-    ): Flow<@Composable @GlanceComposable () -> Unit>
+    abstract fun provideGlance(context: Context): @Composable @GlanceComposable () -> Unit
 
     /**
      * Process the Emittable tree that results from the running the composable provided by
@@ -55,18 +52,12 @@ abstract class Session(val key: String) {
      *
      * This will also be called for the results of future recompositions.
      */
-    abstract suspend fun processEmittableTree(
-        context: Context,
-        root: EmittableWithChildren,
-    )
+    abstract suspend fun processEmittableTree(context: Context, root: EmittableWithChildren)
 
     /**
      * Process an event that was sent to this session.
      */
-    abstract suspend fun processEvent(
-        context: Context,
-        event: Any,
-    )
+    abstract suspend fun processEvent(context: Context, event: Any)
 
     /**
      * Enqueues an [event] to be processed by the session.
