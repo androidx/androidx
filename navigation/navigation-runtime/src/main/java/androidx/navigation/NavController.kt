@@ -1749,19 +1749,41 @@ public open class NavController(
         args: Bundle?
     ): Boolean {
         val currentBackStackEntry = currentBackStackEntry
-        if (node.id != currentBackStackEntry?.destination?.id) return false
+        val nodeId = if (node is NavGraph) node.findStartDestination().id else node.id
+        if (nodeId != currentBackStackEntry?.destination?.id) return false
 
-        unlinkChildFromParent(backQueue.removeLast())
-        val newEntry = NavBackStackEntry(currentBackStackEntry, node.addInDefaultArgs(args))
-        backQueue.addLast(newEntry)
-        val parent = newEntry.destination.parent
-        if (parent != null) {
-            linkChildToParent(newEntry, getBackStackEntry(parent.id))
+        val tempBackQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+        // pop from startDestination back to original node and create a new entry for each
+        backQueue.indexOfLast { it.destination === node }.let { nodeIndex ->
+            while (backQueue.lastIndex >= nodeIndex) {
+                val oldEntry = backQueue.removeLast()
+                unlinkChildFromParent(oldEntry)
+                val newEntry = NavBackStackEntry(
+                    oldEntry,
+                    oldEntry.destination.addInDefaultArgs(args)
+                )
+                tempBackQueue.addFirst(newEntry)
+            }
         }
-        val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-            node.navigatorName
-        )
-        navigator.onLaunchSingleTop(newEntry)
+
+        // add each new entry to backQueue starting from original node to startDestination
+        tempBackQueue.forEach { newEntry ->
+            val parent = newEntry.destination.parent
+            if (parent != null) {
+                val newParent = getBackStackEntry(parent.id)
+                linkChildToParent(newEntry, newParent)
+            }
+            backQueue.add(newEntry)
+        }
+
+        // we replace NavState entries here only after backQueue has been finalized
+        tempBackQueue.forEach { newEntry ->
+            val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                newEntry.destination.navigatorName
+            )
+            navigator.onLaunchSingleTop(newEntry)
+        }
+
         return true
     }
 
