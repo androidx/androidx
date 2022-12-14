@@ -25,7 +25,8 @@ import java.util.concurrent.Executor
 
 /**
  * Provider interface to be implemented by system credential providers that
- * will fulfill Credential Manager requests.
+ * will fulfill Credential Manager requests. The implementation **must** have a constructor that
+ * takes in a context.
  *
  * <p>Note that for SDK version 33 and below, this interface can be implemented by any OEM
  * provider that wishes to return credentials. The implementation must have a constructor with a
