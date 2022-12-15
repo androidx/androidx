@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +26,26 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class LiveDataReactiveStreamsTest {
-    @get:Rule val rule = InstantTaskExecutorRule()
+class LiveDataReactiveStreamsExtensionTest {
+
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
 
     private lateinit var lifecycleOwner: LifecycleOwner
 
-    @Before fun init() {
+    @Before
+    fun init() {
         @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
         lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
     }
 
-    @Test fun convertsFromPublisher() {
+    @Test
+    fun convertsFromPublisher() {
         val processor = PublishProcessor.create<String>()
         val liveData = processor.toLiveData()
 
         val output = mutableListOf<String?>()
-        liveData.observe(lifecycleOwner, Observer { output.add(it) })
+        liveData.observe(lifecycleOwner) { output.add(it) }
 
         processor.onNext("foo")
         processor.onNext("bar")
@@ -50,7 +54,8 @@ class LiveDataReactiveStreamsTest {
         assertThat(output).containsExactly("foo", "bar", "baz")
     }
 
-    @Test fun convertsToPublisherWithSyncData() {
+    @Test
+    fun convertsToPublisherWithSyncData() {
         val liveData = MutableLiveData<String>()
         liveData.value = "foo"
 
