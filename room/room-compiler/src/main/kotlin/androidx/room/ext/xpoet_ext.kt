@@ -83,8 +83,7 @@ object RoomTypeNames {
         XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "Index")
     val FTS_TABLE_INFO = XClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
     val VIEW_INFO = XClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
-    val LIMIT_OFFSET_DATA_SOURCE: ClassName =
-        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
+    val LIMIT_OFFSET_DATA_SOURCE = XClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL = XClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL = XClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION = XClassName.get("$ROOM_PACKAGE.migration", "Migration")
@@ -99,8 +98,7 @@ object PagingTypeNames {
         ClassName.get(PAGING_PACKAGE, "DataSource")
     val POSITIONAL_DATA_SOURCE: ClassName =
         ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
-    val DATA_SOURCE_FACTORY: ClassName =
-        ClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
+    val DATA_SOURCE_FACTORY = XClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
     val PAGING_SOURCE = XClassName.get(PAGING_PACKAGE, "PagingSource")
     val LISTENABLE_FUTURE_PAGING_SOURCE =
         XClassName.get(PAGING_PACKAGE, "ListenableFuturePagingSource")

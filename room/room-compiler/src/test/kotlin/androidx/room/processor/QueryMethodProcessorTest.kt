@@ -30,6 +30,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.CommonTypeNames.LIST
+import androidx.room.ext.CommonTypeNames.STRING
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -646,17 +647,17 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("select name from user")
-                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
+                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY.canonicalName}<Integer, String>
                 nameDataSourceFactory();
                 """
         ) { parsedQuery, _ ->
             assertThat(
-                parsedQuery.returnType.typeName,
+                parsedQuery.returnType.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        PagingTypeNames.DATA_SOURCE_FACTORY,
-                        Integer::class.typeName, String::class.typeName
-                    ) as TypeName
+                    PagingTypeNames.DATA_SOURCE_FACTORY.parametrizedBy(
+                        XTypeName.BOXED_INT,
+                        STRING
+                    )
                 )
             )
             assertThat(
@@ -675,17 +676,17 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @Query("select name from User u LEFT OUTER JOIN Book b ON u.uid == b.uid")
-                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
+                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY.canonicalName}<Integer, String>
                 nameDataSourceFactory();
                 """
         ) { parsedQuery, _ ->
             assertThat(
-                parsedQuery.returnType.typeName,
+                parsedQuery.returnType.asTypeName(),
                 `is`(
-                    ParameterizedTypeName.get(
-                        PagingTypeNames.DATA_SOURCE_FACTORY,
-                        Integer::class.typeName, String::class.typeName
-                    ) as TypeName
+                    PagingTypeNames.DATA_SOURCE_FACTORY.parametrizedBy(
+                        XTypeName.BOXED_INT,
+                        STRING
+                    )
                 )
             )
             assertThat(
