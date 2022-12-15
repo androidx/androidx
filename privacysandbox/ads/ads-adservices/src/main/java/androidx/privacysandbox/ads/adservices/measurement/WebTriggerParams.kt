@@ -17,6 +17,8 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Class holding trigger registration parameters.
@@ -26,6 +28,7 @@ import android.net.Uri
  * @param debugKeyAllowed Used by the browser to indicate whether the debug key obtained from the
  * registration URI is allowed to be used.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class WebTriggerParams public constructor(
     val registrationUri: Uri,
     val debugKeyAllowed: Boolean

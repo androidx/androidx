@@ -66,7 +66,6 @@ abstract class CustomAudienceManager internal constructor() {
      *
      * @param request The request to join custom audience.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun joinCustomAudience(request: JoinCustomAudienceRequest)
 
@@ -91,7 +90,6 @@ abstract class CustomAudienceManager internal constructor() {
      *
      * @param request The request to leave custom audience.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun leaveCustomAudience(request: LeaveCustomAudienceRequest)
 

@@ -69,7 +69,6 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * If the [LimitExceededException] is thrown, it is caused when the calling package
      * exceeds the allowed rate limits and is throttled.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun selectAdsAsync(
         adSelectionConfig: AdSelectionConfig
@@ -82,7 +81,6 @@ abstract class AdSelectionManagerFutures internal constructor() {
      *
      * @param reportImpressionRequest the request for reporting impression.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun reportImpressionAsync(
         reportImpressionRequest: ReportImpressionRequest

@@ -40,7 +40,6 @@ abstract class AdIdManager internal constructor() {
      * @throws IllegalStateException if this API is not available.
      * @throws LimitExceededException if rate limit was reached.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
     abstract suspend fun getAdId(): AdId
 

@@ -20,8 +20,10 @@ import android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBU
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
@@ -36,7 +38,6 @@ abstract class MeasurementManager {
      *
      * @param deletionRequest The request for deleting data.
      */
-    @DoNotInline
     abstract suspend fun deleteRegistrations(deletionRequest: DeletionRequest)
 
     /**
@@ -44,10 +45,9 @@ abstract class MeasurementManager {
      *
      * @param attributionSource the platform issues a request to this URI in order to fetch metadata
      *     associated with the attribution source.
-     * @param inputEvent either an {@link InputEvent} object (for a click event) or null (for a view
+     * @param inputEvent either an [InputEvent] object (for a click event) or null (for a view
      *     event).
      */
-    @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerSource(attributionSource: Uri, inputEvent: InputEvent?)
 
@@ -58,7 +58,6 @@ abstract class MeasurementManager {
      *     trigger.
      */
     // TODO(b/258551492): Improve docs.
-    @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerTrigger(trigger: Uri)
 
@@ -69,7 +68,6 @@ abstract class MeasurementManager {
      *
      * @param request source registration request
      */
-    @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerWebSource(request: WebSourceRegistrationRequest)
 
@@ -79,21 +77,20 @@ abstract class MeasurementManager {
      *
      * @param request trigger registration request
      */
-    @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest)
 
     /**
      * Get Measurement API status.
      *
-     * <p>The call returns an integer value (see {@link MEASUREMENT_API_STATE_DISABLED} and
-     * {@link MEASUREMENT_API_STATE_ENABLED} for possible values).
+     * The call returns an integer value (see [MEASUREMENT_API_STATE_DISABLED] and
+     * [MEASUREMENT_API_STATE_ENABLED] for possible values).
      */
-    @DoNotInline
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun getMeasurementApiStatus(): Int
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4Impl(
         private val mMeasurementManager: android.adservices.measurement.MeasurementManager
     ) : MeasurementManager() {
@@ -118,8 +115,8 @@ abstract class MeasurementManager {
             request: DeletionRequest
         ): android.adservices.measurement.DeletionRequest {
             return android.adservices.measurement.DeletionRequest.Builder()
-                .setDeletionMode(request.deletionMode.ordinal)
-                .setMatchBehavior(request.matchBehavior.ordinal)
+                .setDeletionMode(request.deletionMode)
+                .setMatchBehavior(request.matchBehavior)
                 .setStart(request.start)
                 .setEnd(request.end)
                 .setDomainUris(request.domainUris)
@@ -237,7 +234,7 @@ abstract class MeasurementManager {
     companion object {
         /**
          * This state indicates that Measurement APIs are unavailable. Invoking them will result
-         * in an {@link UnsupportedOperationException}.
+         * in an [UnsupportedOperationException].
          */
         public const val MEASUREMENT_API_STATE_DISABLED = 0
         /**

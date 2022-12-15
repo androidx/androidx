@@ -74,7 +74,6 @@ abstract class CustomAudienceManagerFutures internal constructor() {
      *
      * @param request The request to join custom audience.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun joinCustomAudienceAsync(
         request: JoinCustomAudienceRequest
@@ -101,7 +100,6 @@ abstract class CustomAudienceManagerFutures internal constructor() {
      *
      * @param request The request to leave custom audience.
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun leaveCustomAudienceAsync(
         request: LeaveCustomAudienceRequest

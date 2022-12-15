@@ -48,7 +48,6 @@ abstract class MeasurementManagerFutures internal constructor() {
      * @param deletionRequest The request for deleting data.
      * @return ListenableFuture. If the deletion is successful, result is null.
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     abstract fun deleteRegistrationsAsync(
         deletionRequest: DeletionRequest
@@ -59,10 +58,9 @@ abstract class MeasurementManagerFutures internal constructor() {
      *
      * @param attributionSource the platform issues a request to this URI in order to fetch metadata
      *     associated with the attribution source.
-     * @param inputEvent either an {@link InputEvent} object (for a click event) or null (for a view
+     * @param inputEvent either an [InputEvent] object (for a click event) or null (for a view
      *     event).
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun registerSourceAsync(
@@ -76,7 +74,6 @@ abstract class MeasurementManagerFutures internal constructor() {
      * @param trigger the API issues a request to this URI to fetch metadata associated with the
      *     trigger.
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun registerTriggerAsync(trigger: Uri): ListenableFuture<Unit>
@@ -88,7 +85,6 @@ abstract class MeasurementManagerFutures internal constructor() {
      *
      * @param request source registration request
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun registerWebSourceAsync(
@@ -102,7 +98,6 @@ abstract class MeasurementManagerFutures internal constructor() {
      *
      * @param request trigger registration request
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun registerWebTriggerAsync(
@@ -112,10 +107,9 @@ abstract class MeasurementManagerFutures internal constructor() {
     /**
      * Get Measurement API status.
      *
-     * <p>The call returns an integer value (see {@link MEASUREMENT_API_STATE_DISABLED} and
-     * {@link MEASUREMENT_API_STATE_ENABLED} for possible values).
+     * The call returns an integer value (see [MeasurementManager.MEASUREMENT_API_STATE_DISABLED]
+     * and [MeasurementManager.MEASUREMENT_API_STATE_ENABLED] for possible values).
      */
-    @DoNotInline
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>

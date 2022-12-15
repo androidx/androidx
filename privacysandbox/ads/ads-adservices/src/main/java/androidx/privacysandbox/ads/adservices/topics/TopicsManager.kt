@@ -42,7 +42,6 @@ abstract class TopicsManager internal constructor() {
      * @throws LimitExceededException if rate limit was reached.
      * @return GetTopicsResponse
      */
-    @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse
 

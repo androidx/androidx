@@ -17,8 +17,8 @@
 package androidx.privacysandbox.ads.adservices.topics
 
 /**
- * Represents the request for the getTopics API (which takes a {@link GetTopicsRequest} and
- * returns a {@link GetTopicsResponse}.
+ * Represents the request for the getTopics API (which takes a [GetTopicsRequest] and
+ * returns a [GetTopicsResponse].
  *
  * @param sdkName The Ads SDK name. This must be called by SDKs running outside of the Sandbox.
  * Other clients must not call it.
@@ -50,7 +50,7 @@ class GetTopicsRequest public constructor(
     }
 
     /**
-     * Builder for {@link GetTopicsRequest}.
+     * Builder for [GetTopicsRequest].
      */
     public class Builder() {
         private var sdkName: String = ""
@@ -78,7 +78,7 @@ class GetTopicsRequest public constructor(
             this.shouldRecordObservation = shouldRecordObservation
         }
 
-        /** Builds a {@link GetTopicsRequest} instance. */
+        /** Builds a [GetTopicsRequest] instance. */
         fun build(): GetTopicsRequest {
             check(sdkName.isNotEmpty()) { "sdkName must be set" }
             return GetTopicsRequest(sdkName, shouldRecordObservation)

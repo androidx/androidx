@@ -35,7 +35,6 @@ abstract class AppSetIdManager internal constructor() {
      * @throws [IllegalStateException] if this API is not available.
      * @throws [LimitExceededException] if rate limit was reached.
      */
-    @DoNotInline
     abstract suspend fun getAppSetId(): AppSetId
 
     @SuppressLint("ClassVerificationFailure", "NewApi")

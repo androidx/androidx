@@ -43,7 +43,6 @@ abstract class AppSetIdManagerFutures internal constructor() {
      * @throws IllegalStateException if this API is not available.
      * @throws LimitExceededException if rate limit was reached.
      */
-    @DoNotInline
     abstract fun getAppSetIdAsync(): ListenableFuture<AppSetId>
 
     @SuppressLint("ClassVerificationFailure", "NewApi")

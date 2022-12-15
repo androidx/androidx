@@ -17,7 +17,9 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
+import android.os.Build
 import android.view.InputEvent
+import androidx.annotation.RequiresApi
 
 /**
  * Class to hold input to measurement source registration calls from web context.
@@ -35,6 +37,7 @@ import android.view.InputEvent
  * @param verifiedDestination Verified destination by the caller. This is where the user actually
  * landed.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class WebSourceRegistrationRequest public constructor(
     val webSourceParams: List<WebSourceParams>,
     val topOriginUri: Uri,
@@ -86,11 +89,11 @@ class WebSourceRegistrationRequest public constructor(
     }
 
     /**
-     * Builder for {@link WebSourceRegistrationRequest}.
+     * Builder for [WebSourceRegistrationRequest].
      *
      * @param webSourceParams source parameters containing source registration parameters, the
      *     list should not be empty
-     * @param topOriginUri source publisher {@link Uri}
+     * @param topOriginUri source publisher [Uri]
      */
     public class Builder(
         private val webSourceParams: List<WebSourceParams>,
@@ -116,7 +119,7 @@ class WebSourceRegistrationRequest public constructor(
          * Setter for app destination. It is the android app {@link Uri} where corresponding
          * conversion is expected. At least one of app destination or web destination is required.
          *
-         * @param appDestination app destination {@link Uri}
+         * @param appDestination app destination [Uri]
          * @return builder
          */
         fun setAppDestination(appDestination: Uri?): Builder = apply {
@@ -127,7 +130,7 @@ class WebSourceRegistrationRequest public constructor(
          * Setter for web destination. It is the website {@link Uri} where corresponding conversion
          * is expected. At least one of app destination or web destination is required.
          *
-         * @param webDestination web destination {@link Uri}
+         * @param webDestination web destination [Uri]
          * @return builder
          */
         fun setWebDestination(webDestination: Uri?): Builder = apply {
@@ -144,7 +147,7 @@ class WebSourceRegistrationRequest public constructor(
             this.verifiedDestination = verifiedDestination
         }
 
-        /** Pre-validates parameters and builds {@link WebSourceRegistrationRequest}. */
+        /** Pre-validates parameters and builds [WebSourceRegistrationRequest]. */
         fun build(): WebSourceRegistrationRequest {
             return WebSourceRegistrationRequest(
                 webSourceParams,
