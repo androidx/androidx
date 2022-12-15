@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -77,13 +76,7 @@ public class PreferenceUtils {
     public LiveData<Long> getLastCancelAllTimeMillisLiveData() {
         LiveData<Long> observableValue =
                 mWorkDatabase.preferenceDao().getObservableLongValue(KEY_LAST_CANCEL_ALL_TIME_MS);
-
-        return Transformations.map(observableValue, new Function<Long, Long>() {
-            @Override
-            public Long apply(Long value) {
-                return value != null ? value : 0L;
-            }
-        });
+        return Transformations.map(observableValue, (Long value) -> value != null ? value : 0L);
     }
 
     /**
