@@ -44,6 +44,10 @@ sealed class KspHasModifiers(
             declaration.getVisibility() == Visibility.PUBLIC
     }
 
+    override fun isInternal(): Boolean {
+        return declaration.getVisibility() == Visibility.INTERNAL
+    }
+
     override fun isProtected(): Boolean {
         return declaration.isProtected()
     }

@@ -21,19 +21,26 @@ import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
+import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.javac.kotlin.KmElement
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreElements.isAnnotationPresent
 import com.google.auto.common.SuperficialValidation
 import java.util.Locale
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import kotlin.reflect.KClass
+import kotlinx.metadata.Flag
 
 @Suppress("UnstableApiUsage")
 internal abstract class JavacElement(
     internal val env: JavacProcessingEnv,
     open val element: Element
-) : XElement, XEquality, InternalXAnnotated {
+) : XElement, XEquality, InternalXAnnotated, XHasModifiers {
+
+    abstract val kotlinMetadata: KmElement?
+
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
         containerAnnotation: KClass<out Annotation>?
@@ -107,5 +114,37 @@ internal abstract class JavacElement(
 
     override fun validate(): Boolean {
         return SuperficialValidation.validateElement(element)
+    }
+
+    override fun isPublic(): Boolean {
+        return element.modifiers.contains(Modifier.PUBLIC)
+    }
+
+    override fun isInternal(): Boolean {
+        return kotlinMetadata?.flags?.let { Flag.IS_INTERNAL(it) } ?: false
+    }
+
+    override fun isProtected(): Boolean {
+        return element.modifiers.contains(Modifier.PROTECTED)
+    }
+
+    override fun isAbstract(): Boolean {
+        return element.modifiers.contains(Modifier.ABSTRACT)
+    }
+
+    override fun isPrivate(): Boolean {
+        return element.modifiers.contains(Modifier.PRIVATE)
+    }
+
+    override fun isStatic(): Boolean {
+        return element.modifiers.contains(Modifier.STATIC)
+    }
+
+    override fun isTransient(): Boolean {
+        return element.modifiers.contains(Modifier.TRANSIENT)
+    }
+
+    override fun isFinal(): Boolean {
+        return element.modifiers.contains(Modifier.FINAL)
     }
 }

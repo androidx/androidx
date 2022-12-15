@@ -31,7 +31,7 @@ internal class JavacMethodParameter(
     val argIndex: Int
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
 
-    private val kotlinMetadata by lazy { kotlinMetadataFactory() }
+    override val kotlinMetadata by lazy { kotlinMetadataFactory() }
 
     override val name: String
         get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
