@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Timestamps.measureNow
@@ -46,11 +47,12 @@ class CameraFactoryAdapter(
 ) : CameraFactory {
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
-        val start = Timestamps.now()
+        val timeSource = SystemTimeSource()
+        val start = Timestamps.now(timeSource)
         val result = DaggerCameraAppComponent.builder()
             .config(CameraAppConfig(context, threadConfig))
             .build()
-        debug { "Created CameraFactoryAdapter in ${start.measureNow().formatMs()}" }
+        debug { "Created CameraFactoryAdapter in ${start.measureNow(timeSource).formatMs()}" }
         debug { "availableCamerasSelector: $availableCamerasSelector " }
         Debug.traceStop()
         result

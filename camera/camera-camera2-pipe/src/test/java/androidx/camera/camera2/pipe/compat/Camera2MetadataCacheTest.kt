@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Permissions
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
@@ -62,7 +63,8 @@ internal class Camera2MetadataCacheTest {
             RobolectricCameras.application,
             FakeThreads.fromTestScope(this),
             Permissions(RobolectricCameras.application),
-            CameraPipe.CameraMetadataConfig()
+            CameraPipe.CameraMetadataConfig(),
+            SystemTimeSource()
         )
 
         val metadata0 = cache.awaitMetadata(camera0)

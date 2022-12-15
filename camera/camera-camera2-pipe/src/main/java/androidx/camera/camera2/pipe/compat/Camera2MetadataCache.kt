@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import javax.inject.Inject
@@ -46,7 +47,8 @@ internal class Camera2MetadataCache @Inject constructor(
     private val context: Context,
     private val threads: Threads,
     private val permissions: Permissions,
-    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig
+    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
+    private val timeSource: TimeSource
 ) : CameraMetadataProvider {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
@@ -86,7 +88,7 @@ internal class Camera2MetadataCache @Inject constructor(
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
-        val start = Timestamps.now()
+        val start = Timestamps.now(timeSource)
 
         return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
             try {
@@ -122,7 +124,7 @@ internal class Camera2MetadataCache @Inject constructor(
                     )
 
                 Log.info {
-                    val duration = Timestamps.now() - start
+                    val duration = Timestamps.now(timeSource) - start
                     val redactedString = when (redacted) {
                         false -> ""
                         true -> " (redacted)"
