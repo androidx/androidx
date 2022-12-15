@@ -1901,6 +1901,11 @@ class XTypeElementTest(
             assertThat(internalClass.getDeclaredField("varField").isInternal()).isTrue()
             assertThat(internalClass.getDeclaredField("lateinitVarField").isInternal()).isTrue()
             assertThat(internalClass.getDeclaredMethod("method").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getValField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getLateinitVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("setVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("setLateinitVarField").isInternal()).isTrue()
 
             val publicClass = invocation.processingEnv.requireTypeElement("test.PublicClass")
             assertThat(publicClass.isInternal()).isFalse()
@@ -1909,6 +1914,11 @@ class XTypeElementTest(
             assertThat(publicClass.getDeclaredField("varField").isInternal()).isFalse()
             assertThat(publicClass.getDeclaredField("lateinitVarField").isInternal()).isFalse()
             assertThat(publicClass.getDeclaredMethod("method").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getValField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getLateinitVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("setVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("setLateinitVarField").isInternal()).isFalse()
         }
     }
 
