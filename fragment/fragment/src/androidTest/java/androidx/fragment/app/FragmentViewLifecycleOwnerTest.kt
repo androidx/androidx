@@ -183,7 +183,6 @@ class FragmentViewLifecycleOwnerTest {
     }
 
     public class FragmentWithFactoryOverride : StrictViewFragment() {
-        public override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory =
-            FakeViewModelProviderFactory()
+        public override val defaultViewModelProviderFactory = FakeViewModelProviderFactory()
     }
 }
