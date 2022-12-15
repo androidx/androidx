@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.util.Size;
+import android.util.SizeF;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -111,6 +112,17 @@ public class TransformUtils {
     @NonNull
     public static Size reverseSize(@NonNull Size size) {
         return new Size(size.getHeight(), size.getWidth());
+    }
+
+    /**
+     * Reverses width and height for a {@link SizeF}.
+     *
+     * @param sizeF the float size to reverse
+     * @return reversed float size
+     */
+    @NonNull
+    public static SizeF reverseSizeF(@NonNull SizeF sizeF) {
+        return new SizeF(sizeF.getHeight(), sizeF.getWidth());
     }
 
     /**
