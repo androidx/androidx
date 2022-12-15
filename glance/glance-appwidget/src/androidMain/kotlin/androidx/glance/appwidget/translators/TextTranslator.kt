@@ -109,9 +109,9 @@ internal fun RemoteViews.setText(
     }
     style.fontWeight?.let {
         val textAppearance = when (it) {
-            FontWeight.Bold -> R.style.TextAppearance_Bold
-            FontWeight.Medium -> R.style.TextAppearance_Medium
-            else -> R.style.TextAppearance_Normal
+            FontWeight.Bold -> R.style.Glance_AppWidget_TextAppearance_Bold
+            FontWeight.Medium -> R.style.Glance_AppWidget_TextAppearance_Medium
+            else -> R.style.Glance_AppWidget_TextAppearance_Normal
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
