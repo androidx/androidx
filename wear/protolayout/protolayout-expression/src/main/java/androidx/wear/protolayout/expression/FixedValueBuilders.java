@@ -1,0 +1,471 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.protolayout.expression;
+
+import android.annotation.SuppressLint;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
+import androidx.wear.protolayout.expression.proto.FixedProto;
+import androidx.wear.protolayout.expression.proto.StateEntryProto;
+
+/** Builders for fixed value primitive types that can be used in dynamic expressions and in for
+ * state state valuess
+ */
+final class FixedValueBuilders {
+  private FixedValueBuilders() {}
+
+  /**
+   * A fixed int32 type.
+   *
+   * @since 1.2
+   */
+  static final class FixedInt32
+      implements DynamicBuilders.DynamicInt32, StateEntryBuilders.StateEntryValue {
+    private final FixedProto.FixedInt32 mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedInt32(FixedProto.FixedInt32 impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value. Intended for testing purposes only.
+     *
+     * @since 1.2
+     */
+    public int getValue() {
+      return mImpl.getValue();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedInt32 fromProto(@NonNull FixedProto.FixedInt32 proto) {
+      return new FixedInt32(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedInt32 toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
+      return StateEntryProto.StateEntryValue.newBuilder().setInt32Val(mImpl).build();
+    }
+
+    /** Builder for {@link FixedInt32}. */
+    public static final class Builder
+        implements DynamicBuilders.DynamicInt32.Builder,
+            StateEntryBuilders.StateEntryValue.Builder {
+      private final FixedProto.FixedInt32.Builder mImpl = FixedProto.FixedInt32.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(974881783);
+
+      public Builder() {}
+
+      /**
+       * Sets the value.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValue(int value) {
+        mImpl.setValue(value);
+        mFingerprint.recordPropertyUpdate(1, value);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedInt32 build() {
+        return new FixedInt32(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed string type.
+   *
+   * @since 1.2
+   */
+  static final class FixedString
+      implements DynamicBuilders.DynamicString, StateEntryBuilders.StateEntryValue {
+    private final FixedProto.FixedString mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedString(FixedProto.FixedString impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @since 1.2
+     */
+    @NonNull
+    public String getValue() {
+      return mImpl.getValue();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedString fromProto(@NonNull FixedProto.FixedString proto) {
+      return new FixedString(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedString toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicString toDynamicStringProto() {
+      return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
+      return StateEntryProto.StateEntryValue.newBuilder().setStringVal(mImpl).build();
+    }
+
+    /** Builder for {@link FixedString}. */
+    public static final class Builder
+        implements DynamicBuilders.DynamicString.Builder,
+            StateEntryBuilders.StateEntryValue.Builder {
+      private final FixedProto.FixedString.Builder mImpl = FixedProto.FixedString.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(1963352072);
+
+      public Builder() {}
+
+      /**
+       * Sets the value.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValue(@NonNull String value) {
+        mImpl.setValue(value);
+        mFingerprint.recordPropertyUpdate(1, value.hashCode());
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedString build() {
+        return new FixedString(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed float type.
+   *
+   * @since 1.2
+   */
+  static final class FixedFloat
+      implements DynamicBuilders.DynamicFloat, StateEntryBuilders.StateEntryValue {
+    private final FixedProto.FixedFloat mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedFloat(FixedProto.FixedFloat impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @since 1.2
+     */
+    public float getValue() {
+      return mImpl.getValue();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedFloat fromProto(@NonNull FixedProto.FixedFloat proto) {
+      return new FixedFloat(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedFloat toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicFloat toDynamicFloatProto() {
+      return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
+      return StateEntryProto.StateEntryValue.newBuilder().setFloatVal(mImpl).build();
+    }
+
+    /** Builder for {@link FixedFloat}. */
+    public static final class Builder
+        implements DynamicBuilders.DynamicFloat.Builder,
+            StateEntryBuilders.StateEntryValue.Builder {
+      private final FixedProto.FixedFloat.Builder mImpl = FixedProto.FixedFloat.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-144724541);
+
+      public Builder() {}
+
+      /**
+       * Sets the value.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setValue(float value) {
+        mImpl.setValue(value);
+        mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedFloat build() {
+        return new FixedFloat(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed boolean type.
+   *
+   * @since 1.2
+   */
+  static final class FixedBool
+      implements DynamicBuilders.DynamicBool, StateEntryBuilders.StateEntryValue {
+    private final FixedProto.FixedBool mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedBool(FixedProto.FixedBool impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @since 1.2
+     */
+    public boolean getValue() {
+      return mImpl.getValue();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedBool fromProto(@NonNull FixedProto.FixedBool proto) {
+      return new FixedBool(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedBool toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicBool toDynamicBoolProto() {
+      return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
+      return StateEntryProto.StateEntryValue.newBuilder().setBoolVal(mImpl).build();
+    }
+
+    /** Builder for {@link FixedBool}. */
+    public static final class Builder
+        implements DynamicBuilders.DynamicBool.Builder, StateEntryBuilders.StateEntryValue.Builder {
+      private final FixedProto.FixedBool.Builder mImpl = FixedProto.FixedBool.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-665116398);
+
+      public Builder() {}
+
+      /**
+       * Sets the value.
+       *
+       * @since 1.2
+       */
+      @SuppressLint("MissingGetterMatchingBuilder")
+      @NonNull
+      public Builder setValue(boolean value) {
+        mImpl.setValue(value);
+        mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(value));
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedBool build() {
+        return new FixedBool(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed color type.
+   *
+   * @since 1.2
+   */
+  static final class FixedColor
+      implements DynamicBuilders.DynamicColor, StateEntryBuilders.StateEntryValue {
+    private final FixedProto.FixedColor mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedColor(FixedProto.FixedColor impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the color value, in ARGB format.
+     *
+     * @since 1.2
+     */
+    @ColorInt
+    public int getArgb() {
+      return mImpl.getArgb();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedColor fromProto(@NonNull FixedProto.FixedColor proto) {
+      return new FixedColor(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedColor toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicColor toDynamicColorProto() {
+      return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
+      return StateEntryProto.StateEntryValue.newBuilder().setColorVal(mImpl).build();
+    }
+
+    /** Builder for {@link FixedColor}. */
+    public static final class Builder
+        implements DynamicBuilders.DynamicColor.Builder,
+            StateEntryBuilders.StateEntryValue.Builder {
+      private final FixedProto.FixedColor.Builder mImpl = FixedProto.FixedColor.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1895809356);
+
+      public Builder() {}
+
+      /**
+       * Sets the color value, in ARGB format.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setArgb(@ColorInt int argb) {
+        mImpl.setArgb(argb);
+        mFingerprint.recordPropertyUpdate(1, argb);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedColor build() {
+        return new FixedColor(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+}

@@ -1,0 +1,450 @@
+// Dynamic primitive types used by layout elements.
+syntax = "proto3";
+
+package androidx.wear.protolayout.expression.proto;
+
+import "animation_parameters.proto";
+import "fixed.proto";
+
+option java_package = "androidx.wear.protolayout.expression.proto";
+option java_outer_classname = "DynamicProto";
+
+// The type of data to provide to a PlatformInt32Source.
+enum PlatformInt32SourceType {
+  // Undefined source.
+  PLATFORM_INT32_SOURCE_TYPE_UNDEFINED = 0;
+
+  // The user's current heart rate.
+  // Note that to use this data source, your app must already have the
+  // "BODY_SENSORS" permission granted to it. If this permission is not present,
+  // this source type will never yield any data.
+  PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE = 1;
+
+  // The user's current daily steps. This is the number of steps they have taken
+  // since midnight, and will reset to zero at midnight.
+  // Note that to use this data source, your app must already have the
+  // "ACTIVITY_RECOGNITION" permission granted to it. If this permission is not
+  // present, this source type will never yield any data.
+  PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT = 2;
+
+  // The current epoch time in seconds.
+  PLATFORM_INT32_SOURCE_TYPE_EPOCH_TIME_SECONDS = 3;
+}
+
+// A dynamic Int32 which sources its data from some platform data source, e.g.
+// from sensors, or the current time.
+message PlatformInt32Source {
+  // The source to load data from.
+  PlatformInt32SourceType source_type = 1;
+}
+
+// The type of arithmetic operation used in ArithmeticInt32Op and
+// ArithmeticFloatOp.
+enum ArithmeticOpType {
+  // Undefined operation type.
+  ARITHMETIC_OP_TYPE_UNDEFINED = 0;
+
+  // Addition.
+  ARITHMETIC_OP_TYPE_ADD = 1;
+
+  // Subtraction.
+  ARITHMETIC_OP_TYPE_SUBTRACT = 2;
+
+  // Multiplication.
+  ARITHMETIC_OP_TYPE_MULTIPLY = 3;
+
+  // Division.
+  ARITHMETIC_OP_TYPE_DIVIDE = 4;
+
+  // Modulus.
+  ARITHMETIC_OP_TYPE_MODULO = 5;
+}
+
+// An arithmetic operation, operating on two Int32 instances. This implements
+// simple binary operations of the form "result = LHS <op> RHS", where the
+// available operation types are described in ArithmeticOpType.
+message ArithmeticInt32Op {
+  // Left hand side of the arithmetic operation.
+  DynamicInt32 input_lhs = 1;
+
+  // Right hand side of the arithmetic operation.
+  DynamicInt32 input_rhs = 2;
+
+  // The type of operation to carry out.
+  ArithmeticOpType operation_type = 3;
+}
+
+// A dynamic Int32 which sources its data from the tile's state.
+message StateInt32Source {
+  // The key in the state to bind to.
+  string source_key = 1;
+}
+
+// A conditional operator which yields an integer depending on the boolean
+// operand. This implements "int result = condition ? value_if_true :
+// value_if_false".
+message ConditionalInt32Op {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The integer to yield if condition is true.
+  DynamicInt32 value_if_true = 2;
+
+  // The integer to yield if condition is false.
+  DynamicInt32 value_if_false = 3;
+}
+
+// A conditional operator which yields a float depending on the boolean
+// operand. This implements
+// "float result = condition ? value_if_true : value_if_false".
+message ConditionalFloatOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The float to yield if condition is true.
+  DynamicFloat value_if_true = 2;
+
+  // The float to yield if condition is false.
+  DynamicFloat value_if_false = 3;
+}
+
+// Rounding mode to use when converting a float to an int32.
+enum FloatToInt32RoundMode {
+  // An undefined rounding mode.
+  ROUND_MODE_UNDEFINED = 0;
+
+  // Use floor(x) when rounding.
+  ROUND_MODE_FLOOR = 1;
+
+  // Use round(x) when rounding (i.e. rounds to the closest int).
+  ROUND_MODE_ROUND = 2;
+
+  // Use ceil(x) when rounding.
+  ROUND_MODE_CEILING = 3;
+}
+
+// Converts a Float to an Int32, with a customizable rounding mode.
+message FloatToInt32Op {
+  // The float to round.
+  DynamicFloat input = 1;
+
+  // The rounding mode to use. Defaults to ROUND_MODE_FLOOR if not specified.
+  FloatToInt32RoundMode round_mode = 2;
+}
+
+// A dynamic int32 type.
+message DynamicInt32 {
+  oneof inner {
+    FixedInt32 fixed = 1;
+    PlatformInt32Source platform_source = 2;
+    ArithmeticInt32Op arithmetic_operation = 3;
+    StateInt32Source state_source = 4;
+    ConditionalInt32Op conditional_op = 5;
+    FloatToInt32Op float_to_int = 6;
+  }
+}
+
+// Simple formatting for dynamic int32.
+message Int32FormatOp {
+  // The source of Int32 data to convert to a string.
+  DynamicInt32 input = 1;
+
+  // Minimum integer digits. Sign and grouping characters are not considered
+  // when applying minIntegerDigits constraint. If not defined, defaults to one.
+  // For example,in the English locale, applying minIntegerDigit=4 to 12 would
+  // yield "0012".
+  optional int32 min_integer_digits = 4;
+
+  // Digit grouping used. Grouping size and grouping character depend on the
+  // current locale. If not defined, defaults to false.
+  // For example, in the English locale, using grouping with 1234 would yield
+  // "1,234".
+  bool grouping_used = 5;
+}
+
+// A dynamic String which sources its data from the tile's state.
+message StateStringSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+}
+
+// A conditional operator which yields an string depending on the boolean
+// operand. This implements "string result = condition ? value_if_true :
+// value_if_false".
+message ConditionalStringOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The string to yield if condition is true.
+  DynamicString value_if_true = 2;
+
+  // The string to yield if condition is false.
+  DynamicString value_if_false = 3;
+}
+
+// This implements simple string concatenation "result = LHS+RHS"
+message ConcatStringOp {
+  // Left hand side of the concatenation operation.
+  DynamicString input_lhs = 1;
+
+  // Right hand side of the concatenation operation.
+  DynamicString input_rhs = 2;
+}
+
+// Simple formatting for dynamic floats.
+message FloatFormatOp {
+  // The source of Float data to convert to a string.
+  DynamicFloat input = 1;
+
+  // Maximum fraction digits. Rounding will be applied if maxFractionDigits is
+  // smaller than number of fraction digits. If not defined, defaults to three.
+  // minimumFractionDigits must be <= maximumFractionDigits. If the condition is
+  // not satisfied, then minimumFractionDigits will be used for both fields.
+  optional int32 max_fraction_digits = 2;
+
+  // Minimum fraction digits. Zeros will be appended to the end to satisfy this
+  // constraint. If not defined, defaults to zero. minimumFractionDigits must be
+  // <= maximumFractionDigits. If the condition is not satisfied, then
+  // minimumFractionDigits will be used for both fields.
+  int32 min_fraction_digits = 3;
+
+  // Minimum integer digits. Sign and grouping characters are not considered
+  // when applying minIntegerDigits constraint. If not defined, defaults to one.
+  // For example, in the English locale, applying minIntegerDigit=4 to 12.34
+  // would yield "0012.34".
+  optional int32 min_integer_digits = 4;
+
+  // Digit grouping used. Grouping size and grouping character depend on the
+  // current locale. If not defined, defaults to false.
+  // For example, in the English locale, using grouping with 1234.56 would yield
+  // "1,234.56".
+  bool grouping_used = 5;
+}
+
+// A dynamic string type.
+message DynamicString {
+  oneof inner {
+    FixedString fixed = 1;
+    Int32FormatOp int32_format_op = 2;
+    StateStringSource state_source = 3;
+    ConditionalStringOp conditional_op = 4;
+    ConcatStringOp concat_op = 5;
+    FloatFormatOp float_format_op = 6;
+  }
+}
+
+// An arithmetic operation, operating on two Float instances. This implements
+// simple binary operations of the form "result = LHS <op> RHS", where the
+// available operation types are described in ArithmeticOpType.
+message ArithmeticFloatOp {
+  // Left hand side of the arithmetic operation.
+  DynamicFloat input_lhs = 1;
+
+  // Right hand side of the arithmetic operation.
+  DynamicFloat input_rhs = 2;
+
+  // The type of operation to carry out.
+  ArithmeticOpType operation_type = 3;
+}
+
+// A dynamic Float which sources its data from the tile's state.
+message StateFloatSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+}
+
+// An operation to convert a Int32 value in the dynamic data pipeline to a Float
+// value.
+message Int32ToFloatOp {
+  // The input Int32 to convert to a Float.
+  DynamicInt32 input = 1;
+}
+
+// A static interpolation, between two fixed floating point values.
+message AnimatableFixedFloat {
+  // The number to start animating from.
+  float from_value = 1;
+
+  // The number to animate to.
+  float to_value = 2;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 3;
+}
+
+// A dynamic interpolation node. This will watch the value of its input and,
+// when the first update arrives, immediately emit that value. On subsequent
+// updates, it will animate between the old and new values.
+//
+// If this node receives an invalid value (e.g. as a result of an upstream node
+// having no value), then it will emit a single invalid value, and forget its
+// "stored" value. The next valid value that arrives is then used as the
+// "first" value again.
+message AnimatableDynamicFloat {
+  // The value to watch, and animate when it changes.
+  DynamicFloat input = 1;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 3;
+}
+
+// A dynamic float type.
+message DynamicFloat {
+  oneof inner {
+    FixedFloat fixed = 1;
+    ArithmeticFloatOp arithmetic_operation = 2;
+    Int32ToFloatOp int32_to_float_operation = 3;
+    StateFloatSource state_source = 4;
+    ConditionalFloatOp conditional_op = 5;
+    AnimatableFixedFloat animatable_fixed = 6;
+    AnimatableDynamicFloat animatable_dynamic = 7;
+  }
+}
+
+// A dynamic boolean type which sources its data from the tile's state.
+message StateBoolSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+}
+
+// The type of comparison used in ComparisonInt32Op and ComparisonFloatOp.
+enum ComparisonOpType {
+  // Undefined operation type.
+  COMPARISON_OP_TYPE_UNDEFINED = 0;
+
+  // Equality check (result = LHS == RHS).
+  // For floats, for equality check, small epsilon is used, i.e.:
+  // (result = abs(LHS - RHS) < epsilon).
+  COMPARISON_OP_TYPE_EQUALS = 1;
+
+  // Not equal check (result = LHS != RHS).
+  COMPARISON_OP_TYPE_NOT_EQUALS = 2;
+
+  // Strictly less than (result = LHS < RHS).
+  COMPARISON_OP_TYPE_LESS_THAN = 3;
+
+  // Less than or equal to (result = LHS <= RHS).
+  COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO = 4;
+
+  // Strictly greater than (result = LHS > RHS).
+  COMPARISON_OP_TYPE_GREATER_THAN = 5;
+
+  // Greater than or equal to (result = LHS >= RHS).
+  COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO = 6;
+}
+
+// A comparison operation, operating on two Int32 instances. This implements
+// various comparison operations of the form "boolean result = LHS <op> RHS",
+// where the available operation types are described in ComparisonOpType.
+message ComparisonInt32Op {
+  // The left hand side of the comparison operation.
+  DynamicInt32 input_lhs = 1;
+
+  // The right hand side of the comparison operation.
+  DynamicInt32 input_rhs = 2;
+
+  // The type of the operation.
+  ComparisonOpType operation_type = 3;
+}
+
+// A comparison operation, operating on two Float instances. This implements
+// various comparison operations of the form "boolean result = LHS <op> RHS",
+// where the available operation types are described in ComparisonOpType.
+message ComparisonFloatOp {
+  // The left hand side of the comparison operation.
+  DynamicFloat input_lhs = 1;
+
+  // The right hand side of the comparison operation.
+  DynamicFloat input_rhs = 2;
+
+  // The type of the operation.
+  ComparisonOpType operation_type = 3;
+}
+
+// A boolean operation which implements a "NOT" operator, i.e.
+// "boolean result = !input".
+message NotBoolOp {
+  // The input, whose value to negate.
+  DynamicBool input = 1;
+}
+
+// The type of logical operation to carry out in a LogicalBoolOp operation.
+enum LogicalOpType {
+  // Undefined operation type.
+  LOGICAL_OP_TYPE_UNDEFINED = 0;
+
+  // Logical AND.
+  LOGICAL_OP_TYPE_AND = 1;
+
+  // Logical OR.
+  LOGICAL_OP_TYPE_OR = 2;
+}
+
+// A logical boolean operator, implementing "boolean result = LHS <op> RHS",
+// for various boolean operators (i.e. AND/OR).
+message LogicalBoolOp {
+  // The left hand side of the logical operation.
+  DynamicBool input_lhs = 1;
+
+  // The right hand side of the logical operation.
+  DynamicBool input_rhs = 2;
+
+  // The operation type to apply to LHS/RHS.
+  LogicalOpType operation_type = 3;
+}
+
+// A dynamic boolean type.
+message DynamicBool {
+  oneof inner {
+    FixedBool fixed = 1;
+    StateBoolSource state_source = 2;
+    ComparisonInt32Op int32_comparison = 3;
+    NotBoolOp not_op = 4;
+    LogicalBoolOp logical_op = 5;
+    ComparisonFloatOp float_comparison = 6;
+  }
+}
+
+// A dynamic Color which sources its data from the tile's state.
+message StateColorSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+}
+
+// A static interpolation, between two fixed color values.
+message AnimatableFixedColor {
+  // The color value (in ARGB format) to start animating from.
+  uint32 from_argb = 1;
+
+  // The color value (in ARGB format) to animate to.
+  uint32 to_argb = 2;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 3;
+}
+
+// A dynamic interpolation node. This will watch the value of its input and,
+// when the first update arrives, immediately emit that value. On subsequent
+// updates, it will animate between the old and new values.
+//
+// If this node receives an invalid value (e.g. as a result of an upstream node
+// having no value), then it will emit a single invalid value, and forget its
+// "stored" value. The next valid value that arrives is then used as the
+// "first" value again.
+message AnimatableDynamicColor {
+  // The value to watch, and animate when it changes.
+  DynamicColor input = 1;
+
+  // The animation parameters for duration, delay, etc.
+  AnimationSpec spec = 3;
+}
+
+// A dynamic color type.
+message DynamicColor {
+  oneof inner {
+    FixedColor fixed = 1;
+    StateColorSource state_source = 2;
+    AnimatableFixedColor animatable_fixed = 3;
+    AnimatableDynamicColor animatable_dynamic = 4;
+  }
+}

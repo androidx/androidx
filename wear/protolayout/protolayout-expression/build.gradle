@@ -23,10 +23,28 @@ plugins {
 
 dependencies {
     annotationProcessor(libs.nullaway)
+    api("androidx.annotation:annotation:1.2.0")
+
+    implementation("androidx.annotation:annotation-experimental:1.2.0")
+    implementation(project(":wear:protolayout:protolayout-proto"))
+
+    compileOnly(libs.kotlinStdlib) // For annotation-experimental
+
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
 }
 
 android {
     namespace "androidx.wear.protolayout.expression"
+
+    defaultConfig {
+        minSdkVersion 25
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }
 
 androidx {
