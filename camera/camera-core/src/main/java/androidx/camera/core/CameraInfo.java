@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -39,6 +40,15 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfo {
+
+    /**
+     * An unknown intrinsic zoom ratio. Usually to indicate the camera is unable to provide
+     * necessary information to resolve its intrinsic zoom ratio.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    float INTRINSIC_ZOOM_RATIO_UNKNOWN = 1.0F;
 
     /**
      * An unknown camera implementation type.
@@ -196,6 +206,36 @@ public interface CameraInfo {
     @CameraSelector.LensFacing
     default int getLensFacing() {
         return CameraSelector.LENS_FACING_UNKNOWN;
+    }
+
+    /**
+     * Returns the intrinsic zoom ratio of this camera.
+     *
+     * <p>The intrinsic zoom ratio is defined as the ratio between the angle of view of
+     * the default camera and this camera. The default camera is the camera selected by
+     * {@link CameraSelector#DEFAULT_FRONT_CAMERA} or {@link CameraSelector#DEFAULT_BACK_CAMERA}
+     * depending on the lens facing of this camera. For example, if the default camera has angle of
+     * view 60 degrees and this camera has 30 degrees, this camera will have intrinsic zoom ratio
+     * {@code 2.0}.
+     *
+     * <p>The intrinsic zoom ratio is calculated approximately based on the focal length and the
+     * sensor size. It's considered an inexact attribute of the camera and might not be hundred
+     * percent accurate when compared with the output image. Especially for the case that the
+     * camera doesn't read the whole sensor area due to cropping being applied.
+     *
+     * <p>The default camera is guaranteed to have intrinsic zoom ratio {@code 1.0}. Other cameras
+     * that have intrinsic zoom ratio greater than {@code 1.0} are considered telephoto cameras and
+     * cameras that have intrinsic zoom ratio less than {@code 1.0} are considered ultra
+     * wide-angle cameras.
+     *
+     * <p>If the camera is unable to provide necessary information to resolve its intrinsic zoom
+     * ratio, it will be considered as a standard camera which has intrinsic zoom ratio {@code 1.0}.
+     *
+     * @return the intrinsic zoom ratio of this camera.
+     */
+    @FloatRange(from = 0, fromInclusive = false)
+    default float getIntrinsicZoomRatio() {
+        return INTRINSIC_ZOOM_RATIO_UNKNOWN;
     }
 
     /**

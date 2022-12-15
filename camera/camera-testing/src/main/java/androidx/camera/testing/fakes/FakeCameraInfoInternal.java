@@ -21,6 +21,7 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
@@ -72,6 +73,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private CamcorderProfileProvider mCamcorderProfileProvider;
 
     private boolean mIsPrivateReprocessingSupported = false;
+    private float mIntrinsicZoomRatio = 1.0F;
 
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
@@ -221,6 +223,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mIsPrivateReprocessingSupported;
     }
 
+    @FloatRange(from = 0, fromInclusive = false)
+    @Override
+    public float getIntrinsicZoomRatio() {
+        return mIntrinsicZoomRatio;
+    }
+
     /** Adds a quirk to the list of this camera's quirks. */
     @SuppressWarnings("unused")
     public void addCameraQuirk(@NonNull final Quirk quirk) {
@@ -253,6 +261,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Set the isPrivateReprocessingSupported flag for testing */
     public void setPrivateReprocessingSupported(boolean supported) {
         mIsPrivateReprocessingSupported = supported;
+    }
+
+    /** Adds a available view angle for testing. */
+    public void setIntrinsicZoomRatio(float zoomRatio) {
+        mIntrinsicZoomRatio = zoomRatio;
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

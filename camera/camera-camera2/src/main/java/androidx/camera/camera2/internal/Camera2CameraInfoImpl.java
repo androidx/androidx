@@ -32,6 +32,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -345,6 +346,33 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         final int hardwareLevel = getSupportedHardwareLevel();
         return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
+    }
+
+    @FloatRange(from = 0, fromInclusive = false)
+    @Override
+    public float getIntrinsicZoomRatio() {
+        final Integer lensFacing =
+                mCameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING);
+        if (lensFacing == null) {
+            return INTRINSIC_ZOOM_RATIO_UNKNOWN;
+        }
+
+        int fovDegrees;
+        int defaultFovDegrees;
+        try {
+            fovDegrees =
+                    FovUtil.focalLengthToViewAngleDegrees(
+                            FovUtil.getDefaultFocalLength(mCameraCharacteristicsCompat),
+                            FovUtil.getSensorHorizontalLength(mCameraCharacteristicsCompat));
+            defaultFovDegrees = FovUtil.getDeviceDefaultViewAngleDegrees(mCameraManager,
+                    lensFacing);
+        } catch (Exception e) {
+            Logger.e(TAG, "The camera is unable to provide necessary information to resolve its "
+                    + "intrinsic zoom ratio with error: " + e);
+            return INTRINSIC_ZOOM_RATIO_UNKNOWN;
+        }
+
+        return ((float) defaultFovDegrees) / fovDegrees;
     }
 
     @Override
