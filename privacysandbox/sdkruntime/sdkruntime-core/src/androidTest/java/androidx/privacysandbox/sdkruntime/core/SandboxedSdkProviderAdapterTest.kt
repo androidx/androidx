@@ -15,13 +15,16 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.content.Context
 import android.os.Binder
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
+import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
+import androidx.core.os.BuildCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -29,6 +32,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,15 +40,18 @@ import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-@SdkSuppress(minSdkVersion = UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-@RequiresApi(api = UPSIDE_DOWN_CAKE)
+// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+@SuppressLint("NewApi")
+// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+@RequiresExtension(extension = AD_SERVICES, version = 4)
+@SdkSuppress(minSdkVersion = TIRAMISU)
 class SandboxedSdkProviderAdapterTest {
 
     private lateinit var context: Context
 
     @Before
     fun setUp() {
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         context = ApplicationProvider.getApplicationContext()
     }
 
@@ -87,8 +94,8 @@ class SandboxedSdkProviderAdapterTest {
         val delegate = adapter.extractDelegate<TestOnLoadReturnResultSdkProvider>()
         assertThat(delegate.mLastOnLoadSdkBundle)
             .isSameInstanceAs(params)
-        assertThat(result)
-            .isEqualTo(delegate.mResult.toSandboxedSdk())
+        assertThat(result.getInterface())
+            .isEqualTo(delegate.mResult.getInterface())
     }
 
     @Test
@@ -251,4 +258,7 @@ class SandboxedSdkProviderAdapterTest {
             return mView
         }
     }
+
+    private fun isSandboxApiAvailable() =
+        BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
 }

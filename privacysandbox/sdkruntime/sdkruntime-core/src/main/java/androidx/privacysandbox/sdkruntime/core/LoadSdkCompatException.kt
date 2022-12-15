@@ -15,12 +15,13 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.Bundle
+import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
@@ -113,15 +114,15 @@ class LoadSdkCompatException : Exception {
      *
      *  @return Platform exception.
      */
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     internal fun toLoadSdkException(): LoadSdkException {
-        return Api33Impl.toLoadSdkException(this)
+        return ApiAdServicesV4Impl.toLoadSdkException(this)
     }
 
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
-    private object Api33Impl {
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private object ApiAdServicesV4Impl {
 
         @DoNotInline
         fun toLoadSdkException(ex: LoadSdkCompatException): LoadSdkException {
@@ -217,11 +218,10 @@ class LoadSdkCompatException : Exception {
          *  @return Compat exception.
          *  @suppress
          */
-        // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-        @RequiresApi(UPSIDE_DOWN_CAKE)
+        @RequiresExtension(extension = AD_SERVICES, version = 4)
         @RestrictTo(LIBRARY_GROUP)
         fun toLoadCompatSdkException(ex: LoadSdkException): LoadSdkCompatException {
-            return Api33Impl.toLoadCompatSdkException(ex)
+            return ApiAdServicesV4Impl.toLoadCompatSdkException(ex)
         }
     }
 }

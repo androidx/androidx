@@ -19,8 +19,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
@@ -32,6 +30,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -68,9 +67,9 @@ class SdkSandboxManagerCompatTest {
     // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_notDelegateToSandbox() {
-        if (isSandboxAvailable()) {
-            return
-        }
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
@@ -85,9 +84,8 @@ class SdkSandboxManagerCompatTest {
 
     @Test
     fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_throwsSdkNotFoundException() {
-        if (isSandboxAvailable()) {
-            return
-        }
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
@@ -151,19 +149,6 @@ class SdkSandboxManagerCompatTest {
         assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
     }
 
-    private fun isSandboxAvailable(): Boolean {
-        // TODO(b/249981547) Find a way how to skip test if sandbox present
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return isSandboxAvailableOnApi33()
-        }
-        return false
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    companion object SandboxApi {
-        @DoNotInline
-        private fun isSandboxAvailableOnApi33(): Boolean {
-            return BuildCompat.isAtLeastU()
-        }
-    }
+    private fun isSandboxApiNotAvailable() =
+        BuildCompat.AD_SERVICES_EXTENSION_INT < 4
 }
