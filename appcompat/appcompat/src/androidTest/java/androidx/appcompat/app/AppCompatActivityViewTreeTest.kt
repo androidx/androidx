@@ -16,7 +16,7 @@
 
 package androidx.appcompat.app
 
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
@@ -38,7 +38,7 @@ class AppCompatActivityViewTreeTest {
 
     @Test
     fun queryViewTreeLifecycleTest() {
-        val lfOwner = ViewTreeLifecycleOwner.get(activityRule.activity.window.decorView)
+        val lfOwner = activityRule.activity.window.decorView.findViewTreeLifecycleOwner()
         assertThat(lfOwner).isEqualTo(activityRule.activity)
     }
 

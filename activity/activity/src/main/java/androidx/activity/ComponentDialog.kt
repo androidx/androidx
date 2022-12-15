@@ -27,7 +27,7 @@ import androidx.annotation.StyleRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 
 /**
  * Base class for dialogs that enables composition of higher level components.
@@ -104,7 +104,7 @@ open class ComponentDialog @JvmOverloads constructor(
     }
 
     private fun initViewTreeOwners() {
-        ViewTreeLifecycleOwner.set(window!!.decorView, this)
+        window!!.decorView.setViewTreeLifecycleOwner(this)
         window!!.decorView.setViewTreeOnBackPressedDispatcherOwner(this)
     }
 }

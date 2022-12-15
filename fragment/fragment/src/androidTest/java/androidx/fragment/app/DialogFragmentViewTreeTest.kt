@@ -21,7 +21,7 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
@@ -50,10 +50,11 @@ class DialogFragmentViewTreeTest {
                 dialogFragment.showNow(it.supportFragmentManager, null)
             }
 
-            val decorView = dialogFragment.requireDialog().window?.decorView
+           val decorView =
+               dialogFragment.requireDialog().window?.decorView ?: error("no decor view available")
 
             assertWithMessage("DialogFragment dialog should have a ViewTreeLifecycleOwner")
-                .that(ViewTreeLifecycleOwner.get(decorView ?: error("no decor view available")))
+                .that(decorView.findViewTreeLifecycleOwner())
                 .isNotNull()
             assertWithMessage("DialogFragment dialog should have a ViewTreeViewModelStoreOwner")
                 .that(ViewTreeViewModelStoreOwner.get(decorView))
