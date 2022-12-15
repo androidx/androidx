@@ -19,7 +19,6 @@ package androidx.credentials.provider
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.service.credentials.BeginCreateCredentialResponse
-import android.service.credentials.CredentialProviderException
 import android.service.credentials.CredentialProviderService
 import android.service.credentials.BeginGetCredentialsRequest
 import android.service.credentials.BeginGetCredentialsResponse
@@ -42,7 +41,8 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
     final override fun onBeginGetCredentials(
         request: BeginGetCredentialsRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginGetCredentialsResponse, CredentialProviderException>
+        callback: OutcomeReceiver<BeginGetCredentialsResponse,
+            android.service.credentials.CredentialProviderException>
     ) {
         val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> = mutableListOf()
         request.beginGetCredentialOptions.forEach {
@@ -71,7 +71,15 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
                 super.onError(error)
                 Log.i(TAG, "onGetCredentials error returned from provider " +
                     "to jetpack library")
-                callback.onError(error)
+                // TODO("Change error code to provider error when ready on framework")
+                error.message?.let {
+                    callback.onError(android.service.credentials.CredentialProviderException(
+                        android.service.credentials.CredentialProviderException.ERROR_UNKNOWN, it)
+                    )
+                    return
+                }
+                callback.onError(android.service.credentials.CredentialProviderException(
+                    android.service.credentials.CredentialProviderException.ERROR_UNKNOWN))
             }
         }
         onBeginGetCredentialsRequest(structuredRequest, cancellationSignal, outcome)
@@ -80,7 +88,8 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
     final override fun onBeginCreateCredential(
         request: android.service.credentials.BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginCreateCredentialResponse, CredentialProviderException>
+        callback: OutcomeReceiver<BeginCreateCredentialResponse,
+            android.service.credentials.CredentialProviderException>
     ) {
         val outcome = object : OutcomeReceiver<
             BeginCreateCredentialProviderResponse, CredentialProviderException> {
@@ -95,7 +104,15 @@ abstract class CredentialProviderBaseService : CredentialProviderService() {
                 Log.i(
                     TAG, "onCreateCredential result returned from provider to jetpack")
                 super.onError(error)
-                callback.onError(error)
+                // TODO("Change error code to provider error when ready on framework")
+                error.message?.let {
+                    callback.onError(android.service.credentials.CredentialProviderException(
+                        android.service.credentials.CredentialProviderException.ERROR_UNKNOWN, it)
+                    )
+                    return
+                }
+                callback.onError(android.service.credentials.CredentialProviderException(
+                    android.service.credentials.CredentialProviderException.ERROR_UNKNOWN))
             }
         }
         onBeginCreateCredentialRequest(
