@@ -20,6 +20,12 @@ interface MySdk {
     suspend fun getMyInterface(input: MyInterface): MyInterface
 
     fun mutateMySecondInterface(input: MySecondInterface)
+
+    suspend fun handleNullablePrimitives(x: Int?, y: Int?): String?
+
+    suspend fun handleNullableValues(maybeRequest: Request?): Response?
+
+    suspend fun handleNullableInterfaces(maybeCallback: MyCallback?): MyInterface?
 }
 
 @PrivacySandboxInterface
@@ -58,13 +64,19 @@ interface MySecondInterface {
 data class Request(
     val query: String,
     val extraValues: List<InnerValue>,
-    val myInterface: MyInterface)
+    val maybeValue: InnerValue?,
+    val myInterface: MyInterface
+)
 
 @PrivacySandboxValue
-data class InnerValue(val numbers: List<Int>)
+data class InnerValue(val numbers: List<Int>, val maybeNumber: Int?)
 
 @PrivacySandboxValue
-data class Response(val response: String, val mySecondInterface: MySecondInterface)
+data class Response(
+    val response: String,
+    val mySecondInterface: MySecondInterface,
+    val maybeOtherInterface: MySecondInterface
+)
 
 @PrivacySandboxCallback
 interface MyCallback {

@@ -5,6 +5,8 @@ public object ResponseConverter {
         val annotatedValue = Response(
                 response = parcelable.response,
                 mySecondInterface = (parcelable.mySecondInterface as
+                        MySecondInterfaceStubDelegate).delegate,
+                maybeOtherInterface = (parcelable.maybeOtherInterface as
                         MySecondInterfaceStubDelegate).delegate)
         return annotatedValue
     }
@@ -14,6 +16,8 @@ public object ResponseConverter {
         parcelable.response = annotatedValue.response
         parcelable.mySecondInterface =
                 MySecondInterfaceStubDelegate(annotatedValue.mySecondInterface)
+        parcelable.maybeOtherInterface =
+                MySecondInterfaceStubDelegate(annotatedValue.maybeOtherInterface)
         return parcelable
     }
 }

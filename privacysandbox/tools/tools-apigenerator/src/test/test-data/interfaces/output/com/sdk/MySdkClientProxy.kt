@@ -1,5 +1,6 @@
 package com.sdk
 
+import com.sdk.PrivacySandboxThrowableParcelConverter
 import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -24,6 +25,29 @@ public class MySdkClientProxy(
             }
         }
         remote.getInterface(transactionCallback)
+        it.invokeOnCancellation {
+            mCancellationSignal?.cancel()
+        }
+    }
+
+    public override suspend fun maybeGetInterface(): MyInterface? = suspendCancellableCoroutine {
+        var mCancellationSignal: ICancellationSignal? = null
+        val transactionCallback = object: IMyInterfaceTransactionCallback.Stub() {
+            override fun onCancellable(cancellationSignal: ICancellationSignal) {
+                if (it.isCancelled) {
+                    cancellationSignal.cancel()
+                }
+                mCancellationSignal = cancellationSignal
+            }
+            override fun onSuccess(result: IMyInterface?) {
+                it.resumeWith(Result.success(result?.let { notNullValue ->
+                        MyInterfaceClientProxy(notNullValue) }))
+            }
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
+            }
+        }
+        remote.maybeGetInterface(transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }

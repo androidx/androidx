@@ -35,6 +35,31 @@ public class SdkInterfaceClientProxy(
         }
     }
 
+    public override suspend fun processNullableValues(request: SdkRequest?): SdkResponse? =
+            suspendCancellableCoroutine {
+        var mCancellationSignal: ICancellationSignal? = null
+        val transactionCallback = object: ISdkResponseTransactionCallback.Stub() {
+            override fun onCancellable(cancellationSignal: ICancellationSignal) {
+                if (it.isCancelled) {
+                    cancellationSignal.cancel()
+                }
+                mCancellationSignal = cancellationSignal
+            }
+            override fun onSuccess(result: ParcelableSdkResponse?) {
+                it.resumeWith(Result.success(result?.let { notNullValue ->
+                        fromParcelable(notNullValue) }))
+            }
+            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
+                it.resumeWithException(fromThrowableParcel(throwableParcel))
+            }
+        }
+        remote.processNullableValues(request?.let { notNullValue -> toParcelable(notNullValue) },
+                transactionCallback)
+        it.invokeOnCancellation {
+            mCancellationSignal?.cancel()
+        }
+    }
+
     public override suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse> =
             suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null

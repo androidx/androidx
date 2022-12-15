@@ -241,22 +241,6 @@ class AidlGenerator private constructor(
             )
         }
     }
-
-    /**
-     * Removes nullability from a type, and applies necessary changes to represent it in AIDL.
-     *
-     * For primitives, this means wrapping it inside a list, since AIDL doesn't support nullable
-     * primitives.
-     */
-    private fun wrapWithListIfNeeded(type: Type): Type {
-        if (!type.isNullable) return type
-        val nonNullType = type.asNonNull()
-        // Nullable primitives are represented with lists.
-        if (Types.primitiveTypes.contains(nonNullType)) {
-            return Types.list(nonNullType)
-        }
-        return nonNullType
-    }
 }
 
 data class GeneratedSource(val packageName: String, val interfaceName: String, val file: File)
@@ -282,3 +266,19 @@ internal fun AnnotatedInterface.aidlType() = AidlTypeSpec(Type(type.packageName,
 
 internal fun primitive(name: String, isList: Boolean = false) =
     AidlTypeSpec(Type("", name), requiresImport = false, isList = isList)
+
+/**
+ * Removes nullability from a type, and applies necessary changes to represent it in AIDL.
+ *
+ * For primitives, this means wrapping it inside a list, since AIDL doesn't support nullable
+ * primitives.
+ */
+fun wrapWithListIfNeeded(type: Type): Type {
+    if (!type.isNullable) return type
+    val nonNullType = type.asNonNull()
+    // Nullable primitives are represented with lists.
+    if (Types.primitiveTypes.contains(nonNullType)) {
+        return Types.list(nonNullType)
+    }
+    return nonNullType
+}
