@@ -794,3 +794,4 @@ xcframework successfully .*
 WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
+Observed package id 'platforms;android-33-ext4' in inconsistent location.*
