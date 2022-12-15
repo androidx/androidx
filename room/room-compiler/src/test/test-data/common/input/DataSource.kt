@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.paging
 
-package androidx.paging;
-
-abstract public class DataSource<K, T> {
-    public interface Factory<Key, Value> {
+public abstract class DataSource<Key : Any, Value : Any> {
+    public abstract class Factory<Key : Any, Value : Any> {
+        public abstract fun create(): DataSource<Key, Value>
     }
 }

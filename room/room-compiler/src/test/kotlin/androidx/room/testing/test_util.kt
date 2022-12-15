@@ -29,7 +29,6 @@ import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
-import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
@@ -194,13 +193,12 @@ object COMMON {
     }
 
     val DATA_SOURCE_FACTORY by lazy {
-        loadJavaCode("common/input/DataSource.java", "androidx.paging.DataSource")
+        loadKotlinCode("common/input/DataSource.kt")
     }
 
     val POSITIONAL_DATA_SOURCE by lazy {
-        loadJavaCode(
-            "common/input/PositionalDataSource.java",
-            PagingTypeNames.POSITIONAL_DATA_SOURCE.toString()
+        loadKotlinCode(
+            "common/input/PositionalDataSource.kt"
         )
     }
 

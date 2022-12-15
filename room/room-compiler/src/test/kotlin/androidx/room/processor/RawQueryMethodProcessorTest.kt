@@ -137,7 +137,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery
-                abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, User> getOne();
+                abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY.canonicalName}<Integer, User> getOne();
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
