@@ -1,1 +1,86 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.expression {
+
+  public class ConditionScopes {
+  }
+
+  public static class ConditionScopes.ConditionScope<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType, RawT> {
+    method public androidx.wear.protolayout.expression.ConditionScopes.IfTrueScope<T!,RawT!> use(T!);
+    method public androidx.wear.protolayout.expression.ConditionScopes.IfTrueScope<T!,RawT!> use(RawT!);
+  }
+
+  public static class ConditionScopes.IfTrueScope<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType, RawT> {
+    method public T! elseUse(T!);
+    method public T! elseUse(RawT!);
+  }
+
+  public final class DynamicBuilders {
+  }
+
+  public static interface DynamicBuilders.DynamicBool extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool and(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool constant(boolean);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromState(String);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isFalse();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isTrue();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool or(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+  }
+
+  public static interface DynamicBuilders.DynamicColor extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor constant(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromState(String);
+  }
+
+  public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 asInt();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat constant(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat fromState(String);
+  }
+
+  public static class DynamicBuilders.DynamicFloat.FloatFormatter {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter groupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter maxFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minIntegerDigits(@IntRange(from=0) int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter with();
+  }
+
+  public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat asFloat();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 constant(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 fromState(String);
+  }
+
+  public static class DynamicBuilders.DynamicInt32.IntFormatter {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter groupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter minIntegerDigits(@IntRange(from=0) int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter with();
+  }
+
+  public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString concat(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString constant(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromState(String);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!,java.lang.String!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+  }
+
+  public static interface DynamicBuilders.DynamicType {
+  }
+
+  public final class StateEntryBuilders {
+  }
+
+  public static interface StateEntryBuilders.StateEntryValue {
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromBool(boolean);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromColor(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromFloat(float);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromInt(int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromString(String);
+  }
+
+}
+
