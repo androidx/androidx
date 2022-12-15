@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListItemInfo
@@ -444,8 +445,10 @@ internal class DefaultScalingLazyListItemInfo(
     }
 }
 
+/** @hide **/
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-internal data class ScaleAndAlpha(
+public data class ScaleAndAlpha(
     val scale: Float,
     val alpha: Float
 
@@ -506,7 +509,9 @@ internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLa
 /**
  * Inverse linearly interpolate, return what fraction (0f..1f) that [value] is between [start] and
  * [stop]. Returns 0f if value =< start and 1f if value >= stop.
+ * @hide
  */
-internal fun inverseLerp(start: Float, stop: Float, value: Float): Float {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun inverseLerp(start: Float, stop: Float, value: Float): Float {
     return ((value - start) / (stop - start)).coerceIn(0f, 1f)
 }

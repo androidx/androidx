@@ -35,7 +35,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,16 +44,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.wear.compose.foundation.lazy.CombinedPaddingValues
+import androidx.wear.compose.foundation.lazy.verticalNegativePadding
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -668,66 +667,5 @@ private fun ScalingLazyColumnItemWrapper(
         }
     ) {
         itemScope.content()
-    }
-}
-
-@Immutable
-private class CombinedPaddingValues(
-    @Stable
-    val contentPadding: PaddingValues,
-    @Stable
-    val extraPadding: Dp
-) : PaddingValues {
-    override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
-        contentPadding.calculateLeftPadding(layoutDirection)
-
-    override fun calculateTopPadding(): Dp =
-        contentPadding.calculateTopPadding() + extraPadding
-
-    override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
-        contentPadding.calculateRightPadding(layoutDirection)
-
-    override fun calculateBottomPadding(): Dp =
-        contentPadding.calculateBottomPadding() + extraPadding
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null) return false
-        if (this::class != other::class) return false
-
-        other as CombinedPaddingValues
-
-        if (contentPadding != other.contentPadding) return false
-        if (extraPadding != other.extraPadding) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = contentPadding.hashCode()
-        result = 31 * result + extraPadding.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "CombinedPaddingValuesImpl(contentPadding=$contentPadding, " +
-            "extraPadding=$extraPadding)"
-    }
-}
-
-private fun Modifier.verticalNegativePadding(
-    extraPadding: Dp,
-) = layout { measurable, constraints ->
-    require(constraints.hasBoundedWidth)
-    require(constraints.hasBoundedHeight)
-    val topAndBottomPadding = (extraPadding * 2).roundToPx()
-    val placeable = measurable.measure(
-        constraints.copy(
-            minHeight = constraints.minHeight + topAndBottomPadding,
-            maxHeight = constraints.maxHeight + topAndBottomPadding
-        )
-    )
-
-    layout(placeable.measuredWidth, constraints.maxHeight) {
-        placeable.place(0, -extraPadding.roundToPx())
     }
 }

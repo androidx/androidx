@@ -19,11 +19,12 @@ package androidx.wear.compose.material
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListItemInfo
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.lazy.ScaleAndAlpha
+import androidx.wear.compose.foundation.lazy.inverseLerp
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -443,17 +444,6 @@ internal class DefaultScalingLazyListItemInfo(
     }
 }
 
-@Immutable
-internal data class ScaleAndAlpha(
-    val scale: Float,
-    val alpha: Float
-
-) {
-    companion object {
-        internal val noScaling = ScaleAndAlpha(1.0f, 1.0f)
-    }
-}
-
 /**
  * Calculate the offset from the viewport center line of the Start|Center of an items unadjusted
  * or scaled size. The for items with an height that is an odd number and that have
@@ -501,11 +491,3 @@ internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLa
     } else {
         0f
     }
-
-/**
- * Inverse linearly interpolate, return what fraction (0f..1f) that [value] is between [start] and
- * [stop]. Returns 0f if value =< start and 1f if value >= stop.
- */
-internal fun inverseLerp(start: Float, stop: Float, value: Float): Float {
-    return ((value - start) / (stop - start)).coerceIn(0f, 1f)
-}

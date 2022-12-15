@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -672,8 +673,10 @@ private fun ScalingLazyColumnItemWrapper(
     }
 }
 
+/** @hide **/
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-private class CombinedPaddingValues(
+public class CombinedPaddingValues(
     @Stable
     val contentPadding: PaddingValues,
     @Stable
@@ -715,7 +718,9 @@ private class CombinedPaddingValues(
     }
 }
 
-private fun Modifier.verticalNegativePadding(
+/** @hide **/
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Modifier.verticalNegativePadding(
     extraPadding: Dp,
 ) = layout { measurable, constraints ->
     require(constraints.hasBoundedWidth)
