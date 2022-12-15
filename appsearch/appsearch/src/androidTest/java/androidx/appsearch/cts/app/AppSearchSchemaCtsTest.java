@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -38,10 +39,17 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testDefaultValues() {
+    public void testStringPropertyConfigDefaultValues() {
         StringPropertyConfig builder = new StringPropertyConfig.Builder("test").build();
         assertThat(builder.getIndexingType()).isEqualTo(StringPropertyConfig.INDEXING_TYPE_NONE);
         assertThat(builder.getTokenizerType()).isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_NONE);
+        assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+    }
+
+    @Test
+    public void testLongPropertyConfigDefaultValues() {
+        LongPropertyConfig builder = new LongPropertyConfig.Builder("test").build();
+        assertThat(builder.getIndexingType()).isEqualTo(LongPropertyConfig.INDEXING_TYPE_NONE);
         assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
     }
 
@@ -164,6 +172,11 @@ public class AppSearchSchemaCtsTest {
                         .build())
                 .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
+                        .build())
+                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("indexableLong")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
                         .build())
                 .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
@@ -183,7 +196,7 @@ public class AppSearchSchemaCtsTest {
 
         assertThat(schema.getSchemaType()).isEqualTo("Test");
         List<PropertyConfig> properties = schema.getProperties();
-        assertThat(properties).hasSize(6);
+        assertThat(properties).hasSize(7);
 
         assertThat(properties.get(0).getName()).isEqualTo("string");
         assertThat(properties.get(0).getCardinality())
@@ -196,29 +209,36 @@ public class AppSearchSchemaCtsTest {
         assertThat(properties.get(1).getName()).isEqualTo("long");
         assertThat(properties.get(1).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(1)).isInstanceOf(AppSearchSchema.LongPropertyConfig.class);
+        assertThat(((LongPropertyConfig) properties.get(1)).getIndexingType())
+                .isEqualTo(LongPropertyConfig.INDEXING_TYPE_NONE);
 
-        assertThat(properties.get(2).getName()).isEqualTo("double");
+        assertThat(properties.get(2).getName()).isEqualTo("indexableLong");
         assertThat(properties.get(2).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(properties.get(2)).isInstanceOf(AppSearchSchema.DoublePropertyConfig.class);
-
-        assertThat(properties.get(3).getName()).isEqualTo("boolean");
-        assertThat(properties.get(3).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(properties.get(3)).isInstanceOf(AppSearchSchema.BooleanPropertyConfig.class);
-
-        assertThat(properties.get(4).getName()).isEqualTo("bytes");
-        assertThat(properties.get(4).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(4)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
+        assertThat(((LongPropertyConfig) properties.get(2)).getIndexingType())
+                .isEqualTo(LongPropertyConfig.INDEXING_TYPE_RANGE);
 
-        assertThat(properties.get(5).getName()).isEqualTo("document");
-        assertThat(properties.get(5).getCardinality())
+        assertThat(properties.get(3).getName()).isEqualTo("double");
+        assertThat(properties.get(3).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5)).getSchemaType())
+        assertThat(properties.get(3)).isInstanceOf(AppSearchSchema.DoublePropertyConfig.class);
+
+        assertThat(properties.get(4).getName()).isEqualTo("boolean");
+        assertThat(properties.get(4).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
+        assertThat(properties.get(4)).isInstanceOf(AppSearchSchema.BooleanPropertyConfig.class);
+
+        assertThat(properties.get(5).getName()).isEqualTo("bytes");
+        assertThat(properties.get(5).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(properties.get(5)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
+
+        assertThat(properties.get(6).getName()).isEqualTo("document");
+        assertThat(properties.get(6).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6)).getSchemaType())
                 .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5))
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6))
                 .shouldIndexNestedProperties()).isEqualTo(true);
     }
 
@@ -293,6 +313,11 @@ public class AppSearchSchemaCtsTest {
                         .build())
                 .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
+                        .build())
+                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("indexableLong")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
                         .build())
                 .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
@@ -338,7 +363,14 @@ public class AppSearchSchemaCtsTest {
                 + "      dataType: DATA_TYPE_DOUBLE,\n"
                 + "    },\n"
                 + "    {\n"
+                + "      name: \"indexableLong\",\n"
+                + "      indexingType: INDEXING_TYPE_RANGE,\n"
+                + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                + "      dataType: DATA_TYPE_LONG,\n"
+                + "    },\n"
+                + "    {\n"
                 + "      name: \"long\",\n"
+                + "      indexingType: INDEXING_TYPE_NONE,\n"
                 + "      cardinality: CARDINALITY_OPTIONAL,\n"
                 + "      dataType: DATA_TYPE_LONG,\n"
                 + "    },\n"
@@ -377,5 +409,15 @@ public class AppSearchSchemaCtsTest {
                 new StringPropertyConfig.Builder("subject").setTokenizerType(2).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new StringPropertyConfig.Builder("subject").setTokenizerType(-1).build());
+    }
+
+    @Test
+    public void testLongPropertyConfig_setIndexingType() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(5).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(2).build());
+        assertThrows(IllegalArgumentException.class, () ->
+                new LongPropertyConfig.Builder("timestamp").setIndexingType(-1).build());
     }
 }

@@ -92,6 +92,15 @@ public final class SchemaToPlatformConverter {
                     .setTokenizerType(stringProperty.getTokenizerType())
                     .build();
         } else if (jetpackProperty instanceof AppSearchSchema.LongPropertyConfig) {
+            AppSearchSchema.LongPropertyConfig longProperty =
+                    (AppSearchSchema.LongPropertyConfig) jetpackProperty;
+            // TODO(b/259744228): add isAtLeastU check to allow INDEXING_TYPE_RANGE after Android U.
+            if (longProperty.getIndexingType()
+                    == AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE) {
+                throw new UnsupportedOperationException(
+                    "LongProperty.INDEXING_TYPE_RANGE is not supported on this AppSearch "
+                            + "implementation.");
+            }
             return new android.app.appsearch.AppSearchSchema.LongPropertyConfig.Builder(
                     jetpackProperty.getName())
                     .setCardinality(jetpackProperty.getCardinality())
