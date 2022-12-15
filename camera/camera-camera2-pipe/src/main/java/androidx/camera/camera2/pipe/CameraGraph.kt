@@ -53,6 +53,13 @@ abstract class GraphState internal constructor() {
      * of the capture session or the camera device itself.
      */
     object GraphStateStopped : GraphState()
+
+    /**
+     * When the [CameraGraph] has encountered an error. If [willAttemptRetry] is true, CameraPipe
+     * will retry opening the camera (and creating a capture session).
+     */
+    class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
+        GraphState()
 }
 
 /**

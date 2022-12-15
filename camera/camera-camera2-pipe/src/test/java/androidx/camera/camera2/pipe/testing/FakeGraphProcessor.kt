@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -29,6 +30,7 @@ import androidx.camera.camera2.pipe.graph.GraphState3A
 import androidx.camera.camera2.pipe.putAllMetadata
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * Fake implementation of a [GraphProcessor] for tests.
@@ -133,6 +135,16 @@ internal class FakeGraphProcessor(
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
         invalidate()
+    }
+
+    override fun onGraphError(graphStateError: GraphStateError) {
+        _graphState.update { graphState ->
+            if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
+                GraphStateStopped
+            } else {
+                graphStateError
+            }
+        }
     }
 
     override fun invalidate() {
