@@ -45,8 +45,7 @@ class CredentialProviderFactory {
             if (Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
                 return tryCreatePreUOemProvider(context)
             } else {
-                // TODO("Implement")
-                throw UnsupportedOperationException("Post-U not supported yet")
+                return CredentialProviderFrameworkImpl(context)
             }
         }
 
