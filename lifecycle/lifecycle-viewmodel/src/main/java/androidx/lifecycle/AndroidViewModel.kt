@@ -13,34 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.annotation.SuppressLint;
-import android.app.Application;
-
-import androidx.annotation.NonNull;
+import android.app.Application
 
 /**
- * Application context aware {@link ViewModel}.
- * <p>
- * Subclasses must have a constructor which accepts {@link Application} as the only parameter.
- * <p>
+ * Application context aware [ViewModel].
+ *
+ * Subclasses must have a constructor which accepts [Application] as the only parameter.
  */
-public class AndroidViewModel extends ViewModel {
-    @SuppressLint("StaticFieldLeak")
-    private Application mApplication;
-
-    public AndroidViewModel(@NonNull Application application) {
-        mApplication = application;
-    }
+open class AndroidViewModel(private val application: Application) : ViewModel() {
 
     /**
      * Return the application.
      */
-    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
-    @NonNull
-    public <T extends Application> T getApplication() {
-        return (T) mApplication;
+    @Suppress("UNCHECKED_CAST")
+    open fun <T : Application> getApplication(): T {
+        return application as T
     }
 }
