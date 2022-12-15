@@ -137,9 +137,7 @@ class ViewModelProviderTest {
         assertThat(wasCalled[0]).isTrue()
         wasCalled[0] = false
         ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
-            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-                return testFactory
-            }
+            override val defaultViewModelProviderFactory = testFactory
         })["customKey", ViewModel1::class.java]
         assertThat(wasCalled[0]).isTrue()
     }
@@ -165,9 +163,7 @@ class ViewModelProviderTest {
         assertThat(wasCalled[0]).isTrue()
         wasCalled[0] = false
         ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
-            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-                return testFactory
-            }
+            override val defaultViewModelProviderFactory = testFactory
         })["customKey", ViewModel1::class.java]
         assertThat(wasCalled[0]).isTrue()
     }
@@ -180,9 +176,7 @@ class ViewModelProviderTest {
             return mStore
         }
 
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            return mFactory
-        }
+        override val defaultViewModelProviderFactory = mFactory
     }
 
     open class ViewModel1 : ViewModel() {
@@ -204,15 +198,15 @@ class ViewModelProviderTest {
     internal open class ViewModelStoreOwnerWithCreationExtras : ViewModelStoreOwner,
         HasDefaultViewModelProviderFactory {
         private val viewModelStore = ViewModelStore()
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            throw UnsupportedOperationException()
-        }
+        override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+            get() = throw UnsupportedOperationException()
 
-        override fun getDefaultViewModelCreationExtras(): CreationExtras {
-            val extras = MutableCreationExtras()
-            extras[TEST_KEY] = TEST_VALUE
-            return extras
-        }
+        override val defaultViewModelCreationExtras: CreationExtras
+            get() {
+                val extras = MutableCreationExtras()
+                extras[TEST_KEY] = TEST_VALUE
+                return extras
+            }
 
         override fun getViewModelStore(): ViewModelStore {
             return viewModelStore

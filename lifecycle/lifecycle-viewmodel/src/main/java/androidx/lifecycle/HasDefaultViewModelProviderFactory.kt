@@ -13,36 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.CreationExtras
 
 /**
- * Interface that marks a {@link ViewModelStoreOwner} as having a default
- * {@link androidx.lifecycle.ViewModelProvider.Factory} for use with
- * {@link androidx.lifecycle.ViewModelProvider#ViewModelProvider(ViewModelStoreOwner)}.
+ * Interface that marks a [ViewModelStoreOwner] as having a default
+ * [ViewModelProvider.Factory] for use with [ViewModelProvider].
  */
-public interface HasDefaultViewModelProviderFactory {
+interface HasDefaultViewModelProviderFactory {
     /**
-     * Returns the default {@link androidx.lifecycle.ViewModelProvider.Factory} that should be
-     * used when no custom {@code Factory} is provided to the
-     * {@link androidx.lifecycle.ViewModelProvider} constructors.
-     *
-     * @return a {@code ViewModelProvider.Factory}
+     * Returns the default [ViewModelProvider.Factory] that should be
+     * used when no custom `Factory` is provided to the
+     * [ViewModelProvider] constructors.
      */
-    @NonNull
-    ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    val defaultViewModelProviderFactory: ViewModelProvider.Factory
 
     /**
-     * Returns the default {@link CreationExtras} that should be passed into the
-     * {@link ViewModelProvider.Factory#create(Class, CreationExtras)} when no overriding
-     * {@link CreationExtras} were passed to the
-     * {@link androidx.lifecycle.ViewModelProvider} constructors.
+     * Returns the default [CreationExtras] that should be passed into
+     * [ViewModelProvider.Factory.create] when no overriding
+     * [CreationExtras] were passed to the [ViewModelProvider] constructors.
      */
-    @NonNull
-    default CreationExtras getDefaultViewModelCreationExtras() {
-        return CreationExtras.Empty.INSTANCE;
-    }
+    val defaultViewModelCreationExtras: CreationExtras
+        get() = CreationExtras.Empty
 }
