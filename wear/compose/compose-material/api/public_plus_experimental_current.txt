@@ -96,6 +96,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors chipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledBackgroundColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.wear.compose.material.ExperimentalWearMaterialApi public androidx.wear.compose.material.ChipColors chipColors(androidx.compose.ui.graphics.painter.Painter backgroundPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledBackgroundPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
     method public androidx.compose.foundation.layout.PaddingValues getCompactChipContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getCompactChipTapTargetPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public float getIconSize();
     method public float getLargeIconSize();
@@ -107,6 +108,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors primaryChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors secondaryChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     property public final androidx.compose.foundation.layout.PaddingValues CompactChipContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues CompactChipTapTargetPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public final float IconSize;
     property public final float LargeIconSize;
