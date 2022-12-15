@@ -19,7 +19,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -29,6 +28,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.SystemTimeSource
+import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
@@ -48,7 +49,7 @@ import kotlinx.coroutines.launch
 internal sealed class CameraState
 internal object CameraStateUnopened : CameraState()
 internal data class CameraStateOpen(val cameraDevice: CameraDeviceWrapper) : CameraState()
-internal object CameraStateClosing : CameraState()
+internal data class CameraStateClosing(val cameraErrorCode: CameraError? = null) : CameraState()
 internal data class CameraStateClosed(
     val cameraId: CameraId,
 
@@ -173,7 +174,7 @@ internal class VirtualCameraState(
             // Emulate a CameraClosing -> CameraClosed sequence.
             if (value !is CameraStateClosed) {
                 if (_lastState !is CameraStateClosing) {
-                    emitState(CameraStateClosing)
+                    emitState(CameraStateClosing())
                 }
                 emitState(
                     CameraStateClosed(
@@ -203,7 +204,8 @@ internal class AndroidCameraState(
     val cameraId: CameraId,
     val metadata: CameraMetadata,
     private val attemptNumber: Int,
-    private val attemptTimestampNanos: TimestampNs
+    private val attemptTimestampNanos: TimestampNs,
+    private val timeSource: TimeSource
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -227,7 +229,7 @@ internal class AndroidCameraState(
             if (attemptNumber == 1) {
                 attemptTimestampNanos
             } else {
-                Timestamps.now()
+                Timestamps.now(timeSource)
             }
     }
 
@@ -254,7 +256,7 @@ internal class AndroidCameraState(
 
     override fun onOpened(cameraDevice: CameraDevice) {
         check(cameraDevice.id == cameraId.value)
-        val openedTimestamp = Timestamps.now()
+        val openedTimestamp = Timestamps.now(timeSource)
         openTimestampNanos = openedTimestamp
 
         Debug.traceStart { "Camera-${cameraId.value}#onOpened" }
@@ -300,7 +302,7 @@ internal class AndroidCameraState(
             pendingClose
         }
         if (closeInfo != null) {
-            _state.value = CameraStateClosing
+            _state.value = CameraStateClosing(closeInfo.errorCode)
             cameraDevice.closeWithTrace()
             _state.value = computeClosedState(closeInfo)
         }
@@ -355,29 +357,13 @@ internal class AndroidCameraState(
     }
 
     internal fun closeWith(throwable: Throwable) {
-        when (throwable) {
-            is CameraAccessException -> {
-                val error = CameraError.from(throwable)
-                // This can happen with CAMERA_ERROR where it can be ERROR_CAMERA_DEVICE or
-                // ERROR_CAMERA_SERVICE. We leave that till onError() tells us the actual error.
-                if (error == CameraError.ERROR_UNDETERMINED) {
-                    return
-                }
-                closeWith(throwable, error)
-            }
-
-            is IllegalArgumentException -> {
-                closeWith(throwable, CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION)
-            }
-
-            is SecurityException -> {
-                closeWith(throwable, CameraError.ERROR_SECURITY_EXCEPTION)
-            }
-
-            else -> {
-                throw IllegalArgumentException("Unexpected throwable: $throwable")
-            }
+        val errorCode = CameraError.from(throwable)
+        // This can happen with CAMERA_ERROR where it can be ERROR_CAMERA_DEVICE or
+        // ERROR_CAMERA_SERVICE. We leave that till onError() tells us the actual error.
+        if (errorCode == CameraError.ERROR_UNDETERMINED) {
+            return
         }
+        closeWith(throwable, errorCode)
     }
 
     private fun closeWith(throwable: Throwable, cameraError: CameraError) {
@@ -413,7 +399,7 @@ internal class AndroidCameraState(
             null
         }
         if (closeInfo != null) {
-            _state.value = CameraStateClosing
+            _state.value = CameraStateClosing(closeInfo.errorCode)
             cameraDeviceWrapper.closeWithTrace()
             cameraDevice.closeWithTrace()
             _state.value = computeClosedState(closeInfo)
@@ -423,7 +409,7 @@ internal class AndroidCameraState(
     private fun computeClosedState(
         closingInfo: ClosingInfo
     ): CameraStateClosed {
-        val now = Timestamps.now()
+        val now = Timestamps.now(timeSource)
         val openedTimestamp = openTimestampNanos
         val closingTimestamp = closingInfo.closingTimestamp
         val retryDuration = openedTimestamp?.let { it - attemptTimestampNanos }
@@ -453,7 +439,7 @@ internal class AndroidCameraState(
 
     private data class ClosingInfo(
         val reason: ClosedReason,
-        val closingTimestamp: TimestampNs = Timestamps.now(),
+        val closingTimestamp: TimestampNs = Timestamps.now(SystemTimeSource()),
         val errorCode: CameraError? = null,
         val exception: Throwable? = null
     )

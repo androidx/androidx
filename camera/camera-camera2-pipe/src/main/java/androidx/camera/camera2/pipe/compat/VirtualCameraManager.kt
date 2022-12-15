@@ -18,22 +18,13 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
-import android.hardware.camera2.CameraManager
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.core.Debug
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
-import androidx.camera.camera2.pipe.core.TimestampNs
-import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.WakeLock
 import javax.inject.Inject
-import javax.inject.Provider
 import javax.inject.Singleton
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -41,9 +32,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 
 internal sealed class CameraRequest
 internal data class RequestOpen(
@@ -63,10 +52,9 @@ private const val requestQueueDepth = 8
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class VirtualCameraManager @Inject constructor(
-    private val cameraManager: Provider<CameraManager>,
-    private val cameraMetadata: Camera2MetadataCache,
     private val permissions: Permissions,
-    private val threads: Threads
+    private val retryingCameraStateOpener: RetryingCameraStateOpener,
+    threads: Threads
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
     private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)
@@ -200,6 +188,21 @@ internal class VirtualCameraManager @Inject constructor(
         }
     }
 
+    private suspend fun openCameraWithRetry(
+        cameraId: CameraId,
+        scope: CoroutineScope
+    ): ActiveCamera? {
+        // TODO: Figure out how 1-time permissions work, and see if they can be reset without
+        //   causing the application process to restart.
+        check(permissions.hasCameraPermission) { "Missing camera permissions!" }
+
+        val cameraState = retryingCameraStateOpener.openCameraWithRetry(cameraId)
+        if (cameraState == null) {
+            return null
+        }
+        return ActiveCamera(androidCameraState = cameraState, scope = scope, channel = requestQueue)
+    }
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private suspend fun readRequestQueue(requests: MutableList<CameraRequest>) {
         if (requests.isEmpty()) {
@@ -211,148 +214,6 @@ internal class VirtualCameraManager @Inject constructor(
         while (!requestQueue.isEmpty) {
             requests.add(requestQueue.receive())
         }
-    }
-
-    private suspend fun openCameraWithRetry(
-        cameraId: CameraId,
-        scope: CoroutineScope
-    ): ActiveCamera? {
-        val requestTimestamp = Timestamps.now()
-        var attempts = 0
-
-        // TODO: Figure out how 1-time permissions work, and see if they can be reset without
-        //   causing the application process to restart.
-        check(permissions.hasCameraPermission) { "Missing camera permissions!" }
-
-        while (true) {
-            attempts++
-
-            val activeCamera = tryOpenCamera(cameraId, attempts, requestTimestamp, scope)
-            if (activeCamera != null) {
-                return activeCamera
-            }
-
-            if (attempts > 3) {
-                Log.error { "Failed to open camera $cameraId after 3 retries" }
-                return null
-            }
-
-            // Listen to availability - if we are notified that the cameraId is available then
-            // retry immediately.
-            awaitAvailableCameraId(cameraId, timeoutMillis = 500)
-        }
-    }
-
-    @SuppressLint(
-        "MissingPermission", // Permissions are checked by calling methods.
-    )
-    private suspend fun tryOpenCamera(
-        cameraId: CameraId,
-        attempts: Int,
-        requestTimestamp: TimestampNs,
-        scope: CoroutineScope,
-    ): ActiveCamera? {
-        val instance = cameraManager.get()
-        val metadata = cameraMetadata.getMetadata(cameraId)
-        val cameraState = AndroidCameraState(
-            cameraId,
-            metadata,
-            attempts,
-            requestTimestamp
-        )
-
-        var exception: Throwable? = null
-        try {
-            Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    Api28Compat.openCamera(
-                        instance,
-                        cameraId.value,
-                        threads.camera2Executor,
-                        cameraState
-                    )
-                } else {
-                    instance.openCamera(
-                        cameraId.value,
-                        cameraState,
-                        threads.camera2Handler
-                    )
-                }
-            }
-
-            // Suspend until we are no longer in a "starting" state.
-            val result = cameraState.state.first {
-                it !is CameraStateUnopened
-            }
-            if (result is CameraStateOpen) {
-                return ActiveCamera(
-                    cameraState,
-                    scope,
-                    requestQueue
-                )
-            }
-        } catch (e: Throwable) {
-            exception = e
-            Log.warn(e) { "Failed to open $cameraId" }
-        }
-
-        if (exception != null) {
-            cameraState.closeWith(exception)
-        } else {
-            cameraState.close()
-        }
-        return null
-    }
-
-    /**
-     * Wait for the specified duration, or until the availability callback is invoked.
-     */
-    private suspend fun awaitAvailableCameraId(
-        cameraId: CameraId,
-        timeoutMillis: Long = 200
-    ): Boolean {
-        val manager = cameraManager.get()
-
-        val cameraAvailableEvent = CompletableDeferred<Boolean>()
-
-        val availabilityCallback = object : CameraManager.AvailabilityCallback() {
-            override fun onCameraAvailable(cameraIdString: String) {
-                if (cameraIdString == cameraId.value) {
-                    Log.debug { "$cameraId is now available. Retry." }
-                    cameraAvailableEvent.complete(true)
-                }
-            }
-
-            override fun onCameraAccessPrioritiesChanged() {
-                Log.debug { "Access priorities changed. Retry." }
-                cameraAvailableEvent.complete(true)
-            }
-        }
-
-        // WARNING: Only one registerAvailabilityCallback can be set at a time.
-        // TODO: Turn this into a broadcast service so that multiple listeners can be registered if
-        //  needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Api28Compat.registerAvailabilityCallback(
-                manager,
-                threads.camera2Executor,
-                availabilityCallback
-            )
-        } else {
-            manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
-        }
-
-        // Suspend until timeout fires or until availability callback fires.
-        val available = withTimeoutOrNull(timeoutMillis) {
-            cameraAvailableEvent.await()
-        } ?: false
-        manager.unregisterAvailabilityCallback(availabilityCallback)
-
-        if (!available) {
-            Log.info { "$cameraId was not available after $timeoutMillis ms!" }
-        }
-
-        return available
     }
 
     internal class ActiveCamera(

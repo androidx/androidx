@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
@@ -120,13 +121,14 @@ internal fun CameraDeviceWrapper?.closeWithTrace() {
 }
 
 internal fun CameraDevice?.closeWithTrace() {
+    val timeSource = SystemTimeSource()
     this?.let {
-        val start = Timestamps.now()
+        val start = Timestamps.now(timeSource)
         Log.info { "Closing Camera ${it.id}" }
         Debug.trace("CameraDevice-${it.id}#close") {
             it.close()
         }
-        val duration = Timestamps.now() - start
+        val duration = Timestamps.now(timeSource) - start
         Log.info { "Closed Camera ${it.id} in ${duration.formatMs()}" }
     }
 }
