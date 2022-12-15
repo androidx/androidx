@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -1861,6 +1862,53 @@ class XTypeElementTest(
             assertThat(concreteClassField).isEqualTo(abstractClassField)
             checkFieldElement(abstractClassField)
             checkFieldElement(concreteClassField)
+        }
+    }
+
+    @Test
+    fun internalModifier() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.Foo.kt",
+                    """
+                    package test
+                    internal class InternalClass internal constructor() {
+                      internal val valField: String = TODO()
+                      internal var varField: String = TODO()
+                      internal fun method(): String = TODO()
+                      internal lateinit var lateinitVarField: String
+                    }
+                    class PublicClass constructor() {
+                      val valField: String = TODO()
+                      var varField: String = TODO()
+                      fun method(): String = TODO()
+                      lateinit var lateinitVarField: String
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            // Matches by name rather than jvmName to avoid dealing with name mangling.
+            fun XTypeElement.getDeclaredMethod(name: String): XMethodElement {
+                return getDeclaredMethods().filter { it.name == name }.single()
+            }
+
+            val internalClass = invocation.processingEnv.requireTypeElement("test.InternalClass")
+            assertThat(internalClass.isInternal()).isTrue()
+            assertThat(internalClass.getConstructors().single().isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("valField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("varField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("lateinitVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("method").isInternal()).isTrue()
+
+            val publicClass = invocation.processingEnv.requireTypeElement("test.PublicClass")
+            assertThat(publicClass.isInternal()).isFalse()
+            assertThat(publicClass.getConstructors().single().isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("valField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("varField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("lateinitVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("method").isInternal()).isFalse()
         }
     }
 

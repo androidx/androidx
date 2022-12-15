@@ -42,8 +42,13 @@ import kotlinx.metadata.jvm.JvmPropertyExtensionVisitor
 import kotlinx.metadata.jvm.JvmTypeExtensionVisitor
 import kotlinx.metadata.jvm.KotlinClassMetadata
 
-// represents a function or constructor
-internal interface KmExecutable {
+/** Represents the kotlin metadata for a given element. */
+internal interface KmElement {
+    val flags: Flags
+}
+
+/** Represents a function or constructor. */
+internal interface KmExecutable : KmElement {
     val parameters: List<KmValueParameter>
 }
 
@@ -60,7 +65,7 @@ internal data class KmFunction(
      */
     val name: String,
     val descriptor: String,
-    private val flags: Flags,
+    override val flags: Flags,
     val typeArguments: List<KmType>,
     override val parameters: List<KmValueParameter>,
     val returnType: KmType,
@@ -76,7 +81,7 @@ internal data class KmFunction(
  */
 internal data class KmConstructor(
     val descriptor: String,
-    private val flags: Flags,
+    override val flags: Flags,
     override val parameters: List<KmValueParameter>
 ) : KmExecutable {
     fun isPrimary() = !Flag.Constructor.IS_SECONDARY(flags)
@@ -84,10 +89,11 @@ internal data class KmConstructor(
 
 internal data class KmProperty(
     val name: String,
+    override val flags: Flags,
     val type: KmType,
     val getter: KmFunction?,
     val setter: KmFunction?
-) {
+) : KmElement {
     val typeParameters
         get() = type.typeArguments
 
@@ -95,20 +101,20 @@ internal data class KmProperty(
 }
 
 internal data class KmType(
-    val flags: Flags,
+    override val flags: Flags,
     val typeArguments: List<KmType>,
     val extendsBound: KmType?,
     val isExtensionType: Boolean
-) {
+) : KmElement {
     fun isNullable() = Flag.Type.IS_NULLABLE(flags)
     fun erasure(): KmType = KmType(flags, emptyList(), extendsBound?.erasure(), isExtensionType)
 }
 
 private data class KmTypeParameter(
     val name: String,
-    val flags: Flags,
+    override val flags: Flags,
     val extendsBound: KmType?
-) {
+) : KmElement {
     fun asKmType() = KmType(
         flags = flags,
         typeArguments = emptyList(),
@@ -123,8 +129,8 @@ private data class KmTypeParameter(
 internal data class KmValueParameter(
     val name: String,
     val type: KmType,
-    private val flags: Int
-) {
+    override val flags: Flags
+) : KmElement {
     fun isNullable() = type.isNullable()
     fun hasDefault() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(flags)
 }
@@ -302,6 +308,7 @@ private class PropertyReader(
                     KmProperty(
                         type = returnType,
                         name = name,
+                        flags = flags,
                         setter = setter?.let { setterSignature ->
                             // setter parameter visitor may not be invoked when not declared
                             // explicitly

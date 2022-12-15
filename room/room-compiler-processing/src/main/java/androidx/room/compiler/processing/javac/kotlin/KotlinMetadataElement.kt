@@ -28,7 +28,7 @@ import javax.lang.model.element.ExecutableElement
 internal class KotlinMetadataElement(
     val element: Element,
     private val classMetadata: KotlinClassMetadata.Class
-) {
+) : KmElement {
     private val typeInfo: KmClassTypeInfo by lazy {
         lateinit var result: KmClassTypeInfo
         classMetadata.accept(
@@ -40,6 +40,8 @@ internal class KotlinMetadataElement(
     }
     val kmType
         get() = typeInfo.kmType
+    override val flags
+        get() = kmType.flags
     val superType
         get() = typeInfo.superType
     private val functionList: List<KmFunction> by lazy { classMetadata.readFunctions() }

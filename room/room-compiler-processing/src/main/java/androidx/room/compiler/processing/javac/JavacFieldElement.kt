@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFieldElement
-import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.javac.kotlin.KmProperty
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import javax.lang.model.element.VariableElement
@@ -25,11 +24,9 @@ import javax.lang.model.element.VariableElement
 internal class JavacFieldElement(
     env: JavacProcessingEnv,
     element: VariableElement
-) : JavacVariableElement(env, element),
-    XFieldElement,
-    XHasModifiers by JavacHasModifiers(element) {
+) : JavacVariableElement(env, element), XFieldElement {
 
-    private val kotlinMetadata: KmProperty? by lazy {
+    override val kotlinMetadata: KmProperty? by lazy {
         (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
     }
 
