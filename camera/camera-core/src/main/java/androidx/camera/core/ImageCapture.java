@@ -2073,6 +2073,19 @@ public final class ImageCapture extends UseCase {
             return mMetadata;
         }
 
+        @NonNull
+        @Override
+        public String toString() {
+            return "OutputFileOptions{"
+                    + "mFile=" + mFile + ", "
+                    + "mContentResolver=" + mContentResolver + ", "
+                    + "mSaveCollection=" + mSaveCollection + ", "
+                    + "mContentValues=" + mContentValues + ", "
+                    + "mOutputStream=" + mOutputStream + ", "
+                    + "mMetadata=" + mMetadata
+                    + "}";
+        }
+
         /**
          * Builder class for {@link OutputFileOptions}.
          */
@@ -2287,6 +2300,16 @@ public final class ImageCapture extends UseCase {
          */
         public void setLocation(@Nullable Location location) {
             mLocation = location;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Metadata{"
+                    + "mIsReversedHorizontal=" + mIsReversedHorizontal + ", "
+                    + "mIsReversedVertical=" + mIsReversedVertical + ", "
+                    + "mLocation=" + mLocation
+                    + "}";
         }
     }
 
