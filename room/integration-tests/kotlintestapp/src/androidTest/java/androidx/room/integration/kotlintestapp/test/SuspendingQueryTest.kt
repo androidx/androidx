@@ -18,6 +18,8 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
 import android.os.Build
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.room.Room
@@ -33,6 +35,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.IOException
@@ -148,6 +151,31 @@ class SuspendingQueryTest : TestDatabaseTest() {
             assertThat(books.size).isEqualTo((2))
             assertThat(books[0]).isEqualTo(TestUtil.BOOK_1)
             assertThat(books[1]).isEqualTo(TestUtil.BOOK_2)
+        }
+    }
+
+    @Test
+    fun allBookSuspend_autoClose() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase("autoClose.db")
+        val db = Room.databaseBuilder(
+            context = context,
+            klass = TestDatabase::class.java,
+            name = "test.db"
+        ).setAutoCloseTimeout(10, TimeUnit.MILLISECONDS).build()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            StrictMode.setThreadPolicy(
+                ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyDeath()
+                    .build()
+            )
+            runBlocking {
+                db.booksDao().getBooksSuspend()
+                delay(100) // let db auto-close
+                db.booksDao().getBooksSuspend()
+            }
         }
     }
 
