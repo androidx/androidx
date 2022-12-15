@@ -16,9 +16,9 @@
 
 package androidx.credentials.exceptions.createpublickeycredential
 
+import androidx.credentials.exceptions.domerrors.AbortError
+import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-import androidx.credentials.exceptions.publickeycredential.domexceptionerror.AbortError
-import androidx.credentials.exceptions.publickeycredential.domexceptionerror.EncodingError
 import com.google.common.truth.Truth
 import org.junit.Test
 

@@ -18,10 +18,10 @@ package androidx.credentials.exceptions.createpublickeycredential;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.credentials.exceptions.domerrors.AbortError;
+import androidx.credentials.exceptions.domerrors.DomError;
+import androidx.credentials.exceptions.domerrors.EncodingError;
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException;
-import androidx.credentials.exceptions.publickeycredential.domexceptionerror.AbortError;
-import androidx.credentials.exceptions.publickeycredential.domexceptionerror.DomError;
-import androidx.credentials.exceptions.publickeycredential.domexceptionerror.EncodingError;
 
 import org.junit.Test;
 
