@@ -17,7 +17,6 @@ package com.example.android.leanback;
 
 import android.app.Application;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
@@ -51,14 +50,12 @@ public class PhotoViewModel extends AndroidViewModel {
         );
 
         mPagingDataLiveData = Transformations.map(PagingLiveData.getLiveData(pager),
-                (Function<PagingData<Photo>, PagingData<PhotoItem>>) pagingData ->
+                pagingData ->
                         PagingDataTransforms.map(pagingData, mExecutor,
                                 (photo) -> new PhotoItem(photo.getTitle(),
                                         photo.getImgResourceId(),
                                         photo.getId()))
         );
-
-
     }
 
     public LiveData<PagingData<PhotoItem>> getPagingDataLiveData() {
