@@ -13,159 +13,140 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-
-import androidx.annotation.DoNotInline;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
-import androidx.lifecycle.ReportFragment.ActivityInitializationListener;
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 
 /**
  * Class that provides lifecycle for the whole application process.
- * <p>
+ *
  * You can consider this LifecycleOwner as the composite of all of your Activities, except that
- * {@link Lifecycle.Event#ON_CREATE} will be dispatched once and {@link Lifecycle.Event#ON_DESTROY}
+ * [Lifecycle.Event.ON_CREATE] will be dispatched once and [Lifecycle.Event.ON_DESTROY]
  * will never be dispatched. Other lifecycle events will be dispatched with following rules:
- * ProcessLifecycleOwner will dispatch {@link Lifecycle.Event#ON_START},
- * {@link Lifecycle.Event#ON_RESUME} events, as a first activity moves through these events.
- * {@link Lifecycle.Event#ON_PAUSE}, {@link Lifecycle.Event#ON_STOP}, events will be dispatched with
- * a <b>delay</b> after a last activity
+ * ProcessLifecycleOwner will dispatch [Lifecycle.Event.ON_START],
+ * [Lifecycle.Event.ON_RESUME] events, as a first activity moves through these events.
+ * [Lifecycle.Event.ON_PAUSE], [Lifecycle.Event.ON_STOP], events will be dispatched with
+ * a **delay** after a last activity
  * passed through them. This delay is long enough to guarantee that ProcessLifecycleOwner
  * won't send any events if activities are destroyed and recreated due to a
  * configuration change.
  *
- * <p>
  * It is useful for use cases where you would like to react on your app coming to the foreground or
  * going to the background and you don't need a milliseconds accuracy in receiving lifecycle
  * events.
  */
-@SuppressWarnings("WeakerAccess")
-public class ProcessLifecycleOwner implements LifecycleOwner {
-
-    @VisibleForTesting
-    static final long TIMEOUT_MS = 700; //mls
-
+class ProcessLifecycleOwner private constructor() : LifecycleOwner {
     // ground truth counters
-    private int mStartedCounter = 0;
-    private int mResumedCounter = 0;
+    private var startedCounter = 0
+    private var resumedCounter = 0
+    private var pauseSent = true
+    private var stopSent = true
+    private var handler: Handler? = null
+    private val registry = LifecycleRegistry(this)
+    private val delayedPauseRunnable = Runnable {
+        dispatchPauseIfNeeded()
+        dispatchStopIfNeeded()
+    }
+    private val initializationListener: ReportFragment.ActivityInitializationListener =
+        object : ReportFragment.ActivityInitializationListener {
+            override fun onCreate() {}
 
-    private boolean mPauseSent = true;
-    private boolean mStopSent = true;
+            override fun onStart() {
+                activityStarted()
+            }
 
-    private Handler mHandler;
-    private final LifecycleRegistry mRegistry = new LifecycleRegistry(this);
-
-    private Runnable mDelayedPauseRunnable = new Runnable() {
-        @Override
-        public void run() {
-            dispatchPauseIfNeeded();
-            dispatchStopIfNeeded();
+            override fun onResume() {
+                activityResumed()
+            }
         }
-    };
 
-    ActivityInitializationListener mInitializationListener =
-            new ActivityInitializationListener() {
-                @Override
-                public void onCreate() {
-                }
+    companion object {
+        @VisibleForTesting
+        internal const val TIMEOUT_MS: Long = 700 // mls
+        private val newInstance = ProcessLifecycleOwner()
 
-                @Override
-                public void onStart() {
-                    activityStarted();
-                }
+        /**
+         * The LifecycleOwner for the whole application process. Note that if your application
+         * has multiple processes, this provider does not know about other processes.
+         *
+         * @return [LifecycleOwner] for the whole application.
+         */
+        @JvmStatic
+        fun get(): LifecycleOwner {
+            return newInstance
+        }
 
-                @Override
-                public void onResume() {
-                    activityResumed();
-                }
-            };
-
-    private static final ProcessLifecycleOwner sInstance = new ProcessLifecycleOwner();
-
-    /**
-     * The LifecycleOwner for the whole application process. Note that if your application
-     * has multiple processes, this provider does not know about other processes.
-     *
-     * @return {@link LifecycleOwner} for the whole application.
-     */
-    @NonNull
-    public static LifecycleOwner get() {
-        return sInstance;
-    }
-
-    static void init(Context context) {
-        sInstance.attach(context);
-    }
-
-    void activityStarted() {
-        mStartedCounter++;
-        if (mStartedCounter == 1 && mStopSent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
-            mStopSent = false;
+        @JvmStatic
+        internal fun init(context: Context) {
+            newInstance.attach(context)
         }
     }
 
-    void activityResumed() {
-        mResumedCounter++;
-        if (mResumedCounter == 1) {
-            if (mPauseSent) {
-                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
-                mPauseSent = false;
+    internal fun activityStarted() {
+        startedCounter++
+        if (startedCounter == 1 && stopSent) {
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            stopSent = false
+        }
+    }
+
+    internal fun activityResumed() {
+        resumedCounter++
+        if (resumedCounter == 1) {
+            if (pauseSent) {
+                registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                pauseSent = false
             } else {
-                mHandler.removeCallbacks(mDelayedPauseRunnable);
+                handler!!.removeCallbacks(delayedPauseRunnable)
             }
         }
     }
 
-    void activityPaused() {
-        mResumedCounter--;
-        if (mResumedCounter == 0) {
-            mHandler.postDelayed(mDelayedPauseRunnable, TIMEOUT_MS);
+    internal fun activityPaused() {
+        resumedCounter--
+        if (resumedCounter == 0) {
+            handler!!.postDelayed(delayedPauseRunnable, TIMEOUT_MS)
         }
     }
 
-    void activityStopped() {
-        mStartedCounter--;
-        dispatchStopIfNeeded();
+    internal fun activityStopped() {
+        startedCounter--
+        dispatchStopIfNeeded()
     }
 
-    void dispatchPauseIfNeeded() {
-        if (mResumedCounter == 0) {
-            mPauseSent = true;
-            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
+    internal fun dispatchPauseIfNeeded() {
+        if (resumedCounter == 0) {
+            pauseSent = true
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         }
     }
 
-    void dispatchStopIfNeeded() {
-        if (mStartedCounter == 0 && mPauseSent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-            mStopSent = true;
+    internal fun dispatchStopIfNeeded() {
+        if (startedCounter == 0 && pauseSent) {
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            stopSent = true
         }
     }
 
-    private ProcessLifecycleOwner() {
-    }
-
-    @SuppressWarnings("deprecation")
-    void attach(Context context) {
-        mHandler = new Handler();
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        Application app = (Application) context.getApplicationContext();
-        app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
+    @Suppress("DEPRECATION")
+    internal fun attach(context: Context) {
+        handler = Handler()
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        val app = context.applicationContext as Application
+        app.registerActivityLifecycleCallbacks(object : EmptyActivityLifecycleCallbacks() {
             @RequiresApi(29)
-            @Override
-            public void onActivityPreCreated(@NonNull Activity activity,
-                    @Nullable Bundle savedInstanceState) {
+            override fun onActivityPreCreated(
+                activity: Activity,
+                savedInstanceState: Bundle?
+            ) {
                 // We need the ProcessLifecycleOwner to get ON_START and ON_RESUME precisely
                 // before the first activity gets its LifecycleOwner started/resumed.
                 // The activity's LifecycleOwner gets started/resumed via an activity registered
@@ -173,57 +154,49 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
                 // onActivityPreCreated(), we get our callbacks first while still having the
                 // right relative order compared to the Activity's onStart()/onResume() callbacks.
                 Api29Impl.registerActivityLifecycleCallbacks(activity,
-                        new EmptyActivityLifecycleCallbacks() {
-                            @Override
-                            public void onActivityPostStarted(@NonNull Activity activity) {
-                                activityStarted();
-                            }
+                    object : EmptyActivityLifecycleCallbacks() {
+                        override fun onActivityPostStarted(activity: Activity) {
+                            activityStarted()
+                        }
 
-                            @Override
-                            public void onActivityPostResumed(@NonNull Activity activity) {
-                                activityResumed();
-                            }
-                        });
+                        override fun onActivityPostResumed(activity: Activity) {
+                            activityResumed()
+                        }
+                    })
             }
 
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 // Only use ReportFragment pre API 29 - after that, we can use the
                 // onActivityPostStarted and onActivityPostResumed callbacks registered in
                 // onActivityPreCreated()
                 if (Build.VERSION.SDK_INT < 29) {
-                    ReportFragment.get(activity).setProcessListener(mInitializationListener);
+                    ReportFragment.get(activity).setProcessListener(initializationListener)
                 }
             }
 
-            @Override
-            public void onActivityPaused(Activity activity) {
-                activityPaused();
+            override fun onActivityPaused(activity: Activity) {
+                activityPaused()
             }
 
-            @Override
-            public void onActivityStopped(Activity activity) {
-                activityStopped();
+            override fun onActivityStopped(activity: Activity) {
+                activityStopped()
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public Lifecycle getLifecycle() {
-        return mRegistry;
+    override fun getLifecycle(): Lifecycle {
+        return registry
     }
 
     @RequiresApi(29)
-    static class Api29Impl {
-        private Api29Impl() {
-            // This class is not instantiable.
-        }
-
+    internal object Api29Impl {
         @DoNotInline
-        static void registerActivityLifecycleCallbacks(@NonNull Activity activity,
-                @NonNull Application.ActivityLifecycleCallbacks callback) {
-            activity.registerActivityLifecycleCallbacks(callback);
+        @JvmStatic
+        fun registerActivityLifecycleCallbacks(
+            activity: Activity,
+            callback: Application.ActivityLifecycleCallbacks
+        ) {
+            activity.registerActivityLifecycleCallbacks(callback)
         }
     }
 }
