@@ -24,6 +24,8 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.arch.core.util.Function
+import androidx.camera.core.AspectRatio.RATIO_16_9
+import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
@@ -73,8 +75,6 @@ import androidx.camera.video.Quality.LOWEST
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
 import androidx.camera.video.StreamInfo.StreamState
-import androidx.camera.video.VideoSpec.ASPECT_RATIO_16_9
-import androidx.camera.video.VideoSpec.ASPECT_RATIO_4_3
 import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.camera.video.internal.encoder.FakeVideoEncoderInfo
 import androidx.camera.video.internal.encoder.VideoEncoderConfig
@@ -458,7 +458,7 @@ class VideoCaptureTest {
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
                 it.setQualitySelector(QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)))
-                it.setAspectRatio(ASPECT_RATIO_4_3)
+                it.setAspectRatio(RATIO_4_3)
             }.build()
         )
         val videoCapture = createVideoCapture(videoOutput)
@@ -498,7 +498,7 @@ class VideoCaptureTest {
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
                 it.setQualitySelector(QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)))
-                it.setAspectRatio(ASPECT_RATIO_16_9)
+                it.setAspectRatio(RATIO_16_9)
             }.build()
         )
         val videoCapture = createVideoCapture(videoOutput)

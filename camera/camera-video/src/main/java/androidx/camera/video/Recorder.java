@@ -272,7 +272,7 @@ public final class Recorder implements VideoOutput {
     private static final VideoSpec VIDEO_SPEC_DEFAULT =
             VideoSpec.builder()
                     .setQualitySelector(DEFAULT_QUALITY_SELECTOR)
-                    .setAspectRatio(VideoSpec.ASPECT_RATIO_AUTO)
+                    .setAspectRatio(AspectRatio.RATIO_DEFAULT)
                     .build();
     private static final MediaSpec MEDIA_SPEC_DEFAULT =
             MediaSpec.builder()
@@ -659,8 +659,7 @@ public final class Recorder implements VideoOutput {
      */
     @AspectRatio.Ratio
     public int getAspectRatio() {
-        return VideoSpec.toPublicRatio(
-                getObservableData(mMediaSpec).getVideoSpec().getAspectRatio());
+        return getObservableData(mMediaSpec).getVideoSpec().getAspectRatio();
     }
 
     /**
@@ -1123,7 +1122,7 @@ public final class Recorder implements VideoOutput {
 
         // Append default video configurations
         VideoSpec videoSpec = mediaSpec.getVideoSpec();
-        if (videoSpec.getAspectRatio() == VideoSpec.ASPECT_RATIO_AUTO) {
+        if (videoSpec.getAspectRatio() == AspectRatio.RATIO_DEFAULT) {
             mediaSpecBuilder.configureVideo(
                     builder -> builder.setAspectRatio(VIDEO_SPEC_DEFAULT.getAspectRatio()));
         }

@@ -16,8 +16,9 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.VideoSpec.ASPECT_RATIO_16_9;
-import static androidx.camera.video.VideoSpec.ASPECT_RATIO_4_3;
+import static androidx.camera.core.AspectRatio.RATIO_16_9;
+import static androidx.camera.core.AspectRatio.RATIO_4_3;
+import static androidx.camera.core.AspectRatio.RATIO_DEFAULT;
 
 import static java.lang.Math.abs;
 import static java.util.Objects.requireNonNull;
@@ -29,6 +30,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.internal.utils.SizeUtil;
 
@@ -76,8 +78,8 @@ class QualityRatioToResolutionsTable {
     // Value: aspect ratio rational
     private static final Map<Integer, Rational> sAspectRatioMap = new HashMap<>();
     static {
-        sAspectRatioMap.put(ASPECT_RATIO_4_3, AspectRatioUtil.ASPECT_RATIO_4_3);
-        sAspectRatioMap.put(ASPECT_RATIO_16_9, AspectRatioUtil.ASPECT_RATIO_16_9);
+        sAspectRatioMap.put(RATIO_4_3, AspectRatioUtil.ASPECT_RATIO_4_3);
+        sAspectRatioMap.put(RATIO_16_9, AspectRatioUtil.ASPECT_RATIO_16_9);
     }
 
     // Key: QualityRatio (Quality + AspectRatio)
@@ -85,7 +87,7 @@ class QualityRatioToResolutionsTable {
     private final Map<QualityRatio, List<Size>> mTable = new HashMap<>();
     {
         for (Quality quality : sQualityRangeMap.keySet()) {
-            mTable.put(QualityRatio.of(quality, VideoSpec.ASPECT_RATIO_AUTO), new ArrayList<>());
+            mTable.put(QualityRatio.of(quality, RATIO_DEFAULT), new ArrayList<>());
             for (Integer aspectRatio : sAspectRatioMap.keySet()) {
                 mTable.put(QualityRatio.of(quality, aspectRatio), new ArrayList<>());
             }
@@ -97,7 +99,7 @@ class QualityRatioToResolutionsTable {
      *
      * @param resolutions             the resolutions to be classified.
      * @param profileQualityToSizeMap the video sizes of CamcorderProfile. It will be used to map
-     *                                quality+{@link VideoSpec#ASPECT_RATIO_AUTO} to the profile
+     *                                [quality + {@link AspectRatio#RATIO_DEFAULT}] to the profile
      *                                size, and used to sort each Quality-Ratio row by the
      *                                smallest area difference to the profile size.
      */
@@ -111,18 +113,17 @@ class QualityRatioToResolutionsTable {
     /**
      * Gets the resolutions of the mapped Quality + AspectRatio.
      *
-     * <p>Giving {@link VideoSpec#ASPECT_RATIO_AUTO} will return the mapped profile size.
+     * <p>Giving {@link AspectRatio#RATIO_DEFAULT} will return the mapped profile size.
      */
     @NonNull
-    List<Size> getResolutions(@NonNull Quality quality, @VideoSpec.AspectRatio int aspectRatio) {
+    List<Size> getResolutions(@NonNull Quality quality, @AspectRatio.Ratio int aspectRatio) {
         List<Size> qualityRatioRow = getQualityRatioRow(quality, aspectRatio);
         return qualityRatioRow != null ? new ArrayList<>(qualityRatioRow) : new ArrayList<>(0);
     }
 
     private void addProfileSizesToTable(@NonNull Map<Quality, Size> profileQualityToSizeMap) {
         for (Map.Entry<Quality, Size> entry : profileQualityToSizeMap.entrySet()) {
-            requireNonNull(getQualityRatioRow(entry.getKey(), VideoSpec.ASPECT_RATIO_AUTO))
-                    .add(entry.getValue());
+            requireNonNull(getQualityRatioRow(entry.getKey(), RATIO_DEFAULT)).add(entry.getValue());
         }
     }
 
@@ -181,14 +182,14 @@ class QualityRatioToResolutionsTable {
 
     @Nullable
     private List<Size> getQualityRatioRow(@NonNull Quality quality,
-            @VideoSpec.AspectRatio int aspectRatio) {
+            @AspectRatio.Ratio int aspectRatio) {
         return mTable.get(QualityRatio.of(quality, aspectRatio));
     }
 
     @AutoValue
     abstract static class QualityRatio {
 
-        static QualityRatio of(@NonNull Quality quality, @VideoSpec.AspectRatio int aspectRatio) {
+        static QualityRatio of(@NonNull Quality quality, @AspectRatio.Ratio int aspectRatio) {
             return new AutoValue_QualityRatioToResolutionsTable_QualityRatio(quality, aspectRatio);
         }
 
@@ -196,7 +197,7 @@ class QualityRatioToResolutionsTable {
         abstract Quality getQuality();
 
         @SuppressWarnings("unused")
-        @VideoSpec.AspectRatio
+        @AspectRatio.Ratio
         abstract int getAspectRatio();
     }
 }
