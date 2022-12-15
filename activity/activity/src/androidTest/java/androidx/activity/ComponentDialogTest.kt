@@ -17,8 +17,11 @@
 package androidx.activity
 
 import android.content.Context
+import android.os.Build
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -61,6 +64,46 @@ class ComponentDialogTest {
             assertWithMessage("A new Lifecycle object should be created after destruction")
                 .that(dialog.lifecycle)
                 .isNotSameInstanceAs(lifecycle)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    @Throws(Throwable::class)
+    fun savedState() {
+        withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            val dialog = withActivity {
+                ComponentDialog(this).also {
+                    it.show()
+                }
+            }
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            // Initialize saved state
+            withActivity {
+                val registry = dialog.savedStateRegistry
+                val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+                assertThat(savedState).isNull()
+                registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
+            }
+
+            // Destroy dialog and restore saved instance state
+            val savedState = dialog.onSaveInstanceState()
+            assertThat(savedState).isNotNull()
+            onActivity {
+                dialog.dismiss()
+            }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            val restoredDialog = withActivity {
+                ComponentDialog(this)
+            }
+            withActivity {
+                assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
+                    .isEqualTo(Lifecycle.State.INITIALIZED)
+                restoredDialog.onRestoreInstanceState(savedState)
+            }
+            assertThat(hasDefaultSavedState(restoredDialog.savedStateRegistry)).isTrue()
         }
     }
 

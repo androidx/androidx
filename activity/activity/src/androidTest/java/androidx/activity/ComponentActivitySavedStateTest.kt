@@ -111,15 +111,15 @@ class ComponentActivitySavedStateTest {
     }
 }
 
-private class DefaultProvider : SavedStateRegistry.SavedStateProvider {
+class DefaultProvider : SavedStateRegistry.SavedStateProvider {
     override fun saveState() = Bundle().apply { putString(KEY, VALUE) }
 }
 
 private const val KEY = "key"
 private const val VALUE = "value"
-private const val CALLBACK_KEY = "foo"
+const val CALLBACK_KEY = "foo"
 
-private fun hasDefaultSavedState(store: SavedStateRegistry): Boolean {
+fun hasDefaultSavedState(store: SavedStateRegistry): Boolean {
     val savedState = store.consumeRestoredStateForKey(CALLBACK_KEY)
     return savedState?.getString(KEY) == VALUE
 }

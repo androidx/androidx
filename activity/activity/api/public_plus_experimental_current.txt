@@ -45,12 +45,14 @@ package androidx.activity {
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
-  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
+  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
     ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
     method public final androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @CallSuper public void onBackPressed();
+    property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class FullyDrawnReporter {
