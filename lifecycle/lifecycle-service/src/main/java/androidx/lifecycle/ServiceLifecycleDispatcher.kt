@@ -13,98 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.app.Service;
-import android.content.Intent;
-import android.os.Handler;
-
-import androidx.annotation.NonNull;
+import android.app.Service
+import android.os.Handler
 
 /**
- * Helper class to dispatch lifecycle events for a service. Use it only if it is impossible
- * to use {@link LifecycleService}.
+ * Helper class to dispatch lifecycle events for a Service. Use it only if it is impossible
+ * to use [LifecycleService].
+ *
+ * @param provider [LifecycleOwner] for a service, usually it is a service itself
  */
-@SuppressWarnings("WeakerAccess")
-public class ServiceLifecycleDispatcher {
-    private final LifecycleRegistry mRegistry;
-    private final Handler mHandler;
-    private DispatchRunnable mLastDispatchRunnable;
+open class ServiceLifecycleDispatcher(provider: LifecycleOwner) {
+
+    private val registry: LifecycleRegistry
+    private val handler: Handler
+    private var lastDispatchRunnable: DispatchRunnable? = null
+
+    init {
+        registry = LifecycleRegistry(provider)
+        @Suppress("DEPRECATION")
+        handler = Handler()
+    }
+
+    private fun postDispatchRunnable(event: Lifecycle.Event) {
+        lastDispatchRunnable?.run()
+        lastDispatchRunnable = DispatchRunnable(registry, event)
+        handler.postAtFrontOfQueue(lastDispatchRunnable!!)
+    }
 
     /**
-     * @param provider {@link LifecycleOwner} for a service, usually it is a service itself
+     * Must be a first call in [Service.onCreate] method, even before super.onCreate call.
      */
-    @SuppressWarnings("deprecation")
-    public ServiceLifecycleDispatcher(@NonNull LifecycleOwner provider) {
-        mRegistry = new LifecycleRegistry(provider);
-        mHandler = new Handler();
-    }
-
-    private void postDispatchRunnable(Lifecycle.Event event) {
-        if (mLastDispatchRunnable != null) {
-            mLastDispatchRunnable.run();
-        }
-        mLastDispatchRunnable = new DispatchRunnable(mRegistry, event);
-        mHandler.postAtFrontOfQueue(mLastDispatchRunnable);
+    open fun onServicePreSuperOnCreate() {
+        postDispatchRunnable(Lifecycle.Event.ON_CREATE)
     }
 
     /**
-     * Must be a first call in {@link Service#onCreate()} method, even before super.onCreate call.
-     */
-    public void onServicePreSuperOnCreate() {
-        postDispatchRunnable(Lifecycle.Event.ON_CREATE);
-    }
-
-    /**
-     * Must be a first call in {@link Service#onBind(Intent)} method, even before super.onBind
+     * Must be a first call in [Service.onBind] method, even before super.onBind
      * call.
      */
-    public void onServicePreSuperOnBind() {
-        postDispatchRunnable(Lifecycle.Event.ON_START);
+    open fun onServicePreSuperOnBind() {
+        postDispatchRunnable(Lifecycle.Event.ON_START)
     }
 
     /**
-     * Must be a first call in {@link Service#onStart(Intent, int)} or
-     * {@link Service#onStartCommand(Intent, int, int)} methods, even before
+     * Must be a first call in [Service.onStart] or
+     * [Service.onStartCommand] methods, even before
      * a corresponding super call.
      */
-    public void onServicePreSuperOnStart() {
-        postDispatchRunnable(Lifecycle.Event.ON_START);
+    open fun onServicePreSuperOnStart() {
+        postDispatchRunnable(Lifecycle.Event.ON_START)
     }
 
     /**
-     * Must be a first call in {@link Service#onDestroy()} method, even before super.OnDestroy
+     * Must be a first call in [Service.onDestroy] method, even before super.OnDestroy
      * call.
      */
-    public void onServicePreSuperOnDestroy() {
-        postDispatchRunnable(Lifecycle.Event.ON_STOP);
-        postDispatchRunnable(Lifecycle.Event.ON_DESTROY);
+    open fun onServicePreSuperOnDestroy() {
+        postDispatchRunnable(Lifecycle.Event.ON_STOP)
+        postDispatchRunnable(Lifecycle.Event.ON_DESTROY)
     }
 
     /**
-     * @return {@link Lifecycle} for the given {@link LifecycleOwner}
+     * [Lifecycle] for the given [LifecycleOwner]
      */
-    @NonNull
-    public Lifecycle getLifecycle() {
-        return mRegistry;
-    }
+    open val lifecycle: Lifecycle
+        get() = registry
 
-    static class DispatchRunnable implements Runnable {
-        private final LifecycleRegistry mRegistry;
-        final Lifecycle.Event mEvent;
-        private boolean mWasExecuted = false;
+    internal class DispatchRunnable(
+        private val registry: LifecycleRegistry,
+        val event: Lifecycle.Event
+    ) : Runnable {
+        private var wasExecuted = false
 
-        DispatchRunnable(@NonNull LifecycleRegistry registry, Lifecycle.Event event) {
-            mRegistry = registry;
-            mEvent = event;
-        }
-
-        @Override
-        public void run() {
-            if (!mWasExecuted) {
-                mRegistry.handleLifecycleEvent(mEvent);
-                mWasExecuted = true;
+        override fun run() {
+            if (!wasExecuted) {
+                registry.handleLifecycleEvent(event)
+                wasExecuted = true
             }
         }
     }

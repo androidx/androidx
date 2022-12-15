@@ -9,12 +9,13 @@ package androidx.lifecycle {
   }
 
   public class ServiceLifecycleDispatcher {
-    ctor public ServiceLifecycleDispatcher(androidx.lifecycle.LifecycleOwner);
+    ctor public ServiceLifecycleDispatcher(androidx.lifecycle.LifecycleOwner provider);
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public void onServicePreSuperOnBind();
     method public void onServicePreSuperOnCreate();
     method public void onServicePreSuperOnDestroy();
     method public void onServicePreSuperOnStart();
+    property public androidx.lifecycle.Lifecycle lifecycle;
   }
 
 }
