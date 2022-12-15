@@ -21,7 +21,6 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
-import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
@@ -44,7 +43,7 @@ import javax.lang.model.util.ElementFilter
 internal sealed class JavacTypeElement(
     env: JavacProcessingEnv,
     override val element: TypeElement
-) : JavacElement(env, element), XTypeElement, XHasModifiers by JavacHasModifiers(element) {
+) : JavacElement(env, element), XTypeElement {
 
     override val name: String
         get() = element.simpleName.toString()
@@ -53,7 +52,7 @@ internal sealed class JavacTypeElement(
     override val packageName: String
         get() = MoreElements.getPackage(element).qualifiedName.toString()
 
-    val kotlinMetadata by lazy {
+    override val kotlinMetadata by lazy {
         KotlinMetadataElement.createFor(element)
     }
 

@@ -31,6 +31,8 @@ internal class JavacTypeParameterElement(
     override val element: TypeParameterElement,
     private val kotlinType: KmType?,
 ) : JavacElement(env, element), XTypeParameterElement {
+    override val kotlinMetadata = null
+
     override val name: String
         get() = element.simpleName.toString()
 
