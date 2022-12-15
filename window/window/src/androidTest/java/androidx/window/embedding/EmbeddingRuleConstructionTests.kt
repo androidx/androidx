@@ -41,7 +41,6 @@ import org.junit.Test
  */
 class EmbeddingRuleConstructionTests {
     private val application = ApplicationProvider.getApplicationContext<Context>()
-    private val ruleController = RuleController.getInstance(application)
     private val density = application.resources.displayMetrics.density
 
     /**
@@ -49,7 +48,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPairRule_Xml() {
-        val rules = ruleController.parseRules(R.xml.test_split_config_default_split_pair_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_split_pair_rule)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         assertEquals(FINISH_NEVER, rule.finishPrimaryWithSecondary)
@@ -150,8 +150,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Xml() {
-        val rules = ruleController
-            .parseRules(R.xml.test_split_config_default_split_placeholder_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_split_placeholder_rule)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         assertEquals(FINISH_ALWAYS, rule.finishPrimaryWithPlaceholder)
@@ -256,7 +256,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_ActivityRule_Xml() {
-        val rules = ruleController.parseRules(R.xml.test_split_config_default_activity_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_activity_rule)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(false, rule.alwaysExpand)

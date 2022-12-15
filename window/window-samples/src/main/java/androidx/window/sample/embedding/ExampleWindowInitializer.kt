@@ -27,7 +27,7 @@ import androidx.window.sample.R
 class ExampleWindowInitializer : Initializer<RuleController> {
     override fun create(context: Context): RuleController =
         RuleController.getInstance(context).apply {
-            setRules(parseRules(R.xml.main_split_config))
+            setRules(RuleController.parseRules(context, R.xml.main_split_config))
         }
 
     override fun dependencies(): List<Class<out Initializer<*>>> {

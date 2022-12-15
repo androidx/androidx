@@ -58,7 +58,7 @@ package androidx.window.embedding {
     method public void clearRules();
     method public static androidx.window.embedding.RuleController getInstance(android.content.Context context);
     method public java.util.Set<androidx.window.embedding.EmbeddingRule> getRules();
-    method public java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(@XmlRes int staticRuleResourceId);
+    method public static java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(android.content.Context context, @XmlRes int staticRuleResourceId);
     method public void removeRule(androidx.window.embedding.EmbeddingRule rule);
     method public void setRules(java.util.Set<? extends androidx.window.embedding.EmbeddingRule> rules);
     field public static final androidx.window.embedding.RuleController.Companion Companion;
@@ -66,6 +66,7 @@ package androidx.window.embedding {
 
   public static final class RuleController.Companion {
     method public androidx.window.embedding.RuleController getInstance(android.content.Context context);
+    method public java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(android.content.Context context, @XmlRes int staticRuleResourceId);
   }
 
   public final class SplitController {
