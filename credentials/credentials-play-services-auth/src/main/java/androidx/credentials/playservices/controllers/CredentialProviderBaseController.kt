@@ -37,10 +37,12 @@ import com.google.android.gms.common.api.CommonStatusCodes
 open class CredentialProviderBaseController(private val activity: android.app.Activity) {
     companion object {
 
-        // Common retryable status codes from the play modules
+        // Common retryable status codes from the play modules found
+        // https://developers.google.com/android/reference/com/google/android/gms/common/api/CommonStatusCodes
         val retryables: Set<Int> = setOf(
             CommonStatusCodes.INTERNAL_ERROR,
-            CommonStatusCodes.NETWORK_ERROR
+            CommonStatusCodes.NETWORK_ERROR,
+            CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL
         )
 
         // Generic controller request code used by all controllers

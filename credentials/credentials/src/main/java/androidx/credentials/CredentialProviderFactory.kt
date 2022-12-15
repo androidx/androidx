@@ -54,16 +54,19 @@ class CredentialProviderFactory {
             if (classNames.isEmpty()) {
                 return null
             } else {
-                return instantiatePreUProvider(classNames)
+                return instantiatePreUProvider(classNames, context)
             }
         }
 
-        private fun instantiatePreUProvider(classNames: List<String>): CredentialProvider? {
+        private fun instantiatePreUProvider(classNames: List<String>, context: Context):
+            CredentialProvider? {
             var provider: CredentialProvider? = null
             for (className in classNames) {
                 try {
                     val klass = Class.forName(className)
-                    val p = klass.getConstructor().newInstance() as CredentialProvider
+                    val p = klass.getConstructor(Context::class.java).newInstance(context) as
+                        CredentialProvider
+                    // TODO("Retrys and look into multiple constructors")
                     if (p.isAvailableOnDevice()) {
                         if (provider != null) {
                             Log.i(TAG, "Only one active OEM CredentialProvider allowed")

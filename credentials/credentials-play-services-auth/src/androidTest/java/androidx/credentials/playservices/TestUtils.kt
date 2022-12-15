@@ -21,6 +21,7 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import com.google.android.gms.common.ConnectionResult
 
 class TestUtils {
     companion object {
@@ -215,5 +216,19 @@ class TestUtils {
             }
             json.put("user", userJson)
         }
+
+        @JvmStatic
+        val ConnectionResultFailureCases = arrayListOf(
+            ConnectionResult.UNKNOWN, ConnectionResult.API_DISABLED, ConnectionResult.CANCELED,
+            ConnectionResult.API_DISABLED_FOR_CONNECTION, ConnectionResult.API_UNAVAILABLE,
+            ConnectionResult.DEVELOPER_ERROR, ConnectionResult.INTERNAL_ERROR,
+            ConnectionResult.INTERRUPTED, ConnectionResult.INVALID_ACCOUNT,
+            ConnectionResult.LICENSE_CHECK_FAILED, ConnectionResult.NETWORK_ERROR,
+            ConnectionResult.RESOLUTION_ACTIVITY_NOT_FOUND, ConnectionResult.RESOLUTION_REQUIRED,
+            ConnectionResult.RESTRICTED_PROFILE, ConnectionResult.SERVICE_DISABLED,
+            ConnectionResult.SERVICE_INVALID, ConnectionResult.SERVICE_MISSING,
+            ConnectionResult.SERVICE_MISSING_PERMISSION, ConnectionResult.SERVICE_UPDATING,
+            ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, ConnectionResult.SIGN_IN_FAILED,
+            ConnectionResult.SIGN_IN_REQUIRED, ConnectionResult.TIMEOUT)
     }
 }
