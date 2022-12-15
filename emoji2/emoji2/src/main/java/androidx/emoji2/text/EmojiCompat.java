@@ -814,9 +814,9 @@ public class EmojiCompat {
     }
 
     /**
-     * If the character at {@code offset} is part of an emoji, returns the index range of that
-     * emoji, start index inclusively/end index exclusively so that
-     * {@code charSequence.subSequence(start, end)} will return that emoji.
+     * Together with {@link #getEmojiEnd(CharSequence, int)}, if the character at {@code offset} is
+     * part of an emoji, returns the index range of that emoji, start index inclusively/end index
+     * exclusively so that {@code charSequence.subSequence(start, end)} will return that emoji.
      * E.g., getEmojiStart/End("AB😀", 1) will return (-1,-1) since 'B' is not part an emoji;
      *       getEmojiStart/End("AB😀", 3) will return [2,4), note that "😀" contains 2 Chars.
      * Returns -1 otherwise.
