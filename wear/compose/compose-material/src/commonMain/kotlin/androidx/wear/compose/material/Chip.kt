@@ -1206,8 +1206,7 @@ public object ChipDefaults {
      * The default padding to be provided around a [CompactChip] in order to ensure that its
      * tappable area meets minimum UX guidance.
      */
-    // TODO(b/234119038): Make this public in 1.1
-    internal val CompactChipTapTargetPadding: PaddingValues = PaddingValues(
+    public val CompactChipTapTargetPadding: PaddingValues = PaddingValues(
         top = 8.dp,
         bottom = 8.dp
     )
