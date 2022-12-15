@@ -63,7 +63,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPairRule_Xml() {
-        val rules = ruleController.parseRules(R.xml.test_split_config_default_split_pair_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_split_pair_rule)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -82,8 +83,8 @@ class EmbeddingRuleConstructionTests {
     /** Verifies that horizontal layout are set correctly when reading [SplitPairRule] from XML. */
     @Test
     fun testHorizontalLayout_SplitPairRule_Xml() {
-        val rules = ruleController
-            .parseRules(R.xml.test_split_config_split_pair_rule_horizontal_layout)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_split_pair_rule_horizontal_layout)
         assertEquals(1, rules.size)
         val rule: SplitPairRule = rules.first() as SplitPairRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -193,8 +194,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_SplitPlaceholderRule_Xml() {
-        val rules = ruleController
-            .parseRules(R.xml.test_split_config_default_split_placeholder_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_split_placeholder_rule)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -215,8 +216,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testHorizontalLayout_SplitPlaceholderRule_Xml() {
-        val rules = ruleController
-            .parseRules(R.xml.test_split_config_split_placeholder_horizontal_layout)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_split_placeholder_horizontal_layout)
         assertEquals(1, rules.size)
         val rule: SplitPlaceholderRule = rules.first() as SplitPlaceholderRule
         val expectedSplitLayout = SplitAttributes.Builder()
@@ -335,7 +336,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testDefaults_ActivityRule_Xml() {
-        val rules = ruleController.parseRules(R.xml.test_split_config_default_activity_rule)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_default_activity_rule)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertNull(rule.tag)
@@ -348,7 +350,8 @@ class EmbeddingRuleConstructionTests {
      */
     @Test
     fun testSetTagAndAlwaysExpand_ActivityRule_Xml() {
-        val rules = ruleController.parseRules(R.xml.test_split_config_activity_rule_with_tag)
+        val rules = RuleController
+            .parseRules(application, R.xml.test_split_config_activity_rule_with_tag)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
         assertEquals(TEST_TAG, rule.tag)
@@ -407,13 +410,14 @@ class EmbeddingRuleConstructionTests {
     @Test
     fun testIllegalTag_XML() {
         assertThrows(IllegalArgumentException::class.java) {
-            ruleController.parseRules(R.xml.test_split_config_duplicated_tag)
+            RuleController.parseRules(application, R.xml.test_split_config_duplicated_tag)
         }
     }
 
     @Test
     fun testReplacingRuleWithTag() {
-        var rules = ruleController.parseRules(R.xml.test_split_config_activity_rule_with_tag)
+        var rules = RuleController
+            .parseRules(application, R.xml.test_split_config_activity_rule_with_tag)
         assertEquals(1, rules.size)
         var rule = rules.first()
         assertEquals(TEST_TAG, rule.tag)
