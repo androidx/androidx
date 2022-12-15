@@ -6,6 +6,8 @@ public object RequestConverter {
                 query = parcelable.query,
                 extraValues = parcelable.extraValues.map {
                         com.mysdk.InnerValueConverter.fromParcelable(it) }.toList(),
+                maybeValue = parcelable.maybeValue?.let { notNullValue ->
+                        com.mysdk.InnerValueConverter.fromParcelable(notNullValue) },
                 myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate)
         return annotatedValue
     }
@@ -15,6 +17,8 @@ public object RequestConverter {
         parcelable.query = annotatedValue.query
         parcelable.extraValues = annotatedValue.extraValues.map {
                 com.mysdk.InnerValueConverter.toParcelable(it) }.toTypedArray()
+        parcelable.maybeValue = annotatedValue.maybeValue?.let { notNullValue ->
+                com.mysdk.InnerValueConverter.toParcelable(notNullValue) }
         parcelable.myInterface = MyInterfaceStubDelegate(annotatedValue.myInterface)
         return parcelable
     }

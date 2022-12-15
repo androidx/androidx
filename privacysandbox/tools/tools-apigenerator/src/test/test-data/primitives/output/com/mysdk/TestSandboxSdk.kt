@@ -33,6 +33,8 @@ public interface TestSandboxSdk {
 
     public suspend fun processLongList(x: List<Long>): List<Long>
 
+    public suspend fun processNullableInt(x: Int?): Int?
+
     public suspend fun processShortList(x: List<Short>): List<Short>
 
     public suspend fun processStringList(x: List<String>): List<String>

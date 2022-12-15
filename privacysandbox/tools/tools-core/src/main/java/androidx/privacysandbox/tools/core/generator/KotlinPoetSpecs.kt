@@ -39,11 +39,14 @@ fun Parameter.poetSpec(): ParameterSpec {
 
 /** [TypeName] equivalent to this type. */
 fun Type.poetTypeName(): TypeName {
-    val className = ClassName(packageName, simpleName)
-    if (typeParameters.isEmpty()) {
-        return className
-    }
-    return className.parameterizedBy(typeParameters.map { it.poetTypeName() })
+    val typeName =
+        if (typeParameters.isEmpty())
+            poetClassName()
+        else
+            poetClassName().parameterizedBy(typeParameters.map { it.poetTypeName() })
+    if (isNullable)
+        return typeName.copy(nullable = true)
+    return typeName
 }
 
 /** [ClassName] equivalent to this type. */
