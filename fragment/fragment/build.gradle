@@ -30,6 +30,7 @@ dependencies {
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
     api("androidx.activity:activity:1.5.1")
+    api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
