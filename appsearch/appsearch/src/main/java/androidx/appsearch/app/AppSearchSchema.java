@@ -319,6 +319,9 @@ public final class AppSearchSchema {
             } else if (this instanceof AppSearchSchema.DocumentPropertyConfig) {
                 ((DocumentPropertyConfig) this)
                         .appendDocumentPropertyConfigFields(builder);
+            } else if (this instanceof AppSearchSchema.LongPropertyConfig) {
+                ((LongPropertyConfig) this)
+                        .appendLongPropertyConfigFields(builder);
             }
 
             switch (getCardinality()) {
@@ -670,14 +673,54 @@ public final class AppSearchSchema {
 
     /** Configuration for a property containing a 64-bit integer. */
     public static final class LongPropertyConfig extends PropertyConfig {
+        private static final String INDEXING_TYPE_FIELD = "indexingType";
+
+        /**
+         * Encapsulates the configurations on how AppSearch should query/index these 64-bit
+         * integers.
+         * @hide
+         */
+        @IntDef(value = {
+                INDEXING_TYPE_NONE,
+                INDEXING_TYPE_RANGE
+        })
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface IndexingType {}
+
+        /** Content in this property will not be indexed. */
+        public static final int INDEXING_TYPE_NONE = 0;
+
+        /**
+         * Content in this property will be indexed and can be fetched via numeric search range
+         * query.
+         *
+         * <p>Ex. A property with 1024 should match numeric search range query [0, 2000].
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.NUMERIC_SEARCH)
+        // @exportToFramework:endStrip()
+        public static final int INDEXING_TYPE_RANGE = 1;
+
         LongPropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
+        }
+
+        /** Returns how the property is indexed. */
+        public @IndexingType int getIndexingType() {
+            if (mBundle.containsKey(INDEXING_TYPE_FIELD)) {
+                return mBundle.getInt(INDEXING_TYPE_FIELD);
+            }
+            return INDEXING_TYPE_NONE;
         }
 
         /** Builder for {@link LongPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
             private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+            private @IndexingType int mIndexingType = INDEXING_TYPE_NONE;
 
             /** Creates a new {@link LongPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
@@ -699,6 +742,21 @@ public final class AppSearchSchema {
                 return this;
             }
 
+            /**
+             * Configures how a property should be indexed so that it can be retrieved by queries.
+             *
+             * <p>If this method is not called, the default indexing type is
+             * {@link LongPropertyConfig#INDEXING_TYPE_NONE}, so that it will not be indexed
+             * and cannot be matched by queries.
+             */
+            @NonNull
+            public LongPropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
+                Preconditions.checkArgumentInRange(
+                        indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_RANGE, "indexingType");
+                mIndexingType = indexingType;
+                return this;
+            }
+
             /** Constructs a new {@link LongPropertyConfig} from the contents of this builder. */
             @NonNull
             public LongPropertyConfig build() {
@@ -706,7 +764,29 @@ public final class AppSearchSchema {
                 bundle.putString(NAME_FIELD, mPropertyName);
                 bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_LONG);
                 bundle.putInt(CARDINALITY_FIELD, mCardinality);
+                bundle.putInt(INDEXING_TYPE_FIELD, mIndexingType);
                 return new LongPropertyConfig(bundle);
+            }
+        }
+
+        /**
+         * Appends a debug string for the {@link LongPropertyConfig} instance to the given
+         * string builder.
+         *
+         * <p>This appends fields specific to a {@link LongPropertyConfig} instance.
+         *
+         * @param builder        the builder to append to.
+         */
+        void appendLongPropertyConfigFields(@NonNull IndentingStringBuilder builder) {
+            switch (getIndexingType()) {
+                case AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE:
+                    builder.append("indexingType: INDEXING_TYPE_NONE,\n");
+                    break;
+                case AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE:
+                    builder.append("indexingType: INDEXING_TYPE_RANGE,\n");
+                    break;
+                default:
+                    builder.append("indexingType: INDEXING_TYPE_UNKNOWN,\n");
             }
         }
     }

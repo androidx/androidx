@@ -49,6 +49,9 @@ public class AlwaysSupportedFeatures implements Features {
         if (Features.TOKENIZER_TYPE_RFC822.equals(feature)) {
             return true;
         }
+        if (Features.NUMERIC_SEARCH.equals(feature)) {
+            return true;
+        }
         return false;
     }
 }

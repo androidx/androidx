@@ -75,6 +75,13 @@ public interface Features {
     String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric search
+     * features.
+     */
+    String NUMERIC_SEARCH = "NUMERIC_SEARCH";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.
