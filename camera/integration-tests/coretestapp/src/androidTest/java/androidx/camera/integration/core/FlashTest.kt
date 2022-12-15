@@ -62,8 +62,10 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -233,7 +235,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             flashMode = flashMode,
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             captureCallback = captureCallback,
-            flashMustBeSupported = true
+            flashMustBeSupported = true,
+            assertCaptureCount = false
         )
 
         Assume.assumeFalse(
@@ -249,7 +252,8 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         flashMode: Int,
         captureMode: Int,
         captureCallback: CameraCaptureSession.CaptureCallback? = null,
-        flashMustBeSupported: Boolean = false
+        flashMustBeSupported: Boolean = false,
+        assertCaptureCount: Boolean = true
     ) = runBlocking {
         val imageCapture = ImageCapture.Builder().also { builder ->
             captureCallback?.let {
@@ -291,7 +295,10 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         imageCapture.takePicture(Dispatchers.Main.asExecutor(), callback)
 
         // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+        callback.awaitCapturesAndAssert(
+            capturedImagesCount = 1,
+            assertCaptureCount = assertCaptureCount
+        )
     }
 
     private fun getSurfaceProvider(): Preview.SurfaceProvider {
@@ -356,10 +363,20 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         fun awaitCapturesAndAssert(
             timeout: Long = CAPTURE_TIMEOUT,
             capturedImagesCount: Int = 0,
-            errorsCount: Int = 0
+            errorsCount: Int = 0,
+            assertCaptureCount: Boolean = true
         ) {
             latch.await(timeout, TimeUnit.MILLISECONDS)
-            Truth.assertThat(numImages).isEqualTo(capturedImagesCount)
+
+            if (assertCaptureCount) {
+                Truth.assertThat(numImages).isEqualTo(capturedImagesCount)
+            } else {
+                assumeThat(
+                    "$numImages image(s) captured within $timeout MS",
+                    numImages, equalTo(capturedImagesCount)
+                )
+            }
+
             Truth.assertThat(errors.size).isEqualTo(errorsCount)
         }
     }
