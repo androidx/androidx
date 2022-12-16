@@ -58,6 +58,8 @@ internal fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
 }
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
+    Arguments.throwIfError()
+
     val applicationInfo = getInstalledPackageInfo(packageName)
 
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

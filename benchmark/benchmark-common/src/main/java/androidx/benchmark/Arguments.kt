@@ -135,15 +135,30 @@ object Arguments {
         enabledRules = arguments.getBenchmarkArgument(
             key = "enabledRules",
             defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
-        )
-            .split(',')
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .map { arg ->
-                RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
-                    ?: throw IllegalArgumentException("Unable to parse enabledRules arg: $arg")
+        ).run {
+            if (this.lowercase() == "none") {
+                emptySet()
+            } else {
+                // parse comma-delimited list
+                try {
+                    this.split(',')
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .map { arg ->
+                            RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
+                                ?: throw Throwable("unable to find $arg")
+                        }
+                        .toSet()
+                } catch (e: Throwable) {
+                    // defer parse error, so it doesn't show up as a missing class
+                    val allRules = RuleType.values()
+                    val allRulesString = allRules.joinToString(",") { it.toString() }
+                    error = "unable to parse enabledRules='$this', should be 'None' or" +
+                        " comma-separated list of supported ruletypes: $allRulesString"
+                    allRules.toSet() // don't filter tests, so we have an opportunity to throw
+                }
             }
-            .toSet()
+        }
 
         // compilation defaults to disabled if dryRunMode is on
         enableCompilation =
@@ -182,5 +197,11 @@ object Arguments {
 
         strictStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
+    }
+
+    fun throwIfError() {
+        if (error != null) {
+            throw AssertionError(error)
+        }
     }
 }
