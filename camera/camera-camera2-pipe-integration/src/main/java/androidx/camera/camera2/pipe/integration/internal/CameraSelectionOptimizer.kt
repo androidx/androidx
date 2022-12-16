@@ -15,7 +15,6 @@
  */
 package androidx.camera.camera2.pipe.integration.internal
 
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
@@ -31,7 +30,8 @@ import androidx.camera.core.impl.CameraInfoInternal
 import kotlinx.coroutines.runBlocking
 
 /**
- * The [CameraSelectionOptimizer] is responsible for available camera Ids based on passed CameraSelector
+ * The [CameraSelectionOptimizer] is responsible for determining available camera Ids based on
+ * passed CameraSelector
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraSelectionOptimizer {
@@ -83,8 +83,10 @@ class CameraSelectionOptimizer {
                     availableCameraIds.add(cameraId)
                 }
                 return availableCameraIds
-            } catch (e: CameraAccessException) {
-                Log.error(e) { "Error while accessing list of cameras." }
+            } catch (e: IllegalStateException) {
+                // TODO(b/263519315): Once b/263507146 is fixed, throw InitializationException
+                //  based on exception thrown by Camera2DeviceCache:readCameraIdList() method.
+                Log.error(e) { "Error while accessing info about cameras." }
                 throw InitializationException(e)
             }
         }

@@ -60,7 +60,6 @@ class CameraSelectionOptimizerTest {
         null
     )
 
-    @Throws(Exception::class)
     fun setupNormalCameras() {
         initCharacteristics("0", CameraCharacteristics.LENS_FACING_BACK, 3.52f)
         initCharacteristics("1", CameraCharacteristics.LENS_FACING_FRONT, 3.52f)
@@ -68,7 +67,6 @@ class CameraSelectionOptimizerTest {
         initCharacteristics("3", CameraCharacteristics.LENS_FACING_BACK, 10.0f)
     }
 
-    @Throws(Exception::class)
     fun setupAbnormalCameras() {
         // "0" is front
         initCharacteristics("0", CameraCharacteristics.LENS_FACING_FRONT, 3.52f)
@@ -79,7 +77,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun availableCamerasSelectorNull_returnAllCameras() {
         setupNormalCameras()
 
@@ -89,7 +86,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun requireLensFacingBack() {
         setupNormalCameras()
         val cameraSelector = CameraSelector.Builder()
@@ -104,7 +100,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun requireLensFacingFront() {
 
         setupNormalCameras()
@@ -121,7 +116,6 @@ class CameraSelectionOptimizerTest {
 
     @OptIn(ExperimentalCamera2Interop::class)
     @Test
-    @Throws(Exception::class)
     fun requireLensFacingBack_andSelectWidestAngle() {
         setupNormalCameras()
 
@@ -153,7 +147,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun abnormalCameraSetup_requireLensFacingBack() {
         setupAbnormalCameras()
         val cameraSelector = CameraSelector.Builder()
@@ -166,7 +159,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun abnormalCameraSetup_requireLensFacingFront() {
         setupAbnormalCameras()
         val cameraSelector = CameraSelector.Builder()
@@ -180,7 +172,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun emptyCameraIdList_returnEmptyAvailableIds() {
         // Do not set up any cameras.
         val cameraIds: List<String> =
@@ -189,7 +180,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun onlyCamera0_requireFront_returnEmptyAvailableIds() {
         initCharacteristics("0", CameraCharacteristics.LENS_FACING_BACK, 3.52f)
 
@@ -200,7 +190,6 @@ class CameraSelectionOptimizerTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun onlyCamera1_requireBack_returnEmptyAvailableIds() {
         initCharacteristics("1", CameraCharacteristics.LENS_FACING_FRONT, 3.52f)
 
