@@ -19,6 +19,35 @@ package androidx.credentials.playservices.createkeycredential
 class CreatePublicKeyCredentialControllerUtils {
     companion object {
 
+        // user id is non existent
+        const val CREATE_REQUEST_MISSING_REQUIRED_NONEXISTENT = ("{\"rp\": {\"name\": " +
+            "\"Address " + "Book\", " + "\"id\": " +
+            "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
+            "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+            "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+            "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+            "\"public-key\", \"alg\": -7}, {\"type\": " +
+            "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+            "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+            "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+            "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+            "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+
+        // user id is empty ("")
+        const val CREATE_REQUEST_REQUIRED_EMPTY = ("{\"rp\": {\"name\": " +
+            "\"Address " + "Book\", " + "\"id\": " +
+            "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"id\": " +
+            "\"\", \"name\": \"lee@gmail.com\", " +
+            "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+            "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+            "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+            "\"public-key\", \"alg\": -7}, {\"type\": " +
+            "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+            "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+            "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+            "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+            "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+
          // all required and optional types are here
          const val CREATE_REQUEST_INPUT_REQUIRED_AND_OPTIONAL = ("{\"rp\": {\"name\": " +
              "\"Address Book\", " + "\"id\": " +

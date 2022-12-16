@@ -17,11 +17,11 @@
 package androidx.credentials.playservices
 
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import com.google.android.gms.common.ConnectionResult
 
 class TestUtils {
     companion object {
@@ -39,6 +39,7 @@ class TestUtils {
         }
 
         /**
+         * // TODO remove this or modify so it has forced checks.
          * Given a superset and a subset json, this figures out if the subset can be found
          * within the superset by recursively checking for values that exist in the subset
          * also existing in the superset in the same format. Note this means that the superset
@@ -47,7 +48,8 @@ class TestUtils {
          * ```
          * storeA = {a : {b : 2,  c : 2, d : 2, e : {x : 3, y : 3, z : 3} }, q: 5}
          * storeB = {a : {b : 2, d : 2, e : {x : 3} }, q : 5}
-         * isSubsetJson(storeA, storeB) //-> true
+         * requiredKeys = {a:{b:true, d:true, {e:{x:true}}, q:true}
+         * isSubsetJson(storeA, storeB, requiredKeys) //-> true
          * ```
          *
          * Note this is lax on json arrays and their inner objects, that can be extended if
@@ -83,6 +85,8 @@ class TestUtils {
                     if (!superSet.containsAll(subSet)) {
                         return false
                     }
+                    // TODO("For specific sequences, place into a treeset (sorted by specific
+                    // TODO("required identifiers) and compare subset to superset"))
                 } else {
                     if (!values.equals(superValues)) {
                         return false
@@ -102,10 +106,15 @@ class TestUtils {
         }
 
         /**
-         * Generates a JSON for the create request flow that is maximally filled given the inputs,
-         * so it can always be a valid 'subset' to the input (the 'superset'), which will contain
-         * all expected outputs and more that may be parsed way by
-         * [PublicKeyCredentialCreationOptions].
+         * Generates a JSON for the **create request** flow that is maximally filled given the inputs,
+         * so it can always be a representative json to any input to compare against for this
+         * create request flow, acting as a 'subset' as during parsing certain values may have
+         * been removed if not required from the input based on the fido impl flow. I.e. the input
+         * that generates the [PublicKeyCredentialCreationOptions] we utilize here must be a
+         * superset based on the FIDO Implementation, *not* the spec! Then during parsing, further
+         * values may have been removed, meaning the JSON formed from
+         * [PublicKeyCredentialCreationOptions] is a guaranteed subset, never greater than the
+         * input json superset.
          */
         @Throws(JSONException::class)
         fun createJsonObjectFromPublicKeyCredentialCreationOptions(
