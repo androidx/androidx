@@ -211,9 +211,6 @@ class VideoRecordingTest(
     @After
     fun tearDown() {
         if (this::cameraProvider.isInitialized) {
-            instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
-            }
             cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
     }

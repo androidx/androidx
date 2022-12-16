@@ -107,7 +107,6 @@ class UseCaseCombinationTest(
     fun shutdownCameraX(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }

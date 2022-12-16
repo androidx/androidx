@@ -106,7 +106,6 @@ class CameraControllerDeviceTest(
     fun tearDown() {
         instrumentation.runOnMainSync {
             controller?.shutDownForTests()
-            cameraProvider?.unbindAll()
             cameraProvider?.shutdown()?.get(10000, TimeUnit.MILLISECONDS)
             cameraProvider = null
         }

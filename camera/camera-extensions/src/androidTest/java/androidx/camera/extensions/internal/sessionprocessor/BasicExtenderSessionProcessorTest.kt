@@ -176,7 +176,6 @@ class BasicExtenderSessionProcessorTest(
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
