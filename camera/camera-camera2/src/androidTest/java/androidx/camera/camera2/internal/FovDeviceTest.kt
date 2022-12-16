@@ -28,6 +28,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
+import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -76,6 +78,11 @@ class FovDeviceTest(private val cameraId: String) {
         }.build()
         cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+    }
+
+    @After
+    fun tearDown() {
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test
