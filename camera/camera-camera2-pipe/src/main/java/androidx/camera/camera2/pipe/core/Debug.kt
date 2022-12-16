@@ -133,6 +133,10 @@ public object Debug {
                     append(output.id.toString().padEnd(10, ' '))
                     append(output.size.toString().padEnd(12, ' '))
                     append(output.format.name.padEnd(16, ' '))
+                    output.mirrorMode?.let { append(" [$it]") }
+                    output.timestampBase?.let { append(" [$it]") }
+                    output.dynamicRangeProfile?.let { append(" [$it]") }
+                    output.streamUseCase?.let { append(" [$it]") }
                     if (output.camera != graphConfig.camera) {
                         append(" [")
                         append(output.camera)
