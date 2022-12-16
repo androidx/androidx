@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.appsetid
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
@@ -28,7 +27,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AppSetIdTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AppSetId: id=1234, scope=SCOPE_DEVELOPER"
         val id = AppSetId("1234", AppSetId.SCOPE_DEVELOPER)
@@ -40,7 +38,6 @@ class AppSetIdTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val id1 = AppSetId("1234", AppSetId.SCOPE_DEVELOPER)
         val id2 = AppSetId("1234", AppSetId.SCOPE_DEVELOPER)
@@ -51,7 +48,6 @@ class AppSetIdTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testScopeUndefined() {
         assertThrows<IllegalArgumentException> {
             AppSetId("1234", 3 /* Invalid scope */)

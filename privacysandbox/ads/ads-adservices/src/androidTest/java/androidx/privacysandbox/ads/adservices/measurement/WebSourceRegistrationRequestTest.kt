@@ -26,9 +26,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class WebSourceRegistrationRequestTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "WebSourceRegistrationRequest { WebSourceParams=" +
             "[[WebSourceParams { RegistrationUri=www.abc.com, DebugKeyAllowed=false }]], " +
@@ -55,7 +55,6 @@ class WebSourceRegistrationRequestTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val uri = Uri.parse("www.abc.com")
 

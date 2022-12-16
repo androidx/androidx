@@ -18,7 +18,8 @@ package androidx.privacysandbox.ads.adservices.adid
 
 import android.content.Context
 import android.os.OutcomeReceiver
-import androidx.annotation.RequiresApi
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -26,6 +27,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,9 +41,8 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 34) // b/259092025
+@SdkSuppress(minSdkVersion = 30)
 class AdIdManagerTest {
-    private lateinit var mContext: Context
 
     @Before
     fun setUp() {
@@ -49,14 +50,17 @@ class AdIdManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdIdOlderVersions() {
+        assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(AdIdManager.obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testAdIdAsync() {
+        assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adIdManager = mockAdIdManager(mContext)
         setupResponse(adIdManager)
         val managerCompat = AdIdManager.obtain(mContext)
@@ -73,34 +77,39 @@ class AdIdManagerTest {
         verifyResponse(result)
     }
 
-    @RequiresApi(34)
-    private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
-        val adIdManager = mock(android.adservices.adid.AdIdManager::class.java)
-        `when`(spyContext.getSystemService(android.adservices.adid.AdIdManager::class.java))
-            .thenReturn(adIdManager)
-        return adIdManager
-    }
+    @SuppressWarnings("NewApi")
+    @SdkSuppress(minSdkVersion = 30)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    companion object {
+        private lateinit var mContext: Context
+        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-    @RequiresApi(34)
-    private fun setupResponse(adIdManager: android.adservices.adid.AdIdManager) {
-        // Set up the response that AdIdManager will return when the compat code calls it.
-        val adId = android.adservices.adid.AdId("1234", false)
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<
-                OutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
-            receiver.onResult(adId)
-            null
+        private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
+            val adIdManager = mock(android.adservices.adid.AdIdManager::class.java)
+            `when`(spyContext.getSystemService(android.adservices.adid.AdIdManager::class.java))
+                .thenReturn(adIdManager)
+            return adIdManager
         }
-        doAnswer(answer)
-            .`when`(adIdManager).getAdId(
-                any(),
-                any()
-            )
-    }
 
-    @RequiresApi(34)
-    private fun verifyResponse(adId: AdId) {
-        Assert.assertEquals("1234", adId.adId)
-        Assert.assertEquals(false, adId.isLimitAdTrackingEnabled)
+        private fun setupResponse(adIdManager: android.adservices.adid.AdIdManager) {
+            // Set up the response that AdIdManager will return when the compat code calls it.
+            val adId = android.adservices.adid.AdId("1234", false)
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<
+                    OutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
+                receiver.onResult(adId)
+                null
+            }
+            doAnswer(answer)
+                .`when`(adIdManager).getAdId(
+                    any(),
+                    any()
+                )
+        }
+
+        private fun verifyResponse(adId: AdId) {
+            Assert.assertEquals("1234", adId.adId)
+            Assert.assertEquals(false, adId.isLimitAdTrackingEnabled)
+        }
     }
 }

@@ -17,16 +17,17 @@
 package androidx.privacysandbox.ads.adservices.customaudience
 
 import android.adservices.common.AdServicesPermissions
-import android.adservices.customaudience.CustomAudienceManager
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
+import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -94,12 +95,13 @@ abstract class CustomAudienceManager internal constructor() {
     abstract suspend fun leaveCustomAudience(request: LeaveCustomAudienceRequest)
 
     @SuppressLint("ClassVerificationFailure", "NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
-        private val customAudienceManager: CustomAudienceManager
-        ) : androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager() {
+        private val customAudienceManager: android.adservices.customaudience.CustomAudienceManager
+        ) : CustomAudienceManager() {
         constructor(context: Context) : this(
-            context.getSystemService<CustomAudienceManager>(
-                CustomAudienceManager::class.java
+            context.getSystemService<android.adservices.customaudience.CustomAudienceManager>(
+                android.adservices.customaudience.CustomAudienceManager::class.java
             )
         )
 
@@ -204,12 +206,9 @@ abstract class CustomAudienceManager internal constructor() {
          *  @return CustomAudienceManager object.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
-        fun obtain(context: Context):
-            androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+        fun obtain(context: Context): CustomAudienceManager? {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 null

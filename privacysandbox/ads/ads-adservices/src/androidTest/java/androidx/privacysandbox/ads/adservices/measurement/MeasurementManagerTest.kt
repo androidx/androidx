@@ -19,10 +19,10 @@ package androidx.privacysandbox.ads.adservices.measurement
 import android.adservices.measurement.MeasurementManager
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.OutcomeReceiver
+import android.os.ext.SdkExtensions
 import android.view.InputEvent
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion.obtain
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,6 +31,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,12 +46,8 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 34) // b/259092025
+@SdkSuppress(minSdkVersion = 30)
 class MeasurementManagerTest {
-    private val uri1: Uri = Uri.parse("www.abc.com")
-    private val uri2: Uri = Uri.parse("http://www.xyz.com")
-
-    private lateinit var mContext: Context
 
     @Before
     fun setUp() {
@@ -58,15 +55,17 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testMeasurementOlderVersions() {
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testDeleteRegistrations() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
 
@@ -102,8 +101,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterSource() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val inputEvent = mock(InputEvent::class.java)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -134,8 +135,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterTrigger() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -162,8 +165,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterWebSource() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -200,8 +205,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testRegisterWebTrigger() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -236,8 +243,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testMeasurementApiStatus() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val state = MeasurementManager.MEASUREMENT_API_STATE_ENABLED
@@ -261,8 +270,10 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testMeasurementApiStatusUnknown() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -285,23 +296,33 @@ class MeasurementManagerTest {
         assertThat(actualResult == 5)
     }
 
-    @RequiresApi(34)
-    private fun mockMeasurementManager(spyContext: Context): MeasurementManager {
-        val measurementManager = mock(MeasurementManager::class.java)
-        `when`(spyContext.getSystemService(MeasurementManager::class.java))
-            .thenReturn(measurementManager)
-        return measurementManager
-    }
+    @SuppressWarnings("NewApi")
+    @SdkSuppress(minSdkVersion = 30)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    companion object {
+        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-    @RequiresApi(34)
-    private fun verifyDeletionRequest(request: android.adservices.measurement.DeletionRequest) {
-        // Set up the request that we expect the compat code to invoke.
-        val expectedRequest = android.adservices.measurement.DeletionRequest.Builder()
-            .setDomainUris(listOf(uri1))
-            .setOriginUris(listOf(uri1))
-            .build()
+        private val uri1: Uri = Uri.parse("www.abc.com")
+        private val uri2: Uri = Uri.parse("http://www.xyz.com")
 
-        assertThat(HashSet(request.domainUris) == HashSet(expectedRequest.domainUris))
-        assertThat(HashSet(request.originUris) == HashSet(expectedRequest.originUris))
+        private lateinit var mContext: Context
+
+        private fun mockMeasurementManager(spyContext: Context): MeasurementManager {
+            val measurementManager = mock(MeasurementManager::class.java)
+            `when`(spyContext.getSystemService(MeasurementManager::class.java))
+                .thenReturn(measurementManager)
+            return measurementManager
+        }
+
+        private fun verifyDeletionRequest(request: android.adservices.measurement.DeletionRequest) {
+            // Set up the request that we expect the compat code to invoke.
+            val expectedRequest = android.adservices.measurement.DeletionRequest.Builder()
+                .setDomainUris(listOf(uri1))
+                .setOriginUris(listOf(uri1))
+                .build()
+
+            assertThat(HashSet(request.domainUris) == HashSet(expectedRequest.domainUris))
+            assertThat(HashSet(request.originUris) == HashSet(expectedRequest.originUris))
+        }
     }
 }

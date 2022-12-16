@@ -26,9 +26,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class WebTriggerParamsTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "WebTriggerParams { RegistrationUri=www.abc.com, DebugKeyAllowed=false }"
 
@@ -37,7 +37,6 @@ class WebTriggerParamsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val request1 = WebTriggerParams(Uri.parse("www.abc.com"), false)
         val request2 = WebTriggerParams(Uri.parse("www.abc.com"), false)

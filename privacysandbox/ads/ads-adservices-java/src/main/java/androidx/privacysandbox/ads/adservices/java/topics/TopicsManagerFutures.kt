@@ -22,13 +22,9 @@ import androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion.obt
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse
 import android.adservices.common.AdServicesPermissions
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +44,6 @@ abstract class TopicsManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract fun getTopicsAsync(request: GetTopicsRequest): ListenableFuture<GetTopicsResponse>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mTopicsManager: TopicsManager
     ) : TopicsManagerFutures() {
@@ -72,10 +66,7 @@ abstract class TopicsManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): TopicsManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

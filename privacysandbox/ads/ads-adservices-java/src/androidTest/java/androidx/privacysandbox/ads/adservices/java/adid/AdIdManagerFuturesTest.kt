@@ -18,7 +18,8 @@ package androidx.privacysandbox.ads.adservices.java.adid
 
 import android.content.Context
 import android.os.OutcomeReceiver
-import androidx.annotation.RequiresApi
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.ads.adservices.adid.AdId
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,6 +28,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Assert
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,9 +38,8 @@ import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 34) // b/259092025
+@SdkSuppress(minSdkVersion = 30)
 class AdIdManagerFuturesTest {
-    private lateinit var mContext: Context
 
     @Before
     fun setUp() {
@@ -46,14 +47,17 @@ class AdIdManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdIdOlderVersions() {
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         Truth.assertThat(AdIdManagerFutures.from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("NewApi")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testAdIdAsync() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
         val adIdManager = mockAdIdManager(mContext)
         setupResponse(adIdManager)
         val managerCompat = AdIdManagerFutures.from(mContext)
@@ -68,34 +72,39 @@ class AdIdManagerFuturesTest {
         Mockito.verify(adIdManager).getAdId(ArgumentMatchers.any(), ArgumentMatchers.any())
     }
 
-    @RequiresApi(34)
-    private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
-        val adIdManager = Mockito.mock(android.adservices.adid.AdIdManager::class.java)
-        Mockito.`when`(spyContext.getSystemService(android.adservices.adid.AdIdManager::class.java))
-            .thenReturn(adIdManager)
-        return adIdManager
-    }
+    @SuppressWarnings("NewApi")
+    @SdkSuppress(minSdkVersion = 30)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    companion object {
+        private lateinit var mContext: Context
+        private val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-    @RequiresApi(34)
-    private fun setupResponse(adIdManager: android.adservices.adid.AdIdManager) {
-        // Set up the response that AdIdManager will return when the compat code calls it.
-        val adId = android.adservices.adid.AdId("1234", false)
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<
-                OutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
-            receiver.onResult(adId)
-            null
+        private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
+            val adIdManager = Mockito.mock(android.adservices.adid.AdIdManager::class.java)
+            Mockito.`when`(spyContext.getSystemService(
+                android.adservices.adid.AdIdManager::class.java)).thenReturn(adIdManager)
+            return adIdManager
         }
-        Mockito.doAnswer(answer)
-            .`when`(adIdManager).getAdId(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-            )
-    }
 
-    @RequiresApi(34)
-    private fun verifyResponse(adId: androidx.privacysandbox.ads.adservices.adid.AdId) {
-        Assert.assertEquals("1234", adId.adId)
-        Assert.assertEquals(false, adId.isLimitAdTrackingEnabled)
+        private fun setupResponse(adIdManager: android.adservices.adid.AdIdManager) {
+            // Set up the response that AdIdManager will return when the compat code calls it.
+            val adId = android.adservices.adid.AdId("1234", false)
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<
+                    OutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
+                receiver.onResult(adId)
+                null
+            }
+            Mockito.doAnswer(answer)
+                .`when`(adIdManager).getAdId(
+                    ArgumentMatchers.any(),
+                    ArgumentMatchers.any()
+                )
+        }
+
+        private fun verifyResponse(adId: androidx.privacysandbox.ads.adservices.adid.AdId) {
+            Assert.assertEquals("1234", adId.adId)
+            Assert.assertEquals(false, adId.isLimitAdTrackingEnabled)
+        }
     }
 }

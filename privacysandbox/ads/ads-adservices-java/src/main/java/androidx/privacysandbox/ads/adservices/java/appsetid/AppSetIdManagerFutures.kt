@@ -17,13 +17,9 @@
 package androidx.privacysandbox.ads.adservices.java.appsetid
 
 import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.LimitExceededException
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.ads.adservices.appsetid.AppSetId
 import androidx.privacysandbox.ads.adservices.appsetid.AppSetIdManager
 import com.google.common.util.concurrent.ListenableFuture
@@ -45,8 +41,6 @@ abstract class AppSetIdManagerFutures internal constructor() {
      */
     abstract fun getAppSetIdAsync(): ListenableFuture<AppSetId>
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private class Api33Ext4JavaImpl(
         private val mAppSetIdManager: AppSetIdManager
     ) : AppSetIdManagerFutures() {
@@ -66,10 +60,7 @@ abstract class AppSetIdManagerFutures internal constructor() {
          *  build, the value returned is null.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun from(context: Context): AppSetIdManagerFutures? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
             return AppSetIdManager.obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

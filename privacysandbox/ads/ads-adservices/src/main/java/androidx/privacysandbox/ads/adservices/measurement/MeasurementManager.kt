@@ -20,13 +20,13 @@ import android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBU
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.Build
+import android.os.ext.SdkExtensions
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -89,8 +89,8 @@ abstract class MeasurementManager {
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun getMeasurementApiStatus(): Int
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     private class Api33Ext4Impl(
         private val mMeasurementManager: android.adservices.measurement.MeasurementManager
     ) : MeasurementManager() {
@@ -222,7 +222,6 @@ abstract class MeasurementManager {
 
         @DoNotInline
         @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        // TODO(b/259446937): Update this API to conform with API guidelines once clarified.
         override suspend fun getMeasurementApiStatus(): Int = suspendCancellableCoroutine {
                 continuation ->
             mMeasurementManager.getMeasurementApiStatus(
@@ -248,11 +247,9 @@ abstract class MeasurementManager {
          *  @return MeasurementManager object.
          */
         @JvmStatic
-        @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): MeasurementManager? {
-            // TODO: Add check SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES) >= 4
-            return if (BuildCompat.isAtLeastU()) {
+            return if (AdServicesInfo.version() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 null

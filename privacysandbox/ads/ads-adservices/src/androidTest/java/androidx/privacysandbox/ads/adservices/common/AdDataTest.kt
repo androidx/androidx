@@ -18,7 +18,6 @@ package androidx.privacysandbox.ads.adservices.common
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -30,7 +29,6 @@ class AdDataTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val metadata = "metadata"
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdData: renderUri=$uri, metadata='$metadata'"
         val request = AdData(uri, metadata)
@@ -38,7 +36,6 @@ class AdDataTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val adData1 = AdData(uri, metadata)
         var adData2 = AdData(Uri.parse("abc.com"), "metadata")

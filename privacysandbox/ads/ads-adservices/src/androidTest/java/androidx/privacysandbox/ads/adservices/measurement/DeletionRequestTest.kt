@@ -17,9 +17,8 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
@@ -29,9 +28,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class DeletionRequestTest {
     @Test
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun testToString() {
         val now = Instant.now()
         val result = "DeletionRequest { DeletionMode=DELETION_MODE_ALL, " +
@@ -50,7 +49,6 @@ class DeletionRequestTest {
     }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun testEquals() {
         val deletionRequest1 = DeletionRequest(
             DeletionRequest.DELETION_MODE_ALL,
@@ -69,7 +67,6 @@ class DeletionRequestTest {
     }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun testIllegalArguments() {
         assertThrows<IllegalArgumentException> {
             DeletionRequest(

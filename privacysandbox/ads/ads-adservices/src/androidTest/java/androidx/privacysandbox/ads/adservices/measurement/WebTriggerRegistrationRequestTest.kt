@@ -26,9 +26,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class WebTriggerRegistrationRequestTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "WebTriggerRegistrationRequest { WebTriggerParams=[WebTriggerParams " +
             "{ RegistrationUri=www.abc.com, DebugKeyAllowed=false }], Destination=www.abc.com"
@@ -40,7 +40,6 @@ class WebTriggerRegistrationRequestTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val uri = Uri.parse("www.abc.com")
 

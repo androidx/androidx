@@ -17,7 +17,6 @@
 package androidx.privacysandbox.ads.adservices.common
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -29,7 +28,6 @@ class AdSelectionSignalsTest {
     private val signals = "signals"
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "AdSelectionSignals: $signals"
         val request = AdSelectionSignals(signals)
@@ -37,7 +35,6 @@ class AdSelectionSignalsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val id1 = AdSelectionSignals(signals)
         var id2 = AdSelectionSignals("signals")

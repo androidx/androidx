@@ -26,9 +26,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class WebSourceParamsTest {
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "WebSourceParams { RegistrationUri=www.abc.com, DebugKeyAllowed=false }"
 
@@ -37,7 +37,6 @@ class WebSourceParamsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testEquals() {
         val request1 = WebSourceParams(Uri.parse("www.abc.com"), false)
         val request2 = WebSourceParams(Uri.parse("www.abc.com"), false)

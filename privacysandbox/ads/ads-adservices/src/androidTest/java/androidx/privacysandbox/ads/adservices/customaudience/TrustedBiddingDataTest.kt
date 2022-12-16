@@ -18,7 +18,6 @@ package androidx.privacysandbox.ads.adservices.customaudience
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -30,7 +29,6 @@ class TrustedBiddingDataTest {
     private val uri = Uri.parse("abc.com")
     private val keys = listOf("key1", "key2")
     @Test
-    @SdkSuppress(minSdkVersion = 33)
     fun testToString() {
         val result = "TrustedBiddingData: trustedBiddingUri=abc.com trustedBiddingKeys=[key1, key2]"
         val trustedBiddingData = TrustedBiddingData(uri, keys)
