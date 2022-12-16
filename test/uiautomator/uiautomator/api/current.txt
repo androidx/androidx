@@ -180,6 +180,8 @@ package androidx.test.uiautomator {
     method public boolean pressHome();
     method public boolean pressKeyCode(int);
     method public boolean pressKeyCode(int, int);
+    method public boolean pressKeyCodes(int[]);
+    method public boolean pressKeyCodes(int[], int);
     method public boolean pressMenu();
     method public boolean pressRecentApps() throws android.os.RemoteException;
     method public boolean pressSearch();

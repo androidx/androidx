@@ -513,17 +513,35 @@ class InteractionController {
     }
 
     public boolean sendKey(int keyCode, int metaState) {
+        return sendKeys(new int[]{keyCode}, metaState);
+    }
+
+    /**
+     * Send multiple keys
+     *
+     * @param keyCodes array of keycode
+     * @param metaState the pressed state of key modifiers
+     * @return true if keys are sent.
+     */
+    public boolean sendKeys(int[] keyCodes, int metaState) {
         final long eventTime = SystemClock.uptimeMillis();
-        KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN,
-                keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
-                InputDevice.SOURCE_KEYBOARD);
-        if (injectEventSync(downEvent)) {
+        for (int keyCode : keyCodes) {
+            KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN,
+                    keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                    InputDevice.SOURCE_KEYBOARD);
+            if (!injectEventSync(downEvent)) {
+                return false;
+            }
+        }
+        for (int keyCode : keyCodes) {
             KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP,
                     keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
                     InputDevice.SOURCE_KEYBOARD);
-            return injectEventSync(upEvent);
+            if (!injectEventSync(upEvent)) {
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     /**

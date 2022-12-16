@@ -448,9 +448,7 @@ public class UiDevice implements Searchable {
      * @return true if successful, else return false
      */
     public boolean pressKeyCode(int keyCode) {
-        waitForIdle();
-        Log.d(TAG, String.format("Pressing keycode %d.", keyCode));
-        return getInteractionController().sendKey(keyCode, 0);
+        return pressKeyCode(keyCode, 0);
     }
 
     /**
@@ -462,10 +460,44 @@ public class UiDevice implements Searchable {
      * @return true if successful, else return false
      */
     public boolean pressKeyCode(int keyCode, int metaState) {
+        return pressKeyCodes(new int[]{keyCode}, metaState);
+    }
+
+    /**
+     * Presses one or more keys.
+     * <br/>
+     * For example, you can simulate taking a screenshot on the device by pressing both the
+     * power and volume down keys.
+     * <pre>{@code pressKeyCodes(new int[]{KeyEvent.KEYCODE_POWER, KeyEvent.KEYCODE_VOLUME_DOWN})}
+     * </pre>
+     *
+     * @see KeyEvent
+     * @param keyCodes array of key codes.
+     * @return true if successful, else return false
+     */
+    public boolean pressKeyCodes(@NonNull int[] keyCodes) {
+        return pressKeyCodes(keyCodes, 0);
+    }
+
+    /**
+     * Presses one or more keys.
+     * <br/>
+     * For example, you can simulate taking a screenshot on the device by pressing both the
+     * power and volume down keys.
+     * <pre>{@code pressKeyCodes(new int[]{KeyEvent.KEYCODE_POWER, KeyEvent.KEYCODE_VOLUME_DOWN})}
+     * </pre>
+     *
+     * @see KeyEvent
+     * @param keyCodes array of key codes.
+     * @param metaState an integer in which each bit set to 1 represents a pressed meta key
+     * @return true if successful, else return false
+     */
+    public boolean pressKeyCodes(@NonNull int[] keyCodes, int metaState) {
         waitForIdle();
-        Log.d(TAG, String.format("Pressing keycode %d with modifier %d.", keyCode,
+        Log.d(TAG, String.format("Pressing keycodes %s with modifier %d.",
+                Arrays.toString(keyCodes),
                 metaState));
-        return getInteractionController().sendKey(keyCode, metaState);
+        return getInteractionController().sendKeys(keyCodes, metaState);
     }
 
     /**
