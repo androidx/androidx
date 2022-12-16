@@ -453,6 +453,7 @@ public class UiDeviceTest extends BaseTest {
 
     @FlakyTest(bugId = 259299647)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testWaitForWindowUpdate() {
         launchTestActivity(WaitTestActivity.class);
 

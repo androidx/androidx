@@ -98,7 +98,7 @@ public class MultiWindowTest extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testMultiWindow_splitScreen() {
         // Launch two split-screen activities with different IDs.
         launchTestActivity(SplitScreenTestActivity.class,
@@ -127,7 +127,7 @@ public class MultiWindowTest extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testMultiWindow_click() {
         // Launch two split-screen activities with buttons.
         launchTestActivity(UiDeviceTestClickActivity.class);

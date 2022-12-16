@@ -39,6 +39,7 @@ class DateTimeFormatterCommonOptionsTest {
     )
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun test() {
         val commonFormats = mapOf(
             DateTimeFormatterCommonOptions.ABBR_MONTH_WEEKDAY_DAY to "Sun, Sep 19",

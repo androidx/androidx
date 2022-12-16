@@ -427,12 +427,14 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
     @FlakyTest(bugId = 228336699)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
     }

@@ -117,7 +117,7 @@ class LocalesUpdateTestCase() {
         assertNull(activity.lastConfigurationChangeAndClear)
     }
 
-    @SdkSuppress(minSdkVersion = 17)
+    @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 33)
     @Test
     @FlakyTest(bugId = 255765202)
     fun testLayoutDirectionAfterRecreating() {

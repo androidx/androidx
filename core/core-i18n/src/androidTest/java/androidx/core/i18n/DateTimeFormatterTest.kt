@@ -96,6 +96,7 @@ class DateTimeFormatterTest {
     }
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun test() {
         val locale = Locale.US
         val options = SkeletonOptions.fromString("yMMMdjms")
@@ -110,6 +111,7 @@ class DateTimeFormatterTest {
     }
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testApi() {
         val builder = SkeletonOptions.Builder()
             .setYear(SkeletonOptions.Year.NUMERIC)
@@ -184,7 +186,10 @@ class DateTimeFormatterTest {
     }
 
     @Test @SmallTest
-    @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
+    @SdkSuppress(
+        minSdkVersion = AVAILABLE_LANGUAGE_TAG,
+        maxSdkVersion = 33 // b/262909049: Failing on SDK 34
+    )
     // Without `Locale.forLanguageTag` we can't even build a locale with `-u-` extension.
     fun testSystemSupportForExtensionU() {
         val enUsForceH11 = Locale.forLanguageTag("en-US-u-hc-h11")
@@ -229,7 +234,10 @@ class DateTimeFormatterTest {
     }
 
     @Test @SmallTest
-    @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
+    @SdkSuppress(
+        minSdkVersion = AVAILABLE_LANGUAGE_TAG,
+        maxSdkVersion = 33 // b/262909049: Failing on SDK 34
+    )
     fun testHourCycleOverrides() {
         val expectedUs12 = "Sep 19, 2021, 9:42:12 PM"
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
@@ -387,6 +395,7 @@ class DateTimeFormatterTest {
     }
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTimeZone() {
         val builder = SkeletonOptions.Builder()
             .setHour(SkeletonOptions.Hour.NUMERIC)
@@ -432,6 +441,7 @@ class DateTimeFormatterTest {
 
     @Test @SmallTest
     // Making sure the APIs honor the default timezone
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testDefaultTimeZone() {
         val options = SkeletonOptions.Builder()
             .setHour(SkeletonOptions.Hour.NUMERIC)

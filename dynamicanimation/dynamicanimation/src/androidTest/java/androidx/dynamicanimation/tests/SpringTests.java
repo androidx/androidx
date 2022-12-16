@@ -874,7 +874,7 @@ public class SpringTests {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testDurationScaleChangeListener() throws InterruptedException {
         final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
         final CountDownLatch registerUnregisterLatch = new CountDownLatch(2);

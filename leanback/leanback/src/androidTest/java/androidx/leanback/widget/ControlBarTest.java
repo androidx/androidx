@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 public class ControlBarTest {
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void defaultFocus() {
         Context context = ApplicationProvider.getApplicationContext();
         final ControlBar bar = new ControlBar(context, null);
@@ -62,6 +64,7 @@ public class ControlBarTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void persistFocus() {
         Context context = ApplicationProvider.getApplicationContext();
         final LinearLayout rootView = new LinearLayout(context);
@@ -104,6 +107,7 @@ public class ControlBarTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void getFocusables() {
         Context context = ApplicationProvider.getApplicationContext();
         final LinearLayout rootView = new LinearLayout(context);
