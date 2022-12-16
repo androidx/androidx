@@ -100,10 +100,12 @@ public class TypefaceEmojiRasterizer {
     private final MetadataRepo mMetadataRepo;
 
     /**
-     * Whether the system can render the emoji. Calculated at runtime on the device.
+     * Stores hasGlyph as well as exclusion values
+     *
+     * mCache & 0b0011 is hasGlyph result
+     * mCache & 0b0100 is exclusion value
      */
-    @HasGlyph
-    private volatile int mHasGlyph = HAS_GLYPH_UNKNOWN;
+    private volatile int mCache = 0;
 
     /**
      * @hide
@@ -222,7 +224,7 @@ public class TypefaceEmojiRasterizer {
     @SuppressLint("KotlinPropertyAccess")
     @RestrictTo(LIBRARY)
     public int getHasGlyph() {
-        return mHasGlyph;
+        return (int) (mCache & 0b0011);
     }
 
     /**
@@ -234,7 +236,12 @@ public class TypefaceEmojiRasterizer {
      */
     @RestrictTo(TESTS)
     public void resetHasGlyphCache() {
-        mHasGlyph = HAS_GLYPH_UNKNOWN;
+        boolean willExclude = isPreferredSystemRender();
+        if (willExclude) {
+            mCache = 0b0100;
+        } else {
+            mCache = 0b0000;
+        }
     }
 
     /**
@@ -247,7 +254,38 @@ public class TypefaceEmojiRasterizer {
     @SuppressLint("KotlinPropertyAccess")
     @RestrictTo(LIBRARY)
     public void setHasGlyph(boolean hasGlyph) {
-        mHasGlyph = hasGlyph ? HAS_GLYPH_EXISTS : HAS_GLYPH_ABSENT;
+        int newValue = mCache & 0b0100; /* keep the exclusion bit */
+        if (hasGlyph) {
+            newValue |= 0b0010;
+        } else {
+            newValue |= 0b0001;
+        }
+        mCache =  newValue;
+    }
+
+    /**
+     * If this emoji is excluded due to CodepointExclusions.getExcludedCodpoints()
+     *
+     * @param exclude if the emoji should never be rendered by emojicompat
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void setExclusion(boolean exclude) {
+        int hasGlyphBits = getHasGlyph();
+        if (exclude) {
+            mCache = hasGlyphBits | 0b0100;
+        } else {
+            mCache = hasGlyphBits;
+        }
+    }
+
+    /**
+     * If the platform requested that this emoji not be rendered using emojicompat.
+     *
+     * @return true if this emoji should be drawn by the system instead of this renderer
+     */
+    public boolean isPreferredSystemRender() {
+        return (mCache & 0b0100) > 0;
     }
 
     /**
@@ -274,6 +312,7 @@ public class TypefaceEmojiRasterizer {
         return getMetadataItem().codepointsLength();
     }
 
+    @NonNull
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
