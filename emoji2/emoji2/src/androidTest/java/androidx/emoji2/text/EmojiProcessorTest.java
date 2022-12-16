@@ -16,6 +16,7 @@
 
 package androidx.emoji2.text;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.mock;
 
 import android.graphics.Typeface;
@@ -30,6 +31,10 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -48,17 +53,30 @@ public class EmojiProcessorTest extends TestCase {
     TestTypefaceEmojiRasterizer mExactMatchLast = new TestTypefaceEmojiRasterizer(new int[]{5}, 5,
             (short) 2);
 
+    TestTypefaceEmojiRasterizer mExcludedEmoji = new TestTypefaceEmojiRasterizer(new int[] {6}, 5,
+            (short) 3);
+
     @Before
     public void clearResourceIndex() {
+        init(Collections.emptySet());
+    }
+
+    private void init(Set<int[]> emojiExclusions) {
         MetadataRepo metadataRepo = MetadataRepo.create(mock(Typeface.class));
         metadataRepo.put(mInitialCodepoint);
         metadataRepo.put(mAnotherInitial);
         metadataRepo.put(mAddedLast);
         metadataRepo.put(mUnrelatedLast);
         metadataRepo.put(mExactMatchLast);
+        metadataRepo.put(mExcludedEmoji);
         EmojiCompat.SpanFactory spanFactory = new EmojiCompat.DefaultSpanFactory();
         EmojiCompat.GlyphChecker glyphChecker = (charSequence, start, end, sdkAdded) -> true;
-        mProcessor = new EmojiProcessor(metadataRepo, spanFactory, glyphChecker, true, null);
+        mProcessor = new EmojiProcessor(metadataRepo,
+                spanFactory,
+                glyphChecker,
+                true,
+                null,
+                emojiExclusions);
     }
 
     @Test
@@ -124,6 +142,24 @@ public class EmojiProcessorTest extends TestCase {
                 EmojiCompat.EMOJI_COUNT_UNLIMITED, true);
         assertFalse(result instanceof Spannable);
         assertEquals(source, result);
+    }
+
+    @Test
+    public void noReplacement_forExcludedEmoji() {
+        CharSequence source = sequenceFor(6);
+        CharSequence unExcluded = mProcessor.process(source, 0, source.length(),
+                EmojiCompat.EMOJI_COUNT_UNLIMITED, true);
+
+        // again with exclusions
+        Set<int[]> exclusions = new HashSet<>();
+        exclusions.add(new int[] { 6 });
+        init(exclusions);
+        CharSequence excluded = mProcessor.process(source, 0, source.length(),
+                EmojiCompat.EMOJI_COUNT_UNLIMITED, true);
+
+        assertNotEquals(excluded, unExcluded);
+        assertFalse(excluded instanceof Spannable);
+        assertEquals(source, excluded);
     }
 
     @Test

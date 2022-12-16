@@ -1736,7 +1736,9 @@ public class EmojiCompat {
                     mEmojiCompat.mSpanFactory,
                     mEmojiCompat.mGlyphChecker,
                     mEmojiCompat.mUseEmojiAsDefaultStyle,
-                    mEmojiCompat.mEmojiAsDefaultStyleExceptions);
+                    mEmojiCompat.mEmojiAsDefaultStyleExceptions,
+                    EmojiExclusions.getEmojiExclusions()
+            );
 
             mEmojiCompat.onMetadataLoadSuccess();
         }
