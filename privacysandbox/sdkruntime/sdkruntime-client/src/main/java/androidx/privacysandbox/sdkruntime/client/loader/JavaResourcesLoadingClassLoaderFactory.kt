@@ -25,7 +25,7 @@ import java.util.Enumeration
  * Delegate java resources related calls to app classloader.
  *
  * Classloaders normally delegate calls to parent classloader first, that's why this factory
- * creates classloader that will work with java resources and pass is as parent to
+ * creates classloader that will work with java resources and pass it as parent to
  * [codeClassLoaderFactory] thus overrides java resources for all classes loaded down the line.
  *
  * Add [LocalSdkConfig.javaResourcesRoot] as prefix to resource names before delegating calls,

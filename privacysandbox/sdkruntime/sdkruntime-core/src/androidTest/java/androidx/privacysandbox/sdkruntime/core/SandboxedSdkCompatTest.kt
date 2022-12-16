@@ -19,18 +19,19 @@ import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.os.Binder
 import android.os.Build.VERSION_CODES.TIRAMISU
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
-@SuppressLint("NewApi")
 class SandboxedSdkCompatTest {
 
     @Test
@@ -44,11 +45,13 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+    @SuppressLint("NewApi")
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @SdkSuppress(minSdkVersion = TIRAMISU)
     fun toSandboxedSdk_whenCreatedFromBinder_returnsSandboxedSdkWithSameBinder() {
-        if (!isSandboxAvailable()) {
-            return
-        }
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
 
         val binder = Binder()
 
@@ -59,11 +62,13 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+    @SuppressLint("NewApi")
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @SdkSuppress(minSdkVersion = TIRAMISU)
     fun toSandboxedSdk_whenCreatedFromSandboxedSdk_returnsSameSandboxedSdk() {
-        if (!isSandboxAvailable()) {
-            return
-        }
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
 
         val binder = Binder()
         val sandboxedSdk = SandboxedSdk(binder)
@@ -74,8 +79,6 @@ class SandboxedSdkCompatTest {
             .isSameInstanceAs(sandboxedSdk)
     }
 
-    private fun isSandboxAvailable(): Boolean {
-        // TODO(b/249981547) Find a way how to skip test if no sandbox present
-        return BuildCompat.isAtLeastU()
-    }
+    private fun isSandboxApiAvailable() =
+        BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
 }

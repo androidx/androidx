@@ -15,22 +15,24 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SandboxedSdkProvider
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
+import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 
 /**
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
-// TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
+@SuppressLint("NewApi", "ClassVerificationFailure")
+@RequiresExtension(extension = AD_SERVICES, version = 4)
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {

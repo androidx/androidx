@@ -17,11 +17,10 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
-import android.os.Build.VERSION_CODES.TIRAMISU
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import android.os.IBinder
+import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
@@ -61,10 +60,9 @@ class SandboxedSdkCompat private constructor(
      * @param sandboxedSdk SandboxedSdk object. All calls will be delegated to that object.
      * @suppress
      */
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     @RestrictTo(LIBRARY_GROUP)
-    constructor(sandboxedSdk: SandboxedSdk) : this(Api33Impl(sandboxedSdk))
+    constructor(sandboxedSdk: SandboxedSdk) : this(ApiAdServicesV4Impl(sandboxedSdk))
 
     /**
      * Returns the interface to the loaded SDK.
@@ -82,22 +80,21 @@ class SandboxedSdkCompat private constructor(
      *
      * @return Platform SandboxedSdk
      */
-    // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-    @RequiresApi(UPSIDE_DOWN_CAKE)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     internal fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
 
     internal interface SandboxedSdkImpl {
         fun getInterface(): IBinder?
 
-        @RequiresApi(UPSIDE_DOWN_CAKE)
+        @RequiresExtension(extension = AD_SERVICES, version = 4)
         @DoNotInline
         fun toSandboxedSdk(): SandboxedSdk
     }
 
-    // TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresApi(TIRAMISU)
-    private class Api33Impl(private val mSandboxedSdk: SandboxedSdk) : SandboxedSdkImpl {
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private class ApiAdServicesV4Impl(private val mSandboxedSdk: SandboxedSdk) : SandboxedSdkImpl {
 
         @DoNotInline
         override fun getInterface(): IBinder? {
@@ -119,19 +116,16 @@ class SandboxedSdkCompat private constructor(
 
     private class CompatImpl(private val sdkInterface: IBinder) : SandboxedSdkImpl {
 
-        @DoNotInline
-        override fun getInterface(): IBinder? {
+        override fun getInterface(): IBinder {
             // This will be null if the SDK has been unloaded and the IBinder originally provided
             // is now a dead object.
             return sdkInterface
         }
 
-        // TODO(b/249981547) Update check when prebuilt with SdkSandbox APIs dropped to T
-        @RequiresApi(UPSIDE_DOWN_CAKE)
-        @DoNotInline
+        @RequiresExtension(extension = AD_SERVICES, version = 4)
         override fun toSandboxedSdk(): SandboxedSdk {
             // avoid class verifications errors
-            return Api33Impl.createSandboxedSdk(sdkInterface)
+            return ApiAdServicesV4Impl.createSandboxedSdk(sdkInterface)
         }
     }
 

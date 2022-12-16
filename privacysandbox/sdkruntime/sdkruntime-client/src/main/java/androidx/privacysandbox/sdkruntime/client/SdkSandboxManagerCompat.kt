@@ -20,11 +20,10 @@ import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
-import android.os.Build
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
+import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
@@ -137,10 +136,10 @@ class SdkSandboxManagerCompat private constructor(
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
     }
 
-    // TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresApi(TIRAMISU)
-    private class Api33Impl(context: Context) : PlatformApi {
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private class ApiAdServicesV4Impl(context: Context) : PlatformApi {
         private val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
@@ -169,14 +168,6 @@ class SdkSandboxManagerCompat private constructor(
                     Runnable::run,
                     continuation.asOutcomeReceiver()
                 )
-            }
-        }
-
-        companion object {
-            @DoNotInline
-            @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-            fun isSandboxAvailable(): Boolean {
-                return BuildCompat.isAtLeastU()
             }
         }
     }
@@ -210,8 +201,8 @@ class SdkSandboxManagerCompat private constructor(
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val sdkLoader = SdkLoader.create(context)
                     val platformApi =
-                        if (Build.VERSION.SDK_INT >= TIRAMISU && Api33Impl.isSandboxAvailable()) {
-                            Api33Impl(context)
+                        if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 4) {
+                            ApiAdServicesV4Impl(context)
                         } else {
                             FailImpl()
                         }

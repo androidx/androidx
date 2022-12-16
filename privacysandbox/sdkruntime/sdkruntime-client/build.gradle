@@ -27,13 +27,9 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
     implementation("androidx.core:core-ktx:1.8.0")
 
-    api("androidx.annotation:annotation:1.2.0")
-
     api project(path: ':privacysandbox:sdkruntime:sdkruntime-core')
 
-    //Needed for BuildCompat.isAtLeastU().
-    // TODO(b/249981547) Remove as soon as SdkSandbox APIs dropped to T
-    implementation("androidx.core:core:1.8.0")
+    implementation(projectOrArtifact(":core:core"))
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

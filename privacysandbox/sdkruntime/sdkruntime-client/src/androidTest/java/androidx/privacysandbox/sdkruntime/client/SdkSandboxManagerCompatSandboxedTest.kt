@@ -25,6 +25,8 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.OutcomeReceiver
+import android.os.ext.SdkExtensions.AD_SERVICES
+import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
@@ -34,6 +36,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,8 +51,10 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 // TODO(b/249982507) Test should be rewritten to use real SDK in sandbox instead of mocking manager
-// TODO(b/249981547) Remove suppress when prebuilt with SdkSandbox APIs dropped to T
+// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
 @SuppressLint("NewApi")
+// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+@RequiresExtension(extension = AD_SERVICES, version = 4)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class SdkSandboxManagerCompatSandboxedTest {
 
@@ -57,15 +62,12 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     @Before
     fun setUp() {
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         mContext = Mockito.spy(ApplicationProvider.getApplicationContext<Context>())
     }
 
     @Test
     fun loadSdk_whenNoLocalSdkExistsAndSandboxAvailable_delegateToPlatformLoadSdk() {
-        if (!isSandboxAvailable()) {
-            return
-        }
-
         val sdkSandboxManager = mockSandboxManager(mContext)
         setupLoadSdkAnswer(sdkSandboxManager, SandboxedSdk(Binder()))
 
@@ -87,10 +89,6 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     @Test
     fun loadSdk_whenNoLocalSdkExistsAndSandboxAvailable_returnResultFromPlatformLoadSdk() {
-        if (!isSandboxAvailable()) {
-            return
-        }
-
         val sdkSandboxManager = mockSandboxManager(mContext)
 
         val sandboxedSdk = SandboxedSdk(Binder())
@@ -107,10 +105,6 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     @Test
     fun loadSdk_whenNoLocalSdkExistsAndSandboxAvailable_rethrowsExceptionFromPlatformLoadSdk() {
-        if (!isSandboxAvailable()) {
-            return
-        }
-
         val sdkSandboxManager = mockSandboxManager(mContext)
 
         val loadSdkException = LoadSdkException(
@@ -134,10 +128,8 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     companion object SandboxApi {
 
-        private fun isSandboxAvailable(): Boolean {
-            // TODO(b/249981547) Find a way how to skip test if no sandbox present
-            return BuildCompat.isAtLeastU()
-        }
+        private fun isSandboxApiAvailable() =
+            BuildCompat.AD_SERVICES_EXTENSION_INT >= 4
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
             val sdkSandboxManager = Mockito.mock(SdkSandboxManager::class.java)
