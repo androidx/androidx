@@ -429,6 +429,54 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testSuperClassWithPrivateFields() throws Exception {
+        // Parents has private fields with public getter. Children should be able to extend
+        // Parents and inherit the public getters.
+        // TODO(b/262916926): we should be able to support inheriting classes not annotated with
+        //  @Document.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Ancestor {\n"
+                        + "  @Document.Namespace private String mNamespace;\n"
+                        + "  @Document.Id private String mId;\n"
+                        + "  @Document.StringProperty private String mNote;\n"
+                        + "  Ancestor(String id, String namespace, String note) {\n"
+                        + "    this.mId = id;\n"
+                        + "    this.mNamespace = namespace;\n"
+                        + "    this.mNote = note;\n"
+                        + "  }\n"
+                        + "  public String getNamespace() { return mNamespace; }\n"
+                        + "  public String getId() { return mId; }\n"
+                        + "  public String getNote() { return mNote; }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Parent extends Ancestor {\n"
+                        + "  @Document.StringProperty private String mReceiver;\n"
+                        + "  Parent(String id, String namespace, String note, String receiver) {\n"
+                        + "    super(id, namespace, note);\n"
+                        + "    this.mReceiver = receiver;\n"
+                        + "  }\n"
+                        + "  public String getReceiver() { return mReceiver; }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Gift extends Parent {\n"
+                        + "  @Document.StringProperty private String mSender;\n"
+                        + "  Gift(String id, String namespace, String note, String receiver,\n"
+                        + "    String sender) {\n"
+                        + "    super(id, namespace, note, receiver);\n"
+                        + "    this.mSender = sender;\n"
+                        + "  }\n"
+                        + "  public String getSender() { return mSender; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getNote()");
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getReceiver()");
+        checkResultContains(/*className=*/"Gift.java", /*content=*/"document.getSender()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testManyCreationTimestamp() {
         Compilation compilation = compile(
                 "@Document\n"
