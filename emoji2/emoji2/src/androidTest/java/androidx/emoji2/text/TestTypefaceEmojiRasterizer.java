@@ -18,16 +18,16 @@ package androidx.emoji2.text;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(19)
-public class TestEmojiMetadata extends EmojiMetadata {
+public class TestTypefaceEmojiRasterizer extends TypefaceEmojiRasterizer {
     private final int[] mCodePoints;
     private int mId;
     private short mCompatAdded;
 
-    TestEmojiMetadata(int[] codePoints, int id) {
+    TestTypefaceEmojiRasterizer(int[] codePoints, int id) {
         this(codePoints, id, (short) 0);
     }
 
-    TestEmojiMetadata(int[] codePoints, int id, short compatAdded) {
+    TestTypefaceEmojiRasterizer(int[] codePoints, int id, short compatAdded) {
         super(null, 0);
         mCodePoints = codePoints;
         mId = id;
@@ -36,7 +36,7 @@ public class TestEmojiMetadata extends EmojiMetadata {
 
 
 
-    TestEmojiMetadata(int[] codePoints) {
+    TestTypefaceEmojiRasterizer(int[] codePoints) {
         this(codePoints, 0);
     }
 

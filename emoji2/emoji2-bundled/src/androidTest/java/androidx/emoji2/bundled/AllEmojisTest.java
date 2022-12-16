@@ -27,8 +27,8 @@ import androidx.core.graphics.PaintCompat;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.TestString;
 import androidx.emoji2.text.EmojiCompat;
-import androidx.emoji2.text.EmojiMetadata;
 import androidx.emoji2.text.EmojiSpan;
+import androidx.emoji2.text.TypefaceEmojiRasterizer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -138,7 +138,7 @@ public class AllEmojisTest {
     private void assertSpanCanRenderEmoji(final String str) {
         final Spanned spanned = (Spanned) EmojiCompat.get().process(new TestString(str).toString());
         final EmojiSpan[] spans = spanned.getSpans(0, spanned.length(), EmojiSpan.class);
-        final EmojiMetadata metadata = spans[0].getMetadata();
+        final TypefaceEmojiRasterizer metadata = spans[0].getTypefaceRasterizer();
         mPaint.setTypeface(metadata.getTypeface());
 
         final String codepoint = String.valueOf(Character.toChars(metadata.getId()));

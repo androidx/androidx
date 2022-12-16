@@ -159,7 +159,7 @@ public final class MetadataRepo {
     private void constructIndex(final MetadataList metadataList) {
         int length = metadataList.listLength();
         for (int i = 0; i < length; i++) {
-            final EmojiMetadata metadata = new EmojiMetadata(this, i);
+            final TypefaceEmojiRasterizer metadata = new TypefaceEmojiRasterizer(this, i);
             //since all emojis are mapped to a single codepoint in Private Use Area A they are 2
             //chars wide
             //noinspection ResultOfMethodCallIgnored
@@ -219,7 +219,7 @@ public final class MetadataRepo {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
-    void put(@NonNull final EmojiMetadata data) {
+    void put(@NonNull final TypefaceEmojiRasterizer data) {
         Preconditions.checkNotNull(data, "emoji metadata cannot be null");
         Preconditions.checkArgument(data.getCodepointsLength() > 0,
                 "invalid metadata codepoint length");
@@ -236,7 +236,7 @@ public final class MetadataRepo {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Node {
         private final SparseArray<Node> mChildren;
-        private EmojiMetadata mData;
+        private TypefaceEmojiRasterizer mData;
 
         private Node() {
             this(1);
@@ -251,12 +251,12 @@ public final class MetadataRepo {
             return mChildren == null ? null : mChildren.get(key);
         }
 
-        final EmojiMetadata getData() {
+        final TypefaceEmojiRasterizer getData() {
             return mData;
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        void put(@NonNull final EmojiMetadata data, final int start, final int end) {
+        void put(@NonNull final TypefaceEmojiRasterizer data, final int start, final int end) {
             Node node = get(data.getCodepointAt(start));
             if (node == null) {
                 node = new Node();
