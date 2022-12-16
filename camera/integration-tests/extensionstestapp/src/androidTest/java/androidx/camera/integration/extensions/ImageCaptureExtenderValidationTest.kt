@@ -95,7 +95,6 @@ class ImageCaptureExtenderValidationTest(private val config: CameraIdExtensionMo
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         withContext(Dispatchers.Main) {
-            cameraProvider.unbindAll()
             cameraProvider.shutdown()
         }
 
