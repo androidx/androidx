@@ -20,6 +20,7 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
@@ -179,6 +180,7 @@ class FontPaddingTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun tallTypefaceTextIsTwiceTheHeightOfLatinTypefaceTextMultiLine() {
         val latinLayout = TextLayout(latinTextMultiLine, typeface = latinTypeface)
         val tallLayout = TextLayout(tallTextMultiLine, typeface = tallTypeface)

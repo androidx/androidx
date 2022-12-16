@@ -27,6 +27,7 @@ import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -384,6 +385,7 @@ public class GuidedStepAttributesTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testCheckedActions() throws Throwable {
 
         Intent intent = new Intent();

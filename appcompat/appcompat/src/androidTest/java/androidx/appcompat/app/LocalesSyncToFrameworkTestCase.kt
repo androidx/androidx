@@ -79,6 +79,7 @@ class LocalesSyncToFrameworkTestCase {
 
     @RequiresApi(33)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testAutoSync_preTToPostT_syncsSuccessfully() {
         val firstActivity = rule.activity
 

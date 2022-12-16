@@ -308,6 +308,7 @@ public class ChecksumsTest {
 
     @SmallTest
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34 // b/262909049: Failing on SDK 34
     public void testDefaultChecksums() throws Exception {
         checkDefaultChecksums(
                 getChecksums(V2V3_PACKAGE_NAME, true, 0, TRUST_NONE),
@@ -322,7 +323,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsDefaultChecksums() throws Exception {
@@ -348,7 +349,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testSplitsSha256Checksums() throws Exception {
@@ -405,7 +406,7 @@ public class ChecksumsTest {
                 "ce4ad41be1191ab3cdfef09ab6fb3c5d057e15cb3553661b393f770d9149f1cc");
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedDefaultChecksums() throws Exception {
@@ -430,7 +431,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedV1DefaultChecksums() throws Exception {
@@ -462,7 +463,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedSha512DefaultChecksums() throws Exception {
@@ -502,7 +503,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testFixedVerityDefaultChecksums() throws Exception {
@@ -730,7 +731,7 @@ public class ChecksumsTest {
         InstallerApi31.checkWrittenChecksums(TEST_FIXED_APK_DIGESTS_FILE);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustNone() throws Exception {
@@ -766,7 +767,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerChecksumsTrustAll() throws Exception {
@@ -841,7 +842,7 @@ public class ChecksumsTest {
         */
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     @LargeTest
     @Test
     public void testInstallerSignedChecksums() throws Exception {

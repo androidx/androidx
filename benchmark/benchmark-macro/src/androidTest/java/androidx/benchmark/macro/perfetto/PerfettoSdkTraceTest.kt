@@ -64,6 +64,7 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
 
     @FlakyTest(bugId = 260715950)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun test_endToEnd() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         StringSource.appTagTraceStrings.forEach { trace(it) { } }

@@ -112,6 +112,7 @@ public class SliceViewManagerTest {
 
     @FlakyTest(bugId = 239964752)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testPinList() {
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)

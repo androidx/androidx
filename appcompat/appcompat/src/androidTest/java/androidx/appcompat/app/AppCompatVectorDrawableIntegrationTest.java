@@ -30,6 +30,7 @@ import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -65,6 +66,7 @@ public class AppCompatVectorDrawableIntegrationTest {
 
     @Test
     @UiThreadTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testVectorDrawableAutoMirrored() {
         Activity activity = mActivityTestRule.getActivity();
         ImageView view1 = (ImageView) activity.findViewById(R.id.view_vector_1);

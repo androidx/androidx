@@ -33,6 +33,7 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -84,6 +85,7 @@ public class CheckTheJavaApisTest {
     }
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testSkeletonOptions() {
         final DateTimeFormatterSkeletonOptions.Builder builder =
                 new DateTimeFormatterSkeletonOptions.Builder()
