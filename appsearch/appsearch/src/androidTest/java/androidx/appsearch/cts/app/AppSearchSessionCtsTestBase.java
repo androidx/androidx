@@ -549,6 +549,78 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testGetSchema_joinableValueType() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("normalStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("optionalQualifiedIdStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("requiredQualifiedIdStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_joinableValueTypeNone_succeeds() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("optionalString")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("requiredString")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("repeatedString")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    @Test
+    public void testGetSchema_joinableValueTypeQualifiedId_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("qualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.setSchemaAsync(request).get());
+    }
+
+    @Test
     public void testGetNamespaces() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(

@@ -85,6 +85,14 @@ public final class SchemaToPlatformConverter {
         if (jetpackProperty instanceof AppSearchSchema.StringPropertyConfig) {
             AppSearchSchema.StringPropertyConfig stringProperty =
                     (AppSearchSchema.StringPropertyConfig) jetpackProperty;
+            // TODO(b/256022027): add isAtLeastU check to allow JOINABLE_VALUE_TYPE_QUALIFIED_ID
+            //   after Android U, and set joinable value type to PropertyConfig.
+            if (stringProperty.getJoinableValueType()
+                    == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
+                throw new UnsupportedOperationException(
+                        "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported on "
+                                + "this AppSearch implementation.");
+            }
             return new android.app.appsearch.AppSearchSchema.StringPropertyConfig.Builder(
                     stringProperty.getName())
                     .setCardinality(stringProperty.getCardinality())
