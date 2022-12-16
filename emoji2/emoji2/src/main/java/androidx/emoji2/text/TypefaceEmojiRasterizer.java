@@ -15,6 +15,7 @@
  */
 package androidx.emoji2.text;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
@@ -38,34 +39,49 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Information about a single emoji.
  *
- * @hide
+ * To draw this emoji on a canvas using use draw.
+ *
+ * To draw this emoji using custom code, use getCodepointAt and getTypeface to access the
+ * underlying emoji font and look up the glyph.
+ *
+ * @see TypefaceEmojiRasterizer#draw
+ * @see TypefaceEmojiRasterizer#getCodepointAt
+ * @see TypefaceEmojiRasterizer#getTypeface
+ *
  */
-@RestrictTo(LIBRARY_GROUP)
 @AnyThread
 @RequiresApi(19)
-public class EmojiMetadata {
+public class TypefaceEmojiRasterizer {
     /**
      * Defines whether the system can render the emoji.
+     * @hide
      */
     @IntDef({HAS_GLYPH_UNKNOWN, HAS_GLYPH_ABSENT, HAS_GLYPH_EXISTS})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
     public @interface HasGlyph {
     }
 
     /**
      * Not calculated on device yet.
+     * @hide
      */
-    public static final int HAS_GLYPH_UNKNOWN = 0;
+    @RestrictTo(LIBRARY)
+    static final int HAS_GLYPH_UNKNOWN = 0;
 
     /**
      * Device cannot render the emoji.
+     * @hide
      */
-    public static final int HAS_GLYPH_ABSENT = 1;
+    @RestrictTo(LIBRARY)
+    static final int HAS_GLYPH_ABSENT = 1;
 
     /**
      * Device can render the emoji.
+     * @hide
      */
-    public static final int HAS_GLYPH_EXISTS = 2;
+    @RestrictTo(LIBRARY)
+    static final int HAS_GLYPH_EXISTS = 2;
 
     /**
      * @see #getMetadataItem()
@@ -89,14 +105,18 @@ public class EmojiMetadata {
     @HasGlyph
     private volatile int mHasGlyph = HAS_GLYPH_UNKNOWN;
 
-    EmojiMetadata(@NonNull final MetadataRepo metadataRepo, @IntRange(from = 0) final int index) {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    TypefaceEmojiRasterizer(@NonNull final MetadataRepo metadataRepo,
+            @IntRange(from = 0) final int index) {
         mMetadataRepo = metadataRepo;
         mIndex = index;
     }
 
     /**
-     * Draws the emoji represented by this EmojiMetadata onto a canvas with origin at (x,y), using
-     * the specified paint.
+     * Draws the emoji onto a canvas with origin at (x,y), using the specified paint.
      *
      * @param canvas Canvas to be drawn
      * @param x x-coordinate of the origin of the emoji being drawn
@@ -118,7 +138,7 @@ public class EmojiMetadata {
     }
 
     /**
-     * @return return typeface to be used to render this metadata
+     * @return return typeface to be used to render
      */
     @NonNull
     public Typeface getTypeface() {
@@ -146,8 +166,12 @@ public class EmojiMetadata {
     }
 
     /**
+     * Unique id for the emoji, as loaded from the font file.
+     *
      * @return unique id for the emoji
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     public int getId() {
         return getMetadataItem().id();
     }
@@ -155,37 +179,48 @@ public class EmojiMetadata {
     /**
      * @return width of the emoji image
      */
-    public short getWidth() {
+    public int getWidth() {
         return getMetadataItem().width();
     }
 
     /**
      * @return height of the emoji image
      */
-    public short getHeight() {
+    public int getHeight() {
         return getMetadataItem().height();
     }
 
     /**
-     * @return in which metadata version the emoji was added to metadata
+     * @return in which metadata version the emoji was added
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     public short getCompatAdded() {
         return getMetadataItem().compatAdded();
     }
 
     /**
      * @return first SDK that the support for this emoji was added
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     public short getSdkAdded() {
         return getMetadataItem().sdkAdded();
     }
 
     /**
-     * @return whether the emoji is in Emoji Presentation by default (without emoji
-     * style selector 0xFE0F)
+     * Returns the value set by setHasGlyph
+     *
+     * This is intended to be used as a cache on this emoji to avoid repeatedly calling
+     * PaintCompat#hasGlyph on the same codepoint sequence, which is expensive.
+     *
+     * @see TypefaceEmojiRasterizer#setHasGlyph
+     * @return the set value of hasGlyph for this metadata item
+     * @hide
      */
     @HasGlyph
     @SuppressLint("KotlinPropertyAccess")
+    @RestrictTo(LIBRARY)
     public int getHasGlyph() {
         return mHasGlyph;
     }
@@ -193,8 +228,7 @@ public class EmojiMetadata {
     /**
      * Reset any cached values of hasGlyph on this metadata.
      *
-     * This is only useful for testing EmojiMetadata, and will make the next display of this
-     * emoji slower.
+     * This is only useful for testing, and will make the next display of this emoji slower.
      *
      * @hide
      */
@@ -206,9 +240,12 @@ public class EmojiMetadata {
     /**
      * Set whether the system can render the emoji.
      *
+     * @see PaintCompat#hasGlyph
      * @param hasGlyph {@code true} if system can render the emoji
+     * @hide
      */
     @SuppressLint("KotlinPropertyAccess")
+    @RestrictTo(LIBRARY)
     public void setHasGlyph(boolean hasGlyph) {
         mHasGlyph = hasGlyph ? HAS_GLYPH_EXISTS : HAS_GLYPH_ABSENT;
     }
