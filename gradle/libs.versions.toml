@@ -30,6 +30,7 @@ dagger = "2.44"
 dexmaker = "2.28.3"
 dokka = "1.7.20"
 espresso = "3.5.0"
+espressoDevice = "1.0.0-alpha03"
 guavaJre = "31.1-jre"
 hilt = "2.44"
 incap = "0.2"
@@ -106,11 +107,15 @@ dokkaAllModules = { module = "org.jetbrains.dokka:all-modules-page-plugin", vers
 dokkaBase = { module = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
 dokkaTemplating = { module = "org.jetbrains.dokka:templating-plugin", version.ref = "dokka" }
 dom4j = { module = "org.dom4j:dom4j", version = "2.1.3" }
+espressoAccessibility = { module = "androidx.test.espresso:espresso-accessibility", version.ref = "espresso" }
 espressoContribInternal = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+espressoDevice = { module = "androidx.test.espresso:espresso-device", version.ref = "espressoDevice" }
+espressoIdlingConcurrent = { module = "androidx.test.espresso.idling:idling-concurrent", version.ref = "espresso" }
 espressoIdlingNet = { module = "androidx.test.espresso.idling:idling-net", version.ref = "espresso" }
 espressoIdlingResource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
 espressoIntents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
+espressoRemote = { module = "androidx.test.espresso:espresso-remote", version.ref = "espresso" }
 espressoWeb = { module = "androidx.test.espresso:espresso-web", version.ref = "espresso" }
 findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
@@ -227,6 +232,7 @@ sqldelightAndroid = { module = "com.squareup.sqldelight:android-driver", version
 sqldelightCoroutinesExt = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.36.0" }
 testCore = { module = "androidx.test:core", version.ref = "androidxTestCore" }
+testCoreKtx = { module = "androidx.test:core-ktx", version.ref = "androidxTestCore" }
 testExtJunit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
 testExtJunitKtx = { module = "androidx.test.ext:junit-ktx", version.ref = "androidxTestExtJunit" }
 testExtTruth = { module = "androidx.test.ext:truth", version.ref = "androidxTestExtTruth" }
