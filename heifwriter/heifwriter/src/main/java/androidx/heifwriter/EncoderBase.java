@@ -699,6 +699,9 @@ public class EncoderBase implements AutoCloseable,
 
         Image.Plane[] planes = dstImage.getPlanes();
         if (useBitDepth10) {
+            // Assume pixel format is P010
+            // Y plane, UV interlaced
+            // pixel step = 2
             for (int n = 0; n < planes.length; n++) {
                 ByteBuffer dstBuffer = planes[n].getBuffer();
                 int colStride = planes[n].getPixelStride();
@@ -708,6 +711,9 @@ public class EncoderBase implements AutoCloseable,
                 if (n > 0) {
                     div = 2;
                     srcPlanePos = srcWidth * srcHeight;
+                    if (n == 2) {
+                        srcPlanePos += colStride / 2;
+                    }
                 }
                 for (int i = 0; i < copyHeight / div; i++) {
                     srcBuffer.position(srcPlanePos +
@@ -715,15 +721,18 @@ public class EncoderBase implements AutoCloseable,
                     dstBuffer.position((i + dstRect.top / div) * planes[n].getRowStride()
                         + dstRect.left * colStride / div);
 
-                    for (int j = 0; j < copyWidth; j++) {
+                    for (int j = 0; j < copyWidth / div; j++) {
                         dstBuffer.put(srcBuffer.get());
-                        if (colStride > 1 && j != copyWidth - 1) {
-                            dstBuffer.position(dstBuffer.position() + colStride - 1);
+                        dstBuffer.put(srcBuffer.get());
+                        if (colStride > 2 /*pixel step*/ && j != copyWidth / div - 1) {
+                            dstBuffer.position(dstBuffer.position() + colStride / 2);
                         }
                     }
                 }
             }
         } else {
+            // Assume pixel format is YUV_420_Planer
+            // pixel step = 1
             for (int n = 0; n < planes.length; n++) {
                 ByteBuffer dstBuffer = planes[n].getBuffer();
                 int colStride = planes[n].getPixelStride();
