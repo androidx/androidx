@@ -28,24 +28,29 @@ import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
 
 /**
- * Attributes that describe how the parent bounds are split between the primary
- * and secondary activity containers, including:
+ * Attributes that describe how the parent window (typically the activity task
+ * window) is split between the primary and secondary activity containers,
+ * including:
  *   - Split type &mdash; Categorizes the split and specifies the sizes of the
  *     primary and secondary activity containers relative to the parent bounds
- *   - Layout direction &mdash; Specifies whether the task window is split
+ *   - Layout direction &mdash; Specifies whether the parent window is split
  *     vertically or horizontally and in which direction the primary and
  *     secondary containers are respectively positioned (left to right, right to
  *     left, top to bottom, and so forth)
+ *   - Animation background color &mdash; The color of the background during
+ *     animation of the split involving this `SplitAttributes` object if the
+ *     animation requires a background
  *
  * Attributes can be configured by:
  *   - Setting the default `SplitAttributes` using
  *     [SplitPairRule.Builder.setDefaultSplitAttributes] or
  *     [SplitPlaceholderRule.Builder.setDefaultSplitAttributes].
- *   - Setting `splitRatio` and `splitLayoutDirection` attributes in
- *     `<SplitPairRule>` or `<SplitPlaceholderRule>` tags in an XML
- *     configuration file. The attributes are parsed as [SplitType] and
- *     [layoutDirection]. Note that [SplitType.HingeSplitType] is not supported
- *     in XML format.
+ *   - Setting `splitRatio`, `splitLayoutDirection`, and
+ *     `animationBackgroundColor` attributes in `<SplitPairRule>` or
+ *     `<SplitPlaceholderRule>` tags in an XML configuration file. The
+ *     attributes are parsed as [SplitType], [LayoutDirection], and [ColorInt],
+ *     respectively. Note that [SplitType.HingeSplitType] is not supported XML
+ *     format.
  *   - Using
  *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
  *     the `SplitAttributes` for a given device and window state.
@@ -62,16 +67,17 @@ class SplitAttributes internal constructor(
     val splitType: SplitType = splitEqually(),
 
     /**
-     * The layout direction attribute for the task window split. The default is
-     * based on locale.
+     * The layout direction attribute for the parent window split. The default
+     * is based on locale.
      */
     val layoutDirection: LayoutDirection = LOCALE,
 
     /**
-     * The `ColorInt` to use for the background during the animation with this `SplitAttributes` if
-     * the animation requires a background.
+     * The [ColorInt] to use for the background color during the animation of
+     * the split involving this `SplitAttributes` object if the animation
+     * requires a background.
      *
-     * The default is `0`, which is to use the theme window background.
+     * The default is 0, which specifies the theme window background color.
      */
     @ColorInt
     val animationBackgroundColor: Int = 0
@@ -126,15 +132,15 @@ class SplitAttributes internal constructor(
         override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
         /**
-         * A parent window split that's based on the ratio of the size of the
-         * primary container to the size of the task window.
+         * A window split that's based on the ratio of the size of the primary
+         * container to the size of the parent window.
          *
          * @see SplitAttributes.SplitType.ratio
          */
         class RatioSplitType internal constructor(
 
             /**
-             * The proportion of the task window occupied by the primary
+             * The proportion of the parent window occupied by the primary
              * container of the split.
              */
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
@@ -143,8 +149,8 @@ class SplitAttributes internal constructor(
         ) : SplitType("ratio:$ratio", ratio)
 
         /**
-         * A task window split in which the primary and secondary activity
-         * containers each occupy the entire task window.
+         * A window split in which the primary and secondary activity containers
+         * each occupy the entire parent window.
          *
          * The secondary container overlays the primary container.
          *
@@ -153,7 +159,7 @@ class SplitAttributes internal constructor(
         class ExpandContainersSplitType internal constructor() : SplitType("expandContainer", 0.0f)
 
         /**
-         * A task window split that conforms to a hinge or separating fold in
+         * A parent window split that conforms to a hinge or separating fold in
          * the device display.
          *
          * @see SplitAttributes.SplitType.splitByHinge
@@ -174,19 +180,19 @@ class SplitAttributes internal constructor(
         companion object {
 
             /**
-             * Creates a split type based on the proportion of the task window
+             * Creates a split type based on the proportion of the parent window
              * occupied by the primary container of the split.
              *
              * Values in the non-inclusive range (0.0, 1.0) define the size of
-             * the primary container relative to the size of the task window:
-             * - 0.5 &mdash; Primary container occupies half of the task
+             * the primary container relative to the size of the parent window:
+             * - 0.5 &mdash; Primary container occupies half of the parent
              *   window; secondary container, the other half
              * - &gt; 0.5 &mdash; Primary container occupies a larger proportion
-             *   of the task winddow than the secondary container
+             *   of the parent window than the secondary container
              * - &lt; 0.5 &mdash; Primary container occupies a smaller
-             *   proportion of the task window than the secondary container
+             *   proportion of the parent window than the secondary container
              *
-             * @param ratio The proportion of the task window occupied by the
+             * @param ratio The proportion of the parent window occupied by the
              *     primary container of the split.
              * @return An instance of [RatioSplitType] with the specified ratio.
              */
@@ -209,7 +215,7 @@ class SplitAttributes internal constructor(
 
             /**
              * Creates a split type in which the primary and secondary activity
-             * containers each expand to fill the task window; the secondary
+             * containers each expand to fill the parent window; the secondary
              * container overlays the primary container.
              *
              * Use this method with [SplitAttributesCalculator] to expand the
@@ -226,9 +232,12 @@ class SplitAttributes internal constructor(
 
             /**
              * Creates a split type in which the primary and secondary
-             * containers occupy equal portions of the task window.
+             * containers occupy equal portions of the parent window.
              *
              * Serves as the default [SplitType].
+             *
+             * @return A `RatioSplitType` in which the activity containers
+             *     occupy equal portions of the parent window.
              */
             @JvmStatic
             fun splitEqually(): RatioSplitType = ratio(0.5f)
@@ -247,10 +256,10 @@ class SplitAttributes internal constructor(
              *         parent bounds are split:
              *         <ul style="list-style-type: circle;">
              *             <li>The hinge or fold orientation is vertical, and
-             *                 the task bounds are also split vertically
+             *                 the parent bounds are also split vertically
              *                 (containers are side by side)</li>
              *             <li>The hinge or fold orientation is horizontal, and
-             *                 the task bounds are also split horizontally
+             *                 the parent bounds are also split horizontally
              *                 (containers are top and bottom)</li>
              *         </ul>
              *     </li>
@@ -340,7 +349,7 @@ class SplitAttributes internal constructor(
              * Specifies that the parent bounds are split vertically (side to
              * side).
              *
-             * Places the primary container in the left portion of the task
+             * Places the primary container in the left portion of the parent
              * window, and the secondary container in the right portion.
              *
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ltr.png" alt="Activity A starts activity B to the right."/>
@@ -353,7 +362,7 @@ class SplitAttributes internal constructor(
              * Specifies that the parent bounds are split vertically (side to
              * side).
              *
-             * Places the primary container in the right portion of the task
+             * Places the primary container in the right portion of the parent
              * window, and the secondary container in the left portion.
              *
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_rtl.png" alt="Activity A starts activity B to the left."/>
@@ -366,7 +375,7 @@ class SplitAttributes internal constructor(
              * Specifies that the parent bounds are split horizontally (top and
              * bottom).
              *
-             * Places the primary container in the top portion of the task
+             * Places the primary container in the top portion of the parent
              * window, and the secondary container in the bottom portion.
              *
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ttb.png" alt="Activity A starts activity B to the bottom."/>
@@ -382,7 +391,7 @@ class SplitAttributes internal constructor(
              * Specifies that the parent bounds are split horizontally (top and
              * bottom).
              *
-             * Places the primary container in the bottom portion of the task
+             * Places the primary container in the bottom portion of the parent
              * window, and the secondary container in the top portion.
              *
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_btt.png" alt="Activity A starts activity B to the top."/>
@@ -461,7 +470,9 @@ class SplitAttributes internal constructor(
      * Builder for creating an instance of [SplitAttributes].
      *
      * The default split type is an equal split between primary and secondary
-     * containers. The default layout direction is based on locale.
+     * containers. The default layout direction is based on locale. The default
+     * animation background color is 0, which specifies the theme window
+     * background color.
      */
     class Builder {
         private var splitType: SplitType = splitEqually()
@@ -496,12 +507,14 @@ class SplitAttributes internal constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
-         * Sets the `ColorInt` to use for the background during the animation with this
-         * `SplitAttributes` if the animation requires a background.
+         * Sets the [ColorInt] to use for the background color during animation
+         * of the split involving this `SplitAttributes` object if the animation
+         * requires a background.
          *
-         * The default is `0`, which is to use the theme window background.
+         * The default is 0, which specifies the theme window background color.
          *
-         * @param color a packed color int, `AARRGGBB`, for the animation background color.
+         * @param color A packed color int of the form `AARRGGBB`, for the
+         * animation background color.
          * @return This `Builder`.
          *
          * @see SplitAttributes.animationBackgroundColor
@@ -510,7 +523,9 @@ class SplitAttributes internal constructor(
             apply { this.animationBackgroundColor = color }
 
         /**
-         * Builds a [SplitAttributes] instance with the specified attributes.
+         * Builds a `SplitAttributes` instance with the attributes specified by
+         * [setSplitType], [setLayoutDirection], and
+         * [setAnimationBackgroundColor].
          *
          * @return The new `SplitAttributes` instance.
          */
