@@ -17,16 +17,16 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="emoji_category_recent" msgid="7142376595414250279">"NEDAVNO KORIŠĆENO"</string>
-    <string name="emoji_category_emotions" msgid="1570830970240985537">"SMAJLIJI I EMOCIJE"</string>
-    <string name="emoji_category_people" msgid="7968173366822927025">"LJUDI"</string>
-    <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ŽIVOTINJE I PRIRODA"</string>
-    <string name="emoji_category_food_drink" msgid="1189971856721244395">"HRANA I PIĆE"</string>
-    <string name="emoji_category_travel_places" msgid="8105712773237012672">"PUTOVANJA I MESTA"</string>
-    <string name="emoji_category_activity" msgid="4381135114947330911">"AKTIVNOSTI I DOGAĐAJI"</string>
-    <string name="emoji_category_objects" msgid="6106115586332708067">"OBJEKTI"</string>
-    <string name="emoji_category_symbols" msgid="5626171724310261787">"SIMBOLI"</string>
-    <string name="emoji_category_flags" msgid="6185639503532784871">"ZASTAVE"</string>
-    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Emodžiji nisu dostupni"</string>
-    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Još niste koristili emodžije"</string>
+    <string name="emoji_category_recent" msgid="7142376595414250279">"НЕДАВНО КОРИШЋЕНО"</string>
+    <string name="emoji_category_emotions" msgid="1570830970240985537">"СМАЈЛИЈИ И ЕМОЦИЈЕ"</string>
+    <string name="emoji_category_people" msgid="7968173366822927025">"ЉУДИ"</string>
+    <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ЖИВОТИЊЕ И ПРИРОДА"</string>
+    <string name="emoji_category_food_drink" msgid="1189971856721244395">"ХРАНА И ПИЋЕ"</string>
+    <string name="emoji_category_travel_places" msgid="8105712773237012672">"ПУТОВАЊА И МЕСТА"</string>
+    <string name="emoji_category_activity" msgid="4381135114947330911">"АКТИВНОСТИ И ДОГАЂАЈИ"</string>
+    <string name="emoji_category_objects" msgid="6106115586332708067">"ОБЈЕКТИ"</string>
+    <string name="emoji_category_symbols" msgid="5626171724310261787">"СИМБОЛИ"</string>
+    <string name="emoji_category_flags" msgid="6185639503532784871">"ЗАСТАВЕ"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Емоџији нису доступни"</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Још нисте користили емоџије"</string>
 </resources>
