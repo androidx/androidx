@@ -281,8 +281,6 @@ internal object Errors {
             throw AssertionError(UNSUPPRESSED_WARNING_MESSAGE)
         }
 
-        if (Arguments.error != null) {
-            throw AssertionError(Arguments.error)
-        }
+        Arguments.throwIfError()
     }
 }
