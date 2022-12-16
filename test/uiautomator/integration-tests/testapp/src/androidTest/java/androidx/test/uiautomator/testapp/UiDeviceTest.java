@@ -265,6 +265,15 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    public void testMultipleKeys() {
+        launchTestActivity(KeycodeTestActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        mDevice.pressKeyCodes(new int[]{KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_B});
+        assertEquals("keycode A and keycode B are pressed", textView.getText());
+    }
+
+    @Test
     public void testOpenNotification() {
         launchTestActivity(NotificationTestActivity.class);
 
